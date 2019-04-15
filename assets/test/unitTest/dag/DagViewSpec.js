@@ -443,9 +443,20 @@ describe("DagView Test", () => {
             expect($node.find(".opProgress").text()).to.equal("0%");
         });
 
-        it.skip("should update progress", () => {
-            DagViewManager.Instance.updateProgress(nodeId, tabId, 10);
-            expect($node.find(".opProgress").text()).to.equal("10%");
+        it("should update operation time", function() {
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let cachedFn = dagView.updateOperationTime;
+            let called = false;
+            dagView.updateOperationTime = function() {
+                called = true;
+            }
+
+            dagView.updateNodeProgress(nodeId, tabId, {state: 5, curStep: 1, started: true}, [], [10], false);
+
+            expect(called).to.be.true;
+            expect(dagView.graph.getOperationTime()).to.equal(10);
+
+            dagView.updateOperationTime = cachedFn;
         });
 
         it("should remove progress", () => {

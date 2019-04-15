@@ -2463,6 +2463,36 @@ class DagView {
             }
 
             this._addProgressTooltip(graph, node, $dfArea, skewInfos, times, stats.state);
+
+            if (stats.state === DgDagStateT.DgDagStateReady) {
+                const totalTime: number = times.reduce((a, b) => a + b, 0);
+                const graph: DagGraph = dagTab.getGraph()
+                let shouldUpdate: boolean = false;
+                if (node instanceof DagNodeCustom) {
+                    // custom node need to update till all is done
+                    let subNodeCnt: number = 0;
+                    node.getSubGraph().getAllNodes().forEach((node) => {
+                        if (!(node instanceof DagNodeCustomInput) &&
+                            !(node instanceof DagNodeCustomOutput)
+                        ) {
+                            subNodeCnt++;
+                        }
+                    });
+                    if (subNodeCnt === times.length) {
+                        shouldUpdate = true;
+                    }
+                } else {
+                    shouldUpdate = true;
+                }
+
+                if (shouldUpdate) {
+                    graph.updateOperationTime(totalTime);
+                    const dagView: DagView = DagViewManager.Instance.getDagViewById(tabId);
+                    if (dagView) {
+                        dagView.updateOperationTime(true);
+                    }
+                }
+            }
         }
 
         if (stats.started && broadcast && dagTab instanceof DagTabPublished) {
@@ -2478,10 +2508,20 @@ class DagView {
 
     // move this to DagViewSubGraph subclass
     public updateOptimizedDFProgress(queryStateOutput) {
+        let completedNodeIds: Set<DagNodeId> = new Set();
+        this.graph.getAllNodes().forEach((node) => {
+            if (node.getState() === DagNodeState.Complete || node.getState() ===
+                DagNodeState.Error) {
+                completedNodeIds.add(node.getId());
+            }
+        });
         (<DagSubGraph>this.graph).updateSubGraphProgress(queryStateOutput.queryGraph.node);
 
         this.graph.getAllNodes().forEach((node, nodeId) => {
-            DagNodeInfoPanel.Instance.update(nodeId, "stats");
+            if (completedNodeIds.has(nodeId)) {
+                return;
+            }
+
             const overallStats = node.getOverallStats();
             const nodeStats = node.getIndividualStats();
 
@@ -2496,6 +2536,7 @@ class DagView {
             });
 
             this.updateNodeProgress(nodeId, this.tabId, overallStats, skewInfos, times);
+            DagNodeInfoPanel.Instance.update(nodeId, "stats");
         });
     }
 
@@ -2508,7 +2549,7 @@ class DagView {
                 DagNodeState.Error) {
                 completedNodeIds.add(node.getId());
             }
-        })
+        });
         this.graph.updateProgress(queryStateOutput.queryGraph.node);
         nodeIds.forEach((nodeId) => {
             if (completedNodeIds.has(nodeId)) {
@@ -2528,8 +2569,9 @@ class DagView {
                 }
                 times.push(nodeStat.elapsedTime);
             });
-            DagNodeInfoPanel.Instance.update(nodeId, "stats");
+
             this.updateNodeProgress(nodeId, this.tabId, overallStats, skewInfos, times);
+            DagNodeInfoPanel.Instance.update(nodeId, "stats");
         });
     }
 

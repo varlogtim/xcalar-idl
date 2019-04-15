@@ -431,9 +431,13 @@ class DagViewManager {
 
         if (this.activeDag && tabId === this.activeDag.getTabId()) {
             // when rerendering graph, need to reset activeDag to new graph
+            if (this.activeDagView) {
+                this.activeDagView.unfocus();
+            }
             this.activeDag = graph;
             this.activeDagView = newDagView;
             this.activeDagTab = DagTabManager.Instance.getTabById(tabId);
+            this.activeDagView.focus();
         }
         newDagView.render(null, null, noEvents);
     }
