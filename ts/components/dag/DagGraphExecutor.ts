@@ -22,7 +22,7 @@ class DagGraphExecutor {
     private _currentNode: DagNode; // current node in progress if stepExecute
 
     public static readonly stepThroughTypes = new Set([DagNodeType.PublishIMD,
-        DagNodeType.Extension, DagNodeType.Custom,
+        DagNodeType.Extension, DagNodeType.UpdateIMD, DagNodeType.Custom,
         DagNodeType.CustomInput, DagNodeType.CustomOutput]);
 
     public constructor(
