@@ -871,6 +871,8 @@ declare namespace PromiseHelper {
     export function alwaysResolve<T>(...args): XDPromise<T>;
     export function when<T>(...args): XDPromise<T>;
     export function chain<T>(...args): XDPromise<T>;
+    export function convertToNative<T>(promise: XDPromise<T>): Promise<T>;
+    export function convertToJQuery<T>(promise: Promise<T>): XDPromise<T>;
 }
 
 declare namespace Repeat {

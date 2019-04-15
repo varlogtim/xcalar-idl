@@ -197,4 +197,52 @@ describe("PromiseHelper Test", function() {
             done("fail");
         });
     });
+
+    it("PromiseHelper.convertToNative should work(resolve)", function(done) {
+        PromiseHelper.convertToNative(PromiseHelper.resolve())
+        .then(() => {
+            expect(true).to.be.true; // mark as pass
+            done();
+        })
+        .catch(() => {
+            expect(true).to.be.false; // mark as not pass
+            done("fail");
+        });
+    });
+
+    it("PromiseHelper.convertToNative should work(reject)", function(done) {
+        PromiseHelper.convertToNative(PromiseHelper.reject())
+        .then(() => {
+            expect(true).to.be.false; // mark as not pass
+            done("fail");
+        })
+        .catch(() => {
+            expect(true).to.be.true; // mark as pass
+            done();
+        });
+    });
+
+    it("PromiseHelper.convertToJQuery should work(resolve)", function(done) {
+        PromiseHelper.convertToJQuery(Promise.resolve())
+        .then(() => {
+            expect(true).to.be.true; // mark as pass
+            done();
+        })
+        .fail(() => {
+            expect(true).to.be.false; // mark as not pass
+            done("fail");
+        });
+    });
+
+    it("PromiseHelper.convertToJQuery should work(reject)", function(done) {
+        PromiseHelper.convertToJQuery(Promise.reject())
+        .then(() => {
+            expect(true).to.be.false; // mark as not pass
+            done("fail");
+        })
+        .fail(() => {
+            expect(true).to.be.true; // mark as pass
+            done();
+        });
+    });
 });

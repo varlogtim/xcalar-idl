@@ -169,6 +169,48 @@
         return deferred.promise();
     };
 
+    /**
+     * Convert JQuery/XD promise to native promise
+     */
+    PromiseHelper.convertToNative = function(promise) {
+        if (typeof promise.fail !== 'undefined') {
+            // JQuery/XD promise
+            return new Promise((resolve, reject) => {
+                try {
+                    promise
+                        .then((ret) => { resolve(ret) })
+                        .fail((e) => { reject(e) });
+                } catch(e) {
+                    reject(e);
+                }
+            });    
+        } else {
+            // Native promise
+            return promise;
+        }            
+    };
+
+    /**
+     * Convert native promise to JQuery/XD promise
+     */
+    PromiseHelper.convertToJQuery = function(promise) {
+        if (typeof promise.fail === 'undefined') {
+            // Native promise
+            const deferred = PromiseHelper.deferred();
+            try {
+                promise
+                    .then((ret) => { deferred.resolve(ret) })
+                    .catch((e) => { deferred.reject(e) });
+            } catch(e) {
+                deferred.reject(e);
+            }
+            return deferred.promise();
+        } else {
+            // JQuery/XD promise
+            return promise;
+        }
+    }
+
     if (typeof exports !== "undefined") {
         if (typeof module !== "undefined" && module.exports) {
             exports = module.exports = PromiseHelper;

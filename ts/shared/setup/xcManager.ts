@@ -47,6 +47,9 @@ namespace xcManager {
             DagParamPopup.setup();
             documentReadyGeneralFunction();
 
+            // xcrpc default service setup
+            Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, xcHelper.getApiUrl());
+
             xcSocket = setupSocket();
             try {
                 // In case mixpanel is not loaded

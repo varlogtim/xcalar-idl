@@ -479,6 +479,23 @@ describe("xcHelper Test", function() {
         expect([1,2,3,4]).to.deep.equal([1, 2, 3, 4]);
     });
 
+    it("xcHelper.getApiUrl should work", function() {
+        // Backup variables
+        const [oldHostname, oldexpHost] = [window['expHost'], hostname];
+
+        // Case: on production
+        hostname = 'http://clusterhost';
+        window['expHost'] = undefined;
+        expect(xcHelper.getApiUrl()).to.equal('http://clusterhost/app/service/xce');
+
+        // Case: on dev machine
+        hostname = oldHostname;
+        window['expHost'] = 'http://myvm';
+        expect(xcHelper.getApiUrl()).to.equal('http://myvm/app/service/xce');
+
+        // Restore variables
+        [window['expHost'], hostname] = [oldHostname, oldexpHost];
+    });
 
     it("xcHelper.downloadAsFile should work", function(done) {
         var fileName = "fileName";

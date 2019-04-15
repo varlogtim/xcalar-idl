@@ -928,6 +928,15 @@ namespace xcHelper {
         return url;
     }
 
+    export function getApiUrl() {
+        let url = xcHelper.getAppUrl();
+        if (!url.endsWith('/app')) {
+            url += '/app';
+        }
+        url += '/service/xce';
+        return url;
+    }
+
     /**
      * xcHelper.downloadAsFile
      * @param fileName
