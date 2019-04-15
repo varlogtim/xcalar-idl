@@ -845,27 +845,6 @@ declare namespace UserSettings {
     export function getAllPrefs(): UserPref;
 }
 
-declare namespace ColManager {
-    export function newCol(colInfo: object): ProgCol;
-    export function newDATACol(): ProgCol;
-    export function newPullCol(frontName: string, backName?: string, type?: ColumnType): ProgCol;
-    export function checkColName($nameInput: JQuery, tableId: TableId, colNum: number, options?: any): boolean;
-    export function addNewCol(colNum: number, tableId: TableId, direction: ColDir): void;
-    export function hideCol(colNums: number[], tableId: TableId): void;
-    export function renameCol(colNum: number, tableId: TableId, colName: string): void;
-    export function format(colNums: number[], tableId: TableId, formats: string[]): void;
-    export function round(colNums: number[], tableId: TableId, decimal: number);
-    export function splitCol(colNum: number, tableId: TableId, delim: string, numColToGet: number, colNames: string[], isAlertOn: boolean): XDPromise<void>;
-    export function minimizeCols(colNums: number[], tableId: TableId): void;
-    export function maximizeCols(colNums: number[], tableId: TableId): void;
-    export function textAlign(colNums: number[], tableId: TableId, classes: string): void;
-    export function changeType(colTypeInfos: object, tableId: TableId): XDPromise<void>;
-    export function unnest(tableId: TableId, colNum: number, rowNum: number): void;
-    export function sortColumn(colNums: number[], tableId: TableId, order: XcalarOrderingT): XDPromise<void>;
-    export function pullAllCols(startIndex: number, jsonData: string[], tableId: TableId, direction: RowDirection, rowToPrependTo: number): JQuery;
-    export function getCellType($td: JQuery, tableId: TableId): ColumnType;
-}
-
 declare namespace Admin {
     export function initialize(): void;
     export function showSupport();
