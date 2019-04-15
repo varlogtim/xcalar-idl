@@ -1318,6 +1318,7 @@ describe("Ephemeral Constructor Test", function() {
             extItem = new ExtItem({
                 "appName": "testItem",
                 "version": "2.0",
+                "XDVersion": "2.1",
                 "description": "test",
                 "author": "test user",
                 "image": "testImage",
@@ -1329,7 +1330,7 @@ describe("Ephemeral Constructor Test", function() {
 
         it("should be a constructor", function() {
             expect(extItem).to.be.an.instanceof(ExtItem);
-            expect(Object.keys(extItem).length).to.equal(8);
+            expect(Object.keys(extItem).length).to.equal(9);
         });
 
         it("should get name", function() {
@@ -1358,6 +1359,11 @@ describe("Ephemeral Constructor Test", function() {
         it("should get version", function() {
             expect(extItem.getVersion()).to.equal("2.0");
         });
+
+        it("should get XDversion", function() {
+            expect(extItem.getXDVersion()).to.equal("2.1");
+        });
+
 
         it("should get image", function() {
             expect(extItem.getImage()).to.equal("testImage");

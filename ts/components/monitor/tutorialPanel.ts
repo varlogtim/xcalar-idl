@@ -3,6 +3,7 @@ class TutorialPanel {
     private _$panel: JQuery;    // $("#tutorialDownloadPanel");
     private _tutSet: ExtCategorySet;
     private _isFirstTouch: boolean = true;
+    private currVer: number;
 
     constructor() {}
 
@@ -14,6 +15,15 @@ class TutorialPanel {
         this._tutSet = new ExtCategorySet();
         this._$panel = $("#tutorialDownloadPanel");
         const self = this;
+
+        let version: string = XVM.getVersion();
+        let buildNum: string = version.substr(0,3);
+        try {
+            this.currVer = parseFloat(buildNum);
+        } catch(e) {
+            // Last expected version is 2.0
+            this.currVer = 2.0;
+        }
 
         this._$panel.on("click", ".item .more", function() {
             $(this).closest(".item").toggleClass("fullSize");
@@ -197,6 +207,17 @@ class TutorialPanel {
 
         for (let i = 0; i < tutLen; i++) {
             let tut = tutorials[i];
+            let tutVer: number;
+            try {
+                tutVer = parseFloat(tut.getXDVersion());
+            } catch (e) {
+                console.error("Tutorial workbook: '" + tut.getName() + "' is not configured correctly.");
+                continue;
+            }
+            if (tutVer > this.currVer) {
+                // This workbook is not supported by the running version of xcalar design.
+                continue;
+            }
             let btnText = "Download";
             let website = tut.getWebsite();
             let websiteEle = "";

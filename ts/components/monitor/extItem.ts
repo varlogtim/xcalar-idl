@@ -13,6 +13,7 @@ interface ExtItemOptions {
 class ExtItem {
     private appName: string;
     private version: string;
+    private XDVersion: string;
     private description: string;
     private author: string;
     private image: string;
@@ -36,6 +37,7 @@ class ExtItem {
         // then keep the structure, otherwise, can refactor to remove
         // category related code
         this.category = options.category || ExtTStr.XcCategory;
+        this.XDVersion = options.XDVersion;
     }
 
     public getName(): string {
@@ -65,6 +67,10 @@ class ExtItem {
 
     public getVersion(): string {
         return this.version || "N/A";
+    }
+
+    public getXDVersion(): string {
+        return this.XDVersion || "N/A";
     }
 
     public getImage(): string {
