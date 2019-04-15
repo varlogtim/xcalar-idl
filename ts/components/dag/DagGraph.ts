@@ -1167,8 +1167,10 @@ class DagGraph extends Durable {
      * @param node
      * @returns {{sources: DagNode[], error: string}}
      */
-    public findNodeNeededSources(node: DagNode, optimized?: boolean,
-            aggMap?: Map<string, DagNode>): {sources: DagNode[], error: string} {
+    public findNodeNeededSources(
+        node: DagNode,
+        aggMap?: Map<string, DagNode>
+    ): {sources: DagNode[], error: string} {
         let error: string;
         let sources: DagNode[] = [];
         const aggregates: string[] = node.getAggregates();
@@ -1272,7 +1274,7 @@ class DagGraph extends Durable {
             if (node != null && !nodesMap.has(node.getId())) {
                 nodesMap.set(node.getId(), node);
                 let parents: DagNode[] = node.getParents();
-                const foundSources: {sources: DagNode[], error: string} = this.findNodeNeededSources(node, !shortened, aggMap);
+                const foundSources: {sources: DagNode[], error: string} = this.findNodeNeededSources(node, aggMap);
                 parents = parents.concat(foundSources.sources);
                 error = foundSources.error;
                 if (parents.length == 0 || node.getType() == DagNodeType.DFIn) {

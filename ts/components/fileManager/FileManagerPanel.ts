@@ -979,7 +979,7 @@ class FileManagerPanel {
     }
 
     private _eventSearch(keyword: string): void {
-        let keywordSearch: string = xcHelper
+        let keywordSearch: string = xcStringHelper
         .escapeRegExp(keyword)
         .replace(/\\\*/g, ".*")
         .replace(/\\\?/g, ".");

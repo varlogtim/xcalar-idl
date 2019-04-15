@@ -1,7 +1,7 @@
 // XXX TODO: rename sqlType to logType
 class XcLog extends Durable {
     private title: string; // log's title,
-    private options: any; // log's options
+    public options: any; // log's options
     private cli: string; // (optional) cli log
     private error: string; // (optional) error log
     private sqlType: string; // (optional) log's type

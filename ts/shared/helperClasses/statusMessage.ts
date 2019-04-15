@@ -604,7 +604,7 @@ namespace StatusMessage {
             }
 
             function removePopUpIfScrolledToTable() {
-                const isInScreen: boolean = xcHelper.isTableInScreen(newTableId);
+                const isInScreen: boolean = TblManager.isTableInScreen(newTableId);
                 if (isInScreen) {
                     $tableDonePopup.remove();
                     $('#dagViewTableArea .viewWrap').off('scroll.' + msgId);
@@ -638,7 +638,7 @@ namespace StatusMessage {
                     MainMenu.openPanel("dagPanel", null);
 
                     if ($tableWrap.length) {
-                        TblManager.centerfocusedTable($tableWrap, true);
+                        TblManager.centerFocusedTable($tableWrap, true);
                         $tableWrap.mousedown();
                     }
 

@@ -438,7 +438,7 @@ class TblFunc {
                             ($lastTarget.closest("#dagViewTableArea").length > 0 &&
                             !$lastTarget.is("input"));
 
-        if (isInFrame && xcHelper.isTableInScreen(tableId)) {
+        if (isInFrame && TblManager.isTableInScreen(tableId)) {
             if (gIsTableScrolling ||
                 $("#modalBackground").is(":visible") ||
                 !TblFunc.isTableScrollable(tableId)) {

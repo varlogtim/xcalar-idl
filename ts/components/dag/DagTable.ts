@@ -165,7 +165,7 @@ class DagTable {
 
         const $tableBar = $container.find(".tableBar");
         $tableBar.on("click", ".tableMenu", (event) => {
-            const options: xcHelper.DropdownOptions = {
+            const options: DropdownOptions = {
                 classes: "tableMenu",
                 offsetY: 3,
                 tableId: xcHelper.getTableId(this.getTable())

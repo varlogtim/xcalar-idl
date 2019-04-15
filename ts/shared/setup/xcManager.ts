@@ -784,7 +784,7 @@ namespace xcManager {
 
         $("#userNameArea").click(function() {
             const $target: JQuery = $(this);
-            MenuHelper.dropdownOpen($target, $menu, <xcHelper.DropdownOptions>{
+            MenuHelper.dropdownOpen($target, $menu, <DropdownOptions>{
                 "offsetY": -3,
                 "toggle": true,
                 "closeListener": true

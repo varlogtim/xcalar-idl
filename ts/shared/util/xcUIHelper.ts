@@ -7,7 +7,7 @@ namespace xcUIHelper {
         noQuotes?: boolean;
     }
 
-    export interface FillInputFormCellOptions {
+   interface FillInputFromCellOptions {
         type: string;
         append: boolean;
     }
