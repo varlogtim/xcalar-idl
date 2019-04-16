@@ -943,7 +943,7 @@ class DagNodeExecutor {
             }
         })
         .then(() => {
-            deferred.resolve(tableName);
+            deferred.resolve();
         })
         .fail(deferred.reject)
         return deferred.promise();

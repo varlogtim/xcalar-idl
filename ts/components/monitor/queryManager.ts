@@ -893,7 +893,9 @@ namespace QueryManager {
         try {
             const operation: string = parsedQuery.operation;
             let srcTables: string[];
-            if (operation === XcalarApisTStr[XcalarApisT.XcalarApiJoin]) {
+            if (parsedQuery || !parsedQuery.args) {
+                srcTables = [];
+            } else if (operation === XcalarApisTStr[XcalarApisT.XcalarApiJoin]) {
                 srcTables = parsedQuery.args.source;
             } else if (operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
                 srcTables = [];
@@ -902,7 +904,9 @@ namespace QueryManager {
             }
 
             let dstTable: string;
-            if (operation === XcalarApisTStr[XcalarApisT.XcalarApiBulkLoad] &&
+            if (parsedQuery || !parsedQuery.args) {
+                dstTable = "";
+            } else if (operation === XcalarApisTStr[XcalarApisT.XcalarApiBulkLoad] &&
                 parsedQuery.args.dest.indexOf(gDSPrefix) === -1) {
                 dstTable = gDSPrefix + parsedQuery.args.dest;
             } else {
