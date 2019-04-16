@@ -1,60 +1,62 @@
-window.JupyterPanel = (function($, JupyterPanel) {
-    var $jupyterPanel;
-    var jupyterMeta;
-    var msgId = 0;
-    var msgPromises = {};
-    var promiseTimeLimit = 8000; // 8 seconds
-    var jupyterLoaded = false;
+namespace JupyterPanel {
+    let $jupyterPanel: JQuery;
+    let jupyterMeta: JupyterMeta;
+    let msgId: number = 0;
+    let msgPromises = {};
+    let promiseTimeLimit: number = 8000; // 8 seconds
+    let jupyterLoaded: boolean = false;
 
-    function JupyterMeta(currentNotebook, folderName) {
-        this.currentNotebook = currentNotebook || null;
-        this.folderName = folderName || null;
-    };
+    class JupyterMeta {
+        private currentNotebook: string;
+        private folderName: string;
+        constructor(currentNotebook?: string, folderName?: string) {
+            this.currentNotebook = currentNotebook || null;
+            this.folderName = folderName || null;
+        }
 
-    JupyterMeta.prototype = {
-        setCurrentNotebook: function(currentNotebook) {
+        public setCurrentNotebook(currentNotebook) {
             this.currentNotebook = currentNotebook;
-        },
+        }
 
-        getCurrentNotebook: function() {
+        public getCurrentNotebook(): string {
             return this.currentNotebook;
-        },
+        }
 
-        setFolderName: function(folderName) {
+        public setFolderName(folderName): void {
             this.folderName = folderName;
-        },
+        }
 
-        getFolderName: function() {
+        public getFolderName(): string {
             return this.folderName;
-        },
+        }
 
-        getMeta: function() {
+        public getMeta(): {currentNotebook: string, folderName: string} {
             return {
                 currentNotebook: this.currentNotebook,
                 folderName: this.folderName
             };
-        },
+        }
 
-        hasFolder: function() {
+        public hasFolder(): boolean {
             return (this.folderName != null);
         }
-    };
+    }
 
-    JupyterPanel.setup = function() {
+    export function setup(): void {
         $jupyterPanel = $("#jupyterPanel");
         JupyterStubMenu.setup();
     };
 
-    JupyterPanel.initialize = function(noRestore) {
-        var deferred = PromiseHelper.deferred();
-        if (window.jupyterNode == null || window.jupyterNode === "") {
-            window.jupyterNode = hostname + '/jupyter';
+    export function initialize(noRestore: boolean): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (window["jupyterNode"] == null || window["jupyterNode"] === "") {
+            window["jupyterNode"] = hostname + '/jupyter';
         }
 
         window.addEventListener("message", function(event) {
-            var struct = event.data;
+            let struct = event.data;
             try {
-                var s = JSON.parse(struct);
+                let s = JSON.parse(struct);
                 switch (s.action) {
                     case ("alert"):
                         if ($jupyterPanel.is(":visible")) {
@@ -135,7 +137,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                     default:
                         // XXX temp fix until 11588 is fixed
                         if (s.action === "returnFolderName") {
-                            for (var i in msgPromises) {
+                            for (let i in msgPromises) {
                                 msgPromises[i].resolve(s);
                                 delete msgPromises[i];
                             }
@@ -163,20 +165,25 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return deferred.promise();
     };
 
-    JupyterPanel.sendInit = function(newUntitled, publishTable, tableName, numRows,
-        options) {
-        var colNames = [];
+    export function sendInit(
+        newUntitled?: boolean,
+        publishTable?: string,
+        tableName?: string,
+        numRows?: number,
+        options?
+    ): void {
+        let colNames: string[] = [];
         if (publishTable && tableName) {
             colNames = getCols(tableName);
         }
         options = options || {};
-        noRenamePrompt = options.noRenamePrompt || false;
-        var activeWBId = WorkbookManager.getActiveWKBK();
-        var wbName = null;
+        let noRenamePrompt: boolean = options.noRenamePrompt || false;
+        let activeWBId: string = WorkbookManager.getActiveWKBK();
+        let wbName: string = null;
         if (activeWBId && WorkbookManager.getWorkbook(activeWBId)) {
             wbName = WorkbookManager.getWorkbook(activeWBId).name;
         }
-        var workbookStruct = {action: "init",
+        let workbookStruct = {action: "init",
                 newUntitled: newUntitled,
                 noRenamePrompt: noRenamePrompt,
                 publishTable: publishTable,
@@ -192,19 +199,23 @@ window.JupyterPanel = (function($, JupyterPanel) {
         sendMessageToJupyter(workbookStruct);
     };
 
-    JupyterPanel.publishTable = function(tableName, numRows, hasVerifiedNames) {
-        var colNames = getCols(tableName);
-        var needsRename = false;
+    export function publishTable(
+        tableName: string,
+        numRows: number,
+        hasVerifiedNames: boolean
+    ): void {
+        let colNames: string[] = getCols(tableName);
+        let needsRename: boolean = false;
         if (!hasVerifiedNames) {
             needsRename = checkColsNeedRename(tableName);
         }
 
         if (needsRename) {
-            var tableId = xcHelper.getTableId(tableName);
+            let tableId: TableId = xcHelper.getTableId(tableName);
             JupyterFinalizeModal.show(tableId, numRows);
         } else {
             MainMenu.openPanel("jupyterPanel");
-            var tableStruct = {action: "publishTable",
+            let tableStruct = {action: "publishTable",
                           tableName: tableName,
                           colNames: colNames,
                           numRows: numRows};
@@ -219,14 +230,19 @@ window.JupyterPanel = (function($, JupyterPanel) {
         }
     };
 
-    JupyterPanel.autofillImportUdfModal = function(target, filePath,
-                                                   includeStub, moduleName,
-                                                   functionName, udfPanelModuleName) {
+    export function autofillImportUdfModal(
+        target: string,
+        filePath: string,
+        includeStub: boolean,
+        moduleName: string,
+        functionName: string,
+        udfPanelModuleName: string
+    ): void {
 
         MainMenu.openPanel("jupyterPanel");
 
         if (!jupyterMeta.getCurrentNotebook()) {
-            var msgStruct = {
+            let msgStruct = {
                 action: "autofillImportUdf",
                 target: target,
                 filePath: filePath,
@@ -258,17 +274,17 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     // called when we create a new xcalar workbook
     // will create a new jupyter folder dedicated to this workbook
-    JupyterPanel.newWorkbook = function(wkbkName) {
-        var deferred = PromiseHelper.deferred();
+    export function newWorkbook(wkbkName: string): XDPromise<string> {
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
 
-        var folderName = XcUser.getCurrentUserName() + "-" + wkbkName;
-        var msgStruct = {
+        let folderName: string = XcUser.getCurrentUserName() + "-" + wkbkName;
+        let msgStruct = {
             action: "newWorkbook",
             folderName: folderName
         };
 
         sendMessageToJupyter(msgStruct, true)
-        .then(function(result) {
+        .then(function(result: {newName: string}) {
             deferred.resolve(result.newName);
         })
         .fail(function(err) {
@@ -279,10 +295,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return deferred.promise();
     };
 
-    JupyterPanel.renameWorkbook = function(oldFolderName, newWkbkName) {
-        var deferred = PromiseHelper.deferred();
-        var newFolderName = XcUser.getCurrentUserName() + "-" + newWkbkName;
-        var msgStruct = {
+    export function renameWorkbook(oldFolderName: string, newWkbkName: string): XDPromise<string> {
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let newFolderName: string = XcUser.getCurrentUserName() + "-" + newWkbkName;
+        let msgStruct = {
             action: "renameWorkbook",
             newFolderName: newFolderName,
             oldFolderName: oldFolderName,
@@ -291,7 +307,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
         };
 
         sendMessageToJupyter(msgStruct, true)
-        .then(function(result) {
+        .then(function(result: {newName: string}) {
             if (jupyterMeta.getFolderName() === oldFolderName) {
                 jupyterMeta.setFolderName(result.newName);
             }
@@ -304,8 +320,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return deferred.promise();
     }
 
-    JupyterPanel.copyWorkbook =function(oldFolder, newFolder) {
-        var msgStruct = {
+    export function copyWorkbook(oldFolder: string, newFolder: string): void {
+        let msgStruct = {
             action: "copyWorkbook",
             oldFolder: oldFolder,
             newFolder: newFolder
@@ -314,11 +330,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
         sendMessageToJupyter(msgStruct);
     }
 
-    JupyterPanel.deleteWorkbook = function(wkbkId) {
-        var folderName = WorkbookManager.getWorkbook(wkbkId).jupyterFolder;
+    export function deleteWorkbook(wkbkId: string): void {
+        let folderName: string = WorkbookManager.getWorkbook(wkbkId).jupyterFolder;
 
         if (folderName) {
-            var msgStruct = {
+            let msgStruct = {
                 action: "deleteWorkbook",
                 folderName: folderName
             };
@@ -327,13 +343,13 @@ window.JupyterPanel = (function($, JupyterPanel) {
     };
 
     // when name change was triggered from another workbook
-    JupyterPanel.updateFolderName = function(newFolderName) {
-        var oldFolderName = jupyterMeta.getFolderName();
-        var sessionId = WorkbookManager.getActiveWKBK();
-        var sessionName = WorkbookManager.getWorkbook(sessionId).getName();
+    export function updateFolderName(newFolderName: string): void {
+        let oldFolderName: string = jupyterMeta.getFolderName();
+        let sessionId: string = WorkbookManager.getActiveWKBK();
+        let sessionName: string = WorkbookManager.getWorkbook(sessionId).getName();
         jupyterMeta.setFolderName(newFolderName);
 
-        var msgStruct = {
+        let msgStruct = {
             action: "updateFolderName",
             oldFolderName: oldFolderName,
             newFolderName: newFolderName,
@@ -344,28 +360,28 @@ window.JupyterPanel = (function($, JupyterPanel) {
         sendMessageToJupyter(msgStruct);
     };
 
-    function showImportUdfModal(target, filePath) {
-        var params = {
+    function showImportUdfModal(target: string, filePath: string): void {
+        let params = {
             target: target,
             filePath: filePath
         }
-        JupyterUDFModal.show("newImport", params);
+        return JupyterUDFModal.show("newImport", params);
     }
 
-    function getCols(tableName) {
-        var tableId = xcHelper.getTableId(tableName);
-        var columns = gTables[tableId].getAllCols(true);
-        var colNames = [];
-        for (var i = 0; i < columns.length; i++) {
+    function getCols(tableName: string): string[] {
+        let tableId: TableId = xcHelper.getTableId(tableName);
+        let columns: ProgCol[] = gTables[tableId].getAllCols(true);
+        let colNames = [];
+        for (let i = 0; i < columns.length; i++) {
             colNames.push(columns[i].backName.replace("\\",""));
         }
         return colNames;
     }
 
-    function checkColsNeedRename(tableName) {
-        var tableId = xcHelper.getTableId(tableName);
-        var columns = gTables[tableId].getAllCols(true);
-        for (var i = 0; i < columns.length; i++) {
+    function checkColsNeedRename(tableName: string): boolean {
+        let tableId: TableId = xcHelper.getTableId(tableName);
+        let columns: ProgCol[] = gTables[tableId].getAllCols(true);
+        for (let i = 0; i < columns.length; i++) {
             if ((columns[i].getBackColName().indexOf(gPrefixSign) > -1 ||
                 columns[i].getBackColName().indexOf(" ") > -1) && (
                 columns[i].getType() !== ColumnType.object &&
@@ -376,21 +392,21 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return false;
     }
 
-    function loadJupyterNotebook() {
-        var deferred = PromiseHelper.deferred();
+    function loadJupyterNotebook(): XDPromise<void> {
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
 
         $("#jupyterNotebook").on("load", function() {
             jupyterLoaded = true;
         });
 
-        var url;
-        var treeUrl = jupyterNode + "/tree";
-        var currNotebook = jupyterMeta.getCurrentNotebook();
-        var folderName = jupyterMeta.getFolderName();
+        let url: string;
+        let treeUrl: string = window["jupyterNode"] + "/tree";
+        let currNotebook: string = jupyterMeta.getCurrentNotebook();
+        let folderName: string = jupyterMeta.getFolderName();
         // try folder/currnotebook, else just go to the folder else root
         // we do not send the user to a notebook that's not in their folder
         if (currNotebook && folderName) {
-            url = jupyterNode + "/notebooks/" + folderName + "/" +
+            url = window["jupyterNode"] + "/notebooks/" + folderName + "/" +
                   currNotebook + ".ipynb?kernel_name=python3#";
         } else if (folderName) {
             url = treeUrl + "/" + folderName;
@@ -400,10 +416,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         goToLocation(url)
         .then(deferred.resolve)
-        .fail(function(error) {
+        .fail(function() {
             if (currNotebook && folderName) {
                 // notebook path failed, try to go to folder path
-                var folderPath = treeUrl + "/" + folderName
+                let folderPath: string = treeUrl + "/" + folderName
                 goToLocation(folderPath)
                 .then(deferred.resolve)
                 .fail(function() {
@@ -416,8 +432,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
             }
         });
 
-        function goToLocation(location) {
-            var innerDeferred = PromiseHelper.deferred();
+        function goToLocation(location: string): XDPromise<void> {
+            let innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
             $.ajax({
                 url: location,
                 dataType: "json",
@@ -443,17 +459,17 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return deferred.promise();
     }
 
-    function restoreMeta() {
-        var deferred = PromiseHelper.deferred();
+    function restoreMeta(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        var wkbk = WorkbookManager.getWorkbook(WorkbookManager.getActiveWKBK());
-        var folderName = wkbk.jupyterFolder;
+        let wkbk: WKBK = WorkbookManager.getWorkbook(WorkbookManager.getActiveWKBK());
+        let folderName: string = wkbk.jupyterFolder;
 
-        var key = KVStore.getKey("gNotebookKey");
-        var kvStore = new KVStore(key, gKVScope.WKBK);
+        let key: string = KVStore.getKey("gNotebookKey");
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
         .then(function(jupMeta) {
-            var lastNotebook = null;
+            let lastNotebook = null;
 
             if (jupMeta) {
                 try {
@@ -474,8 +490,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return deferred.promise();
     }
 
-    function storeCurrentNotebook(info) {
-        var currNotebook;
+    function storeCurrentNotebook(info): XDPromise<void> {
+        let currNotebook: string;
         if (info.location === "notebook") {
             currNotebook = info.lastNotebook;
         } else { // location is tree and we leave null
@@ -483,30 +499,30 @@ window.JupyterPanel = (function($, JupyterPanel) {
         }
 
         jupyterMeta.setCurrentNotebook(currNotebook);
-        JupyterStubMenu.toggleVisibility(jupyterMeta.getCurrentNotebook());
+        JupyterStubMenu.toggleVisibility(jupyterMeta.getCurrentNotebook() != null);
 
-        var kvsKey = KVStore.getKey("gNotebookKey");
+        let kvsKey: string = KVStore.getKey("gNotebookKey");
         if (kvsKey == null) {
             // when not set up yet
             return PromiseHelper.resolve();
         }
-        var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
+        let kvStore: KVStore = new KVStore(kvsKey, gKVScope.WKBK);
         return kvStore.put(JSON.stringify(currNotebook), true);
     }
 
-    JupyterPanel.appendStub = function(stubName, args) {
-        var stubStruct = {action: "stub", stubName: stubName, args: args};
+    export function appendStub(stubName: string, args) {
+        let stubStruct = {action: "stub", stubName: stubName, args: args};
         sendMessageToJupyter(stubStruct);
     };
 
     // XXX TODO: update it
-    function showMapForm(tableName, columns, moduleName, fnName) {
-        let tabId = null;
-        let dagNode = null;
+    function showMapForm(tableName: string, columns: string[], moduleName: string, fnName: string): void {
+        let tabId: string = null;
+        let dagNode: DagNode = null;
         try {
-            let tabs = DagTabManager.Instance.getTabs();
+            let tabs: DagTab[] = DagTabManager.Instance.getTabs();
             tabs.forEach((tab) => {
-               let graph = tab.getGraph();
+               let graph: DagGraph = tab.getGraph();
                if (graph != null) {
                    graph.getAllNodes().forEach((node) => {
                        if (node.getTable() === tableName) {
@@ -543,15 +559,15 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 }],
                 icv: false
             };
-            let mapNode = DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, dagNode.getId(), input);
+            let mapNode: DagNodeMap = <DagNodeMap>DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, dagNode.getId(), input);
             DagNodeMenu.execute("configureNode", {
                 node: mapNode
             });
         }
     }
 
-    function showDSForm(moduleName, fnName) {
-        var formatVal = $("#fileFormat .text").val();
+    function showDSForm(moduleName: string, fnName: string): void {
+        let formatVal: string = $("#fileFormat .text").val();
         if (!$("#dsForm-preview").hasClass("xc-hidden") &&
             formatVal === $("#fileFormatMenu").find('li[name="UDF"]').text()) {
 
@@ -574,7 +590,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
         }
     }
 
-    function udfRefreshFail() {
+    function udfRefreshFail(): void {
         Alert.show({
             title: ErrorMessageTStr.title,
             msg: "Could not update UDF list.",
@@ -582,20 +598,20 @@ window.JupyterPanel = (function($, JupyterPanel) {
         });
     }
 
-    function sendMessageToJupyter(msgStruct, isAsync) {
-        var deferred = PromiseHelper.deferred();
+    function sendMessageToJupyter(msgStruct, isAsync?: boolean): XDPromise<{newName?: string}> {
+        let deferred: XDDeferred<{newName?: string}> = PromiseHelper.deferred();
         if (!jupyterLoaded) {
             return PromiseHelper.reject({error: "Jupyter not loaded"});
         }
 
         // Prepare token to send to Jupyter
-        var innerDeferred = PromiseHelper.deferred();
+        let innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
         jQuery.ajax({
             type: "GET",
             contentType: "application/json",
             url: xcHelper.getAppUrl() + "/auth/getSessionId",
-            success: function(retJson) {
-                var token;
+            success: function(retJson: {data: string}) {
+                let token: string;
                 if (!retJson || !retJson.data) {
                     token = "";
                 } else {
@@ -612,7 +628,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         innerDeferred
         .always(function() {
-            var messageInfo = {
+            let messageInfo = {
                 fromXcalar: true,
             };
             if (isAsync) {
@@ -621,18 +637,18 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 deferred.resolve();
             }
             msgStruct = $.extend(messageInfo, msgStruct);
-            var msg = JSON.stringify(msgStruct);
+            let msg: string = JSON.stringify(msgStruct);
 
-            $("#jupyterNotebook")[0].contentWindow.postMessage(msg, "*");
+            (<HTMLIFrameElement>$("#jupyterNotebook")[0]).contentWindow.postMessage(msg, "*");
         });
 
         return deferred.promise();
     }
 
-    function prepareAsyncMsg(messageInfo, deferred) {
+    function prepareAsyncMsg(messageInfo: any, deferred: XDDeferred<{newName?: string}>) {
         messageInfo.msgId = msgId;
         msgPromises[msgId] = deferred;
-        var cachedId = msgId;
+        let cachedId = msgId;
         setTimeout(function() {
             if (msgPromises[cachedId]) {
                 msgPromises[cachedId].reject({error: "timeout"});
@@ -643,19 +659,18 @@ window.JupyterPanel = (function($, JupyterPanel) {
     }
 
         /* Unit Test Only */
-    if (window.unitTestMode) {
-        JupyterPanel.__testOnly__ = {};
-        JupyterPanel.__testOnly__showMapForm = showMapForm;
-        JupyterPanel.__testOnly__showDSForm = showDSForm;
-        JupyterPanel.__testOnly__.getCurNB = function() {
-            return jupyterMeta.getCurrentNotebook();
-        }
-        JupyterPanel.__testOnly__.setCurNB = function(nb) {
-            jupyterMeta.setCurrentNotebook(nb);
+    if (window["unitTestMode"]) {
+        JupyterPanel["__testOnly__"] = {
+            showMapForm: showMapForm,
+            showDSForm: showDSForm,
+            getCurNB: function() {
+                return jupyterMeta.getCurrentNotebook();
+            },
+            setCurNB: function(nb) {
+                jupyterMeta.setCurrentNotebook(nb);
+            }
         };
     }
     /* End Of Unit Test Only */
 
-
-    return (JupyterPanel);
-}(jQuery, {}));
+}

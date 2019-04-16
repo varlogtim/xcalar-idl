@@ -679,7 +679,7 @@ declare var XcalarGetTableRefCount: any;
 
 declare var isBrowserMicrosoft: boolean;
 
-declare var mixpanel: object;
+declare var mixpanel: any;
 /* ============== GLOBAL FUNCTIONS ============= */
 // Declaration of XcalarApi moved to IXcalarApi.ts
 /* ============= THRIFT ENUMS ================= */
@@ -946,6 +946,7 @@ declare namespace BottomMenu {
     export function setup(): void;
     export function initialize(): void;
     export function unsetMenuCache(): void;
+    export function openSection(index: number): void;
     export function close(something?: boolean): void;
 }
 
@@ -968,7 +969,7 @@ declare namespace Profile {
 
 declare namespace JupyterUDFModal {
     export function setup(): void;
-    export function show(type: string): void;
+    export function show(type: string, params?: any): void;
 }
 
 declare namespace JupyterPanel {
@@ -1001,6 +1002,7 @@ declare namespace TutorialsSetup {
 
 declare namespace xcMixpanel {
     export function setup(): void;
+    export function forDev(): boolean;
 }
 
 declare namespace DSTargetManager {
@@ -1073,6 +1075,7 @@ declare namespace LiveHelpModal {
 
 declare namespace JupyterFinalizeModal {
     export function setup(): void;
+    export function show(tableId: TableId, numRows: number): void;
 }
 
 declare namespace FileListModal {

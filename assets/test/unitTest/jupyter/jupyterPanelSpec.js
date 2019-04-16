@@ -389,7 +389,7 @@ describe("JupyterPanel Test", function() {
             };
 
             DagNodeMenu.execute = function() {};
-            JupyterPanel.__testOnly__showMapForm(tableName, ["prefix::testCol1"], "a", "b");
+            JupyterPanel.__testOnly__.showMapForm(tableName, ["prefix::testCol1"], "a", "b");
             expect(called1).to.be.true;
             expect(called2).to.be.true;
             MainMenu.openPanel = oldOpenPanel;
@@ -418,7 +418,7 @@ describe("JupyterPanel Test", function() {
                 called2 = true;
             });
 
-            JupyterPanel.__testOnly__showDSForm("a", "b");
+            JupyterPanel.__testOnly__.showDSForm("a", "b");
             expect(called1).to.be.true;
             expect(called2).to.be.true;
             MainMenu.openPanel = cache1;
