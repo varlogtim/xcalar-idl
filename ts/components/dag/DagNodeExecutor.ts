@@ -213,7 +213,7 @@ class DagNodeExecutor {
 
             if (params.synthesize === true) {
                 const schema: ColSchema[] = node.getSchema();
-                return this._synthesizeDataset(dsName, schema, optimized);
+                return this._synthesizeDataset(dsName, schema);
             } else {
                 const prefix: string = params.prefix;
                 return this._indexDataset(dsName, prefix);
@@ -254,15 +254,11 @@ class DagNodeExecutor {
     private _synthesizeDataset(
         dsName: string,
         schema: ColSchema[],
-        optimized?: boolean
     ): XDPromise<string> {
         const desTable = this._generateTableName();
         const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(schema);
-        let sameSession: boolean = null;
-        if (optimized) {
-            // sameSession must be set to false
-            sameSession = true;
-        }
+        // when load dataset, the dataset should always be from the same seesion
+        let sameSession: boolean = true;
         // TODO: XXX parseDS should not be called here
         dsName = parseDS(dsName);
         return XIApi.synthesize(this.txId, colInfos, dsName, desTable, sameSession);
@@ -822,7 +818,7 @@ class DagNodeExecutor {
         if (optimized && node.getTable()) {
             const desTable = this._generateTableName();
             const sourceTable = node.getTable();
-            // sameSession must be set to false
+            // get table outside from batch flow, so sameSession must be set to false
             XIApi.synthesize(this.txId, [], sourceTable, desTable, false)
             .then(deferred.resolve)
             .fail(deferred.reject);

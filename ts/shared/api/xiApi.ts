@@ -2205,7 +2205,7 @@ namespace XIApi {
         colInfos: ColRenameInfo[],
         tableName: string,
         newTableName?: string,
-        sameSession?: boolean
+        sameSession: boolean = true
     ): XDPromise<string> {
         if (txId == null || colInfos == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in synthesize");
