@@ -578,7 +578,6 @@ define(['base/js/utils'], function(utils) {
                 }
             }
 
-            // XXX need to recursively call folders
             function copyFolder(oldFolder, newFolder) {
                 Jupyter.contents.list_contents(oldFolder)
                 .then(function(contents) {
@@ -710,7 +709,7 @@ define(['base/js/utils'], function(utils) {
             }
 
             // checks for cells that have session info not related to current
-            // session
+            // session and replaces content with correct session info
             function validateSessionCells() {
                 var cells = Jupyter.notebook.get_cells();
                 var errors = [];
@@ -719,23 +718,36 @@ define(['base/js/utils'], function(utils) {
                     var lines = text.split("\n");
                     var cellNeedsReplace = false;
                     for (var j = 0; j < lines.length; j++) {
-                        if (lines[j].indexOf("workbook = Session(xcalarApi") === 0) {
-                            var cellWBInfo = parseSessInfoFromLine(lines[j]);
+                        let curLine = lines[j];
+                        if (curLine.indexOf("workbook = Session(xcalarApi") === 0) {
+                            var cellWBInfo = parseSessInfoFromLine(curLine);
                             if (cellWBInfo.username !== '"' + username + '"' ||
                                 cellWBInfo.userid !== "" + userid ||
                                 cellWBInfo.sessionName !== '"' + sessionName + '"') {
                                 lines[j] = 'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")';
                                 cellNeedsReplace = true;
                                 errors.push(
-                                    {line: lines[j],
+                                    {line: curLine,
                                     lineIndex: j + 1,
                                     cellIndex: i + 1,
                                     cell: cells[i]}
                                 );
                             }
+                        } else if (curLine.indexOf("xcalarApi = XcalarApi(client_token=\"") === 0) {
+                            var lineToken = parseTokenFromLine(curLine);
+                            if (lineToken !== token) {
+                                lines[j] = "xcalarApi = XcalarApi(client_token=\"" + token + "\")";
+                                cellNeedsReplace = true;
+                            }
+                        } else if (curLine.indexOf("xcalarClient = Client(client_token=\"") === 0) {
+                            var lineToken = parseTokenFromLine(curLine);
+                            if (lineToken !== token) {
+                                lines[j] = "xcalarClient = Client(client_token=\"" + token + "\", user_name=\""  + username + "\")";
+                                cellNeedsReplace = true;
+                            }
                         }
                     }
-                    if (cellNeedsReplace) {
+                    if (cellNeedsReplace) { // replacement done here
                         cells[i].set_text(lines.join("\n"));
                     }
                 }
@@ -774,6 +786,12 @@ define(['base/js/utils'], function(utils) {
                     userid: $.trim(line[3]),
                     sessionName: $.trim(line[5])
                 };
+            }
+
+            function parseTokenFromLine(line) {
+                line = line.slice(line.indexOf("\"") + 1);
+                var token = line.slice(0, line.indexOf("\""))
+                return token;
             }
 
             function parseQueryString(queryString) {
