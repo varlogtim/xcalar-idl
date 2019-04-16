@@ -2,8 +2,8 @@ const { expect, assert } = require('chai');
 const fs = require('fs');
 const path = require('path');
 
-require('../../../expServer/utils/dagUtils.js');
-require('../../../expServer/route/sqlRestApi.js');
+require('../../../expServer/utils/dag/dagUtils.js');
+require('../../../expServer/controllers/sqlManager.js');
 const XDFList = require('./xdfList.js');
 
 describe('DagComponent Test', function() {

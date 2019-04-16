@@ -26,7 +26,7 @@ global.xcTimeHelper = xcTimeHelper = sqlHelpers ? sqlHelpers.xcTimeHelper :
                              require("../sqlHelpers/xcTimeHelper.js").xcTimeHelper;
 global.xcGlobal = xcGlobal = sqlHelpers ? sqlHelpers.xcGlobal :
                              require("../sqlHelpers/xcGlobal.js").xcGlobal;
-global.xcConsole = xcConsole = require("../expServerXcConsole.js").xcConsole;
+global.xcConsole = xcConsole = require("./expServerXcConsole.js");
 xcGlobal.setup();
 require("../../../assets/js/thrift/XcalarApiService.js");
 require("../../../assets/js/thrift/XcalarApiVersionSignature_types.js");
@@ -116,13 +116,13 @@ global.SqlQueryHistory = SqlQueryHistory = sqlHelpers ? sqlHelpers.SqlQueryHisto
 global.httpStatus = httpStatus = require("../../../assets/js/httpStatus.js").httpStatus;
 
 // Antlr4 SQL Parser
-global.SqlBaseListener = SqlBaseListener = require("../sqlParser/SqlBaseListener.js").SqlBaseListener;
-global.SqlBaseParser = SqlBaseParser = require("../sqlParser/SqlBaseParser.js").SqlBaseParser;
-global.SqlBaseLexer = SqlBaseLexer = require("../sqlParser/SqlBaseLexer.js").SqlBaseLexer;
-global.SqlBaseVisitor = SqlBaseVisitor = require("../sqlParser/SqlBaseVisitor.js").SqlBaseVisitor;
-global.TableVisitor = TableVisitor = require("../sqlParser/TableVisitor.js").TableVisitor;
+// global.SqlBaseListener = SqlBaseListener = require("../sqlParser/SqlBaseListener.js").SqlBaseListener;
+// global.SqlBaseParser = SqlBaseParser = require("../sqlParser/SqlBaseParser.js").SqlBaseParser;
+// global.SqlBaseLexer = SqlBaseLexer = require("../sqlParser/SqlBaseLexer.js").SqlBaseLexer;
+// global.SqlBaseVisitor = SqlBaseVisitor = require("../sqlParser/SqlBaseVisitor.js").SqlBaseVisitor;
+// global.TableVisitor = TableVisitor = require("../sqlParser/TableVisitor.js").TableVisitor;
 global.XDParser = XDParser = {};
-XDParser.XEvalParser = require("../xEvalParser/index.js").XEvalParser;
+XDParser.XEvalParser = require("./xEvalParser/index.js").XEvalParser;
 
 // Default session info for jdbc
 var defaultUserName = 'xcalar-internal-sql';

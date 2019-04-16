@@ -212,6 +212,12 @@ var typescriptMapping = {
     exclude: {},
     remove: [],
     required: ['ts/']};
+var expServerTSMapping = {
+    src:  'services/expServer',
+    dest: "services/expServer/",
+    exclude: {},
+    remove: [],
+    required: ['services/expServer']};
 
 // help content src in the actual src tree, for each product type
 var helpContentRootByProduct = {
@@ -377,7 +383,7 @@ var VALID_OPTIONS = {
     [WATCH_TARGET_LESS]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in less files in the project source @ " + cssMapping.src + ", and re-gen css file(s) in to build @ " + cssMapping.dest + " as a result of any changes"},
     [WATCH_TARGET_TYPESCRIPT]:
-        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in ts files in the project source @ " + typescriptMapping.src + ", and re-gen js file(s) in to build @ " + typescriptMapping.dest + " as a result of any changes"},
+        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in ts files in the project source @ " + typescriptMapping.src + " and source @ " + expServerTSMapping.src + ", and re-gen js file(s) in to build @ " + typescriptMapping.dest + " and build @ " + expServerTSMapping.dest + " as a result of any changes"},
     [WATCH_TARGET_JS]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in javascript files in project source @ " + jsMapping.src},
     //[WATCH_TARGET_JS_BLD]: {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in },
@@ -3405,6 +3411,7 @@ module.exports = function(grunt) {
             // the changed file is contained in this staging dir
             grunt.log.writeln("using ts watch staging");
             typescript(TS_WATCH_STAGING, BLDROOT + typescriptMapping.dest);
+            typescript(TS_WATCH_STAGING, BLDROOT + expServerTSMapping.dest);
             return;
         }
 
@@ -3422,6 +3429,7 @@ module.exports = function(grunt) {
         // retained, former flatterns.
         var tsBuilds = {
             [typescriptMapping.dest]: [typescriptMapping.src + "/."],
+            [expServerTSMapping.dest]: [expServerTSMapping.src + "/."],
         };
         if (BLDTYPE === DEV) {
             tsBuilds["assets/dev/funcTests/states"] = ["/assets/dev/funcTests/states/."];
@@ -3449,7 +3457,11 @@ module.exports = function(grunt) {
                 // cp tsconfig.json in to staging dir
                 grunt.log.writeln("Copy tsconfig.json in to staging dir");
                 // (cp from SRCROOT in case ts/ src in BLDROOT is modified during this task)
+                // also copy the config from expServer
                 var tsConfigSrc = SRCROOT + typescriptMapping.src + "/tsconfig.json";
+                if (tscOutputDir === expServerTSMapping.dest) {
+                    tsConfigSrc = SRCROOT + expServerTSMapping.src + "/tsconfig.json"
+                }
                 var cpCmd = "cp -r " + tsConfigSrc + " " + tsStagingDir;
                 grunt.log.writeln((cpCmd).blue);
                 runShellCmd(cpCmd);
@@ -5279,6 +5291,43 @@ module.exports = function(grunt) {
                     taskList.push('clean:tsWatchStaging');
                     determinedRebuildProcess = true;
                 }
+                // for expServer ts file: only build single typescript which changed
+                if (grunt.file.doesPathContain(expServerTSMapping.src,
+                    filepathRelBld)) {
+                    grunt.log.writeln((filepath + " triggers new js file gen.")
+                        .bold.green);
+                    if (grunt.file.exists(TS_WATCH_STAGING)) {
+                        runShellCmd('rm -r ' + TS_WATCH_STAGING);
+                    }
+                    runShellCmd('mkdir -p ' + TS_WATCH_STAGING);
+
+                    var tsconfigPath = SRCROOT + expServerTSMapping.src + 'tsconfig.json';
+                    if (filepath == tsconfigPath) {
+                        grunt.log.writeln("tsconfig.json changed; will rebuild all ts");
+                        // build entire ts like normal
+                        // re-copy ts src dir in to build first;
+                        // bld will clean/rm parts of it,
+                        // even though the dir itself could still be there
+                        var tsSrc = SRCROOT + expServerTSMapping.src;
+                        var tsBld = BLDROOT + expServerTSMapping.src;
+                        grunt.log.writeln("Remove entire ts/ from build and re-copy from src");
+                        runShellCmd("rm -rf " + tsBld + " || true");
+                        runShellCmd('cp -r ' + tsSrc + ' ' + tsBld);
+                        USE_TS_WATCH_STAGING=false;
+                    } else {
+                        // cp the ts file in to staging dir, retaining its dir
+                        // structure within the ts src folder
+                        // (tsc will run in the staging dir, and retain the dir structure)
+                        var filepathRelTsSrc = path.relative(expServerTSMapping.src,
+                            filepathRelBld);
+                        grunt.file.copy(filepath, TS_WATCH_STAGING + filepathRelTsSrc);
+                        grunt.file.copy(SRCROOT + expServerTSMapping.src + "/tsconfig.json", TS_WATCH_STAGING + "/tsconfig.json");
+                        USE_TS_WATCH_STAGING=true;
+                    }
+                    taskList.push(BUILD_JS);
+                    taskList.push('clean:tsWatchStaging');
+                    determinedRebuildProcess = true;
+                }
                 break;
             case WATCH_TARGET_JS:
                 if (grunt.file.arePathsEquivalent(
@@ -5295,6 +5344,13 @@ module.exports = function(grunt) {
                     filepathRelBld)) {
                     determinedRebuildProcess = true;
                     filepathRelTsSrc = path.relative(typescriptMapping.src,
+                        filepathRelBld);
+                    grunt.file.copy(filepath,
+                        BLDROOT + jsMapping.dest + filepathRelTsSrc);
+                } else if (grunt.file.doesPathContain(expServerTSMapping.src,
+                    filepathRelBld)) {
+                    determinedRebuildProcess = true;
+                    filepathRelTsSrc = path.relative(expServerTSMapping.src,
                         filepathRelBld);
                     grunt.file.copy(filepath,
                         BLDROOT + jsMapping.dest + filepathRelTsSrc);
@@ -5500,6 +5556,8 @@ module.exports = function(grunt) {
                                 filepath) ||
                             grunt.file.doesPathContain(SRCROOT +
                                 typescriptMapping.src, filepath) ||
+                            grunt.file.doesPathContain(SRCROOT +
+                                expServerTSMapping.src, filepath) ||
                             grunt.file.doesPathContain(SRCROOT + "assets/lang",
                                 filepath)),
                             "Path must be under a ts, js or lang folder.");
@@ -5555,9 +5613,10 @@ module.exports = function(grunt) {
 
         WATCH_FILETYPES[WATCH_TARGET_LESS] = [SRCROOT + cssMapping.src + '**/*.less'];
         // there are other ts files outside typescriptMapping.src,
-        // for example some ts which will build in to expServer;
         // don't watch those, you'd need to restart expServer to take effect
-        WATCH_FILETYPES[WATCH_TARGET_TYPESCRIPT] = [SRCROOT + typescriptMapping.src + '**/*.ts', SRCROOT + typescriptMapping.src + 'tsconfig.json'];
+        WATCH_FILETYPES[WATCH_TARGET_TYPESCRIPT] = [SRCROOT + typescriptMapping.src + '**/*.ts',
+            SRCROOT + typescriptMapping.src + 'tsconfig.json', SRCROOT + expServerTSMapping.src + '**/*.ts',
+            SRCROOT + expServerTSMapping.src + 'tsconfig.json'];
         WATCH_FILETYPES[WATCH_TARGET_CSS] = [BLDROOT + cssMapping.dest + '**/*.css'];
         WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js',
             SRCROOT + typescriptMapping.src + "/**/*.js", SRCROOT + "assets/lang/" + "**/*.js"];

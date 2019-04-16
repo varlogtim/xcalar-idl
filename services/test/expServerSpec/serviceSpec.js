@@ -1,16 +1,11 @@
 describe('ExpServer Service Test', function() {
     // Test setup
     var expect = require('chai').expect;
-    var fs = require('fs');
     var request = require('request');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var support = require(__dirname + '/../../expServer/expServerSupport.js');
+    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
     var service = require(__dirname + '/../../expServer/route/service.js');
-    var testTargz;
-    var testName;
-    var testVersion;
-    var testData;
-    var testType;
+    var serviceManager = require(__dirname + '/../../expServer/controllers/serviceManager.js');
     var oldMasterExec;
     var oldSlaveExec;
     var oldRemoveSession;
@@ -26,16 +21,16 @@ describe('ExpServer Service Test', function() {
         fakeFunc = function() {
             return jQuery.Deferred().resolve({status: 200}).promise();
         }
-        oldMasterExec = service.masterExecuteAction;
-        oldSlaveExec = service.slaveExecuteAction;
-        oldRemoveSession = service.removeSessionFiles;
-        oldRemoveSHM = service.removeSHM;
-        oldGetLic = service.getLicense;
-        oldSubTicket = service.submitTicket;
-        oldGetMatch = service.getMatchedHosts;
-        oldGetTickets = service.getTickets;
-        oldGetPatch = service.getHotPatch;
-        oldSetPatch = service.setHotPatch;
+        oldMasterExec = serviceManager.masterExecuteAction;
+        oldSlaveExec = serviceManager.slaveExecuteAction;
+        oldRemoveSession = serviceManager.removeSessionFiles;
+        oldRemoveSHM = serviceManager.removeSHM;
+        oldGetLic = serviceManager.getLicense;
+        oldSubTicket = serviceManager.submitTicket;
+        oldGetMatch = serviceManager.getMatchedHosts;
+        oldGetTickets = serviceManager.getTickets;
+        oldGetPatch = serviceManager.getHotPatch;
+        oldSetPatch = serviceManager.setHotPatch;
         service.fakeMasterExecuteAction(fakeFunc);
         service.fakeSlaveExecuteAction(fakeFunc);
         service.fakeRemoveSessionFiles(fakeFunc);
@@ -57,10 +52,10 @@ describe('ExpServer Service Test', function() {
     });
 
     it("service.convertToBase64 should work", function() {
-        expect(service.convertToBase64(testStr)).to.equal(new Buffer(testStr).toString("base64"));
+        expect(serviceManager.convertToBase64(testStr)).to.equal(Buffer.from(testStr).toString("base64"));
     });
 
-    it('Start router shoud work', function(done) {
+    it('Start router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/start'
         }
@@ -70,7 +65,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Stop router shoud work', function(done) {
+    it('Stop router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/stop'
         }
@@ -80,7 +75,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Restart router shoud work', function(done) {
+    it('Restart router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/restart'
         }
@@ -90,7 +85,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Status router shoud work', function(done) {
+    it('Status router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/status'
         }
@@ -100,7 +95,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Start Slave router shoud work', function(done) {
+    it('Start Slave router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/start/slave'
         }
@@ -110,7 +105,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Stop Slave router shoud work', function(done) {
+    it('Stop Slave router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/stop/slave'
         }
@@ -120,7 +115,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Get Slave Status router shoud work', function(done) {
+    it('Get Slave Status router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/status/slave'
         }
@@ -130,7 +125,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Remove Session Files router shoud work', function(done) {
+    it('Remove Session Files router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/sessionFiles'
         }
@@ -140,7 +135,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Remove SHM Files router shoud work', function(done) {
+    it('Remove SHM Files router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/SHMFiles'
         }
@@ -150,7 +145,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Get License router shoud work', function(done) {
+    it('Get License router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/license'
         }
@@ -160,7 +155,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('File ticket router shoud work', function(done) {
+    it('File ticket router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/ticket'
         }
@@ -170,7 +165,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Get Logs router shoud work', function(done) {
+    it('Get Logs router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/logs'
         }
@@ -180,7 +175,7 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it('Get Slave Logs router shoud work', function(done) {
+    it('Get Slave Logs router should work', function(done) {
         var data = {
             url: 'http://localhost:12125/service/logs/slave'
         }

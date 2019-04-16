@@ -2,8 +2,7 @@ describe('ExpServer Tail Test', function() {
     // Test setup
     var expect = require('chai').expect;
 
-    require('jquery');
-    var tail = require(__dirname + '/../../expServer/tail.js');
+    var tail = require(__dirname + '/../../expServer/utils/tail.js');
     var testFilePath;
     var testFileName;
     var testLineNum;
@@ -24,8 +23,8 @@ describe('ExpServer Tail Test', function() {
     });
     it("readFileStat should work", function(done) {
         tail.readFileStat(testFilePath + testFileName)
-        .then(function(currFile, stat) {
-            expect(stat).to.exist;
+        .then(function(ret) {
+            expect(ret.stat).to.exist;
             done();
         })
         .fail(function() {
@@ -65,8 +64,8 @@ describe('ExpServer Tail Test', function() {
     });
     it("getPath should work", function(done) {
         tail.getPath(testFilePath, testFileName)
-        .then(function(currFile, stat) {
-            expect(stat).to.exist;
+        .then(function(ret) {
+            expect(ret.stat).to.exist;
             done();
         })
         .fail(function() {

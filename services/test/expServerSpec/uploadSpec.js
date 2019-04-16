@@ -4,7 +4,7 @@ describe('ExpServer Upload Test', function() {
 
     var request = require('request');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var upload = require(__dirname + '/../../expServer/upload.js');
+    var upload = require(__dirname + '/../../expServer/controllers/upload.js');
     var testMin;
     var testMax;
     var testCommand;

@@ -1,11 +1,9 @@
 describe('ExpServer Tutorial Test', function() {
     // Test setup
     var expect = require('chai').expect;
-    var request = require('request');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var tutorial = require(__dirname + '/../../expServer/route/tutorial.js');
+    var tutorialManager = require(__dirname + '/../../expServer/controllers/tutorialManager.js');
     var testVersion;
-    var testData;
     var oldGetObject;
     this.timeout(10000);
 
@@ -21,11 +19,7 @@ describe('ExpServer Tutorial Test', function() {
         testType = "test";
         testDownloadName = "test";
         testFileName = "extensions/distinct/1.0.0/distinct-1.0.0.tar.gz";
-        oldGetObject = tutorial.getObject;
-        var fakeFunc = function(data, callback) {
-            callback(null, {Body: {msg: "success"}});
-        }
-        tutorial.fakeGetObject(fakeFunc);
+        oldGetObject = tutorialManager.getObject;
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
         }
@@ -37,13 +31,12 @@ describe('ExpServer Tutorial Test', function() {
     });
 
 
-    it("tutorial.downloadTutorial should fail when error", function(done) {
-        var oldFunc = tutorial.getObject;
+    it("tutorialManager.downloadTutorial should fail when error", function(done) {
         var fakeFunc = function(data, callback) {
             callback("fail");
         }
-        tutorial.fakeGetObject(fakeFunc);
-        tutorial.downloadTutorial(testDownloadName, testVersion)
+        tutorialManager.fakeGetObject(fakeFunc);
+        tutorialManager.downloadTutorial(testDownloadName, testVersion)
         .then(function() {
             done("fail");
         })
@@ -52,35 +45,43 @@ describe('ExpServer Tutorial Test', function() {
             done();
         })
         .always(function() {
-            tutorial.fakeGetObject(oldFunc);
+            tutorialManager.fakeGetObject(oldGetObject);
         });
     });
 
-    it("tutorial.downloadTutorial should work", function(done) {
+    it("tutorialManager.downloadTutorial should work", function(done) {
         testDownloadName = "simpleTutorial";
-        tutorial.downloadTutorial(testDownloadName, testVersion)
+        var fakeGetObject = function(data, callback) {
+            callback(null, {Body: {msg: "success"}});
+        }
+        tutorialManager.fakeGetObject(fakeGetObject);
+        tutorialManager.downloadTutorial(testDownloadName, testVersion)
         .then(function(ret) {
             expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
             done("fail");
-        });
+        })
+        .always(function() {
+            tutorialManager.fakeGetObject(oldGetObject);
+        })
     });
 
-    it("tutorial.processItem should fail when error", function(done) {
-        tutorial.processItem([], "notExist.txt")
+    it("tutorialManager.processItem should fail when error", function(done) {
+        tutorialManager.processItem([], "notExist.txt")
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
+            console.log()
             expect(error).to.not.equal(null);
             done();
         });
     });
 
-    it("tutorial.processItem should work", function(done) {
-        tutorial.processItem([], testFileName)
+    it("tutorialManager.processItem should work", function(done) {
+        tutorialManager.processItem([], testFileName)
         .then(function(ret) {
             expect(ret).to.equal("processItem succeeds");
             done();
@@ -90,8 +91,8 @@ describe('ExpServer Tutorial Test', function() {
         });
     });
 
-    it("tutorial.fetchAllTutorials should work", function(done) {
-        tutorial.fetchAllTutorials()
+    it("tutorialManager.fetchAllTutorials should work", function(done) {
+        tutorialManager.fetchAllTutorials()
         .then(function(ret) {
             expect(ret).to.be.an.instanceof(Array);
             done();
@@ -101,13 +102,13 @@ describe('ExpServer Tutorial Test', function() {
         });
     });
 
-    it("tutorial.fetchAllTutorials should fail when error", function(done) {
-        var oldFunc = tutorial.processItem;
+    it("tutorialManager.fetchAllTutorials should fail when error", function(done) {
+        var oldFunc = tutorialManager.processItem;
         var fakeFunc = function() {
             return jQuery.Deferred().reject("processItem fails").promise();
         }
-        tutorial.fakeProcessItem(fakeFunc);
-        tutorial.fetchAllTutorials()
+        tutorialManager.fakeProcessItem(fakeFunc);
+        tutorialManager.fetchAllTutorials()
         .then(function() {
             done("fail");
         })
@@ -116,11 +117,11 @@ describe('ExpServer Tutorial Test', function() {
             done();
         })
         .always(function() {
-            tutorial.fakeProcessItem(oldFunc);
+            tutorialManager.fakeProcessItem(oldFunc);
         });
     });
 
     after(function() {
-        tutorial.fakeGetObject(oldGetObject);
+
     });
 });

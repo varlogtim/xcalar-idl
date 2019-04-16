@@ -3,7 +3,7 @@ describe('ExpServer Support Test', function() {
     var expect = require('chai').expect;
     var expServer = require(__dirname + '/../../expServer/expServer.js');
 
-    var support = require(__dirname + '/../../expServer/expServerSupport.js');
+    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
     var cfgDir = __dirname + '/../config';
     var testHostsFile;
     var testHosts;

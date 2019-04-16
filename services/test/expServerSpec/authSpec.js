@@ -1,10 +1,10 @@
 describe('ExpServer Auth Test', function() {
     var expect = require('chai').expect;
     var path = require("path");
-    var request = require('request');
+    // var request = require('request');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var auth = require(__dirname + '/../../expServer/route/auth.js');
-    var support = require(__dirname + '/../../expServer/expServerSupport.js');
+    var authManager = require(__dirname + '/../../expServer/controllers/authManager.js');
+    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
     var cfgFile = __dirname + '/../config/test.cfg';
     var jwt = require('jsonwebtoken');
     var fs = require('fs');
@@ -142,7 +142,7 @@ describe('ExpServer Auth Test', function() {
 
     it("getUrl should work", function(done) {
 
-        auth.getUrl('https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration')
+        authManager.getUrl('https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration')
         .then(function(ret) {
             expect(ret.status).to.equal(true);
             done();
@@ -153,11 +153,11 @@ describe('ExpServer Auth Test', function() {
     });
 
     it("azureIdToken should work", function(done) {
-        var oldGetUrl = auth.getUrl;
+        var oldGetUrl = authManager.getUrl;
 
         certArray = certArray1;
         urlRefCount = 0;
-        auth.fakeGetUrl(dummyGetUrl);
+        authManager.fakeGetUrl(dummyGetUrl);
 
         var body = { token: token1,
                      user: "true",
@@ -165,8 +165,8 @@ describe('ExpServer Auth Test', function() {
 
         postRequest("/auth/azureIdToken", body)
         .then(function(ret) {
-            auth.fakeGetUrl(oldGetUrl);
-            auth.msKeyCache.flushAll();
+            authManager.fakeGetUrl(oldGetUrl);
+            authManager.msKeyCache.flushAll();
             expect(ret.status).to.equal(200);
             expect(ret.message).to.equal('Success');
             done();
@@ -177,11 +177,11 @@ describe('ExpServer Auth Test', function() {
     });
 
     it("azureIdToken with bad key array should not work", function(done) {
-        var oldGetUrl = auth.getUrl;
+        var oldGetUrl = authManager.getUrl;
 
         certArray = certArray2;
         urlRefCount = 0;
-        auth.fakeGetUrl(dummyGetUrl);
+        authManager.fakeGetUrl(dummyGetUrl);
 
         var body = { token: token1,
                      user: "true",
@@ -192,8 +192,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            auth.fakeGetUrl(oldGetUrl);
-            auth.msKeyCache.flushAll();
+            authManager.fakeGetUrl(oldGetUrl);
+            authManager.msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(401);
             expect(ret.responseJSON.message).to.equal("Keys not found in retrieved for url: " + jwks_url);
             done();
@@ -201,11 +201,11 @@ describe('ExpServer Auth Test', function() {
     });
 
     it("azureIdToken with null key array should not work", function(done) {
-        var oldGetUrl = auth.getUrl;
+        var oldGetUrl = authManager.getUrl;
 
         certArray = certArray3;
         urlRefCount = 0;
-        auth.fakeGetUrl(dummyGetUrl);
+        authManager.fakeGetUrl(dummyGetUrl);
 
         var body = { token: token1,
                      user: "true",
@@ -216,8 +216,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            auth.fakeGetUrl(oldGetUrl);
-            auth.msKeyCache.flushAll();
+            authManager.fakeGetUrl(oldGetUrl);
+            authManager.msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(401);
             expect(ret.responseJSON.message).to.equal("Key retrieval error for url: " + jwks_url);
             done();
@@ -225,11 +225,11 @@ describe('ExpServer Auth Test', function() {
     });
 
     it("azureIdToken with unknown kid should not work", function(done) {
-        var oldGetUrl = auth.getUrl;
+        var oldGetUrl = authManager.getUrl;
 
         certArray = certArray1;
         urlRefCount = 0;
-        auth.fakeGetUrl(dummyGetUrl);
+        authManager.fakeGetUrl(dummyGetUrl);
 
         var body = { token: token3,
                      user: "true",
@@ -240,8 +240,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            auth.fakeGetUrl(oldGetUrl);
-            auth.msKeyCache.flushAll();
+            authManager.fakeGetUrl(oldGetUrl);
+            authManager.msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(401);
             expect(ret.responseJSON.message).to.equal("Key not present in returned keys");
             done();
@@ -249,11 +249,11 @@ describe('ExpServer Auth Test', function() {
     });
 
     it("azureIdToken with kid-less token header should not work", function(done) {
-        var oldGetUrl = auth.getUrl;
+        var oldGetUrl = authManager.getUrl;
 
         certArray = certArray1;
         urlRefCount = 0;
-        auth.fakeGetUrl(dummyGetUrl);
+        authManager.fakeGetUrl(dummyGetUrl);
 
         var body = { token: token4,
                      user: "true",
@@ -264,8 +264,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            auth.fakeGetUrl(oldGetUrl);
-            auth.msKeyCache.flushAll();
+            authManager.fakeGetUrl(oldGetUrl);
+            authManager.msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(500);
             expect(ret.responseJSON.message).to.equal("Token header does not contain a key id");
             done();
@@ -273,11 +273,11 @@ describe('ExpServer Auth Test', function() {
     });
 
     it("azureIdToken with incorrect kid should not work", function(done) {
-        var oldGetUrl = auth.getUrl;
+        var oldGetUrl = authManager.getUrl;
 
         certArray = certArray1;
         urlRefCount = 0;
-        auth.fakeGetUrl(dummyGetUrl);
+        authManager.fakeGetUrl(dummyGetUrl);
 
         var body = { token: token5,
                      user: "true",
@@ -288,8 +288,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            auth.fakeGetUrl(oldGetUrl);
-            auth.msKeyCache.flushAll();
+            authManager.fakeGetUrl(oldGetUrl);
+            authManager.msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(401);
             expect(ret.responseJSON.message).to.equal("Error during web token verification: invalid signature");
             done();

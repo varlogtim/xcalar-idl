@@ -5,22 +5,20 @@ describe('ExpServer Installer Test', function() {
     var request = require('request');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
     var installer = require(__dirname + '/../../expServer/route/installer.js');
-    var support = require(__dirname + '/../../expServer/expServerSupport.js');
+    var installerManager = require(__dirname + '/../../expServer/controllers/installerManager.js');
+    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
     var licenseLocation;
     var hostnameLocation;
     var privHostnameLocation;
     var ldapLocation;
     var credentialLocation;
     var discoveryResultLocation;
-    var hasPrivHosts;
     var credentialsOption1, credentialsOption2, credentialsOption3;
     var username;
     var port;
     var nfsOption1, nfsOption2, nfsOption3;
     var installationDirectory;
     var ldapOption1, ldapOption2;
-    var serDes;
-    var preConfig;
     var testPwd;
     var testCredArray;
     var testScript1, testScript2, testScript3;
@@ -54,7 +52,7 @@ describe('ExpServer Installer Test', function() {
             option: "customerNfs",
             nfsUsername: "test",
             nfsGroup: "test",
-            copy: "test"
+            copy: true
         };
         nfsOption2 = {
             option: "readyNfs"
@@ -122,46 +120,46 @@ describe('ExpServer Installer Test', function() {
             licenseLocation: licenseLocation,
             credentialLocation: credentialLocation
         };
-        installer.setTestVariables(opts);
+        installerManager.setTestVariables(opts);
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
         };
         succPromise = function() {
             return jQuery.Deferred().resolve({status: 200}).promise();
         };
-        oldSlaveExec = installer.slaveExecuteAction;
+        oldSlaveExec = installerManager.slaveExecuteAction;
         installer.fakeSlaveExecuteAction(succPromise);
     });
 
     it("encryptPassword should work", function() {
-        expect(installer.encryptPassword(testPwd)).to.include("{SSHA}");
+        expect(installerManager.encryptPassword(testPwd)).to.include("{SSHA}");
     });
 
     it("genExecString should work", function() {
         testInput.credArray.credentials = credentialsOption1;
         testInput.credArray.nfsOption = nfsOption1;
         testInput.credArray.ldap = ldapOption1;
-        expect(installer.genExecString(testInput)).to.be.a("String");
+        expect(installerManager.genExecString(testInput)).to.be.a("String");
 
         testInput.credArray.credentials = credentialsOption2;
         testInput.credArray.nfsOption = nfsOption2;
         testInput.credArray.ldap = ldapOption2;
-        expect(installer.genExecString(testInput)).to.be.a("String");
+        expect(installerManager.genExecString(testInput)).to.be.a("String");
 
         testInput.credArray.credentials = credentialsOption3;
         testInput.credArray.nfsOption = nfsOption3;
-        expect(installer.genExecString(testInput)).to.be.a("String");
+        expect(installerManager.genExecString(testInput)).to.be.a("String");
     });
 
     it("genDiscoverExecString should work", function() {
-        expect(installer.genDiscoverExecString(hostnameLocation,
+        expect(installerManager.genDiscoverExecString(hostnameLocation,
                                                credentialLocation,
                                                true, username, port,
                                                installationDirectory)).to.be.a("String");
     });
 
     it("checkLicense should fail when error, e.g. data has no SUCCESS or FAILURE", function(done) {
-        installer.checkLicense(testCredArray, testScript1)
+        installerManager.checkLicense(testCredArray, testScript1)
         .then(function() {
             done("fail");
         })
@@ -172,7 +170,7 @@ describe('ExpServer Installer Test', function() {
     });
 
     it("checkLicense should fail when error, e.g. data has FAILURE", function(done) {
-        installer.checkLicense(testCredArray, testScript3)
+        installerManager.checkLicense(testCredArray, testScript3)
         .then(function() {
             done("fail");
         })
@@ -183,7 +181,7 @@ describe('ExpServer Installer Test', function() {
     });
 
     it("checkLicense should work", function(done) {
-        installer.checkLicense(testCredArray, testScript2)
+        installerManager.checkLicense(testCredArray, testScript2)
         .then(function(ret) {
             expect(ret.verified).to.equal(true);
             done();
@@ -194,7 +192,7 @@ describe('ExpServer Installer Test', function() {
     });
 
     it("copyFiles should fail when error, e.g. file not exist", function(done) {
-        installer.copyFiles()
+        installerManager.copyFiles()
         .then(function() {
             done("fail");
         })
@@ -205,7 +203,7 @@ describe('ExpServer Installer Test', function() {
     });
 
     it("copyFiles should fail when error, e.g. invalid script path", function(done) {
-        installer.copyFiles("invalid")
+        installerManager.copyFiles("invalid")
         .then(function() {
             done("fail");
         })
@@ -216,7 +214,7 @@ describe('ExpServer Installer Test', function() {
     });
 
     it("copyFiles should work", function(done) {
-        installer.copyFiles(testScript2)
+        installerManager.copyFiles(testScript2)
         .then(function(ret) {
             expect(ret.status).to.equal(200);
             done();
@@ -227,18 +225,18 @@ describe('ExpServer Installer Test', function() {
     });
 
     it("installUpgradeUtil should fail when error, e.g. invalid command", function(done) {
-        installer.installUpgradeUtil(testCredArray)
+        installerManager.installUpgradeUtil(testCredArray)
         .then(function() {
             done("fail");
         })
         .fail(function() {
-            expect(installer.getCurStepStatus()).to.equal(-1);
+            expect(installerManager.getCurStepStatus()).to.equal(-1);
             done();
         });
     });
 
     it("discoverUtil should fail when error, e.g. invalid command", function(done) {
-        installer.discoverUtil(testCredArray)
+        installerManager.discoverUtil(testCredArray)
         .then(function() {
             done("fail");
         })
@@ -251,9 +249,9 @@ describe('ExpServer Installer Test', function() {
     it("installUpgradeUtil should work", function(done) {
         testCredArray.credentials = {"sshKey": "test"};
         testCredArray.privHostNames = [];
-        installer.installUpgradeUtil(testCredArray,"","echo Success")
+        installerManager.installUpgradeUtil(testCredArray,"","echo Success")
         .then(function() {
-            expect(installer.getCurStepStatus()).to.equal(2);
+            expect(installerManager.getCurStepStatus()).to.equal(2);
             done();
         })
         .fail(function() {
@@ -264,7 +262,7 @@ describe('ExpServer Installer Test', function() {
     it("discoverUtil should work", function(done) {
         testCredArray.credentials = {"sshKey": "test"};
         testCredArray.privHostNames = [];
-        installer.discoverUtil(testCredArray,"","echo Success")
+        installerManager.discoverUtil(testCredArray,"","echo Success")
         .then(function(ret) {
             expect(ret.test).to.equal("success");
             done();
@@ -276,7 +274,7 @@ describe('ExpServer Installer Test', function() {
 
     it("createStatusArray should work", function(done) {
         var oldFunc = support.masterExecuteAction;
-        installer.createStatusArray(testCredArray)
+        installerManager.createStatusArray(testCredArray)
         .then(function(ret) {
             expect(ret.status).to.equal(200);
             done();
@@ -286,120 +284,120 @@ describe('ExpServer Installer Test', function() {
         });
     });
 
-    it("Checking license router shoud work", function(done) {
-        var oldFunc = installer.checkLicense;
-        installer.fakeCheckLicense(succPromise);
+    it("Checking license router should work", function(done) {
+        var oldFunc = installerManager.checkLicense;
+        installerManager.fakeCheckLicense(succPromise);
         var data = {
             url: 'http://localhost:12125/xdp/license/verification',
             json: testData
         }
         request.post(data, function (err, res, body){
             console.log("res is: " + JSON.stringify(res));
-            installer.fakeCheckLicense(oldFunc);
+            installerManager.fakeCheckLicense(oldFunc);
             expect(res.body.status).to.equal(200);
             done();
         });
     });
 
-    it("Checking install status router shoud work", function(done) {
-        var oldFunc = installer.createStatusArray;
-        installer.fakeCreateStatusArray(succPromise);
+    it("Checking install status router should work", function(done) {
+        var oldFunc = installerManager.createStatusArray;
+        installerManager.fakeCreateStatusArray(succPromise);
         var data = {
             url: 'http://localhost:12125/xdp/installation/status',
             json: testData
         }
         request.post(data, function (err, res, body){
-            installer.fakeCreateStatusArray(oldFunc);
+            installerManager.fakeCreateStatusArray(oldFunc);
             expect(res.body.status).to.equal(200);
             done();
         });
     });
 
-    it("Checking upgrade status router shoud work", function(done) {
-        var oldFunc = installer.createStatusArray;
-        installer.fakeCreateStatusArray(succPromise);
+    it("Checking upgrade status router should work", function(done) {
+        var oldFunc = installerManager.createStatusArray;
+        installerManager.fakeCreateStatusArray(succPromise);
         var data = {
             url: 'http://localhost:12125/xdp/upgrade/status',
             json: testData
         }
         request.post(data, function (err, res, body){
-            installer.fakeCreateStatusArray(oldFunc);
+            installerManager.fakeCreateStatusArray(oldFunc);
             expect(res.body.status).to.equal(200);
             done();
         });
     });
 
-    it("Checking uninstall status router shoud work", function(done) {
-        var oldFunc = installer.createStatusArray;
-        installer.fakeCreateStatusArray(succPromise);
+    it("Checking uninstall status router should work", function(done) {
+        var oldFunc = installerManager.createStatusArray;
+        installerManager.fakeCreateStatusArray(succPromise);
         var data = {
             url: 'http://localhost:12125/xdp/uninstallation/status',
             json: testData
         }
         request.post(data, function (err, res, body){
-            installer.fakeCreateStatusArray(oldFunc);
+            installerManager.fakeCreateStatusArray(oldFunc);
             expect(res.body.status).to.equal(200);
             done();
         });
     });
 
-    it("Discovering router shoud work", function(done) {
-        var oldFunc = installer.discoverUtil;
-        installer.fakeDiscoverUtil(emptyPromise);
+    it("Discovering router should work", function(done) {
+        var oldFunc = installerManager.discoverUtil;
+        installerManager.fakeDiscoverUtil(emptyPromise);
         var data = {
             url: 'http://localhost:12125/xdp/discover',
             json: testData
         }
         request.post(data, function (err, res, body){
-            installer.fakeDiscoverUtil(oldFunc);
+            installerManager.fakeDiscoverUtil(oldFunc);
             expect(res.body.status).to.equal(200);
             done();
         });
     });
 
-    it("Installing router shoud work", function(done) {
-        var oldFunc = installer.installUpgradeUtil;
-        installer.fakeInstallUpgradeUtil(emptyPromise);
+    it("Installing router should work", function(done) {
+        var oldFunc = installerManager.installUpgradeUtil;
+        installerManager.fakeInstallUpgradeUtil(emptyPromise);
         var data = {
             url: 'http://localhost:12125/xdp/installation/start',
             json: testData
         }
         request.post(data, function (err, res, body){
-            installer.fakeInstallUpgradeUtil(oldFunc);
+            installerManager.fakeInstallUpgradeUtil(oldFunc);
             expect(res.body.status).to.equal(200);
             done();
         });
     });
 
-    it("Upgrading router shoud work", function(done) {
-        var oldFunc = installer.installUpgradeUtil;
-        installer.fakeInstallUpgradeUtil(emptyPromise);
+    it("Upgrading router should work", function(done) {
+        var oldFunc = installerManager.installUpgradeUtil;
+        installerManager.fakeInstallUpgradeUtil(emptyPromise);
         var data = {
             url: 'http://localhost:12125/xdp/upgrade/start',
             json: testData
         }
         request.post(data, function (err, res, body){
-            installer.fakeInstallUpgradeUtil(oldFunc);
+            installerManager.fakeInstallUpgradeUtil(oldFunc);
             expect(res.body.status).to.equal(200);
             done();
         });
     });
 
-    it("Uninstalling router shoud work", function(done) {
-        var oldFunc = installer.installUpgradeUtil;
-        installer.fakeInstallUpgradeUtil(emptyPromise);
+    it("Uninstalling router should work", function(done) {
+        var oldFunc = installerManager.installUpgradeUtil;
+        installerManager.fakeInstallUpgradeUtil(emptyPromise);
         var data = {
             url: 'http://localhost:12125/xdp/uninstallation/start',
             json: testData
         }
         request.post(data, function (err, res, body){
-            installer.fakeInstallUpgradeUtil(oldFunc);
+            installerManager.fakeInstallUpgradeUtil(oldFunc);
             expect(res.body.status).to.equal(200);
             done();
         });
     });
 
-    it("Canceling router shoud work", function(done) {
+    it("Canceling router should work", function(done) {
         var data = {
             url: 'http://localhost:12125/xdp/installation/cancel',
             json: testData
@@ -410,7 +408,7 @@ describe('ExpServer Installer Test', function() {
         });
     });
 
-    it("Fetching log router shoud work", function(done) {
+    it("Fetching log router should work", function(done) {
         var data = {
             url: 'http://localhost:12125/installationLogs/slave',
         }

@@ -188,7 +188,7 @@ function hackFunction() {
                 return PromiseHelper.reject("Invalid type for updatePlanServer");
         }
         const deferred = PromiseHelper.deferred();
-        
+
         request(
             {
                 method: action,
@@ -200,7 +200,7 @@ function hackFunction() {
                 if (!error && response.statusCode == 200) {
                     deferred.resolve(body);
                 } else {
-                    if(body.exceptionName && body.exceptionMsg) {
+                    if(body && body.exceptionName && body.exceptionMsg) {
                         error = {errorType: body.exceptionName, errorMsg: body.exceptionMsg};
                     }
                     deferred.reject(error);
