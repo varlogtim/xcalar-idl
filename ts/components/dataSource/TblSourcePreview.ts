@@ -260,7 +260,7 @@ class TblSourcePreview {
     }
 
     private _showSchemaSection(): void {
-        this._closeTable();
+        this._getTableArea().addClass("xc-hidden");
         this._getSchemaSection().removeClass("xc-hidden");
     }
 
