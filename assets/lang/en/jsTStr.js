@@ -501,7 +501,7 @@ SQLErrTStr = {
     "NonOpShouldHaveNoChildren": "Non-op/expression node should have no children",
     "FirstChildAlias": "First element in eval list should be alias node",
     "NoDataType": "Node should has dataType",
-    "EvalOnlyChildAttr": "Eval list's only child should be AttributeReference",
+    "EvalOnlyChildAttr": "Eval list's only child should be AttributeReference in non-groupingexpressions list",
     "UnsupportedColType": "Unsupported column type: ",
     "UDFColumnMismatch": "UDF columns mismatch",
     "InvalidLogicalPlan": "Invalid logical plan",

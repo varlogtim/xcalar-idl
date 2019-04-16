@@ -111,7 +111,8 @@
                         "subqueryCast": [{"query": "SELECT R_REGIONKEY FROM REGION where R_REGIONKEY = (SELECT avg(CAST(R_REGIONKEY as DECIMAL(12,4))) from REGION)"}],
                         "subqueryJoin": [{"query": "SELECT R_REGIONKEY FROM REGION WHERE R_REGIONKEY = (SELECT r1.R_REGIONKEY FROM REGION r1, REGION r2 ORDER BY R_REGIONKEY LIMIT 1)"}],
                         "subquerySetOp": [{"query": "SELECT R_REGIONKEY FROM REGION WHERE R_REGIONKEY = (SELECT R_REGIONKEY FROM REGION INTERSECT SELECT R_REGIONKEY FROM REGION ORDER BY R_REGIONKEY LIMIT 1)"}],
-                        "xdfWindow": [{"query": "SELECT ixdf_add(R_REGIONKEY,1) a, ixdf_add(MAX(R_REGIONKEY) OVER(), 1) b from REGION ORDER BY R_REGIONKEY","sparkOpts": {"enable": false}}]
+                        "xdfWindow": [{"query": "SELECT ixdf_add(R_REGIONKEY,1) a, ixdf_add(MAX(R_REGIONKEY) OVER(), 1) b from REGION ORDER BY R_REGIONKEY","sparkOpts": {"enable": false}}],
+                        "groupOnLiteral": [{"query": "select distinct R_REGIONKEY, int('123') as n from REGION"}]
                 },
                 "answers": {
                         "onlyLRDD": {"numOfRows": "5",
@@ -385,7 +386,9 @@
                                           "numOfRows": "1"},
                         "xdfWindow": {"row0": [1, 5],
                                       "row4": [5, 5],
-                                      "numOfRows": "5"}
+                                      "numOfRows": "5"},
+                        "groupOnLiteral": {"row0": [0, 123],
+                                           "numOfRows": "5"}
                 },
                 "tables": {
                         "dataSource": "/netstore/datasets/tpch_sf1_notrail/",

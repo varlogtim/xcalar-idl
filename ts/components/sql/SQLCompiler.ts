@@ -1578,16 +1578,38 @@ class SQLCompiler {
                 evalStructArray.push(evalStruct);
             } else {
                 const curColStruct = evalList[i][0];
-                SQLUtil.assert(curColStruct.class === "org.apache.spark.sql." +
-                               "catalyst.expressions.AttributeReference",
-                               SQLErrTStr.EvalOnlyChildAttr);
-                colStruct.colName = SQLCompiler.cleanseColName(curColStruct.name);
-                colStruct.colId = curColStruct.exprId.id;
-                colStruct.colType = SQLCompiler.convertSparkTypeToXcalarType(
-                                                         curColStruct.dataType);
-                if (options && options.renamedCols &&
-                    options.renamedCols[colStruct.colId]) {
-                    colStruct.rename = options.renamedCols[colStruct.colId];
+                if (curColStruct.class !==
+                    "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
+                    SQLUtil.assert(options && options.groupBy && curColStruct.class ===
+                        "org.apache.spark.sql.catalyst.expressions.Literal",
+                        SQLErrTStr.EvalOnlyChildAttr);
+                    const treeNode = SQLCompiler.genExpressionTree(undefined,
+                                        evalList[i].slice(0), {}, options.prefix);
+                    const acc = {aggEvalStructArray: aggEvalStructArray,
+                                 numOps: 0,
+                                 udfs: [],
+                                 subqueryArray: subqueryArray};
+                    let evalStr = SQLCompiler.genEvalStringRecur(treeNode, acc, options);
+                    evalStr = SQLCompiler.getColType(treeNode) + "(" + evalStr + ")";
+                    const newColName = SQLCompiler.cleanseColName(evalStr, true) + "_"
+                                        + Authentication.getHashId().substring(3);
+                    colStruct.colName = newColName;
+                    colStruct.colType = SQLCompiler.getColType(treeNode);
+                    const retStruct = {newColName: newColName,
+                                       evalStr: evalStr,
+                                       numOps: 1,
+                                       colId: undefined,
+                                       countType: undefined,
+                                       colType: SQLCompiler.getColType(treeNode)};
+                    evalStructArray.push(retStruct);
+                } else {
+                    colStruct.colName = SQLCompiler.cleanseColName(curColStruct.name);
+                    colStruct.colId = curColStruct.exprId.id;
+                    colStruct.colType = SQLCompiler.convertSparkTypeToXcalarType(curColStruct.dataType);
+                    if (options && options.renamedCols &&
+                        options.renamedCols[colStruct.colId]) {
+                        colStruct.rename = options.renamedCols[colStruct.colId];
+                    }
                 }
             }
             if (colStruct.colId && dupCols[colStruct.colId] > 0) {
