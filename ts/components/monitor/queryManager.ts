@@ -1974,7 +1974,7 @@ namespace QueryManager {
                 if ($grid.length) {
                     focusOnDSGrid($grid, dsId);
                 } else {
-                    DS.restore(DS.getHomeDir(true))
+                    DS.restore(DS.getHomeDir(true), false)
                     .then(function() {
                         $grid = DS.getGrid(dsId);
                         if ($grid.length) {

@@ -159,7 +159,7 @@ class DFPublishModal {
             const promises: XDPromise<void>[] = [];
             dag.getGraph().getUsedDSNames().forEach((dsName) => {
                 if (dsName) {
-                    promises.push(DS.shareDS(dsName));
+                    promises.push(DS.share(dsName));
                 }
             });
             return PromiseHelper.when(...promises);

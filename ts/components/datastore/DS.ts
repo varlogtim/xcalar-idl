@@ -1,29 +1,32 @@
 /*
- * Module for mamgement of dsObj
+ * Module for management of dsObj
  */
-window.DS = (function ($, DS) {
-    var homeDirId; // DSObjTerm.homeDirId
+namespace DS {
+    let homeDirId: string; // DSObjTerm.homeDirId
 
-    var curDirId;       // current folder id
-    var dsLookUpTable;  // find DSObj by dsId
-    var homeFolder;
-    var dsInfoMeta;
-    var errorDSSet = {}; // UI cache only
+    let curDirId: string;       // current folder id
+    let dsLookUpTable: {[key: string]: DSObj};  // find DSObj by dsId
+    let homeFolder;
+    let dsInfoMeta: SharedDSInfo;
+    let errorDSSet = {}; // UI cache only
 
-    var $gridView;      // $("#dsListSection .gridItems")
-    var $gridMenu;      // $("#gridViewMenu")
+    let $gridView: JQuery;      // $("#dsListSection .gridItems")
+    let $gridMenu: JQuery;      // $("#gridViewMenu")
 
-    var dirStack = []; // for go back and forward
-    var $backFolderBtn;    //$("#backFolderBtn");
-    var $forwardFolderBtn; // $("#forwardFolderBtn")
-    var $dsListFocusTrakcer; // $("#dsListFocusTrakcer");
-    var sortKey = null;
-    var disableShare = false;
+    let dirStack: string[] = []; // for go back and forward
+    let $backFolderBtn: JQuery;    //$("#backFolderBtn");
+    let $forwardFolderBtn: JQuery; // $("#forwardFolderBtn")
+    let $dsListFocusTrakcer: JQuery; // $("#dsListFocusTrakcer");
+    let sortKey: string = null;
+    let disableShare: boolean = false;
     // for DS drag n drop
-    var $dragDS;
-    var $dropTarget;
+    let $dragDS: JQuery;
+    let $dropTarget: JQuery;
 
-    DS.setup = function() {
+    /**
+     * DS.setup
+     */
+    export function setup(): void {
         homeDirId = DSObjTerm.homeDirId;
         $gridView = $("#dsListSection .gridItems");
         $gridMenu = $("#gridViewMenu");
@@ -35,26 +38,45 @@ window.DS = (function ($, DS) {
         setupGridViewButtons();
         setupGrids();
         setupGridMenu();
-    };
+    }
 
-    DS.updateNumDS = function(numDatasets) {
-        var $numDataStores = $(".numDataStores:not(.tutor)");
-
+    /**
+     * DS.updateNumDS
+     * @param numDatasets
+     */
+    export function updateNumDS(numDatasets?: number): void {
+        let $numDataStores = $(".numDataStores:not(.tutor)");
         if (numDatasets != null) {
             $numDataStores.text(numDatasets);
         } else {
-            var numDS = $("#dsListSection .gridItems .ds").length;
+            let numDS = $("#dsListSection .gridItems .ds").length;
             $numDataStores.text(numDS);
         }
-    };
+    }
 
-    // Restore dsObj
-    DS.restore = function(oldHomeFolder, atStartUp) {
+    /**
+     * DS.restore
+     * Restore dsObj
+     * @param oldHomeFolder
+     * @param atStartUp
+     */
+    export function restore(
+        oldHomeFolder: DSDurable,
+        atStartUp: boolean
+    ): XDPromise<void> {
         restoreSortKey();
         return restoreDS(oldHomeFolder, atStartUp);
-    };
+    }
 
-    DS.restoreSourceFromDagNode = function(dagNodes, share) {
+    /**
+     * DS.restoreSourceFromDagNode
+     * @param dagNodes
+     * @param share
+     */
+    export function restoreSourceFromDagNode(
+        dagNodes: DagNodeDataset[],
+        share: boolean
+    ) {
         const deferred = PromiseHelper.deferred();
         const failures = [];
         const nameToDagMap = new Map();
@@ -82,7 +104,7 @@ window.DS = (function ($, DS) {
         });
 
         nameToDagMap.forEach((dagNodes) => {
-            var promise = restoreSourceFromDagNodeHelper(dagNodes, share, failures);
+            let promise = restoreSourceFromDagNodeHelper(dagNodes, share, failures);
             promises.push(promise);
         });
 
@@ -114,29 +136,32 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    DS.restoreSourceFromLoadArgs = function(loadArgs) {
-        var newDSName = getNewDSName(loadArgs.args.dest);
-        return restoreDatasetFromLoadArgs(newDSName, JSON.stringify(loadArgs));
-    }
-
-    DS.restoreTutorialDS = function(loadArgs) {
-        const deferred = PromiseHelper.deferred();
+    /**
+     * DS.restoreTutorialDS
+     */
+    export function restoreTutorialDS(loadArgs: any): XDPromise<string> {
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
         let folder = DS.getDSObj(DSObjTerm.TutorialFolderId);
         if (folder == null) {
             createTutorialFolder();
         }
 
-        DS.restoreSourceFromLoadArgs(loadArgs)
+        restoreSourceFromLoadArgs(loadArgs)
         .then((dsObj) => {
             // Place it into the tutorial workbook
             dropHelper(loadArgs.args.dest, DSObjTerm.TutorialFolderId);
-            return deferred.resolve(dsObj.getId());
+            deferred.resolve(dsObj.getId());
         })
         .fail(deferred.reject);
         return deferred.promise();
     }
 
-    function loadArgsAdapter(loadArgsStr) {
+    function restoreSourceFromLoadArgs(loadArgs: any): XDPromise<DSObj> {
+        let newDSName = getNewDSName(loadArgs.args.dest);
+        return restoreDatasetFromLoadArgs(newDSName, JSON.stringify(loadArgs));
+    }
+
+    function loadArgsAdapter(loadArgsStr: string): string | null {
         try {
             if (loadArgsStr == null) {
                 return null;
@@ -147,7 +172,7 @@ window.DS = (function ($, DS) {
                 return null;
             }
 
-            var parsed = JSON.parse(loadArgsStr);
+            let parsed = JSON.parse(loadArgsStr);
             if (parsed.sourceArgsList != null) {
                 // a old kind of format. to be deprecated
                 loadArgsStr = JSON.stringify({
@@ -165,10 +190,14 @@ window.DS = (function ($, DS) {
     }
 
     // restore a set of dataset who share the same dsName and loadArgs
-    function restoreSourceFromDagNodeHelper(dagNodes, share, failures) {
-        const deferred = PromiseHelper.deferred();
-        const oldDSName = dagNodes[0].getDSName();
-        const newDSName = getNewDSName(oldDSName);
+    function restoreSourceFromDagNodeHelper(
+        dagNodes: DagNodeDataset[],
+        share: boolean,
+        failures: string[]
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let oldDSName = dagNodes[0].getDSName();
+        let newDSName = getNewDSName(oldDSName);
         let loadArgs = dagNodes[0].getLoadArgs();
         loadArgs = loadArgsAdapter(loadArgs);
         if (loadArgs == null) {
@@ -177,8 +206,8 @@ window.DS = (function ($, DS) {
 
         const cachedInfo = {};
         dagNodes.forEach((dagNode) => {
-            const param = xcHelper.deepCopy(dagNode.getParam());
-            const error = dagNode.getError();
+            let param = xcHelper.deepCopy(dagNode.getParam());
+            let error = dagNode.getError();
             param.source = newDSName;
             param.loadArgs = loadArgs.replace(oldDSName, newDSName);
             dagNode.setParam(param, true);
@@ -190,11 +219,13 @@ window.DS = (function ($, DS) {
         restoreDatasetFromLoadArgs(newDSName, loadArgs)
         .then((dsObj) => {
             if (share) {
-                const dsId = dsObj.getId();
-                const newName = getSharedName(dsObj.getName());
-                const innerDeferred = PromiseHelper.deferred();
+                let dsId = dsObj.getId();
+                let newName = getSharedName(dsId, dsObj.getName());
+                let innerDeferred = PromiseHelper.deferred();
                 shareAndUnshareHelper(dsId, newName, true)
-                .then(innerDeferred.resolve)
+                .then(() => {
+                    innerDeferred.resolve();
+                })
                 .fail((error) => {
                     failures.push(error);
                     innerDeferred.resolve(); // still resolve
@@ -202,7 +233,9 @@ window.DS = (function ($, DS) {
                 return innerDeferred.promise();
             }
         })
-        .then(deferred.resolve)
+        .then(() => {
+            deferred.resolve();
+        })
         .fail((error) => {
             dagNodes.forEach((dagNode) => {
                 const info = cachedInfo[dagNode.getId()] || {};
@@ -221,8 +254,11 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function restoreDatasetFromLoadArgs(fullDSName, loadArgsStr) {
-        var deferred = PromiseHelper.deferred();
+    function restoreDatasetFromLoadArgs(
+        fullDSName: string,
+        loadArgsStr: string
+    ): XDPromise<DSObj> {
+        let deferred: XDDeferred<DSObj> = PromiseHelper.deferred();
         restoreDatasetHelper(fullDSName, loadArgsStr)
         .then(deferred.resolve)
         .fail((error) => {
@@ -233,23 +269,26 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     };
 
-    function restoreDatasetHelper(fullDSName, loadArgsStr) {
+    function restoreDatasetHelper(
+        fullDSName: string,
+        loadArgsStr: string
+    ): XDPromise<DSObj>  {
         if (DS.getDSObj(fullDSName) != null) {
             return PromiseHelper.reject({
                 error: "Dataset already exists"
             });
         }
-        var deferred = PromiseHelper.deferred();
+        let deferred: XDDeferred<DSObj> = PromiseHelper.deferred();
         try {
-            var loadArgs = JSON.parse(loadArgsStr).args.loadArgs;
-            var parsedName = xcHelper.parseDSName(fullDSName);
-            var dsArgs = {
+            let loadArgs = JSON.parse(loadArgsStr).args.loadArgs;
+            let parsedName = xcHelper.parseDSName(fullDSName);
+            let dsArgs = {
                 name: parsedName.dsName,
                 user: parsedName.user,
                 fullName: fullDSName,
                 sources: loadArgs.sourceArgsList
             };
-            return DS.import(dsArgs, {
+            return DS.load(dsArgs, {
                 restoreArgs: loadArgs
             });
         } catch (e) {
@@ -262,47 +301,40 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function getNewDSName(oldDSName) {
-        var parsedName = xcHelper.parseDSName(oldDSName);
-        var dsName = DS.getUniqueName(parsedName.dsName);
-        return xcHelper.wrapDSName(dsName, parsedName.randId);
-    };
+    function getNewDSName(oldDSName: string): string {
+        let parsedName = xcHelper.parseDSName(oldDSName);
+        let dsName = DS.getUniqueName(parsedName.dsName);
+        return xcHelper.wrapDSName(dsName, <string>parsedName.randId);
+    }
 
-    // recursive call to upgrade dsObj
-    DS.upgrade = function(dsObj) {
-        if (dsObj == null) {
-            return null;
-        }
-
-        var newDSObj = KVStore.upgrade(dsObj, "DSObj");
-        if (dsObj.isFolder && dsObj.eles.length > 0) {
-            var len = dsObj.eles.length;
-            for (var i = 0; i < len; i++) {
-                newDSObj.eles[i] = DS.upgrade(dsObj.eles[i]);
-            }
-        }
-
-        return newDSObj;
-    };
-
-    DS.isAccessible = function(dsName) {
-        var parsedRes = xcHelper.parseDSName(dsName);
+    /**
+     * DS.isAccessible
+     */
+    export function isAccessible(dsName: string): boolean {
+        let parsedRes = xcHelper.parseDSName(dsName);
         if (parsedRes.user === XcUser.getCurrentUserName()) {
             return true;
         }
         // if not the user, the dataset need to be shared
-        var dsObj = DS.getDSObj(dsName);
+        let dsObj = DS.getDSObj(dsName);
         if (dsObj == null) {
             return false;
         }
         return isInSharedFolder(dsObj.getId());
-    };
+    }
 
-    DS.isSharingDisabled = function() {
+    /**
+     * DS.isSharingDisabled
+     */
+    export function isSharingDisabled(): boolean {
         return disableShare;
-    };
+    }
 
-    DS.toggleSharing = function(disable) {
+    /**
+     * DS.toggleSharing
+     * @param disable
+     */
+    export function toggleSharing(disable: boolean): void {
         disableShare = disable || false;
         if (disableShare) {
             $gridView.addClass("disableShare");
@@ -312,12 +344,15 @@ window.DS = (function ($, DS) {
         } else {
             $gridView.removeClass("disableShare");
         }
-    };
+    }
 
-    // Get home folder
-    DS.getHomeDir = function(toPersist) {
+    /**
+     * Get home folder
+     * DS.getHomeDir
+     */
+    export function getHomeDir(toPersist: boolean): DSDurable {
         if (toPersist) {
-            var copy = removeNonpersistDSObjAttributes(homeFolder);
+            let copy = removeNonpersistDSObjAttributes(homeFolder);
             for (var i = 0, len = copy.eles.length; i < len; i++) {
                 if (copy.eles[i].id === DSObjTerm.SharedFolderId) {
                     copy.totalChildren -= copy.eles[i].totalChildren;
@@ -329,19 +364,27 @@ window.DS = (function ($, DS) {
         } else {
             return homeFolder;
         }
-    };
+    }
 
-    DS.getSharedDir = function(toPersist) {
+    /**
+     * DS.getSharedDir
+     * @param toPersist
+     */
+    export function getSharedDir(toPersist: boolean): DSDurable | DSObj {
         var sharedFolder = DS.getDSObj(DSObjTerm.SharedFolderId);
         if (toPersist) {
             return removeNonpersistDSObjAttributes(sharedFolder);
         } else {
             return sharedFolder;
         }
-    };
+    }
 
-    DS.getLoadArgsFromDS = function(dsName) {
-        var dsObj = DS.getDSObj(dsName);
+    /**
+     * DS.getLoadArgsFromDS
+     * @param dsName
+     */
+    export function getLoadArgsFromDS(dsName: string): XDPromise<string> {
+        let dsObj = DS.getDSObj(dsName);
         if (dsObj == null) {
             return PromiseHelper.reject();
         }
@@ -350,10 +393,10 @@ window.DS = (function ($, DS) {
             return PromiseHelper.resolve(dsObj.cachedLoadArgs);
         }
 
-        var deferred = PromiseHelper.deferred();
-        var datasetName = dsObj.getFullName();
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let datasetName = dsObj.getFullName();
         XcalarDatasetGetLoadArgs(datasetName)
-        .then(function(loadArgs) {
+        .then((loadArgs) => {
             dsObj.cachedLoadArgs = loadArgs;
             deferred.resolve(loadArgs);
         })
@@ -362,12 +405,12 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function removeNonpersistDSObjAttributes(folder) {
-        var folderCopy = xcHelper.deepCopy(folder);
-        var cache = [folderCopy];
+    function removeNonpersistDSObjAttributes(folder: DSObj): DSDurable {
+        let folderCopy = xcHelper.deepCopy(folder);
+        let cache = [folderCopy];
         // restore the ds and folder
         while (cache.length > 0) {
-            var obj = cache.shift();
+            let obj = cache.shift();
             if (obj == null) {
                 console.error("error case");
                 continue;
@@ -384,24 +427,40 @@ window.DS = (function ($, DS) {
         return folderCopy;
     }
 
-    // Get dsObj by dsId
-    DS.getDSObj = function(dsId) {
+    /**
+     * Get dsObj by dsId
+     * DS.getDSObj
+     * @param dsId
+     */
+    export function getDSObj(dsId: string): DSObj | null {
         if (dsId == null) {
             return null;
         }
         return dsLookUpTable[dsId] || null;
-    };
+    }
 
-    DS.getErrorDSObj = function(dsId) {
+    /**
+     * DS.getErrorDSObj
+     * @param dsId
+     */
+    export function getErrorDSObj(dsId: string): DSObj | null {
         return errorDSSet[dsId] || null;
-    };
+    }
 
-    DS.removeErrorDSObj = function(dsId) {
+    /**
+     * DS.removeErrorDSObj
+     * @param dsId
+     */
+    export function removeErrorDSObj(dsId: string): void {
         delete errorDSSet[dsId];
-    };
+    }
 
-    // Get grid element(folder/datasets) by dsId
-    DS.getGrid = function(dsId) {
+    /**
+     * Get grid element(folder/datasets) by dsId
+     * DS.getGrid
+     * @param dsId
+     */
+    export function getGrid(dsId: string): JQuery | null {
         if (dsId == null) {
             return null;
         } else if (dsId === homeDirId) {
@@ -409,11 +468,14 @@ window.DS = (function ($, DS) {
         } else {
             return $gridView.find('.grid-unit[data-dsid="' + dsId + '"]');
         }
-    };
+    }
 
-    // create a new folder
-    DS.newFolder = function() {
-        var ds = createDS({
+    /**
+     * create a new folder
+     * DS.newFolder
+     */
+    export function newFolder(): DSObj {
+        let ds = createDS({
             "name": DSTStr.NewFolder,
             "isFolder": true
         });
@@ -427,12 +489,18 @@ window.DS = (function ($, DS) {
                 .find('.label').click();
 
         return ds;
-    };
+    }
 
-    DS.addCurrentUserDS = function(fullDSName, options) {
-        var parsedRes = xcHelper.parseDSName(fullDSName);
-        var user = parsedRes.user;
-        var dsName = parsedRes.dsName;
+    /**
+     * DS.addCurrentUserDS
+     */
+    export function addCurrentUserDS(
+        fullDSName: string,
+        options: any
+    ): DSObj | null {
+        let parsedRes = xcHelper.parseDSName(fullDSName);
+        let user = parsedRes.user;
+        let dsName = parsedRes.dsName;
         options = $.extend({}, options, {
             "id": fullDSName, // user the fulldsname as a unique id
             "name": dsName,
@@ -442,44 +510,20 @@ window.DS = (function ($, DS) {
         });
 
         return createDS(options);
-    };
+    }
 
-    DS.addOtherUserDS = function(fullDSName, options) {
-        // 1. add as shared ds
-        // 3. notify the owner of the ds to refresh
-        var deferred = PromiseHelper.deferred();
-        var parsedRes = xcHelper.parseDSName(fullDSName);
-        var user = parsedRes.user;
-        var dsName = parsedRes.dsName;
-        var dsOptions = $.extend({}, options, {
-            "id": fullDSName, // user the fulldsname as a unique id
-            "name": dsName,
-            "user": user,
-            "fullName": fullDSName,
-            "isFolder": false,
-            "parentId": DSObjTerm.SharedFolderId
-        });
-        var dsObj = createDS(dsOptions);
-        var arg = {
-            dir: DSObjTerm.SharedFolderId,
-            action: "add",
-            ds: dsObj
-        };
-
-        commitSharedFolderChange(arg, true)
-        .always(function() {
-            // always resolve it
-            deferred.resolve(dsObj);
-        });
-
-        return deferred.promise();
-    };
-
-    DS.unFocus = function() {
+    /**
+     * DS.unFocus
+     */
+    export function unFocus(): void {
         $gridView.find(".grid-unit.active").removeClass("active");
-    };
+    }
 
-    DS.focusOn = function($grid) {
+    /**
+     * DS.focusOn
+     * @param $grid
+     */
+    export function focusOn($grid: JQuery): XDPromise<boolean> {
         if ($grid == null && $grid.length === 0) {
             return;
         }
@@ -488,8 +532,8 @@ window.DS = (function ($, DS) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = PromiseHelper.deferred();
-        var dsId = $grid.data("dsid");
+        let deferred: XDDeferred<boolean> = PromiseHelper.deferred();
+        let dsId: string = $grid.data("dsid");
 
         $gridView.find(".active").removeClass("active");
         $grid.addClass("active");
@@ -499,24 +543,24 @@ window.DS = (function ($, DS) {
         if ($grid.hasClass("folder")) {
             return PromiseHelper.resolve();
         } else if ($grid.hasClass("unlistable")) {
-            DSTable.showError(dsId, ErrTStr.MakrForDel, true);
+            DSTable.showError(dsId, ErrTStr.MakrForDel, true, false, false);
             return PromiseHelper.resolve();
         } else if ($grid.hasClass("inActivated") && !isLoading) {
-            DSTable.showError(dsId, ErrTStr.InactivateDS, false, true);
+            DSTable.showError(dsId, ErrTStr.InactivateDS, false, true, false);
             return PromiseHelper.resolve();
         }
 
         $grid.addClass("fetching");
         // when switch to a ds, should clear others' ref count first!!
         DSTable.show(dsId, isLoading)
-        .then(function() {
+        .then(() => {
             deferred.resolve(isLoading);
         })
-        .fail(function(error) {
+        .fail((error) => {
             console.error("Focus on ds fails!", error);
             deferred.reject(error);
         })
-        .always(function() {
+        .always(() => {
             $grid.removeClass("fetching");
             if (!isLoading) {
                 $grid.removeClass("notSeen");
@@ -524,16 +568,21 @@ window.DS = (function ($, DS) {
         });
 
         return deferred.promise();
-    };
+    }
 
-    /* Import dataset, promise returns dsObj
-        options:
-            dsToReplace: if set true, will replace the old ds
-            restoreArgs: if exist, will use it t restore the ds
+   /**
+    * Import dataset, promise returns dsObj
+    * DS.load
     */
-    DS.import = function(dsArgs, options) {
+    export function load(
+        dsArgs: any,
+        options: {
+            dsToReplace?: string,
+            restoreArgs?: string
+        }
+    ): XDPromise<DSObj> {
         options = options || {};
-        var dsToReplace = options.dsToReplace || null;
+        let dsToReplace: string = options.dsToReplace || null;
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
         if (isInSharedFolder(curDirId)) {
@@ -547,8 +596,8 @@ window.DS = (function ($, DS) {
             curDirId = homeDirId;
             dsArgs.parentId = curDirId;
         }
-        var dsObj = createDS(dsArgs, dsToReplace);
-        var sql = {
+        let dsObj = createDS(dsArgs, dsToReplace);
+        let sql = {
             "operation": SQLOps.DSImport,
             "args": dsArgs,
             "options": options
@@ -556,23 +605,30 @@ window.DS = (function ($, DS) {
 
         sortDS(curDirId);
         return importHelper(dsObj, sql, options.restoreArgs);
-    };
+    }
 
-    DS.getSchema = function(source) {
-        const dsObj = DS.getDSObj(source);
+    /**
+     * DS.getSchema
+     */
+    export function getSchema(source: string): {
+        schema: ColSchema[],
+        error?: string
+    } {
+        let dsObj = DS.getDSObj(source);
         if (dsObj == null) {
             return {
+                schema: null,
                 error: "Dataset not found"
             };
         }
-        const sourceHasParams = DagNodeInput.checkValidParamBrackets(source, true);
+        let sourceHasParams = DagNodeInput.checkValidParamBrackets(source, true);
         if (sourceHasParams) {
             return {
                 schema: []
             };
         }
 
-        const columns = dsObj.getColumns();
+        let columns = dsObj.getColumns();
         if (columns == null) {
             console.error("Cannot get schema from the dataset");
             return {
@@ -585,17 +641,22 @@ window.DS = (function ($, DS) {
         }
     }
 
-    // Rename dsObj
-    DS.rename = function(dsId, newName) {
+    /**
+     * Rename dsObj
+     * DS.rename
+     * @param dsId
+     * @param newName
+     */
+    export function rename(dsId: string, newName: string): boolean {
         // now only for folders (later also rename datasets?)
-        var dsObj = DS.getDSObj(dsId);
+        let dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             console.error("error case");
             return false;
         }
-        var $label = DS.getGrid(dsId).find("> .label");
-        var oldName = dsObj.getName();
-        var hasRename = false;
+        let $label = DS.getGrid(dsId).find("> .label");
+        let oldName = dsObj.getName();
+        let hasRename = false;
 
         if (newName === oldName || newName === "") {
             $label.html(oldName);
@@ -614,17 +675,22 @@ window.DS = (function ($, DS) {
 
         DataSourceManager.truncateLabelName($label);
         return hasRename;
-    };
+    }
 
-    // helper function to find grid, mainly used in unit test
-    DS.getGridByName = function(dsName, user) {
+    /**
+     * helper function to find grid, mainly used in unit test
+     * DS.getGridByName
+     * @param dsName
+     * @param user
+     */
+    export function getGridByName(dsName: string, user?: string): JQuery | null {
         if (dsName == null) {
             return null;
         }
         // now only check dataset name conflict
         user = user || getCurrentUserName();
-        var $grid = $gridView.find('.grid-unit[data-dsname="' + dsName + '"]');
-        var $ds = $grid.filter(function() {
+        let $grid = $gridView.find('.grid-unit[data-dsname="' + dsName + '"]');
+        let $ds = $grid.filter(function() {
             // only check the dataset in user's namespace
             return $(this).data("user") === user;
         });
@@ -636,10 +702,14 @@ window.DS = (function ($, DS) {
         }
     };
 
-    DS.getUniqueName = function(name) {
-        var originalName = name;
-        var tries = 1;
-        var validNameFound = false;
+    /**
+     * DS.getUniqueName
+     * @param name
+     */
+    export function getUniqueName(name: string): string {
+        let originalName: string = name;
+        let tries: number = 1;
+        let validNameFound: boolean = false;
         while (!validNameFound && tries < 20) {
             if (DS.has(name)) {
                 validNameFound = false;
@@ -660,40 +730,56 @@ window.DS = (function ($, DS) {
             }
         }
         return name;
-    };
+    }
 
-    // Check if the ds's name already exists
-    DS.has = function(dsName) {
+    /**
+     * Check if the ds's name already exists
+     * DS.has
+     * @param dsName
+     */
+    export function has(dsName: string): boolean {
         return (DS.getGridByName(dsName) != null);
-    };
+    }
 
-    // Remove dataset/folder
-    DS.remove = function($grids) {
-        xcAssert($grids != null && $grids.length !== 0);
-        var deferred = PromiseHelper.deferred();
-
+    /**
+     * Remove dataset/folder
+     * DS.remove
+     * @param $grids
+     */
+    export function remove($grids: JQuery): XDPromise<void> {
+        if ($grids == null || $grids.length === 0) {
+            return PromiseHelper.reject("invalid args");
+        }
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         alertDSRemove($grids)
-        .then(function() {
-            var dsIds = [];
+        .then(() => {
+            let dsIds = [];
             $grids.each(function() {
                 dsIds.push($(this).data("dsid"));
             });
             cleanDSSelect();
             return removeDSHandler(dsIds);
         })
-        .then(deferred.resolve)
-        .fail(function() {
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail(() => {
             focsueOnTracker();
             deferred.reject();
         });
 
         return deferred.promise();
-    };
+    }
 
-    DS.cancel = function($grid) {
-        xcAssert(($grid != null && $grid.length !== 0));
-        var deferred = PromiseHelper.deferred();
-
+    /**
+     * DS.cancel
+     * @param $grid
+     */
+    export function cancel($grid: JQuery): XDPromise<void> {
+        if ($grid == null || $grid.length === 0) {
+            return PromiseHelper.reject("invalid args");
+        }
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if ($grid.hasClass("active")) {
             focusOnForm();
         }
@@ -701,33 +787,45 @@ window.DS = (function ($, DS) {
             $grid.removeClass("active").addClass("inactive deleting");
         }
 
-        var txId = $grid.data("txid");
-        // if cancel success, it will trigger fail in DS.import, so it's fine
+        let txId = $grid.data("txid");
+        // if cancel success, it will trigger fail in DS.load, so it's fine
         QueryManager.cancelQuery(txId)
         .then(deferred.resolve)
-        .fail(function(error) {
+        .fail((error) => {
             console.error(error);
             // if cancel fails, transaction fail handler will delete the ds
             deferred.reject(error);
         });
 
         return deferred.promise();
-    };
+    }
 
-    DS.activate = function(dsIds, noAlert) {
+    /**
+     * DS.activate
+     * @param dsIds
+     * @param noAlert
+     */
+    export function activate(dsIds: string[], noAlert: boolean): XDPromise<void> {
         return activateDS(dsIds, noAlert);
-    };
+    }
 
-    // Change dir to parent folder
-    DS.upDir = function() {
-        var dirId = curDirId; // tmp cache
-        var parentId = DS.getDSObj(curDirId).getParentId();
+    /**
+     * Change dir to parent folder
+     * DS.upDir
+     */
+    export function upDir(): void {
+        let dirId = curDirId; // tmp cache
+        let parentId = DS.getDSObj(curDirId).getParentId();
         DS.goToDir(parentId);
         pushDirStack(dirId);
-    };
+    }
 
-    // Change dir to another folder
-    DS.goToDir = function(folderId) {
+    /**
+     * Change dir to another folder
+     * DS.goToDir
+     * @param folderId
+     */
+    export function goToDir(folderId: string): void {
         if (folderId == null) {
             console.error("Error Folder to go");
             return;
@@ -744,38 +842,59 @@ window.DS = (function ($, DS) {
         }
 
         refreshDS();
-        var $labels = $gridView.find(".label:visible");
+        let $labels = $gridView.find(".label:visible");
         DataSourceManager.truncateLabelName($labels);
-    };
+    }
 
-    DS.resize = function() {
-        var $menu = $("#datastoreMenu");
+    /**
+     * DS.resize
+     */
+    export function resize(): void {
+        let $menu = $("#datastoreMenu");
         if ($menu.hasClass("active") && $gridView.hasClass("listView")) {
-            var $allGrids = $gridView.add($("#dsTarget-list .gridItems"));
-            var $labels = $allGrids.find(".label:visible");
+            let $allGrids = $gridView.add($("#dsTarget-list .gridItems"));
+            let $labels = $allGrids.find(".label:visible");
             DataSourceManager.truncateLabelName($labels, true);
         }
-    };
+    }
 
-    DS.getSortKey = function() {
+    /**
+     * DS.getSortKey
+     */
+    export function getSortKey(): string {
         return sortKey;
-    };
+    }
 
-    // returns an array of all visible datasets
-    // {
-    //    path,
-    //    suffix (userName if shared),
-    //    id
-    // }
-    DS.listDatasets = function(sharedOnly) {
-        var list = [];
-        var path = [];
-        var folder = sharedOnly ? DS.getDSObj(DSObjTerm.SharedFolderId) : homeFolder;
+    /**
+     * DS.listDatasets
+     * returns an array of all visible datasets
+     * @param sharedOnly
+     */
+    export function listDatasets(
+        sharedOnly: boolean
+    ): {
+        path: string,
+        suffix: string,
+        id: string,
+        options: {
+            inActivated: boolean
+        }
+    }[] {
+        let list: {
+            path: string,
+            suffix: string,
+            id: string,
+            options: {
+                inActivated: boolean
+            }
+        }[] = [];
+        let path: string[] = [];
+        let folder: DSObj[] = sharedOnly ? DS.getDSObj(DSObjTerm.SharedFolderId) : homeFolder;
         populate(folder, path);
 
         function populate(el, path) {
             if (el.isFolder) {
-                var name = el.name;
+                let name: string = el.name;
                 if (el.name === ".") {
                     name = "";
                 }
@@ -785,34 +904,37 @@ window.DS = (function ($, DS) {
                 });
                 path.pop();
             } else {
-                var suffix = "";
+                let suffix: string = "";
                 if (path[1] === DSObjTerm.SharedFolder) {
                     suffix = el.user;
                 }
-                var listObj = {
+                list.push({
                     path: path.join("/") + "/" + el.name,
                     suffix: suffix,
                     id: el.id,
                     options: {
                         inActivated: !el.isActivated()
                     }
-                }
-                list.push(listObj);
+                });
             }
         }
         return list;
-    };
+    }
 
-    DS.getDSBasicInfo = function(datasetName) {
-        var deferred = PromiseHelper.deferred();
+    /**
+     * DS.getDSBasicInfo
+     * @param datasetName
+     */
+    export function getDSBasicInfo(datasetName: string): XDPromise<any> {
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
         XcalarGetDatasetsInfo(datasetName)
-        .then(function(res) {
+        .then((res) => {
             try {
                 var dsInfos = {};
                 res.datasets.forEach(function(dataset) {
-                    var fullName = dataset.datasetName;
+                    let fullName: string = dataset.datasetName;
                     if (fullName.startsWith(gDSPrefix)) {
-                        var name = fullName.substring(gDSPrefix.length);
+                        let name: string = fullName.substring(gDSPrefix.length);
                         dsInfos[name] = {
                             size: dataset.datasetSize,
                             columns: getSchemaMeta(dataset.columns),
@@ -827,7 +949,7 @@ window.DS = (function ($, DS) {
                 deferred.resolve({}); // still resolve
             }
         })
-        .fail(function(error) {
+        .fail((error) => {
             console.error(error);
             deferred.resolve({}); // still resolve
         });
@@ -835,8 +957,11 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    // Clear dataset/folder in gridView area
-    DS.clear = function() {
+    /**
+     * DS.clear
+     * Clear dataset/folder in gridView area
+     */
+    export function clear(): void {
         $gridView.find(".grid-unit").remove();
         $backFolderBtn.addClass("xc-disabled");
         clearDirStack();
@@ -847,20 +972,25 @@ window.DS = (function ($, DS) {
 
         homeFolder = createHomeFolder();
         dsLookUpTable[homeFolder.getId()] = homeFolder;
-    };
+    }
 
-    // Refresh the gridview area
-    DS.refresh = function() {
+    /**
+     * DS.refresh
+     * Refresh the gridview area
+     */
+    export function refresh(): XDPromise<void> {
         return refreshHelper();
     }
 
     // Create dsObj for new dataset/folder
-    function createDS(options, dsToReplace) {
+    function createDS(options: any, dsToReplace?: string): DSObj | null {
         // this will make sure option is a diffent copy of old option
         options = $.extend({}, options);
         // validation check
-        xcAssert((options.name != null), "Invalid Parameters");
-
+        if (options.name == null) {
+            console.error("Invalid Parameters");
+            return null;
+        }
         // pre-process
         options.name = options.name.trim();
         options.user = options.user || getCurrentUserName();
@@ -868,8 +998,8 @@ window.DS = (function ($, DS) {
         options.isFolder = options.isFolder || false;
         options.uneditable = options.uneditable || false;
 
-        var parent = DS.getDSObj(options.parentId);
-        var unlistable = options.unlistable || false;
+        let parent = DS.getDSObj(options.parentId);
+        let unlistable = options.unlistable || false;
         delete options.unlistable; // unlistable is not part of ds attr
 
         if (options.isFolder) {
@@ -892,9 +1022,9 @@ window.DS = (function ($, DS) {
             options.id = options.id || options.fullName;
             options.activated = options.activated || false;
         }
-        var dsObj = new DSObj(options);
+        let dsObj = new DSObj(options);
         dsObj.addToParent();
-        var $ds = options.uneditable ? $(getUneditableDSHTML(dsObj)) :
+        let $ds = options.uneditable ? $(getUneditableDSHTML(dsObj)) :
                                        $(getDSHTML(dsObj));
 
         if (unlistable && !options.isFolder) {
@@ -904,8 +1034,8 @@ window.DS = (function ($, DS) {
             });
         }
 
-        var dsObjToReplace = DS.getDSObj(dsToReplace);
-        var $gridToReplace = null;
+        let dsObjToReplace = DS.getDSObj(dsToReplace);
+        let $gridToReplace = null;
         if (dsObjToReplace != null) {
             // when replace ds
             $gridToReplace = DS.getGrid(dsToReplace);
@@ -933,7 +1063,7 @@ window.DS = (function ($, DS) {
         return dsObj;
     }
 
-    function createHomeFolder() {
+    function createHomeFolder(): DSObj {
         return new DSObj({
             "id": homeDirId,
             "name": DSObjTerm.homeDir,
@@ -945,8 +1075,8 @@ window.DS = (function ($, DS) {
         });
     }
 
-    function createSharedFolder() {
-        var folder = createDS({
+    function createSharedFolder(): DSObj {
+        let folder = createDS({
             "id": DSObjTerm.SharedFolderId,
             "name": DSObjTerm.SharedFolder,
             "parentId": homeDirId,
@@ -954,14 +1084,14 @@ window.DS = (function ($, DS) {
             "uneditable": true,
             "user": DSObjTerm.SharedFolder
         });
-        var $grid = DS.getGrid(DSObjTerm.SharedFolderId);
+        let $grid = DS.getGrid(DSObjTerm.SharedFolderId);
         // grid should be the first on in grid view
         $grid.prependTo($gridView);
         return folder;
     }
 
-    function createTutorialFolder() {
-        var folder = createDS({
+    function createTutorialFolder(): DSObj {
+        let folder = createDS({
             "id": DSObjTerm.TutorialFolderId,
             "name": DSObjTerm.TutorialFolder,
             "parentId": homeDirId,
@@ -969,14 +1099,14 @@ window.DS = (function ($, DS) {
             "uneditable": true,
             "user": DSObjTerm.TutorialFolder
         });
-        var $grid = DS.getGrid(DSObjTerm.TutorialFolderId);
+        let $grid = DS.getGrid(DSObjTerm.TutorialFolderId);
         // grid should be the first on in grid view
         $grid.prependTo($gridView);
         return folder;
     }
 
-    function isInSharedFolder(dirId) {
-        var dsObj;
+    function isInSharedFolder(dirId: string): boolean {
+        let dsObj: DSObj;
         while (dirId !== homeDirId && dirId !== DSObjTerm.SharedFolderId) {
             dsObj = DS.getDSObj(dirId);
             dirId = dsObj.getParentId();
@@ -984,8 +1114,8 @@ window.DS = (function ($, DS) {
         return (dirId === DSObjTerm.SharedFolderId);
     }
 
-    function isInTutorialFolder(dirId) {
-        var dsObj;
+    function isInTutorialFolder(dirId: string): boolean {
+        let dsObj: DSObj;
         while (dirId !== homeDirId && dirId !== DSObjTerm.TutorialFolderId) {
             dsObj = DS.getDSObj(dirId);
             dirId = dsObj.getParentId();
@@ -995,15 +1125,19 @@ window.DS = (function ($, DS) {
 
     // XXX TODO, imporve it to accept multiple dsIds,
     // and only commit once
-    DS.shareDS = function(dsId) {
+    /**
+     * DS.share
+     * @param dsId
+     */
+    export function share(dsId: string): XDPromise<void> {
         return shareDS(dsId, true);
-    };
+    }
 
-    function shareDS(dsId, noAlert) {
+    function shareDS(dsId: string, noAlert: boolean): XDPromise<void> {
         if (disableShare) {
             return PromiseHelper.resolve();
         }
-        var dsObj = DS.getDSObj(dsId);
+        let dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             // invalid id
             return PromiseHelper.resolve();
@@ -1012,9 +1146,9 @@ window.DS = (function ($, DS) {
             // already in share folder
             return PromiseHelper.resolve();
         }
-        var name = dsObj.getName();
-        var msg = xcStringHelper.replaceMsg(DSTStr.ShareDSMsg, {name: name});
-        var sharedName = getSharedName(dsId, name);
+        let name = dsObj.getName();
+        let msg = xcStringHelper.replaceMsg(DSTStr.ShareDSMsg, {name: name});
+        let sharedName = getSharedName(dsId, name);
 
         if (name !== sharedName) {
             // in case this name is taken
@@ -1022,15 +1156,15 @@ window.DS = (function ($, DS) {
             msg += " " + xcStringHelper.replaceMsg(DSTStr.RenameMsg, {name: name});
         }
 
-        var alertDeferred = PromiseHelper.deferred();
+        let alertDeferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!noAlert) {
             Alert.show({
                 title: DSTStr.ShareDS,
                 msg: msg,
-                onConfirm: function() {
+                onConfirm: () => {
                     alertDeferred.resolve()
                 },
-                onCancel: function() {
+                onCancel: () => {
                     alertDeferred.reject();
                 }
             });
@@ -1038,9 +1172,9 @@ window.DS = (function ($, DS) {
             alertDeferred.resolve();
         }
 
-        var deferred = PromiseHelper.deferred();
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         alertDeferred.promise()
-        .then(function() {
+        .then(() => {
             return shareAndUnshareHelper(dsId, name, true);
         })
         .then(deferred.resolve)
@@ -1049,23 +1183,23 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function getSharedName(dsId, name) {
-        var $sharedDS = $gridView.find('.grid-unit.shared[data-dsname="' + name + '"]');
+    function getSharedName(dsId: string, name: string): string {
+        let $sharedDS: JQuery = $gridView.find('.grid-unit.shared[data-dsname="' + name + '"]');
         if ($sharedDS.length) {
             // in case this name is taken
-            var uniqueId = dsId.split(".")[1];
+            let uniqueId = dsId.split(".")[1];
             name = DS.getUniqueName(name + uniqueId);
         }
         return name;
     }
 
-    function unshareDS(dsId) {
-        var dsObj = DS.getDSObj(dsId);
-        var name = dsObj.getName();
-        var msg = xcStringHelper.replaceMsg(DSTStr.UnshareDSMsg, {
+    function unshareDS(dsId: string): void {
+        let dsObj = DS.getDSObj(dsId);
+        let name = dsObj.getName();
+        let msg = xcStringHelper.replaceMsg(DSTStr.UnshareDSMsg, {
             name: name
         });
-        var $unsharedDS = $gridView.find('.grid-unit:not(.shared)' +
+        let $unsharedDS = $gridView.find('.grid-unit:not(.shared)' +
                                          '[data-dsname="' + name + '"]');
         if ($unsharedDS.length) {
             // in case this name is taken
@@ -1076,14 +1210,14 @@ window.DS = (function ($, DS) {
         Alert.show({
             title: DSTStr.UnshareDS,
             msg: msg,
-            onConfirm: function() {
+            onConfirm: () => {
                 // XXX TODO: check if it's still necessary
                 // unshare case need to check if ds is used by others
                 checkDSUser(dsObj.getFullName())
-                .then(function() {
+                .then(() => {
                     shareAndUnshareHelper(dsId, name, false);
                 })
-                .fail(function(error) {
+                .fail((error) => {
                     if (error.status === StatusT.StatusDsNotFound) {
                         // that's a normal case
                         shareAndUnshareHelper(dsId, name, false);
@@ -1095,18 +1229,22 @@ window.DS = (function ($, DS) {
         });
     }
 
-    function shareAndUnshareHelper(dsId, newName, isShare) {
-        var deferred = PromiseHelper.deferred();
-        var dirId = isShare ? DSObjTerm.SharedFolderId : DSObjTerm.homeDirId;
-        var dsObj = DS.getDSObj(dsId);
+    function shareAndUnshareHelper(
+        dsId: string,
+        newName: string,
+        isShare: boolean
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let dirId: string = isShare ? DSObjTerm.SharedFolderId : DSObjTerm.homeDirId;
+        let dsObj = DS.getDSObj(dsId);
         removeDS(dsId);
 
-        var options = $.extend(dsObj, {
+        let options = $.extend(dsObj, {
             name: newName,
             parentId: dirId
         });
-        var newDSObj = createDS(options);
-        var arg;
+        let newDSObj = createDS(options);
+        let arg;
 
         if (isShare) {
             arg = {
@@ -1125,11 +1263,9 @@ window.DS = (function ($, DS) {
         sortDS(dirId);
         DS.updateNumDS();
 
-        commitSharedFolderChange(arg)
-        .then(function() {
+        commitSharedFolderChange(arg, false)
+        .then(() => {
             UserSettings.commit(false, true);
-
-            var $grid = DS.getGrid(dsId);
             goToDirHelper(dirId);
             deferred.resolve();
         })
@@ -1138,18 +1274,17 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function syncVersionId() {
-        var versionId = dsInfoMeta.getVersionId();
-        var xcSocket = XcSocket.Instance;
-        xcSocket.sendMessage("ds", {
+    function syncVersionId(): void {
+        let versionId = dsInfoMeta.getVersionId();
+        XcSocket.Instance.sendMessage("ds", {
             event: "updateVersionId",
             id: versionId
         });
     }
 
-    function startChangeSharedDSInfo(versionId, arg) {
-        var deferred = PromiseHelper.deferred();
-        var callback = function(success) {
+    function startChangeSharedDSInfo(versionId, arg): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let callback = function(success) {
             if (success) {
                 deferred.resolve();
             } else {
@@ -1161,14 +1296,13 @@ window.DS = (function ($, DS) {
             event: "changeStart",
             id: versionId
         }, arg);
-        var xcSocket = XcSocket.Instance;
-        xcSocket.sendMessage("ds", arg, callback);
+        XcSocket.Instance.sendMessage("ds", arg, callback);
         return deferred.promise();
     }
 
-    function endChangeSharedDSInfo(versionId) {
-        var deferred = PromiseHelper.deferred();
-        var callback = function(success) {
+    function endChangeSharedDSInfo(versionId: number): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let callback = function(success) {
             if (success) {
                 deferred.resolve();
             } else {
@@ -1176,44 +1310,43 @@ window.DS = (function ($, DS) {
             }
         };
 
-        var arg = {
+        let arg = {
             event: "changeEnd",
             id: versionId
         };
-        var xcSocket = XcSocket.Instance;
-        xcSocket.sendMessage("ds", arg, callback);
+        XcSocket.Instance.sendMessage("ds", arg, callback);
         return deferred.promise();
     }
 
-    function errorChangeSharedDSInfo(versionId) {
-        var deferred = PromiseHelper.deferred();
-        var xcSocket = XcSocket.Instance;
-        xcSocket.sendMessage("ds", {
+    function errorChangeSharedDSInfo(versionId: number): void {
+        XcSocket.Instance.sendMessage("ds", {
             event: "changeError",
             id: versionId
         });
-        return deferred.promise();
     }
 
-    function commitSharedFolderChange(arg, noRefresh) {
-        var deferred = PromiseHelper.deferred();
-        var versionId = dsInfoMeta.updateVersionId();
-        var sharedDir = DS.getSharedDir(true);
-        var hasCommit = false;
-        dsInfoMeta.updateDSInfo(sharedDir);
+    function commitSharedFolderChange(
+        arg: any,
+        noRefresh: boolean
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let versionId = dsInfoMeta.updateVersionId();
+        let sharedDir = DS.getSharedDir(true);
+        let hasCommit: boolean = false;
+        dsInfoMeta.updateDSInfo(<DSDurable>sharedDir);
 
         startChangeSharedDSInfo(versionId, arg)
-        .then(function() {
-            var key = KVStore.getKey("gSharedDSKey");
-            var kvStore = new KVStore(key, gKVScope.GLOB);
+        .then(() => {
+            let key = KVStore.getKey("gSharedDSKey");
+            let kvStore = new KVStore(key, gKVScope.GLOB);
             return kvStore.put(dsInfoMeta.serialize(), true);
         })
-        .then(function() {
+        .then(() => {
             hasCommit = true;
             return endChangeSharedDSInfo(versionId);
         })
         .then(deferred.resolve)
-        .fail(function(error) {
+        .fail((error) => {
             console.error(error);
             if (!hasCommit) {
                 errorChangeSharedDSInfo(versionId);
@@ -1228,79 +1361,92 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function changeDSInfo(chanedDirId, arg) {
+    function changeDSInfo(chanedDirId: string, arg: any): void {
         sortDS(chanedDirId);
         if (isInSharedFolder(chanedDirId)) {
             arg = $.extend({dir: chanedDirId}, arg);
-            commitSharedFolderChange(arg);
+            commitSharedFolderChange(arg, false);
         } else {
             UserSettings.commit(false, true);
         }
     }
 
-    DS.updateDSInfo = function(arg) {
-        switch (arg.action) {
-            case "add":
-                var dsObj = DS.getDSObj(arg.ds.id);
-                if (dsObj != null) {
-                    var msg = xcStringHelper.replaceMsg(DSTStr.ForceShareMsg, {
-                        name: dsObj.getName()
-                    });
-                    removeDS(dsObj.getId());
-                    Alert.show({
-                        title: DSTStr.ShareDS,
-                        msg: msg,
-                        isAlert: true
-                    });
-                }
-                createDS(arg.ds);
-                refreshDS();
-                break;
-            case "rename":
-                DS.rename(arg.dsId, arg.newName);
-                break;
-            case "drop":
-                dropHelper(arg.dsId, arg.targetId);
-                refreshDS();
-                break;
-            case "delete":
-                var dsIds = arg.dsIds || [];
-                dsIds.forEach(removeDS);
-                cleanFocusedDSIfNecessary();
-                break;
-            case "activate":
-                var dsIds = arg.dsIds || [];
-                dsIds.forEach(function(dsId) {
-                    var dsObj = DS.getDSObj(dsId);
+    /**
+     * DS.updateDSInfo
+     * @param arg
+     */
+    export function updateDSInfo(arg: any): void {
+        try {
+            let dsIds;
+            switch (arg.action) {
+                case "add":
+                    let dsObj = DS.getDSObj(arg.ds.id);
                     if (dsObj != null) {
-                        activateDSObj(dsObj);
+                        let msg = xcStringHelper.replaceMsg(DSTStr.ForceShareMsg, {
+                            name: dsObj.getName()
+                        });
+                        removeDS(dsObj.getId());
+                        Alert.show({
+                            title: DSTStr.ShareDS,
+                            msg: msg,
+                            isAlert: true
+                        });
                     }
-                });
-                break;
-            case "deactivate":
-                var dsIds = arg.dsIds || [];
-                dsIds.forEach(deactivateDSObj);
-                break;
-            default:
-                console.error("Unspported action!");
-                return;
+                    createDS(arg.ds);
+                    refreshDS();
+                    break;
+                case "rename":
+                    DS.rename(arg.dsId, arg.newName);
+                    break;
+                case "drop":
+                    dropHelper(arg.dsId, arg.targetId);
+                    refreshDS();
+                    break;
+                case "delete":
+                    dsIds = arg.dsIds || [];
+                    dsIds.forEach(removeDS);
+                    cleanFocusedDSIfNecessary();
+                    break;
+                case "activate":
+                    dsIds = arg.dsIds || [];
+                    dsIds.forEach(function(dsId) {
+                        var dsObj = DS.getDSObj(dsId);
+                        if (dsObj != null) {
+                            activateDSObj(dsObj);
+                        }
+                    });
+                    break;
+                case "deactivate":
+                    dsIds = arg.dsIds || [];
+                    dsIds.forEach(deactivateDSObj);
+                    break;
+                default:
+                    console.error("Unspported action!");
+                    return;
+            }
+    
+            sortDS(arg.dir);
+            dsInfoMeta.setVersionId(arg.id);
+        } catch (e) {
+            console.error(e);
         }
+    }
 
-        sortDS(arg.dir);
-        dsInfoMeta.setVersionId(arg.id);
-    };
-
-    function createDSHelper(txId, dsObj, restoreArgs) {
-        var datasetName = dsObj.getFullName();
-        var def;
+    function createDSHelper(
+        txId: number,
+        dsObj: DSObj,
+        restoreArgs: string
+    ): XDPromise<void> {
+        let datasetName = dsObj.getFullName();
+        let def: XDPromise<void>;
         if (restoreArgs) {
             def = XcalarDatasetRestore(datasetName, restoreArgs);
         } else {
-            var options = dsObj.getImportOptions();
+            let options = dsObj.getImportOptions();
             def = XcalarDatasetCreate(datasetName, options);
         }
-        var hasCreate = false;
-        var deferred = PromiseHelper.deferred();
+        let hasCreate: boolean = false;
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         def
         .then(() => {
             hasCreate = true;
@@ -1317,18 +1463,22 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function importHelper(dsObj, sql, restoreArgs) {
-        var deferred = PromiseHelper.deferred();
-        var dsName = dsObj.getName();
-        var $grid = DS.getGrid(dsObj.getId());
-        var updateDSMeta = function(dsMeta, ds, $ds) {
+    function importHelper(
+        dsObj: DSObj,
+        sql: object,
+        restoreArgs: string
+    ): XDPromise<DSObj> {
+        let deferred: XDDeferred<DSObj> = PromiseHelper.deferred();
+        let dsName = dsObj.getName();
+        let $grid = DS.getGrid(dsObj.getId());
+        let updateDSMeta = function(dsMeta, ds, $ds) {
             dsMeta = dsMeta || {};
             ds.setSize(dsMeta.size);
             ds.setColumns(dsMeta.columns);
             ds.setNumErrors(dsMeta.totalNumErrors);
             $ds.find(".size").text(ds.getDisplaySize());
         };
-        var datasetName = dsObj.getFullName();
+        let datasetName = dsObj.getFullName();
 
         $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
@@ -1336,7 +1486,7 @@ window.DS = (function ($, DS) {
 
         DS.updateNumDS();
 
-        var txId = Transaction.start({
+        let txId = Transaction.start({
             "msg": StatusMessageTStr.ImportDataset + ": " + dsName,
             "operation": SQLOps.DSImport,
             "sql": sql,
@@ -1348,14 +1498,14 @@ window.DS = (function ($, DS) {
 
         // focus on grid before load
         DS.focusOn($grid)
-        .then(function() {
+        .then(() => {
             return createDSHelper(txId, dsObj, restoreArgs);
         })
-        .then(function() {
+        .then(() => {
             return DS.getDSBasicInfo(datasetName);
         })
-        .then(function(dsInfos) {
-            var dsInfo = dsInfos[datasetName];
+        .then((dsInfos) => {
+            let dsInfo = dsInfos[datasetName];
             updateDSMeta(dsInfo, dsObj, $grid);
             finishImport($grid);
             if ($grid.hasClass("active")) {
@@ -1375,7 +1525,7 @@ window.DS = (function ($, DS) {
             }
 
             UserSettings.commit(false, true);
-            var msgOptions = {
+            let msgOptions = {
                 "newDataSet": true,
                 "dataSetId": dsObj.getId()
             };
@@ -1384,7 +1534,7 @@ window.DS = (function ($, DS) {
             });
             deferred.resolve(dsObj);
         })
-        .fail(function(error, loadError, created) {
+        .fail((error, loadError, created) => {
             if (typeof error === "object" &&
                 error.status === StatusT.StatusCanceled)
             {
@@ -1411,30 +1561,31 @@ window.DS = (function ($, DS) {
 
             deferred.reject(error);
         })
-        .always(function() {
+        .always(() => {
             loadCleanup(txId);
         });
 
         return deferred.promise();
     }
 
-    function alertSampleSizeLimit(dsName) {
-        var msg = xcStringHelper.replaceMsg(DSTStr.OverSampleSize , {
+    function alertSampleSizeLimit(dsName: string): void {
+        let msg = xcStringHelper.replaceMsg(DSTStr.OverSampleSize , {
             name: dsName,
             size: xcHelper.sizeTranslator(gMaxSampleSize)
         })
         Alert.show({
+            title: AlertTStr.Title,
             msg: msg,
             isAlert: true
         });
     }
 
-    function finishActivate($grid) {
+    function finishActivate($grid: JQuery): void {
         $grid.removeData("txid");
         $grid.removeClass("loading");
     }
 
-    function finishImport($grid) {
+    function finishImport($grid: JQuery): void {
         finishActivate($grid);
         $grid.removeClass("inactive").find(".waitingIcon").remove();
         $grid.addClass("notSeen");
@@ -1442,15 +1593,19 @@ window.DS = (function ($, DS) {
         refreshDS();
     }
 
-    function loadCleanup(txId) {
-        $("#dsTableContainer").find('.lockedTableIcon[data-txid="' +
-                                        txId + '"]').remove();
+    function loadCleanup(txId: number): void {
+        $("#dsTableContainer").find('.lockedTableIcon[data-txid="' + txId + '"]').remove();
         xcTooltip.hideAll();
     }
 
-    function handleImportError(dsObj, error, created, isImportError) {
-        var dsId = dsObj.getId();
-        var $grid = DS.getGrid(dsId);
+    function handleImportError(
+        dsObj: DSObj,
+        error: string,
+        created: boolean,
+        isImportError: boolean
+    ): void {
+        let dsId = dsObj.getId();
+        let $grid = DS.getGrid(dsId);
         if ($grid.hasClass("active")) {
             dsObj.setError(error);
             cacheErrorDS(dsId, dsObj);
@@ -1461,19 +1616,26 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function delDSHelper($grid, dsObj, options) {
+    function delDSHelper(
+        $grid: JQuery,
+        dsObj: DSObj,
+        options: {
+            forceRemove?: boolean,
+            noDeFocus?: boolean,
+            failToShow?: boolean,
+            noSql?: boolean,
+            noAlert?: boolean
+        }
+    ): XDPromise<void> {
         options = options || {};
-        var forceRemove = options.forceRemove || false;
-        var dsName = dsObj.getFullName();
-        var dsId = dsObj.getId();
-        var isShowDSTable = (DSTable.getId() === dsId ||
+        let forceRemove: boolean = options.forceRemove || false;
+        let dsName = dsObj.getFullName();
+        let dsId = dsObj.getId();
+        let isShowDSTable: boolean = (DSTable.getId() === dsId ||
                             $("#dsTableContainer").data("id") === dsId);
-        var noDeFocus = (options.noDeFocus ||
-                        !isShowDSTable ||
-                        false);
-        var failToShow = options.failToShow || false;
+        let noDeFocus: boolean = (options.noDeFocus || !isShowDSTable ||  false);
+        let failToShow: boolean = options.failToShow || false;
 
-        var deferred = PromiseHelper.deferred();
 
         $grid.removeClass("active")
              .addClass("inactive deleting")
@@ -1481,20 +1643,21 @@ window.DS = (function ($, DS) {
 
         $grid.find(".waitingIcon").fadeIn(200);
 
-        var sql = {
+        let sql = {
             "operation": SQLOps.DestroyDS,
             "dsName": dsName,
             "dsId": dsId
         };
-        var txId = Transaction.start({
+        let txId = Transaction.start({
             "operation": SQLOps.DestroyDS,
             "sql": sql,
             "track": true,
             "steps": 1
         });
 
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         destroyDataset(dsName, txId)
-        .then(function() {
+        .then(() => {
             // remove ds obj
             removeDS(dsId);
             if (!noDeFocus) {
@@ -1507,12 +1670,12 @@ window.DS = (function ($, DS) {
             });
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             $grid.find('.waitingIcon').remove();
             $grid.removeClass("inactive")
                  .removeClass("deleting");
 
-            var noAlert = options.noAlert || false;
+            let noAlert: boolean = options.noAlert || false;
             if (forceRemove) {
                 removeDS(dsId);
             } else if (failToShow) {
@@ -1531,21 +1694,21 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function checkDSUser(dsName) {
-        var deferred = PromiseHelper.deferred();
-        var currentUser = getCurrentUserName();
+    function checkDSUser(dsName: string): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let currentUser = getCurrentUserName();
 
         XcalarGetDatasetUsers(dsName)
-        .then(function(users) {
-            var otherUsers = [];
-            users.forEach(function(user) {
-                var name = user.userId.userIdName;
+        .then((users) => {
+            let otherUsers: string[] = [];
+            users.forEach((user) => {
+                let name = user.userId.userIdName;
                 if (currentUser !== name) {
                     otherUsers.push(name);
                 }
             });
             if (otherUsers.length > 0) {
-                var error = xcStringHelper.replaceMsg(DSTStr.DSUsed, {
+                let error = xcStringHelper.replaceMsg(DSTStr.DSUsed, {
                     "users": otherUsers.join(",")
                 });
                 deferred.reject({error: error});
@@ -1558,26 +1721,26 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function cacheErrorDS(dsId, dsObj) {
+    function cacheErrorDS(dsId: string, dsObj: DSObj): void {
         errorDSSet[dsId] = dsObj;
     }
 
-    function alertDSRemove($grids) {
-        var deferred = PromiseHelper.deferred();
-        var title;
-        var msg;
-        var isAlert = false;
+    function alertDSRemove($grids: JQuery): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let title: string;
+        let msg: string;
+        let isAlert: boolean = false;
 
         if ($grids.length > 1) {
             // delete multiple ds/folder
             title = DSTStr.DelDS;
             msg = DSTStr.DelMultipleDS;
         } else {
-            var $grid = $grids.eq(0);
-            var txId = $grid.data("txid");
-            var dsId = $grid.data("dsid");
-            var dsObj = DS.getDSObj(dsId);
-            var dsName = dsObj.getName();
+            let $grid = $grids.eq(0);
+            let txId: number = $grid.data("txid");
+            let dsId: string = $grid.data("dsid");
+            let dsObj = DS.getDSObj(dsId);
+            let dsName = dsObj.getName();
 
             if (dsObj.beFolder()) {
                 // skip folder case
@@ -1614,11 +1777,11 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function hideUnlistableDS(dsSet) {
-        var currentUser = getCurrentUserName();
-        for (var dsId in dsSet) {
-            var dsObj = DS.getDSObj(dsId);
-            var $grid = DS.getGrid(dsId);
+    function hideUnlistableDS(dsSet): void {
+        let currentUser = getCurrentUserName();
+        for (let dsId in dsSet) {
+            let dsObj = DS.getDSObj(dsId);
+            let $grid = DS.getGrid(dsId);
             if (dsObj != null && dsObj.getUser() === currentUser) {
                 // when it's the currentUser's ds, can try to delete it
                 // tryRemoveUnlistableDS($grid, dsObj);
@@ -1628,12 +1791,12 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function restoreSortKey() {
+    function restoreSortKey(): void {
         sortKey = UserSettings.getPref("dsSortKey");
         highlighSortKey(sortKey);
     }
 
-    function highlighSortKey(key) {
+    function highlighSortKey(key: string): void {
         key = key || "none";
         var $sortOptions = $("#dsListSection .sortSection .sortOption");
         $sortOptions.removeClass("key");
@@ -1642,7 +1805,7 @@ window.DS = (function ($, DS) {
         }).addClass("key");
     }
 
-    function setSortKey(key) {
+    function setSortKey(key: string): void {
         if (key === sortKey) {
             return;
         }
@@ -1656,7 +1819,7 @@ window.DS = (function ($, DS) {
         UserSettings.commit(false, true);
     }
 
-    function sortDS(dirId) {
+    function sortDS(dirId?: string): void {
         if (!sortKey) {
             // already sorted
             return;
@@ -1677,11 +1840,11 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function sortOneFolder(folderObj) {
-        var childFolders = [];
-        var childDatasets = [];
-        var reorderEles = [];
-        var sharedFolder = null;
+    function sortOneFolder(folderObj: DSObj): DSObj[] {
+        let childFolders: DSObj[] = [];
+        let childDatasets: DSObj[] = [];
+        let reorderEles: DSObj[] = [];
+        let sharedFolder: DSObj = null;
 
         folderObj.eles.forEach(function(dsObj) {
             var dsId = dsObj.getId();
@@ -1946,41 +2109,38 @@ window.DS = (function ($, DS) {
         $("#dsListSection .pathSection").html(path);
     }
 
-    function focusOnForm() {
+    function focusOnForm(): void {
         DSForm.show(false);
     }
 
-    function restoreDS(oldHomeFolder, atStartUp) {
-        var deferred = PromiseHelper.deferred();
-        var datasets;
-        var dsBasicInfo;
+    function restoreDS(
+        oldHomeFolder: DSDurable,
+        atStartUp: boolean
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let datasets;
+        let dsBasicInfo;
 
         DS.clear();
 
         XcalarGetDatasets()
-        .then(function(res) {
+        .then((res) => {
             datasets = res;
-            return DS.getDSBasicInfo();
+            return DS.getDSBasicInfo(null);
         })
-        .then(function(res) {
+        .then((res) => {
             dsBasicInfo = res;
-            var key = KVStore.getKey("gSharedDSKey");
-            var sharedDSKV = new KVStore(key, gKVScope.GLOB);
+            let key = KVStore.getKey("gSharedDSKey");
+            let sharedDSKV = new KVStore(key, gKVScope.GLOB);
             return sharedDSKV.getInfo(true);
         })
-        .then(function(res) {
-            var oldSharedDSInfo = res;
-            var datasetsSet = getDSBackendMeta(datasets, dsBasicInfo, atStartUp);
-            // XXX 1.4 must upgrade from 1.3.1, so this code is deprecated
-            // and it will bring issues if a new clean user upload
-            // if (atStartUp && oldSharedDSInfo == null) {
-            //     // it's first time that upgrade from 1.30 to 1.3.1
-            //     oldSharedDSInfo = rebuildOldDSInfo(datasetsSet);
-            // }
+        .then((res) => {
+            let oldSharedDSInfo = res;
+            let datasetsSet = getDSBackendMeta(datasets, dsBasicInfo, atStartUp);
             restoreHelper(oldHomeFolder, oldSharedDSInfo, datasetsSet);
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             console.error("Restore DS fails!", error);
             deferred.reject(error);
         });
@@ -1989,13 +2149,15 @@ window.DS = (function ($, DS) {
     }
 
 
-    function getSchemaMeta(schemaArray) {
-        const columns = [];
-        const indexMap = {};
+    function getSchemaMeta(
+        schemaArray: {name: string, type: string}[]
+    ): ColSchema[] {
+        let columns: ColSchema[] = [];
+        let indexMap = {};
         schemaArray.forEach((colInfo) => {
             // if the col name is a.b, in XD it should be a\.b
-            const name = xcHelper.escapeColName(colInfo.name);
-            const type = xcHelper.convertFieldTypeToColType(DfFieldTypeT[colInfo.type]);
+            let name = xcHelper.escapeColName(colInfo.name);
+            let type = xcHelper.convertFieldTypeToColType(DfFieldTypeT[colInfo.type]);
             let index = indexMap[name];
             if (index == null) {
                 // new columns
@@ -2013,14 +2175,18 @@ window.DS = (function ($, DS) {
         return columns;
     }
 
-    function getDSBackendMeta(datasets, basicDSInfo, atStartUp) {
-        var numDatasets = datasets.numDatasets;
-        var userPrefix = xcHelper.getUserPrefix();
-        var datasetsSet = {};
+    function getDSBackendMeta(
+        datasets: any,
+        basicDSInfo: any,
+        atStartUp: boolean
+    ): any {
+        let numDatasets: number = datasets.numDatasets;
+        let userPrefix = xcHelper.getUserPrefix();
+        let datasetsSet = {};
 
-        for (var i = 0; i < numDatasets; i++) {
-            var dataset = datasets.datasets[i];
-            var dsName = dataset.name;
+        for (let i = 0; i < numDatasets; i++) {
+            let dataset = datasets.datasets[i];
+            let dsName: string = dataset.name;
 
             if (dsName.endsWith("-xcalar-preview")) {
                 if (!atStartUp) {
@@ -2034,11 +2200,11 @@ window.DS = (function ($, DS) {
                 // deal with preview datasets,
                 // if it's the current user's preview ds,
                 // then we delete it on start up time
-                var sql = {
+                let sql = {
                     "operation": SQLOps.DestroyPreviewDS,
                     "dsName": dsName
                 };
-                var txId = Transaction.start({
+                let txId = Transaction.start({
                     "operation": SQLOps.DestroyPreviewDS,
                     "sql": sql,
                     "track": true,
@@ -2046,13 +2212,13 @@ window.DS = (function ($, DS) {
                 });
 
                 XIApi.deleteDataset(txId, dsName, true)
-                .then(function() {
+                .then(() => {
                     Transaction.done(txId, {
                         "noCommit": true,
                         "noSql": true
                     });
                 })
-                .fail(function(error) {
+                .fail((error) => {
                     Transaction.fail(txId, {
                         "error": error,
                         "noAlert": true
@@ -2090,11 +2256,11 @@ window.DS = (function ($, DS) {
         return datasetsSet;
     }
 
-    function restoreDir(oldFolder, datasetsSet) {
-        var cache = $.isEmptyObject(oldFolder) ? [] : oldFolder.eles;
+    function restoreDir(oldFolder: DSDurable, datasetsSet: any): void {
+        let cache = $.isEmptyObject(oldFolder) ? [] : oldFolder.eles;
         // restore the ds and folder
         while (cache.length > 0) {
-            var obj = cache.shift();
+            let obj: any = cache.shift();
             if (obj == null) {
                 console.error("error case");
                 continue;
@@ -2118,9 +2284,9 @@ window.DS = (function ($, DS) {
             } else {
                 if (datasetsSet.hasOwnProperty(obj.fullName)) {
                     // restore a ds
-                    var ds = datasetsSet[obj.fullName];
-                    var backOptions = getDSOptions(ds);
-                    var sources = obj.sources;
+                    let ds = datasetsSet[obj.fullName];
+                    let backOptions = getDSOptions(ds);
+                    let sources = obj.sources;
                     if (!sources || sources.length === 0) {
                         sources = backOptions.sources;
                     }
@@ -2195,95 +2361,33 @@ window.DS = (function ($, DS) {
         PromiseHelper.chain(promises);
     }
 
-    function restoreSharedDS(oldSharedDSInfo, datasetsSet) {
+    function restoreSharedDS(
+        oldSharedDSInfo: SharedDSInfoDurable,
+        datasetsSet: any
+    ): any {
         dsInfoMeta = new SharedDSInfo(oldSharedDSInfo);
-        var oldSharedFolder = dsInfoMeta.getDSInfo();
-        var sharedFolder = createSharedFolder();
+        let oldSharedFolder = dsInfoMeta.getDSInfo();
+        let sharedFolder = createSharedFolder();
         datasetsSet = restoreDir(oldSharedFolder, datasetsSet);
-        dsInfoMeta.updateDSInfo(sharedFolder);
+        dsInfoMeta.updateDSInfo(<any>sharedFolder);
         syncVersionId();
         return datasetsSet;
     }
 
-    function rebuildOldDSInfo(datasetsSet) {
-        var tempDSInfoMeta = new SharedDSInfo();
-        var sharedFolder = createSharedFolder();
-
-        for (var fullDSName in datasetsSet) {
-            var ds = datasetsSet[fullDSName];
-            if (ds != null) {
-                var format = parseDSFormat(ds);
-                var parsedRes = xcHelper.parseDSName(fullDSName);
-                var user = parsedRes.user;
-                var dsName = parsedRes.dsName;
-
-                var options = $.extend({
-                    "id": fullDSName, // user the fulldsname as a unique id
-                    "parentId": DSObjTerm.SharedFolderId,
-                    "name": dsName,
-                    "user": user,
-                    "fullName": fullDSName,
-                    "isFolder": false,
-                    "format": format
-                }, getDSOptions(ds));
-
-                createDS(options);
-            }
-        }
-
-        tempDSInfoMeta.updateDSInfo(sharedFolder);
-        DS.clear();
-
-        var key = KVStore.getKey("gSharedDSKey");
-        var kvStore = new KVStore(key, gKVScope.GLOB);
-        kvStore.putWithMutex(tempDSInfoMeta.serialize(), true);
-        return tempDSInfoMeta;
-    }
-
-    function isExcelUDF(udfName) {
-        // default:openExcelWithHeader is DEPRECATED as of 1.3.1.
-        // Kept for backwards compatibility
-        return (udfName === 'default:openExcelWithHeader') ||
-                (udfName === 'default:openExcel');
-    }
-
-    /**
-     * parseDSFormat
-     * @param ds
-     */
-    function parseDSFormat(ds){
-        let format;
-        try {
-            var udf = ds.loadArgs.parseArgs.parserFnName;
-            if (isExcelUDF(udf)) {
-                format = 'Excel';
-            } else if (udf === 'default:parseCsv') {
-                format = 'CSV';
-            } else {
-                format = 'JSON';
-            }
-        } catch (e) {
-            console.error('parse format error', e);
-            format = 'Unknown';
-        }
-
-        return format;
-    }
-
-    function checkUnlistableDS(unlistableDS) {
+    function checkUnlistableDS(unlistableDS: object): XDPromise<void> {
         if ($.isEmptyObject(unlistableDS)) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = PromiseHelper.deferred();
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarGetDSNode()
-        .then(function(ret) {
-            var numNodes = ret.numNodes;
-            var nodeInfo = ret.nodeInfo;
-            for (var i = 0; i < numNodes; i++) {
-                var fullDSName = nodeInfo[i].name;
+        .then((ret) => {
+            let numNodes: number = ret.numNodes;
+            let nodeInfo = ret.nodeInfo;
+            for (let i = 0; i < numNodes; i++) {
+                let fullDSName: string = nodeInfo[i].name;
                 if (unlistableDS.hasOwnProperty(fullDSName)) {
-                    var $grid = DS.getGrid(fullDSName);
+                    let $grid = DS.getGrid(fullDSName);
                     if ($grid != null) {
                         // this ds is unlistable but has table
                         // associate with it
@@ -2302,7 +2406,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function setupGridViewButtons() {
+    function setupGridViewButtons(): void {
         // click "Add New Folder" button to add new folder
         $("#addFolderBtn").click(function() {
             DS.newFolder();
@@ -2318,27 +2422,27 @@ window.DS = (function ($, DS) {
         });
     }
 
-    function setupGrids() {
+    function setupGrids(): void {
         // refresh dataset
         $("#refreshDS").click(function() {
             refreshHelper();
         });
 
         $("#dsListSection .pathSection").on("click", ".path", function() {
-            var dir = $(this).data("dir");
+            let dir = $(this).data("dir");
             goToDirHelper(dir);
         });
 
         $("#dsListSection .sortSection").on("click", ".sortOption", function() {
-            var key = $(this).data("key");
+            let key = $(this).data("key");
             setSortKey(key);
         });
 
         $dsListFocusTrakcer.on("keydown", function(event) {
             // pre-check if it's the grid that focusing on
-            var dsid = $dsListFocusTrakcer.data("dsid");
-            var $grid = DS.getGrid(dsid);
-            var $selectedGrids = $gridView.find(".grid-unit.selected");
+            let dsid = $dsListFocusTrakcer.data("dsid");
+            let $grid = DS.getGrid(dsid);
+            let $selectedGrids = $gridView.find(".grid-unit.selected");
             if (event.which === keyCode.Delete && $selectedGrids.length) {
                 DS.remove($selectedGrids);
                 return;
@@ -2348,7 +2452,7 @@ window.DS = (function ($, DS) {
                 return;
             }
 
-            var isFolder = $grid.hasClass("folder");
+            let isFolder = $grid.hasClass("folder");
             if (isFolder && $grid.find(".label").hasClass("active")) {
                 // don't do anything when renaming
                 return;
@@ -2385,33 +2489,27 @@ window.DS = (function ($, DS) {
         });
 
         $gridView.on("click", ".grid-unit .share", function() {
-            var $grid = $(this).closest(".grid-unit");
-            shareDS($grid.data("dsid"));
+            let $grid = $(this).closest(".grid-unit");
+            shareDS($grid.data("dsid"), false);
             // stop event propogation
             return false;
         });
 
         $gridView.on("click", ".grid-unit .unshare", function() {
-            var $grid = $(this).closest(".grid-unit");
+            let $grid = $(this).closest(".grid-unit");
             unshareDS($grid.data("dsid"));
             // stop event propogation
             return false;
         });
 
         $gridView.on("click", ".grid-unit .edit", function() {
-            var $grid = $(this).closest(".grid-unit");
+            let $grid = $(this).closest(".grid-unit");
             focusDSHelper($grid);
-            var $label = $grid.find(".label");
-            renameHelper($label);
+            let $label = $grid.find(".label");
+            renameHelper($label, null);
             // stop event propogation
             return false;
         });
-
-        // $gridView.on("dblclick", ".folder > .label", function() {
-        //     renameHelper($(this));
-        //     // stop event propogation
-        //     return false;
-        // });
 
         // Input event on folder
         $gridView.on({
@@ -2424,7 +2522,7 @@ window.DS = (function ($, DS) {
             },
             // make textarea's height flexible
             "keyup": function() {
-                var textarea = $(this).get(0);
+                let textarea: HTMLElement = <HTMLElement>$(this).get(0);
                 // with this, textarea can back to 15px when do delete
                 textarea.style.height = "15px";
                 textarea.style.height = (textarea.scrollHeight) + "px";
@@ -2436,16 +2534,16 @@ window.DS = (function ($, DS) {
             },
 
             "blur": function() {
-                var $textarea = $(this);
-                var $label = $textarea.closest(".label");
+                let $textarea = $(this);
+                let $label = $textarea.closest(".label");
 
                 if (!$label.hasClass("focused")) {
                     return;
                 }
 
-                var dsId = $label.closest(".grid-unit").data("dsid");
-                var newName = $textarea.val().trim();
-                var hasRename = DS.rename(dsId, newName);
+                let dsId = $label.closest(".grid-unit").data("dsid");
+                let newName = $textarea.val().trim();
+                let hasRename = DS.rename(dsId, newName);
                 if (hasRename) {
                     changeDSInfo(curDirId, {
                         action: "rename",
@@ -2464,7 +2562,7 @@ window.DS = (function ($, DS) {
 
         // dbclick to open folder
         $gridView.on("dblclick", ".grid-unit.folder", function() {
-            var $grid = $(this);
+            let $grid = $(this);
             goToDirHelper($grid.data("dsid"));
         });
 
@@ -2472,7 +2570,7 @@ window.DS = (function ($, DS) {
             if (event.which !== 1) {
                 return;
             }
-            var $target = $(event.target);
+            let $target = $(event.target);
             if (!$target.closest(".uneditable").length &&
                 ($target.closest(".gridIcon").length ||
                 $target.closest(".label").length ||
@@ -2487,9 +2585,9 @@ window.DS = (function ($, DS) {
 
         $gridView.on("mouseenter", ".grid-unit.folder", function() {
             if ($gridView.hasClass("listView")) {
-                var $folder = $(this);
-                var folderId = $folder.data("dsid");
-                var dsObj = DS.getDSObj(folderId);
+                let $folder = $(this);
+                let folderId = $folder.data("dsid");
+                let dsObj = DS.getDSObj(folderId);
                 if (dsObj && dsObj.beFolderWithDS()) {
                     $folder.find(".delete").addClass("xc-disabled");
                 } else {
@@ -2499,7 +2597,7 @@ window.DS = (function ($, DS) {
         });
     }
 
-    function createRectSelection(startX, startY) {
+    function createRectSelection(startX, startY): RectSelection {
         $gridMenu.hide();
         return new RectSelection(startX, startY, {
             "id": "gridView-rectSelection",
@@ -2511,10 +2609,16 @@ window.DS = (function ($, DS) {
         });
     }
 
-    function drawRect(bound, rectTop, rectRight, rectBottom, rectLeft) {
+    function drawRect(
+        bound: ClientRect,
+        rectTop: number,
+        rectRight: number,
+        rectBottom: number,
+        rectLeft: number
+    ): void {
         $gridView.find(".grid-unit:visible").each(function() {
-            var grid = this;
-            var $grid = $(grid);
+            let grid = this;
+            let $grid = $(grid);
             if ($grid.hasClass("uneditable") && $grid.hasClass("folder")
                 || $grid.hasClass("noAction"))
             {
@@ -2522,11 +2626,11 @@ window.DS = (function ($, DS) {
                 return;
             }
 
-            var gridBound = grid.getBoundingClientRect();
-            var gridTop = gridBound.top - bound.top;
-            var gridLeft = gridBound.left - bound.left;
-            var gridRight = gridBound.right - bound.left;
-            var gridBottom = gridBound.bottom - bound.top;
+            let gridBound = grid.getBoundingClientRect();
+            let gridTop = gridBound.top - bound.top;
+            let gridLeft = gridBound.left - bound.left;
+            let gridRight = gridBound.right - bound.left;
+            let gridBottom = gridBound.bottom - bound.top;
 
             if (gridTop > rectBottom || gridLeft > rectRight ||
                 gridRight < rectLeft || gridBottom < rectTop)
@@ -2538,9 +2642,9 @@ window.DS = (function ($, DS) {
         });
     }
 
-    function endDrawRect() {
+    function endDrawRect(): void {
         $gridView.removeClass("drawing");
-        var $grids = $gridView.find(".grid-unit.selecting");
+        let $grids = $gridView.find(".grid-unit.selecting");
         if ($grids.length === 0) {
             $gridView.find(".grid-unit.selected").removeClass("selected");
         } else {
@@ -2553,8 +2657,8 @@ window.DS = (function ($, DS) {
         focsueOnTracker();
     }
 
-    function setupMenuActions() {
-        var $subMenu = $("#gridViewSubMenu");
+    function setupMenuActions(): void {
+        let $subMenu = $("#gridViewSubMenu");
         // bg opeartion
         $gridMenu.on("mouseup", ".newFolder", function(event) {
             if (event.which !== 1) {
@@ -2634,15 +2738,15 @@ window.DS = (function ($, DS) {
             if (disableShare) {
                 return false;
             }
-            var dsId = $gridMenu.data("dsid");
-            shareDS(dsId);
+            let dsId = $gridMenu.data("dsid");
+            shareDS(dsId, false);
         });
 
         $gridMenu.on("mouseup", ".unshare", function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var dsId = $gridMenu.data("dsid");
+            let dsId = $gridMenu.data("dsid");
             unshareDS(dsId);
         });
 
@@ -2664,7 +2768,7 @@ window.DS = (function ($, DS) {
             if (event.which !== 1) {
                 return;
             }
-            var dsIds = [];
+            let dsIds = [];
             $gridView.find(".grid-unit.selected.ds").each(function() {
                 dsIds.push($(this).data("dsid"));
             });
@@ -2682,7 +2786,7 @@ window.DS = (function ($, DS) {
             if (event.which !== 1) {
                 return;
             }
-            var dsIds = [];
+            let dsIds = [];
             $gridView.find(".grid-unit.selected.ds").each(function() {
                 dsIds.push($(this).data("dsid"));
             });
@@ -2690,8 +2794,8 @@ window.DS = (function ($, DS) {
         });
 
         $gridMenu.on("mouseenter", ".sort", function() {
-            var key = sortKey || "none";
-            var $lis = $subMenu.find(".sort li");
+            let key = sortKey || "none";
+            let $lis = $subMenu.find(".sort li");
             $lis.removeClass("select");
             $lis.filter(function() {
                 return $(this).attr("name") === key;
@@ -2702,19 +2806,20 @@ window.DS = (function ($, DS) {
             if (event.which !== 1) {
                 return;
             }
-            var key = $(this).attr("name");
+            let key = $(this).attr("name");
             setSortKey(key);
         });
     }
 
-    function setupGridMenu() {
+    function setupGridMenu(): void {
         xcMenu.add($gridMenu);
         // set up click right menu
-        $gridView.parent()[0].oncontextmenu = function(event) {
-            var $target = $(event.target);
-            var $grid = $target.closest(".grid-unit");
-            var classes = "";
-            var totalSelected = $gridView.find(".grid-unit.selected").length;
+        let el: HTMLElement = <HTMLElement>$gridView.parent()[0];
+        el.oncontextmenu = function(event) {
+            let $target = $(event.target);
+            let $grid = $target.closest(".grid-unit");
+            let classes: string = "";
+            let totalSelected = $gridView.find(".grid-unit.selected").length;
             if (WorkbookManager.getActiveWKBK() == null) {
                 $gridMenu.find(".multiActivate, .multiDeactivate, .activate").addClass("disabled");
             } else {
@@ -2735,8 +2840,8 @@ window.DS = (function ($, DS) {
 
                 $gridMenu.find(".multiActivate, .multiDeactivate").show();
                 $gridMenu.find(".multiDelete").removeClass("disabled");
-                var numDS = $gridView.find(".grid-unit.selected.ds").length;
-                var numInActivatedDS = $gridView.find(".grid-unit.selected.inActivated").length;
+                let numDS = $gridView.find(".grid-unit.selected.ds").length;
+                let numInActivatedDS = $gridView.find(".grid-unit.selected.inActivated").length;
                 if (numDS === 0) {
                     // when no ds
                     $gridMenu.find(".multiActivate, .multiDeactivate").hide();
@@ -2756,8 +2861,8 @@ window.DS = (function ($, DS) {
                 $gridMenu.find(".multiActivate, .multiDeactivate").hide();
                 if ($grid.length) {
                     $grid.addClass("selected");
-                    var dsId = $grid.data("dsid");
-                    var dsObj = DS.getDSObj(dsId);
+                    let dsId = $grid.data("dsid");
+                    let dsObj = DS.getDSObj(dsId);
                     if (!dsObj.isEditable()) {
                         classes += " uneditable";
                     } else if ($grid.hasClass("deleting")) {
@@ -2823,18 +2928,18 @@ window.DS = (function ($, DS) {
         setupMenuActions();
     }
 
-    function focsueOnTracker() {
+    function focsueOnTracker(): void {
         $dsListFocusTrakcer.focus();
     }
 
-    function refreshHelper() {
-        var dir = curDirId;
-        var deferred = PromiseHelper.deferred();
-        var promise = DS.restore(DS.getHomeDir(true));
+    function refreshHelper(): XDPromise<void> {
+        let dir = curDirId;
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let promise = DS.restore(DS.getHomeDir(true), false);
         xcUIHelper.showRefreshIcon($gridView, false, promise);
 
         promise
-        .then(function() {
+        .then(() => {
             cleanFocusedDSIfNecessary();
             curDirId = dir;
             refreshDS();
@@ -2842,16 +2947,17 @@ window.DS = (function ($, DS) {
             deferred.resolve();
         })
         .fail(deferred.reject);
+
         return deferred.promise();
     }
 
-    function cleanFocusedDSIfNecessary() {
-        var dsId = DSTable.getId();
+    function cleanFocusedDSIfNecessary(): void {
+        let dsId = DSTable.getId();
         if (dsId == null) {
             return;
         }
 
-        var dsObj = DS.getDSObj(dsId);
+        let dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             // clear data table
             DSTable.clear();
@@ -2859,12 +2965,12 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function renameHelper($label, dsId) {
+    function renameHelper($label: JQuery, dsId: string): void {
         if ($label == null && dsId == null) {
             return;
         }
 
-        var $grid;
+        let $grid: JQuery;
         if ($label == null) {
             $grid = DS.getGrid($gridMenu.data("dsid"));
             $label = $grid.find("> .label");
@@ -2876,8 +2982,8 @@ window.DS = (function ($, DS) {
             dsId = $grid.data("dsid");
         }
 
-        var dsObj = DS.getDSObj(dsId);
-        var isEditable = dsObj.isEditable();
+        let dsObj = DS.getDSObj(dsId);
+        let isEditable = dsObj.isEditable();
         if (!isEditable && dsObj.beFolder()) {
             // if not editable, then should open the folder
             $grid.trigger("dblclick");
@@ -2888,17 +2994,17 @@ window.DS = (function ($, DS) {
             return;
         }
         $label.addClass("focused");
-        var name = $label.data("dsname");
-        var html = '<textarea spellcheck="false">' + name + '</textarea>';
+        let name: string = $label.data("dsname");
+        let html: HTML = '<textarea spellcheck="false">' + name + '</textarea>';
         $label.html(html).focus();
 
         // select all text
-        var $textarea = $label.find("textarea").select();
-        var textarea = $textarea.get(0);
+        let $textarea = $label.find("textarea").select();
+        let textarea: HTMLElement = <HTMLElement>$textarea.get(0);
         textarea.style.height = (textarea.scrollHeight) + "px";
     }
 
-    function goToDirHelper(dsid) {
+    function goToDirHelper(dsid: string): void {
         if (dsid == null) {
             // error case
             console.error("Invalid dsid");
@@ -2908,18 +3014,18 @@ window.DS = (function ($, DS) {
         clearDirStack();
     }
 
-    function pushDirStack(dirId) {
+    function pushDirStack(dirId: string): void {
         dirStack.push(dirId);
         $forwardFolderBtn.removeClass("xc-disabled");
     }
 
-    function popDirStack() {
+    function popDirStack(): void {
         if (dirStack.length <= 0) {
             // this is error case
             return;
         }
 
-        var dirId = dirStack.pop();
+        let dirId: string = dirStack.pop();
         DS.goToDir(dirId);
 
         if (dirStack.length <= 0) {
@@ -2927,12 +3033,12 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function clearDirStack() {
+    function clearDirStack(): void {
         dirStack = [];
         $forwardFolderBtn.addClass("xc-disabled");
     }
 
-    function focusDSHelper($grid) {
+    function focusDSHelper($grid: JQuery): void {
         // when is deleting the ds, do nothing
         if ($grid != null &&
             !$grid.hasClass("deleting") &&
@@ -2945,26 +3051,21 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function getNewFolderId() {
+    function getNewFolderId(): string {
         return getCurrentUserName() + "-folder-" + (new Date().getTime());
     }
 
     // Helper function for createDS()
-    function getDSHTML(dsObj) {
-        var id = dsObj.getId();
-        var parentId = dsObj.getParentId();
-        var name = dsObj.getName();
-        var html;
-        var tooltip = 'data-toggle="tooltip" data-container="body" data-placement="top"';
-        var deleteIcon = '<i class="action icon xi-trash delete fa-15" ' +
-                        tooltip + 'data-title="' + DSTStr.DelDS + '"></i>';
-        var deactivateIcon = '<div class="deactivatingIcon xc-hidden" >' +
+    function getDSHTML(dsObj: DSObj): HTML {
+        let id = dsObj.getId();
+        let parentId = dsObj.getParentId();
+        let name = dsObj.getName();
+        let html: HTML;
+        let tooltip: string = 'data-toggle="tooltip" data-container="body" data-placement="top"';
+        let deactivateIcon: string = '<div class="deactivatingIcon xc-hidden" >' +
             '<i class="icon xi-forbid deactivating fa-15" ' +
             tooltip + 'data-title="' + DSTStr.DSDeactivating + '"></i></div>';
         if (dsObj.beFolder()) {
-            var editIcon = '<i class="action icon xi-edit edit fa-15" ' +
-                            tooltip + 'data-title="' + CommonTxtTstr.Rename +
-                            '"></i>';
             // when it's a folder
             html =
             '<div class="folder grid-unit" draggable="true"' +
@@ -2996,26 +3097,14 @@ window.DS = (function ($, DS) {
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
-                // deleteIcon +
-                // editIcon +
             '</div>';
         } else {
-            var checkMarkIcon = '<i class="gridIcon icon xi-dataset-checkmark"></i>';
-            var shareIcon;
-            var user = dsObj.getUser();
-            var shared = isInSharedFolder(parentId);
-            var title = name;
+            let checkMarkIcon: string = '<i class="gridIcon icon xi-dataset-checkmark"></i>';
+            let user = dsObj.getUser();
+            let shared = isInSharedFolder(parentId);
+            let title = name;
             if (shared) {
-                if (dsObj.getUser() === getCurrentUserName()) {
-                    shareIcon = '<i class="action icon xi-disabled-share-icon unshare fa-15" ' +
-                                tooltip + 'data-title="' + DSTStr.UnshareDS + '"></i>';
-                } else {
-                    shareIcon = ""; // cannot unshare
-                }
                 title = name + "(" + user + ")";
-            } else {
-                shareIcon = '<i class="action icon xi-activated-share-icon share fa-15" ' +
-                              tooltip + 'data-title="' + DSTStr.ShareDS + '"></i>';
             }
             // when it's a dataset
             html =
@@ -3051,20 +3140,18 @@ window.DS = (function ($, DS) {
                     dsObj.getDisplaySize() +
                 '</div>' +
                 deactivateIcon +
-                // deleteIcon +
-                // shareIcon +
             '</div>';
         }
 
-        return (html);
+        return html;
     }
 
     // Helper function for createDS()
-    function getUneditableDSHTML(dsObj) {
-        var id = dsObj.getId();
-        var parentId = dsObj.getParentId();
-        var name = dsObj.getName();
-        var html;
+    function getUneditableDSHTML(dsObj: DSObj): HTML {
+        let id = dsObj.getId();
+        let parentId = dsObj.getParentId();
+        let name = dsObj.getName();
+        let html: HTML;
         if (dsObj.beFolder()) {
             // when it's a folder
             html =
@@ -3079,9 +3166,6 @@ window.DS = (function ($, DS) {
                 '</div>' +
             '</div>';
         } else {
-            var tooltip = 'data-toggle="tooltip" data-container="body" data-placement="top"';
-            var deleteIcon = '<i class="action icon xi-trash delete fa-15" ' +
-                            tooltip + 'data-title="' + DSTStr.DelDS + '"></i>';
             // when it's a dataset
             html =
             '<div class="ds grid-unit uneditable' +
@@ -3098,39 +3182,37 @@ window.DS = (function ($, DS) {
                 '<div class="size">' +
                     dsObj.getDisplaySize() +
                 '</div>' +
-                deleteIcon +
             '</div>';
         }
 
-        return (html);
+        return html;
     }
 
-    function cleanDSSelect() {
+    function cleanDSSelect(): void {
         $gridView.find(".selected").removeClass("selected");
     }
 
-    function activateDSAction(dsIds) {
+    function activateDSAction(dsIds: string[]): void {
         Alert.show({
             title: DSTStr.ActivateDS,
             msg: DSTStr.ActivateDSMsg,
             onConfirm: function() {
-                activateDS(dsIds);
+                activateDS(dsIds, false);
             }
         });
     }
 
-    function activateDS(dsIds, noAlert) {
-        var deferred = PromiseHelper.deferred();
-        var failures = [];
-        var datasets = [];
-        var dirId = curDirId;
-
-        var promises = dsIds.map(function(dsId) {
+    function activateDS(dsIds: string[], noAlert: boolean): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let failures: string[] = [];
+        let datasets: string[] = [];
+        let dirId: string = curDirId;
+        let promises = dsIds.map((dsId) => {
             return activateOneDSHelper(dsId, failures, datasets, noAlert);
         });
 
-        PromiseHelper.when.apply(this, promises)
-        .then(function() {
+        PromiseHelper.when(...promises)
+        .then(() => {
             if (failures.length && !noAlert) {
                 Alert.show({
                     "title": AlertTStr.Error,
@@ -3153,36 +3235,37 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function activateOneDSHelper(dsId, failures, datasets, noAlert) {
-        var deferred = PromiseHelper.deferred();
-        var dsObj = DS.getDSObj(dsId);
+    function activateOneDSHelper(
+        dsId: string,
+        failures: string[],
+        datasets: string[],
+        noAlert: boolean
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let dsObj = DS.getDSObj(dsId);
         if (dsObj == null || dsObj.beFolder()) {
             return PromiseHelper.resolve();
         }
-        var sql = {
-            "operation": SQLOps.DSImport,
-            "created": true, // flag to distint if ds is created or not
-        };
         // when noAlert is true, it's from DagNodeExecutor, no need to track
-        var txId = noAlert ? null : Transaction.start({
+        let txId = noAlert ? null : Transaction.start({
             "operation": SQLOps.DSImport,
             "track": true,
             "steps": 1
         });
-        var $grid = DS.getGrid(dsObj.getId());
+        let $grid = DS.getGrid(dsObj.getId());
         if (!noAlert) {
             $grid.data("txid", txId);
             $grid.addClass("loading");
             DSTable.setupViewBeforeLoading(dsObj);
         }
 
-        var datasetName = dsObj.getFullName();
+        let datasetName = dsObj.getFullName();
         activateHelper(txId, dsObj)
-        .then(function() {
+        .then(() => {
             return DS.getDSBasicInfo(datasetName);
         })
-        .then(function(dsMeta) {
-            var dsInfo = dsMeta[datasetName] || {};
+        .then((dsMeta) => {
+            let dsInfo = dsMeta[datasetName] || {};
             dsObj.setColumns(dsInfo.columns);
             datasets.push(dsId);
             if (txId != null) {
@@ -3190,10 +3273,10 @@ window.DS = (function ($, DS) {
             }
             deferred.resolve();
         })
-        .fail(function(error, loadError) {
+        .fail((error, loadError) => {
             try {
-                var displayError = loadError || error.log || error.error;
-                var errorMsg = xcStringHelper.replaceMsg(DSTStr.FailActivateDS, {
+                let displayError = loadError || error.log || error.error;
+                let errorMsg = xcStringHelper.replaceMsg(DSTStr.FailActivateDS, {
                     "ds": dsObj.getName(),
                     "error": displayError
                 });
@@ -3206,7 +3289,7 @@ window.DS = (function ($, DS) {
                         focusOnForm();
                     }
                 } else if (!noAlert) {
-                    handleImportError(dsObj, displayError, true);
+                    handleImportError(dsObj, displayError, true, false);
                 }
 
                 if (txId != null) {
@@ -3220,7 +3303,7 @@ window.DS = (function ($, DS) {
             }
             deferred.resolve(); // still resolve it
         })
-        .always(function() {
+        .always(() => {
             finishActivate($grid);
             loadCleanup(txId);
         });
@@ -3228,13 +3311,12 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function activateHelper(txId, dsObj) {
-        var deferred = PromiseHelper.deferred();
-        var datasetName = dsObj.getFullName();
-
+    function activateHelper(txId: number, dsObj: DSObj): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let datasetName = dsObj.getFullName();
 
         XcalarDatasetActivate(datasetName, txId)
-        .then(function() {
+        .then(() => {
             activateDSObj(dsObj);
             deferred.resolve();
         })
@@ -3243,11 +3325,11 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function activateDSObj(dsObj) {
+    function activateDSObj(dsObj: DSObj): void {
         dsObj.activate();
         DS.getGrid(dsObj.getId()).removeClass("inActivated loading");
-        var dsId = dsObj.getId();
-        var $grid = DS.getGrid(dsId);
+        let dsId = dsObj.getId();
+        let $grid = DS.getGrid(dsId);
         if ($grid.hasClass("active")) {
             // re-focus on the dataset
             $grid.removeClass("active");
@@ -3255,28 +3337,28 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function deactivateDSAction(dsIds) {
+    function deactivateDSAction(dsIds: string[]): void {
         Alert.show({
             title: DSTStr.DeactivateDS,
             msg: DSTStr.DeactivateDSMsg,
-            onConfirm: function() {
+            onConfirm: () => {
                 deactivateDS(dsIds);
             }
         });
     }
 
-    function deactivateDS(dsIds) {
-        var deferred = PromiseHelper.deferred();
-        var failures = [];
-        var datasets = [];
-        var dsInUse = [];
-        var dirId = curDirId;
-        var promises = dsIds.map(function(dsId) {
+    function deactivateDS(dsIds: string[]): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let failures: string[] = [];
+        let datasets: string[] = [];
+        let dsInUse: string[] = [];
+        let dirId: string = curDirId;
+        let promises = dsIds.map((dsId) => {
             return deactivateOneDSHelper(dsId, failures, datasets, dsInUse);
         });
 
-        PromiseHelper.when.apply(this, promises)
-        .then(function() {
+        PromiseHelper.when(...promises)
+        .then(() => {
             if (failures.length) {
                 Alert.show({
                     "title": AlertTStr.Error,
@@ -3299,35 +3381,40 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function deactivateOneDSHelper(dsId, failures, datasets, dsInUse) {
-        var deferred = PromiseHelper.deferred();
+    function deactivateOneDSHelper(
+        dsId: string,
+        failures: string[],
+        datasets: string[],
+        dsInUse: string[]
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         var dsObj = DS.getDSObj(dsId);
         if (dsObj.beFolder()) {
             return PromiseHelper.resolve();
         }
 
-        var $grid = DS.getGrid(dsId);
+        let $grid = DS.getGrid(dsId);
         $grid.find(".deactivatingIcon").removeClass("xc-hidden");
-        var fullDSName = dsObj.getFullName();
+        let fullDSName = dsObj.getFullName();
 
         clearLoadNodeInAllWorkbooks(fullDSName)
         .then(() => {
             return checkDSUser(fullDSName);
         })
-        .then(function() {
+        .then(() => {
             return XcalarDatasetDeactivate(fullDSName);
         })
-        .then(function() {
+        .then(() => {
             datasets.push(dsId);
             deactivateDSObj(dsId);
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             // XXX TODO: use the correct status
             if (error.status === StatusT.StatusDsDatasetInUse) {
                 dsInUse.push(dsId);
             }
-            var errorMsg = xcStringHelper.replaceMsg(DSTStr.FailDeactivateDS, {
+            let errorMsg = xcStringHelper.replaceMsg(DSTStr.FailDeactivateDS, {
                 "ds": dsObj.getName(),
                 "error": error.error
             });
@@ -3335,23 +3422,23 @@ window.DS = (function ($, DS) {
             // still resolve it
             deferred.resolve();
         })
-        .always(function() {
+        .always(() => {
             $grid.find(".deactivatingIcon").addClass("xc-hidden");
         });
 
         return deferred.promise();
     }
 
-    function deactivateDSObj(dsId) {
-        var dsObj = DS.getDSObj(dsId);
+    function deactivateDSObj(dsId: string): void {
+        let dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             // when it's not in
             return;
         }
-        var $grid = DS.getGrid(dsId);
+        let $grid = DS.getGrid(dsId);
         dsObj.deactivate();
         $grid.addClass("inActivated");
-        var isShowDSTable = (DSTable.getId() === dsId ||
+        let isShowDSTable: boolean = (DSTable.getId() === dsId ||
                             $("#dsTableContainer").data("id") === dsId);
         if (isShowDSTable) {
             $grid.removeClass("active");
@@ -3359,12 +3446,12 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function deleteTempDS(dsName) {
+    function deleteTempDS(dsName: string): void {
         XcalarDatasetDelete(dsName)
-        .fail(function() {
+        .fail(() => {
             try {
                 clearLoadNodeInAllWorkbooks(dsName)
-                .always(function() {
+                .always(() => {
                     XcalarDatasetDelete(dsName);
                 });
             } catch (e) {
@@ -3377,14 +3464,14 @@ window.DS = (function ($, DS) {
     // across a user's all workbooks,
     // but finally backend should remove the load node and
     // we should not use this workaround
-    function clearLoadNodeInAllWorkbooks(datasetName) {
-        var clearLoadNodeHelper = function(dsName, wkbkName) {
-            var deferred = PromiseHelper.deferred();
+    function clearLoadNodeInAllWorkbooks(datasetName: string): XDPromise<void> {
+        let clearLoadNodeHelper = function(dsName, wkbkName) {
+            let deferred: XDDeferred<void> = PromiseHelper.deferred();
             XcalarDatasetDeleteLoadNode(dsName, wkbkName)
             .then(deferred.resolve)
             .fail((error) => {
                 if (error.status === StatusT.StatusDsDatasetInUse) {
-                    var msg = xcStringHelper.replaceMsg(DSTStr.InUseErr, {
+                    let msg = xcStringHelper.replaceMsg(DSTStr.InUseErr, {
                         name: wkbkName
                     });
                     error.error = msg
@@ -3394,10 +3481,10 @@ window.DS = (function ($, DS) {
 
             return deferred.promise();
         }
-        var workbooks = WorkbookManager.getWorkbooks();
-        var promises = [];
-        for (var id in workbooks) {
-            var wkbk = workbooks[id];
+        let workbooks = WorkbookManager.getWorkbooks();
+        let promises = [];
+        for (let id in workbooks) {
+            let wkbk = workbooks[id];
             if (wkbk.hasResource()) {
                 // when it's active workbook
                 promises.push(clearLoadNodeHelper.bind(this, datasetName, wkbk.getName()));
@@ -3406,14 +3493,17 @@ window.DS = (function ($, DS) {
         return PromiseHelper.chain(promises);
     }
 
-    function getCurrentUserName() {
+    function getCurrentUserName(): string {
         return XcUser.getCurrentUserName();
     }
 
     /*** Drag and Drop API ***/
-    // Helper function for drag start event
-    DS.onDragStart = function(event) {
-        var $grid = $(event.target).closest(".grid-unit");
+    /**
+     * DS.onDragStart
+     * Helper function for drag start event
+     */
+    export function onDragStart(event) {
+        let $grid = $(event.target).closest(".grid-unit");
 
         event.stopPropagation();
         event.dataTransfer.effectAllowed = "move";
@@ -3431,11 +3521,14 @@ window.DS = (function ($, DS) {
         $gridView.on("dragenter", function(){
             resetDropTarget();
         });
-    };
+    }
 
-    // Helper function for drag end event
-    DS.onDragEnd = function(event) {
-        var $grid = $(event.target).closest(".grid-unit");
+    /**
+     * DS.onDragEnd
+     * Helper function for drag end event
+     */
+    export function onDragEnd(event) {
+        let $grid = $(event.target).closest(".grid-unit");
 
         event.stopPropagation();
 
@@ -3447,13 +3540,17 @@ window.DS = (function ($, DS) {
         $gridView.find(".entering").removeClass("entering");
         $gridView.removeClass("drag");
         $gridView.off("dragenter");
-    };
+    }
 
-    // Helper function for drag enter event
-    DS.onDragEnter = function(event) {
-        var $dragWrap = $(event.target);
-        var targetId = $dragWrap.attr("id");
-        var $curDropTarget = getDropTarget();
+    /**
+     * DS.onDragEnter
+     * Helper function for drag enter event
+     * @param event
+     */
+    export function onDragEnter(event) {
+        let $dragWrap = $(event.target);
+        let targetId: string = $dragWrap.attr("id");
+        let $curDropTarget = getDropTarget();
 
         event.preventDefault();
         event.stopPropagation();
@@ -3474,20 +3571,28 @@ window.DS = (function ($, DS) {
 
             setDropTraget($dragWrap);
         }
-    };
+    }
 
-    // Helper function for drag over event
-    DS.allowDrop = function(event) {
+    /**
+     * DS.allowDrop
+     * Helper function for drag over event
+     * @param event
+     */
+    export function allowDrop(event) {
         // call the event.preventDefault() method for
         // the ondragover allows a drop
         event.preventDefault();
-    };
+    }
 
-    // Helper function for drop event
-    DS.onDrop = function(event) {
-        var $div = getDropTarget();
-        var $target = $div.closest('.grid-unit');
-        var $grid = getDragDS();
+    /**
+     * DS.onDrop
+     * Helper function for drop event
+     * @param event
+     */
+    export function onDrop(event) {
+        let $div = getDropTarget();
+        let $target = $div.closest('.grid-unit');
+        let $grid = getDragDS();
 
         event.stopPropagation();
 
@@ -3499,16 +3604,19 @@ window.DS = (function ($, DS) {
             } else {
                 DS.insert($grid, $target, false);
             }
-            var $labels = $gridView.find(".label:visible");
+            let $labels = $gridView.find(".label:visible");
             DataSourceManager.truncateLabelName($labels);
         }
-    };
+    }
 
-    // Helper function to drop ds into a folder
-    DS.dropToFolder = function($grid, $target) {
-        var dsId = $grid.data("dsid");
-        var targetId = $target.data("dsid");
-        var hasMoved = dropHelper(dsId, targetId);
+    /**
+     * DS.dropToFolder
+     * Helper function to drop ds into a folder
+     */
+    export function dropToFolder($grid: JQuery, $target: JQuery): void {
+        let dsId: string = $grid.data("dsid");
+        let targetId: string = $target.data("dsid");
+        let hasMoved = dropHelper(dsId, targetId);
 
         if (hasMoved) {
             refreshDS();
@@ -3518,10 +3626,20 @@ window.DS = (function ($, DS) {
                 targetId: targetId
             });
         }
-    };
+    }
 
-    // Helper function to insert ds before or after another ds
-    DS.insert = function($grid, $sibling, isBefore) {
+    /**
+     * DS.insert
+     * Helper function to insert ds before or after another ds
+     * @param $grid
+     * @param $sibling
+     * @param isBefore
+     */
+    export function insert(
+        $grid: JQuery,
+        $sibling: JQuery,
+        isBefore: boolean
+    ): void {
         if (sortKey != null) {
             // cannot change order when has sort key
             return;
@@ -3529,21 +3647,21 @@ window.DS = (function ($, DS) {
             // shared folder don't allow insert
             return;
         }
-        var dragDsId = $grid.data("dsid");
-        var ds = DS.getDSObj(dragDsId);
+        let dragDsId: string = $grid.data("dsid");
+        let ds = DS.getDSObj(dragDsId);
 
-        var siblingId = $sibling.attr("data-dsid");
+        let siblingId: string = $sibling.attr("data-dsid");
         if (dragDsId === siblingId) {
             return;
         }
-        var siblingDs = DS.getDSObj(siblingId);
+        let siblingDs = DS.getDSObj(siblingId);
 
         // parent
-        var parentId = siblingDs.parentId;
-        var parentDs = DS.getDSObj(parentId);
+        let parentId: string = siblingDs.parentId;
+        let parentDs = DS.getDSObj(parentId);
 
-        var insertIndex = parentDs.eles.indexOf(siblingDs);
-        var isMoveTo;
+        let insertIndex: number = parentDs.eles.indexOf(siblingDs);
+        let isMoveTo: boolean;
 
         if (isBefore) {
             isMoveTo = ds.moveTo(parentDs, insertIndex);
@@ -3562,14 +3680,17 @@ window.DS = (function ($, DS) {
             refreshDS();
             UserSettings.commit(false, true);
         }
-    };
+    }
 
-    DS.dropToParent = function($grid) {
-        var dsId = $grid.data("dsid");
-        var ds = DS.getDSObj(dsId);
+    /**
+     * DS.dropToParent
+     */
+    export function dropToParent($grid: JQuery): void {
+        let dsId: string = $grid.data("dsid");
+        let ds = DS.getDSObj(dsId);
         // target
-        var grandPaId = DS.getDSObj(ds.parentId).parentId;
-        var hasMoved = dropHelper(dsId, grandPaId);
+        let grandPaId: string = DS.getDSObj(ds.parentId).parentId;
+        let hasMoved = dropHelper(dsId, grandPaId);
 
         if (hasMoved) {
             refreshDS();
@@ -3579,15 +3700,15 @@ window.DS = (function ($, DS) {
                 targetId: grandPaId
             });
         }
-    };
+    }
 
-    function dropHelper(dsId, targetId) {
-        var ds = DS.getDSObj(dsId);
-        var targetDS = DS.getDSObj(targetId);
+    function dropHelper(dsId: string, targetId: string): boolean {
+        let ds = DS.getDSObj(dsId);
+        let targetDS = DS.getDSObj(targetId);
         if (dsId === targetId || ds == null || targetDS == null) {
             return false;
         }
-        var $grid = DS.getGrid(dsId);
+        let $grid = DS.getGrid(dsId);
         if (ds.moveTo(targetDS, -1)) {
             $grid.attr("data-dsparentid", targetId)
                     .data("dsparentid", targetId);
@@ -3597,65 +3718,63 @@ window.DS = (function ($, DS) {
     }
 
     // Get current dataset/folder in drag
-    function getDragDS() {
+    function getDragDS(): JQuery {
         return $dragDS;
     }
 
     // Set current dataset/folder in drag
-    function setDragDS($ds) {
+    function setDragDS($ds: JQuery): void {
         $dragDS = $ds;
     }
 
     // Reset drag dataset/folder
-    function resetDragDS() {
+    function resetDragDS(): void {
         $dragDS = undefined;
     }
 
     // Get drop target
-    function getDropTarget() {
+    function getDropTarget(): JQuery {
         return $dropTarget;
     }
 
     // Set drop target
-    function setDropTraget($target) {
+    function setDropTraget($target: JQuery): void {
         $dropTarget = $target;
     }
 
     // Reset drop target
-    function resetDropTarget() {
+    function resetDropTarget(): void {
         $dropTarget = undefined;
     }
 
     /* End of Drag and Drop API */
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        DS.__testOnly__ = {};
-        DS.__testOnly__.delDSHelper = delDSHelper;
-        DS.__testOnly__.createDS = createDS;
-        DS.__testOnly__.removeDS = removeDS;
-        DS.__testOnly__.cacheErrorDS = cacheErrorDS;
-        DS.__testOnly__.checkUnlistableDS = checkUnlistableDS;
+    export let __testOnly__: any = {};
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__ = {};
+        __testOnly__.delDSHelper = delDSHelper;
+        __testOnly__.createDS = createDS;
+        __testOnly__.removeDS = removeDS;
+        __testOnly__.cacheErrorDS = cacheErrorDS;
+        __testOnly__.checkUnlistableDS = checkUnlistableDS;
 
-        DS.__testOnly__.getDragDS = getDragDS;
-        DS.__testOnly__.setDragDS = setDragDS;
-        DS.__testOnly__.resetDragDS = resetDragDS;
-        DS.__testOnly__.getDropTarget = getDropTarget;
-        DS.__testOnly__.setDropTraget = setDropTraget;
-        DS.__testOnly__.resetDropTarget = resetDropTarget;
-        DS.__testOnly__.activateDS = activateDS;
-        DS.__testOnly__.deactivateDS = deactivateDS;
-        DS.__testOnly__.setSortKey = setSortKey;
-        DS.__testOnly__.getSortKey = function() {
+        __testOnly__.getDragDS = getDragDS;
+        __testOnly__.setDragDS = setDragDS;
+        __testOnly__.resetDragDS = resetDragDS;
+        __testOnly__.getDropTarget = getDropTarget;
+        __testOnly__.setDropTraget = setDropTraget;
+        __testOnly__.resetDropTarget = resetDropTarget;
+        __testOnly__.activateDS = activateDS;
+        __testOnly__.deactivateDS = deactivateDS;
+        __testOnly__.setSortKey = setSortKey;
+        __testOnly__.getSortKey = function() {
             return sortKey;
         };
-        DS.__testOnly__.shareDS = shareDS;
-        DS.__testOnly__.unshareDS = unshareDS;
-        DS.__testOnly__.shareAndUnshareHelper = shareAndUnshareHelper;
-        DS.__testOnly__.alertSampleSizeLimit = alertSampleSizeLimit;
-        DS.__testOnly__.parseDSFormat = parseDSFormat;
+        __testOnly__.shareDS = shareDS;
+        __testOnly__.unshareDS = unshareDS;
+        __testOnly__.shareAndUnshareHelper = shareAndUnshareHelper;
+        __testOnly__.alertSampleSizeLimit = alertSampleSizeLimit;
     }
     /* End Of Unit Test Only */
-
-    return (DS);
-}(jQuery, {}));
+}

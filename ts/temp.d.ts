@@ -727,7 +727,9 @@ declare enum StatusT {
     StatusDsNotFound,
     StatusJsonQueryParseError,
     StatusRetinaNotFound,
-    StatusDatasetAlreadyDeleted
+    StatusDatasetAlreadyDeleted,
+    StatusDsDatasetInUse,
+    StatusNsNotFound
 }
 
 declare enum FunctionCategoryT {
@@ -942,38 +944,6 @@ declare namespace BottomMenu {
     export function initialize(): void;
     export function unsetMenuCache(): void;
     export function close(something?: boolean): void;
-}
-
-declare namespace DS {
-    export function setup(): void;
-    export function resize(): void;
-    export function getGrid(dsId: string): JQuery;
-    export function getGridByName(dsName: string, user?: string): JQuery;
-    export function updateDSInfo(arg: object): void;
-    export function upgrade(oldDS: object): object;
-    export function cancel($grid: JQuery): XDPromise<any>;
-    export function restore(oldHomeFolder: object, atStartup?: boolean): XDPromise<any>;
-    export function getHomeDir(toPersist?: boolean): DSDurable;
-    export function getDSObj(dsId: number | string): DSObj | null;
-    export function goToDir(foldderId: string): void;
-    export function focusOn($grid: JQuery): XDPromise<any>;
-    export function listDatasets(sharedOnly: boolean): ListDSInfo[];
-    export function isSharingDisabled(): boolean;
-    export function shareDS(dsId: string): XDPromise<void>;
-    export function attach(dsName: string, uid: string): XDPromise<void>;
-    export function detach(dsName: string, uid: string): XDPromise<void>;
-    export function getSchema(dsName: string): {error: string, schema: ColSchema[]};
-    export function getLoadArgsFromDS(dsName: string): XDPromise<string>;
-    export function restoreSourceFromDagNode(dagNodes: DagNodeDataset[], share: boolean): XDPromise<void>;
-    export function restoreSourceFromLoadArgs(loadArgs: OperationNode): XDPromise<any>;
-    export function restoreTutorialDS(loadArgs: OperationNode): XDPromise<string>;
-    export function isAccessible(dsName: string): boolean;
-    export function activate(dsIds: string[], noAlert: boolean): XDPromise<void>;
-    export function refresh(): XDPromise<void>;
-    export function getSortKey(): string;
-    export function unFocus(): void;
-    export function getErrorDSObj(dsId: string): DSObj;
-    export function removeErrorDSObj(dsId: string): void
 }
 
 declare namespace DSForm {

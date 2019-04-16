@@ -1887,7 +1887,7 @@ window.DSPreview = (function($, DSPreview) {
                 if (createTable) {
                     promise = TblSource.Instance.import(args.name, args);
                 } else{
-                    promise = DS.import(args, {});
+                    promise = DS.load(args, {});
                 }
                 promises.push(promise);
             });
@@ -1906,7 +1906,7 @@ window.DSPreview = (function($, DSPreview) {
             if (createTable) {
                 promise = TblSource.Instance.import(multiLoadArgs.name, multiLoadArgs);
             } else {
-                promise = DS.import(multiLoadArgs, {
+                promise = DS.load(multiLoadArgs, {
                     "dsToReplace": dsToReplace
                 });
             }

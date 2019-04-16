@@ -18,10 +18,10 @@ class DSObj extends Durable {
     private user: string; // the user that creates it
     private fullName: string; // fullName for ds, user.name,
                               // for folder, equal to name
-    private parentId: string; // parent folder's id
+    public parentId: string; // parent folder's id
     private isFolder: boolean; // folder or ds
     private uneditable: boolean; // if set true, no action for it
-    private eles: DSObj[]; // its children DSObj
+    public eles: DSObj[]; // its children DSObj
     private totalChildren: number; // (integer) total nummber of children
 
     // ds only attr:
@@ -47,6 +47,7 @@ class DSObj extends Durable {
     public numErrors: number; // number of record errors
     private activated: boolean; // if the dataset is activated or not
     private columns: ColSchema[];
+    public cachedLoadArgs: string;
 
     constructor(options: DSObjOptions) {
         options = options || <DSObjOptions>{};

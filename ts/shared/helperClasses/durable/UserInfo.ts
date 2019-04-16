@@ -7,8 +7,6 @@ class UserInfo extends Durable {
         options = options || <UserInfoDurable>{};
         super(options.version);
 
-        // DS structure is complex, so let DS.restore
-        // and DS.upgrade to handle it
         this.gDSObj = options.gDSObj;
         let userpreference = options.userpreference || <UserPrefDurable>{};
         this.userpreference = new UserPref(userpreference);

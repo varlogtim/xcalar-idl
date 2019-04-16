@@ -29,7 +29,7 @@ class DataSourceManager {
      */
     public static truncateLabelName(
         $labels: JQuery,
-        isListView: boolean
+        isListView?: boolean
     ): void {
         let $gridView = $("#datastoreMenu .gridItems").eq(0);
         if (isListView == null) {

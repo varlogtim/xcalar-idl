@@ -182,53 +182,6 @@ describe("Dataset-DS Test", function() {
             expect(DS.getDSObj(dsId)).to.be.null;
         });
 
-        it("should add other user's ds", function(done) {
-            var oldFunc =  XcSocket.prototype.sendMessage;
-            XcSocket.prototype.sendMessage = function(ds, action, callback) {
-                if (typeof callback === "function") {
-                    callback(false); // make it fail
-                }
-            };
-
-            var user = xcHelper.randName("testUser");
-            var dsName = DS.getUniqueName("testDS");
-            var testName = user + "." + dsName;
-            DS.addOtherUserDS(testName, {
-                format: "CSV",
-                path: "testPath"
-            })
-            .then(function(ds) {
-                expect(ds).not.to.be.null;
-                expect(ds.getName()).to.equal(dsName);
-                expect(ds.getFormat()).to.equal("CSV");
-                expect(ds.parentId).to.equal(DSObjTerm.SharedFolderId);
-                var dsId = ds.getId();
-                DS.__testOnly__.removeDS(dsId);
-                expect(DS.getDSObj(dsId)).to.be.null;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcSocket.prototype.sendMessage = oldFunc;
-            });
-        });
-
-        // it("Should upgrade dsObj", function() {
-        //     var oldFolder = DS.getHomeDir();
-        //     oldFolder.version = 0;
-
-        //     var newFolder = DS.upgrade(oldFolder);
-        //     expect(newFolder.version).to.equal(Durable.Version);
-        //     expect(newFolder.eles.length)
-        //     .to.equal(oldFolder.eles.length);
-
-        //     // case 2
-        //     newFolder = DS.upgrade(null);
-        //     expect(newFolder).to.be.null;
-        // });
-
         it("should cache error ds", function() {
             expect(DS.getErrorDSObj("test")).to.be.null;
             DS.__testOnly__.cacheErrorDS("test", "testDSObj");
@@ -750,7 +703,7 @@ describe("Dataset-DS Test", function() {
     });
 
     describe("New Dataset Test", function() {
-        it("should handle DS.import error", function(done) {
+        it("should handle DS.load error", function(done) {
             var oldFunc = DS.focusOn;
             DS.focusOn = function() {
                 return PromiseHelper.reject("test");
@@ -759,7 +712,7 @@ describe("Dataset-DS Test", function() {
             var name = DS.getUniqueName("test");
             var dataset = testDatasets.sp500;
             var dsArgs = $.extend({}, dataset, {"name": name});
-            DS.import(dsArgs)
+            DS.load(dsArgs)
             .then(function() {
                 done("fail");
             })
@@ -781,7 +734,7 @@ describe("Dataset-DS Test", function() {
             var oldActivate = XcalarDatasetActivate;
             XcalarDatasetCreate = () => PromiseHelper.resolve();
             XcalarDatasetActivate = () => PromiseHelper.resolve();
-            DS.import(dsArgs)
+            DS.load(dsArgs)
             .then(function(dsObj) {
                 testDS = dsObj;
 
@@ -1499,28 +1452,6 @@ describe("Dataset-DS Test", function() {
         });
     });
 
-    describe("Restore Test", function() {
-        // it("Should restore folder", function(done) {
-        //     var oldHomeFolder = DS.getHomeDir();
-        //     DS.clear();
-
-        //     var curHomeFolder = DS.getDSObj(DSObjTerm.homeDirId);
-        //     expect(curHomeFolder.totalChildren).to.equal(0);
-
-        //     DS.restore(oldHomeFolder, false)
-        //     .then(function() {
-        //         curHomeFolder = DS.getDSObj(DSObjTerm.homeDirId);
-        //         // at least has the test folder and test ds
-        //         expect(curHomeFolder.totalChildren).to.be.at.least(1);
-        //         expect(DS.has(testDS.getName())).to.be.true;
-        //         done();
-        //     })
-        //     .fail(function() {
-        //         done("fail");
-        //     });
-        // });
-    });
-
     describe("Activate/Deactivate ds test", function() {
         var activateDS;
         var deactivateDS;
@@ -1772,27 +1703,6 @@ describe("Dataset-DS Test", function() {
             });
         });
     });
-
-    it("parseDSFormat should work", function() {
-        var ds = {
-            loadArgs: {
-                parseArgs: {
-                    parserFnName: "default:openExcel"
-                }
-            }
-        };
-
-        expect(DS.__testOnly__.parseDSFormat(ds)).to.equal("Excel");
-        // case 2
-        ds.loadArgs.parseArgs.parserFnName = "default:parseCsv";
-        expect(DS.__testOnly__.parseDSFormat(ds)).to.equal("CSV");
-        // case 3
-        ds.loadArgs.parseArgs.parserFnName = "default:parseJson";
-        expect(DS.__testOnly__.parseDSFormat(ds)).to.equal("JSON");
-        // error case
-        expect(DS.__testOnly__.parseDSFormat("")).to.equal("Unknown");
-    });
-
 
     after(function() {
         xcTooltip.hideAll(); // toggle list view test may have tooltip

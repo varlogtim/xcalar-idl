@@ -471,7 +471,7 @@ class KVStore {
        return XcalarKeyDelete(this.key, this.scope);
     }
 
-    private getInfo(ignoreFail: boolean = false): XDPromise<any> {
+    public getInfo(ignoreFail: boolean = false): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const key: string = this.key;
         this.getAndParse()

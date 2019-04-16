@@ -657,8 +657,8 @@ describe("Dataset-DSPreview Test", function() {
 
                 before(() => {
                     importDataHelper = DSPreview.__testOnly__.importDataHelper;
-                    oldImport = DS.import;
-                    DS.import = (args) => PromiseHelper.resolve(args);
+                    oldImport = DS.load;
+                    DS.load = (args) => PromiseHelper.resolve(args);
 
                     loadArgs = DSPreview.__testOnly__.get().loadArgs;
                 });
@@ -723,7 +723,7 @@ describe("Dataset-DSPreview Test", function() {
                 });
 
                 after(() => {
-                    DS.import = oldImport;
+                    DS.load = oldImport;
                     loadArgs.reset();
                 });
             });
@@ -3301,9 +3301,9 @@ describe("Dataset-DSPreview Test", function() {
             var validFunc = function(dsName) { return !DS.has(dsName); };
             var testDS = xcHelper.uniqueRandName("testSuitesSp500", validFunc, 10);
             $form.find(".dsName").eq(0).val(testDS);
-            var oldImport = DS.import;
+            var oldImport = DS.load;
             var test = false;
-            DS.import = () => {
+            DS.load = () => {
                 test = true;
                 return PromiseHelper.resolve();
             };
@@ -3317,7 +3317,7 @@ describe("Dataset-DSPreview Test", function() {
                 done("fail");
             })
             .always(function() {
-                DS.import = oldImport;
+                DS.load = oldImport;
             });
         });
     });
