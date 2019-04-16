@@ -967,7 +967,7 @@ function executeSql(params, type) {
         deferred.reject(retObj);
     })
     .always(function() {
-        if (type != "odbc" && optimizations.dropAsYouGo) {
+        if (type == "odbc" || optimizations.dropAsYouGo) {
             SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
             var deleteCompletely = true;
             XIApi.deleteTable(1, tablePrefix + "*", undefined, deleteCompletely);
