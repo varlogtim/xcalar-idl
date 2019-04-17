@@ -53,6 +53,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             this.groups[index].args = [];
         }
 
+        this.updateNewFieldName("", index, false);
         if (index === 0 && this.autofillColumns && this.autofillColumns[0]) {
             let autoGenColName: string = xcHelper.parsePrefixColName(this.autofillColumns[0].getBackColName()).name;
             if (opInfo.displayName.indexOf(":") > -1) {
@@ -63,14 +64,73 @@ class MapOpPanelModel extends GeneralOpPanelModel {
 
             autoGenColName = xcHelper.stripColName(autoGenColName);
             autoGenColName = this._getAutoGenColName(autoGenColName);
-            this.updateNewFieldName(autoGenColName, 0);
+            this.updateNewFieldName(autoGenColName, index);
         }
-
         this._update();
     }
 
-    public updateNewFieldName(newFieldName: string, groupIndex: number): void {
+    public updateNewFieldName(newFieldName: string, groupIndex: number, userEdit?: boolean): void {
         this.groups[groupIndex].newFieldName = newFieldName;
+        if (userEdit != null) {
+            this.groups[groupIndex].newFieldNameUserEdited = userEdit;
+        }
+    }
+
+    public updateArg(
+        value: string,
+        groupIndex: number,
+        argIndex: number,
+        options?: any
+    ): void {
+        options = options || {};
+        const group = this.groups[groupIndex];
+        while (group.args.length <= argIndex) {
+            group.args.push(new OpPanelArg("", -1));
+        }
+        // no arg if boolean is not true
+        if ((options.boolean && value === "") || options.isEmptyArg) {
+            group.args.splice(argIndex, 1);
+        } else {
+            const arg: OpPanelArg = group.args[argIndex];
+            arg.setValue(value);
+            if (options.typeid != null) {
+                arg.setTypeid(options.typeid);
+            }
+            if (options.isNone) {
+                arg.setIsNone(true);
+            } else if (arg.hasOwnProperty("isNone")) {
+                arg.setIsNone(false);
+            }
+            if (options.isEmptyString) {
+                arg.setIsEmptyString(true);
+            } else if (arg.hasOwnProperty("isEmptyString")) {
+                arg.setIsEmptyString(false);
+            }
+            this._formatArg(arg);
+            this._validateArg(arg);
+            // if value is changed, remove autofill column
+            if (groupIndex == 0 && this.autofillColumns &&
+                this.autofillColumns[argIndex] &&
+                arg.getFormattedValue() !== this.autofillColumns[argIndex].getBackColName()) {
+                this.autofillColumns[argIndex] = null;
+            }
+            if (argIndex === 0 && !group.newFieldNameUserEdited && arg.getType() === "column") {
+                let autoGenColName = arg.getFormattedValue();
+                if (autoGenColName.indexOf("::") > -1) {
+                    autoGenColName = autoGenColName.split("::")[1];
+                }
+                if (group.operator.indexOf(":") > -1) {
+                    autoGenColName += "_udf";
+                } else {
+                    autoGenColName +=  "_" + group.operator;
+                }
+                group.newFieldName = "";
+                autoGenColName = xcHelper.stripColName(autoGenColName, true, true);
+                autoGenColName = this._getAutoGenColName(autoGenColName);
+                this.updateNewFieldName(autoGenColName, groupIndex);
+                this._update();
+            }
+        }
     }
 
     public toggleICV(isICV: boolean): void {
@@ -184,7 +244,8 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             groups.push({
                 operator: argGroup.fnName,
                 args: args,
-                newFieldName: newFieldNames[i]
+                newFieldName: newFieldNames[i],
+                newFieldNameUserEdited: newFieldNames[i] != null && newFieldNames[i] != ""
             });
         }
 

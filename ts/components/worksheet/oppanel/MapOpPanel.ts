@@ -269,7 +269,7 @@ class MapOpPanel extends GeneralOpPanel {
         const groupIndex = this._$panel.find(".group").index($group);
         const argIndex = $group.find(".arg").index($input);
         if ($input.closest(".colNameSection").length) {
-            this.model.updateNewFieldName(val, groupIndex);
+            this.model.updateNewFieldName(val, groupIndex, true);
         } else {
             this.model.updateArg(val, groupIndex, argIndex);
         }

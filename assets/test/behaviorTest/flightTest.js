@@ -244,8 +244,9 @@ window.FlightTest = (function(FlightTest, $) {
             const year = xcHelper.getPrefixColName(flightPrefix, "Year");
             const month = xcHelper.getPrefixColName(flightPrefix, "Month");
             const day = xcHelper.getPrefixColName(flightPrefix, "DayofMonth");
-            const $args = $panel.find(".arg");
+            let $args = $panel.find(".arg");
             fillArgInPanel($args.eq(0), gColPrefix + year);
+            $args = $panel.find(".arg");
             fillArgInPanel($args.eq(1), gColPrefix + month);
             fillArgInPanel($args.eq(2), gColPrefix + day);
             fillArgInPanel($args.eq(3), "YearMonthDay");

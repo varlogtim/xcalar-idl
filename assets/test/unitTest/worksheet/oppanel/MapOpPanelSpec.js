@@ -427,12 +427,13 @@ describe("MapOpPanel Test", function() {
                     for (var i = 0; i < args.length; i++) {
                         var argNum = args[i].num;
                         $argInputs.eq(argNum).val(args[i].str).trigger(fakeEvent.input).trigger("change");
+                        $argInputs = $mapOpPanel.find('.arg[type=text]:visible'); // inputs can be rerendered
                     }
 
                     var promise = function() {
                         var innerDeferred = PromiseHelper.deferred();
                         setTimeout(function() {
-                            // quotes/parsing doesn't get applied til 200 ms after inputed
+                            // quotes/parsing doesn't get applied until 200 ms after inputed
                             var previewStr = $strPreview.find('.descArgs').text();
                             expect(previewStr).to.equal(expectedMapStr);
                             innerDeferred.resolve();
@@ -462,6 +463,7 @@ describe("MapOpPanel Test", function() {
                     var $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                     var prefixCol = gColPrefix + xcHelper.getPrefixColName(prefix, "stringCol");
                     $argInputs.eq(0).val(prefixCol).change();
+                    $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                     $argInputs.eq(1).val(5).change();
                     $argInputs.eq(2).val("outputCol").change();
 
@@ -568,6 +570,7 @@ describe("MapOpPanel Test", function() {
                     expect($header.find('input').val()).to.equal('average_stars');
                     $header.click();
 
+                    $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                     var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
                     expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
 
@@ -590,6 +593,7 @@ describe("MapOpPanel Test", function() {
                         $argInputs.eq(0).focus().trigger('focus').val("");
                         expect($argInputs.eq(0).val()).to.equal("");
                         $(this).click();
+                        $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                         expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
                         count++;
                     });
@@ -613,6 +617,71 @@ describe("MapOpPanel Test", function() {
 
                 after(function() {
                     $table.remove();
+                });
+            });
+
+            after(function(done) {
+                MapOpPanel.Instance.close();
+                setTimeout(function() { // allow time for op menu to close
+                    done();
+                }, 500);
+            });
+        });
+
+        describe("auto new column name", function() {
+            var $categoryMenu;
+            var $functionsMenu;
+            var $argInputs;
+
+            before(function() {
+                var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
+                var options = $.extend({}, openOptions);
+                mapOpPanel.show(node, options);
+                $functionsInput = $mapOpPanel.find('.mapFilter');
+                $functionsList = $functionsInput.siblings('.list');
+                $argSection = $mapOpPanel.find('.argsSection').eq(0);
+
+                $categoryMenu = $mapOpPanel.find('.categoryMenu');
+                $functionsMenu = $mapOpPanel.find('.functionsMenu');
+            });
+
+            describe('setup inputs', function() {
+                it('menu should be visible', function() {
+                    expect($categoryMenu.is(":visible")).to.equal(true);
+                    expect($categoryMenu.find('li').length).to.be.above(7);
+                });
+
+                it('should select category when clicked', function() {
+                    $categoryMenu.find('li').filter(function() {
+                        return ($(this).text() === "string");
+                    }).trigger(fakeEvent.click);
+                    expect($categoryMenu.find("li.active").text()).to.equal('string');
+                });
+
+                it('should select function name when clicked', function() {
+                    $functionsMenu.find('li').filter(function() {
+                        return ($(this).text() === "concat");
+                    }).trigger(fakeEvent.click);
+                    expect($functionsMenu.find("li.active").text()).to.equal('concat');
+                });
+
+                it ('should show arguments after clicking function name', function() {
+                    expect($mapOpPanel.find('.argsSection').hasClass('inactive')).to.equal(false);
+                });
+
+                it('should have 3 visible text inputs', function() {
+                    expect($mapOpPanel.find('.arg[type=text]:visible')).to.have.length(3);
+                    $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
+                });
+
+                it("autofill", function() {
+                    $argInputs.eq(0).val("test").trigger("change");
+                    $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
+                    expect($argInputs.eq(2).val()).to.equal("");
+
+                    $argInputs.eq(0).val("$test").trigger("change");
+                    $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
+                    expect($argInputs.eq(2).val()).to.equal("test_concat");
                 });
             });
 

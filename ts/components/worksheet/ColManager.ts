@@ -32,7 +32,7 @@ namespace ColManager {
     export function newPullCol (
         colName: string,
         backColName: string,
-        type: ColumnType,
+        type?: ColumnType,
         defaultWidth?: boolean
     ): ProgCol {
         if (backColName == null) {
