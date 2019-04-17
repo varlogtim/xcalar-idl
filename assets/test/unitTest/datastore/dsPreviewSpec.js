@@ -714,7 +714,7 @@ describe("Dataset-DSPreview Test", function() {
 
                     importDataHelper(['ds'], dsArgs, [])
                     .then((arg) => {
-                        expect(arg).to.be.null;
+                        expect(arg).not.to.be.null;
                         done();
                     })
                     .fail(() => {

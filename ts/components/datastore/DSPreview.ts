@@ -1,65 +1,78 @@
-/*
- * Module for data preview
- */
-window.DSPreview = (function($, DSPreview) {
-    var $previewCard;   // $("#dsForm-preview");
-    var $previewWrap;    // $("#dsPreviewWrap")
-    var $previewTable;  // $("#previewTable")
-    var $previewTableWrap; //$("dsPreviewTableWrap")
+interface DSPreviewOptions {
+    dsName: string;
+    format: string;
+    hasHeader?: boolean;
+    fieldDelim?: string;
+    lineDelim?: string;
+    quoteChar?: string;
+    skipRows?: number;
+    files: any[];
+    moduleName: string;
+    funcName: string;
+    udfQuery: any;
+    typedColumns: {colName: string, colType: string}[];
+    advancedArgs: any;
+}
 
-    var $highlightBtns; // $("#dsForm-highlighter");
+namespace DSPreview {
+    let $previewCard: JQuery;   // $("#dsForm-preview");
+    let $previewWrap: JQuery;    // $("#dsPreviewWrap")
+    let $previewTable: JQuery;  // $("#previewTable")
+    let $previewTableWrap: JQuery; //$("dsPreviewTableWrap")
 
-    var $form;          // $("#importDataForm")
-    var $formatText;    // $("#fileFormat .text")
+    let $highlightBtns: JQuery; // $("#dsForm-highlighter");
 
-    var $fieldText;     // $("#fieldText");
-    var $lineText;      // $("#lineText");
-    var $quote;         // $("#dsForm-quote");
+    let $form: JQuery;          // $("#importDataForm")
+    let $formatText: JQuery;    // $("#fileFormat .text")
 
-    var $udfModuleList; // $("#udfArgs-moduleList")
-    var $udfFuncList;   // $("#udfArgs-funcList")
-    var udfModuleHint;
-    var udfFuncHint;
+    let $fieldText: JQuery;     // $("#fieldText");
+    let $lineText: JQuery;      // $("#lineText");
+    let $quote: JQuery;         // $("#dsForm-quote");
 
-    var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
-    var componentDBFormat;
-    var componentJsonFormat;
-    var componentXmlFormat;
-    var componentParquetFileFormat;
-    var dataSourceSchema;
+    let $udfModuleList: JQuery; // $("#udfArgs-moduleList")
+    let $udfFuncList: JQuery;   // $("#udfArgs-funcList")
+    let udfModuleHint: InputDropdownHint;
+    let udfFuncHint: InputDropdownHint;
 
-    var tableName = null;
-    var rawData = null;
-    var previewOffset = 0;
+    let $headerCheckBox: JQuery; // $("#promoteHeaderCheckbox") promote header checkbox
+    let componentDBFormat;
+    let componentJsonFormat;
+    let componentXmlFormat;
+    let componentParquetFileFormat;
+    let dataSourceSchema;
 
-    var highlighter = "";
+    let tableName: string = null;
+    let rawData = null;
+    let previewOffset: number = 0;
 
-    var loadArgs = new DSFormController();
-    var detectArgs = {};
+    let highlighter: string = "";
+
+    let loadArgs: DSFormController;
+    let detectArgs: any = {};
 
     // UI cache
-    var lastUDFModule = null;
-    var lastUDFFunc = null;
-    var backToFormCard = false;
-    var rowsToFetch = 40;
-    var previewId;
-    var fileBrowserPath = "/";
-    var createTableMode = null;
+    let lastUDFModule: string = null;
+    let lastUDFFunc: string = null;
+    let backToFormCard: boolean = false;
+    let rowsToFetch: number = 40;
+    let previewId: number;
+    let fileBrowserPath: string = "/";
+    let createTableMode: boolean = null;
 
     // constant
-    var defaultRowsToFech = 40;
-    var minRowsToShow = 20;
-    var numBytesRequest = 15000;
-    var maxBytesRequest = 500000;
-    var defaultModule = "/sharedUDFs/default";
-    var excelModule = defaultModule;
-    var excelFunc = "openExcel";
-    var parquetModule = defaultModule;
-    var parquetFunc = "parseParquet";
-    var colGrabTemplate = '<div class="colGrab" data-sizedtoheader="false"></div>';
-    var oldPreviewError = "old preview error";
+    const defaultRowsToFech: number = 40;
+    const minRowsToShow: number = 20;
+    const numBytesRequest: number = 15000;
+    const maxBytesRequest: number = 500000;
+    const defaultModule: string = "/sharedUDFs/default";
+    const excelModule: string = defaultModule;
+    const excelFunc: string = "openExcel";
+    const parquetModule: string = defaultModule;
+    const parquetFunc: string = "parseParquet";
+    const colGrabTemplate: string = '<div class="colGrab" data-sizedtoheader="false"></div>';
+    const oldPreviewError: string = "old preview error";
 
-    var formatMap = {
+    const formatMap = {
         "JSON": "JSON",
         "CSV": "CSV",
         "TEXT": "TEXT",
@@ -71,7 +84,10 @@ window.DSPreview = (function($, DSPreview) {
         "DATABASE": "DATABASE",
     };
 
-    DSPreview.setup = function() {
+    /**
+     * DSPreview.setup
+     */
+    export function setup(): void {
         $previewCard = $("#dsForm-preview");
         $previewWrap = $("#dsPreviewWrap");
         $previewTable = $("#previewTable");
@@ -90,6 +106,8 @@ window.DSPreview = (function($, DSPreview) {
         $udfFuncList = $("#udfArgs-funcList");
 
         $headerCheckBox = $("#promoteHeaderCheckbox");
+        loadArgs = new DSFormController();
+
         componentDBFormat = createDatabaseFormat({
             udfModule: defaultModule,
             udfFunction: 'ingestFromDatabase',
@@ -122,11 +140,11 @@ window.DSPreview = (function($, DSPreview) {
                 return;
             }
 
-            var selection;
+            let selection;
             if (window.getSelection) {
                 selection = window.getSelection();
-            } else if (document.selection) {
-                selection = document.selection.createRange();
+            } else if ((<any>document).selection) {
+                selection = (<any>document).selection.createRange();
             }
 
             applyHighlight(selection.toString());
@@ -137,21 +155,21 @@ window.DSPreview = (function($, DSPreview) {
             if ($("#importColRename").length) {
                 return false;
             }
-            var $input = $(this);
+            let $input = $(this);
             $input.removeClass("error");
-            var rect = this.getBoundingClientRect();
-            var val = xcStringHelper.escapeDblQuoteForHTML($input.val());
-            var maxWidth = 400;
-            var width = rect.width;
-            var html = '<input class="xc-input" id="importColRename" ' +
+            let rect = this.getBoundingClientRect();
+            let val = xcStringHelper.escapeDblQuoteForHTML($input.val());
+            const maxWidth: number = 400;
+            let width = rect.width;
+            let html: HTML = '<input class="xc-input" id="importColRename" ' +
                             'spellcheck="false" type="text" value="' + val +
                             '" ' + ' style="width:' + width + 'px;top:' +
                             rect.top + 'px;left:' + rect.left + 'px;">';
 
             $previewWrap.append(html);
-            var $renameInput = $("#importColRename");
+            let $renameInput = $("#importColRename");
             $renameInput.data("$input", $input);
-            var scrollWidth = $renameInput[0].scrollWidth;
+            let scrollWidth = $renameInput[0].scrollWidth;
             if (scrollWidth > (width - 2)) {
                 width = Math.min($previewCard.find(".previewSection").width(),
                                 scrollWidth + 80);
@@ -164,8 +182,8 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             rect = $renameInput[0].getBoundingClientRect();
-            var winRight = $(window).width() - 5;
-            var diff = rect.right - winRight;
+            let winRight = $(window).width() - 5;
+            let diff = rect.right - winRight;
             if (diff > 0) {
                 var newLeft = rect.left - diff;
                 $renameInput.css("left", newLeft);
@@ -183,21 +201,21 @@ window.DSPreview = (function($, DSPreview) {
                 }
             });
 
-            var scrollTimeout;
+            let scrollTimeout;
 
             $renameInput.on("input", function() {
                 $renameInput.removeClass("error");
                 $renameInput.tooltip("destroy");
                 clearTimeout(scrollTimeout);
-                var scrollWidth = $renameInput[0].scrollWidth;
+                let scrollWidth = $renameInput[0].scrollWidth;
                 if (scrollWidth < maxWidth &&
                     scrollWidth > ($renameInput.outerWidth() - 2)) {
                     $renameInput.outerWidth(scrollWidth + 80);
                     rect = $renameInput[0].getBoundingClientRect();
-                    var winRight = $(window).width() - 5;
-                    var diff = rect.right - winRight;
+                    let winRight = $(window).width() - 5;
+                    let diff = rect.right - winRight;
                     if (diff > 0) {
-                        var newLeft = rect.left - diff;
+                        let newLeft = rect.left - diff;
                         $renameInput.css("left", newLeft);
                     }
                 }
@@ -212,13 +230,13 @@ window.DSPreview = (function($, DSPreview) {
                 // if scroll is triggered, don't validate, just return to old
                 // value
                 $renameInput.on("blur", function() {
-                    var val = $renameInput.val();
+                    let val = $renameInput.val();
                     $renameInput.tooltip("destroy");
                     clearTimeout(scrollTimeout);
                     if (isCreateTableMode()) {
                         val = val.toUpperCase();
                     }
-                    var nameErr = xcHelper.validateColName(val);
+                    let nameErr = xcHelper.validateColName(val);
                     if (!nameErr && checkIndividualDuplicateName(val,
                                     $input.closest("th").index())) {
                         nameErr = ErrTStr.ColumnConflict;
@@ -249,11 +267,10 @@ window.DSPreview = (function($, DSPreview) {
             });
         });
 
-
         xcMenu.add($previewCard.find(".castDropdown"));
 
         $previewTable.on("click", ".flex-left", function() {
-            var $dropdown = $previewCard.find(".castDropdown");
+            let $dropdown = $previewCard.find(".castDropdown");
             $dropdown.data('th', $(this).closest("th"));
             $dropdown.removeClass("type-string type-boolean " +
                                   "type-integer type-float");
@@ -266,8 +283,8 @@ window.DSPreview = (function($, DSPreview) {
             if (event.which !== 1) {
                 return;
             }
-            var type = $(this).data("type");
-            var $th = $previewCard.find(".castDropdown").data("th");
+            let type: string = $(this).data("type");
+            let $th = $previewCard.find(".castDropdown").data("th");
             $th.find(".header").removeClass("type-string type-boolean " +
                                             "type-integer type-float");
             $th.find(".header").addClass("type-" + type);
@@ -303,24 +320,24 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             // prevent resize from letting the table get smaller than 175px
-            var minTableWidth = 175;
-            var curWidth = $(this).closest("th").outerWidth();
-            var tableWidth = $previewTable.outerWidth();
-            var extraTableWidth = tableWidth - minTableWidth;
-            var minColWidth = Math.max(25, curWidth - extraTableWidth);
+            const minTableWidth: number = 175;
+            let curWidth: number = $(this).closest("th").outerWidth();
+            let tableWidth: number = $previewTable.outerWidth();
+            let extraTableWidth: number = tableWidth - minTableWidth;
+            let minColWidth: number = Math.max(25, curWidth - extraTableWidth);
             TblAnim.startColResize($(this), event, {
                 target: "datastore",
                 minWidth: minColWidth,
                 onResize: function() {
                     // size line divider to fit table
-                    var tableWidth = $previewTable.width();
+                    let tableWidth = $previewTable.width();
                     $previewTable.find('.divider').width(tableWidth - 10);
                 }
             });
         });
 
         $previewWrap.on("mouseenter", ".tooltipOverflow", function() {
-            var text = $(this).is("input") ? $(this).val() : $(this).text();
+            let text: string = $(this).is("input") ? $(this).val() : $(this).text();
             xcTooltip.add($(this), {"title": xcStringHelper.escapeHTMLSpecialChar(text)});
             xcTooltip.auto(this);
         });
@@ -332,14 +349,14 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         // set up format dropdownlist
-        var menuHepler = new MenuHelper($("#preview-file"), {
+        let menuHepler: MenuHelper = new MenuHelper($("#preview-file"), {
             onSelect: function($li) {
-                var index;
+                let index: number;
                 if ($li.hasClass("mainPath") && !$li.hasClass("singlePath")) {
                     index = Number($li.data("index"));
                     if ($li.hasClass("collapse")) {
                         // expand case
-                        previewFileSelect(index);
+                        previewFileSelect(index, false);
                         $li.removeClass("collapse");
                     } else {
                         $("#preview-file").find('.subPathList[data-index="' + index + '"]').empty();
@@ -352,11 +369,11 @@ window.DSPreview = (function($, DSPreview) {
                 } else {
                     $("#preview-file").find("li.active").removeClass("active");
                     $li.addClass("active");
-                    var path = $li.data("path");
+                    let path: string = $li.data("path");
                     if ($li.hasClass("mainPath")) {
                         index = Number($li.data("index"));
                     } else {
-                        var $subPathList = $li.closest(".subPathList");
+                        let $subPathList = $li.closest(".subPathList");
                         index = Number($subPathList.data("index"));
                     }
                     changePreviewFile(index, path);
@@ -369,12 +386,12 @@ window.DSPreview = (function($, DSPreview) {
         }).setupListeners();
 
         $previewWrap.on("click", ".cancelLoad", function() {
-            var txId = $(this).data("txid");
+            let txId: number = $(this).data("txid");
             QueryManager.cancelQuery(txId);
         });
 
-        var contentScrollTimer;
-        var contentIsScrolling = false;
+        let contentScrollTimer;
+        let contentIsScrolling: boolean = false;
         $("#importDataForm-content").scroll(function() {
             if (!contentIsScrolling) {
                 StatusBox.forceHide();
@@ -387,15 +404,15 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         // preview
-        var $previewBottom = $previewWrap.find(".previewBottom");
+        let $previewBottom = $previewWrap.find(".previewBottom");
         $previewBottom.on("click", ".action", function() {
             showMoreRows();
         });
 
         setupForm();
 
-        var $bottomCard = $previewCard.find(".cardBottom");
-        var bottomCardTop = 0;
+        let $bottomCard = $previewCard.find(".cardBottom");
+        let bottomCardTop: number = 0;
         $bottomCard .on('mousedown', '.ui-resizable-n', function() {
             bottomCardTop = $bottomCard.position().top;
         });
@@ -403,7 +420,7 @@ window.DSPreview = (function($, DSPreview) {
         $bottomCard.resizable({
             handles: "n",
             containment: 'parent',
-            start: function(event, ui) {
+            start: function(_event, ui) {
                 $bottomCard.css('top', bottomCardTop);
                 ui.originalPosition.top = bottomCardTop;
                 ui.position.top = bottomCardTop;
@@ -420,10 +437,10 @@ window.DSPreview = (function($, DSPreview) {
             resize: function() {
             },
             stop: function() {
-                var containerHeight = $previewCard.find(".cardWrap").height();
+                let containerHeight: number = $previewCard.find(".cardWrap").height();
                 bottomCardTop = $bottomCard.position().top;
 
-                var topPct = 100 * (bottomCardTop / containerHeight);
+                let topPct: number = 100 * (bottomCardTop / containerHeight);
 
                 $bottomCard.css('top', topPct + '%');
                 $bottomCard.outerHeight((100 - topPct) + '%');
@@ -436,8 +453,8 @@ window.DSPreview = (function($, DSPreview) {
 
         $("#importDataForm-content").on("click", ".inputPart .row label", function() {
             // copies filepath to clipboard
-            var $filepathLabel = $(this);
-            var value = $filepathLabel.attr("data-original-title") || $filepathLabel.text();
+            let $filepathLabel = $(this);
+            let value: string = $filepathLabel.attr("data-original-title") || $filepathLabel.text();
             xcUIHelper.copyToClipboard(value);
 
             $filepathLabel.parent().addClass("copiableText");
@@ -447,38 +464,46 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         setupPreviewErrorSection();
-    };
+    }
 
-    function setupPreviewErrorSection() {
+    function setupPreviewErrorSection(): void {
         $previewCard.find(".errorSection").on("click", ".suggest", function() {
-            var format = $(this).data("format");
+            let format: string = $(this).data("format");
             changeFormat(format);
         });
 
         $("#dsPreview-debugUDF").click(function() {
             $(this).blur();
-            var moduleName = $("#udfArgs-moduleList input").val();
-            var modulePath = $("#udfArgs-moduleList input").data("module");
-            var udfPanelModuleName = moduleName;
-            var currWorkbookPath = UDFFileManager.Instance.getCurrWorkbookPath();
+            let moduleName: string = $("#udfArgs-moduleList input").val();
+            let modulePath: string = $("#udfArgs-moduleList input").data("module");
+            let udfPanelModuleName: string = moduleName;
+            let currWorkbookPath = UDFFileManager.Instance.getCurrWorkbookPath();
             if (!modulePath.startsWith(currWorkbookPath)) {
                 udfPanelModuleName = modulePath;
             }
-            var funcName = $("#udfArgs-funcList input").val();
-            var pathIndex = loadArgs.getPreivewIndex();
-            var path = loadArgs.files[pathIndex].path;
+            let funcName = $("#udfArgs-funcList input").val();
+            let pathIndex = loadArgs.getPreivewIndex();
+            let path = loadArgs.files[pathIndex].path;
             JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
                                                 path, false,
                                                 moduleName, funcName, udfPanelModuleName);
         });
     }
 
-    /* restore: boolean, set to true if restoring after an error
-       options:
-        pattern: pattern of the path (can only be one path, not supported yet)
-                 should be generated by xcStringHelper.getFileNamePattern(pattern, isRegex)
-    */
-    DSPreview.show = function(options, lastPath, restore) {
+    /**
+     * DSPreview.show
+     * @param options
+     * options:
+     * pattern: pattern of the path (can only be one path, not supported yet)
+     * should be generated by xcStringHelper.getFileNamePattern(pattern, isRegex)
+     * @param lastPath
+     * @param restore // set to true if restoring after an error
+     */
+    export function show(
+        options: DSPreviewOptions,
+        lastPath: string,
+        restore: boolean
+    ) {
         xcUIHelper.enableSubmit($form.find(".confirm"));
         DSForm.switchView(DSForm.View.Preview);
 
@@ -508,11 +533,11 @@ window.DSPreview = (function($, DSPreview) {
 
         setDefaultDSName();
 
-        var module = null;
+        var udfModule = null;
         var func = null;
         var typedColumns = null;
         if (restore) {
-            module = options.moduleName;
+            udfModule = options.moduleName;
             func = options.funcName;
             typedColumns = options.typedColumns;
         } else {
@@ -527,54 +552,25 @@ window.DSPreview = (function($, DSPreview) {
         setPreviewPaths();
 
         return previewData({
-            "udfModule": module,
+            "udfModule": udfModule,
             "udfFunc": func,
             "isFirstTime": true,
             "typedColumns": typedColumns,
             "isRestore": restore
         });
-    };
+    }
 
-    DSPreview.setMode = function(flag) {
+    /**
+     * DSPreview.setMode
+     */
+    export function setMode(flag: boolean): void {
         createTableMode = flag;
-    };
+    }
 
-    DSPreview.isCreateTableMode = function() {
-        return isCreateTableMode();
-    };
-
-    DSPreview.switchMode = function() {
-        if (XVM.isSQLMode()) {
-            // if switch to sql mode but in the preview of dataset
-            if (!$previewCard.hasClass("xc-hidden") &&
-                !$previewCard.hasClass("createTable")
-            ) {
-                DSForm.show(true);
-            }
-        }
-    };
-
-    DSPreview.update = function(listXdfsObj) {
-        var moduleName = $udfModuleList.find("input").data("module");
-        var funcName = $udfFuncList.find("input").val();
-
-        listUDFSection(listXdfsObj)
-        .always(function() {
-            selectUDF(moduleName, funcName);
-        });
-    };
-
-    DSPreview.clear = function() {
-        if ($("#dsForm-preview").hasClass("xc-hidden")) {
-            // when preview table not shows up
-            return PromiseHelper.resolve(null);
-        } else {
-            createTableMode = null;
-            return clearPreviewTable(tableName);
-        }
-    };
-
-    function isCreateTableMode() {
+    /**
+     * DSPreview.isCreateTableMode
+     */
+    export function isCreateTableMode(): boolean {
         if (XVM.isSQLMode()) {
             return true;
         } else if (createTableMode != null) {
@@ -584,17 +580,57 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function positionAndShowCastDropdown($div) {
-        var $menu = $previewCard.find(".castDropdown");
-        var topMargin = 1;
-        var top = $div[0].getBoundingClientRect().bottom + topMargin;
-        var left = $div[0].getBoundingClientRect().left;
+    /**
+     * DSPreview.switchMode
+     */
+    export function switchMode(): void {
+        if (XVM.isSQLMode()) {
+            // if switch to sql mode but in the preview of dataset
+            if (!$previewCard.hasClass("xc-hidden") &&
+                !$previewCard.hasClass("createTable")
+            ) {
+                DSForm.show(true);
+            }
+        }
+    }
+
+    /**
+     * DSPreview.update
+     */
+    export function update(listXdfsObj: any): void {
+        let moduleName = $udfModuleList.find("input").data("module");
+        let funcName = $udfFuncList.find("input").val();
+
+        listUDFSection(listXdfsObj)
+        .always(() => {
+            selectUDF(moduleName, funcName);
+        });
+    }
+
+    /**
+     * DSPreview.clear
+     */
+    export function clear(): XDPromise<boolean> {
+        if ($("#dsForm-preview").hasClass("xc-hidden")) {
+            // when preview table not shows up
+            return PromiseHelper.resolve(null);
+        } else {
+            createTableMode = null;
+            return clearPreviewTable(tableName);
+        }
+    }
+
+    function positionAndShowCastDropdown($div: JQuery): void {
+        let $menu = $previewCard.find(".castDropdown");
+        const topMargin: number = 1;
+        let top: number = $div[0].getBoundingClientRect().bottom + topMargin;
+        let left: number = $div[0].getBoundingClientRect().left;
 
         $menu.css({'top': top, 'left': left});
         xcMenu.show($menu, function() {
             $menu.data("th").find(".flex-left").removeClass("selected");
         });
-        var rightBoundary = $(window).width() - 5;
+        let rightBoundary: number = $(window).width() - 5;
 
         if ($menu[0].getBoundingClientRect().right > rightBoundary) {
             left = rightBoundary - $menu.width();
@@ -603,13 +639,13 @@ window.DSPreview = (function($, DSPreview) {
         xcTooltip.hideAll();
     }
 
-    function cleanupColRename() {
+    function cleanupColRename(): void {
         $("#importColRename").tooltip("destroy");
         $("#importColRename").remove();
         $previewCard.find(".previewSection").off("scroll");
     }
 
-    function setupDataSourceSchema() {
+    function setupDataSourceSchema(): void {
         dataSourceSchema = new DataSourceSchema(getSchemaRow());
         dataSourceSchema
         .registerEvent(DataSourceSchemaEvent.GetHintSchema, function() {
@@ -623,21 +659,21 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function updateSchema() {
+    function updateSchema(): void {
         var schema = getSchemaFromPreviewTable();
         dataSourceSchema.setSchema(schema);
     }
 
-    function getHintSchmea() {
-        var schema = getSchemaFromPreviewTable();
+    function getHintSchmea(): ColSchema[] {
+        let schema = getSchemaFromPreviewTable();
         if (loadArgs.getFormat() === formatMap.CSV) {
             return schema;
         } else {
-            var basicTypes = BaseOpPanel.getBasicColTypes();
-            var recTypes = suggestColumnHeadersType(true);
-            var newSchema = [];
+            let basicTypes = BaseOpPanel.getBasicColTypes();
+            let recTypes = suggestColumnHeadersType(true);
+            let newSchema = [];
             schema.forEach((colInfo, i) => {
-                var type = recTypes[i];
+                let type = recTypes[i];
                 if (basicTypes.includes(type)) {
                     newSchema.push({
                         name: colInfo.name,
@@ -649,8 +685,10 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function getHeadersFromSchema(schema) {
-        var headers = null;
+    function getHeadersFromSchema(
+        schema: ColSchema[]
+    ): {colName: string, colType: ColumnType}[] | null {
+        let headers: {colName: string, colType: ColumnType}[] = null;
         if (schema && schema.length) {
             headers = schema.map((colInfo) => {
                 return {
@@ -662,38 +700,43 @@ window.DSPreview = (function($, DSPreview) {
         return headers;
     }
 
-    function getSchemaFromHeader(headers) {
-        var schema = headers.map((header) => {
+    function getSchemaFromHeader(
+        headers: {colName: string, colType: string}[]
+    ): ColSchema[] {
+        let schema = headers.map((header) => {
             return {
                 name: header.colName,
-                type: header.colType
+                type: <ColumnType>header.colType
             };
         });
         return schema;
     }
 
-    function validateMatchOfSchemaAndHeaders(schema) {
+    function validateMatchOfSchemaAndHeaders(schema: ColSchema[]): string | null {
         if (isCreateTableMode() || loadArgs.getFormat() !== formatMap.CSV) {
             return null; // only check CSV case in import dataset
         }
-        var validSchema = getSchemaFromPreviewTable();
+        let validSchema = getSchemaFromPreviewTable();
         if (schema.length !== validSchema.length) {
             return "Schema should include " + validSchema.length + " columns";
         }
     }
 
-    function applySchemaChangetoPreview(schema, autoDetect) {
-        var isCSV = (loadArgs.getFormat() === formatMap.CSV);
-        var isCreateTable = isCreateTableMode();
+    function applySchemaChangetoPreview(
+        schema: ColSchema[],
+        autoDetect: boolean
+    ): void {
+        let isCSV: boolean = (loadArgs.getFormat() === formatMap.CSV);
+        let isCreateTable = isCreateTableMode();
         if (!isCSV && !isCreateTable) {
             return;
         }
 
-        var sourceIndex = loadArgs.getPreivewIndex();
+        let sourceIndex = loadArgs.getPreivewIndex();
         if (sourceIndex == null) {
             return;
         }
-        var headers = null;
+        let headers = null;
         if (autoDetect) {
             headers = loadArgs.getSuggestHeaders(sourceIndex);
         } else {
@@ -711,13 +754,13 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function autoFillDataSourceSchema(autoDetect) {
+    function autoFillDataSourceSchema(autoDetect: boolean): void {
         try {
             if (autoDetect) {
                 dataSourceSchema.setAutoSchema();
             } else {
-                var sourceIndex = loadArgs.getPreivewIndex();
-                var headers = loadArgs.getPreviewHeaders(sourceIndex);
+                let sourceIndex = loadArgs.getPreivewIndex();
+                let headers = loadArgs.getPreviewHeaders(sourceIndex);
                 var schema;
                 if (headers) {
                     schema = getSchemaFromHeader(headers);
@@ -731,7 +774,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function setupForm() {
+    function setupForm(): void {
         $form.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);
         });
@@ -767,12 +810,12 @@ window.DSPreview = (function($, DSPreview) {
             "bounds": "#importDataForm-content"
         }).setupListeners();
 
-        var $csvDelim = $("#lineDelim, #fieldDelim");
+        let $csvDelim = $("#lineDelim, #fieldDelim");
         $csvDelim.on("input", "input", function() {
-            var $input = $(this);
+            let $input = $(this);
             $input.removeClass("nullVal");
 
-            var isFieldDelimiter = ($input.attr("id") === "fieldText");
+            let isFieldDelimiter = ($input.attr("id") === "fieldText");
             changeDelimiter(isFieldDelimiter);
         });
 
@@ -782,7 +825,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // quote
         $quote.on("input", function() {
-            var hasChangeQuote = setQuote();
+            let hasChangeQuote = setQuote();
             if (hasChangeQuote) {
                 csvArgChange();
                 getPreviewTable();
@@ -791,7 +834,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // header
         $headerCheckBox.on("click", function() {
-            var $checkbox = $headerCheckBox.find(".checkbox");
+            let $checkbox = $headerCheckBox.find(".checkbox");
             if ($checkbox.hasClass("checked")) {
                 // remove header
                 $checkbox.removeClass("checked");
@@ -812,7 +855,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // back button
         $form.on("click", ".cancel", function() {
-            var targetName = loadArgs.getTargetName();
+            let targetName = loadArgs.getTargetName();
             if ($previewWrap.find(".cancelLoad").length) {
                 $previewWrap.find(".cancelLoad").click();
                 // cancels udf load
@@ -821,7 +864,7 @@ window.DSPreview = (function($, DSPreview) {
             clearPreviewTable(tableName);
             createTableMode = null;
             if (backToFormCard) {
-                DSForm.show();
+                DSForm.show(null);
             } else {
                 // XXX changet to support multiple of paths
                 FileBrowser.show(targetName, fileBrowserPath, true);
@@ -830,8 +873,8 @@ window.DSPreview = (function($, DSPreview) {
 
         // submit the form
         $form.on("click", ".confirm, .createTable", function() {
-            var $submitBtn = $(this).blur();
-            var createTable = $submitBtn.hasClass("createTable");
+            let $submitBtn = $(this).blur();
+            let createTable = $submitBtn.hasClass("createTable");
             $("#importColRename").tooltip("destroy");
             $("#importColRename").remove();
             submitForm(createTable);
@@ -859,22 +902,22 @@ window.DSPreview = (function($, DSPreview) {
 
         $("#dsForm-writeUDF").click(function() {
             $(this).blur();
-            var pathIndex = loadArgs.getPreivewIndex();
-            var path = loadArgs.files[pathIndex].path;
+            let pathIndex = loadArgs.getPreivewIndex();
+            let path = loadArgs.files[pathIndex].path;
             JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
                                                 path, true);
         });
         // dropdown list for udf modules and function names
-        var moduleMenuHelper = new MenuHelper($udfModuleList, {
+        let moduleMenuHelper = new MenuHelper($udfModuleList, {
             "onSelect": function($li) {
-                var module = $li.data("module");
-                selectUDFModule(module);
+                let udfModule: string = $li.data("module");
+                selectUDFModule(udfModule);
             },
             "container": "#importDataForm-content",
             "bounds": "#importDataForm-content"
         });
 
-        var funcMenuHelper = new MenuHelper($udfFuncList, {
+        let funcMenuHelper = new MenuHelper($udfFuncList, {
             "onSelect": function($li) {
                 var func = $li.text();
                 selectUDFFunc(func);
@@ -894,24 +937,24 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function setupXMLSection() {
+    function setupXMLSection(): void {
         $form.on("click", ".row.xml .checkboxSection", function() {
             $(this).find(".checkbox").toggleClass("checked");
         });
     }
 
-    function setupAdvanceSection() {
+    function setupAdvanceSection(): void {
         // advance section
-        var $advanceSection = $form.find(".advanceSection");
+        let $advanceSection = $form.find(".advanceSection");
         $advanceSection.on("click", ".listWrap", function() {
             $advanceSection.toggleClass("active");
             $(this).toggleClass("active");
         });
 
-        var $extraCols = $advanceSection.find(".extraCols");
+        let $extraCols = $advanceSection.find(".extraCols");
         $extraCols.on("click", ".checkboxSection", function() {
-            var $part = $(this).closest(".part");
-            var $checkbox = $part.find(".checkbox");
+            let $part = $(this).closest(".part");
+            let $checkbox = $part.find(".checkbox");
 
             if ($checkbox.hasClass("checked")) {
                 $checkbox.removeClass("checked");
@@ -924,15 +967,15 @@ window.DSPreview = (function($, DSPreview) {
             addAdvancedRows();
         });
 
-        var $fileName = $advanceSection.find(".fileName");
+        let $fileName = $advanceSection.find(".fileName");
         $fileName.on("input", "input", function() {
-            var text = $(this).val().trim();
+            let text = $(this).val().trim();
             $previewTable.find(".extra.fileName .text").text(text);
         });
 
-        var $rowNumber = $advanceSection.find(".rowNumber");
+        let $rowNumber = $advanceSection.find(".rowNumber");
         $rowNumber.on("input", "input", function() {
-            var text = $(this).val().trim();
+            let text = $(this).val().trim();
             $previewTable.find(".extra.rowNumber .text").text(text);
         });
 
@@ -940,26 +983,25 @@ window.DSPreview = (function($, DSPreview) {
             $(this).find(".checkbox").toggleClass("checked");
         });
 
-        xcUIHelper.optionButtonEvent($advanceSection);
+        xcUIHelper.optionButtonEvent($advanceSection, null);
     }
 
-    function initParquetForm(path, targetName) {
-        var $parquetSection = $form.find(".parquetSection");
-        var $partitionList = $parquetSection.find(".partitionList");
-        var $availableColList = $parquetSection.find(".availableColSection " +
+    function initParquetForm(path: string, targetName: string): XDPromise<void> {
+        let $parquetSection = $form.find(".parquetSection");
+        let $partitionList = $parquetSection.find(".partitionList");
+        let $availableColList = $parquetSection.find(".availableColSection " +
                                   ".colList");
-        var $selectedColList = $parquetSection.find(".selectedColSection " +
+        let $selectedColList = $parquetSection.find(".selectedColSection " +
                                  ".colList");
         $partitionList.empty();
         $availableColList.empty();
         $selectedColList.empty();
-        var deferred = PromiseHelper.deferred();
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         getParquetInfo(path, targetName)
-        .then(function(ret) {
-            for (var schemaKey in ret.schema) {
-                var dfType = DfFieldTypeTFromStr[ret.schema[schemaKey]
-                                                    .xcalarType];
-                var xcTypeIcon = "xi-unknown";
+        .then((ret: any) => {
+            for (let schemaKey in ret.schema) {
+                let dfType = DfFieldTypeTFromStr[ret.schema[schemaKey].xcalarType];
+                let xcTypeIcon: string = "xi-unknown";
                 if (dfType) {
                     xcTypeIcon = xcUIHelper.getColTypeIcon(dfType);
                 } else {
@@ -990,7 +1032,7 @@ window.DSPreview = (function($, DSPreview) {
                 '    <input class="large" type="text" value="*">' +
                 '  </div>' +
                 '</div>');
-                var $li = $availableColList.find("li").filter(function() {
+                let $li = $availableColList.find("li").filter(function() {
                     return $(this).find(".colName").text() === elem;
                 });
                 $li.addClass("mustSelect").find(".xi-plus").click();
@@ -1002,11 +1044,12 @@ window.DSPreview = (function($, DSPreview) {
             deferred.resolve();
 
         })
-        .fail(function(error) {
-            var errorS = {
+        .fail((error) => {
+            let errorS = {
                 error: "The dataset that you have selected cannot be " +
                              "parsed as a parquet dataset. Click the " +
-                             "BACK button and select another folder."
+                             "BACK button and select another folder.",
+                log: null
             };
             try {
                 errorS.log = error.output.errStr;
@@ -1027,19 +1070,19 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getParquetInfo(path, targetName) {
-        var deferred = PromiseHelper.deferred();
-        var appName = "XcalarParquet";
-        var pathToParquetDataset = path;
-        var args = {
+    function getParquetInfo(path: string, targetName: string): XDPromise<any> {
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let appName = "XcalarParquet";
+        let pathToParquetDataset = path;
+        let args = {
             func: "getInfo",
             targetName: targetName,
             path: pathToParquetDataset
         };
         XcalarAppExecute(appName, false, JSON.stringify(args))
-        .then(function(result) {
-            var outStr = result.outStr;
-            var appResult = JSON.parse(JSON.parse(outStr)[0][0]);
+        .then((result) => {
+            let outStr = result.outStr;
+            let appResult = JSON.parse(JSON.parse(outStr)[0][0]);
             if (!appResult.validParquet) {
                 // TODO handle error
                 deferred.reject();
@@ -1054,13 +1097,13 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function setupParquetSection() {
+    function setupParquetSection(): void {
         $("#fileFormatMenu").find('li[name="PARQUET"]');
 
-        var $parquetSection = $form.find(".parquetSection");
-        var $availableColList = $parquetSection.find(".availableColSection " +
+        let $parquetSection = $form.find(".parquetSection");
+        let $availableColList = $parquetSection.find(".availableColSection " +
                                   ".colList");
-        var $selectedColList = $parquetSection.find(".selectedColSection " +
+        let $selectedColList = $parquetSection.find(".selectedColSection " +
                                  ".colList");
         $parquetSection.on("click", ".listWrap", function() {
             $parquetSection.toggleClass("active");
@@ -1072,10 +1115,10 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $parquetSection.on("input", ".columnSearch input", function() {
-            var $input = $(this);
-            var keyword = $input.val();
-            var keywordClean = keyword.trim();
-            var index = $(this).closest(".columnHalf").index();
+            let $input = $(this);
+            let keyword = $input.val();
+            let keywordClean = keyword.trim();
+            let index = $(this).closest(".columnHalf").index();
             searchColumn(keywordClean, index);
             if (keyword.length) {
                 $input.closest(".columnSearch").addClass("hasVal");
@@ -1085,8 +1128,8 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $parquetSection.on("blur", ".columnSearch input", function() {
-            var $input = $(this);
-            var keyword = $input.val();
+            let $input = $(this);
+            let keyword = $input.val();
             if (keyword.length) {
                 $input.closest(".columnSearch").addClass("hasVal");
             } else {
@@ -1095,7 +1138,7 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $parquetSection.on("mousedown", ".columnSearch .clear", function(event) {
-            var $input = $(this).closest(".columnSearch").find("input");
+            let $input = $(this).closest(".columnSearch").find("input");
             if ($input.val() !== "") {
                 $input.val("").trigger("input").focus(); // triggers search
                 event.preventDefault(); // prevent input from blurring
@@ -1107,7 +1150,7 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $availableColList.on("click", ".xi-plus", function() {
-            var $colPill = $(this).closest("li");
+            let $colPill = $(this).closest("li");
             $colPill.remove();
             $selectedColList.append($colPill);
             $colPill.find(".xi-plus").removeClass("xi-plus")
@@ -1120,7 +1163,7 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $selectedColList.on("click", ".xi-minus", function() {
-            var $colPill = $(this).closest("li");
+            let $colPill = $(this).closest("li");
             $colPill.remove();
             $availableColList.append($colPill);
             $colPill.find(".xi-minus").removeClass("xi-minus")
@@ -1129,8 +1172,8 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $parquetSection.on("click", ".removeAllCols", function() {
-            var $allPills = $selectedColList.find("li:not(.filteredOut)");
-            for (var i = 0; i< $allPills.length; i++) {
+            let $allPills = $selectedColList.find("li:not(.filteredOut)");
+            for (let i = 0; i< $allPills.length; i++) {
                 $allPills.eq(i).find(".xi-minus").click();
             }
             // TODO handle clearing search
@@ -1138,21 +1181,21 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $parquetSection.on("click", ".addAllCols", function() {
-            var $allPills = $availableColList.find("li:not(.filteredOut)");
-            for (var i = 0; i< $allPills.length; i++) {
+            let $allPills = $availableColList.find("li:not(.filteredOut)");
+            for (let i = 0; i< $allPills.length; i++) {
                 $allPills.eq(i).find(".xi-plus").click();
             }
         });
 
-        function resetSearch($colList) {
-            var $lis = $colList.find("li");
+        function resetSearch($colList: JQuery): void {
+            let $lis = $colList.find("li");
             $lis.removeClass("filteredOut");
             $colList.closest(".columnHalf").find(".columnSearch input").val("");
         }
 
-        function searchColumn(keyword, index) {
-            var $colList = $parquetSection.find(".colList").eq(index);
-            var $lis = $colList.find("li");
+        function searchColumn(keyword: string, index: number): void {
+            let $colList = $parquetSection.find(".colList").eq(index);
+            let $lis = $colList.find("li");
             $lis.removeClass("filteredOut");
             if (!keyword) {
                 if (!$lis.length) {
@@ -1174,18 +1217,17 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function listUDFSection(listXdfsObj) {
-        var deferred = PromiseHelper.deferred();
-
+    function listUDFSection(listXdfsObj: any): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!listXdfsObj) {
             // update python module list
             UDFFileManager.Instance.list()
             .then((res) => {
                 UDFFileManager.Instance.filterWorkbookUDF(res);
                 updateUDFList(res);
+                deferred.resolve();
             })
-            .then(deferred.resolve)
-            .fail(function(error) {
+            .fail((error) => {
                 console.error("List UDF Fails!", error);
                 deferred.reject(error);
             });
@@ -1197,31 +1239,31 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function updateUDFList(listXdfsObj) {
-        var udfObj = xcHelper.getUDFList(listXdfsObj);
+    function updateUDFList(listXdfsObj: any): void {
+        let udfObj: any = xcHelper.getUDFList(listXdfsObj, false);
         $udfModuleList.find("ul").html(udfObj.moduleLis);
         $udfFuncList.find("ul").html(udfObj.fnLis);
     }
 
-    function validateUDFModule(module) {
+    function validateUDFModule(udfModule: string): boolean {
         // check if udf module exists
-        var $li = $udfFuncList.find(".list li").filter(function() {
-            return ($(this).data("module") === module);
+        let $li = $udfFuncList.find(".list li").filter(function() {
+            return ($(this).data("module") === udfModule);
         });
         return ($li.length > 0);
     }
 
-    function validateUDFFunc(module, func) {
+    function validateUDFFunc(udfModule: string, func: string): boolean {
         // check if udf exists
-        var $li = $udfFuncList.find(".list li").filter(function() {
-            var $el = $(this);
-            return ($el.data("module") === module &&
+        let $li = $udfFuncList.find(".list li").filter(function() {
+            let $el = $(this);
+            return ($el.data("module") === udfModule &&
                     $el.text() === func);
         });
         return ($li.length > 0);
     }
 
-    function resetUdfSection() {
+    function resetUdfSection(): void {
         // restet the udf lists, otherwise the if clause in
         // selectUDFModule() and selectUDFFunc() will
         // stop the reset from triggering
@@ -1242,7 +1284,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function selectUDF(moduleName, funcName) {
+    function selectUDF(moduleName: string, funcName: string): void {
         if (validateUDFModule(moduleName)) {
             selectUDFModule(moduleName);
             if (!validateUDFFunc(moduleName, funcName)) {
@@ -1256,22 +1298,22 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function selectUDFModule(module) {
-        if (module == null) {
-            module = "";
+    function selectUDFModule(moduleName: string): void {
+        if (moduleName == null) {
+            moduleName = "";
         }
         var displayedModuleName = $udfModuleList.find("li").filter(function() {
-                                    return $(this).data("module") === module;
+                                    return $(this).data("module") === moduleName;
                                 }).text() || "";
-        $udfModuleList.find("input").data("module", module);
+        $udfModuleList.find("input").data("module", moduleName);
         udfModuleHint.setInput(displayedModuleName);
 
-        if (module === "") {
+        if (moduleName === "") {
             $udfFuncList.addClass("disabled")
                     .find("input").attr("disabled", "disabled");
             selectUDFFunc("");
 
-            $udfFuncList.parent().tooltip({
+            $udfFuncList.parent().tooltip(<any>{
                 "title": TooltipTStr.ChooseUdfModule,
                 "placement": "top",
                 "container": "#dsFormView"
@@ -1280,9 +1322,9 @@ window.DSPreview = (function($, DSPreview) {
             $udfFuncList.parent().tooltip("destroy");
             $udfFuncList.removeClass("disabled")
                         .find("input").removeAttr("disabled");
-            var $funcLis = $udfFuncList.find(".list li").addClass("hidden")
+            let $funcLis = $udfFuncList.find(".list li").addClass("hidden")
                             .filter(function() {
-                                return $(this).data("module") === module;
+                                return $(this).data("module") === moduleName;
                             }).removeClass("hidden");
             if ($funcLis.length === 1) {
                 selectUDFFunc($funcLis.eq(0).text());
@@ -1292,9 +1334,9 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function selectUDFFunc(func) {
+    function selectUDFFunc(func: string): void {
         func = func || "";
-        var $button = $("#dsForm-applyUDF");
+        let $button = $("#dsForm-applyUDF");
         if (func) {
             $button.removeClass("xc-disabled");
             udfFuncHint.setInput(func);
@@ -1304,7 +1346,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function cacheUDF(udfModule, udfFunc) {
+    function cacheUDF(udfModule: string, udfFunc: string): boolean {
         // cache udf module and func name
         if (udfModule && udfFunc) {
             lastUDFModule = udfModule;
@@ -1315,13 +1357,13 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function isUseUDF() {
+    function isUseUDF(): boolean {
         return (loadArgs.getFormat() === "UDF");
     }
 
-    function isUseUDFWithFunc() {
+    function isUseUDFWithFunc(): boolean {
         if (isUseUDF()) {
-            var $funcInput = $udfFuncList.find("input");
+            let $funcInput = $udfFuncList.find("input");
             if ($funcInput.val() !== "") {
                 return true;
             }
@@ -1330,19 +1372,19 @@ window.DSPreview = (function($, DSPreview) {
         return false;
     }
 
-    function resetRowsToPreview() {
+    function resetRowsToPreview(): void {
         rowsToFetch = defaultRowsToFech;
     }
 
-    function getRowsToPreview() {
+    function getRowsToPreview(): number {
         return rowsToFetch;
     }
 
-    function addRowsToPreview(extraRowsToAdd) {
+    function addRowsToPreview(extraRowsToAdd: number): void {
         rowsToFetch += extraRowsToAdd;
     }
 
-    function resetForm() {
+    function resetForm(): void {
         $form.find("input").val("");
         $("#dsForm-skipRows").val("0");
         $("#dsForm-excelIndex").val("0");
@@ -1356,7 +1398,7 @@ window.DSPreview = (function($, DSPreview) {
         $previewWrap.find(".url").removeClass("xc-disabled");
         $previewCard.removeClass("format-parquet");
 
-        var $advanceSection = $form.find(".advanceSection").removeClass("active");
+        let $advanceSection = $form.find(".advanceSection").removeClass("active");
         $advanceSection.find(".active").removeClass("active");
         $advanceSection.find(".radioButton").eq(0).addClass("active");
         cleanupColRename();
@@ -1370,7 +1412,7 @@ window.DSPreview = (function($, DSPreview) {
             "quote": "\""
         };
         resetUdfSection();
-        toggleFormat();
+        toggleFormat(null);
         // enable submit
         xcUIHelper.enableSubmit($form.find(".confirm"));
 
@@ -1384,14 +1426,14 @@ window.DSPreview = (function($, DSPreview) {
         $previewWrap.find(".loadHidden").removeClass("hidden");
     }
 
-    function resetPreviewRows() {
+    function resetPreviewRows(): void {
         resetRowsToPreview();
         $previewWrap.find(".previewBottom")
                    .removeClass("load")
                    .removeClass("end");
     }
 
-    function restoreForm(options) {
+    function restoreForm(options: DSPreviewOptions): void {
         $form.find("input").not($formatText).val("");
         $form.find(".checkbox.checked").removeClass("checked");
 
@@ -1485,10 +1527,17 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function restoreAdvancedArgs(advancedArgs) {
+    function restoreAdvancedArgs(
+        advancedArgs: {
+            fileName: string,
+            rowNumName: string,
+            allowRecordErrors: boolean,
+            allowFileErrors: boolean
+        }
+    ): void {
         try {
             var hasAdvancedArg;
-            advancedArgs = advancedArgs || {};
+            advancedArgs = advancedArgs || <any>{};
             if (advancedArgs.fileName) {
                 restoreExtraCols("fileName", advancedArgs.fileName);
                 hasAdvancedArg = true;
@@ -1509,18 +1558,21 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function restoreExtraCols(fieldName, value) {
-        var $advanceSection = $form.find(".advanceSection");
-        var $field = $advanceSection.find("." + fieldName);
+    function restoreExtraCols(fieldName: string, value: string): void {
+        let $advanceSection = $form.find(".advanceSection");
+        let $field = $advanceSection.find("." + fieldName);
         $field.find(".checkboxSection").click();
         $field.find("input").val(value);
     }
 
-    function restoreTerminationOptions(allowRecordErrors, allowFileErrors) {
-        var $advanceSection = $form.find(".advanceSection");
-        var $row = $advanceSection.find(".termination");
-        var option;
-        var hasAdvancedArg = false;
+    function restoreTerminationOptions(
+        allowRecordErrors: boolean,
+        allowFileErrors: boolean
+    ): boolean {
+        let $advanceSection = $form.find(".advanceSection");
+        let $row = $advanceSection.find(".termination");
+        let option: string;
+        let hasAdvancedArg: boolean = false;
 
         if (allowRecordErrors === true && allowFileErrors === true) {
             option = "continue";
@@ -1539,48 +1591,48 @@ window.DSPreview = (function($, DSPreview) {
         return hasAdvancedArg;
     }
 
-    function submitForm(createTable) {
-        var res = validateForm();
+    function submitForm(createTable: boolean): XDPromise<void> {
+        let res = validateForm();
         if (res == null) {
             return PromiseHelper.reject("Checking Invalid");
         }
 
-        var deferred = PromiseHelper.deferred();
-        var dsNames = res.dsNames;
-        var format = res.format;
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let dsNames = res.dsNames;
+        let format = res.format;
 
-        var udfModule = res.udfModule;
-        var udfFunc = res.udfFunc;
-        var udfQuery = res.udfQuery;
+        let udfModule = res.udfModule;
+        let udfFunc = res.udfFunc;
+        let udfQuery = res.udfQuery;
 
-        var fieldDelim = res.fieldDelim;
-        var lineDelim = res.lineDelim;
+        let fieldDelim = res.fieldDelim;
+        let lineDelim = res.lineDelim;
 
-        var quote = res.quote;
-        var skipRows = res.skipRows;
+        let quote = res.quote;
+        let skipRows = res.skipRows;
 
-        var header = loadArgs.useHeader();
+        let header = loadArgs.useHeader();
 
-        var rowNumName = res.rowNum || "";
-        var fileName = res.fileName || "";
-        var allowRecordErrors = res.allowRecordErrors || false;
-        var allowFileErrors = res.allowFileErrors || false;
+        let rowNumName = res.rowNum || "";
+        let fileName = res.fileName || "";
+        let allowRecordErrors = res.allowRecordErrors || false;
+        let allowFileErrors = res.allowFileErrors || false;
 
-        var advancedArgs = {
+        let advancedArgs = {
             rowNumName: rowNumName,
             fileName: fileName,
             allowRecordErrors: allowRecordErrors,
             allowFileErrors: allowFileErrors
         };
 
-        var typedColumns = getColumnHeaders();
+        let typedColumns = getColumnHeaders(null);
 
         cacheUDF(udfModule, udfFunc);
         xcUIHelper.disableSubmit($form.find('.confirm'));
         // enableSubmit is done during the next showing of the form
         // If the form isn't shown, there's no way it can be submitted
         // anyway
-        var dsArgs = {
+        let dsArgs = {
             "format": format,
             "fieldDelim": fieldDelim,
             "lineDelim": lineDelim,
@@ -1594,51 +1646,52 @@ window.DSPreview = (function($, DSPreview) {
             "schema": res.schema,
             "primaryKeys": res.primaryKeys
         };
-        var curPreviewId = previewId;
+        let curPreviewId = previewId;
 
         invalidHeaderDetection(typedColumns)
-        .then(function() {
+        .then(() => {
             return getTypedColumnsList(typedColumns, dsArgs);
         })
-        .then(function(typedColumnsList) {
+        .then((typedColumnsList) => {
             if (isValidPreviewId(curPreviewId)) {
                 FileBrowser.clear();
             }
 
             return importDataHelper(dsNames, dsArgs, typedColumnsList, createTable);
         })
-        .then(function() {
-            deferred.resolve();
-        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
     }
 
-    function getTypedColumnsList(typedColumns, dsArgs) {
-        var format = dsArgs.format;
+    function getTypedColumnsList(
+        typedColumns: {colType: string, colName: string}[],
+        dsArgs: any
+    ): XDPromise<{colType: string, colName: string}[][]> {
+        let format: string = dsArgs.format;
         if (format !== formatMap.CSV) {
             // no cast for other formats
             return PromiseHelper.resolve([]);
         }
 
-        var sourceIndex = loadArgs.getPreivewIndex();
-        var prevTypedCols = loadArgs.getOriginalHeaders(sourceIndex);
+        let sourceIndex = loadArgs.getPreivewIndex();
+        let prevTypedCols = loadArgs.getOriginalHeaders(sourceIndex);
         typedColumns = normalizeTypedColumns(prevTypedCols, typedColumns);
 
-        var multiDS = loadArgs.multiDS;
+        let multiDS = loadArgs.multiDS;
         if (!multiDS) {
             return PromiseHelper.resolve([typedColumns]);
         }
 
-        var deferred = PromiseHelper.deferred();
-        var typedColumnsList = getCacheHeadersList(sourceIndex, typedColumns);
+        let deferred: XDDeferred<{colType: string, colName: string}[][]> = PromiseHelper.deferred();
+        let typedColumnsList = getCacheHeadersList(sourceIndex, typedColumns);
 
         slowPreviewCheck()
-        .then(function() {
+        .then(() => {
             return getTypedColumnsListHelper(typedColumnsList, dsArgs);
         })
-        .then(function() {
+        .then(() => {
             deferred.resolve(typedColumnsList);
         })
         .fail(deferred.reject);
@@ -1646,14 +1699,20 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function normalizeTypedColumns(prevTypedCols, typedColumns) {
+    function normalizeTypedColumns(
+        prevTypedCols: {colType: string, colName: string}[],
+        typedColumns: {colType: string, colName: string}[]
+    ): {colType: string, colName: string}[] | null {
         if (!hasTypedColumnChange(prevTypedCols, typedColumns)) {
             return null;
         }
         return typedColumns;
     }
 
-    function hasTypedColumnChange(prevTypedCols, currTypedCols) {
+    function hasTypedColumnChange(
+        prevTypedCols: {colType: string, colName: string}[],
+        currTypedCols: {colType: string, colName: string}[]
+    ): boolean {
         prevTypedCols = prevTypedCols || [];
         currTypedCols = currTypedCols || [];
         for (var i = 0; i < currTypedCols.length; i++) {
@@ -1668,25 +1727,28 @@ window.DSPreview = (function($, DSPreview) {
         return false;
     }
 
-    function getCacheHeadersList(sourceIndex, typedColumns) {
-        var typedColumnsList = [];
+    function getCacheHeadersList(
+        sourceIndex: number,
+        typedColumns: {colType: string, colName: string}[]
+    ): {colType: string, colName: string}[][] {
+        let typedColumnsList: {colType: string, colName: string}[][] = [];
         typedColumnsList[sourceIndex] = typedColumns;
-        var cachedHeaders = loadArgs.headersList;
-        for (var i = 0; i < cachedHeaders.length; i++) {
+        let cachedHeaders = loadArgs.headersList;
+        for (let i = 0; i < cachedHeaders.length; i++) {
             if (i !== sourceIndex && cachedHeaders[i] != null) {
-                var originalHeaders = loadArgs.getOriginalHeaders(i);
+                let originalHeaders = loadArgs.getOriginalHeaders(i);
                 typedColumnsList[i] = normalizeTypedColumns(originalHeaders, cachedHeaders[i]);
             }
         }
         return typedColumnsList;
     }
 
-    function slowPreviewCheck() {
-        var deferred = PromiseHelper.deferred();
-        var previewLimit = 10;
-        var targetName = loadArgs.getTargetName();
-        var shouldAlert = true;
-        var msg;
+    function slowPreviewCheck(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const previewLimit: number = 10;
+        let targetName: string = loadArgs.getTargetName();
+        let shouldAlert: boolean = true;
+        let msg: string;
 
         if (loadArgs.files.length > previewLimit) {
             msg = xcStringHelper.replaceMsg(DSFormTStr.TooManyPreview, {
@@ -1704,11 +1766,11 @@ window.DSPreview = (function($, DSPreview) {
             Alert.show({
                 title: DSFormTStr.ImportMultiple,
                 msg: msg,
-                onCancel: function() {
+                onCancel: () => {
                     xcUIHelper.enableSubmit($form.find(".confirm"));
                     deferred.reject();
                 },
-                onConfirm: function() {
+                onConfirm: () => {
                     deferred.resolve();
                 }
             });
@@ -1718,46 +1780,54 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getTypedColumnsListHelper(typedColumnsList, dsArgs) {
-        var deferred = PromiseHelper.deferred();
-        var files = loadArgs.files;
-        var targetName = loadArgs.getTargetName();
-        var promises = [];
+    function getTypedColumnsListHelper(
+        typedColumnsList: {colType: string, colName: string}[][],
+        dsArgs: any
+    ): XDPromise<{colType: string, colName: string}[][]> {
+        let deferred: XDDeferred<{colType: string, colName: string}[][]> = PromiseHelper.deferred();
+        let files = loadArgs.files;
+        let targetName = loadArgs.getTargetName();
+        let promises = [];
 
-        for (var i = 0; i < files.length; i++) {
+        for (let i = 0; i < files.length; i++) {
             if (typedColumnsList[i] !== undefined) {
                 // null is a valid case
                 continue;
             }
 
-            var def = autoDetectSourceHeaderTypes(files[i], targetName, dsArgs,
-                                                  typedColumnsList, i);
+            let def = autoDetectSourceHeaderTypes(files[i], targetName, dsArgs, typedColumnsList, i);
             promises.push(def);
         }
 
-        PromiseHelper.when.apply(this, promises)
-        .always(function() {
+        PromiseHelper.when(...promises)
+        .always(() => {
             deferred.resolve(typedColumnsList); // always resolve
         });
 
         return deferred.promise();
     }
 
-    function autoDetectSourceHeaderTypes(file, targetName, dsArgs, typedColumnsList, index) {
-        var deferred = PromiseHelper.deferred();
+    function autoDetectSourceHeaderTypes(
+        file: {path: string, autoCSV: boolean},
+        targetName: string,
+        dsArgs: any,
+        typedColumnsList: {colType: string, colName: string}[][],
+        index: number
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         // fetch data
-        var args = {
+        let args = {
             targetName: targetName,
             path: file.path,
         };
         XcalarPreview(args, numBytesRequest, 0)
-        .then(function(res) {
+        .then((res) => {
             if (res && res.buffer) {
                 typedColumnsList[index] = getTypedColumnsFromData(res.buffer, dsArgs, file);
             }
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             console.error(error);
             deferred.resolve(); // still resolve it
         });
@@ -1765,17 +1835,21 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getTypedColumnsFromData(data, dsArgs, file) {
-        var lineDelim = dsArgs.lineDelim;
-        var fieldDelim = dsArgs.fieldDelim;
-        var hasHeader = dsArgs.hasHeader;
-        var quoteChar = dsArgs.quoteChar;
+    function getTypedColumnsFromData(
+        data: string,
+        dsArgs: any,
+        file: {path: string, autoCSV: boolean}
+    ): {colType: string, colName: string}[] | null {
+        let lineDelim: string = dsArgs.lineDelim;
+        let fieldDelim: string = dsArgs.fieldDelim;
+        let hasHeader: boolean = dsArgs.hasHeader;
+        let quoteChar: string = dsArgs.quoteChar;
 
         try {
-            var strippedData = xcStringHelper.replaceInsideQuote(data, quoteChar);
-            var rows = strippedData.split(lineDelim);
-            var originalHeaders = [];
-            var headers = [];
+            let strippedData = xcStringHelper.replaceInsideQuote(data, quoteChar);
+            let rows = strippedData.split(lineDelim);
+            let originalHeaders: string[] = [];
+            let headers: string[] = [];
 
             if (hasHeader) {
                 var header = rows[0];
@@ -1786,10 +1860,10 @@ window.DSPreview = (function($, DSPreview) {
                 headers = getValidNameSet(originalHeaders);
             }
 
-            var columns = [];
+            let columns: string[][] = [];
             rows.forEach(function(row) {
-                var splits = row.split(fieldDelim);
-                splits.forEach(function(cell, colIndex) {
+                let splits = row.split(fieldDelim);
+                splits.forEach((cell, colIndex) => {
                     columns[colIndex] = columns[colIndex] || [];
                     columns[colIndex].push(cell);
                 });
@@ -1801,15 +1875,15 @@ window.DSPreview = (function($, DSPreview) {
                 return null;
             }
 
-            var columTypes = columns.map(function(datas) {
-                return xcSuggest.suggestType(datas);
+            let columTypes: ColumnType[] = columns.map((datas) => {
+                return xcSuggest.suggestType(datas, null);
             });
-            var originalTypedColumns = [];
-            var typedColumns = [];
+            let originalTypedColumns: {colName: string, colType: string}[] = [];
+            let typedColumns: {colName: string, colType: string}[] = [];
 
-            columTypes.forEach(function(colType, index) {
-                var originalColName = originalHeaders[index] || autoHeaderName(index);
-                var colName = headers[index] || originalColName;
+            columTypes.forEach((colType, index) => {
+                let originalColName: string = originalHeaders[index] || autoHeaderName(index);
+                let colName: string = headers[index] || originalColName;
                 typedColumns.push({
                     colName: colName,
                     colType: colType
@@ -1828,17 +1902,22 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function importDataHelper(dsNames, dsArgs, typedColumnsList, createTable) {
-        var multiDS = loadArgs.multiDS;
-        var files = loadArgs.files;
-        var targetName = loadArgs.getTargetName();
-        var promises = [];
-        var getSource = function(file) {
+    function importDataHelper(
+        dsNames: string[],
+        dsArgs: any,
+        typedColumnsList: {colType: string, colName: string}[][],
+        createTable: boolean
+    ): XDPromise<void> {
+        let multiDS: boolean = loadArgs.multiDS;
+        let files = loadArgs.files;
+        let targetName: string = loadArgs.getTargetName();
+        let promises: XDPromise<void>[] = [];
+        let getSource = function(file) {
             if (DSTargetManager.isSparkParquet(targetName)) {
-                var partitionValues = {};
-                var partitions = $(".parquetSection .partitionAdvanced .row");
-                for (var i = 0; i < partitions.length; i++) {
-                    var label = partitions.eq(i).find("label").text();
+                let partitionValues = {};
+                let partitions = $(".parquetSection .partitionAdvanced .row");
+                for (let i = 0; i < partitions.length; i++) {
+                    let label: string = partitions.eq(i).find("label").text();
                     label = label.substring(0, label.length-1);
                     partitionValues[label] = partitions.eq(i).find("input")
                                                        .val();
@@ -1854,7 +1933,7 @@ window.DSPreview = (function($, DSPreview) {
             };
         };
 
-        var getAutoDetectUDFArgs = function(dsArgs, file) {
+        let getAutoDetectUDFArgs = function(dsArgs, file) {
             if (dsArgs.format !== formatMap.CSV || !file.autoCSV) {
                 return null;
             }
@@ -1876,14 +1955,14 @@ window.DSPreview = (function($, DSPreview) {
         if (multiDS) {
             files.forEach(function(file, index) {
                 // need {} to create a different copy than poinArgs
-                var source = getSource(file);
-                var extraUDFArgs = getAutoDetectUDFArgs(dsArgs, file);
-                var args = $.extend({}, dsArgs, {
+                let source = getSource(file);
+                let extraUDFArgs = getAutoDetectUDFArgs(dsArgs, file);
+                let args = $.extend({}, dsArgs, {
                     "name": dsNames[index],
                     "sources": [source],
                     "typedColumns": typedColumnsList[index]
                 }, extraUDFArgs);
-                var promise;
+                let promise;
                 if (createTable) {
                     promise = TblSource.Instance.import(args.name, args);
                 } else{
@@ -1891,18 +1970,18 @@ window.DSPreview = (function($, DSPreview) {
                 }
                 promises.push(promise);
             });
-            return PromiseHelper.when.apply(this. promises);
+            return PromiseHelper.when(...promises);
         } else {
-            var sources = files.map(getSource);
-            var previewIndex = loadArgs.getPreivewIndex();
-            var extraUDFArgs = getAutoDetectUDFArgs(dsArgs, files[previewIndex]);
-            var multiLoadArgs = $.extend(dsArgs, {
+            let sources = files.map(getSource);
+            let previewIndex = loadArgs.getPreivewIndex();
+            let extraUDFArgs = getAutoDetectUDFArgs(dsArgs, files[previewIndex]);
+            let multiLoadArgs = $.extend(dsArgs, {
                 "name": dsNames[0],
                 "sources": sources,
                 "typedColumns": typedColumnsList[0]
             }, extraUDFArgs);
-            var dsToReplace = files[0].dsToReplace || null;
-            var promise;
+            let dsToReplace = files[0].dsToReplace || null;
+            let promise;
             if (createTable) {
                 promise = TblSource.Instance.import(multiLoadArgs.name, multiLoadArgs);
             } else {
@@ -1914,14 +1993,15 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function getColumnHeaders(isCSV) {
-        var headers = [];
-        var $ths = $previewTable.find("th:not(.rowNumHead):not(.extra)");
+    // XXX TODO: return ColSchema[]
+    function getColumnHeaders(isCSV: boolean): {colType: string, colName: string}[] {
+        let headers: {colType: string, colName: string}[] = [];
+        let $ths = $previewTable.find("th:not(.rowNumHead):not(.extra)");
         if (isCSV || loadArgs.getFormat() === formatMap.CSV) {
             $ths.each(function() {
-                var $th = $(this);
-                var type = $th.data("type") || "string";
-                var header = {
+                let $th = $(this);
+                let type: ColumnType = $th.data("type") || ColumnType.string;
+                let header = {
                     colType: type,
                     colName: $th.find(".text").val()
                 };
@@ -1929,7 +2009,7 @@ window.DSPreview = (function($, DSPreview) {
             });
         } else {
             $ths.each(function() {
-                var header = {
+                let header = {
                     colType: "",
                     colName: $(this).find(".text").text()
                 };
@@ -1941,19 +2021,19 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getSchemaFromPreviewTable() {
-        var headers = getColumnHeaders();
+        let headers = getColumnHeaders(null);
         return getSchemaFromHeader(headers);
     }
 
-    function validateDSNames() {
-        var isValid = true;
-        var dsNames = [];
-        var files = loadArgs.files;
+    function validateDSNames(): string[] | null {
+        let isValid: boolean = true;
+        let dsNames: string[] = [];
+        let files = loadArgs.files;
 
         // validate name
         $form.find(".dsName").each(function(index) {
-            var $dsName = $(this);
-            var dsName = $dsName.val().trim();
+            let $dsName = $(this);
+            let dsName: string = $dsName.val().trim();
             if (isCreateTableMode()) {
                 dsName = dsName.toUpperCase();
             }
@@ -2018,9 +2098,9 @@ window.DSPreview = (function($, DSPreview) {
         return isValid ? dsNames : null;
     }
 
-    function validateFormat() {
-        var format = loadArgs.getFormat();
-        isValid = xcHelper.validate([{
+    function validateFormat(): string | null {
+        let format: string = loadArgs.getFormat();
+        let isValid: boolean = xcHelper.validate([{
             "$ele": $formatText,
             "error": ErrTStr.NoEmptyList,
             "check": function() {
@@ -2030,10 +2110,10 @@ window.DSPreview = (function($, DSPreview) {
         return isValid ? format : null;
     }
 
-    function validateUDF() {
-        var $moduleInput = $udfModuleList.find("input");
-        var $funcInput = $udfFuncList.find("input");
-        var isValid = xcHelper.validate([
+    function validateUDF(): [string, string] | null {
+        let $moduleInput = $udfModuleList.find("input");
+        let $funcInput = $udfFuncList.find("input");
+        let isValid = xcHelper.validate([
             {
                 "$ele": $moduleInput,
                 "error": ErrTStr.NoEmptyList
@@ -2048,26 +2128,26 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
-        udfModule = $moduleInput.data("module");
-        udfFunc = $funcInput.val();
+        let udfModule = $moduleInput.data("module");
+        let udfFunc = $funcInput.val();
 
         return [udfModule, udfFunc];
     }
 
-    function validateCSVArgs(isCSV) {
+    function validateCSVArgs(isCSV: boolean): [string, string, string, number] | null {
         // validate delimiter
-        var fieldDelim = loadArgs.getFieldDelim();
-        var lineDelim = loadArgs.getLineDelim();
-        var quote = loadArgs.getQuote();
-        var skipRows = getSkipRows();
-        var isValid = xcHelper.validate([
+        let fieldDelim = loadArgs.getFieldDelim();
+        let lineDelim = loadArgs.getLineDelim();
+        let quote = loadArgs.getQuote();
+        let skipRows = getSkipRows();
+        let isValid = xcHelper.validate([
             {
                 "$ele": $fieldText,
                 "error": DSFormTStr.InvalidDelim,
                 "formMode": true,
                 "check": function() {
                     // for Text foramt don't check field delim
-                    var res = xcHelper.delimiterTranslate($fieldText);
+                    let res = xcHelper.delimiterTranslate($fieldText, null);
                     return (isCSV && typeof res === "object");
                 }
             },
@@ -2076,7 +2156,7 @@ window.DSPreview = (function($, DSPreview) {
                 "error": DSFormTStr.InvalidDelim,
                 "formMode": true,
                 "check": function() {
-                    var res = xcHelper.delimiterTranslate($lineText);
+                    let res = xcHelper.delimiterTranslate($lineText, null);
                     return (typeof res === "object");
                 }
             },
@@ -2094,7 +2174,7 @@ window.DSPreview = (function($, DSPreview) {
                 "error": DSFormTStr.InvalidQuote,
                 "formMode": true,
                 "check": function() {
-                    var res = xcHelper.delimiterTranslate($quote);
+                    let res = xcHelper.delimiterTranslate($quote, null);
                     return (typeof res === "object") || (res.length > 1);
                 }
             }
@@ -2107,10 +2187,14 @@ window.DSPreview = (function($, DSPreview) {
         return [fieldDelim, lineDelim, quote, skipRows];
     }
 
-    function validateExcelArgs() {
-        var excelIndex = parseInt($("#dsForm-excelIndex").val());
-        var skipRows = parseInt($("#dsForm-skipRows").val());
-        var isValid = xcHelper.validate([
+    function validateExcelArgs(): {
+        skipRows: number,
+        sheetIndex: number,
+        withHeader: boolean
+    } | null {
+        let excelIndex: number = parseInt($("#dsForm-excelIndex").val());
+        let skipRows: number = parseInt($("#dsForm-skipRows").val());
+        let isValid = xcHelper.validate([
             {
                 "$ele": $("#dsForm-skipRows"),
                 "error": ErrTStr.NoEmpty,
@@ -2156,13 +2240,13 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function validateParquetArgs() {
-        var $parquetSection = $form.find(".parquetSection");
-        var $selectedColList = $parquetSection.find(".selectedColSection .colList");
-        var $cols = $selectedColList.find("li");
-        var names = [];
-        var hasNonPartition = false;
-        for (var i = 0; i < $cols.length; i++) {
+    function validateParquetArgs(): {columns: string[]} | null {
+        let $parquetSection = $form.find(".parquetSection");
+        let $selectedColList = $parquetSection.find(".selectedColSection .colList");
+        let $cols = $selectedColList.find("li");
+        let names: string[] = [];
+        let hasNonPartition: boolean = false;
+        for (let i = 0; i < $cols.length; i++) {
             if (!$cols.eq(i).hasClass("mustSelect")) {
                 hasNonPartition = true;
             }
@@ -2181,10 +2265,9 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
-        var isValid = true;
-
-        var $inputs = $parquetSection.find(".partitionList input");
-        for (var i = 0; i < $inputs.length; i++) {
+        let isValid: boolean = true;
+        let $inputs = $parquetSection.find(".partitionList input");
+        for (let i = 0; i < $inputs.length; i++) {
             isValid = xcHelper.validate([{
                 "$ele": $inputs.eq(i),
                 "error": ErrTStr.NoEmpty,
@@ -2198,7 +2281,7 @@ window.DSPreview = (function($, DSPreview) {
                 return null;
             }
         }
-        var $availableColList = $parquetSection.find(".availableColSection .colList");
+        let $availableColList = $parquetSection.find(".availableColSection .colList");
         if ($availableColList.find("li").length === 0) {
             // when select all columns, let backend handle it
             names = null;
@@ -2207,17 +2290,23 @@ window.DSPreview = (function($, DSPreview) {
         return {columns: names};
     }
 
-    function validateAdvancedArgs() {
-        var $advanceSection = $form.find(".advanceSection");
-        var $colNames = $("#previewTable .editableHead");
-        var colNames = [];
+    function validateAdvancedArgs(): {
+        rowNum: string,
+        fileName: string,
+        unsorted: boolean,
+        allowRecordErrors: boolean,
+        allowFileErrors: boolean
+    } | null {
+        let $advanceSection = $form.find(".advanceSection");
+        let $colNames = $("#previewTable .editableHead");
+        let colNames: string[] = [];
 
-        for (var i = 0; i < $colNames.length; i++) {
+        for (let i = 0; i < $colNames.length; i++) {
             colNames.push($colNames.eq(i).val());
         }
 
-        var validateExtraColumnArg = function($ele) {
-            var isValid = true;
+        let validateExtraColumnArg = function($ele) {
+            let isValid: boolean = true;
             if ($ele.find(".checkbox").hasClass("checked")) {
                 isValid = xcHelper.validate([{
                     $ele: $ele.find("input"),
@@ -2248,21 +2337,20 @@ window.DSPreview = (function($, DSPreview) {
             return isValid;
         };
 
-        var $fileName = $advanceSection.find(".fileName");
-        var $rowNum = $advanceSection.find(".rowNumber");
+        let $fileName = $advanceSection.find(".fileName");
+        let $rowNum = $advanceSection.find(".rowNumber");
 
         if (!validateExtraColumnArg($fileName) ||
             !validateExtraColumnArg($rowNum)) {
             return null;
         }
 
-        var rowNum = getAdvancedRowNumber() || null;
-        var fileName = getAdvancedFileName() || null;
-        var unsorted = $advanceSection.find(".performance .checkbox")
+        let rowNum = getAdvancedRowNumber() || null;
+        let fileName = getAdvancedFileName() || null;
+        let unsorted = $advanceSection.find(".performance .checkbox")
                                       .hasClass("checked");
-        var terminationOptions = getTerminationOptions();
+        let terminationOptions = getTerminationOptions();
         return {
-            //metaFile: metaFile,
             rowNum: rowNum,
             fileName: fileName,
             unsorted: unsorted,
@@ -2271,24 +2359,24 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function openAdvanceSetcion() {
-        var $advanceSection = $form.find(".advanceSection");
+    function openAdvanceSetcion(): void {
+        let $advanceSection = $form.find(".advanceSection");
         if (!$advanceSection.hasClass("active")) {
             $advanceSection.find(".listWrap").click();
         }
     }
 
-    function getAdvancedRowNumber() {
+    function getAdvancedRowNumber(): string | null {
         return getAdvancedField("rowNumber");
     }
 
-    function getAdvancedFileName() {
+    function getAdvancedFileName(): string | null {
         return getAdvancedField("fileName");
     }
 
-    function getAdvancedField(fieldName) {
-        var $advanceSection = $form.find(".advanceSection");
-        var $field = $advanceSection.find("." + fieldName);
+    function getAdvancedField(fieldName: string): string | null {
+        let $advanceSection = $form.find(".advanceSection");
+        let $field = $advanceSection.find("." + fieldName);
         if ($field.find(".checkbox").hasClass("checked")) {
             return $field.find("input").val().trim();
         } else {
@@ -2296,13 +2384,16 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function getTerminationOptions() {
-        var $advanceSection = $form.find(".advanceSection");
-        var termination = $advanceSection.find(".termination")
+    function getTerminationOptions(): {
+        allowRecordErrors: boolean,
+        allowFileErrors: boolean
+    } {
+        let $advanceSection = $form.find(".advanceSection");
+        let termination = $advanceSection.find(".termination")
                                          .find(".radioButton.active")
                                          .data("option");
-        var allowRecordErrors = false;
-        var allowFileErrors = false;
+        let allowRecordErrors: boolean = false;
+        let allowFileErrors: boolean = false;
 
         switch (termination) {
             case ("stop"):
@@ -2331,20 +2422,27 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function validatePreview( {isChangeFormat = false} = {} ) {
-        var format = validateFormat();
+    function validatePreview( {isChangeFormat = false} = {} ): {
+        format: string,
+        udfModule: string,
+        udfFunc: string,
+        udfQuery: string,
+        allowRecordErrors: boolean,
+        allowFileErrors: boolean
+    } | null {
+        let format = validateFormat();
         if (format == null) {
             // error case
             return null;
         }
 
-        var hasUDF = isUseUDF();
-        var udfModule = "";
-        var udfFunc = "";
-        var udfQuery = null;
+        let hasUDF = isUseUDF();
+        let udfModule: string = "";
+        let udfFunc: string = "";
+        let udfQuery: any = null;
 
         if (hasUDF) {
-            var udfArgs = validateUDF();
+            let udfArgs = validateUDF();
             if (udfArgs == null) {
                 // error case
                 return null;
@@ -2363,12 +2461,12 @@ window.DSPreview = (function($, DSPreview) {
             udfFunc = parquetFunc;
             udfQuery = componentParquetFileFormat.getParser();
         } else if (format == formatMap.XML) {
-            const xmlArgs = componentXmlFormat.validateValues({
+            let xmlArgs = componentXmlFormat.validateValues({
                 isShowError: !isChangeFormat,
                 isCleanupModel: !isChangeFormat
             });
             if (xmlArgs != null) {
-                const udfDef = componentXmlFormat.getUDFDefinition({
+                let udfDef = componentXmlFormat.getUDFDefinition({
                     xPaths: xmlArgs.xPaths,
                     isWithPath: xmlArgs.isWithPath,
                     isMatchedPath: xmlArgs.isMatchedPath,
@@ -2379,23 +2477,23 @@ window.DSPreview = (function($, DSPreview) {
                 udfQuery = udfDef.udfQuery;
             }
         } else if (format === formatMap.JSON) {
-            const validRes = componentJsonFormat.validateValues();
+            let validRes = componentJsonFormat.validateValues();
             if (validRes == null) {
                 return null;
             }
 
-            const udfDef = componentJsonFormat.getUDFDefinition({
+            let udfDef = componentJsonFormat.getUDFDefinition({
                 jmespath: validRes.jmespath
             });
             udfModule = udfDef.udfModule;
             udfFunc = udfDef.udfFunc;
             udfQuery = udfDef.udfQuery;
         } else if (format === formatMap.DATABASE) {
-            const dbArgs = componentDBFormat.validateValues();
+            let dbArgs = componentDBFormat.validateValues();
             if (dbArgs == null) {
                 return null;
             }
-            const udfDef = componentDBFormat.getUDFDefinition({
+            let udfDef = componentDBFormat.getUDFDefinition({
                 query: dbArgs.query
             });
             udfModule = udfDef.udfModule;
@@ -2403,7 +2501,7 @@ window.DSPreview = (function($, DSPreview) {
             udfQuery = udfDef.udfQuery;
         }
 
-        var terminationOptions = getTerminationOptions();
+        let terminationOptions = getTerminationOptions();
 
         return {
             "format": format,
@@ -2415,31 +2513,31 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function validateForm() {
-        var dsNames = validateDSNames();
+    function validateForm(): any {
+        let dsNames = validateDSNames();
         if (dsNames == null) {
             // error case
             return null;
         }
 
-        var format = validateFormat();
+        let format = validateFormat();
         if (format == null) {
             // error case
             return null;
         }
 
-        var hasUDF = isUseUDF();
-        var udfModule = "";
-        var udfFunc = "";
-        var udfQuery = null;
-        var fieldDelim = null;
-        var lineDelim = null;
-        var quote = null;
-        var skipRows = null;
-        var parquetArgs = {};
+        let hasUDF = isUseUDF();
+        let udfModule = "";
+        let udfFunc = "";
+        let udfQuery = null;
+        let fieldDelim = null;
+        let lineDelim = null;
+        let quote = null;
+        let skipRows = null;
+        let parquetArgs = {};
 
         if (hasUDF) {
-            var udfArgs = validateUDF();
+            let udfArgs = validateUDF();
             if (udfArgs == null) {
                 // error case
                 return null;
@@ -2447,8 +2545,8 @@ window.DSPreview = (function($, DSPreview) {
             udfModule = udfArgs[0];
             udfFunc = udfArgs[1];
         } else if (format === formatMap.TEXT || format === formatMap.CSV) {
-            var isCSV = (format === formatMap.CSV);
-            var csvArgs = validateCSVArgs(isCSV);
+            let isCSV = (format === formatMap.CSV);
+            let csvArgs = validateCSVArgs(isCSV);
             if (csvArgs == null) {
                 // error case
                 return null;
@@ -2465,11 +2563,11 @@ window.DSPreview = (function($, DSPreview) {
                 return null;
             }
         } else if (format === formatMap.XML) {
-            const xmlArgs = componentXmlFormat.validateValues();
+            let xmlArgs = componentXmlFormat.validateValues();
             if (xmlArgs == null) {
                 return null;
             }
-            const udfDef = componentXmlFormat.getUDFDefinition({
+            let udfDef = componentXmlFormat.getUDFDefinition({
                 xPaths: xmlArgs.xPaths,
                 isWithPath: xmlArgs.isWithPath,
                 isMatchedPath: xmlArgs.isMatchedPath,
@@ -2492,23 +2590,23 @@ window.DSPreview = (function($, DSPreview) {
             udfFunc = parquetFunc;
             udfQuery = componentParquetFileFormat.getParser();
         } else if (format === formatMap.DATABASE) {
-            const dbArgs = componentDBFormat.validateValues();
+            let dbArgs = componentDBFormat.validateValues();
             if (dbArgs == null) {
                 return null;
             }
 
-            const udfDef = componentDBFormat.getUDFDefinition({
+            let udfDef = componentDBFormat.getUDFDefinition({
                 query: dbArgs.query
             });
             udfModule = udfDef.udfModule;
             udfFunc = udfDef.udfFunc;
             udfQuery = udfDef.udfQuery;
         } else if (format === formatMap.JSON) {
-            const jsonArgs = componentJsonFormat.validateValues();
+            let jsonArgs = componentJsonFormat.validateValues();
             if (jsonArgs == null) {
                 return null;
             }
-            const udfDef = componentJsonFormat.getUDFDefinition({
+            let udfDef = componentJsonFormat.getUDFDefinition({
                 jmespath: jsonArgs.jmespath
             });
             udfModule = udfDef.udfModule;
@@ -2516,21 +2614,21 @@ window.DSPreview = (function($, DSPreview) {
             udfQuery = udfDef.udfQuery;
         }
 
-        var schemaArgs = isCreateTableMode() ?
+        let schemaArgs = isCreateTableMode() ?
         dataSourceSchema.validate() : {schema: null, primaryKeys: null};
         if (schemaArgs == null) {
             // error case
             return null;
         }
 
-        var advanceArgs = validateAdvancedArgs();
+        let advanceArgs = validateAdvancedArgs();
         if (advanceArgs == null) {
             // error case
             return null;
         }
 
-        var schema = addExtrColToSchema(schemaArgs.schema, advanceArgs)
-        var args = {
+        let schema = addExtrColToSchema(schemaArgs.schema, advanceArgs)
+        let args = {
             "dsNames": dsNames,
             "format": format,
             "udfModule": udfModule,
@@ -2547,7 +2645,10 @@ window.DSPreview = (function($, DSPreview) {
         return $.extend(args, advanceArgs);
     }
 
-    function addExtrColToSchema(schema, advanceArgs) {
+    function addExtrColToSchema(
+        schema: ColSchema[],
+        advanceArgs: {rowNum: string, fileName: string}
+    ): ColSchema[] {
         if (!isCreateTableMode() || schema == null) {
             return schema;
         }
@@ -2567,24 +2668,24 @@ window.DSPreview = (function($, DSPreview) {
         return schema;
     }
 
-    function getNameFromPath(path) {
+    function getNameFromPath(path: string): string {
         if (path.charAt(path.length - 1) === "/") {
             // remove the last /
             path = path.substring(0, path.length - 1);
         }
 
-        var paths = path.split("/");
-        var splitLen = paths.length;
-        var name = paths[splitLen - 1];
+        let paths = path.split("/");
+        let splitLen = paths.length;
+        let name = paths[splitLen - 1];
 
         // strip the suffix dot part and only keep a-zA-Z0-9.
-        name = xcHelper.checkNamePattern("dataset", "fix", name.split(".")[0],
-                                         "");
+        name = <string>xcHelper.checkNamePattern(PatternCategory.Dataset,
+            PatternAction.Fix, name.split(".")[0], "");
 
         if (!xcStringHelper.isStartWithLetter(name) && splitLen > 1) {
             // when starts with number
-            var prefix = xcHelper.checkNamePattern("dataset", "fix",
-                                                   paths[splitLen - 2], "");
+            let prefix: string = <string>xcHelper.checkNamePattern(PatternCategory.Dataset,
+                PatternAction.Fix, paths[splitLen - 2], "");
             if (xcStringHelper.isStartWithLetter(prefix)) {
                 name = prefix + name;
             }
@@ -2598,22 +2699,22 @@ window.DSPreview = (function($, DSPreview) {
         return isCreateTableMode() ? TblSource.Instance.getUniuqName(name) : DS.getUniqueName(name);
     }
 
-    function getSkipRows() {
-        var skipRows = Number($("#dsForm-skipRows").val());
+    function getSkipRows(): number {
+        let skipRows: number = Number($("#dsForm-skipRows").val());
         if (isNaN(skipRows) || skipRows < 0) {
             skipRows = 0;
         }
         return skipRows;
     }
 
-    function autoFillNumberFields($input) {
-        var num = Number($input.val());
+    function autoFillNumberFields($input: JQuery): void {
+        let num: number = Number($input.val());
         if (isNaN(num) || num < 0) {
             $input.val(0);
         }
     }
 
-    function applyFieldDelim(strToDelimit) {
+    function applyFieldDelim(strToDelimit: string): void {
         // may have error case
         strToDelimit = strToDelimit.replace(/\t/g, "\\t")
                                    .replace(/\n/g, "\\n")
@@ -2629,7 +2730,7 @@ window.DSPreview = (function($, DSPreview) {
         setFieldDelim();
     }
 
-    function applyLineDelim(strToDelimit) {
+    function applyLineDelim(strToDelimit: string): void {
         strToDelimit = strToDelimit.replace(/\t/g, "\\t")
                                    .replace(/\n/g, "\\n")
                                    .replace(/\r/g, "\\r");
@@ -2643,13 +2744,13 @@ window.DSPreview = (function($, DSPreview) {
         setLineDelim();
     }
 
-    function applyQuote(quote) {
+    function applyQuote(quote: string): void {
         $quote.val(quote);
         setQuote();
     }
 
-    function changeDelimiter(isFieldDelimiter) {
-        var hasChangeDelimiter = false;
+    function changeDelimiter(isFieldDelimiter: boolean): void {
+        let hasChangeDelimiter: boolean = false;
         if (isFieldDelimiter) {
             hasChangeDelimiter = setFieldDelim();
         } else {
@@ -2662,9 +2763,9 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function selectDelim($li) {
-        var $input = $li.closest(".dropDownList").find(".text");
-        var isFieldDelimiter = ($input.attr("id") === "fieldText");
+    function selectDelim($li: JQuery): void {
+        let $input = $li.closest(".dropDownList").find(".text");
+        let isFieldDelimiter = ($input.attr("id") === "fieldText");
         $input.removeClass("nullVal");
 
         switch ($li.attr("name")) {
@@ -2695,8 +2796,8 @@ window.DSPreview = (function($, DSPreview) {
         changeDelimiter(isFieldDelimiter);
     }
 
-    function setFieldDelim() {
-        var fieldDelim = xcHelper.delimiterTranslate($fieldText);
+    function setFieldDelim(): boolean {
+        let fieldDelim = xcHelper.delimiterTranslate($fieldText, null);
 
         if (typeof fieldDelim === "object") {
             // error case
@@ -2707,8 +2808,8 @@ window.DSPreview = (function($, DSPreview) {
         return true;
     }
 
-    function setLineDelim() {
-        var lineDelim = xcHelper.delimiterTranslate($lineText);
+    function setLineDelim(): boolean {
+        let lineDelim = xcHelper.delimiterTranslate($lineText, null);
 
         if (typeof lineDelim === "object") {
             // error case
@@ -2719,8 +2820,8 @@ window.DSPreview = (function($, DSPreview) {
         return true;
     }
 
-    function setQuote() {
-        var quote = xcHelper.delimiterTranslate($quote);
+    function setQuote(): boolean {
+        let quote = xcHelper.delimiterTranslate($quote, null);
 
         if (typeof quote === "object") {
             // error case
@@ -2735,7 +2836,7 @@ window.DSPreview = (function($, DSPreview) {
         return true;
     }
 
-    function toggleFormat(format) {
+    function toggleFormat(format: string): boolean {
         if (format && $formatText.data("format") === format.toUpperCase()) {
             return false;
         }
@@ -2761,7 +2862,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         format = format.toUpperCase();
-        var text = $('#fileFormatMenu li[name="' + format + '"]').text();
+        let text: string = $('#fileFormatMenu li[name="' + format + '"]').text();
         $formatText.data("format", format).val(text);
 
         if (isCreateTableMode()) {
@@ -2799,9 +2900,10 @@ window.DSPreview = (function($, DSPreview) {
                 break;
             case "PARQUET":
                 // For parquet, there can only be one sourceArg
-                var filePath = loadArgs.files[0].path;
-                var targetName = loadArgs.targetName;
-                var prevTop = $previewCard.find(".cardBottom")[0].style.top;
+                let filePath = loadArgs.files[0].path;
+                let targetName = loadArgs.targetName;
+                let el: HTMLElement = <HTMLElement>$previewCard.find(".cardBottom")[0];
+                let prevTop = el.style.top;
                 // store previous top % for if we switch back to other format
                 $previewCard.data("prevtop", prevTop);
                 $form.find(".format.parquet").removeClass("xc-hidden");
@@ -2828,27 +2930,27 @@ window.DSPreview = (function($, DSPreview) {
         return true;
     }
 
-    function changeFormat(format) {
-        var oldFormat = loadArgs.getFormat();
-        var hasChangeFormat = toggleFormat(format);
-        var changeWithExcel = function(formatOld, formatNew) {
+    function changeFormat(format: string): void {
+        let oldFormat = loadArgs.getFormat();
+        let hasChangeFormat = toggleFormat(format);
+        let changeWithExcel = function(formatOld, formatNew) {
             return formatOld != null &&
                    (formatOld.toUpperCase() === "EXCEL" ||
                     formatNew.toUpperCase() === "EXCEL");
         };
 
-        var changeWithParquetFile = function(formatOld, formatNew) {
+        let changeWithParquetFile = function(formatOld, formatNew) {
             return formatOld != null &&
                    (formatOld.toUpperCase() === "PARQUETFILE" ||
                     formatNew.toUpperCase() === "PARQUETFILE");
         };
 
-        const changeWithXml = function(formatOld, formatNew) {
+        let changeWithXml = function(formatOld, formatNew) {
             return formatOld != null &&
                    (formatOld.toUpperCase() === "XML" ||
                     formatNew.toUpperCase() === "XML");
         };
-        const changeWithJson = function(formatOld, formatNew) {
+        let changeWithJson = function(formatOld, formatNew) {
             return formatOld != null &&
                    (formatOld.toUpperCase() === "JSON" ||
                     formatNew.toUpperCase() === "JSON");
@@ -2875,7 +2977,11 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function errorHandler(error, isUDFError, isCancel) {
+    function errorHandler(
+        error: any,
+        isUDFError: boolean,
+        isCancel: boolean
+    ): void {
         if (typeof error === "object") {
             if (error.status === StatusT.StatusNoEnt ||
                 error.status === StatusT.StatusIsDir ||
@@ -2902,8 +3008,8 @@ window.DSPreview = (function($, DSPreview) {
         $previewTable.empty();
         xcTooltip.hideAll();
 
-        var $errorSection = $previewWrap.find(".errorSection");
-        var $bottomSection = $errorSection.find(".bottomSection");
+        let $errorSection = $previewWrap.find(".errorSection");
+        let $bottomSection = $errorSection.find(".bottomSection");
 
         if (error && error.startsWith("Error:")) {
             error = error.slice("Error:".length).trim();
@@ -2926,8 +3032,8 @@ window.DSPreview = (function($, DSPreview) {
 
     // prevTableName is optional, if not provided will default to tableName
     // if provided, then will not reset tableName
-    function clearPreviewTable(prevTableName) {
-        var deferred = PromiseHelper.deferred();
+    function clearPreviewTable(prevTableName: string): XDPromise<boolean> {
+        let deferred: XDDeferred<boolean> = PromiseHelper.deferred();
         applyHighlight(""); // remove highlighter
         $previewTable.removeClass("has-delimiter").empty();
         rawData = null;
@@ -2936,30 +3042,30 @@ window.DSPreview = (function($, DSPreview) {
         resetPreviewId();
 
         if (prevTableName) {
-            var dsName = prevTableName;
+            let dsName: string = prevTableName;
             if (prevTableName === tableName) {
                 tableName = null;
             }
 
-            var sql = {
+            let sql = {
                 "operation": SQLOps.DestroyPreviewDS,
                 "dsName": dsName
             };
-            var txId = Transaction.start({
+            let txId = Transaction.start({
                 "operation": SQLOps.DestroyPreviewDS,
                 "sql": sql,
                 "track": true
             });
 
             XIApi.deleteDataset(txId, dsName)
-            .then(function() {
+            .then(() => {
                 Transaction.done(txId, {
                     "noCommit": true,
                     "noSql": true
                 });
                 deferred.resolve(true);
             })
-            .fail(function(error) {
+            .fail((error) => {
                 Transaction.fail(txId, {
                     "error": error,
                     "noAlert": true
@@ -2975,34 +3081,37 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function updatePreviewId() {
+    function updatePreviewId(): number {
         previewId = new Date().getTime();
         return previewId;
     }
 
-    function resetPreviewId() {
+    function resetPreviewId(): void {
         previewId = null;
     }
 
-    function isValidPreviewId(id) {
+    function isValidPreviewId(id: number): boolean {
         return (id === previewId);
     }
 
-    function previewData(options, clearPreview) {
-        var deferred = PromiseHelper.deferred();
+    function previewData(
+        options: any,
+        clearPreview = false
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        options = options || {};
-        var isFirstTime = options.isFirstTime || false;
-        var isRestore = options.isRestore || false;
-        var noDetect = isRestore || options.noDetect || false;
-        var udfModule = options.udfModule || null;
-        var udfFunc = options.udfFunc || null;
-        var udfQuery = options.udfQuery || null;
-        var format;
+        options = options || <any>{};
+        let isFirstTime: boolean = options.isFirstTime || false;
+        let isRestore: boolean = options.isRestore || false;
+        let noDetect: boolean = isRestore || options.noDetect || false;
+        let udfModule: string = options.udfModule || null;
+        let udfFunc: string = options.udfFunc || null;
+        let udfQuery: any = options.udfQuery || null;
+        let format: string;
 
-        var targetName = loadArgs.getTargetName();
-        var dsName = $form.find(".dsName").eq(0).val();
-        var hasUDF = false;
+        let targetName: string = loadArgs.getTargetName();
+        let dsName: string = $form.find(".dsName").eq(0).val();
+        let hasUDF: boolean = false;
 
         if (udfModule && udfFunc) {
             hasUDF = true;
@@ -3014,37 +3123,36 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.reject("Error Case!");
         }
 
-        var cachedTableName = tableName;
+        let cachedTableName: string = tableName;
         if (clearPreview && !hasUDF) {
             clearPreviewTable(tableName); // async remove the old ds
         }
 
         // cache what was not hidden and only unhide these sections
         // if operation canceled
-        var $visibleLoadHiddenSection = $previewWrap.find(".loadHidden:not('" +
+        let $visibleLoadHiddenSection = $previewWrap.find(".loadHidden:not('" +
                                                   ".hidden')");
-        var $loadHiddenSection = $previewWrap.find(".loadHidden")
+        let $loadHiddenSection = $previewWrap.find(".loadHidden")
                                             .addClass("hidden");
-        var $waitSection = $previewWrap.find(".waitSection")
+        let $waitSection = $previewWrap.find(".waitSection")
                                     .removeClass("hidden");
         $previewWrap.find(".url").addClass("xc-disabled");
         $previewWrap.find(".errorSection").addClass("hidden")
                                           .removeClass("cancelState");
 
-        var sql = {"operation": SQLOps.PreviewDS};
-
-        var txId = Transaction.start({
+        let sql: any = {"operation": SQLOps.PreviewDS};
+        let txId = Transaction.start({
             "operation": SQLOps.PreviewDS,
             "sql": sql,
             "track": true,
             "steps": 1
         });
 
-        var curPreviewId = updatePreviewId();
-        var initialLoadArgStr;
+        let curPreviewId = updatePreviewId();
+        let initialLoadArgStr: string;
         xcUIHelper.disableSubmit($form.find(".confirm"));
-        getURLToPreview(curPreviewId)
-        .then(function(sourceIndex, url) {
+        getURLToPreview()
+        .then((sourceIndex: number, url: string) => {
             setPreviewFile(sourceIndex, url);
 
             if (isRestore) {
@@ -3072,12 +3180,12 @@ window.DSPreview = (function($, DSPreview) {
                 } else if (DSTargetManager.isDatabaseTarget(targetName)) {
                     if (isRestore) {
                         // Restore from error on dataset preview screen
-                        const dbArgs = componentDBFormat.validateValues();
+                        let dbArgs = componentDBFormat.validateValues();
                         if (dbArgs == null) {
                             // This should never happen, because we already did validateFrom
                             return PromiseHelper.reject('Error case');
                         }
-                        const udfDef = componentDBFormat.getUDFDefinition({
+                        let udfDef = componentDBFormat.getUDFDefinition({
                             query: dbArgs.query
                         });
                         hasUDF = true;
@@ -3087,7 +3195,7 @@ window.DSPreview = (function($, DSPreview) {
                     } else {
                         // Comes from dsForm
                         // Preview with default SQL, which is provided by dsn_connector
-                        const udfDef = componentDBFormat.getUDFDefinition({
+                        let udfDef = componentDBFormat.getUDFDefinition({
                             query: ''
                         });
                         hasUDF = true;
@@ -3104,7 +3212,7 @@ window.DSPreview = (function($, DSPreview) {
                 initialLoadArgStr = loadArgs.getArgStr();
             }
 
-            var args = {};
+            let args: any = {};
             format = loadArgs.getFormat();
 
             if (hasUDF) {
@@ -3129,7 +3237,7 @@ window.DSPreview = (function($, DSPreview) {
                 return loadData(args);
             }
         })
-        .then(function(result) {
+        .then((result) => {
             if (!isValidPreviewId(curPreviewId)) {
                 return PromiseHelper.reject({
                     "error": oldPreviewError
@@ -3137,7 +3245,7 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             if (!result) {
-                var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
+                let error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
                 return PromiseHelper.reject(error);
             }
 
@@ -3153,10 +3261,10 @@ window.DSPreview = (function($, DSPreview) {
 
             $loadHiddenSection.removeClass("hidden");
 
-            var hasSmartDetect = false;
-            var notGetPreviewTable = false;
+            let hasSmartDetect = false;
+            let notGetPreviewTable = false;
             if (!noDetect) {
-                var currentLoadArgStr = loadArgs.getArgStr();
+                let currentLoadArgStr = loadArgs.getArgStr();
                 // when user not do any modification, then do smart detect
                 if (initialLoadArgStr === currentLoadArgStr) {
                     hasSmartDetect = true;
@@ -3178,8 +3286,7 @@ window.DSPreview = (function($, DSPreview) {
 
             deferred.resolve();
         })
-        .fail(function(error) {
-
+        .fail((error) => {
             Transaction.fail(txId, {
                 "error": error,
                 "noAlert": true,
@@ -3219,26 +3326,26 @@ window.DSPreview = (function($, DSPreview) {
                 console.error(error);
             } else {
                 if (format === formatMap.UDF) {
-                    errorHandler(error, true);
+                    errorHandler(error, true, false);
                 } else if (format == null || detectArgs.format == null ||
                             format === detectArgs.format) {
-                    errorHandler(error);
+                    errorHandler(error, false, false);
                 } else {
                     error = getParseError(format, detectArgs.format);
-                    errorHandler(error);
+                    errorHandler(error, false, false);
                 }
             }
 
             deferred.reject(error);
         })
-        .always(function() {
+        .always(() => {
             xcUIHelper.enableSubmit($form.find(".confirm"));
         });
 
         return deferred.promise();
     }
 
-    function isExcel(url) {
+    function isExcel(url: string): boolean {
         if (loadArgs.getFormat() === formatMap.EXCEL ||
             xcHelper.getFormat(url) === formatMap.EXCEL) {
             return true;
@@ -3247,7 +3354,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function isParquetFile(url) {
+    function isParquetFile(url: string): boolean {
         if (loadArgs.getFormat() === formatMap.PARQUETFILE ||
             xcHelper.getFormat(url) === formatMap.PARQUETFILE) {
             return true;
@@ -3256,26 +3363,26 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function setDefaultDSName() {
-        var $title = $form.find(".row.title label");
+    function setDefaultDSName(): string[] {
+        let $title = $form.find(".row.title label");
         if (isCreateTableMode()) {
             $title.text(DSTStr.TableName + ":")
         } else {
             $title.text(DSTStr.DSName + ":");
         }
 
-        var files = loadArgs.files;
+        let files = loadArgs.files;
         if (!loadArgs.multiDS) {
             // only multiDS mode will show multiple path
             files = [files[0]];
         }
 
-        var dsNames = [];
-        var html = "";
-        var $inputPart = $form.find(".topSection .inputPart");
+        let dsNames = [];
+        let html: HTML = "";
+        let $inputPart = $form.find(".topSection .inputPart");
         files.forEach(function(file) {
-            var path = file.path;
-            var dsName = getNameFromPath(path);
+            let path = file.path;
+            let dsName = getNameFromPath(path);
             dsNames.push(dsName);
 
             html += '<div class="row">' +
@@ -3301,11 +3408,11 @@ window.DSPreview = (function($, DSPreview) {
         return dsNames;
     }
 
-    function autoResizeLabels($inputPart) {
-        var $labels = $inputPart.find("label");
-        var $label = $labels.eq(0);
-        var width = parseInt($label.css("minWidth"));
-        var maxWidth = parseInt($label.css("maxWidth"));
+    function autoResizeLabels($inputPart: JQuery): void {
+        let $labels = $inputPart.find("label");
+        let $label = $labels.eq(0);
+        let width: number = parseInt($label.css("minWidth"));
+        let maxWidth: number = parseInt($label.css("maxWidth"));
 
         $labels.each(function() {
             var $ele = $(this);
@@ -3315,16 +3422,16 @@ window.DSPreview = (function($, DSPreview) {
 
         $labels.width(width);
         // positions clipboard/checkmark icons at the end of the label
-        var $icons = $inputPart.find(".icon");
+        let $icons = $inputPart.find(".icon");
         $icons.css("left", width - 5);
 
-        var canvas = document.createElement("canvas");
-        var ctx = canvas.getContext("2d");
+        let canvas = document.createElement("canvas");
+        let ctx = canvas.getContext("2d");
         ctx.font = "600 14px Open Sans";
         $labels.each(function() {
-            var $ele = $(this);
-            var originalText = $ele.text();
-            var ellipsis = xcHelper.leftEllipsis(originalText, $ele, maxWidth - 5, ctx);
+            let $ele = $(this);
+            let originalText = $ele.text();
+            let ellipsis = xcHelper.leftEllipsis(originalText, $ele, maxWidth - 5, ctx);
             if (ellipsis) {
                 xcTooltip.add($ele, {
                     title: originalText
@@ -3333,14 +3440,14 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function hideDataFormatsByTarget(targetName) {
-        const exclusiveFormats = {
+    function hideDataFormatsByTarget(targetName: string): void {
+        let exclusiveFormats = {
             PARQUET: DSTargetManager.isSparkParquet(targetName),
             DATABASE: DSTargetManager.isDatabaseTarget(targetName)
         };
 
         let exclusiveFormat = null;
-        for (const [format, isCurrentTarget] of Object.entries(exclusiveFormats)) {
+        for (let [format, isCurrentTarget] of Object.entries(exclusiveFormats)) {
             if (isCurrentTarget) {
                 exclusiveFormat = format;
                 break;
@@ -3352,19 +3459,19 @@ window.DSPreview = (function($, DSPreview) {
             $(`#fileFormatMenu li[name=${exclusiveFormat}]`).show();
         } else {
             $('#fileFormatMenu li').show();
-            for (const format of Object.keys(exclusiveFormats)) {
+            for (let format of Object.keys(exclusiveFormats)) {
                 $(`#fileFormatMenu li[name=${format}]`).hide();
             }
         }
     }
 
-    function setTargetInfo(targetName) {
+    function setTargetInfo(targetName: string): void {
         xcTooltip.add($previewWrap.find(".previewTitle"), {
             title: targetName
         });
     }
 
-    function setPreviewFile(index, file) {
+    function setPreviewFile(index: number, file: string): void {
         var $file = $("#preview-file");
         $file.find(".text").val(file);
         if (loadArgs.getPreviewFile() == null) {
@@ -3373,20 +3480,21 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function changePreviewFile(index, file) {
-        var previewingSource = loadArgs.getPreviewingSource();
+    function changePreviewFile(index: number, file: string): void {
+        let previewingSource = loadArgs.getPreviewingSource();
         if (previewingSource == null || index === previewingSource.index
-            && file === previewingSource.file) {
+            && file === previewingSource.file
+        ) {
             return;
         }
-        var headers = getColumnHeaders();
+        let headers = getColumnHeaders(null);
         loadArgs.setPreviewHeaders(previewingSource.index, headers);
         loadArgs.setPreviewingSource(index, file);
         let noDetect = true;
 
         // BUG fix for 14378 (XD-322) where first file is empty
         // and if select second file should trigger auto detection
-        var $errorSection = $previewWrap.find(".errorSection");
+        let $errorSection = $previewWrap.find(".errorSection");
         if (!$errorSection.hasClass("hidden") &&
             $errorSection.find(".content").text().includes(DSTStr.NoRecords) &&
             loadArgs.getFormat() == null
@@ -3396,8 +3504,8 @@ window.DSPreview = (function($, DSPreview) {
         refreshPreview(noDetect, true);
     }
 
-    function resetPreviewFile() {
-        var $file = $("#preview-file");
+    function resetPreviewFile(): void {
+        let $file = $("#preview-file");
         $file.find(".text").text();
         xcTooltip.remove($file.find(".text"));
     }
@@ -3455,7 +3563,7 @@ window.DSPreview = (function($, DSPreview) {
                         '<i class="icon xi-radio-selected"></i>';
                 data += ' data-path="' + path + '"';
             }
-            var pattern = file.fileNamePattern || "";
+            let pattern = file.fileNamePattern || "";
             html += '<li class="' + classes + '" ' + data + '>' +
                         '<div class="label tooltipOverflow"' +
                         ' data-toggle="tooltip"' +
@@ -3472,8 +3580,8 @@ window.DSPreview = (function($, DSPreview) {
         $("#preview-file").find("ul").html(html);
     }
 
-    function setActivePreviewFile() {
-        var previewFile = loadArgs.getPreviewFile();
+    function setActivePreviewFile(): void {
+        let previewFile = loadArgs.getPreviewFile();
         if (previewFile != null) {
             previewFile = xcStringHelper.escapeDblQuote(previewFile);
             var $previewFile = $("#preview-file");
@@ -3483,17 +3591,21 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function loadFiles(url, index, files) {
-        var file = loadArgs.files[index];
-        var $previewFile = $("#preview-file");
-        var paths = [];
-        var isFolder = null;
+    function loadFiles(
+        url: string,
+        index: number,
+        files: {name: string, attr: {isDirectory: boolean}}[]
+    ): string[] {
+        let file = loadArgs.files[index];
+        let $previewFile = $("#preview-file");
+        let paths: string[] = [];
+        let isFolder: boolean = null;
 
         if (files.length === 1 && url.endsWith(files[0].name)) {
             // when it's a single file
             isFolder = false;
             paths[0] = url;
-            var $mainPath = $previewFile.find('.mainPath[data-index="' + index + '"]');
+            let $mainPath = $previewFile.find('.mainPath[data-index="' + index + '"]');
             $mainPath.addClass("singlePath")
                      .data("path", url)
                      .attr("data-path", url);
@@ -3502,8 +3614,8 @@ window.DSPreview = (function($, DSPreview) {
                                             '<i class="icon xi-radio-selected"></i>');
         } else {
             isFolder = true;
-            var html = "";
-            var nameMap = {};
+            let html: HTML = "";
+            let nameMap = {};
             // when it's a folder
             if (!url.endsWith("/")) {
                 url += "/";
@@ -3512,7 +3624,7 @@ window.DSPreview = (function($, DSPreview) {
             files.forEach(function(file) {
                 // XXX temporary skip folder, later may enable it
                 if (!file.attr.isDirectory) {
-                    var path = url + file.name;
+                    let path = url + file.name;
                     paths.push(path);
                     nameMap[path] = file.name;
                 }
@@ -3520,10 +3632,10 @@ window.DSPreview = (function($, DSPreview) {
 
             paths.sort();
 
-            for (var i = 0, len = paths.length; i < len; i++) {
-                var originalPath = paths[i];
-                var path = xcStringHelper.escapeDblQuoteForHTML(originalPath);
-                var fileName = xcStringHelper.escapeDblQuoteForHTML(nameMap[originalPath]);
+            for (let i = 0, len = paths.length; i < len; i++) {
+                let originalPath = paths[i];
+                let path = xcStringHelper.escapeDblQuoteForHTML(originalPath);
+                let fileName = xcStringHelper.escapeDblQuoteForHTML(nameMap[originalPath]);
                 html +=
                     '<li class="subPath"' +
                     'data-path="' + path + '">' +
@@ -3545,7 +3657,7 @@ window.DSPreview = (function($, DSPreview) {
                         '</li>';
             }
 
-            var $subPathList = $previewFile.find('.subPathList[data-index="' + index + '"]');
+            let $subPathList = $previewFile.find('.subPathList[data-index="' + index + '"]');
             $subPathList.html(html);
         }
 
@@ -3556,15 +3668,19 @@ window.DSPreview = (function($, DSPreview) {
         return paths;
     }
 
-    function previewFileSelect(fileIndex, noWaitBg) {
-        var deferred = PromiseHelper.deferred();
+    function previewFileSelect(
+        fileIndex: number,
+        noWaitBg: boolean
+    ): XDPromise<string[]> {
+        let deferred: XDDeferred<string[]> = PromiseHelper.deferred();
 
         $previewWrap.find(".inputWaitingBG").remove();
-        var waitingBg = '<div class="inputWaitingBG">' +
-                         '<div class="waitingIcon"></div>' +
-                      '</div>';
+        let waitingBg: HTML =
+            '<div class="inputWaitingBG">' +
+                '<div class="waitingIcon"></div>' +
+            '</div>';
         $previewWrap.find(".url").append(waitingBg);
-        var $waitingBg = $previewWrap.find(".inputWaitingBG");
+        let $waitingBg = $previewWrap.find(".inputWaitingBG");
 
         if (noWaitBg) {
             $waitingBg.remove();
@@ -3576,36 +3692,38 @@ window.DSPreview = (function($, DSPreview) {
             }, 200);
         }
 
-        var file = loadArgs.files[fileIndex];
-        var path = file.path;
-        var curPreviewId = previewId;
+        let file = loadArgs.files[fileIndex];
+        let path = file.path;
+        let curPreviewId = previewId;
 
         loadArgs.listFileInPath(path, file.recursive, file.fileNamePattern)
-        .then(function(res) {
+        .then((res) => {
             if (!isValidPreviewId(curPreviewId)) {
-                return deferred.reject();
+                deferred.reject();
+                return;
+            } else {
+                let paths = loadFiles(path, fileIndex, res.files);
+                deferred.resolve(paths);
             }
-            var paths = loadFiles(path, fileIndex, res.files);
-            deferred.resolve(paths);
         })
         .fail(deferred.reject)
-        .always(function() {
+        .always(() => {
             $waitingBg.remove();
         });
 
         return deferred.promise();
     }
 
-    function loadData(args) {
-        var deferred = PromiseHelper.deferred();
-        var curPreviewId = previewId;
-        var buffer;
-        var totalDataSize = null;
+    function loadData(args: any): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let curPreviewId: number = previewId;
+        let buffer;
+        let totalDataSize: number = null;
 
         previewOffset = 0;
 
         XcalarPreview(args, numBytesRequest, 0)
-        .then(function(res) {
+        .then((res) => {
             if (!isValidPreviewId(curPreviewId)) {
                 return PromiseHelper.reject();
             }
@@ -3618,9 +3736,10 @@ window.DSPreview = (function($, DSPreview) {
                 return getDataFromPreview(args, buffer, rowsToShow);
             }
         })
-        .then(function(extraBuffer) {
+        .then((extraBuffer) => {
             if (!isValidPreviewId(curPreviewId)) {
-                return PromiseHelper.reject();
+                deferred.reject();
+                return;
             }
 
             if (extraBuffer) {
@@ -3636,20 +3755,24 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getDataFromPreview(args, buffer, rowsToShow) {
-        var bytesNeed = getBytesNeed(buffer, rowsToShow);
+    function getDataFromPreview(
+        args: any,
+        buffer: any,
+        rowsToShow: number
+    ): XDPromise<any> {
+        let bytesNeed: number = getBytesNeed(buffer, rowsToShow);
         if (bytesNeed <= 0) {
             // when has enough cache to show rows
             return PromiseHelper.resolve(null, true);
         }
 
-        var deferred = PromiseHelper.deferred();
-        var offSet = previewOffset;
-        var curPreviewId = previewId;
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let offSet: number = previewOffset;
+        let curPreviewId: number = previewId;
 
         console.info("too small rows, request", bytesNeed);
         XcalarPreview(args, bytesNeed, offSet)
-        .then(function(res) {
+        .then((res) => {
             if (!isValidPreviewId(curPreviewId)) {
                 return PromiseHelper.reject();
             }
@@ -3665,13 +3788,13 @@ window.DSPreview = (function($, DSPreview) {
 
         return deferred.promise();
 
-        function getBytesNeed(data, totalRows) {
-            var format = loadArgs.getFormat();
-            var lineDelim = loadArgs.getLineDelim();
-            var rowData;
+        function getBytesNeed(data: any, totalRows: number): number {
+            let format = loadArgs.getFormat();
+            let lineDelim = loadArgs.getLineDelim();
+            let rowData;
 
             if (format !== "JSON") {
-                rowData = lineSplitHelper(data, lineDelim);
+                rowData = lineSplitHelper(data, lineDelim, null);
             } else {
                 rowData = parseJSONByRow(data);
             }
@@ -3680,30 +3803,33 @@ window.DSPreview = (function($, DSPreview) {
                 return 0;
             }
 
-            var lines = rowData.length;
+            let lines = rowData.length;
             if (lines >= totalRows) {
                 return 0;
             }
 
-            var maxBytesInLine = 0;
-            rowData.forEach(function(d) {
+            let maxBytesInLine: number = 0;
+            rowData.forEach((d) => {
                 maxBytesInLine = Math.max(maxBytesInLine, d.length);
             });
-            var bytes = maxBytesInLine * (totalRows - lines);
+            let bytes = maxBytesInLine * (totalRows - lines);
             return Math.min(bytes, maxBytesRequest);
         }
     }
 
-    function getDataFromLoadUDF(datasetName, startRow, rowsToShow) {
-        var deferred = PromiseHelper.deferred();
-        var resultSetId;
-
-        var rowPosition = startRow - 1;
+    function getDataFromLoadUDF(
+        datasetName: string,
+        startRow: number,
+        rowsToShow: number
+    ): XDPromise<any> {
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let resultSetId: string;
+        let rowPosition: number = startRow - 1;
 
         XcalarMakeResultSetFromDataset(datasetName)
-        .then(function(result) {
+        .then((result) => {
             resultSetId = result.resultSetId;
-            var totalEntries = result.numEntries;
+            let totalEntries: number = result.numEntries;
             if (totalEntries <= 0 || rowPosition > totalEntries) {
                 return PromiseHelper.resolve(null);
             } else {
@@ -3714,7 +3840,7 @@ window.DSPreview = (function($, DSPreview) {
                                         totalEntries, [], 0, 0);
             }
         })
-        .then(function(res) {
+        .then((res) => {
             // no need for resultSetId as we only need 40 samples
             XcalarSetFree(resultSetId);
             return parseResult(res);
@@ -3724,17 +3850,17 @@ window.DSPreview = (function($, DSPreview) {
 
         return deferred.promise();
 
-        function parseResult(result) {
-            var innerDeferred = PromiseHelper.deferred();
+        function parseResult(result: any): XDPromise<void> {
+            let innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
 
             if (!result) {
                 innerDeferred.resolve(null);
                 return innerDeferred.promise();
             }
-            var passed;
-            var buffer;
+            let passed;
+            let buffer;
             try {
-                var rows = parseRows(result);
+                let rows = parseRows(result);
                 buffer = JSON.stringify(rows);
                 passed = true;
             } catch (err) {
@@ -3750,12 +3876,12 @@ window.DSPreview = (function($, DSPreview) {
             return innerDeferred.promise();
         }
 
-        function parseRows(data) {
-            var rows = [];
+        function parseRows(data: any): any[] {
+            let rows = [];
 
-            for (var i = 0, len = data.length; i < len; i++) {
-                var value = data[i];
-                var row = $.parseJSON(value);
+            for (let i = 0, len = data.length; i < len; i++) {
+                let value = data[i];
+                let row = $.parseJSON(value);
                 delete row[gXcalarRecordNum];
                 rows.push(row);
             }
@@ -3766,41 +3892,45 @@ window.DSPreview = (function($, DSPreview) {
 
 
     // load with UDF always return JSON format
-    function loadDataWithUDF(txId, dsName, options) {
-        var deferred = PromiseHelper.deferred();
+    function loadDataWithUDF(
+        txId: number,
+        dsName: string,
+        options: any
+    ): XDPromise<any> {
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
         // don't call XIApi.loadDataset because XcalarDatasetCreate
         // will move the UDF into shared space, which should not happen for temp preview
         XcalarDatasetLoad(tempDSName, options, txId)
-        .then(function() {
+        .then(() => {
             return getDataFromLoadUDF(tempDSName, 1, rowsToFetch);
         })
         .then(deferred.resolve)
-        .fail(function(error, loadError) {
-            var displayError = loadError || error;
+        .fail((error, loadError) => {
+            let displayError = loadError || error;
             deferred.reject(displayError);
         });
 
         return deferred.promise();
     }
 
-    function disableShowMoreRows() {
+    function disableShowMoreRows(): void {
         $previewTable.closest(".datasetTbodyWrap")
                      .find(".previewBottom")
                      .addClass("end");
     }
 
-    function showMoreRows() {
-        var deferred = PromiseHelper.deferred();
-        var rowsToAdd = minRowsToShow;
-        var $section = $previewTable.closest(".datasetTbodyWrap");
-        var scrollPos = $section.scrollTop();
-        var $previewBottom = $section.find(".previewBottom").addClass("load");
+    function showMoreRows(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let rowsToAdd: number = minRowsToShow;
+        let $section = $previewTable.closest(".datasetTbodyWrap");
+        let scrollPos: number = $section.scrollTop();
+        let $previewBottom = $section.find(".previewBottom").addClass("load");
 
         fetchMoreRowsHelper(rowsToAdd)
-        .then(function(newBuffer, hasEnoughDataInCache) {
+        .then((newBuffer, hasEnoughDataInCache) => {
             if (newBuffer) {
                 rawData += newBuffer;
             }
@@ -3817,15 +3947,15 @@ window.DSPreview = (function($, DSPreview) {
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
-        .always(function() {
+        .always(() => {
             $previewBottom.removeClass("load");
         });
 
         return deferred.promise();
     }
 
-    function fetchMoreRowsHelper(rowsToAdd) {
-        var isFromLoadUDF = (tableName != null);
+    function fetchMoreRowsHelper(rowsToAdd: number): XDPromise<any> {
+        let isFromLoadUDF: boolean = (tableName != null);
         if (isFromLoadUDF) {
             return fetchMoreRowsFromLoadUDF(rowsToAdd);
         } else {
@@ -3833,26 +3963,32 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function fetchMoreRowsFromLoadUDF(rowsToAdd) {
-        var datasetName = tableName;
-        var startRow = getRowsToPreview() + 1;
+    function fetchMoreRowsFromLoadUDF(rowsToAdd: number): XDPromise<any> {
+        let datasetName: string = tableName;
+        let startRow: number = getRowsToPreview() + 1;
         return getDataFromLoadUDF(datasetName, startRow, rowsToAdd);
     }
 
-    function fetchMoreRowsFromPreview(rowsToAdd) {
-        var targetName = loadArgs.getTargetName();
-        var path = loadArgs.getPreviewFile();
-        var buffer = rawData;
-        var rowsToShow = getRowsToPreview() + rowsToAdd;
-        var args = {
+    function fetchMoreRowsFromPreview(rowsToAdd: number): XDPromise<any> {
+        let targetName: string = loadArgs.getTargetName();
+        let path = loadArgs.getPreviewFile();
+        let buffer = rawData;
+        let rowsToShow: number = getRowsToPreview() + rowsToAdd;
+        let args = {
             targetName: targetName,
             path: path
         };
         return getDataFromPreview(args, buffer, rowsToShow);
     }
 
-    function refreshPreview(noDetect, isPreview, isChangeFormat = false) {
-        var formOptions = {};
+    function refreshPreview(
+        noDetect: boolean,
+        isPreview: boolean = false,
+        isChangeFormat: boolean = false
+    ): XDPromise<any> {
+        let formOptions = {
+            noDetect: null
+        };
         if (noDetect) {
             formOptions = isPreview ?
             validatePreview( {isChangeFormat: isChangeFormat} ) : validateForm();
@@ -3864,22 +4000,25 @@ window.DSPreview = (function($, DSPreview) {
         return previewData(formOptions, true);
     }
 
-    function showUDFHint() {
+    function showUDFHint(): void {
         $previewTableWrap.addClass("UDFHint");
         $previewTable.html('<div class="hint">' +
                                 DSFormTStr.UDFHint +
                             '</div>');
     }
 
-    function isInError() {
+    function isInError(): boolean {
         return !$previewWrap.find(".errorSection").hasClass("hidden");
     }
 
-    function getPreviewTable(udfHint = false, hasUDF = false) {
+    function getPreviewTable(
+        udfHint: boolean = false,
+        hasUDF: boolean = false
+    ) : void{
         if (rawData == null && !udfHint) {
             // error case
             if (isInError()) {
-                errorHandler(DSFormTStr.NoData);
+                errorHandler(DSFormTStr.NoData, false, false);
             }
             return;
         }
@@ -3894,7 +4033,7 @@ window.DSPreview = (function($, DSPreview) {
         $previewTableWrap.removeClass("UDFHint");
         $previewTable.removeClass("has-delimiter");
 
-        var format = loadArgs.getFormat();
+        let format = loadArgs.getFormat();
 
         if (udfHint) {
             showUDFHint();
@@ -3902,7 +4041,8 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         if (isUseUDFWithFunc() || format === formatMap.JSON ||
-            format === formatMap.PARQUETFILE) {
+            format === formatMap.PARQUETFILE
+        ) {
             getJSONTable(rawData);
             return;
         }
@@ -3933,13 +4073,13 @@ window.DSPreview = (function($, DSPreview) {
 
         addAdvancedRows();
         syncHeaderWithSchemaSection();
-        if (window.isBrowserSafari) {
+        if (typeof isBrowserSafari !== "undefined" && isBrowserSafari) {
             $previewTable.removeClass("dataTable");
             setTimeout(function() {$previewTable.addClass("dataTable");}, 0);
         }
     }
 
-    function getTh(header, classes) {
+    function getTh(header: string, classes: string): HTML {
         header = header || "";
         var th = '<th class="' + classes + '">' +
                     '<div class="header">' +
@@ -3952,7 +4092,7 @@ window.DSPreview = (function($, DSPreview) {
         return th;
     }
 
-    function getTd(text, classes) {
+    function getTd(text: string, classes: string): HTML {
         var td = '<td class="cell ' + classes + '">' +
                     '<div class="innerCell">' +
                         text +
@@ -3961,7 +4101,7 @@ window.DSPreview = (function($, DSPreview) {
         return td;
     }
 
-    function addAdvancedRows() {
+    function addAdvancedRows(): void {
         if (isInError()) {
             return;
         } else if (loadArgs.getFormat() === formatMap.XML) {
@@ -3970,17 +4110,16 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         $previewTable.find(".extra").remove();
-        var $advanceSection = $form.find(".advanceSection");
-        var fileName = getAdvancedFileName()
-        var rowNumber = getAdvancedRowNumber()
-        var hasFileName = (fileName != null);
-        var hasRowNumber = (rowNumber != null);
+        let fileName = getAdvancedFileName()
+        let rowNumber = getAdvancedRowNumber()
+        let hasFileName: boolean = (fileName != null);
+        let hasRowNumber: boolean = (rowNumber != null);
         if (!hasFileName && !hasRowNumber) {
             return;
         }
 
-        var previewFile = loadArgs.getPreviewFile() || "";
-        var extraTh = "";
+        let previewFile = loadArgs.getPreviewFile() || "";
+        let extraTh: HTML = "";
         if (hasFileName) {
             extraTh += getTh(fileName, "extra fileName");
         }
@@ -3990,18 +4129,18 @@ window.DSPreview = (function($, DSPreview) {
 
         $previewTable.find("thead tr").append(extraTh);
         $previewTable.find("tbody tr").each(function(index) {
-            var extraTd = "";
+            let extraTd = "";
             if (hasFileName) {
                 extraTd += getTd(previewFile, "extra");
             }
             if (hasRowNumber) {
-                extraTd += getTd(index + 1, "extra");
+                extraTd += getTd(String(index + 1), "extra");
             }
             $(this).append(extraTd);
         });
     }
 
-    function syncHeaderWithSchemaSection() {
+    function syncHeaderWithSchemaSection(): void {
         $previewTable.find(".unused").removeClass("unused");
         $previewTable.find(".newAdded").remove();
         if (!isCreateTableMode() || isInError()) {
@@ -4011,25 +4150,25 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
         // only for create table
-        var sourceIndex = loadArgs.getPreivewIndex();
-        var headers = loadArgs.getPreviewHeaders(sourceIndex);
+        let sourceIndex = loadArgs.getPreivewIndex();
+        let headers = loadArgs.getPreviewHeaders(sourceIndex);
         if (headers == null) {
             return;
         }
-        var set = new Set();
+        let set: Set<string> = new Set();
         headers.forEach((header) => {
             set.add(header.colName);
         });
-        var $ths = $previewTable.find("th");
-        var $trs = $previewTable.find("tbody tr");
+        let $ths = $previewTable.find("th");
+        let $trs = $previewTable.find("tbody tr");
         $ths.each((index, el) => {
-            var $th = $(el);
+            let $th = $(el);
             if ($th.hasClass("rowNumHead") || $th.hasClass("extra")) {
                 // skip row num and extr column
                 return;
             }
-            var $text = $th.find(".text");
-            var colName = $text.val() || $text.text();
+            let $text = $th.find(".text");
+            let colName: string = $text.val() || $text.text();
             if (set.has(colName)) {
                 set.delete(colName);
             } else {
@@ -4051,12 +4190,12 @@ window.DSPreview = (function($, DSPreview) {
         addExtraColumns(extraColumns);
     }
 
-    function addExtraColumns(extraColumns) {
+    function addExtraColumns(extraColumns: string[]): void {
         if (extraColumns.length === 0) {
             return;
         }
-        var extraTh = "";
-        var extraTd = "";
+        let extraTh: HTML = "";
+        let extraTd: HTML = "";
         extraColumns.forEach((name) => {
             extraTh += getTh(name, "newAdded");
             extraTd += getTd("Unavailable in preview", "newAdded");
@@ -4068,9 +4207,12 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function toggleHeader(promote, changePreview) {
+    function toggleHeader(
+        promote: boolean,
+        changePreview: boolean = false
+    ): void {
         loadArgs.setHeader(promote);
-        var hasHeader = loadArgs.useHeader();
+        let hasHeader = loadArgs.useHeader();
         if (hasHeader) {
             $headerCheckBox.find(".checkbox").addClass("checked");
         } else {
@@ -4081,28 +4223,25 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
 
-        var $trs = $previewTable.find("tbody tr");
-        var $tds = $trs.eq(0).find("td"); // first row tds
-        var $headers = $previewTable.find("thead tr .header");
-        var html;
+        let $trs = $previewTable.find("tbody tr");
+        let $tds = $trs.eq(0).find("td"); // first row tds
+        let $headers = $previewTable.find("thead tr .header");
+        let html: HTML;
 
         if (hasHeader) {
             // promote header
-            var headerText = "";
-            var width;
-            var $th;
-            for (var i = 1, len = $tds.length; i < len; i++) {
-                headerHtml = $tds.eq(i).html();
-                headerText = $tds.eq(i).text();
-                $th = $headers.eq(i).parent();
-                width = Math.max(ProgCol.NewCellWidth,
+            for (let i = 1, len = $tds.length; i < len; i++) {
+                let headerHtml: HTML = $tds.eq(i).html();
+                let headerText: string = $tds.eq(i).text();
+                let $th: JQuery = $headers.eq(i).parent();
+                let width: number = Math.max(ProgCol.NewCellWidth,
                                  xcUIHelper.getTextWidth($th, headerText) + 8);
                 $th.width(width);
                 $headers.eq(i).find(".text").html(headerHtml);
             }
 
             // change line marker
-            for (var i = 1, len = $trs.length; i < len; i++) {
+            for (let i = 1, len = $trs.length; i < len; i++) {
                 $trs.eq(i).find(".lineMarker").text(i);
             }
 
@@ -4110,15 +4249,15 @@ window.DSPreview = (function($, DSPreview) {
             $previewTable.find("th.col0").html('<div class="header"></div>');
         } else {
             // change line marker
-            for (var i = 0, j = 2, len = $trs.length; i < len; i++, j++) {
+            for (let i = 0, j = 2, len = $trs.length; i < len; i++, j++) {
                 $trs.eq(i).find(".lineMarker").text(j);
             }
 
             // undo promote
             html = '<tr><td class="lineMarker">1</td>';
 
-            for (var i = 1, len = $headers.length; i < len; i++) {
-                var $text = $headers.eq(i).find(".text");
+            for (let i = 1, len = $headers.length; i < len; i++) {
+                let $text = $headers.eq(i).find(".text");
                 html += '<td class="cell"><div class="innerCell">' +
                             $text.html() + '</div></td>';
                 $text.html("column" + (i - 1));
@@ -4132,20 +4271,11 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function toggleXMLCheckboxes(xmlOptions) {
-        if (xmlOptions.matchedPath) {
-            $(".matchedXPath .checkbox").click();
-        }
-        if (xmlOptions.withPath) {
-            $(".elementXPath .checkbox").click();
-        }
-    }
-
-    function getSchemaRow() {
+    function getSchemaRow(): JQuery {
         return $form.find(".row.schema");
     }
 
-    function applyHighlight(str) {
+    function applyHighlight(str: string): void {
         $previewTable.find(".highlight").removeClass("highlight");
         highlighter = str;
 
@@ -4156,21 +4286,24 @@ window.DSPreview = (function($, DSPreview) {
             $highlightBtns.find("button").removeClass("xc-disabled");
             xcUIHelper.removeSelectionRange();
             // when has valid delimiter to highlight
-            var $cells = $previewTable.find("thead .text, tbody .cell");
+            let $cells = $previewTable.find("thead .text, tbody .cell");
             highlightHelper($cells, highlighter);
         }
     }
 
-    function highlightHelper($cells, strToHighlight) {
-        var dels = strToHighlight.split("");
-        var delLen = dels.length;
+    function highlightHelper(
+        $cells: JQuery,
+        strToHighlight: string
+    ): void {
+        let dels = strToHighlight.split("");
+        let delLen = dels.length;
 
         $cells.each(function() {
-            var $tds = $(this).find(".td");
-            var len = $tds.length;
+            let $tds = $(this).find(".td");
+            let len = $tds.length;
 
-            for (var i = 0; i < len; i++) {
-                var j = 0;
+            for (let i = 0; i < len; i++) {
+                let j = 0;
                 while (j < delLen && i + j < len) {
                     if ($tds.eq(i + j).text() === dels[j]) {
                         ++j;
@@ -4188,8 +4321,8 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function getPreviewTableName(dsName) {
-        var name;
+    function getPreviewTableName(dsName: string): string {
+        let name;
         if (dsName) {
             name = xcHelper.randName(dsName + "-");
         } else {
@@ -4201,8 +4334,8 @@ window.DSPreview = (function($, DSPreview) {
         return name;
     }
 
-    function getJSONTable(datas, skipRows = 0) {
-        var json = parseJSONData(datas);
+    function getJSONTable(datas: string, skipRows: number = 0): boolean {
+        let json = parseJSONData(datas);
         if (json == null) {
             // error case
             return false;
@@ -4219,25 +4352,25 @@ window.DSPreview = (function($, DSPreview) {
         return true;
     }
 
-    function showJSONTable(jsonData) {
+    function showJSONTable(jsonData: any): void {
         $previewTable.html(getJSONTableHTML(jsonData))
         .addClass("has-delimiter");
     }
 
-    function parseJSONByRow(data) {
-        var startIndex = data.indexOf("{");
-        var endIndex = data.lastIndexOf("}");
+    function parseJSONByRow(data: string): string[] {
+        let startIndex: number = data.indexOf("{");
+        let endIndex: number = data.lastIndexOf("}");
         if (startIndex === -1 || endIndex === -1) {
             return null;
         }
 
-        var record = [];
-        var bracketCnt = 0;
-        var hasBackSlash = false;
-        var hasQuote = false;
+        let record: string[] = [];
+        let bracketCnt: number = 0;
+        let hasBackSlash: boolean = false;
+        let hasQuote: boolean = false;
 
-        for (var i = startIndex; i <= endIndex; i++) {
-            var c = data.charAt(i);
+        for (let i = startIndex; i <= endIndex; i++) {
+            let c = data.charAt(i);
             if (hasBackSlash) {
                 // skip
                 hasBackSlash = false;
@@ -4263,7 +4396,7 @@ window.DSPreview = (function($, DSPreview) {
                         }
                     } else if (bracketCnt < 0) {
                         // error cse
-                        errorHandler(getParseJSONError());
+                        errorHandler(getParseJSONError(), false, false);
                         return null;
                     }
                 }
@@ -4276,28 +4409,28 @@ window.DSPreview = (function($, DSPreview) {
         return record;
     }
 
-    function parseJSONData(data) {
-        var record = parseJSONByRow(data);
+    function parseJSONData(data: string): any {
+        let record = parseJSONByRow(data);
         if (record == null) {
-            errorHandler(getParseJSONError());
+            errorHandler(getParseJSONError(), false, false);
             return null;
         }
 
-        var string = "[" + record.join(",") + "]";
-        var json;
+        let string = "[" + record.join(",") + "]";
+        let json;
 
         try {
             json = $.parseJSON(string);
         } catch (error) {
             console.error(error);
-            errorHandler(getParseJSONError());
+            errorHandler(getParseJSONError(), false, false);
             return null;
         }
 
         return json;
     }
 
-    function getParseError(format, suggest) {
+    function getParseError(format: string, suggest: string): string {
         return xcStringHelper.replaceMsg(DSFormTStr.ParseError, {
             format: format,
             suggest: '<span class="suggest" data-format="' + suggest + '">' +
@@ -4306,13 +4439,13 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function getXMLTable(xmlData) {
+    function getXMLTable(xmlData: string): boolean {
         if (xmlData == null){
             return false;
         }
 
-        var data = lineSplitHelper(xmlData, '\n');
-        var html = getXMLTbodyHTML(data);
+        let data = lineSplitHelper(xmlData, '\n', null);
+        let html = getXMLTbodyHTML(data);
 
         $previewTableWrap.addClass("XMLTableFormat");
         $previewTable.html(html);
@@ -4320,34 +4453,34 @@ window.DSPreview = (function($, DSPreview) {
     }
 
 
-    function getParseJSONError() {
+    function getParseJSONError(): string {
         return getParseError(formatMap.JSON, formatMap.CSV);
     }
 
-    function getJSONHeaders(json) {
-        var rowLen = json.length;
-        var keys = {};
-        for (var i = 0; i < rowLen; i++) {
-            for (var key in json[i]) {
+    function getJSONHeaders(json: object[]): string[] {
+        let rowLen: number = json.length;
+        let keys = {};
+        for (let i = 0; i < rowLen; i++) {
+            for (let key in json[i]) {
                 keys[key] = true;
             }
         }
 
-        var headers = Object.keys(keys);
+        let headers = Object.keys(keys);
         return headers;
     }
 
-    function getJSONTableHTML(json) {
-        var headers = getJSONHeaders(json);
-        var rowLen = json.length;
-        var colLen = headers.length;
-        var html = '<thead><tr>' +
+    function getJSONTableHTML(json: any): HTML {
+        let headers = getJSONHeaders(json);
+        let rowLen = json.length;
+        let colLen = headers.length;
+        let html: HTML = '<thead><tr>' +
                     '<th class="rowNumHead">' +
                         '<div class="header"></div>' +
                     '</th>';
-        for (var i = 0; i < colLen; i++) {
-            var cellWidth = xcUIHelper.getTextWidth(null, headers[i]) - 36;
-            var width = Math.max(ProgCol.NewCellWidth + 5, cellWidth);
+        for (let i = 0; i < colLen; i++) {
+            let cellWidth = xcUIHelper.getTextWidth(null, headers[i]) - 36;
+            let width: number = Math.max(ProgCol.NewCellWidth + 5, cellWidth);
             html += '<th style="width:' + width + 'px;">' +
                         '<div class="header">' +
                             colGrabTemplate +
@@ -4360,15 +4493,15 @@ window.DSPreview = (function($, DSPreview) {
 
         html += '</tr></thead><tbody>';
 
-        for (var i = 0; i < rowLen; i++) {
+        for (let i = 0; i < rowLen; i++) {
             html += '<tr>' +
                         '<td class="lineMarker">' +
                             (i + 1) +
                         '</td>';
-            var jsonRow = json[i];
-            for (var j = 0; j < colLen; j++) {
-                var val = jsonRow[headers[j]];
-                var fnf = false;
+            let jsonRow = json[i];
+            for (let j = 0; j < colLen; j++) {
+                let val = jsonRow[headers[j]];
+                let fnf = false;
                 if (val === undefined) {
                     fnf = true;
                 }
@@ -4385,39 +4518,36 @@ window.DSPreview = (function($, DSPreview) {
         return html;
     }
 
-    function getCSVTable(csvData, format) {
+    function getCSVTable(csvData: string, format: string): boolean {
          // line delimiter
-        var lineDelim = loadArgs.getLineDelim();
-        var data = lineSplitHelper(csvData, lineDelim);
+        let lineDelim = loadArgs.getLineDelim();
+        let data: string[] = lineSplitHelper(csvData, lineDelim, null);
         if (data == null) {
             return false;
         }
 
-        data = data.map(function(d) {
-            return d.split("");
-        });
-
-        var fieldDelim = loadArgs.getFieldDelim();
+        let splitData: string[][] = data.map((d) => d.split(""));
+        let fieldDelim = loadArgs.getFieldDelim();
         if (format === formatMap.CSV && fieldDelim === "") {
             $highlightBtns.removeClass("hidden")
                           .find("button").addClass("xc-disabled");
         }
 
-        var $tbody = $(getTbodyHTML(data, fieldDelim));
-        var $trs = $tbody.find("tr");
-        var maxTdLen = 0;
+        let $tbody = $(getTbodyHTML(splitData, fieldDelim));
+        let $trs = $tbody.find("tr");
+        let maxTdLen: number = 0;
         // find the length of td
         $trs.each(function() {
             maxTdLen = Math.max(maxTdLen, $(this).find("td").length);
         });
 
         // fill up empty space
-        var fnf = xcHelper.parseJsonValue(null, true);
+        let fnf = xcHelper.parseJsonValue(null, true);
         appendExtraTds($trs, maxTdLen, fnf);
 
-        var $tHead = $(getTheadHTML(data, fieldDelim, maxTdLen));
-        var $tHrow = $tHead.find("tr");
-        var thLen = $tHead.find("th").length;
+        let $tHead = $(getTheadHTML(splitData, fieldDelim, maxTdLen));
+        let $tHrow = $tHead.find("tr");
+        let thLen = $tHead.find("th").length;
         if (maxTdLen > thLen) {
             appendExtraThs($tHrow, maxTdLen - thLen);
         } else if (thLen > maxTdLen) {
@@ -4432,7 +4562,7 @@ window.DSPreview = (function($, DSPreview) {
 
         $previewTable.empty().append($tHead, $tbody);
         $previewTable.closest(".datasetTbodyWrap").scrollTop(0);
-        loadArgs.setOriginalHeaders(getColumnHeaders());
+        loadArgs.setOriginalHeaders(getColumnHeaders(null));
 
         if (fieldDelim !== "") {
             $previewTable.addClass("has-delimiter");
@@ -4440,10 +4570,14 @@ window.DSPreview = (function($, DSPreview) {
         return true;
     }
 
-    function getTheadHTML(datas, delimiter, tdLen) {
-        var thead = "<thead><tr>";
-        var colGrab = colGrabTemplate;
-        var isEditable = false;
+    function getTheadHTML(
+        datas: string[][],
+        delimiter: string,
+        tdLen: number
+    ): HTML {
+        let thead: HTML = "<thead><tr>";
+        let colGrab: HTML = colGrabTemplate;
+        let isEditable: boolean = false;
         if (loadArgs.getFormat() === formatMap.CSV) {
             isEditable = true;
         }
@@ -4460,8 +4594,8 @@ window.DSPreview = (function($, DSPreview) {
                     '<div class="header"></div>' +
                 '</th>';
 
-            for (var i = 0; i < tdLen - 1; i++) {
-                var header = autoHeaderName(i);
+            for (let i = 0; i < tdLen - 1; i++) {
+                let header = autoHeaderName(i);
                 if (isEditable) {
                     thead += '<th class="editable" data-type="string">' +
                             '<div class="header type-string">' +
@@ -4504,10 +4638,10 @@ window.DSPreview = (function($, DSPreview) {
 
         thead += "</tr></thead>";
 
-        return (thead);
+        return thead;
     }
 
-    function getTbodyHTML(datas, delimiter) {
+    function getTbodyHTML(datas: string[][], delimiter: string): HTML {
         var tbody = "<tbody>";
         var i = loadArgs.useHeader() ? 1 : 0;
         // not showing too much rows
@@ -4517,21 +4651,21 @@ window.DSPreview = (function($, DSPreview) {
                         '<td class="lineMarker">' +
                             (j + 1) +
                         '</td>';
-            tbody += parseTdHelper(datas[i], delimiter) + '</tr>';
+            tbody += parseTdHelper(datas[i], delimiter, false, false) + '</tr>';
         }
 
         tbody += "</tbody>";
 
-        return (tbody);
+        return tbody;
     }
 
-    function appendExtraTds($trs, maxTdLen, val) {
+    function appendExtraTds($trs: JQuery, maxTdLen: number, val: string): void {
         $trs.each(function() {
-            var $tr  = $(this);
-            var $tds = $tr.find("td");
-            var trs = "";
+            let $tr = $(this);
+            let $tds = $tr.find("td");
+            let trs: HTML = "";
 
-            for (var j = 0, l = maxTdLen - $tds.length; j < l; j++) {
+            for (let j = 0, l = maxTdLen - $tds.length; j < l; j++) {
                 trs += "<td>" + val + "</td>";
             }
 
@@ -4539,8 +4673,8 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function appendExtraThs($tHrow, numThs) {
-        var thHtml;
+    function appendExtraThs($tHrow: JQuery, numThs: number): void {
+        let thHtml: HTML;
         if (loadArgs.getFormat() === formatMap.CSV) {
             thHtml = '<th class="editable" data-type="string">' +
                         '<div class="header type-string">' +
@@ -4572,24 +4706,24 @@ window.DSPreview = (function($, DSPreview) {
             '</th>';
         }
 
-        var ths = "";
-        for (var i = 0; i < numThs; i++) {
+        let ths = "";
+        for (let i = 0; i < numThs; i++) {
             ths += thHtml;
         }
         $tHrow.append(ths);
     }
 
-    function autoHeaderName(index) {
+    function autoHeaderName(index: number): string {
         return "column" + index;
     }
 
-    function getXMLTbodyHTML(data) {
-        var tbody = "<tbody><tr><td>";
+    function getXMLTbodyHTML(data: string[]): HTML {
+        let tbody: HTML = "<tbody><tr><td>";
         // not showing too much rows
-        var len = Math.min(data.length, rowsToFetch);
+        let len: number = Math.min(data.length, rowsToFetch);
 
         //get the html of table
-        for (var i = 0; i < len; i++) {
+        for (let i = 0; i < len; i++) {
             tbody += '<span class="XMLContentSpan">' + xcStringHelper.escapeHTMLSpecialChar(data[i]) + '</span>' + '<br>';
         }
 
@@ -4598,16 +4732,20 @@ window.DSPreview = (function($, DSPreview) {
         return tbody;
     }
 
-    function lineSplitHelper(data, delim, rowsToSkip) {
-        var quote = loadArgs.getQuote();
-        var res = splitLine(data, delim, quote);
+    function lineSplitHelper(
+        data: string,
+        delim: string, 
+        rowsToSkip: number
+    ): string[] {
+        let quote: string = loadArgs.getQuote();
+        let res = splitLine(data, delim, quote);
 
         if (rowsToSkip == null || isNaN(rowsToSkip)) {
             rowsToSkip = getSkipRows();
         }
 
         if (rowsToSkip > 0 && rowsToSkip >= res.length) {
-            errorHandler(DSTStr.SkipRowsError);
+            errorHandler(DSTStr.SkipRowsError, false ,false);
             return null;
         }
 
@@ -4616,24 +4754,28 @@ window.DSPreview = (function($, DSPreview) {
         return res;
     }
 
-    function splitLine(data, delim, quote) {
+    function splitLine(
+        data: string, 
+        delim: string,
+        quote: string
+    ): string[] {
         // XXX this O^2 plus the fieldDelim O^2 may be too slow
         // may need a better way to do it
-        var dels = delim.split("");
-        var delLen = dels.length;
+        let dels: string[] = delim.split("");
+        let delLen = dels.length;
         if (delLen === 0) {
             return [data];
         }
 
-        var hasQuote = false;
-        var hasBackSlash = false;
-        var dataLen = data.length;
-        var res = [];
-        var i = 0;
-        var startIndex = 0;
+        let hasQuote: boolean = false;
+        let hasBackSlash: boolean = false;
+        let dataLen = data.length;
+        let res: string[] = [];
+        let i: number = 0;
+        let startIndex: number = 0;
         while (i < dataLen) {
-            var c = data.charAt(i);
-            var isDelimiter = false;
+            let c = data.charAt(i);
+            let isDelimiter: boolean = false;
 
             if (!hasBackSlash && !hasQuote && c === dels[0]) {
                 isDelimiter = true;
@@ -4670,16 +4812,21 @@ window.DSPreview = (function($, DSPreview) {
         return res;
     }
 
-    function parseTdHelper(data, strToDelimit, isTh, isEditable) {
-        var hasQuote = false;
-        var hasBackSlash = false;
-        var dels = strToDelimit.split("");
-        var delLen = dels.length;
-        var quote = loadArgs.getQuote();
+    function parseTdHelper(
+        data: string[],
+        strToDelimit: string,
+        isTh: boolean,
+        isEditable: boolean
+    ): HTML {
+        let hasQuote: boolean = false;
+        let hasBackSlash: boolean = false;
+        let dels = strToDelimit.split("");
+        let delLen = dels.length;
+        let quote = loadArgs.getQuote();
 
-        var hasDelimiter = (delLen !== 0);
-        var colGrab = hasDelimiter ? colGrabTemplate : "";
-        var html;
+        let hasDelimiter = (delLen !== 0);
+        let colGrab = hasDelimiter ? colGrabTemplate : "";
+        let html: HTML;
         if (isEditable) {
             if (isTh) {
                 html = '<th class="editable" data-type="string">' +
@@ -4714,29 +4861,29 @@ window.DSPreview = (function($, DSPreview) {
             }
         }
 
-        var dataLen = data.length;
-        var rawStrLimit = 1000; // max number of characters in undelimited column
-        var maxColumns = 1100; // max number of columns
-        var colStrLimit = 250; // max number of characters in delimited column
-        var i = 0;
-        var d;
-        var tdData = []; // holds acculumated chars until delimiter is reached
+        let dataLen = data.length;
+        const rawStrLimit: number = 1000; // max number of characters in undelimited column
+        const maxColumns: number = 1100; // max number of columns
+        const colStrLimit: number = 250; // max number of characters in delimited column
+        let i: number = 0;
+        let d;
+        let tdData = []; // holds acculumated chars until delimiter is reached
                         // and then these chars are added to html
-        var val;
+        let val;
 
         if (hasDelimiter) {
             // when has delimiter
-            var columnCount = 0;
-            var strLen = 0;
-            var hiddenStrLen = 0;
+            let columnCount = 0;
+            let strLen = 0;
+            let hiddenStrLen = 0;
             while (i < dataLen && columnCount < maxColumns) {
                 d = data[i];
-                var isDelimiter = false;
+                let isDelimiter = false;
 
                 if (!hasBackSlash && !hasQuote && d === dels[0]) {
                     isDelimiter = true;
 
-                    for (var j = 1; j < delLen; j++) {
+                    for (let j = 1; j < delLen; j++) {
                         if (i + j >= dataLen || data[i + j] !== dels[j]) {
                             isDelimiter = false;
                             break;
@@ -4835,8 +4982,8 @@ window.DSPreview = (function($, DSPreview) {
             for (i = 0; i < dataLen; i++) {
                 d = data[i];
 
-                var cellClass = "td";
-                var escaped = xcStringHelper.escapeHTMLSpecialChar(d);
+                let cellClass = "td";
+                let escaped = xcStringHelper.escapeHTMLSpecialChar(d);
 
                 if (d === "\t") {
                     cellClass += " has-margin has-tab";
@@ -4881,11 +5028,11 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             html += '</div></td>';
         }
-        return (html);
+        return html;
     }
 
     // Note: that's how backend to the import, only handle the ting in the quote
-    function stripQuote(content, quote) {
+    function stripQuote(content: string[], quote: string): string[] {
         if (!quote) {
             return content;
         }
@@ -4909,13 +5056,13 @@ window.DSPreview = (function($, DSPreview) {
         return content;
     }
 
-    function seletNewLineJSONToArrayUDF() {
+    function seletNewLineJSONToArrayUDF(): void {
         toggleFormat("UDF");
         selectUDFModule(defaultModule);
         selectUDFFunc("convertNewLineJsonToArrayJson");
     }
 
-    function smartDetect() {
+    function smartDetect(): boolean {
         if (rawData == null) {
             return false;
         }
@@ -4924,7 +5071,7 @@ window.DSPreview = (function($, DSPreview) {
         applyQuote("\"");
 
         // step 1: detect format
-        var lineDelim = loadArgs.getLineDelim();
+        let lineDelim = loadArgs.getLineDelim();
         detectArgs.format = detectFormat(rawData, lineDelim);
 
         if (detectArgs.format === DSFormat.SpecialJSON) {
@@ -4934,8 +5081,8 @@ window.DSPreview = (function($, DSPreview) {
             return true;
         }
 
-        var formatText;
-        for (var key in formatMap) {
+        let formatText: string;
+        for (let key in formatMap) {
             if (formatMap[key] === detectArgs.format) {
                 formatText = key;
                 break;
@@ -4981,7 +5128,7 @@ window.DSPreview = (function($, DSPreview) {
         return false;
     }
 
-    function detectFormat(data, lineDelim) {
+    function detectFormat(data: string, lineDelim: string): string {
         if (DSTargetManager.isSparkParquet(loadArgs.getTargetName())) {
             return formatMap.PARQUET;
         }
@@ -4998,8 +5145,8 @@ window.DSPreview = (function($, DSPreview) {
             //     !isAscii(data.substring(4, 100))) {
             //     return formatMap.PARQUETFILE;
             // }
-            var rows = lineSplitHelper(data, lineDelim, 0);
-            var detectRes = xcSuggest.detectFormat(rows);
+            let rows = lineSplitHelper(data, lineDelim, 0);
+            let detectRes = xcSuggest.detectFormat(rows);
 
             if (detectRes === DSFormat.JSON) {
                 return formatMap.JSON;
@@ -5015,12 +5162,12 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    // function isAscii(string) {
-    //     return /^[\x00-\x7F]*$/.test(string);
-    // }
-
-    function detectHeader(data, lineDelim, fieldDelim) {
-        var rows = lineSplitHelper(data, lineDelim);
+    function detectHeader(
+        data: string,
+        lineDelim: string,
+        fieldDelim: string
+    ): boolean {
+        var rows = lineSplitHelper(data, lineDelim, null);
         var rowLen = Math.min(rowsToFetch, rows.length);
         var parsedRows = [];
 
@@ -5031,22 +5178,22 @@ window.DSPreview = (function($, DSPreview) {
         return xcSuggest.detectHeader(parsedRows);
     }
 
-    function detectExcelHeader(data) {
-        var rows = null;
+    function detectExcelHeader(data: string): boolean {
+        let rows = null;
         try {
             rows = JSON.parse(data);
         } catch (error) {
             console.error(error);
             return false;
         }
-        var headers = getJSONHeaders(rows);
-        var rowLen = rows.length;
-        var colLen = headers.length;
-        var parsedRows = [];
+        let headers = getJSONHeaders(rows);
+        let rowLen = rows.length;
+        let colLen = headers.length;
+        let parsedRows = [];
 
-        for (var i = 0; i < rowLen; i++) {
+        for (let i = 0; i < rowLen; i++) {
             parsedRows[i] = [];
-            for (var j = 0; j < colLen; j++) {
+            for (let j = 0; j < colLen; j++) {
                 parsedRows[i][j] = rows[i][headers[j]];
             }
         }
@@ -5054,14 +5201,16 @@ window.DSPreview = (function($, DSPreview) {
         return xcSuggest.detectHeader(parsedRows);
     }
 
-    function invalidHeaderDetection(headers) {
+    function invalidHeaderDetection(
+        headers: {colType: string, colName: string}[]
+    ): XDPromise<void> {
         if (headers == null || headers.length > gMaxDSColsSpec) {
             return PromiseHelper.resolve();
         }
-        var $ths = $previewTable.find("th");
-        var invalidHeaders = [];
-        headers.forEach(function(header, i) {
-            var error = xcHelper.validateColName(header.colName);
+        let $ths = $previewTable.find("th");
+        let invalidHeaders = [];
+        headers.forEach((header, i) => {
+            let error = xcHelper.validateColName(header.colName);
             if (error) {
                 invalidHeaders.push({
                     text: invalidHeadersConversion(header, error),
@@ -5076,9 +5225,8 @@ window.DSPreview = (function($, DSPreview) {
             return checkBulkDuplicateNames(headers);
         }
 
-        var deferred = PromiseHelper.deferred();
-
-        var msg;
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let msg: HTML;
         if (loadArgs.getFormat() === formatMap.CSV) {
             msg = '<span class="tableTitle">' + DSTStr.DetectInvalidColMsgFix +
                   ':</span>';
@@ -5087,7 +5235,7 @@ window.DSPreview = (function($, DSPreview) {
                   ':</span>';
         }
 
-        var table = '<div id="invalidDSColTable">' + msg +
+        let table: HTML = '<div id="invalidDSColTable">' + msg +
         '<div class="row header">' +
         '<span class="colNum">No.</span><span class="colName">Name</span></div>';
         invalidHeaders.forEach(function(err) {
@@ -5132,8 +5280,11 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function invalidHeadersConversion(header, error) {
-        var text = '<span>';
+    function invalidHeadersConversion(
+        header: {colName: string},
+        error: string
+    ): HTML {
+        let text: HTML = '<span>';
         if (error === ColTStr.RenameStartInvalid) {
             text += '<b class="highlight">' + header.colName.slice(0, 1) +
                     '</b>' + header.colName.slice(1);
@@ -5142,7 +5293,7 @@ window.DSPreview = (function($, DSPreview) {
             text += '<span class="empty">' + CommonTxtTstr.empty + '</span>';
         } else {
             text += Array.from(header.colName).map(function(ch) {
-                return xcHelper.hasInvalidCharInCol(ch) ?
+                return xcHelper.hasInvalidCharInCol(ch, false) ?
                        '<b class="highlight">' + ch + '</b>' : ch;
             }).join("");
         }
@@ -5151,14 +5302,14 @@ window.DSPreview = (function($, DSPreview) {
         return text;
     }
 
-    function checkIndividualDuplicateName(name, index) {
-        var dupFound = false;
+    function checkIndividualDuplicateName(name: string, index: number): boolean {
+        let dupFound: boolean = false;
         $previewTable.find("th:not(.rowNumHead)").each(function(i) {
             if ((i + 1) === index) {
                 return true;
             }
-            var $th = $(this);
-            var colName = $th.find(".text").val();
+            let $th = $(this);
+            let colName: string = $th.find(".text").val();
             if (colName === name) {
                 dupFound = true;
                 return false;
@@ -5168,11 +5319,11 @@ window.DSPreview = (function($, DSPreview) {
         return dupFound;
     }
 
-    function checkBulkDuplicateNames(headers) {
-        var nameMap = {};
-        var isCreateTable = isCreateTableMode();
-        for (var i = 0; i < headers.length; i++) {
-            var header = headers[i].colName;
+    function checkBulkDuplicateNames(headers: {colName: string}[]): XDPromise<void> {
+        let nameMap = {};
+        let isCreateTable = isCreateTableMode();
+        for (let i = 0; i < headers.length; i++) {
+            let header = headers[i].colName;
             if (isCreateTable) {
                 header = header.toUpperCase();
             }
@@ -5182,12 +5333,12 @@ window.DSPreview = (function($, DSPreview) {
                 nameMap[header].push(i + 1);
             }
         }
-        var errorNames = [];
-        var $ths = $previewTable.find("th");
-        for (var name in nameMap) {
+        let errorNames = [];
+        let $ths = $previewTable.find("th");
+        for (let name in nameMap) {
             if (nameMap[name].length > 1) {
                 errorNames.push({colName: name, indices: nameMap[name]});
-                for (var i = 1; i < nameMap[name].length; i++) {
+                for (let i = 1; i < nameMap[name].length; i++) {
                     $ths.eq(nameMap[name][i]).find(".text").addClass("error");
                 }
             }
@@ -5195,7 +5346,7 @@ window.DSPreview = (function($, DSPreview) {
         if (!errorNames.length) {
             return PromiseHelper.resolve();
         }
-        var deferred = PromiseHelper.deferred();
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         errorNames.sort(function(a, b) {
             if (a.indices[0] >= b.indices[0]) {
@@ -5205,7 +5356,7 @@ window.DSPreview = (function($, DSPreview) {
             }
         });
 
-        var table = '<div id="duplicateDSColTable"><span class="tableTitle">' +
+        let table: HTML = '<div id="duplicateDSColTable"><span class="tableTitle">' +
         ErrTStr.DuplicateColNames + ':</span><div class="row header">' +
         '<span class="colName">Name</span><span class="colNums">Column Nos.' +
         '</span></div>';
@@ -5240,25 +5391,25 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function showProgressCircle(txId) {
-        var $waitSection = $previewWrap.find(".waitSection");
+    function showProgressCircle(txId: number): void {
+        let $waitSection = $previewWrap.find(".waitSection");
         $waitSection.addClass("hasUdf");
-        var withText = true;
-        var progressAreaHtml = xcUIHelper.getLockIconHtml(txId, 0, withText);
+        let withText: boolean = true;
+        let progressAreaHtml = xcUIHelper.getLockIconHtml(txId, 0, withText);
         $waitSection.find(".progressSection").html(progressAreaHtml);
-        var progressCircle = new ProgressCircle(txId, 0, withText);
+        let progressCircle = new ProgressCircle(txId, 0, withText);
         $waitSection.find(".cancelLoad").data("progresscircle",
                                                 progressCircle);
     }
 
     // currently only being used for CSV
-    function initialSuggest() {
-        var sourceIndex = loadArgs.getPreivewIndex();
-        var cachedHeaders = loadArgs.getPreviewHeaders(sourceIndex);
-        var autoDetectSchema = false;
+    function initialSuggest(): void {
+        let sourceIndex = loadArgs.getPreivewIndex();
+        let cachedHeaders = loadArgs.getPreviewHeaders(sourceIndex);
+        let autoDetectSchema: boolean = false;
         if ($previewTable.find(".editableHead").length > gMaxDSColsSpec) {
             $previewTable.find("th").addClass("nonEditable");
-            var msg = "Data source has more than " + gMaxDSColsSpec +
+            let msg: string = "Data source has more than " + gMaxDSColsSpec +
             " fields. You can import data source but cannot change column names or cast data types during the import.";
 
             Alert.show({
@@ -5272,43 +5423,46 @@ window.DSPreview = (function($, DSPreview) {
         } else if (cachedHeaders && cachedHeaders.length > 0) {
             restoreColumnHeaders(sourceIndex, cachedHeaders);
         } else {
-            var recTypes = suggestColumnHeadersType();
-            var recNames = suggestColumnHeadersNames();
+            let recTypes = suggestColumnHeadersType(false);
+            let recNames = suggestColumnHeadersNames();
             changeColumnHeaders(recTypes, recNames);
             loadArgs.setSuggestHeaders(sourceIndex, recNames, recTypes);
         }
         autoFillDataSourceSchema(autoDetectSchema);
     }
 
-    function restoreColumnHeaders(sourceIndex, typedColumns) {
+    function restoreColumnHeaders(
+        sourceIndex: number,
+        typedColumns: {colName: string, colType: string}[]
+    ): void {
         typedColumns = typedColumns || [];
 
-        var originalTypedColumns = loadArgs.getOriginalHeaders(sourceIndex);
-        var len = Math.max(originalTypedColumns.length, typedColumns.length);
-        var types = [];
-        var colNames = [];
+        let originalTypedColumns = loadArgs.getOriginalHeaders(sourceIndex);
+        let len = Math.max(originalTypedColumns.length, typedColumns.length);
+        let types = [];
+        let colNames = [];
 
-        for (var i = 0; i < len; i++) {
-            var colInfo = typedColumns[i] || {};
-            var colType = colInfo.colType || originalTypedColumns.colType;
-            var colName = colInfo.colName || autoHeaderName(i); // not use original col name
+        for (let i = 0; i < len; i++) {
+            let colInfo = typedColumns[i] || <any>{};
+            let colType = colInfo.colType || originalTypedColumns[i].colType;
+            let colName = colInfo.colName || autoHeaderName(i); // not use original col name
             types.push(colType);
             colNames.push(colName);
         }
         changeColumnHeaders(types, colNames);
     }
 
-    function changeColumnHeaders(types, colNames) {
+    function changeColumnHeaders(types: ColumnType[], colNames: string[]): void {
         types = types || [];
         colNames = colNames || [];
         $previewTable.find("th:gt(0)").each(function(colNum) {
             if (colNum >= gMaxDSColsSpec) {
                 return false;
             }
-            var type = types[colNum];
-            var name = colNames[colNum];
-            var $th = $(this);
-            var $header = $th.find(".header");
+            let type = types[colNum];
+            let name = colNames[colNum];
+            let $th = $(this);
+            let $header = $th.find(".header");
             if (type) {
                 $header.removeClass()
                         .addClass("header type-" + type);
@@ -5318,21 +5472,21 @@ window.DSPreview = (function($, DSPreview) {
                                     '<br>' + DSTStr.ClickChange);
             }
             if (name) {
-                var $input = $header.find("input");
+                let $input = $header.find("input");
                 $input.val(name);
                 xcTooltip.changeText($input, name);
             }
         });
     }
 
-    function suggestColumnHeadersType(detectJSON) {
-        var $tbody = $previewTable.find("tbody").clone(true);
-        var recTypes = [];
-        var suggestType = function($tr, colNum) {
-            var datas = [];
-            var hasObject = false;
-            var hasArray = false;
-            var hasNormalVal = false;
+    function suggestColumnHeadersType(detectJSON: boolean): ColumnType[] {
+        let $tbody = $previewTable.find("tbody").clone(true);
+        let recTypes: ColumnType[] = [];
+        let suggestType = function($tr, colNum) {
+            let datas: string[] = [];
+            let hasObject: boolean = false;
+            let hasArray: boolean = false;
+            let hasNormalVal: boolean = false;
             $tr.find("td:nth-child(" + colNum + ")").each(function() {
                 var val = $(this).text();
                 datas.push(val);
@@ -5355,43 +5509,43 @@ window.DSPreview = (function($, DSPreview) {
                     }
                 }
             }
-            return xcSuggest.suggestType(datas);
+            return xcSuggest.suggestType(datas, null);
         };
 
         $tbody.find("tr:gt(17)").remove();
         $tbody.find(".lineMarker").remove();
 
-        var $tr = $tbody.find("tr");
+        let $tr = $tbody.find("tr");
         $tr.eq(0).find("td").each(function(colIndex) {
-            var colType = suggestType($tr, colIndex + 1);
+            let colType = suggestType($tr, colIndex + 1);
             recTypes[colIndex] = colType;
         });
         return recTypes;
     }
 
-    function suggestColumnHeadersNames() {
-        var allNames = [];
-        var isCreateTable = isCreateTableMode();
+    function suggestColumnHeadersNames(): string[] {
+        let allNames: string[] = [];
+        let isCreateTable = isCreateTableMode();
         $previewTable.find(".editableHead").each(function() {
-            var name = $(this).val().trim();
+            let name: string = $(this).val().trim();
             if (isCreateTable) {
                 name = name.toUpperCase();
             }
             allNames.push(name);
         });
 
-        var newNames = getValidNameSet(allNames);
+        let newNames = getValidNameSet(allNames);
         return newNames;
     }
 
-    function csvArgChange() {
+    function csvArgChange(): void {
         if (loadArgs.getFormat() !== formatMap.CSV) {
             return;
         }
-        showHeadersWarning();
+        showHeadersWarning(null);
     }
 
-    function showHeadersWarning(isCSV) {
+    function showHeadersWarning(isCSV: boolean): void {
         if (shouldShowHeadersWarning(isCSV)) {
             $("#dsForm-warning").removeClass("xc-hidden");
         } else {
@@ -5401,27 +5555,27 @@ window.DSPreview = (function($, DSPreview) {
         loadArgs.resetCachedHeaders();
     }
 
-    function hideHeadersWarning() {
+    function hideHeadersWarning(): void {
         $("#dsForm-warning").addClass("xc-hidden");
     }
 
-    function shouldShowHeadersWarning(isCSV) {
+    function shouldShowHeadersWarning(isCSV: boolean): boolean {
         if (loadArgs.hasPreviewMultipleFiles()) {
             // multi DS case and other files has been previewed
             return true;
         }
         // other case, detect if header has been changed
-        var headers = getColumnHeaders(isCSV);
-        var sourceIndex = loadArgs.getPreivewIndex();
-        var suggestHeaders = loadArgs.getSuggestHeaders(sourceIndex);
+        let headers = getColumnHeaders(isCSV);
+        let sourceIndex = loadArgs.getPreivewIndex();
+        let suggestHeaders = loadArgs.getSuggestHeaders(sourceIndex);
         return hasTypedColumnChange(suggestHeaders, headers);
     }
 
-    function getValidNameSet(allNames) {
-        var delim = "_";
-        var invalidNames = [];
-        var usedNames = {};
-        var newNames = [];
+    function getValidNameSet(allNames: string[]): string[] {
+        let delim: string = "_";
+        let invalidNames: {name: string, error: string, index: number}[] = [];
+        let usedNames = {};
+        let newNames: string[] = [];
         allNames.forEach(function(name, index) {
             var error = xcHelper.validateColName(name);
             if (error) {
@@ -5484,7 +5638,7 @@ window.DSPreview = (function($, DSPreview) {
         udfFunction
     }) {
         // Dependencies
-        const libs = { keyCode: keyCode };
+        // const libs = { keyCode: keyCode };
 
         // Contants
         const DEFAULT_JMESPATH = '[*]';
@@ -5569,10 +5723,10 @@ window.DSPreview = (function($, DSPreview) {
         containerID = 'importDataForm-content',
     }) {
         // Dependencies
-        const libs = {
-            xcHelper: xcHelper,
-            ErrTStr: ErrTStr,
-        };
+        // const libs = {
+        //     xcHelper: xcHelper,
+        //     ErrTStr: ErrTStr,
+        // };
 
         // Constants
 
@@ -5620,21 +5774,21 @@ window.DSPreview = (function($, DSPreview) {
     function createXMLFormat({
         $container,
         udfModule,
-        udfFunction }) {
+        udfFunction
+    }) {
         // Dependencies
         const libs = {
             keyCode: keyCode,
             xcHelper: xcHelper,
             ErrTStr: ErrTStr,
-            PromiseHelper: PromiseHelper,
-            xcHelper: xcHelper,
+            PromiseHelper: PromiseHelper
         };
 
         // Constants
         const XPATH_TEMPLATE_CLASS = 'xpath_template';
         const EXTRAKEY_TEMPLATE_CLASS = 'xtrakey_template';
         const XPATH_CONTAINER_CLASS = 'xpath_container';
-        const EXTRAKEY_CONTAINER_CLASS = 'extrakey_list';
+        // const EXTRAKEY_CONTAINER_CLASS = 'extrakey_list';
         const XCID_NEWXPATH = 'xml.newXPath';
         const XCID_MATCHEDPATH = 'xml.matchedPath';
         const XCID_WITHPATH = 'xml.withPath';
@@ -5740,7 +5894,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         function onExtrakeyValueBlur(xpathIndex, extrakeyIndex, $elemName) {
-            return (event) => {
+            return (_event) => {
                 try {
                     const key = state.xPaths[xpathIndex].extraKeys[extrakeyIndex];
                     const keyName = $elemName.val();
@@ -5752,7 +5906,7 @@ window.DSPreview = (function($, DSPreview) {
                         setStateInternal(newState, true);
                     }
                 } catch(e) {
-                    console.log(error);
+                    console.log(e);
                 }
             };
         }
@@ -6241,62 +6395,57 @@ window.DSPreview = (function($, DSPreview) {
     // End === PreviewLoader component factory
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        DSPreview.__testOnly__ = {};
-        DSPreview.__testOnly__.getPreviewTable = getPreviewTable;
-        DSPreview.__testOnly__.parseTdHelper = parseTdHelper;
-        DSPreview.__testOnly__.getTbodyHTML = getTbodyHTML;
-        DSPreview.__testOnly__.getTheadHTML = getTheadHTML;
-        DSPreview.__testOnly__.getPreviewTableName = getPreviewTableName;
-        DSPreview.__testOnly__.highlightHelper = highlightHelper;
-        DSPreview.__testOnly__.toggleHeader = toggleHeader;
-        DSPreview.__testOnly__.detectFormat = detectFormat;
-        DSPreview.__testOnly__.detectHeader = detectHeader;
-        DSPreview.__testOnly__.detectExcelHeader = detectExcelHeader;
-        DSPreview.__testOnly__.applyHighlight = applyHighlight;
-        DSPreview.__testOnly__.clearPreviewTable = clearPreviewTable;
-        DSPreview.__testOnly__.getDataFromLoadUDF = getDataFromLoadUDF;
-        DSPreview.__testOnly__.getURLToPreview = getURLToPreview;
-        DSPreview.__testOnly__.loadDataWithUDF = loadDataWithUDF;
-        DSPreview.__testOnly__.invalidHeaderDetection = invalidHeaderDetection;
-        DSPreview.__testOnly__.checkBulkDuplicateNames = checkBulkDuplicateNames;
-        DSPreview.__testOnly__.changePreviewFile = changePreviewFile;
-
-        DSPreview.__testOnly__.resetForm = resetForm;
-        DSPreview.__testOnly__.restoreForm = restoreForm;
-        DSPreview.__testOnly__.getNameFromPath = getNameFromPath;
-        DSPreview.__testOnly__.getSkipRows = getSkipRows;
-        DSPreview.__testOnly__.applyFieldDelim = applyFieldDelim;
-        DSPreview.__testOnly__.applyLineDelim = applyLineDelim;
-        DSPreview.__testOnly__.applyQuote = applyQuote;
-        DSPreview.__testOnly__.toggleFormat = toggleFormat;
-        DSPreview.__testOnly__.isUseUDF = isUseUDF;
-        DSPreview.__testOnly__.isUseUDFWithFunc = isUseUDFWithFunc;
-        DSPreview.__testOnly__.selectUDFModule = selectUDFModule;
-        DSPreview.__testOnly__.selectUDFFunc = selectUDFFunc;
-
-        DSPreview.__testOnly__.validateUDFModule = validateUDFModule;
-        DSPreview.__testOnly__.validateUDFFunc = validateUDFFunc;
-        DSPreview.__testOnly__.resetUdfSection = resetUdfSection;
-        DSPreview.__testOnly__.listUDFSection = listUDFSection;
-
-        DSPreview.__testOnly__.slowPreviewCheck = slowPreviewCheck;
-        DSPreview.__testOnly__.autoDetectSourceHeaderTypes = autoDetectSourceHeaderTypes;
-        DSPreview.__testOnly__.getTypedColumnsList = getTypedColumnsList;
-
-        DSPreview.__testOnly__.getTerminationOptions = getTerminationOptions;
-        DSPreview.__testOnly__.validatePreview = validatePreview;
-        DSPreview.__testOnly__.validateForm = validateForm;
-        DSPreview.__testOnly__.submitForm = submitForm;
-        DSPreview.__testOnly__.getParquetInfo = getParquetInfo;
-        DSPreview.__testOnly__.initParquetForm = initParquetForm;
-        DSPreview.__testOnly__.errorHandler = errorHandler;
-        DSPreview.__testOnly__.previewData = previewData;
-        DSPreview.__testOnly__.importDataHelper = importDataHelper;
-
-        DSPreview.__testOnly__.componentXmlFormat = () => componentXmlFormat;
-
-        DSPreview.__testOnly__.get = function() {
+    export let __testOnly__: any = {};
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__ = {};
+        __testOnly__.getPreviewTable = getPreviewTable;
+        __testOnly__.parseTdHelper = parseTdHelper;
+        __testOnly__.getTbodyHTML = getTbodyHTML;
+        __testOnly__.getTheadHTML = getTheadHTML;
+        __testOnly__.getPreviewTableName = getPreviewTableName;
+        __testOnly__.highlightHelper = highlightHelper;
+        __testOnly__.toggleHeader = toggleHeader;
+        __testOnly__.detectFormat = detectFormat;
+        __testOnly__.detectHeader = detectHeader;
+        __testOnly__.detectExcelHeader = detectExcelHeader;
+        __testOnly__.applyHighlight = applyHighlight;
+        __testOnly__.clearPreviewTable = clearPreviewTable;
+        __testOnly__.getDataFromLoadUDF = getDataFromLoadUDF;
+        __testOnly__.getURLToPreview = getURLToPreview;
+        __testOnly__.loadDataWithUDF = loadDataWithUDF;
+        __testOnly__.invalidHeaderDetection = invalidHeaderDetection;
+        __testOnly__.checkBulkDuplicateNames = checkBulkDuplicateNames;
+        __testOnly__.changePreviewFile = changePreviewFile;
+        __testOnly__.resetForm = resetForm;
+        __testOnly__.restoreForm = restoreForm;
+        __testOnly__.getNameFromPath = getNameFromPath;
+        __testOnly__.getSkipRows = getSkipRows;
+        __testOnly__.applyFieldDelim = applyFieldDelim;
+        __testOnly__.applyLineDelim = applyLineDelim;
+        __testOnly__.applyQuote = applyQuote;
+        __testOnly__.toggleFormat = toggleFormat;
+        __testOnly__.isUseUDF = isUseUDF;
+        __testOnly__.isUseUDFWithFunc = isUseUDFWithFunc;
+        __testOnly__.selectUDFModule = selectUDFModule;
+        __testOnly__.selectUDFFunc = selectUDFFunc;
+        __testOnly__.validateUDFModule = validateUDFModule;
+        __testOnly__.validateUDFFunc = validateUDFFunc;
+        __testOnly__.resetUdfSection = resetUdfSection;
+        __testOnly__.listUDFSection = listUDFSection;
+        __testOnly__.slowPreviewCheck = slowPreviewCheck;
+        __testOnly__.autoDetectSourceHeaderTypes = autoDetectSourceHeaderTypes;
+        __testOnly__.getTypedColumnsList = getTypedColumnsList;
+        __testOnly__.getTerminationOptions = getTerminationOptions;
+        __testOnly__.validatePreview = validatePreview;
+        __testOnly__.validateForm = validateForm;
+        __testOnly__.submitForm = submitForm;
+        __testOnly__.getParquetInfo = getParquetInfo;
+        __testOnly__.initParquetForm = initParquetForm;
+        __testOnly__.errorHandler = errorHandler;
+        __testOnly__.previewData = previewData;
+        __testOnly__.importDataHelper = importDataHelper;
+        __testOnly__.componentXmlFormat = () => componentXmlFormat;
+        __testOnly__.get = function() {
             return {
                 "loadArgs": loadArgs,
                 "highlighter": highlighter,
@@ -6306,28 +6455,26 @@ window.DSPreview = (function($, DSPreview) {
             };
         };
 
-        DSPreview.__testOnly__.set = function(newData, newHighlight) {
+        __testOnly__.set = function(newData, newHighlight) {
             highlighter = newHighlight || "";
             rawData = newData || null;
         };
 
-        DSPreview.__testOnly__.setBackToFormCard = function(flag) {
+        __testOnly__.setBackToFormCard = function(flag) {
             backToFormCard = flag;
         };
 
         var oldIsCreateTableMode;
-        DSPreview.__testOnly__.setIsCreateTableMode = function(flag) {
+        __testOnly__.setIsCreateTableMode = function(flag) {
             oldIsCreateTableMode = isCreateTableMode;
-            isCreateTableMode = function() {
+            DSPreview.isCreateTableMode = function() {
                 return flag;
             };
         }
 
-        DSPreview.__testOnly__.resetIsCreateTableMode = function() {
-            isCreateTableMode = oldIsCreateTableMode;
+        __testOnly__.resetIsCreateTableMode = function() {
+            DSPreview.isCreateTableMode = oldIsCreateTableMode;
         };
     }
     /* End Of Unit Test Only */
-
-    return (DSPreview);
-}(jQuery, {}));
+}

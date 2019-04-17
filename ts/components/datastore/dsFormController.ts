@@ -4,13 +4,20 @@ interface DSPreviewingSource {
 }
 // dsPreview.js
 class DSFormController {
-    private files: object[];
+    public files: {
+        path: string,
+        dsToReplace: string,
+        autoCSV: boolean,
+        isFolder: boolean,
+        fileNamePattern: string,
+        recursive: boolean
+    }[];
     private previewSet: object;
-    private headersList: object[];
-    private originalHeadersList: object[];
-    private suggestHeadersList: object[];
-    private targetName: string;
-    private multiDS: boolean;
+    public headersList: {colType: string, colName: string}[][];
+    private originalHeadersList: {colType: string, colName: string}[][];
+    private suggestHeadersList: {colType: string, colName: string}[][];
+    public targetName: string;
+    public multiDS: boolean;
     private format: string;
     private fieldDelim: string;
     private lineDelim: string;
@@ -162,19 +169,19 @@ class DSFormController {
         return this.multiDS ? index : 0;
     }
 
-    public setPreviewHeaders(index: number, headers: object[]) {
+    public setPreviewHeaders(index: number, headers: {colType: string, colName: string}[]) {
         index = this._getPreviewHeadersIndex(index);
         if (headers instanceof Array && headers.length > 0) {
             this.headersList[index] = headers;
         }
     }
 
-    public getPreviewHeaders(index: number): object {
+    public getPreviewHeaders(index: number): any {
         index = this._getPreviewHeadersIndex(index);
         return this.headersList[index];
     }
 
-    public setOriginalHeaders(headers: object[]): void {
+    public setOriginalHeaders(headers: {colType: string, colName: string}[]): void {
         let index: number = this.getPreivewIndex();
         if (index != null) {
             index = this._getPreviewHeadersIndex(index);
@@ -182,7 +189,7 @@ class DSFormController {
         }
     }
 
-    public getOriginalHeaders(index: number): object {
+    public getOriginalHeaders(index: number): {colType: string, colName: string}[] {
         index = this._getPreviewHeadersIndex(index);
         return this.originalHeadersList[index] || [];
     }
@@ -192,7 +199,7 @@ class DSFormController {
         colNames: string[],
         colTypes: string[]
     ): void {
-        const colInfos: object[] = colNames.map(function(colName, index) {
+        const colInfos: {colType: string, colName: string}[] = colNames.map(function(colName, index) {
             return {
                 colName: colName,
                 colType: colTypes[index]
@@ -202,7 +209,7 @@ class DSFormController {
         this.suggestHeadersList[index] = colInfos;
     }
 
-    public getSuggestHeaders(index: number): object {
+    public getSuggestHeaders(index: number): {colType: string, colName: string}[] {
         index = this._getPreviewHeadersIndex(index);
         return this.suggestHeadersList[index];
     }

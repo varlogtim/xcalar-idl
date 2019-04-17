@@ -23,6 +23,7 @@ namespace Alert {
         expired?: boolean; // expire license case
         logout?: boolean; // want user to logout case
         msgTemplate?: string; // can include html tags
+        buttons?: AlertButton[]; // buttons to show instead of confirm button
     }
 
     export interface AlertOptions extends BasicAlertOptions {
@@ -33,7 +34,6 @@ namespace Alert {
         detail?: string; // detail of the error/message
         isAlert?: boolean; // if it is an alert or a confirm
         isCheckBox?: boolean; // if checkbox is enabled or disabled
-        buttons?: AlertButton[]; // buttons to show instead of confirm button
         hideButtons?: string[]; // array of button class names to hide, values can be: logout, downloadLog, or cancel
     }
 

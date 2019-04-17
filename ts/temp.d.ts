@@ -729,7 +729,10 @@ declare enum StatusT {
     StatusRetinaNotFound,
     StatusDatasetAlreadyDeleted,
     StatusDsDatasetInUse,
-    StatusNsNotFound
+    StatusNsNotFound,
+    StatusNoEnt,
+    StatusIsDir,
+    StatusAllFilesEmpty
 }
 
 declare enum FunctionCategoryT {
@@ -950,6 +953,8 @@ declare namespace DSForm {
     export function setup(): void;
     export function hide(): void;
     export function show(createTableMode: boolean): void;
+    export function switchView(view: string);
+    export var View: any;
 }
 
 declare namespace Profile {
@@ -998,12 +1003,6 @@ declare namespace xcMixpanel {
     export function setup(): void;
 }
 
-declare namespace DSPreview {
-    export function update(ListXdfsObj: any);
-    export function switchMode(): void;
-    export function show(options: any, lastPath: string, restore: boolean);
-}
-
 declare namespace DSTargetManager {
     export function setup(): void;
     export function getTargetTypeList(): XDPromise<void>;
@@ -1012,6 +1011,10 @@ declare namespace DSTargetManager {
     export function getAllTargets(): object[];
     export function refreshTargets(noWaitIcon: boolean): object[];
     export function updateUDF(listXdfsObj: any);
+    export function isSlowPreviewTarget(targetName: string): boolean;
+    export function isSparkParquet(targetName: string): boolean;
+    export function isGeneratedTarget(targetName: string): boolean;
+    export function isDatabaseTarget(targetName: string): boolean;
 }
 
 declare namespace JSONModal {
@@ -1028,6 +1031,8 @@ declare namespace AggModal {
 declare namespace FileBrowser {
     export function restore(): void;
     export function close(): void;
+    export function show(targetName: string, path: string, flag: boolean);
+    export function clear(): void
 }
 
 declare namespace ExtensionManager {
