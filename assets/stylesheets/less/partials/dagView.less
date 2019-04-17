@@ -1165,6 +1165,8 @@
             .noSelection;
             .textOverflow;
             cursor: pointer;
+            position: relative;
+            padding-left: 15px;
 
             &:last-child {
                 border-right: none;
@@ -1172,15 +1174,19 @@
 
             &:hover {
                 box-shadow: inset 0 2px 0 0 @color-border-select-blue;
-                .dragIcon {
+                .dragArea {
                     visibility: visible;
                 }
             }
 
             &.ui-sortable-helper {
-                .dragIcon {
+                .dragArea {
                     visibility: visible;
                     pointer-events: none;
+                }
+
+                .after {
+                    margin-left: 8px;
                 }
             }
 
@@ -1207,16 +1213,24 @@
                 background-color: @color-dagTab-custom;
             }
 
-            .dragIcon {
+            .dragArea {
                 display: block;
                 padding: 0px;
                 float: left;
-                width: 12px;
-                text-align: center;
-                font-size: 10px;
-                line-height: @tabHeight;
-                .cursor-move;
                 visibility: hidden;
+                position: absolute;
+                width: 100%;
+                left: 3px;
+
+                .icon {
+                    padding: 0px;
+                    float: left;
+                    width: 12px;
+                    text-align: center;
+                    font-size: 10px;
+                    line-height: @tabHeight;
+                    .cursor-move;
+                }
             }
 
             .tabIcon {

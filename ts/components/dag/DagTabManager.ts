@@ -775,7 +775,9 @@ class DagTabManager {
         }
         let html: HTML =
             '<li class="dagTab' + extraClass + '" data-id="' + tabId +'">' +
-                '<i class="icon xi-ellipsis-v dragIcon" ' + xcTooltip.Attrs+ ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
+                '<div class="dragArea">' +
+                    '<i class="icon xi-ellipsis-v" ' + xcTooltip.Attrs+ ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
+                '</div>' +
                 extraIcon +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
                     tabName +
@@ -890,8 +892,9 @@ class DagTabManager {
             DagViewManager.Instance.createSQLFunc(false);
         });
 
-        $dagTabArea.on("dblclick", ".name", (event) => {
-            let $tab_name: JQuery = $(event.currentTarget);
+        $dagTabArea.on("dblclick", ".dragArea", (event) => {
+            let $dragArea: JQuery = $(event.currentTarget);
+            let $tab_name: JQuery = $dragArea.next();
             if ($tab_name.hasClass('nonedit')) {
                 return;
             }
@@ -947,14 +950,11 @@ class DagTabManager {
             this._tabListScroller.showOrHideScrollers();
         });
 
-        // dragIcon must be used instead of allowing drag on the whole tab because
-        // jquery sortable prevents default behavior on all children so the
-        // editable name div wouldn't work properly
         let initialIndex;
         $dagTabArea.sortable({
             revert: 300,
             axis: "x",
-            handle: ".dragIcon",
+            handle: ".dragArea",
             distance: 5,
             forcePlaceholderSize: true,
             placeholder: "sortablePlaceholder",

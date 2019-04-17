@@ -1384,7 +1384,7 @@ window.FlightTest = (function(FlightTest, $) {
         // XXX TODO not sure why but run in sync way sometimes fail to rename
         // maybe related to the slowness of event propogation
         const deferred = PromiseHelper.deferred();
-        $tab.find(".name").dblclick();
+        $tab.find(".dragArea").dblclick();
         dealyPromise(500)
         .then(() => {
             $tab.find(".xc-input").text(newName);
