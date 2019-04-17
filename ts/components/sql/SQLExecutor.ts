@@ -42,3 +42,7 @@ class SQLExecutor {
         return deferred.promise();
     }
 }
+
+if (typeof exports !== "undefined") {
+    exports.SQLExecutor = SQLExecutor;
+}

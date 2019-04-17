@@ -292,8 +292,15 @@ class SQLGroupBy {
                 if (gArray[i].operator === "first" || gArray[i].operator === "last") {
                     node.usrCols.concat(node.xcCols).forEach(function(col) {
                         if (SQLCompiler.getCurrentName(col) === gArray[i].aggColName) {
-                            const index = windowStruct[gArray[i].operator]
-                                                    .aggCols.indexOf(col);
+                            let index = -1;
+                            for (const j in windowStruct[gArray[i].operator].aggCols) {
+                                if (windowStruct[gArray[i].operator]
+                                    .aggCols[j].colStruct
+                                    && windowStruct[gArray[i].operator]
+                                    .aggCols[j].colStruct=== col) {
+                                    index = Number(j);
+                                }
+                            }
                             if (index != -1) {
                                 gArray[i].aggColName = windowStruct[gArray[i]
                                         .operator].newCols[index].colName;
@@ -306,16 +313,15 @@ class SQLGroupBy {
                                 }
                                 colNames.add(tempColName);
                                 windowStruct[gArray[i].operator].newCols.push(
-                                {colName: tempColName,
-                                 colType: gArray[i].colType});
-                                windowStruct[gArray[i].operator].aggCols.push(col);
-                                windowStruct[gArray[i].operator].aggTypes.push(undefined);
+                                                {colName: tempColName,
+                                                 colType: gArray[i].colType});
+                                windowStruct[gArray[i].operator].aggCols.push(
+                                                {colStruct: col, argType: null});
                                 windowStruct[gArray[i].operator].ignoreNulls
                                                 .push(gArray[i].arguments[0]);
                                 gArray[i].aggColName = tempColName;
                                 windowTempCols.push(tempColName);
                             }
-                            return false;
                         }
                     })
                     gArray[i].operator = "max";

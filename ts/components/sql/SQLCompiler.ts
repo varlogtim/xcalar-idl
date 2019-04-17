@@ -419,14 +419,14 @@ class SQLCompiler {
                 SQLUtil.assert(node.children.length === 1,
                             SQLErrTStr.DateTimeOneChild + node.children.length);
                 const lookUpDict = {
-                    "expressions.Year": "Y",
-                    "expressions.Quarter": "Q",
-                    "expressions.Month": "M",
-                    "expressions.DayOfWeek": "W",
-                    "expressions.DayOfMonth": "D",
-                    "expressions.Hour": "H",
-                    "expressions.Minute": "M",
-                    "expressions.Second": "S"
+                    "Year": "Y",
+                    "Quarter": "Q",
+                    "Month": "M",
+                    "DayOfWeek": "W",
+                    "DayOfMonth": "D",
+                    "Hour": "H",
+                    "Minute": "M",
+                    "Second": "S"
                 };
                 const argNode = TreeNodeFactory.
                                        getLiteralStringNode(lookUpDict[opName]);

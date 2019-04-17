@@ -33,7 +33,7 @@ namespace ColManager {
         colName: string,
         backColName: string,
         type: ColumnType,
-        defaultWidth: boolean
+        defaultWidth?: boolean
     ): ProgCol {
         if (backColName == null) {
             backColName = colName;

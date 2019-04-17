@@ -922,7 +922,7 @@ function executeSql(params, type) {
         return sendToPlanner(tablePrefix, requestStruct, params.userName, params.sessionName)
     })
     .then(function() {
-        if (compilerObject.getStatus() === SQLStatus.Cancelled) {
+        if (sqlQueryObj.status === SQLStatus.Cancelled) {
             // Query is done already
             return PromiseHelper.reject(SQLErrTStr.Cancel);
         }
