@@ -22,7 +22,7 @@ class ColMenu extends AbstractMenu {
         }
         let $lis: JQuery = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                 ".join, .map, .operations, .profile, .corrAgg, " +
-                ".extensions, .changeDataType, .format, .roundToFixed, " +
+                ".extensions, .changeDataType, .format, .roundToFixed, .round," +
                 ".project, .set, .splitCol");
         $lis.removeClass("unavailable");
         $lis.removeClass("xc-hidden");
@@ -35,7 +35,7 @@ class ColMenu extends AbstractMenu {
         } else if (colType === ColumnType.object || colType === ColumnType.array) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, .join, " +
                 ".map, .operations, .profile, .corrAgg, .extensions, " +
-                ".changeDataType, .format, .roundToFixed, .set");
+                ".changeDataType, .format, .roundToFixed, .round, .set");
             $lis.addClass("unavailable");
             if (colType === ColumnType.object) {
                 xcTooltip.add($lis, {
@@ -49,7 +49,7 @@ class ColMenu extends AbstractMenu {
         } else if (isNewCol) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                 ".join, .operations, .profile, .corrAgg, .extensions, " +
-                ".changeDataType, .format, .roundToFixed, .project, .set");
+                ".changeDataType, .format, .roundToFixed, .round, .project, .set");
             $lis.addClass("unavailable");
             xcTooltip.add($lis, {
                 title: ErrTStr.InvalidOpNewColumn
@@ -57,7 +57,7 @@ class ColMenu extends AbstractMenu {
         } else if (colType === ColumnType.mixed) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                 ".join, .operations, .profile, .corrAgg, " +
-                ".roundToFixed");
+                ".roundToFixed, .round");
             $lis.addClass("unavailable");
             xcTooltip.add($lis, {
                 title: ColTStr.NoOperateGeneral
@@ -65,7 +65,7 @@ class ColMenu extends AbstractMenu {
         }  else if (colType === ColumnType.undefined || colType == null) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .operations, .profile, .corrAgg, " +
-                    ".extensions, .format, .roundToFixed, " +
+                    ".extensions, .format, .roundToFixed, .round, " +
                     ".project, .set");
             $lis.addClass("unavailable");
             xcTooltip.add($lis, {
@@ -81,10 +81,11 @@ class ColMenu extends AbstractMenu {
             });
         }
 
+        const $roundLi = $menu.find('.round');
         if (colType === ColumnType.float) {
-            $menu.find('.round').removeClass('unavailable');
+            $roundLi.removeClass('unavailable');
+            xcTooltip.remove($roundLi);
         } else {
-            const $roundLi = $menu.find('.round');
             $roundLi.addClass('unavailable');
             xcTooltip.add($roundLi, {
                 title: ColTStr.NoOperateGeneral
