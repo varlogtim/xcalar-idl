@@ -1137,7 +1137,6 @@ class DagView {
 
         const node: DagNode = this.graph.newNode(nodeInfo);
         this._addNodeNoPersist(node);
-        DagNodeInfoPanel.Instance.show(node);
 
         this.dagTab.turnOnSave();
         this.dagTab.save();
@@ -4620,6 +4619,7 @@ class DagView {
         const nodeId = node.getId();
         const $node = this._drawNode(node);
         DagView.selectNode($node);
+        DagNodeInfoPanel.Instance.show(node);
         this._setGraphDimensions(xcHelper.deepCopy(node.getPosition()))
 
         const logParam: LogParam = {
