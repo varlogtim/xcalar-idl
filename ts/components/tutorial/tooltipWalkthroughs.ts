@@ -1,5 +1,8 @@
 namespace TooltipWalkthroughs {
 
+    let SQLModeName = "SQL Mode";
+    let ADVModeName = "Advanced Mode";
+
     // XXX TODO: add something that enters a workbook if not in one.
 
     export function SQLModeWalkthrough(): void {
@@ -77,4 +80,36 @@ namespace TooltipWalkthroughs {
         );
     }
 
+    /**
+     * Returns a list of available walkthroughs in {name, description} objects.
+     */
+    export function getAvailableWalkthroughs(): {name: string, description: string}[] {
+        // XXX TODO: Integrate with tutorial workbooks
+        let builtInWalkthroughs = [{
+            name: SQLModeName,
+            description: "Tour of the SQL Mode UI"
+        }, {
+            name: ADVModeName,
+            description: "Tour of the Advanced Mode UI"
+        }];
+        return builtInWalkthroughs;
+    }
+
+    /**
+     * Given a walkthrough name, starts the corresponding walkthrough.
+     * @param name 
+     */
+    export function startWalkthrough(name: string) {
+        switch(name) {
+            case (SQLModeName):
+                SQLModeWalkthrough();
+                break;
+            case (ADVModeName):
+                AdvModeWalkthrough();
+                break;
+            default:
+                // XXX TODO: Case for tutorial walkthrough
+                break;
+        }
+    }
 }

@@ -1200,7 +1200,7 @@ module.exports = {
         "noActive": "No active worksheets. Please create one first.",
         "learnMore": "Learn more about " + bldVars.prodName,
         "relatedDocs": "Related Help Docs",
-        "stepTour": "Step-by-Step Tour",
+        "walkthroughs": "Available Walkthroughs",
         "Docs": "Help Docs",
         "tuts": "Tutorials",
         "viewNewHelpDoc": "View our help documentation",
