@@ -86,14 +86,15 @@ abstract class AbstractMenu {
             // toggle hot keys
             event.preventDefault();
             if ($menu.hasClass("showingHotKeys")) {
-                this._removeHotKeys($menu);
+                this._hideHotKeys($menu);
             } else {
-                this._addHotKeys($menu);
+                this._showHotKeys($menu);
             }
         }
 
         if (letter && this.menuMap.has(letter)) {
             const menuAction: string = this.menuMap.get(letter);
+
             const $li: JQuery = $menu.find("." + menuAction +
                             ":visible:not('.unavailable')").eq(0);
             if (!$li.length) {
@@ -108,7 +109,7 @@ abstract class AbstractMenu {
         }
     }
 
-    private _addHotKeys($menu: JQuery): void {
+    private _showHotKeys($menu: JQuery): void {
         for (let [letter, menuAction] of this.menuMap) {
             const $labels: JQuery = $menu.find("." + menuAction).find(".label");
             $labels.each(function() {
@@ -130,7 +131,7 @@ abstract class AbstractMenu {
         $menu.addClass("showingHotKeys");
     };
 
-    private _removeHotKeys($menu: JQuery): void {
+    private _hideHotKeys($menu: JQuery): void {
         for (let menuAction of this.menuMap.values()) {
             const $labels: JQuery = $menu.find("." + menuAction).find(".label");
             $labels.each(function() {

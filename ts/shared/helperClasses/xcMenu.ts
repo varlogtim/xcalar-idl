@@ -339,9 +339,10 @@ namespace xcMenu {
         const menuId: string = $menu.attr("id");
         if (menuId && hotKeyFns.has(menuId)) {
             $(document).on("keydown.menuHotKeys", function(event) {
-                if ((isSystemMac && event.metaKey) ||
-                    (!isSystemMac && event.ctrlKey))
+                if (((isSystemMac && event.metaKey) ||
+                    (!isSystemMac && event.ctrlKey)) && letterCode[event.which] !== "c")
                 {
+                    // allow ctrl+c to pass so it can trigger the "copy" menu item
                     return;
                 }
                 if ($("input:focus").length) {
