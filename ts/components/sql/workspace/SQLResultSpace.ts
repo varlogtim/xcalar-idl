@@ -137,4 +137,12 @@ class SQLResultSpace {
     public getAvailableTables(): PbTblInfo[] {
         return this._tableLister.getAvailableTables();
     }
+
+    /**
+     * SQLResultSpace.Instance.getShownResultID
+     * returns the ID of the table being shown, or null if none
+     */
+    public getShownResultID(): string {
+        return this._sqlTable.getTable();
+    }
 }

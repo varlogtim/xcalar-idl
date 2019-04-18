@@ -3,6 +3,7 @@ class DagTblManager {
     private cache: {[key: string]: DagTblCacheInfo};
     private _kvStore: KVStore;
     private timer: number;
+    private timerDisabled: boolean;
     // The interval determines how fast tables are deleted, locked, or reset.
     // A lower interval will cause more kvstore interactions but will keep the cache as up-to-date
     // as possible. A low interval can be compensated with a higher clockLimit.
@@ -22,6 +23,7 @@ class DagTblManager {
         this.cache = {};
         this.interval = 30000;
         this.configured = false;
+        this.timerDisabled = false;
     }
 
     public setup(): XDPromise<void> {
@@ -43,7 +45,7 @@ class DagTblManager {
         })
         .then((res: XcalarApiListDagNodesOutputT) => {
                 this._synchWithBackend(res);
-                this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
+                this.setSweepInterval(this.interval);
                 this.configured = true;
                 deferred.resolve();
         })
@@ -62,12 +64,20 @@ class DagTblManager {
      * @param interval Number of milliseconds before each sweep happens
      */
     public setSweepInterval(interval: number): void {
-        if (!this.configured) {
+        if (!this.configured || this.timerDisabled) {
             return;
         }
         this.interval = interval;
         window.clearInterval(this.timer);
         this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
+    }
+
+    /**
+     * Disables the sweep timer. Do not do this unless you are totally sure about it.
+     */
+    public disableTimer(): void {
+        this.timerDisabled = true;
+        window.clearInterval(this.timer);
     }
 
     /**
@@ -119,6 +129,7 @@ class DagTblManager {
             let jsonStr = JSON.stringify(this.cache);
             return this._kvStore.put(jsonStr, true, true);
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
         return deferred.promise();
     }
@@ -257,7 +268,7 @@ class DagTblManager {
             return this._kvStore.put(jsonStr, true, true);
         })
         .then(() => {
-            this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
+            this.setSweepInterval(this.interval);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -292,7 +303,7 @@ class DagTblManager {
             return this._kvStore.put(jsonStr, true, true);
         })
         .then(() => {
-            this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
+            this.setSweepInterval(this.interval);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -321,7 +332,7 @@ class DagTblManager {
             return this._kvStore.put(jsonStr, true, true)
         })
         .then(() => {
-            this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
+            this.setSweepInterval(this.interval);
             deferred.resolve;
         })
         .fail(deferred.reject);
@@ -331,6 +342,13 @@ class DagTblManager {
     // Tells us if table "table" is safe to delete.
     private _safeToDeleteTable(table: string): boolean {
         const self = DagTblManager.Instance;
+        // Mode doesnt matter, an advanced dataflow can run while in sql mode.
+        // First, check if it's open as a table in SQL Mode
+        if (table == SQLResultSpace.Instance.getShownResultID()) {
+            return false;
+        }
+
+        // Otherwise, we see if it's part of an active graph.
         const graph: DagGraph = DagViewManager.Instance.getActiveDag();
         if (graph == null) {
             // We havent opened advanced mode yet, or it doesnt have an active graph.
@@ -355,6 +373,20 @@ class DagTblManager {
         if (dagNodeID == "") {
             return true;
         }
+        if (table.includes(".sql")) {
+            // We check if this is a running sql subgraph or not.
+            if (graph.getTabId() == dagNodeID) {
+                // The active dag graph is a currently executing sql graph.
+                // Since we can assume drop as you go, we must be keeping this
+                // for later execution.
+                return false;
+            } else {
+                // This sql node has been executed and is an old result set.
+                // It's safe to delete.
+                return true;
+            }
+        }
+
         let node: DagNode;
         node = graph.getNode(dagNodeID);
         if (!node) {
@@ -431,7 +463,7 @@ class DagTblManager {
             return this._kvStore.put(jsonStr, true, true);
         })
         .then(() => {
-            this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
+            this.setSweepInterval(this.interval);
             deferred.resolve();
         })
         .fail(deferred.reject);

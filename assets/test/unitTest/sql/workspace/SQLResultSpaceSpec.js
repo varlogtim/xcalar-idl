@@ -35,7 +35,8 @@ describe("SQLResultSpace Test", function() {
         
             sqlResultSpace._sqlTable = {
                 show: () => {},
-                close: () => {}
+                close: () => {},
+                getTable: () => {return "test1";},
             };
 
             sqlResultSpace._sqlTableSchema = {
@@ -94,6 +95,11 @@ describe("SQLResultSpace Test", function() {
             sqlResultSpace._sqlDataflowPreview.show = () => {};
         });
 
+        it("should get the correct ID", function() {
+            let id = sqlResultSpace.getShownResultID();
+            expect(id).to.equal("test1");
+        });
+
         after(function() {
             sqlResultSpace._sqlTable = oldSQLTable;
             sqlResultSpace._sqlTableSchema = oldSQLSchema;
@@ -106,4 +112,5 @@ describe("SQLResultSpace Test", function() {
         let res = sqlResultSpace.getAvailableTables();
         expect(res).to.be.an("array");
     });
+
 });
