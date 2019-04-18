@@ -2174,6 +2174,7 @@ table.datasetTable {
             display: none;
         }
 
+        // XXX TODO: make it generic
         &.type-boolean .type-boolean .xi-tick {
             display: block;
         }
@@ -2184,6 +2185,12 @@ table.datasetTable {
             display: block;
         }
         &.type-string .type-string .xi-tick {
+            display: block;
+        }
+        &.type-timestamp .type-timestamp .xi-tick {
+            display: block;
+        }
+        &.type-money .type-money .xi-tick {
             display: block;
         }
     }

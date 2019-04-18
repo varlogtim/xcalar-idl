@@ -272,8 +272,9 @@ namespace DSPreview {
         $previewTable.on("click", ".flex-left", function() {
             let $dropdown = $previewCard.find(".castDropdown");
             $dropdown.data('th', $(this).closest("th"));
-            $dropdown.removeClass("type-string type-boolean " +
-                                  "type-integer type-float");
+            let types: ColumnType[] = BaseOpPanel.getBasicColTypes();
+            let typesStr = types.map((type) => `type-${type}`).join(" ");
+            $dropdown.removeClass(typesStr);
             $dropdown.addClass("type-" + $(this).closest("th").data("type"));
             $(this).addClass("selected");
             positionAndShowCastDropdown($(this));
@@ -285,9 +286,11 @@ namespace DSPreview {
             }
             let type: string = $(this).data("type");
             let $th = $previewCard.find(".castDropdown").data("th");
-            $th.find(".header").removeClass("type-string type-boolean " +
-                                            "type-integer type-float");
-            $th.find(".header").addClass("type-" + type);
+            let types: ColumnType[] = BaseOpPanel.getBasicColTypes();
+            let typesStr = types.map((type) => `type-${type}`).join(" ");
+            let $header: JQuery = $th.find(".header");
+            $header.removeClass(typesStr);
+            $header.addClass("type-" + type);
             $th.data("type", type);
             xcTooltip.changeText($th.find(".flex-left"),
                                     xcStringHelper.capitalize(type) +
