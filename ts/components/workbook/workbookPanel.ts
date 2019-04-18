@@ -462,24 +462,14 @@ namespace WorkbookPanel {
 
         // Delete button
         $wkbkMenu.on("click", ".delete", function() {
-            Alert.show({
-                "title": WKBKTStr.Delete,
-                "msg": WKBKTStr.DeleteMsg,
-                "onConfirm": function() {
-                    deleteWorkbookHelper($dropDownCard);
-                }
-            });
+            let workbookId: string = $dropDownCard.attr("data-workbook-id");
+            _deleteWorkbook(workbookId);
         });
 
         // deactivate button
         $wkbkMenu.on("click", ".deactivate", function() {
-            Alert.show({
-                "title": WKBKTStr.Deactivate,
-                "msg": WKBKTStr.DeactivateMsg,
-                "onConfirm": function() {
-                    deactiveWorkbook($dropDownCard);
-                }
-            });
+            let workbookId: string = $dropDownCard.attr("data-workbook-id");
+            _deactivateWorkbook(workbookId);
         });
 
         $wkbkMenu.on("click", ".newTab", function() {
@@ -501,7 +491,7 @@ namespace WorkbookPanel {
 
         $workbookSection.on("mouseenter", ".tooltipOverflow", function() {
             const $div: JQuery = $(this).find(".workbookName");
-            xcTooltip.auto(this, $div[0]);
+            xcTooltip.auto(this, <HTMLElement>$div[0]);
         });
     }
 
@@ -819,8 +809,26 @@ namespace WorkbookPanel {
         return deferred.promise();
     }
 
-    function deleteWorkbookHelper($workbookBox: JQuery): void {
-        const workbookId: string = $workbookBox.attr("data-workbook-id");
+    function _deleteWorkbook(workbookId: string): void {
+        let workbook = WorkbookManager.getWorkbook(workbookId);
+        if (workbook == null) {
+            // error case
+            return;
+        }
+        let msg: string = xcStringHelper.replaceMsg(WKBKTStr.DeleteMsg, {
+            name: workbook.getName()
+        });
+        Alert.show({
+            "title": WKBKTStr.Delete,
+            "msg": msg,
+            "onConfirm": () => {
+                deleteWorkbookHelper(workbookId);
+            }
+        });
+    }
+
+    function deleteWorkbookHelper(workbookId: string): void {
+        let $workbookBox = getWorkbookBoxById(workbookId);
         WorkbookManager.deleteWKBK(workbookId)
         .then(function() {
             removeWorkbookBox($workbookBox);
@@ -896,9 +904,27 @@ namespace WorkbookPanel {
         });
     }
 
-    function deactiveWorkbook($workbookBox: JQuery): void {
-        const workbookId: string = $workbookBox.attr("data-workbook-id");
-        const isActiveWkbk: boolean = WorkbookManager.getActiveWKBK() === workbookId;
+    function _deactivateWorkbook(workbookId: string): void {
+        let workbook = WorkbookManager.getWorkbook(workbookId);
+        if (workbook == null) {
+            // error case
+            return;
+        }
+        let msg: string = xcStringHelper.replaceMsg(WKBKTStr.DeactivateMsg, {
+            name: workbook.getName()
+        });
+        Alert.show({
+            "title": WKBKTStr.Deactivate,
+            "msg": msg,
+            "onConfirm": function() {
+                deactivateWorkbookHelper(workbookId);
+            }
+        });
+    }
+
+    function deactivateWorkbookHelper(workbookId: string): void {
+        let $workbookBox: JQuery = getWorkbookBoxById(workbookId);
+        let isActiveWkbk: boolean = WorkbookManager.getActiveWKBK() === workbookId;
         WorkbookManager.deactivate(workbookId)
         .then(function() {
             updateWorkbookInfoWithReplace($workbookBox, workbookId);

@@ -56,7 +56,7 @@ interface UserPrefDurable {
 }
 
 interface WKBKDurable {
-    version: number;
+    version?: number;
     name: string;
     id: string;
     created?: number;
