@@ -194,6 +194,47 @@ class SQLEditorSpace {
         }
     }
 
+    private _dropTable(tableName: string, queryString: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const historyObj =  {
+            queryId: xcHelper.randName("sql", 8) + Date.now(),
+            status: SQLStatus.Running,
+            queryString: queryString,
+            startTime: new Date()
+        }
+        let found = false;
+        let tableInfos: PbTblInfo[] = PTblManager.Instance.getTables();
+        for (let i = 0; i < tableInfos.length; i++) {
+            if (tableInfos[i].name === tableName) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            // Table not found
+            historyObj["status"] = SQLStatus.Failed;
+            historyObj["errorMsg"] = "Table not found: " + tableName;
+            SQLHistorySpace.Instance.update(historyObj);
+            return PromiseHelper.resolve();
+        }
+        SQLHistorySpace.Instance.update(historyObj);
+        PTblManager.Instance.deleteTablesOnConfirm([tableName])
+        .then(() => {
+            historyObj["status"] = SQLStatus.Done;
+            historyObj["endTime"] = new Date();
+        })
+        .fail((error) => {
+            historyObj["status"] = SQLStatus.Failed;
+            historyObj["errorMsg"] = error;
+        })
+        .always(() => {
+            SQLHistorySpace.Instance.update(historyObj);
+            // always resolve
+            deferred.resolve();
+        });
+        return deferred.promise();
+    }
+
     private _executeSQL(sqls: string): void {
         if (!sqls || !sqls.trim()) return;
         try {
@@ -217,7 +258,11 @@ class SQLEditorSpace {
                     sqlStructArray[0].sql = sqlStructArray[0].newSql = sqls;
                 }
                 for (let sqlStruct of sqlStructArray) {
-                    if (sqlStruct.command.type != "select") {
+                    if (sqlStruct.command.type === "dropTable") {
+                        const tableName: string = sqlStruct.command.args[0];
+                        executePromiseArray.push(this._dropTable.bind(this,
+                                                     tableName, sqlStruct.sql));
+                    } else if (sqlStruct.command.type != "select") {
                         lastShow = sqlStruct.command;
                     } else if (sqlStruct.nonQuery) {
                         return PromiseHelper.reject(SQLErrTStr.NoSupport + sqlStruct.sql);
@@ -263,7 +308,10 @@ class SQLEditorSpace {
                 return PromiseHelper.when.apply(this, compilePromiseArray);
             })
             .then(() => {
-                PromiseHelper.chain(executePromiseArray);
+                PromiseHelper.chain(executePromiseArray)
+                .then(() => {
+                    SQLResultSpace.Instance.refreshTables();
+                });
             })
             .fail((e) => {
                 let error: string;

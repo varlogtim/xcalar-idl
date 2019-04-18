@@ -500,28 +500,43 @@ class PTblManager {
                 "tableName": tableNames.join(", ")
             }),
             'onConfirm': () => {
-                this._deleteTables(tableNames)
-                .then((succeeds, failures) => {
-                    if (failures.length > 0) {
-                        let error: string = failures.join("\n");
-                        Alert.error(IMDTStr.DelTableFail, error);
-                    }
-                    XcSocket.Instance.sendMessage("refreshIMD", {
-                        "action": "delete",
-                        "tables": succeeds
-                    }, null);
-                    deferred.resolve();
-                })
-                .fail((error) => {
-                    Alert.error(IMDTStr.DelTableFail, error);
-                    deferred.reject(error);
-                });
+                this.deleteTablesOnConfirm(tableNames, true)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
             },
             'onCancel': () => {
                 deferred.reject();
             }
         });
 
+        return deferred.promise();
+    }
+
+    public deleteTablesOnConfirm(
+        tableNames: string[],
+        showError?: boolean
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._deleteTables(tableNames)
+        .then((succeeds, failures) => {
+            if (failures.length > 0) {
+                let error: string = failures.join("\n");
+                if (showError) {
+                    Alert.error(IMDTStr.DelTableFail, error);
+                }
+            }
+            XcSocket.Instance.sendMessage("refreshIMD", {
+                "action": "delete",
+                "tables": succeeds
+            }, null);
+            deferred.resolve();
+        })
+        .fail((error) => {
+            if (showError) {
+                Alert.error(IMDTStr.DelTableFail, error);
+            }
+            deferred.reject(error);
+        });
         return deferred.promise();
     }
 

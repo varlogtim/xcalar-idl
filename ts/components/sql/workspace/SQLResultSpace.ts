@@ -102,6 +102,10 @@ class SQLResultSpace {
         this._tableLister.show(reset);
     }
 
+    public refreshTables(): void {
+        this._tableLister.refresh();
+    }
+
     public showSchema(tableInfo: PbTblInfo): void {
         this._sqlTable.close();
         this._tableLister.close();
