@@ -504,8 +504,10 @@ class UDFPanel {
     }
 
     private _setEditorValue(valueStr: string): void {
-        this.editorInitValue = valueStr;
         this.editor.setValue(valueStr);
+        // after put into editor, valueStr may be different then
+        // editor.getValue
+        this.editorInitValue = this.editor.getValue();
     }
 
     /* Unit Test Only */
