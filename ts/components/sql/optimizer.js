@@ -552,17 +552,19 @@
                         node.value.args.columns[1][i].sourceColumn = rename;
                     }
                 }
-                Object.keys(node.colNameMap[1]).forEach(function(col) {
-                    if (leftCols.indexOf(node.colNameMap[1][col]) !== -1) {
-                        var newColRename = node.colNameMap[1][col] +
-                                        Authentication.getHashId().substring(2);
-                        node.value.args.columns[1].push({
-                            sourceColumn: node.colNameMap[1][col],
-                            destColumn: newColRename
-                        });
-                        node.colNameMap[1][col] = newColRename;
-                    }
-                })
+                if (node.value.args.keepAllColumns) {
+                    Object.keys(node.colNameMap[1]).forEach(function(col) {
+                        if (leftCols.indexOf(node.colNameMap[1][col]) !== -1) {
+                            var newColRename = node.colNameMap[1][col] +
+                                            Authentication.getHashId().substring(2);
+                            node.value.args.columns[1].push({
+                                sourceColumn: node.colNameMap[1][col],
+                                destColumn: newColRename
+                            });
+                            node.colNameMap[1][col] = newColRename;
+                        }
+                    })
+                }
                 node.value.args.evalString = XDParser.XEvalParser
                                     .replaceColName(node.value.args.evalString,
                                     node.colNameMap[0], self.aggregateNameMap, true);

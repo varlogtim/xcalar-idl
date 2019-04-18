@@ -711,9 +711,10 @@ describe('XIApi Test', () => {
                 const joinCols = [];
                 const tempTables = [];
                 const tempCols = [];
+                const gbOutputCols = [['C1'], ['C2']];
 
                 cascadingJoins(txId, distinctGbTables, tableName, joinCols,
-                    tempTables, tempCols)
+                    tempTables, tempCols, gbOutputCols)
                     .then((resTable) => {
                         expect(resTable).not.to.equal(tableName);
                         expect(testJoinType).to.equal(JoinOperatorT.CrossJoin);
@@ -731,16 +732,16 @@ describe('XIApi Test', () => {
                 const joinCols = ['col'];
                 const tempTables = [];
                 const tempCols = [];
+                const gbOutputCols = [['C1'], ['C2'], ['C3']];
 
                 cascadingJoins(txId, distinctGbTables, tableName, joinCols,
-                    tempTables, tempCols)
+                    tempTables, tempCols, gbOutputCols)
                     .then((resTable) => {
                         expect(resTable).not.to.equal(tableName);
                         expect(testJoinType).to.equal(JoinOperatorT.InnerJoin);
                         expect(tempTables.length).to.equal(2);
-                        expect(tempCols.length).to.equal(2);
-                        expect(tempCols[0]).to.equal('col__2');
-                        expect(tempCols[1]).to.equal('col__3');
+                        expect(tempCols.length).to.equal(1);
+                        expect(tempCols[0]).to.equal('col__3');
                         done();
                     })
                     .fail(() => {
@@ -780,10 +781,15 @@ describe('XIApi Test', () => {
                 operator: 'max',
                 newColName: 'new2'
             }]};
+            const normalAggArgs = [{
+                aggColName: 'gropuOn',
+                operator: 'max',
+                newColName: 'new3'
+            }];
             const gbTableName = 'gb#b;'
 
             distinctGroupby(txId, tableName, groupOnCols,
-                distinctAggArgs, gbTableName, true)
+                distinctAggArgs, normalAggArgs, gbTableName, true)
                 .then((finalJoinedTable, tempTables, tempCols) => {
                     expect(finalJoinedTable).to.be.a('string');
                     expect(tempTables.length).to.equal(2);

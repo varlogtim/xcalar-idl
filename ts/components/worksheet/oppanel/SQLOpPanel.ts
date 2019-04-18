@@ -163,8 +163,8 @@ class SQLOpPanel extends BaseOpPanel {
         this._sqlEditor = new SQLEditor("sqlEditor", callbacks);
 
         CodeMirror.commands.autocompleteSQLInDF = function(cmeditor) {
-            var acTables = {};
-            for(var tableName in self._sqlTables) {
+            const acTables = {};
+            for(const tableName in self._sqlTables) {
                 acTables[tableName] = [];
                 const idx = self._sqlTables[tableName];
                 if (idx) {

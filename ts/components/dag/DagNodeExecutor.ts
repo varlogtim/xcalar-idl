@@ -1186,9 +1186,6 @@ class DagNodeExecutor {
             let finalQueryStr = replaceRetStruct.newQueryStr;
             const queryNodes = JSON.parse(finalQueryStr);
 
-            // XXX hack to replace join nodes in xcalarQuery with correct
-            // columns to keep which are located in the join nodes of the sql subGraph
-            this._sqlKeepAllJoinColumnsHack(node, queryNodes);
             finalQueryStr = JSON.stringify(queryNodes);
             node.setXcQueryString(finalQueryStr);
             // XXX end of keepAllColumns join hack
@@ -1232,47 +1229,6 @@ class DagNodeExecutor {
             deferred.reject(error);
         });
         return deferred.promise();
-    }
-
-    // XXX hack to replace join nodes in xcalarQuery with correct
-    // columns to keep which are located in the join nodes of the sql subGraph
-    private _sqlKeepAllJoinColumnsHack(node, queryNodes) {
-        queryNodes.forEach((queryNode) => {
-            if (queryNode.operation === XcalarApisTStr[XcalarApisT.XcalarApiJoin]) {
-                let nameIdMap = node.getSubGraph().getTableDagIdMap();
-                let joinNodeId = nameIdMap[queryNode.args.dest];
-                if (joinNodeId) {
-                    let joinNode = node.getSubGraph().getNode(joinNodeId)
-                    let params = joinNode.getParam();
-                    let keepAllColumns = params.keepAllColumns;
-                    if (keepAllColumns == null) {
-                        keepAllColumns = true;
-                    }
-                    let leftParent = joinNode.getParents()[0];
-                    let rightParent = joinNode.getParents()[1];
-
-                    if (leftParent) {
-                        const leftColNamesToKeep = keepAllColumns
-                        ? leftParent.getLineage()
-                            .getColumns().map((col) => col.getBackColName())
-                        : params.left.keepColumns;
-                        const leftRename  = DagNodeJoin.joinRenameConverter(leftColNamesToKeep, params.left.rename);
-                        let leftColumns = leftRename.map(colInfoMap);
-                        queryNode.args.columns[0] = leftColumns;
-                    }
-
-                    if (rightParent) {
-                        const rightColNamesToKeep = keepAllColumns
-                        ? rightParent.getLineage()
-                            .getColumns().map((col) => col.getBackColName())
-                        : params.right.keepColumns;
-                        const rightRename  = DagNodeJoin.joinRenameConverter(rightColNamesToKeep, params.right.rename);
-                        let rightColumns = rightRename.map(colInfoMap);
-                        queryNode.args.columns[1] = rightColumns;
-                    }
-                }
-            }
-        });
     }
 
     /**

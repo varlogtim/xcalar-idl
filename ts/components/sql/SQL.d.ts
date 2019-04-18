@@ -125,9 +125,10 @@ interface SQLWindowArgument {
     // For nTile
     groupNums?: number[];
     // For lead/lag
-    keyCols?: SQLWindowOperatorArg[], // SQLColumn | string
-    defaults?: SQLWindowOperatorArg[], // SQLColumn | string
-    offset?: number
+    keyCols?: SQLWindowOperatorArg[]; // SQLColumn | string
+    defaults?: SQLWindowOperatorArg[]; // SQLColumn | string
+    offset?: number;
+    tempColsToKeep?: SQLColumn[];
 }
 
 interface SQLWindowLeadMap {
@@ -154,6 +155,8 @@ interface SQLWindowMapStruct {
     nestMapNames?: string[];
     windowColStructs?: SQLColumn[];
     noMap?: boolean;
+    nestMapTypes?: SQLColumnType[];
+    tempColsToKeep?: SQLColumn[];
 }
 
 interface SQLOptimization {
@@ -171,4 +174,5 @@ interface CliStruct {
     renamedColumns?: string[];
     tempCols?: string[];
     cli?: string;
+    newCols?: SQLColumn[]; // Used in SQLJoin
 }

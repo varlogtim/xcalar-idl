@@ -504,7 +504,7 @@ class SQLCompiler {
                     intervalStr = intervalStr.substring(0,
                                                         intervalStr.length - 1);
                 }
-                var newIntervalNode = TreeNodeFactory.
+                const newIntervalNode = TreeNodeFactory.
                                               getLiteralStringNode(intervalStr);
                 node.children[node.value["interval"]] = newIntervalNode;
                 break;
@@ -811,6 +811,54 @@ class SQLCompiler {
             return node.colType;
         }
     }
+    static getColTypeFromString(item: string, node: TreeNode): SQLColumnType {
+        if (typeof item !== "string") {
+            return null;
+        } else if (item.indexOf("sql:") === 0) {
+            return SQLColumnType.String;
+        } else if (item.indexOf("*") === 0) {
+            let opName = item.substring(1, item.indexOf("("));
+            switch (opName) {
+                case "lead":
+                case "lag":
+                    let firstArg = "";
+                    let parCount = 0;
+                    for (let i = item.indexOf("(") + 1; i < item.length; i++) {
+                        if (item[i] === "," && parCount === 0) {
+                            return SQLCompiler.getColTypeFromString(firstArg, node);
+                        } else {
+                            firstArg = firstArg + item[i];
+                            if (item[i] === "(") {
+                                parCount++;
+                            } else if (item[i] === ")") {
+                                parCount--;
+                            }
+                        }
+                    }
+                    return null;
+                case "first":
+                case "last":
+                    return SQLCompiler.getColTypeFromString(
+                        item.substring(item.indexOf("(") + 1, item.length), node);
+                case "percentRank":
+                case "cumeDist":
+                    return SQLColumnType.Float;
+                default:
+                    return SQLColumnType.Integer;
+            }
+        } else if (item.indexOf("(") !== -1) {
+            return OperatorTypes[item.substring(0, item.indexOf("("))] || null;
+        } else {
+            // Column name case
+            let returnType;
+            node.usrCols.concat(node.xcCols).concat(node.sparkCols).forEach(function(col) {
+                if (SQLCompiler.getCurrentName(col) === item) {
+                    returnType = col.colType || null;
+                }
+            });
+            return returnType || null;
+        }
+    }
     static pushUpCols(node: TreeNode): void {
         // In pushUpCols, we have four types of column arrays which are used to
         // track columns/IDs at each node. Columns are stored as objects
@@ -943,7 +991,7 @@ class SQLCompiler {
                 if (ret.cli) {
                     treeNode.xcCli = ret.cli;
                 }
-                for (var prop in ret) {
+                for (const prop in ret) {
                     if (prop !== "newTableName" && prop !== "cli") {
                         treeNode[prop] = ret[prop];
                     }
@@ -1045,9 +1093,14 @@ class SQLCompiler {
 
         // 3. our xx their => rename our column because it's only temp col and
         // will not be visible to the user.
+
+        // After the keepAllColumns change, will put all columns into rename
+        // list even if they're not renamed
         const newRenames = {};
         const colSet = new Set();
         const idSet = new Set();
+        leftRename = leftRename || [];
+        rightRename = rightRename || [];
         let rightTableId = xcHelper.getTableId(rightTableName);
         if (typeof rightTableId === "string") {
             rightTableId = rightTableId.toUpperCase();
@@ -1058,6 +1111,9 @@ class SQLCompiler {
             if (checkSameCol && leftCols[i].colId) {
                 idSet.add(leftCols[i].colId);
             }
+            leftRename.push(xcHelper.getJoinRenameMap(colName, colName,
+                xcHelper.convertColTypeToFieldType(
+                    xcHelper.convertSQLTypeToColType(leftCols[i].colType))));
         }
         for (let i = 0; i < rightCols.length; i++) {
             const colName = rightCols[i].rename || rightCols[i].colName;
@@ -1069,7 +1125,9 @@ class SQLCompiler {
                 while (colSet.has(newName)) {
                     newName = newName + "_E" + rightTableId;
                 }
-                rightRename.push(xcHelper.getJoinRenameMap(colName, newName));
+                rightRename.push(xcHelper.getJoinRenameMap(colName, newName,
+                    xcHelper.convertColTypeToFieldType(
+                        xcHelper.convertSQLTypeToColType(rightCols[i].colType))));
                 rightCols[i].rename = newName;
                 colSet.add(newName);
                 if (rightCols[i].colId) {
@@ -1077,15 +1135,18 @@ class SQLCompiler {
                 }
             } else {
                 colSet.add(colName);
+                rightRename.push(xcHelper.getJoinRenameMap(colName, colName,
+                    xcHelper.convertColTypeToFieldType(
+                        xcHelper.convertSQLTypeToColType(rightCols[i].colType))));
             }
         }
         return newRenames;
     }
 
     static combineRenameMaps(renameMaps: SQLRenameColumns[]): SQLRenameColumns {
-        var retMap = renameMaps[0];
-        for (var i = 1; i < renameMaps.length; i++) {
-            for (var attr in renameMaps[i]) {
+        const retMap = renameMaps[0];
+        for (let i = 1; i < renameMaps.length; i++) {
+            for (const attr in renameMaps[i]) {
                 retMap[attr] = renameMaps[i][attr];
             }
         }
@@ -1199,13 +1260,13 @@ class SQLCompiler {
                 "org.apache.spark.sql.catalyst.expressions.Alias" &&
                 mapList[i][1].class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
-                var aliasId = mapList[i][0].exprId.id;
-                var origId = mapList[i][1].exprId.id;
+                const aliasId = mapList[i][0].exprId.id;
+                const origId = mapList[i][1].exprId.id;
                 renameIdsMap[origId] = renameIdsMap[origId] || [];
                 renameIdsMap[origId].push(aliasId);
             }
         }
-        for (origId in renameIdsMap) {
+        for (const origId in renameIdsMap) {
             let valid = true;
             for (let i = 0; i < renameIdsMap[origId].length; i++) {
                 if (node.usedColIds.indexOf(renameIdsMap[origId][i]) === -1) {
@@ -1451,8 +1512,7 @@ class SQLCompiler {
             } else if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Literal") {
                 if (condTree.value.value == null) {
-                    outStr += SQLCompiler.convertSparkTypeToXcalarType(
-                                            condTree.value.dataType) + "(None)";
+                    outStr += "None";
                 } else if (condTree.value.dataType === "string" ||
                     condTree.value.dataType === "calendarinterval") {
                     outStr += '"' + condTree.value.value + '"';
@@ -1572,6 +1632,8 @@ class SQLCompiler {
                                                        evalList[i][1].dataType);
                         evalStruct.evalStr = dataType + "(" +
                                              evalStruct.evalStr + ")";
+                    } else {
+                        evalStruct.evalStr = "int(" + evalStruct.evalStr + ")";
                     }
                     evalStruct.numOps += 1;
                 }
@@ -1828,7 +1890,7 @@ class SQLCompiler {
         if (isNewCol) {
             name = xcHelper.stripPrefixInColName(name);
         }
-        var ret = xcHelper.stripColName(name, true, true).toUpperCase();
+        let ret = xcHelper.stripColName(name, true, true).toUpperCase();
         if (cutName && ret.length > XcalarApisConstantsT.XcalarApiMaxFieldNameLen / 2) {
             ret = ret.substring(ret.length - XcalarApisConstantsT.XcalarApiMaxFieldNameLen / 2)
                   + "_" + Authentication.getHashId().substring(3);

@@ -189,10 +189,12 @@ class SQLGroupBy {
         // Moved into promise
         const windowTempCols = [];
         const frameInfo = {typeRow: true, lower: undefined, upper: undefined};
-        const windowStruct = {first: {newCols: [], aggCols: [], aggTypes: [],
-                                      frameInfo: frameInfo, ignoreNulls: []},
-                              last: {newCols: [], aggCols: [], aggTypes: [],
-                                     frameInfo: frameInfo, ignoreNulls: []}};
+        const tempColsToKeep: SQLColumn[] = [];
+        const windowStruct: SQLWindowStruct =
+                            {first: [{newCols: [], aggCols: [],
+                                      frameInfo: frameInfo, ignoreNulls: []}],
+                             last: [{newCols: [], aggCols: [],
+                                     frameInfo: frameInfo, ignoreNulls: []}]};
 
         // Step 4
         // Special cases
@@ -280,8 +282,10 @@ class SQLGroupBy {
                 // select col+1 from t1 group by col + 1
                 // It belongs to usrCols
                 if (aggColNames.indexOf(firstMapColNames[i]) === -1) {
-                    node.xcCols.push({colName: firstMapColNames[i],
-                                        colType: firstMapColTypes[i]});
+                    const colStruct: SQLColumn = {colName: firstMapColNames[i],
+                                                  colType: firstMapColTypes[i]}
+                    tempColsToKeep.push(colStruct);
+                    node.xcCols.push(colStruct);
                 }
             }
             const colNames = new Set();
@@ -293,17 +297,17 @@ class SQLGroupBy {
                     node.usrCols.concat(node.xcCols).forEach(function(col) {
                         if (SQLCompiler.getCurrentName(col) === gArray[i].aggColName) {
                             let index = -1;
-                            for (const j in windowStruct[gArray[i].operator].aggCols) {
-                                if (windowStruct[gArray[i].operator]
+                            for (const j in windowStruct[gArray[i].operator][0].aggCols) {
+                                if (windowStruct[gArray[i].operator][0]
                                     .aggCols[j].colStruct
-                                    && windowStruct[gArray[i].operator]
+                                    && windowStruct[gArray[i].operator][0]
                                     .aggCols[j].colStruct=== col) {
                                     index = Number(j);
                                 }
                             }
                             if (index != -1) {
                                 gArray[i].aggColName = windowStruct[gArray[i]
-                                        .operator].newCols[index].colName;
+                                        .operator][0].newCols[index].colName;
                             } else {
                                 let tempColName = "XC_WINDOWAGG_" +
                                                 Authentication.getHashId().substring(3);
@@ -312,12 +316,12 @@ class SQLGroupBy {
                                                 Authentication.getHashId().substring(3);
                                 }
                                 colNames.add(tempColName);
-                                windowStruct[gArray[i].operator].newCols.push(
+                                windowStruct[gArray[i].operator][0].newCols.push(
                                                 {colName: tempColName,
                                                  colType: gArray[i].colType});
-                                windowStruct[gArray[i].operator].aggCols.push(
+                                windowStruct[gArray[i].operator][0].aggCols.push(
                                                 {colStruct: col, argType: null});
-                                windowStruct[gArray[i].operator].ignoreNulls
+                                windowStruct[gArray[i].operator][0].ignoreNulls
                                                 .push(gArray[i].arguments[0]);
                                 gArray[i].aggColName = tempColName;
                                 windowTempCols.push(tempColName);
@@ -347,10 +351,10 @@ class SQLGroupBy {
                 const sortList = [];
                 let windowCli = "";
                 let curPromise;
-                gbColNames.forEach(function(name) {
-                    sortList.push({name: name, type: null,
-                    ordering: XcalarOrderingT.XcalarOrderingAscending});
-                });
+                for (let i in gbColNames) {
+                    sortList.push({name: gbColNames[i], type: gbColTypes[i],
+                        ordering: XcalarOrderingT.XcalarOrderingAscending});
+                }
                 if (sortList.length > 0) {
                     curPromise = SQLSimulator.sort(sortList, newTableName);
                 } else {
@@ -362,13 +366,15 @@ class SQLGroupBy {
                     return SQLSimulator.genRowNum(ret.newTableName,
                          SQLCompiler.getCurrentName(loopStruct.indexColStruct));
                 });
-                if (windowStruct["first"].newCols.length != 0) {
+                if (windowStruct["first"][0].newCols.length != 0) {
+                    windowStruct["first"][0].tempColsToKeep = tempColsToKeep;
                     curPromise = SQLWindow.windowExpressionHelper(loopStruct,
-                                    curPromise, "first", windowStruct["first"]);
+                                    curPromise, "first", windowStruct["first"][0]);
                 }
-                if (windowStruct["last"].newCols.length != 0) {
+                if (windowStruct["last"][0].newCols.length != 0) {
+                    windowStruct["last"][0].tempColsToKeep = tempColsToKeep;
                     curPromise = SQLWindow.windowExpressionHelper(loopStruct,
-                                      curPromise, "last", windowStruct["last"]);
+                                      curPromise, "last", windowStruct["last"][0]);
                 }
                 curPromise = curPromise.then(function(ret) {
                     windowCli += loopStruct.cli;
@@ -549,22 +555,10 @@ class SQLGroupBy {
                 cli += ret.cli;
                 gbTableNames.push(ret.newTableName);
                 const columnInfo = {tableName: ret.newTableName,
-                                  columns: jQuery.extend(true, [], gbColNames)};
+                                    columns: jQuery.extend(true, [], gbColNames),
+                                    rename: []};
                 for (let j = 0; j < gArrayList[index].length; j++) {
                     columnInfo.columns.push(gArrayList[index][j].newColName);
-                }
-                if (ret.tempCols) {
-                    for (let j = 0; j < ret.tempCols.length; j++) {
-                        if (typeof ret.tempCols[j] === "string") {
-                            columnInfo.columns.push(ret.tempCols[j]);
-                            node.xcCols.push({colName: ret.tempCols[j],
-                                              colType: null});
-                        } else {
-                            columnInfo.columns.push(SQLCompiler.getCurrentName(
-                                                              ret.tempCols[j]));
-                            node.xcCols.push(ret.tempCols[j]);
-                        }
-                    }
                 }
                 gbTableColInfos.push(columnInfo);
                 index += 1;
@@ -574,6 +568,20 @@ class SQLGroupBy {
         curPromise = PromiseHelper.resolve({newTableName: gbTableNames[0]});
         const joinType = JoinOperatorT.InnerJoin;
         index = 1;
+        for (let i = 0; i < gbColNames.length; i++) {
+            gbTableColInfos[0].rename.push({orig: gbColNames[i],
+                                            new: gbColNames[i],
+                                            type: xcHelper.convertColTypeToFieldType(
+                                                    xcHelper.convertSQLTypeToColType(
+                                                    gbColTypes[i]))});
+        }
+        for (let i = 0; i < gArrayList[0].length; i++) {
+            gbTableColInfos[0].rename.push({orig: gArrayList[0][i].newColName,
+                                            new: gArrayList[0][i].newColName,
+                                            type: xcHelper.convertColTypeToFieldType(
+                                                    xcHelper.convertSQLTypeToColType(
+                                                    gArrayList[0][i].colType))});
+        }
         for (let i = 1; i < gbTableNames.length; i++) {
             let rightCols;
             curPromise = curPromise.then(function(ret) {
@@ -586,7 +594,17 @@ class SQLGroupBy {
                                        Authentication.getHashId().substring(3);
                     rightCols.push(newColName);
                     gbTableColInfos[index].rename.push({orig: gbColNames[j],
-                                                        new: newColName});
+                                                        new: newColName,
+                                                        type: xcHelper.convertColTypeToFieldType(
+                                                                xcHelper.convertSQLTypeToColType(
+                                                                gbColTypes[i]))});
+                }
+                for (let j = 0; j < gArrayList[index].length; j++) {
+                    gbTableColInfos[index].rename.push({orig: gArrayList[index][j].newColName,
+                                                        new: gArrayList[index][j].newColName,
+                                                        type: xcHelper.convertColTypeToFieldType(
+                                                                xcHelper.convertSQLTypeToColType(
+                                                                gArrayList[index][j].colType))});
                 }
                 for (let j = 0; j < gbTableColInfos[index].columns.length; j++) {
                     if (gbColNames.indexOf(gbTableColInfos[index].columns[j]) === -1) {
@@ -600,13 +618,14 @@ class SQLGroupBy {
                                       columns: gbColNames,
                                       rename: gbTableColInfos[index].rename};
                 return SQLSimulator.join(joinType, leftColInfo, rightColInfo,
-                                      {evalString: evalString, nullSafe: true});
+                                      {evalString: evalString, nullSafe: true,
+                                       keepAllColumns: false});
             })
             .then(function(ret) {
                 cli += ret.cli;
                 gbTableColInfos[0].columns = gbTableColInfos[0].columns
                                                              .concat(rightCols);
-                if (ret.tempCols) {
+                if (ret.tempCols && index === gbTableNames.length - 1) {
                     for (let j = 0; j < ret.tempCols.length; j++) {
                         if (typeof ret.tempCols[j] === "string") {
                             gbTableColInfos[0].columns.push(ret.tempCols[j]);
@@ -677,7 +696,7 @@ class SQLGroupBy {
                         cast: false
                     });
                 }
-                for (var j = 0; j < gArray.length; j++) {
+                for (let j = 0; j < gArray.length; j++) {
                     columns.push({
                         name: gArray[j].newColName,
                         rename: gArray[j].newColName,

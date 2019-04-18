@@ -6,15 +6,19 @@ interface SQLJoinStruct {
     existenceCol?: SQLColumn,
     filterSubtrees?: TreeNode[],
     catchAll?: boolean,
-    leftRowNumCol?: string,
-    rightRowNumCol?: string,
+    leftRowNumCol?: SQLColumn,
+    rightRowNumCol?: SQLColumn,
     leftMapArray?: string[],
     rightMapArray?: string[],
     leftCols?: string[],
     rightCols?: string[],
     renameMap?: {},
-    leftColumnsCopy?: SQLColumn[],
-    rightColumnsCopy?: SQLColumn[],
+    leftUsrColsCopy?: SQLColumn[],
+    rightUsrColsCopy?: SQLColumn[],
+    leftSparkColsCopy?: SQLColumn[],
+    rightSparkColsCopy?: SQLColumn[],
+    leftRowNumColCopy?: SQLColumn,
+    rightRowNumColCopy?: SQLColumn,
     leftRowNumTableName?: string,
     rightRowNumTableName?: string,
     colForExistCheck?: SQLColumn
@@ -63,7 +67,7 @@ class SQLJoin {
                 // assign that as the right subtree
                 if (leftSubtree[0].class ===
                     "org.apache.spark.sql.catalyst.expressions.IsNull") {
-                    var tempTree = rightSubtree;
+                    const tempTree = rightSubtree;
                     rightSubtree = leftSubtree;
                     leftSubtree = tempTree;
                 }
@@ -203,6 +207,7 @@ class SQLJoin {
         }
 
         // Start of flow. All branching decisions has been made
+        // outerType is only used for outer joins
         const outerType = SQLJoin.__getOuterJoinType(node);
         if (orEqJoinOpt) {
             const unionTableNames = [];
@@ -220,7 +225,7 @@ class SQLJoin {
                     const mapStruct = mapStructList.shift();
                     const nonEqFilterTrees = nonEqFilterTreesByBranch.shift();
                     let innerPromise = PromiseHelper.resolve();
-                    for (var prop in mapStruct) {
+                    for (const prop in mapStruct) {
                         retStruct[prop] = mapStruct[prop];
                     }
                     retStruct.filterSubtrees = retStruct.filterSubtrees
@@ -242,10 +247,7 @@ class SQLJoin {
             promise = promise.then(function() {
                 node.usrCols = jQuery.extend(true, [], node.children[0].usrCols
                                         .concat(node.children[1].usrCols));
-                node.xcCols = [{colName: retStruct.leftRowNumCol,
-                                colType: SQLColumnType.Integer},
-                               {colName: retStruct.rightRowNumCol,
-                                colType: SQLColumnType.Integer}];
+                node.xcCols = [retStruct.leftRowNumCol, retStruct.rightRowNumCol];
                 node.sparkCols = [];
                 const unionCols = node.usrCols.concat(node.xcCols);
                 const tableInfos = [];
@@ -275,6 +277,9 @@ class SQLJoin {
             // Eq conditions + non-equi conditions (optional)
             let overwriteJoinType;
             retStruct.filterSubtrees = filterSubtrees;
+            // For existence join case:
+            //  if there is no non-equal filter, do a dedup on right and left outer join then map
+            //  if there is, gen row num, do inner join, get row number on result and join back
             if (filterSubtrees.length > 0 && SQLJoin.__isExistenceJoin(node)) {
                 overwriteJoinType = JoinOperatorT.InnerJoin;
                 promise = promise.then(SQLJoin.__generateRowNumber.bind(this,
@@ -283,7 +288,7 @@ class SQLJoin {
                                                                     outerType));
             }
 
-            promise = promise.then(SQLJoin.__handleAndEqJoin.bind(this, 
+            promise = promise.then(SQLJoin.__handleAndEqJoin.bind(this,
                                                             retStruct, node,
                                                             overwriteJoinType));
             if (SQLJoin.__isExistenceJoin(node) && filterSubtrees.length > 0) {
@@ -351,52 +356,18 @@ class SQLJoin {
         promise.fail(deferred.reject);
 
         promise.then(function() {
-            if (!orEqJoinOpt) {
-                node.usrCols = jQuery.extend(true, [],
-                                            node.children[0].usrCols);
-                if (hasEmptyProject) {
-                    node.xcCols = [];
-                    node.sparkCols = [];
-                } else {
-                    node.xcCols = jQuery.extend(true, [], node.xcCols
-                                            .concat(node.children[0].xcCols));
-                    node.sparkCols = jQuery.extend(true, [],
-                                                node.children[0].sparkCols);
-                    if (!SQLJoin.__isSemiOrAntiJoin(node) && !SQLJoin.__isExistenceJoin(node)) {
-                        // Existence = LeftSemi join with right table then LeftOuter
-                        // join back with left table
-                        node.usrCols = node.usrCols
-                            .concat(jQuery.extend(true, [],
-                                                node.children[1].usrCols));
-                        node.xcCols = node.xcCols
-                            .concat(jQuery.extend(true, [],
-                                                node.children[1].xcCols));
-                        node.sparkCols = node.sparkCols
-                            .concat(jQuery.extend(true, [],
-                                                node.children[1].sparkCols));
-                    } else if (SQLJoin.__isExistenceJoin(node) && optimize) {
-                        node.sparkCols.push(retStruct.existenceCol);
-                        node.renamedCols[retStruct.existenceCol.colId] =
-                                            retStruct.existenceCol.rename;
-                    } else {
-                        node.xcCols = node.xcCols
-                            .concat(jQuery.extend(true, [],
-                                            node.children[1].usrCols
-                                            .concat(node.children[1].xcCols)));
-                        // XXX Think about sparkcols
-                        if (SQLJoin.__isExistenceJoin(node)) {
-                            // If it's ExistenceJoin, don't forget existenceCol
-                            node.sparkCols.push(retStruct.existenceCol);
-                            node.renamedCols[retStruct.existenceCol.colId] =
-                                                retStruct.existenceCol.rename;
-                        }
-                    }
-                }
-            }
+            node.xcCols = SQLCompiler.deleteIdFromColInfo(node.xcCols);
 
             SQLCompiler.assertCheckCollision(node.usrCols);
             SQLCompiler.assertCheckCollision(node.xcCols);
             SQLCompiler.assertCheckCollision(node.sparkCols);
+            // Handle renames in all those join steps
+            node.renamedCols = {};
+            for (const col of node.usrCols.concat(node.sparkCols)) {
+                if (col.rename && col.colId) {
+                    node.renamedCols[col.colId] = col.rename;
+                }
+            }
             deferred.resolve({newTableName: retStruct.newTableName,
                               cli: retStruct.cli});
         })
@@ -519,6 +490,7 @@ class SQLJoin {
                                          colNames: []});
             }
             const newColNames = [];
+            const newColStructs = [];
             let tableId = xcHelper.getTableId(origTableName);
             if (typeof tableId === "string") {
                 tableId = tableId.toUpperCase();
@@ -534,33 +506,39 @@ class SQLJoin {
                     }
                 }
                 newColNames.push(tempCol);
+                const newColStruct = {colName: tempCol,
+                                    colType: SQLCompiler.getColTypeFromString(
+                                                    mapStrArray[i], joinNode)};
                 // Record temp cols
-                joinNode.xcCols.push({
-                    colName: tempCol,
-                    colType: SQLCompiler.getColType(mapStrArray[i])  // XXX Jiyuan - please fix this with your "getColTypeFromString"
-                });
+                newColStructs.push(newColStruct);
+                joinNode.xcCols.push(newColStruct);
             }
             const newTableName = xcHelper.getTableName(origTableName) +
                     Authentication.getHashId();
             SQLSimulator.map(mapStrArray, origTableName, newColNames, newTableName)
             .then(function(ret) {
-                ret.colNames = newColNames;
+                ret.newCols = newColStructs;
                 deferred.resolve(ret);
             })
             .fail(deferred.reject);
             return deferred.promise();
         }
+        let joinType;
         const leftMapArray = globalStruct.leftMapArray;
         const rightMapArray = globalStruct.rightMapArray;
         const leftCols = globalStruct.leftCols;
         const rightCols = globalStruct.rightCols;
+        let leftTempCols = [];
+        let rightTempCols = [];
         const cliArray = [];
         const deferred = PromiseHelper.deferred();
         const leftTableName = globalStruct.leftTableName;
         const rightTableName = globalStruct.rightTableName;
-        PromiseHelper.when(handleMaps(leftMapArray, leftTableName, leftCols),
+        PromiseHelper.when<CliStruct>(handleMaps(leftMapArray, leftTableName, leftCols),
                            handleMaps(rightMapArray, rightTableName, rightCols))
         .then(function(retLeft, retRight) {
+            leftTempCols = retLeft.newCols || [];
+            rightTempCols = retRight.newCols || [];
             return SQLJoin.__groupbyForExistenceJoin(globalStruct,
                       joinNode, retLeft, retRight, cliArray, overwriteJoinType);
         })
@@ -584,16 +562,24 @@ class SQLJoin {
                 rename: []
             };
 
+            // Add row number column to temp column list for rename and keep
+            if (globalStruct.leftRowNumCol) {
+                leftTempCols.push(globalStruct.leftRowNumCol);
+            }
+            if (globalStruct.rightRowNumCol) {
+                rightTempCols.push(globalStruct.rightRowNumCol);
+            }
+
             let rightColsForRename = joinNode.children[1].usrCols
-                            .concat(joinNode.children[1].xcCols)
-                            .concat(joinNode.children[1].sparkCols);
-            if (globalStruct.existenceCol &&  overwriteJoinType == undefined) {
+                                        .concat(joinNode.children[1].sparkCols)
+                                        .concat(rightTempCols);
+            if (globalStruct.existenceCol && overwriteJoinType == undefined) {
                 rightColsForRename = joinNode.xcCols;
             }
             const newRenames = SQLCompiler.resolveCollision(
                                         joinNode.children[0].usrCols
-                                        .concat(joinNode.children[0].xcCols)
-                                        .concat(joinNode.children[0].sparkCols),
+                                        .concat(joinNode.children[0].sparkCols)
+                                        .concat(leftTempCols),
                                         rightColsForRename,
                                         lTableInfo.rename,
                                         rTableInfo.rename,
@@ -621,8 +607,7 @@ class SQLJoin {
                 cliArray.push(retRight.cli);
             }
 
-            let joinType;
-            const options: JoinOptions = {};
+            const options: JoinOptions = {keepAllColumns: false};
             if (overwriteJoinType !== undefined) {
                 joinType = overwriteJoinType;
             } else if (globalStruct.existenceCol) {
@@ -670,6 +655,17 @@ class SQLJoin {
             delete globalStruct.leftMapArray;
             delete globalStruct.rightMapArray;
             globalStruct.newTableName = retJoin.newTableName;
+            if ((globalStruct.existenceCol && overwriteJoinType == undefined)
+                || joinType === JoinOperatorT.LeftAntiJoin
+                || joinType === JoinOperatorT.LeftSemiJoin) {
+                joinNode.usrCols = joinNode.children[0].usrCols;
+                joinNode.sparkCols = joinNode.children[0].sparkCols;
+            } else {
+                joinNode.usrCols = joinNode.children[0].usrCols
+                                        .concat(joinNode.children[1].usrCols);
+                joinNode.sparkCols = joinNode.children[0].sparkCols
+                                        .concat(joinNode.children[1].sparkCols);
+            }
             if (retJoin.tempCols) {
                 for (let i = 0; i < retJoin.tempCols.length; i++) {
                 joinNode.xcCols.push({colName: retJoin.tempCols[i],
@@ -695,6 +691,14 @@ class SQLJoin {
 
         const leftTableName = globalStruct.leftTableName;
         const rightTableName = globalStruct.rightTableName;
+        const leftTempCols = [];
+        const rightTempCols = [];
+        if (globalStruct.leftRowNumCol) {
+            leftTempCols.push(globalStruct.leftRowNumCol);
+        }
+        if (globalStruct.rightRowNumCol) {
+            rightTempCols.push(globalStruct.rightRowNumCol);
+        }
 
         const lTableInfo: JoinTableInfo = {
             columns: [], // CrossJoin does not need columns
@@ -712,11 +716,11 @@ class SQLJoin {
 
         const newRenames = SQLCompiler.resolveCollision(
                             joinNode.children[0].usrCols
-                            .concat(joinNode.children[0].xcCols)
-                            .concat(joinNode.children[0].sparkCols),
+                            .concat(joinNode.children[0].sparkCols)
+                            .concat(leftTempCols),
                             joinNode.children[1].usrCols
-                            .concat(joinNode.children[1].xcCols)
-                            .concat(joinNode.children[1].sparkCols),
+                            .concat(joinNode.children[1].sparkCols)
+                            .concat(rightTempCols),
                             lTableInfo.rename,
                             rTableInfo.rename,
                             lTableInfo.tableName,
@@ -740,12 +744,16 @@ class SQLJoin {
         }
 
         SQLSimulator.join(JoinOperatorT.CrossJoin, lTableInfo, rTableInfo,
-                        {evalString: filterEval})
+                        {evalString: filterEval, keepAllColumns: false})
         .then(function(ret) {
             // Since the join is done now, we don't need leftTableName and
             // rightTableName anymore
             delete globalStruct.leftTableName;
             delete globalStruct.rightTableName;
+            joinNode.usrCols = joinNode.children[0].usrCols
+                                .concat(joinNode.children[1].usrCols);
+            joinNode.sparkCols = joinNode.children[0].sparkCols
+                                    .concat(joinNode.children[1].sparkCols);
             globalStruct.newTableName = ret.newTableName;
             globalStruct.cli += ret.cli;
             deferred.resolve();
@@ -773,9 +781,12 @@ class SQLJoin {
                                   Authentication.getHashId().substring(3);
             const gbArgs = [{operator: "count", aggColName: "1",
                              newColName: tempGBColName}];
-            const tempGBColStruct = {colName: tempGBColName, colType: "int"};
-            joinNode.xcCols.push(tempGBColStruct);
-            globalStruct.colForExistCheck = tempGBColStruct;
+            for (let i = 0; i < joinNode.children[1].usrCols.length; i++) {
+                if (SQLCompiler.getCurrentName(joinNode.children[1].usrCols[i])
+                    === globalStruct.rightCols[0]) {
+                    globalStruct.colForExistCheck = joinNode.children[1].usrCols[i];
+                }
+            }
             joinNode.children[1].usrCols.concat(joinNode.children[1].xcCols)
             .concat(joinNode.children[1].sparkCols).forEach(function(col) {
                 const colName = col.rename || col.colName;
@@ -817,9 +828,14 @@ class SQLJoin {
         const tempCountCol = "XC_COUNT_" + Authentication.getHashId().substring(3)
             + "_" + tableId;
         // Record groupBy column
-        joinNode.xcCols.push({colName: tempCountCol, colType: "int"});
+        joinNode.xcCols.push({colName: tempCountCol, colType: SQLColumnType.Integer});
+        if (incSample) {
+            joinNode.usrCols = joinNode.children[0].usrCols;
+        } else {
+            joinNode.usrCols = [globalStruct.leftRowNumCol];
+        }
 
-        SQLSimulator.groupBy([globalStruct.leftRowNumCol],
+        SQLSimulator.groupBy([SQLCompiler.getCurrentName(globalStruct.leftRowNumCol)],
                             [{operator: "count", aggColName: "1",
                               newColName: tempCountCol}],
                             globalStruct.newTableName, {isIncSample: incSample})
@@ -857,44 +873,46 @@ class SQLJoin {
         // The rowNumCol and the countCol. Both are autogenerated
         const lTableInfo: JoinTableInfo = {
             tableName: globalStruct.leftRowNumTableName,
-            columns: [globalStruct.leftRowNumCol],
+            columns: [SQLCompiler.getCurrentName(globalStruct.leftRowNumColCopy)],
             pulledColumns: [],
             rename: []
         };
-        let tableId = xcHelper.getTableId(globalStruct.newTableName);
-        if (typeof tableId === "string") {
-            tableId = tableId.toUpperCase();
-        }
-        const newRowNumColName = "XC_ROWNUM_" + Authentication.getHashId().substring(3)
-                + "_" + tableId;
-        // Record the renamed column
-        joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         const rTableInfo: JoinTableInfo = {
             tableName: globalStruct.newTableName,
-            columns: [globalStruct.leftRowNumCol],
+            columns: [SQLCompiler.getCurrentName(globalStruct.leftRowNumCol)],
             pulledColumns: [],
-            rename: [{
-                new: newRowNumColName,
-                orig: globalStruct.leftRowNumCol,
-                type: DfFieldTypeT.DfUnknown
-            }]
+            rename: []
         };
+        const rightColsForJoin = joinNode.usrCols;
+        SQLCompiler.resolveCollision(globalStruct.leftUsrColsCopy
+                                    .concat(globalStruct.leftSparkColsCopy)
+                                    .concat([globalStruct.leftRowNumColCopy]),
+                                    rightColsForJoin,
+                                    lTableInfo.rename,
+                                    rTableInfo.rename,
+                                    globalStruct.leftRowNumTableName,
+                                    globalStruct.newTableName);
+        // Record the renamed column
+        joinNode.usrCols = globalStruct.leftUsrColsCopy;
+        joinNode.sparkCols = globalStruct.leftSparkColsCopy;
+        joinNode.xcCols = [globalStruct.leftRowNumColCopy, rightColsForJoin[0]];
 
-        // var leftRDDCols = getAllCols(joinNode.children[0]);
         // // ExistenceCol has to be already renamed
-        // leftRDDCols.push(globalStruct.existenceCol.rename);
-        SQLSimulator.join(JoinOperatorT.LeftOuterJoin, lTableInfo, rTableInfo)
+        SQLSimulator.join(JoinOperatorT.LeftOuterJoin, lTableInfo,
+                          rTableInfo, {keepAllColumns: false})
         .then(function(ret) {
             globalStruct.cli += ret.cli;
-            // Now keep only the rows where the newRowNumColName does not exist
-            return SQLSimulator.map(["and(" +
-                    "exists(" + globalStruct.leftRowNumCol + ")," +
-                    "exists(" + newRowNumColName + "))"],
+            // Now create existence column based on left and right row num columns
+            return SQLSimulator.map(["and(" + "exists(" +
+                    SQLCompiler.getCurrentName(globalStruct.leftRowNumCol)
+                    + ")," + "exists(" +
+                    SQLCompiler.getCurrentName(rightColsForJoin[0]) + "))"],
                     ret.newTableName, globalStruct.existenceCol.rename);
         })
         .then(function(ret) {
             globalStruct.cli += ret.cli;
             globalStruct.newTableName = ret.newTableName;
+            joinNode.sparkCols.push(globalStruct.existenceCol);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -910,15 +928,20 @@ class SQLJoin {
         SQLUtil.assert(!globalStruct.rightTableName,
                   SQLErrTStr.UnexpectedTableName + globalStruct.rightTableName);
 
-        let rnColName;
         let lTableInfo: JoinTableInfo;
         let leftColInfo;
+        let rightColInfo;
+        // allLeft/RightColumns: left/right part of cross join result table
         const allLeftColumns = joinNode.children[0].usrCols
-                                        .concat(joinNode.children[0].xcCols)
-                                        .concat(joinNode.children[0].sparkCols);
+                                    .concat(joinNode.children[0].sparkCols);
         const allRightColumns = joinNode.children[1].usrCols
-                                        .concat(joinNode.children[1].xcCols)
-                                        .concat(joinNode.children[1].sparkCols);
+                                    .concat(joinNode.children[1].sparkCols);
+        if (globalStruct.leftRowNumCol) {
+            allLeftColumns.push(globalStruct.leftRowNumCol);
+        }
+        if (globalStruct.rightRowNumCol) {
+            allRightColumns.push(globalStruct.rightRowNumCol);
+        }
         if (outerType === "right") {
             SQLUtil.assert(globalStruct.rightRowNumTableName,
                            SQLErrTStr.NoRightRowNumTableName);
@@ -928,24 +951,53 @@ class SQLJoin {
                            SQLErrTStr.NoRightRowNumCol);
             lTableInfo = {
                 tableName: globalStruct.rightRowNumTableName,
-                columns: [globalStruct.rightRowNumCol],
+                columns: [SQLCompiler.getCurrentName(globalStruct.rightRowNumColCopy)],
                 pulledColumns: [],
                 rename: []
             }
-            rnColName = globalStruct.rightRowNumCol;
-            leftColInfo = globalStruct.rightColumnsCopy;
+            leftColInfo = globalStruct.rightUsrColsCopy
+                            .concat(globalStruct.rightSparkColsCopy)
+                            .concat([globalStruct.rightRowNumColCopy]);
+            rightColInfo = allLeftColumns.concat(globalStruct.rightRowNumCol);
+            // Handle result table column info
+            // usrCols is right columns before join + left part of crossjoin result
+            // xcCols is xcCols of cross join result + right row number column before join
+            joinNode.usrCols = joinNode.children[0].usrCols
+                                    .concat(globalStruct.rightUsrColsCopy)
+                                    .concat(globalStruct.rightSparkColsCopy);
+            joinNode.sparkCols = joinNode.children[0].sparkCols.concat(globalStruct.rightSparkColsCopy);
+            joinNode.xcCols.push(globalStruct.rightRowNumColCopy);
         } else {
             SQLUtil.assert(globalStruct.leftRowNumTableName, SQLErrTStr.NoLeftRowNumTableName);
             SQLUtil.assert(globalStruct.newTableName, SQLErrTStr.NoNewTableName);
             SQLUtil.assert(globalStruct.leftRowNumCol, SQLErrTStr.NoLeftRowNumCol);
             lTableInfo = {
                 tableName: globalStruct.leftRowNumTableName,
-                columns: [globalStruct.leftRowNumCol],
+                columns: [SQLCompiler.getCurrentName(globalStruct.leftRowNumColCopy)],
                 pulledColumns: [],
                 rename: []
             };
-            rnColName = globalStruct.leftRowNumCol;
-            leftColInfo = globalStruct.leftColumnsCopy;
+            leftColInfo = globalStruct.leftUsrColsCopy
+                            .concat(globalStruct.leftSparkColsCopy)
+                            .concat(globalStruct.leftRowNumColCopy);
+            if (outerType === "full") {
+                rightColInfo = [globalStruct.leftRowNumCol, globalStruct.rightRowNumCol];
+                // For full outer joins, usrCols should be usrCols from left&right
+                // and xcCols is right row number columns from both sides
+                joinNode.usrCols = globalStruct.leftUsrColsCopy
+                                    .concat(globalStruct.leftSparkColsCopy)
+                                    .concat(globalStruct.rightUsrColsCopy)
+                                    .concat(globalStruct.rightSparkColsCopy);
+                joinNode.xcCols = [globalStruct.rightRowNumCol, globalStruct.rightRowNumColCopy];
+                joinNode.sparkCols = globalStruct.leftSparkColsCopy.concat(globalStruct.rightSparkColsCopy);
+            } else {
+                rightColInfo = allRightColumns.concat(globalStruct.leftRowNumCol);
+                joinNode.usrCols = globalStruct.leftUsrColsCopy
+                                    .concat(globalStruct.leftSparkColsCopy)
+                                    .concat(joinNode.children[1].usrCols);
+                joinNode.xcCols.push(globalStruct.leftRowNumColCopy);
+                joinNode.sparkCols = joinNode.children[1].sparkCols.concat(globalStruct.leftSparkColsCopy);
+            }
         }
         let rTableInfo: JoinTableInfo = {
             tableName: globalStruct.newTableName,
@@ -953,33 +1005,17 @@ class SQLJoin {
             pulledColumns: [],
             rename: []
         };
-        let rightColInfo = jQuery.extend(true, [],
-                            allLeftColumns.concat(allRightColumns));
         SQLCompiler.resolveCollision(leftColInfo, rightColInfo,
             lTableInfo.rename, rTableInfo.rename,
             lTableInfo.tableName, rTableInfo.tableName);
-        let tableId = xcHelper.getTableId(globalStruct.newTableName);
-        if (typeof tableId === "string") {
-            tableId = tableId.toUpperCase();
-        }
-        let newRowNumColName = "XC_ROWNUM_" + Authentication.getHashId().substring(3)
-                + "_" + tableId;
-        // Record the renamed column
-        joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
-        let rnColRename = {
-            new: newRowNumColName,
-            orig: rnColName,
-            type: DfFieldTypeT.DfUnknown
-        };
-        rTableInfo.rename.push(rnColRename);
 
         let promise;
         if (outerType === "right") {
             promise = SQLSimulator.join(JoinOperatorT.RightOuterJoin, rTableInfo,
-                                                                    lTableInfo);
+                                        lTableInfo, {keepAllColumns: false});
         } else {
             promise = SQLSimulator.join(JoinOperatorT.LeftOuterJoin, lTableInfo,
-                                                                    rTableInfo);
+                                        rTableInfo, {keepAllColumns: false});
         }
         promise
         .then(function(ret) {
@@ -988,41 +1024,29 @@ class SQLJoin {
             if (outerType === "full") {
                 lTableInfo = {
                     tableName: globalStruct.rightRowNumTableName,
-                    columns: [globalStruct.rightRowNumCol],
+                    columns: [SQLCompiler.getCurrentName(globalStruct.rightRowNumColCopy)],
                     pulledColumns: [],
                     rename: []
                 };
-                leftColInfo = globalStruct.rightColumnsCopy;
+                leftColInfo = globalStruct.rightUsrColsCopy
+                                    .concat(globalStruct.rightSparkColsCopy)
+                                    .concat([globalStruct.rightRowNumColCopy]);
                 rTableInfo = {
                     tableName: ret.newTableName,
                     columns: jQuery.extend(true, [], lTableInfo.columns),
                     pulledColumns: [],
                     rename: []
                 };
-                rightColInfo = jQuery.extend(true, [],
-                                        rightColInfo.concat(allLeftColumns));
+                rightColInfo = [globalStruct.rightRowNumCol]
+                                    .concat(globalStruct.leftUsrColsCopy)
+                                    .concat(globalStruct.leftSparkColsCopy);
                 // Re-use rightColInfo
                 SQLCompiler.resolveCollision(leftColInfo, rightColInfo,
                                     lTableInfo.rename, rTableInfo.rename,
                                     lTableInfo.tableName, rTableInfo.tableName);
 
-                tableId = xcHelper.getTableId(globalStruct.newTableName);
-                if (typeof tableId === "string") {
-                tableId = tableId.toUpperCase();
-                }
-                newRowNumColName = "XC_ROWNUM_" + Authentication.getHashId().substring(3)
-                            + "_" + tableId;
-                // Record the renamed column
-                joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
-                rnColName = globalStruct.rightRowNumCol;
-                rnColRename = {
-                    new: newRowNumColName,
-                    orig: rnColName,
-                    type: DfFieldTypeT.DfUnknown
-                };
-                rTableInfo.rename.push(rnColRename);
-                return SQLSimulator.join(JoinOperatorT.FullOuterJoin, rTableInfo,
-                                                                    lTableInfo);
+                return SQLSimulator.join(JoinOperatorT.FullOuterJoin, lTableInfo,
+                                         rTableInfo, {keepAllColumns: false});
             } else {
                 return PromiseHelper.resolve();
             }
@@ -1055,37 +1079,39 @@ class SQLJoin {
         // The rowNumCol and the countCol. Both are autogenerated
         const lTableInfo: JoinTableInfo = {
             tableName: globalStruct.leftRowNumTableName,
-            columns: [globalStruct.leftRowNumCol],
+            columns: [SQLCompiler.getCurrentName(globalStruct.leftRowNumColCopy)],
             pulledColumns: [],
             rename: []
         };
-
-        let tableId = xcHelper.getTableId(globalStruct.newTableName);
-        if (typeof tableId === "string") {
-            tableId = tableId.toUpperCase();
-        }
-        const newRowNumColName = "XC_ROWNUM_" + Authentication.getHashId().substring(3)
-                + "_" + tableId;
-        // Record the renamed column
-        joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         const rTableInfo: JoinTableInfo = {
             tableName: globalStruct.newTableName,
-            columns: [globalStruct.leftRowNumCol],
+            columns: [SQLCompiler.getCurrentName(globalStruct.leftRowNumCol)],
             pulledColumns: [],
-            rename: [{
-            new: newRowNumColName,
-            orig: globalStruct.leftRowNumCol,
-            type: DfFieldTypeT.DfUnknown
-            }]
+            rename: []
         };
+        const rightColsForJoin = joinNode.usrCols;
+        SQLCompiler.resolveCollision(globalStruct.leftUsrColsCopy
+                                    .concat(globalStruct.leftSparkColsCopy)
+                                    .concat([globalStruct.leftRowNumColCopy]),
+                                    rightColsForJoin,
+                                    lTableInfo.rename,
+                                    rTableInfo.rename,
+                                    globalStruct.leftRowNumTableName,
+                                    globalStruct.newTableName);
+        // Record the renamed column
+        joinNode.usrCols = globalStruct.leftUsrColsCopy;
+        joinNode.sparkCols = globalStruct.leftSparkColsCopy;
+        joinNode.xcCols = [globalStruct.leftRowNumColCopy, rightColsForJoin[0]];
 
-        SQLSimulator.join(JoinOperatorT.LeftOuterJoin, lTableInfo, rTableInfo)
+        SQLSimulator.join(JoinOperatorT.LeftOuterJoin, lTableInfo,
+                          rTableInfo, {keepAllColumns: false})
         .then(function(ret) {
             globalStruct.cli += ret.cli;
             globalStruct.newTableName = ret.newTableName;
             // Now keep only the rows where the newRowNumColName does not exist
-            return SQLSimulator.filter("not(exists(" + newRowNumColName + "))",
-                                      globalStruct.newTableName);
+            return SQLSimulator.filter("not(exists(" +
+                        SQLCompiler.getCurrentName(globalStruct.leftRowNumCol)
+                        + "))", globalStruct.newTableName);
         })
         .then(function(ret) {
             globalStruct.cli += ret.cli;
@@ -1096,9 +1122,15 @@ class SQLJoin {
         return deferred.promise();
     }
 
+    // This function is for joins have one of children empty (Project with empty output list)
     static __projectAfterCrossJoin(globalStruct, joinNode) {
         const deferred = PromiseHelper.deferred();
-        SQLSimulator.synthesize(joinNode.children[0].usrCols, globalStruct.newTableName)
+        joinNode.usrCols = joinNode.children[0].usrCols;
+        joinNode.xcCols = [];
+        joinNode.sparkCols = joinNode.children[0].sparkCols;
+
+        SQLSimulator.synthesize(joinNode.children[0].usrCols
+            .concat(joinNode.children[0].sparkCols), globalStruct.newTableName)
         .then(function(ret) {
             globalStruct.cli += ret.cli;
             globalStruct.newTableName = ret.newTableName;
@@ -1225,7 +1257,10 @@ class SQLJoin {
         return retStruct;
     }
 
-    static __mapExistenceColumn(globalStruct: SQLJoinStruct): XDPromise<any> {
+    static __mapExistenceColumn(
+        globalStruct: SQLJoinStruct,
+        joinNode: TreeNode
+    ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
 
         const joinTablename = globalStruct.newTableName;
@@ -1237,6 +1272,7 @@ class SQLJoin {
         .then(function(ret) {
             globalStruct.newTableName = ret.newTableName;
             globalStruct.cli += ret.cli;
+            joinNode.sparkCols.push(globalStruct.existenceCol);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -1275,27 +1311,30 @@ class SQLJoin {
                         + "_" + leftTableId;
             rnTableName = globalStruct.leftTableName;
         }
-        joinNode.xcCols.push({colName: rnColName, colType: SQLColumnType.Integer});
+        let rnColStruct: SQLColumn = {colName: rnColName, colType: SQLColumnType.Integer};
+        joinNode.xcCols.push(rnColStruct);
         SQLSimulator.genRowNum(rnTableName, rnColName)
         .then(function(ret) {
             globalStruct.cli += ret.cli;
             if (outerType === "right") {
                 globalStruct.rightTableName = ret.newTableName;
-                globalStruct.rightRowNumCol = rnColName;
+                globalStruct.rightRowNumCol = rnColStruct;
                 // Need a column copy here so that it will not be renamed in first join
-                globalStruct.rightColumnsCopy = jQuery.extend(true, [],
-                                    joinNode.children[1].usrCols
-                                    .concat(joinNode.children[1].xcCols)
-                                    .concat(joinNode.children[1].sparkCols));
+                globalStruct.rightUsrColsCopy = jQuery.extend(true, [],
+                    joinNode.children[1].usrCols);
+                globalStruct.rightSparkColsCopy = jQuery.extend(true, [],
+                                    joinNode.children[1].sparkCols);
+                globalStruct.rightRowNumColCopy = jQuery.extend(true, {}, rnColStruct);
                 // This will be kept and not deleted
                 globalStruct.rightRowNumTableName = ret.newTableName;
             } else {
                 globalStruct.leftTableName = ret.newTableName;
-                globalStruct.leftRowNumCol = rnColName;
-                globalStruct.leftColumnsCopy = jQuery.extend(true, [],
-                                    joinNode.children[0].usrCols
-                                    .concat(joinNode.children[0].xcCols)
-                                    .concat(joinNode.children[0].sparkCols));
+                globalStruct.leftRowNumCol = rnColStruct;
+                globalStruct.leftUsrColsCopy = jQuery.extend(true, [],
+                                               joinNode.children[0].usrCols);
+                globalStruct.leftSparkColsCopy = jQuery.extend(true, [],
+                                                joinNode.children[0].sparkCols);
+                globalStruct.leftRowNumColCopy = jQuery.extend(true, {}, rnColStruct);
                 // This will be kept and not deleted
                 globalStruct.leftRowNumTableName = ret.newTableName;
             }
@@ -1303,6 +1342,8 @@ class SQLJoin {
                 rnColName = "XC_RROWNUM_COL_" +
                     Authentication.getHashId().substring(3) + "_" + rightTableId;
                 rnTableName = globalStruct.rightTableName;
+                rnColStruct = {colName: rnColName, colType: SQLColumnType.Integer};
+                joinNode.xcCols.push(rnColStruct);
                 return SQLSimulator.genRowNum(globalStruct.rightTableName, rnColName)
             }
             return PromiseHelper.resolve();
@@ -1311,11 +1352,12 @@ class SQLJoin {
             if (outerType === "full" && ret) {
                 globalStruct.cli += ret.cli;
                 globalStruct.rightTableName = ret.newTableName;
-                globalStruct.rightRowNumCol = rnColName;
-                globalStruct.rightColumnsCopy = jQuery.extend(true, [],
-                                    joinNode.children[1].usrCols
-                                    .concat(joinNode.children[1].xcCols)
-                                    .concat(joinNode.children[1].sparkCols));
+                globalStruct.rightRowNumCol = rnColStruct;
+                globalStruct.rightUsrColsCopy = jQuery.extend(true, [],
+                                                joinNode.children[1].usrCols);
+                globalStruct.rightSparkColsCopy = jQuery.extend(true, [],
+                                                joinNode.children[1].sparkCols);
+                globalStruct.rightRowNumColCopy = jQuery.extend(true, {}, rnColStruct);
                 // This will be kept and not deleted
                 globalStruct.rightRowNumTableName = ret.newTableName;
             }

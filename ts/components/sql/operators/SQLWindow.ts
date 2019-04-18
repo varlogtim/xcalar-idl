@@ -241,7 +241,7 @@ class SQLWindow {
                     retStruct[key].push(obj);
                 }
             } else if (opStruct.opName === "Lead" || opStruct.opName === "Lag") {
-                var offset;
+                let offset;
                 if (opStruct.opName === "Lead") {
                     offset = opStruct.args[1].literalEval;
                 } else {
@@ -287,7 +287,7 @@ class SQLWindow {
                        || opStruct.opName === "StddevSamp"
                        || opStruct.opName === "VariancePop"
                        || opStruct.opName === "VarianceSamp") {
-                var aggObj: SQLWindowArgument = {newCols: [], ops: [],
+                const aggObj: SQLWindowArgument = {newCols: [], ops: [],
                                     aggCols: [], frameInfo: opStruct.frameInfo};
                 aggObj.newCols.push(opStruct.newColStruct);
                 aggObj.ops.push(SparkExprToXdf["aggregate." + opStruct.opName]);
@@ -312,7 +312,7 @@ class SQLWindow {
                     }
                 })
                 if (!found) {
-                    var aggObj: SQLWindowArgument = {newCols: [], ops: [],
+                    const aggObj: SQLWindowArgument = {newCols: [], ops: [],
                                     aggCols: [], frameInfo: opStruct.frameInfo};
                     aggObj.newCols.push(opStruct.newColStruct);
                     aggObj.ops.push(SparkExprToXdf["aggregate." + opStruct.opName]);
@@ -327,11 +327,11 @@ class SQLWindow {
 
     static __genGroupByTable(ret, operators, groupByCols,
                             aggColNames, windowStruct): XDPromise<CliStruct> {
-        var deferred = PromiseHelper.deferred();
+        const deferred = PromiseHelper.deferred();
         // Save original table for later use
         windowStruct.origTableName = ret.newTableName;
         windowStruct.cli += ret.cli;
-        var tableId = xcHelper.getTableId(windowStruct.origTableName);
+        let tableId = xcHelper.getTableId(windowStruct.origTableName);
         if (typeof tableId === "string") {
             tableId = tableId.toUpperCase();
         }
@@ -339,7 +339,7 @@ class SQLWindow {
                                     + "_" + Authentication.getHashId();
         if (!windowStruct.tempGBCols) {
             windowStruct.tempGBCols = [];
-            for (var i = 0; i < operators.length; i++) {
+            for (let i = 0; i < operators.length; i++) {
                 windowStruct.tempGBCols.push("XC_" + operators[i].toUpperCase()
                     + "_" + tableId
                     + "_" + Authentication.getHashId().substring(3));
@@ -347,7 +347,7 @@ class SQLWindow {
         }
         // If the new column will be added to usrCols later
         // don't add it to gbColInfo (will later concat to xcCols) here
-        var resultGBCols = SQLCompiler.deleteIdFromColInfo(groupByCols);
+        const resultGBCols = SQLCompiler.deleteIdFromColInfo(groupByCols);
         windowStruct.resultGBCols = resultGBCols;
         if (windowStruct.addToUsrCols) {
             windowStruct.gbColInfo = resultGBCols;
@@ -356,8 +356,8 @@ class SQLWindow {
                                          return {colName: colName, colType: "DfUnknown"};
                                      }).concat(resultGBCols);
         }
-        var gbArgs = [];
-        for (var i = 0; i < operators.length; i++) {
+        const gbArgs = [];
+        for (let i = 0; i < operators.length; i++) {
             gbArgs.push({operator: operators[i], aggColName: aggColNames[i],
                          newColName: windowStruct.tempGBCols[i]})
         }
@@ -374,36 +374,36 @@ class SQLWindow {
 
     static __joinTempTable(ret, joinType, leftJoinCols, rightJoinCols,
                                 windowStruct, nullSafe = false): XDPromise<CliStruct> {
-        var deferred = PromiseHelper.deferred();
+        const deferred = PromiseHelper.deferred();
         windowStruct.cli += ret.cli;
         if (leftJoinCols.length === 0) {
             joinType = JoinOperatorT.CrossJoin;
         }
-        var lTableInfo = {
+        const lTableInfo = {
             "tableName": windowStruct.joinRetAsLeft ?
                          ret.newTableName : windowStruct.leftTableName,
             "columns": leftJoinCols.map(function(col) {
                             return SQLCompiler.getCurrentName(col);}),
             "rename": []
         };
-        var rTableInfo = {
+        const rTableInfo = {
             "tableName": windowStruct.joinRetAsLeft ?
                          windowStruct.rightTableName : ret.newTableName,
             "columns": rightJoinCols.map(function(col) {
                             return SQLCompiler.getCurrentName(col);}),
             "rename": []
         }
-        var newRenames;
+        let newRenames;
         if (windowStruct.renameFromCols) {
             // Make a copy of renameFromCols to avoid change by other reference
             windowStruct.renameFromCols = jQuery.extend(true, [],
                                           windowStruct.renameFromCols);
-            var targetCols = Array(windowStruct.renameFromCols.length);
-            var renamed = Array(windowStruct.renameFromCols.length);
+            const targetCols = Array(windowStruct.renameFromCols.length);
+            const renamed = Array(windowStruct.renameFromCols.length);
             renamed.fill(false, 0, renamed.length);
             // Find the target column struct and rename it before resolve collision
             windowStruct.rightColInfo.forEach(function(item) {
-                var colIndex = windowStruct.renameFromCols.map(function(col) {
+                const colIndex = windowStruct.renameFromCols.map(function(col) {
                                    return SQLCompiler.getCurrentName(col);
                                }).indexOf(SQLCompiler.getCurrentName(item));
                 if (colIndex != -1) {
@@ -420,7 +420,7 @@ class SQLWindow {
             // This struct is used by backend, so need to replace
             // target column name with column name before rename
             rTableInfo.rename.forEach(function(item) {
-                var colIndex = windowStruct.renameToUsrCols.map(function(col) {
+                const colIndex = windowStruct.renameToUsrCols.map(function(col) {
                                    return SQLCompiler.getCurrentName(col);
                                }).indexOf(item.orig);
                 if (colIndex != -1) {
@@ -429,7 +429,7 @@ class SQLWindow {
                 }
             });
             // If it is not renamed, add the rename info into rTableInfo.rename
-            for (var i = 0; i < renamed.length; i++) {
+            for (let i = 0; i < renamed.length; i++) {
                 if (!renamed[i]) {
                     rTableInfo.rename.push(
                         {"new": SQLCompiler.getCurrentName(windowStruct.renameToUsrCols[i]),
@@ -468,9 +468,9 @@ class SQLWindow {
             windowStruct.leftRename = SQLCompiler.combineRenameMaps(
                                 [windowStruct.leftRename,newRenames]);
         }
-        var evalString = "";
+        let evalString = "";
         if (joinType === JoinOperatorT.CrossJoin) {
-            for (var i = 0; i < leftJoinCols.length; i++) {
+            for (let i = 0; i < leftJoinCols.length; i++) {
                 if (evalString === "") {
                     evalString = "eq(" + SQLCompiler.getCurrentName(leftJoinCols[i]) +
                                  "," + SQLCompiler.getCurrentName(rightJoinCols[i]) + ")";
@@ -484,7 +484,8 @@ class SQLWindow {
             rTableInfo.columns = [];
         }
         SQLSimulator.join(joinType, lTableInfo, rTableInfo, {evalString: evalString,
-                                nullSafe: nullSafe == null ? false : nullSafe})
+                                nullSafe: nullSafe == null ? false : nullSafe,
+                                keepAllColumns: false})
         .then(function(ret) {
             deferred.resolve(ret);
         })
@@ -494,7 +495,7 @@ class SQLWindow {
 
     static __groupByAndJoinBack(ret, operators, groupByCols,
                     aggColNames, joinType, windowStruct): XDPromise<CliStruct> {
-        var deferred = PromiseHelper.deferred();
+        const deferred = PromiseHelper.deferred();
         if (windowStruct.addToUsrCols) {
             windowStruct.tempGBCols = windowStruct.addToUsrCols.map(function(col) {
                 return SQLCompiler.getCurrentName(col);
@@ -503,12 +504,6 @@ class SQLWindow {
         SQLWindow.__genGroupByTable(ret, operators, groupByCols,
                                                 aggColNames, windowStruct)
         .then(function(ret) {
-            if (ret.tempCols) {
-                windowStruct.gbColInfo = windowStruct.gbColInfo
-                    .concat(ret.tempCols.map(function(colName) {
-                        return {colName: colName, colType: "DfUnknown"}; // XXX xiApi temp columns
-                    }));
-            }
             windowStruct.leftTableName = windowStruct.origTableName;
             windowStruct.rightColInfo = windowStruct.gbColInfo;
             return ret;
@@ -516,8 +511,8 @@ class SQLWindow {
         .then(function(ret) {
             if (windowStruct.joinBackByIndex) {
                 SQLUtil.assert(windowStruct.tempGBCols.length === 1, "TempGBCols should have length 1");
-                var rightIndexColStruct;
-                for (var i = 0; i < windowStruct.rightColInfo.length; i++) {
+                let rightIndexColStruct;
+                for (let i = 0; i < windowStruct.rightColInfo.length; i++) {
                     if (SQLCompiler.getCurrentName(windowStruct.rightColInfo[i])
                         === windowStruct.tempGBCols[0]) {
                         rightIndexColStruct = windowStruct.rightColInfo[i];
@@ -586,6 +581,8 @@ class SQLWindow {
                 const mapStrs = [];
                 const newColNames = [];
                 const tempColStructs = [];
+                const tempColsToKeep: SQLColumn[] = opStruct.tempColsToKeep || [];
+                // Handle literal aggregate case: create temp column of that literal value
                 for (const i in opStruct.aggCols) {
                     if (opStruct.aggCols[i].argType) {
                         mapStrs.push(opStruct.aggCols[i].argType + "("
@@ -615,6 +612,7 @@ class SQLWindow {
                             aggColNames.push(SQLCompiler.getCurrentName(
                                                 opStruct.aggCols[i].colStruct));
                         }
+                        node.xcCols = [indexColStruct].concat(tempColsToKeep);
                         windowStruct = {leftColInfo: node.usrCols
                                             .concat(node.xcCols)
                                             .concat(node.sparkCols),
@@ -655,9 +653,10 @@ class SQLWindow {
                         };
                         const joinType = groupByCols.length === 0 ?
                             JoinOperatorT.CrossJoin : JoinOperatorT.InnerJoin;
-                            node.usrCols.concat(node.xcCols)
-                                        .concat(node.sparkCols)
-                            .forEach(function(item) {
+                        // It's very compilated to make useful column list here
+                        // So just keep all and drop redundants at the end
+                        node.usrCols.concat(node.xcCols).concat(node.sparkCols)
+                                    .forEach(function(item) {
                             const lColStruct = {
                                 colName: SQLCompiler.getCurrentName(item),
                                 colType: item.colType
@@ -712,9 +711,11 @@ class SQLWindow {
                                         rightIndexStruct, leftOrderColStructs,
                                         rightOrderColStructs);
                         return SQLSimulator.join(joinType, lTableInfo, rTableInfo,
-                                        {evalString: evalString, nullSafe: true});
+                                        {evalString: evalString, nullSafe: true,
+                                         keepAllColumns: false});
                     })
                     .then(function(ret) {
+                        node.xcCols = [indexColStruct].concat(tempColsToKeep);
                         windowStruct = {leftColInfo: node.usrCols
                                         .concat(node.xcCols).concat(node.sparkCols),
                                         node: node, cli: "",
@@ -723,7 +724,7 @@ class SQLWindow {
                                             return SQLCompiler.getCurrentName(col);
                                         })};
                         const aggColNames = [];
-                        for (var i = 0; i < opStruct.aggCols.length; i++) {
+                        for (let i = 0; i < opStruct.aggCols.length; i++) {
                             aggColNames.push(SQLCompiler.getCurrentName(
                                                         rightAggColStructs[i]));
                         }
@@ -731,12 +732,6 @@ class SQLWindow {
                                   [leftIndexStruct], aggColNames, windowStruct);
                     })
                     .then(function(ret) {
-                        if (ret.tempCols) {
-                            windowStruct.gbColInfo = windowStruct.gbColInfo
-                                .concat(ret.tempCols.map(function(colName) {
-                                    return {colName: colName, colType: null};
-                                }));
-                        }
                         windowStruct.leftTableName = origTableName;
                         windowStruct.rightColInfo = windowStruct.gbColInfo;
                         return SQLWindow.__joinTempTable(ret,
@@ -764,7 +759,7 @@ class SQLWindow {
                             cli += ret.cli;
                             const mapStrList = [];
                             for (let i = 0; i < columnListForMap.length; i++) {
-                                const curMapStr = "if(exists(" +
+                                const curMapStr = "ifInt(exists(" +
                                 SQLCompiler.getCurrentName(columnListForMap[i]) + ")," +
                                 SQLCompiler.getCurrentName(columnListForMap[i]) + ",0)";
                                 mapStrList.push(curMapStr);
@@ -789,6 +784,7 @@ class SQLWindow {
                 const mapStrs = [];
                 const newColNames = [];
                 const tempColStructs = [];
+                const tempColsToKeep = opStruct.tempColsToKeep || [];
                 for (const i in opStruct.aggCols) {
                     if (opStruct.aggCols[i].argType) {
                         mapStrs.push(opStruct.aggCols[i].argType + "("
@@ -844,11 +840,6 @@ class SQLWindow {
                     // Inner join original table and temp table
                     // rename the column needed
                     .then(function(ret) {
-                        windowStruct.rightColInfo =
-                                            windowStruct.leftColInfo;
-                        windowStruct.leftColInfo = node.usrCols
-                                            .concat(node.xcCols)
-                                            .concat(node.sparkCols);
                         // If renameFromCol and renameToUsrCol are
                         // specified, helper function will rename
                         // the column and move that column to usrCols
@@ -858,23 +849,34 @@ class SQLWindow {
                         windowStruct.renameToUsrCols = newColStructs;
                         const rightGBColStructs = [];
                         for (let i = 0; i < groupByCols.length; i++) {
-                            for (let j = 0; j < windowStruct.rightColInfo.length; j++) {
+                            for (let j = 0; j < windowStruct.leftColInfo.length; j++) {
                                 if (SQLCompiler.getCurrentName(
-                                        windowStruct.rightColInfo[j]) ===
+                                        windowStruct.leftColInfo[j]) ===
                                     SQLCompiler.getCurrentName(groupByCols[i])) {
-                                    rightGBColStructs.push(windowStruct.rightColInfo[j]);
+                                    rightGBColStructs.push(windowStruct.leftColInfo[j]);
                                     break;
                                 }
                             }
                         }
+                        windowStruct.rightColInfo = jQuery.extend(true, [],
+                                                    windowStruct.renameFromCols
+                                                    .concat(rightGBColStructs));
+                        node.xcCols = [indexColStruct].concat(tempColsToKeep);
+                        windowStruct.leftColInfo = node.usrCols
+                                                       .concat(node.xcCols)
+                                                       .concat(node.sparkCols);
                         return SQLWindow.__joinTempTable(ret,
                                         JoinOperatorT.InnerJoin, groupByCols,
                                         rightGBColStructs, windowStruct, true);
                     });
                 } else {
+                    // Frame case, first do a join and groupby to get index map
+                    // Then join original table on both sides to get result
                     let origTableName;
                     let leftIndexStruct;
                     let rightIndexStruct;
+                    const indexColStructCopy = {colName: SQLCompiler.getCurrentName(indexColStruct),
+                                              colType: indexColStruct.colType};
                     const leftGBColStructs = [];
                     const rightGBColStructs = [];
                     const leftAggColStructs = [];
@@ -953,7 +955,8 @@ class SQLWindow {
                                         rightIndexStruct, leftOrderColStructs,
                                         rightOrderColStructs);
                         return SQLSimulator.join(joinType, lTableInfo, rTableInfo,
-                                      {evalString: evalString, nullSafe: true});
+                                      {evalString: evalString, nullSafe: true,
+                                       keepAllColumns: false});
                     })
                     .then(function(ret) {
                         windowStruct = {leftColInfo: node.usrCols
@@ -971,12 +974,6 @@ class SQLWindow {
                                 [leftIndexStruct], aggColNames, windowStruct);
                     })
                     .then(function(ret) {
-                        if (ret.tempCols) {
-                            windowStruct.gbColInfo = windowStruct.gbColInfo
-                                .concat(ret.tempCols.map(function(colName) {
-                                    return {colName: colName, colType: null};
-                                }));
-                        }
                         // Update right index with result of min/max
                         rightIndexStruct = {colName: windowStruct.tempGBCols[0],
                                             colType: "int"};
@@ -987,14 +984,9 @@ class SQLWindow {
                                 [leftIndexStruct], windowStruct);
                     })
                     .then(function(ret) {
-                        if (ret.tempCols) {
-                            node.xcCols = node.xcCols.concat(ret.tempCols
-                                .map(function(colName) {
-                                    return {colName: colName}; // XXX xiApi temp columns
-                                }));
-                        }
-                        windowStruct.rightColInfo = leftCols;
+                        windowStruct.rightColInfo = leftAggColStructs.concat([indexColStructCopy]);
                         windowStruct.rightTableName = origTableName;
+                        node.xcCols = [indexColStruct, rightIndexStruct].concat(tempColsToKeep);
                         windowStruct.leftColInfo = node.usrCols
                                     .concat(node.xcCols).concat(node.sparkCols);
                         windowStruct.renameFromCols = leftAggColStructs;
@@ -1003,7 +995,7 @@ class SQLWindow {
 
                         return SQLWindow.__joinTempTable(ret,
                                 JoinOperatorT.LeftOuterJoin, [rightIndexStruct],
-                                [indexColStruct], windowStruct);
+                                [indexColStructCopy], windowStruct);
                     });
                 }
                 // windowStruct.cli contains the clis for one
@@ -1033,6 +1025,8 @@ class SQLWindow {
                 const mapStrs = [];
                 const newColNames = [];
                 const tempColStructs = [];
+                const tempColsToKeep = opStruct.tempColsToKeep || [];
+                // Handle literal arguments by creating columns
                 for (const i in opStruct.keyCols) {
                     if (opStruct.keyCols[i].argType) {
                         mapStrs.push(opStruct.keyCols[i].argType + "(" +
@@ -1044,7 +1038,7 @@ class SQLWindow {
                                     "_" + i);
                         newColNames.push(tempColName);
                         keyColNames.push(tempColName);
-                        tempColStructs.push({colName: tempColName});
+                        tempColStructs.push({colName: tempColName, colType: opStruct.keyCols[i].argType});
                         opStruct.keyCols[i].colStruct =
                                       tempColStructs[tempColStructs.length - 1];
                     } else {
@@ -1053,7 +1047,6 @@ class SQLWindow {
                     }
                 }
                 if (mapStrs.length !== 0) {
-                    node.xcCols = node.xcCols.concat(tempColStructs);
                     curPromise = curPromise.then(function(ret) {
                         cli += ret.cli;
                         return SQLSimulator.map(mapStrs, ret.newTableName,
@@ -1069,13 +1062,15 @@ class SQLWindow {
                 curPromise = curPromise.then(function(ret) {
                     windowStruct.leftTableName = ret.newTableName;
                     cli += ret.cli;
+                    node.xcCols = [indexColStruct].concat(tempColStructs)
+                                            .concat(tempColsToKeep);
                     windowStruct.leftColInfo = node.usrCols
                             .concat(node.xcCols).concat(node.sparkCols);
                     windowStruct.rightColInfo = jQuery.extend(true, [],
                                         node.usrCols.concat(node.xcCols)
                                         .concat(node.sparkCols));
                     node.usrCols.forEach(function(item) {
-                        for (var i = 0; i < groupByCols.length; i++) {
+                        for (let i = 0; i < groupByCols.length; i++) {
                             if (item.colId === groupByCols[i].colId) {
                                 leftJoinCols[i] = item;
                                 break;
@@ -1100,8 +1095,7 @@ class SQLWindow {
                            + "_right" + Authentication.getHashId().substring(3);
                     newIndexColStruct = {colName: newIndexColName,
                                          colType: SQLColumnType.Integer};
-                    windowStruct.rightColInfo
-                                    .push(newIndexColStruct);
+                    windowStruct.rightColInfo = rightKeyColStructs.concat([newIndexColStruct]);
                     let mapStr;
                     mapStr = "subInteger(" + SQLCompiler.getCurrentName(indexColStruct)
                                  + ", " + opStruct.offset + ")";
@@ -1132,6 +1126,22 @@ class SQLWindow {
                     const mapStrs = [];
                     for (let i = 0; i < rightKeyColStructs.length; i++) {
                         let mapStr = "if(";
+                        switch (rightKeyColStructs[i].colType) {
+                            case ("int"):
+                                mapStr = "ifInt(";
+                                break;
+                            case ("string"):
+                                mapStr = "ifStr(";
+                                break;
+                            case ("timestamp"):
+                                mapStr = "ifTimestamp";
+                                break;
+                            case ("money"):
+                                mapStr = "ifNumeric(";
+                                break;
+                            default:
+                                break;
+                        }
                         let defaultValue: string = opStruct.defaults[i].literalEval;
                         if (opStruct.defaults[i].argType === "string") {
                             defaultValue = "\"" + defaultValue + "\"";
@@ -1139,7 +1149,7 @@ class SQLWindow {
                             if (node.renamedCols[opStruct.defaults[i].colStruct.colId]) {
                                 defaultValue = node.renamedCols[opStruct.defaults[i].colStruct.colId];
                             } else {
-                                defaultValue = opStruct.defaults[i].colStruct.colName
+                                defaultValue = SQLCompiler.getCurrentName(opStruct.defaults[i].colStruct);
                             }
                         }
                         // Need to check rename here
@@ -1181,6 +1191,7 @@ class SQLWindow {
                 // Group by and join back to generate minimum row number
                 // in each partition
                 curPromise = curPromise.then(function(ret) {
+                    node.xcCols = [indexColStruct];
                     windowStruct = {leftColInfo: node.usrCols
                             .concat(node.xcCols).concat(node.sparkCols),
                             node: node, cli: ""};
@@ -1237,11 +1248,11 @@ class SQLWindow {
                                         + ", " + tempMinIndexColName + ")";
                             const threashold = "mult(" + extraRowNum + ", add(1, "
                                     + bracketSize + "))";
-                            const mapStr = "if(lt(" + rowNumSubOne + ", " + threashold
+                            const mapStr = "ifInt(lt(" + rowNumSubOne + ", " + threashold
                                     + "), addInteger(div(" + rowNumSubOne + ", add(1, "
                                     + bracketSize + ")), 1), addInteger(div(sub("
                                     + rowNumSubOne + ", " + threashold + "), "
-                                    + "if(eq(" + bracketSize + ", 0), 1, "
+                                    + "ifInt(eq(" + bracketSize + ", 0), 1, "
                                     + bracketSize + ")), 1, " + extraRowNum + "))";
                             mapStrs.push(mapStr);
                         }
@@ -1260,6 +1271,7 @@ class SQLWindow {
                 let partitionMinColName;
                 let psGbColName;
                 curPromise = curPromise.then(function(ret) {
+                    node.xcCols = [indexColStruct];
                     windowStruct = {leftColInfo: node.usrCols
                             .concat(node.xcCols).concat(node.sparkCols),
                             node: node, cli: ""};
@@ -1431,6 +1443,7 @@ class SQLWindow {
                     windowStruct.leftTableName = origTableName;
                     windowStruct.node = node;
                     windowStruct.rightColInfo = windowStruct.leftColInfo;
+                    node.xcCols = [indexColStruct];
                     windowStruct.leftColInfo = node.usrCols
                             .concat(node.xcCols).concat(node.sparkCols);
                     const rightGBColStructs = [];
@@ -1618,6 +1631,8 @@ class SQLWindow {
         let hasMainMap = false;
         let nestMapStrs = [];
         let nestMapNames = [];
+        let nestMapTypes = [];
+        let tempColsToKeep: SQLColumn[] = [];
         let windowColStructs = [];
         // Check & form next level mapStrs
         const windowStruct: SQLWindowStruct = {lead: {},
@@ -1628,7 +1643,7 @@ class SQLWindow {
                             cumeDist: {newCols: []},
                             denseRank: {newCols: []}};
         for (let i = 0; i < mapStrs.length; i++) {
-            const ret = SQLWindow.__analyzeMapStr(mapStrs[i], windowStruct, newColNames[i], colNames);
+            const ret = SQLWindow.__analyzeMapStr(node, mapStrs[i], windowStruct, newColNames[i], colNames);
             if (!ret.noMap) {
                 hasMainMap = true;
             }
@@ -1637,6 +1652,8 @@ class SQLWindow {
                 mapStrs[i] = ret.mainMapStr;
                 nestMapStrs = nestMapStrs.concat(ret.nestMapStrs);
                 nestMapNames = nestMapNames.concat(ret.nestMapNames);
+                nestMapTypes = nestMapTypes.concat(ret.nestMapTypes);
+                tempColsToKeep = tempColsToKeep.concat(ret.tempColsToKeep);
                 windowColStructs = windowColStructs.concat(ret.windowColStructs);
             }
         }
@@ -1679,9 +1696,9 @@ class SQLWindow {
             }
             // Execute window
             curPromise = curPromise.then(function (ret) {
-                nestMapNames.forEach(function(colName) {
-                    node.xcCols.push({colName: colName});
-                })
+                for (let i = 0; i < nestMapNames.length; i++) {
+                    node.xcCols.push({colName: nestMapNames[i], colType: nestMapTypes[i]});
+                }
                 return ret;
             })
             .then(function(ret) {
@@ -1707,16 +1724,19 @@ class SQLWindow {
                     if (item === "lead") {
                         if (!jQuery.isEmptyObject(windowStruct[item])) {
                             for (const offset in windowStruct[item]) {
+                                windowStruct[item][offset].tempColsToKeep = tempColsToKeep;
                                 innerPromise = SQLWindow.windowExpressionHelper(loopStruct,
                                     innerPromise, item, windowStruct[item][offset]);
                             }
                         }
                     } else if (item === "first" || item === "last") {
                         windowStruct[item].forEach(function (obj) {
+                            obj.tempColsToKeep = tempColsToKeep;
                             innerPromise = SQLWindow.windowExpressionHelper(loopStruct,
                                             innerPromise, item, obj);
                         })
                     } else if (windowStruct[item].newCols.length != 0) {
+                        windowStruct[item].tempColsToKeep = tempColsToKeep;
                         innerPromise = SQLWindow.windowExpressionHelper(loopStruct,
                                         innerPromise, item, windowStruct[item]);
                     }
@@ -1777,6 +1797,7 @@ class SQLWindow {
     }
 
     static __analyzeMapStr(
+        node: TreeNode,
         str: string,
         windowStruct,
         finalColName,
@@ -1807,7 +1828,9 @@ class SQLWindow {
         } else {
             retStruct.nestMapStrs = [];
             retStruct.nestMapNames = [];
+            retStruct.nestMapTypes = [];
             retStruct.windowColStructs = [];
+            retStruct.tempColsToKeep = [];
             while (findStar(str) != -1) {
                 const leftIndex = findStar(str);
                 let rightIndex = str.substring(leftIndex).indexOf("(") + leftIndex;
@@ -1817,7 +1840,8 @@ class SQLWindow {
                 if (findStar(str) === 0) {
                     tempColName = finalColName;
                     retStruct.noMap = true;
-                    tempColStruct = {colName: tempColName, colType: null}; // XXX need to provide type
+                    tempColStruct = {colName: tempColName,
+                        colType: SQLCompiler.getColTypeFromString(str, node)};
                 } else {
                     tempColName = "XC_WINDOWMAP_" +
                                         Authentication.getHashId().substring(3);
@@ -1826,12 +1850,13 @@ class SQLWindow {
                                         Authentication.getHashId().substring(3);
                     }
                     colNames.add(tempColName);
-                    tempColStruct = {colName: tempColName, colType: null}; // XXX need to provide type
+                    tempColStruct = {colName: tempColName};
                     retStruct.windowColStructs.push(tempColStruct);
                 }
                 if (opName === "nTile") {
                     let innerLeft = rightIndex + 1;
                     rightIndex = str.substring(innerLeft).indexOf(")") + innerLeft;
+                    tempColStruct.colType = SQLColumnType.Integer;
                     windowStruct[opName].newCols.push(tempColStruct);
                     windowStruct[opName].groupNums
                                 .push(str.substring(innerLeft, rightIndex));
@@ -1840,7 +1865,9 @@ class SQLWindow {
                     let innerLeft = rightIndex;
                     let keyColType;
                     const args = [];
-                    let defaultType = "value";
+                    let defaultType;
+                    let literalKey = false;
+                    let literalDefault = false;
                     let inQuote = false;
                     let hasQuote = false;
                     let isFunc = false;
@@ -1864,9 +1891,9 @@ class SQLWindow {
                         }
                         if (curChar === "," && parCount === 1 || parCount === 0) {
                             const curArg = str.substring(innerLeft, rightIndex - 1);
-                            defaultType = "value";
+                            let argType;
                             if (isFunc) {
-                                var innerTempColName = "XC_WINDOWMAP_" +
+                                let innerTempColName = "XC_WINDOWMAP_" +
                                         Authentication.getHashId().substring(3);
                                 while (colNames.has(innerTempColName)) {
                                     innerTempColName = "XC_WINDOWMAP_" +
@@ -1874,26 +1901,48 @@ class SQLWindow {
                                 }
                                 colNames.add(innerTempColName);
                                 args.push(innerTempColName);
+                                argType = SQLCompiler.getColTypeFromString(curArg, node);
+                                retStruct.tempColsToKeep.push({colName: innerTempColName,
+                                                               colType: argType});
                                 retStruct.nestMapStrs.push(curArg);
                                 retStruct.nestMapNames.push(innerTempColName);
-                                defaultType = "function";
+                                retStruct.nestMapTypes.push(argType);
                             } else {
                                 if (args.length === 0) {
-                                    if (hasQuote) {
-                                        keyColType = "string";
-                                    } else if (hasDot) {
-                                        keyColType = "float";
-                                    } else if (!isNaN(parseInt(curArg))) {
-                                        keyColType = "int";
+                                    literalKey = true;
+                                } else if (args.length === 2) {
+                                    literalDefault = true;
+                                }
+                                if (hasQuote) {
+                                    argType = "string";
+                                } else if (hasDot) {
+                                    argType = "float";
+                                } else if (!isNaN(Number(curArg))) {
+                                    argType = "int";
+                                } else if (curArg === "None") {
+                                    // Reserved null value
+                                    argType = null;
+                                } else {
+                                    if (args.length === 0) {
+                                        literalKey = false;
+                                    } else if (args.length === 2) {
+                                        literalDefault = false;
                                     }
+                                    argType = SQLCompiler.getColTypeFromString(curArg, node);
                                 }
                                 args.push(curArg);
-                                if (hasQuote) {
-                                    defaultType = "string";
-                                }
+                            }
+                            if (args.length === 1) {
+                                keyColType = argType;
+                                defaultType = argType;
+                            } else if (args.length === 3 && !defaultType) {
+                                // Spark doesn't allow default to be different type as key value
+                                defaultType = argType;
                             }
                             innerLeft = rightIndex;
                             isFunc = false;
+                            hasQuote = false;
+                            hasDot = false;
                         }
                     }
                     SQLUtil.assert(args.length === 3,
@@ -1903,35 +1952,51 @@ class SQLWindow {
                     }
                     if (windowStruct.lead[args[1]]) {
                         windowStruct.lead[args[1]].newCols.push(tempColStruct);
-                        if (keyColType) {
-                            windowStruct.lead[args[1]].keyCols.push({literalEval: args[0],
-                                                                     argType: keyColType});
-                        } else {
+                        if (literalKey) {
                             windowStruct.lead[args[1]].keyCols.push(
-                                            {colStruct: {colName: args[0]},
-                                             argType: null});
+                                {literalEval: args[0], argType: keyColType || defaultType || "int"});
+                        } else {
+                            const tempKeyColStruct = {colName: args[0], colType: keyColType};
+                            windowStruct.lead[args[1]].keyCols.push(
+                                {colStruct: tempKeyColStruct, argType: null});
                         }
-                        windowStruct.lead[args[1]].defaults.push({literalEval: args[2],
-                                                                  argType: defaultType});
+                        if (literalDefault) {
+                            windowStruct.lead[args[1]].defaults.push(
+                                {literalEval: args[2], argType: defaultType || keyColType || "int"});
+                        } else {
+                            const tempDefaultColStruct = {colName: args[2], colType: defaultType};
+                            windowStruct.lead[args[1]].defaults.push(
+                                {colStruct: tempDefaultColStruct, argType: null});
+                        }
                     } else {
+                        const tempKeyColStruct = {colName: args[0], colType: keyColType};
+                        const tempDefaultColStruct = {colName: args[2], colType: defaultType};
                         windowStruct.lead[args[1]] =
                                 {newCols: [tempColStruct],
-                                 keyCols: [{colStruct: {colName: args[0]},
+                                 keyCols: [{colStruct: tempKeyColStruct,
                                             argType: null}],
-                                 defaults: [{literalEval: args[2],
-                                             argType: defaultType}],
+                                 defaults: [{colStruct: tempDefaultColStruct,
+                                             argType: null}],
                                  offset: args[1]};
-                        if (keyColType) {
+                        if (literalKey) {
                             windowStruct.lead[args[1]].keyCols = [{literalEval: args[0],
-                                                                   argType: keyColType}];
+                                            argType: keyColType || defaultType || "int"}];
+                        }
+                        if (literalDefault) {
+                            windowStruct.lead[args[1]].defaults =
+                                [{literalEval: args[2], argType: defaultType || keyColType || "int"}];
                         }
                     }
                     rightIndex--;
                 } else {
                     // Other functions should take no argument: 'opName()'
                     rightIndex++;
-                    SQLUtil.assert(str[rightIndex] === ")",
-                                   "Last char should be )");
+                    SQLUtil.assert(str[rightIndex] === ")", "Last char should be )");
+                    if (opName === "cumeDist" || opName === "denseRank") {
+                        tempColStruct.colType = "float";
+                    } else {
+                        tempColStruct.colType = "int";
+                    }
                     windowStruct[opName].newCols.push(tempColStruct);
                 }
                 if (retStruct.noMap) {
