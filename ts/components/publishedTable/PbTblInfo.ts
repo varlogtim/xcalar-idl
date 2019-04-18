@@ -92,26 +92,12 @@ class PbTblInfo {
      */
     public viewResultSet(numRows: number): XDPromise<string> {
         let cachedResult: string = this._cachedSelectResultSet;
-        if (cachedResult == null ||
-            typeof gNoSelectTableCache !== "undefined" && gNoSelectTableCache === true
-        ) {
-            return this._selectTable(numRows);
-        } else {
-            const deferred: XDDeferred<string> = PromiseHelper.deferred();
-            XcalarGetTableMeta(cachedResult)
-            .then(() => {
-                // when result exist
-                deferred.resolve(cachedResult);
-            })
-            .fail(() => {
-                this._cachedSelectResultSet = undefined;
-                this._selectTable(numRows)
-                .then(deferred.resolve)
-                .fail(deferred.reject);
-            });
-
-            return deferred.promise();
+        if (cachedResult != null) {
+            XIApi.deleteTable(null, cachedResult);
+            this._cachedSelectResultSet = undefined;
         }
+
+        return this._selectTable(numRows);
     }
 
     /**

@@ -100,7 +100,6 @@ namespace xcGlobal {
         gXcalarApiLrqExportPrefix = ".XcalarLRQExport.";
         gDFSuffix = ".xlrdf.tar.gz";
         gShowSQLDF = false;
-        gNoSelectTableCache = false;
         // Shut up the console logs
         verbose = false;
         superVerbose = false;

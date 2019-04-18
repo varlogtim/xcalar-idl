@@ -59,7 +59,6 @@ describe("PbTblInfo Test", function() {
 
     it("should viewResultSet", function(done) {
         let tableInfo = new PbTblInfo();
-        let oldFunc = tableInfo._selectTable;
         let res;
         tableInfo._selectTable = function(numRows) {
             res = numRows;
@@ -73,65 +72,35 @@ describe("PbTblInfo Test", function() {
         })
         .fail(function() {
             done("fail");
-        })
-        .always(function() {
-            tableInfo._selectTable = oldFunc;
         });
     });
 
-    it("viewResultSet return cached result", function(done) {
-        let oldGetMeta = XcalarGetTableMeta;
-        let called = false;
-        XcalarGetTableMeta = function() {
-            called = true;
+    it("viewResultSet should delete cached result", function(done) {
+        let oldDelete = XIApi.deleteTable;
+        let called = 0;
+        let tableInfo = new PbTblInfo();
+
+        XIApi.deleteTable = function() {
+            called++;
             return PromiseHelper.resolve();
         };
-
-        let tableInfo = new PbTblInfo();
-        tableInfo._cachedSelectResultSet = "testTable";
-        tableInfo.viewResultSet(10)
-        .then(function(res) {
-            expect(called).to.be.true;
-            expect(res).to.equal("testTable");
-            done();
-        })
-        .fail(function() {
-            done("fail");
-        })
-        .always(function() {
-            XcalarGetTableMeta = oldGetMeta;
-        });
-    });
-
-    it("viewResultSet should handle cache fail case", function(done) {
-        let tableInfo = new PbTblInfo();
-        let oldFunc = tableInfo._selectTable;
-        let res;
-        tableInfo._selectTable = function(numRows) {
-            res = numRows;
-            return PromiseHelper.resolve();
-        };
-
-        let oldGetMeta = XcalarGetTableMeta;
-        let called = false;
-        XcalarGetTableMeta = function() {
-            called = true;
-            return PromiseHelper.reject();
+        tableInfo._selectTable = function() {
+            called++;
+            return PromiseHelper.resolve("testTable2");
         };
 
         tableInfo._cachedSelectResultSet = "testTable";
         tableInfo.viewResultSet(10)
-        .then(function() {
-            expect(called).to.be.true;
-            expect(res).to.equal(10);
+        .then(function(res) {
+            expect(called).to.equal(2);
+            expect(res).to.equal("testTable2");
             done();
         })
         .fail(function() {
             done("fail");
         })
         .always(function() {
-            tableInfo._selectTable = oldFunc;
-            XcalarGetTableMeta = oldGetMeta;
+            XIApi.deleteTable = oldDelete;
         });
     });
 

@@ -2534,7 +2534,7 @@ namespace XIApi {
         toIgnoreError: boolean = false,
         deleteCompletely?: boolean
     ): XDPromise<void> {
-        if (txId == null || tableName == null) {
+        if (tableName == null) {
             return PromiseHelper.reject("Invalid args in delete table");
         }
 
