@@ -1071,10 +1071,6 @@ class DagNodeSQL extends DagNode {
         let pubTablesInfo;
         let dropAsYouGo;
         let sqlFunctions;
-        const optimizations: SQLOptimization = {
-            combineProjectWithSynthesize: true,
-            dropAsYouGo: dropAsYouGo
-        };
         try {
             if (replaceParam) {
                 // paramterize SQL
@@ -1098,6 +1094,10 @@ class DagNodeSQL extends DagNode {
                 node: this
             });
 
+            const optimizations: SQLOptimization = {
+                combineProjectWithSynthesize: true,
+                dropAsYouGo: dropAsYouGo
+            };
             self.sendSchema(identifiers, pubTablesInfo, sqlFunctions)
             .then(function(ret) {
                 schemaQueryString = ret.queryString;
