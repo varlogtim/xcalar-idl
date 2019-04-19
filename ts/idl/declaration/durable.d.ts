@@ -20,10 +20,10 @@ interface SharedDSInfoDurable {
 }
 
 interface XcLogDurable {
-    version: number;
+    version?: number;
     title: string;
     options: any;
-    sqlType: SQLType;
+    sqlType?: SQLType;
     cli?: string;
     error?: string;
     timestamp?: number;

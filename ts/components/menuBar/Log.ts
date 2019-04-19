@@ -1,45 +1,50 @@
-window.Log = (function($, Log) {
-    var $textarea;        // $("#log-TextArea");
-    var $machineTextarea; // $("#log-MachineTextArea");
+namespace Log {
+    let $textarea: JQuery;        // $("#log-TextArea");
+    let $machineTextarea: JQuery; // $("#log-MachineTextArea");
 
-    var $undo; // $("#undo");
-    var $redo; // $("#redo");
+    let $undo: JQuery; // $("#undo");
+    let $redo: JQuery; // $("#redo");
 
     // keep in sync with initialize
-    var logCursor = -1;
-    var logToCommit = "";
-    var errToCommit = "";
-    var overwrittenToCommit = "";
-    var logCache = {
+    let logCursor: number = -1;
+    let logToCommit: string = "";
+    let errToCommit: string = "";
+    let overwrittenToCommit: string = "";
+    let logCache: {
+        logs: XcLog[],
+        errors: XcLog[],
+        overwrittenLogs: XcLog[],
+        version?: string
+    } = {
         "logs": [],
         "errors": [],
         "overwrittenLogs": [] // stores logs overwritten after an undo
     };
-    var logs = logCache.logs;
-    var errors = logCache.errors;
-    var overwrittenLogs = logCache.overwrittenLogs;
+    let logs: XcLog[] = logCache.logs;
+    let errors: XcLog[] = logCache.errors;
+    let overwrittenLogs: XcLog[] = logCache.overwrittenLogs;
     // mark if it's in a undo redo action
-    var isUndo = false;
-    var isRedo = false;
-    var shouldOverWrite = false;
-    var lastSavedCursor = logCursor;
-    var lastRestoreCursor = logCursor;
+    let _isUndo: boolean = false;
+    let _isRedo: boolean = false;
+    let shouldOverWrite: boolean = false;
+    let lastSavedCursor: number = logCursor;
+    let lastRestoreCursor: number = logCursor;
 
     // constant
-    var logLocalStoreKey = "xcalar-query";
-    var logRestoreError = "restore log error";
-    var UndoType = {
+    let logLocalStoreKey: string = "xcalar-query";
+    let logRestoreError: string = "restore log error";
+    let UndoType = {
         "Valid": 0,   // can undo/redo
         "Skip": 1,   // should skip undo/redo
         "Invalid": 2    // cannot undo/redo
     };
-    var isCollapsed = false;
-    var hasTriggerScrollToBottom = false;
-    var infList;
-    var infListMachine;
-    var isOverflow = false;
+    let isCollapsed: boolean = false;
+    let hasTriggerScrollToBottom: boolean = false;
+    let infList;
+    let infListMachine;
+    let isOverflow: boolean = false;
 
-    Log.setup = function() {
+    export function setup(): void {
         $textarea = $("#log-TextArea");
         $machineTextarea = $("#log-MachineTextArea");
         $undo = $("#undo");
@@ -54,12 +59,12 @@ window.Log = (function($, Log) {
         infListMachine = new InfList($machineTextarea);
     };
 
-    Log.hasUncommitChange = function() {
+    export function hasUncommitChange(): boolean {
         return (logToCommit !== "") || (logCursor !== logs.length - 1);
     };
 
-    Log.restore = function(oldLogCursor, isKVEmpty) {
-        var deferred = PromiseHelper.deferred();
+    export function restore(oldLogCursor: number, isKVEmpty?: boolean): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         if (isKVEmpty) {
             updateUndoRedoState();
@@ -82,7 +87,7 @@ window.Log = (function($, Log) {
         })
         .fail(function(error) {
             if (error === logRestoreError) {
-                Log.clear();
+                clear();
                 deferred.resolve();
             } else {
                 deferred.reject(error);
@@ -90,21 +95,21 @@ window.Log = (function($, Log) {
         })
         .always(function() {
             updateUndoRedoState();
-            Log.scrollToBottom();
+            scrollToBottom();
         });
 
         return deferred.promise();
     };
 
-    Log.upgrade = function(oldRawLogs) {
-        var oldLogs = parseRawLog(oldRawLogs);
+    export function upgrade(oldRawLogs: string): string {
+        let oldLogs: any[] = parseRawLog(oldRawLogs);
         if (oldLogs == null) {
             return null;
         }
 
-        var newLogs = [];
+        let newLogs = [];
         oldLogs.forEach(function(oldLog) {
-            var newLog = KVStore.upgrade(oldLog, "XcLog");
+            let newLog = KVStore.upgrade(oldLog, "XcLog");
             newLogs.push(newLog);
         });
 
@@ -115,7 +120,7 @@ window.Log = (function($, Log) {
         }
     };
 
-    Log.add = function(title, options, cli, willCommit) {
+    export function add(title: string, options: any, cli?: string, willCommit?: boolean): void {
         options = options || {};
 
         if ($.isEmptyObject(options)) {
@@ -123,24 +128,24 @@ window.Log = (function($, Log) {
             return;
         }
 
-        if (isUndo || isRedo) {
+        if (_isUndo || _isRedo) {
             return;
         }
 
-        var xcLog = new XcLog({
+        let xcLog = new XcLog({
             "title": title,
             "options": options,
             "cli": cli
         });
 
-        addLog(xcLog, false, willCommit);
+        addLog(xcLog, willCommit);
 
-        Log.scrollToBottom();
+        scrollToBottom();
         updateUndoRedoState();
     };
 
-    Log.errorLog = function(title, options, cli, error) {
-        var xcLog = new XcLog({
+    export function errorLog(title, options, cli, error) {
+        let xcLog: XcLog = new XcLog({
             "title": title,
             "options": options,
             "cli": cli,
@@ -152,13 +157,13 @@ window.Log = (function($, Log) {
         localCommit();
     };
 
-    Log.commit = function() {
-        var deferred = PromiseHelper.deferred();
+    export function commit(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         commitLogs()
         .then(function() {
             lastSavedCursor = logCursor;
-            return Log.commitErrors();
+            return commitErrors();
         })
         .then(function() {
             return commitOverwrittenLogs();
@@ -169,16 +174,16 @@ window.Log = (function($, Log) {
         return deferred.promise();
     };
 
-    Log.commitErrors = function() {
+    export function commitErrors(): XDPromise<void> {
         if (errToCommit === "") {
             return PromiseHelper.resolve();
         }
 
-        var deferred = PromiseHelper.deferred();
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        var key = KVStore.getKey("gErrKey");
-        var kvStore = new KVStore(key, gKVScope.WKBK);
-        var tmpLog = errToCommit;
+        let key: string = KVStore.getKey("gErrKey");
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        let tmpLog: string = errToCommit;
         errToCommit = "";
 
         kvStore.append(tmpLog, true)
@@ -191,15 +196,15 @@ window.Log = (function($, Log) {
         return deferred.promise();
     };
 
-    Log.getCursor = function() {
+    export function getCursor(): number {
         return logCursor;
     };
 
-    Log.getLogs = function() {
+    export function getLogs(): XcLog[] {
         return logs;
     };
 
-    Log.getErrorLogs = function(condensed) {
+    export function getErrorLogs(condensed?: boolean): XcLog[] {
         if (condensed) {
             return getCondensedErrors();
         } else {
@@ -207,40 +212,46 @@ window.Log = (function($, Log) {
         }
     };
 
-    Log.getConsoleErrors = function() {
+    export function getConsoleErrors(): XcLog[] {
         return errors.filter(function(err) {
-            return err.title === "Console error";
+            return err.getTitle() === "Console error";
         });
     };
 
-    Log.getAllLogs = function(condensed) {
+    export function getAllLogs(condensed?: boolean): {
+        logs: XcLog[],
+        errors: XcLog[],
+        overwrittenLogs: XcLog[],
+        version?: string
+    } {
         if (condensed) {
             return {"logs": logs,
                     "errors": getCondensedErrors(),
                     "overwrittenLogs": overwrittenLogs,
-                    "version": XVM.getVersion(true)};
+                    "version": XVM.getVersion(true)
+                };
         } else {
             return logCache;
         }
     };
 
-    Log.getLocalStorage = function() {
+    export function getLocalStorage(): string {
         return xcLocalStorage.getItem(logLocalStoreKey);
     };
 
-    Log.getBackup = function() {
-        var key = logLocalStoreKey + "-backup";
+    export function getBackup(): string {
+        let key = logLocalStoreKey + "-backup";
         return xcLocalStorage.getItem(key);
     };
 
-    Log.backup = function() {
+    export function backup(): void {
         if (xcManager.isInSetup() || isOverflow) {
             // start up time error don't trigger backup
             // or it may overwrite old log backup
             return;
         }
 
-        var key = logLocalStoreKey + "-backup";
+        let key: string = logLocalStoreKey + "-backup";
         if (!xcLocalStorage.setItem(key, JSON.stringify(logCache))) {
             isOverflow = true;
             // Remove logCache from local storage because
@@ -250,13 +261,13 @@ window.Log = (function($, Log) {
         }
     };
 
-    Log.clear = function() {
+    export function clear(): void {
         $textarea.html("");
         $machineTextarea.html("");
         initialize();
     };
 
-    Log.scrollToBottom = function() {
+    export function scrollToBottom(): void {
         xcUIHelper.scrollToBottom($textarea);
         xcUIHelper.scrollToBottom($machineTextarea);
         // when one panel scroll to bottom,
@@ -266,18 +277,18 @@ window.Log = (function($, Log) {
     };
 
     // inBackground: boolean, to do it behind the scenes without user knowing
-    Log.undo = function(step, inBackground) {
-        var deferred = PromiseHelper.deferred();
-        xcAssert((isUndo === false), "Doing other undo/redo operation?");
+    export function undo(step?: number, inBackground?: boolean): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        xcAssert((_isUndo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
             step = 1;
         }
 
-        var c = logCursor;
-        var promises = [];
+        let c: number = logCursor;
+        let promises: XDPromise<void>[] = [];
 
-        for (var i = 0; i < step; i++) {
+        for (let i = 0; i < step; i++) {
             if (c < 0) {
                 // cannot undo anymore
                 break;
@@ -295,7 +306,7 @@ window.Log = (function($, Log) {
                 break;
             }
 
-            var xcLog = logs[c];
+            let xcLog = logs[c];
             if (getUndoType(xcLog) !== UndoType.Valid) {
                 // cannot undo
                 break;
@@ -305,9 +316,9 @@ window.Log = (function($, Log) {
             c--;
         }
 
-        isUndo = true;
-        Log.lockUndoRedo();
-        var passed = false;
+        _isUndo = true;
+        lockUndoRedo();
+        let passed: boolean = false;
         PromiseHelper.chain(promises)
         .then(function() {
             // cursor in the current position
@@ -320,8 +331,8 @@ window.Log = (function($, Log) {
             deferred.reject(error);
         })
         .always(function() {
-            isUndo = false;
-            Log.unlockUndoRedo();
+            _isUndo = false;
+            unlockUndoRedo();
             updateUndoRedoState();
             if (!inBackground) {
                 refreshTooltip($undo);
@@ -334,16 +345,16 @@ window.Log = (function($, Log) {
         return deferred.promise();
     };
 
-    Log.repeat = function() {
+    export function repeat(): XDPromise<void> {
         if ($("#redo").hasClass("locked")) {
             return PromiseHelper.reject();
         }
-        var deferred = PromiseHelper.deferred();
-        var logLen = logs.length;
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let logLen: number = logs.length;
         if (!logLen || logCursor !== logLen - 1) {
             return PromiseHelper.resolve();
         } else {
-            var xcLog = logs[logCursor];
+            let xcLog: XcLog = logs[logCursor];
             Repeat.run(xcLog)
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -352,25 +363,25 @@ window.Log = (function($, Log) {
         }
     };
 
-    Log.redo = function(step) {
-        var deferred = PromiseHelper.deferred();
-        xcAssert((isRedo === false), "Doing other undo/redo operation?");
+    export function redo(step?: number): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        xcAssert((_isRedo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
             step = 1;
         }
 
-        var logLen = logs.length;
-        var c = logCursor + 1;
-        var promises = [];
+        let logLen: number = logs.length;
+        let c: number = logCursor + 1;
+        let promises: XDPromise<void>[] = [];
 
-        for (var i = 0; i < step; i++) {
+        for (let i = 0; i < step; i++) {
             if (c >= logLen) {
                 // cannot redo anymore
                 break;
             }
 
-            var xcLog = logs[c];
+            let xcLog: XcLog = logs[c];
             if (getUndoType(xcLog) !== UndoType.Valid) {
                 console.warn("Invalid log to redo", xcLog);
                 break;
@@ -385,9 +396,9 @@ window.Log = (function($, Log) {
             }
         }
 
-        isRedo = true;
-        Log.lockUndoRedo();
-        var passed = false;
+        _isRedo = true;
+        lockUndoRedo();
+        let passed: boolean = false;
         PromiseHelper.chain(promises)
         .then(function() {
             logCursor = c - 1;
@@ -399,8 +410,8 @@ window.Log = (function($, Log) {
             deferred.reject(error);
         })
         .always(function() {
-            isRedo = false;
-            Log.unlockUndoRedo();
+            _isRedo = false;
+            unlockUndoRedo();
             updateUndoRedoState();
             refreshTooltip($redo);
             if (passed) {
@@ -410,16 +421,16 @@ window.Log = (function($, Log) {
         return deferred.promise();
     };
 
-    Log.isUndo = function() {
-        return isUndo;
+    export function isUndo(): boolean {
+        return _isUndo;
     };
 
-    Log.isRedo = function() {
-        return isRedo;
+    export function isRedo(): boolean {
+        return _isRedo;
     };
 
-    Log.viewLastAction = function(detailed) {
-        var curLog = logs[logCursor];
+    export function viewLastAction(detailed: boolean): string | XcLog {
+        let curLog = logs[logCursor];
         if (logCursor !== -1) {
             if (detailed) {
                 return curLog;
@@ -431,7 +442,7 @@ window.Log = (function($, Log) {
         }
     };
 
-    Log.lockUndoRedo = function() {
+    export function lockUndoRedo(): void {
         $undo.addClass("disabled locked");
         xcTooltip.changeText($undo, TooltipTStr.LockedTableUndo);
 
@@ -439,9 +450,9 @@ window.Log = (function($, Log) {
         xcTooltip.changeText($redo, TooltipTStr.LockedTableRedo);
     };
 
-    Log.unlockUndoRedo = function() {
-        var lastUndoMessage = $undo.data("lastmessage");
-        var lastUndoState = $undo.data("laststate");
+    export function unlockUndoRedo(): void {
+        let lastUndoMessage: string = $undo.data("lastmessage");
+        let lastUndoState: string = $undo.data("laststate");
         $undo.removeClass("locked");
         $redo.removeClass("locked");
         if (lastUndoState !== "disabled") {
@@ -450,8 +461,8 @@ window.Log = (function($, Log) {
 
         xcTooltip.changeText($undo, lastUndoMessage);
 
-        var lastRedoMessage = $redo.data("lastmessage");
-        var lastRedoState = $redo.data("laststate");
+        let lastRedoMessage: string = $redo.data("lastmessage");
+        let lastRedoState: string = $redo.data("laststate");
         if (lastRedoState !== "disabled") {
             $redo.removeClass("disabled");
         }
@@ -459,7 +470,7 @@ window.Log = (function($, Log) {
         xcTooltip.changeText($redo, lastRedoMessage);
     };
 
-    function initialize() {
+    function initialize(): void {
         logCursor = -1;
         logToCommit = "";
         errToCommit = "";
@@ -476,12 +487,12 @@ window.Log = (function($, Log) {
         errors = logCache.errors;
         overwrittenLogs = logCache.overwrittenLogs;
 
-        isUndo = false;
-        isRedo = false;
+        _isUndo = false;
+        _isRedo = false;
     }
 
-    function addEvents() {
-        var $logButtons = $("#logButtonWrap");
+    function addEvents(): void {
+        let $logButtons: JQuery = $("#logButtonWrap");
         // set up the log section
         $logButtons.on("click", ".machineLog", function() {
             $(this).removeClass("machineLog")
@@ -490,7 +501,7 @@ window.Log = (function($, Log) {
             $textarea.show();
             $logButtons.find(".collapseAll, .expandAll").removeClass("xc-disabled");
             if (hasTriggerScrollToBottom) {
-                Log.scrollToBottom();
+                scrollToBottom();
                 hasTriggerScrollToBottom = false;
             }
         });
@@ -502,7 +513,7 @@ window.Log = (function($, Log) {
             $textarea.hide();
             $logButtons.find(".collapseAll, .expandAll").addClass("xc-disabled");
             if (hasTriggerScrollToBottom) {
-                Log.scrollToBottom();
+                scrollToBottom();
                 hasTriggerScrollToBottom = false;
             }
         });
@@ -535,15 +546,15 @@ window.Log = (function($, Log) {
         });
     }
 
-    function commitLogs() {
+    function commitLogs(): XDPromise<void> {
         if (logToCommit === "") {
             return PromiseHelper.resolve();
         }
 
-        var deferred = PromiseHelper.deferred();
-        var key = KVStore.getKey("gLogKey");
-        var kvStore = new KVStore(key, gKVScope.WKBK);
-        var tmpLog = logToCommit;
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let key: string = KVStore.getKey("gLogKey");
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        let tmpLog: string = logToCommit;
         logToCommit = "";
         // should change logToCommit before async call
 
@@ -557,19 +568,19 @@ window.Log = (function($, Log) {
         return deferred.promise();
     }
 
-    function parseRawLog(rawLog) {
-        var parsedLogs = [];
+    function parseRawLog(rawLog: string): XcLogDurable[] {
+        let parsedLogs: XcLogDurable[] = [];
 
         if (rawLog == null) {
             return parsedLogs;
         }
 
         try {
-            var len = rawLog.length;
+            let len: number= rawLog.length;
             if (rawLog.charAt(len - 1) === ",") {
                 rawLog = rawLog.substring(0, len - 1);
             }
-            var logStr = "[" + rawLog + "]";
+            let logStr: string = "[" + rawLog + "]";
             parsedLogs = JSON.parse(logStr);
             return parsedLogs;
         } catch (error) {
@@ -578,33 +589,36 @@ window.Log = (function($, Log) {
         }
     }
 
-    function stringifyLog(logs) {
-        var logStr = JSON.stringify(logs);
+    function stringifyLog(logs: XcLog[]): string {
+        let logStr = JSON.stringify(logs);
         // strip "[" and "]" and add comma
         logStr = logStr.substring(1, logStr.length - 1) + ",";
         return logStr;
     }
 
     // restore logs
-    function restoreLogs(oldLogCursor) {
-        var deferred = PromiseHelper.deferred();
-        var key = KVStore.getKey("gLogKey");
-        var kvStore = new KVStore(key, gKVScope.WKBK);
+    function restoreLogs(oldLogCursor: number): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let key: string = KVStore.getKey("gLogKey");
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
         .then(function(rawLog) {
-            var oldLogs = parseRawLog(rawLog);
+            let oldLogs: XcLogDurable[] = parseRawLog(rawLog);
             if (oldLogs != null) {
                 if (oldLogCursor == null || oldLogCursor >= oldLogs.length) {
                     // error case
                     xcConsole.error("Lost old cursor track");
                     oldLogCursor = oldLogs.length - 1;
                 }
-                var logs = [];
-                for (var i = 0; i <= oldLogCursor; i++) {
-                    logs.push(new XcLog(oldLogs[i]));
+                let restoredLogs: XcLog[] = [];
+                for (let i = 0; i <= oldLogCursor; i++) {
+                    restoredLogs.push(new XcLog(oldLogs[i]));
                 }
-
-                addLog(logs, true);
+                for (let i = 0; i < restoredLogs.length; i++) {
+                    logCursor++;
+                    logs[logCursor] = restoredLogs[i];
+                }
+                showLog(null, logCursor, restoredLogs);
                 infList.restore(".logContentWrap");
                 infListMachine.restore(".cliWrap");
 
@@ -629,13 +643,13 @@ window.Log = (function($, Log) {
     }
 
     // restore error logs
-    function restoreErrors() {
-        var deferred = PromiseHelper.deferred();
-        var key = KVStore.getKey("gErrKey");
-        var kvStore = new KVStore(key, gKVScope.WKBK);
+    function restoreErrors(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let key: string = KVStore.getKey("gErrKey");
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
         .then(function(rawLog) {
-            var oldErrors = parseRawLog(rawLog);
+            let oldErrors: XcLogDurable[] = parseRawLog(rawLog);
 
             if (oldErrors == null) {
                 return PromiseHelper.reject(logRestoreError);
@@ -646,7 +660,7 @@ window.Log = (function($, Log) {
             }
 
             oldErrors.forEach(function(oldErr) {
-                var errorLog = new XcLog(oldErr);
+                let errorLog: XcLog = new XcLog(oldErr);
                 errors.push(errorLog);
             });
 
@@ -658,13 +672,13 @@ window.Log = (function($, Log) {
         return deferred.promise();
     }
 
-    function restoreOverwrittenLogs() {
-        var deferred = PromiseHelper.deferred();
-        var key = KVStore.getKey("gOverwrittenLogKey");
-        var kvStore = new KVStore(key, gKVScope.WKBK);
+    function restoreOverwrittenLogs(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let key: string = KVStore.getKey("gOverwrittenLogKey");
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
-        .then(function(rawLog) {
-            var oldOverwrites = parseRawLog(rawLog);
+        .then(function(rawLog: string) {
+            let oldOverwrites: XcLogDurable[] = parseRawLog(rawLog);
 
             if (oldOverwrites == null) {
                 return PromiseHelper.reject(logRestoreError);
@@ -675,7 +689,7 @@ window.Log = (function($, Log) {
             }
 
             oldOverwrites.forEach(function(oldOverwrite) {
-                var overwriteLog = new XcLog(oldOverwrite);
+                let overwriteLog = new XcLog(oldOverwrite);
                 overwrittenLogs.push(overwriteLog);
             });
 
@@ -688,11 +702,11 @@ window.Log = (function($, Log) {
     }
 
     // if restore, log is an array
-    function addLog(log, isRestore, willCommit) {
+    function addLog(log: XcLog, willCommit?: boolean): void {
         // normal log
         if (shouldOverWrite || logCursor !== logs.length - 1) {
             // when user do a undo before
-            for (var i = logCursor + 1; i < logs.length; i++) {
+            for (let i = logCursor + 1; i < logs.length; i++) {
                 overwrittenLogs.push(logs[i]);
                 overwrittenToCommit += JSON.stringify(logs[i]) + ",";
             }
@@ -705,9 +719,9 @@ window.Log = (function($, Log) {
             // must set to "" before async call, other wise KVStore.commit
             // may mess it up
             logToCommit = "";
-            var key = KVStore.getKey("gLogKey");
-            var logStr = stringifyLog(logs);
-            var kvStore = new KVStore(key, gKVScope.WKBK);
+            let key: string = KVStore.getKey("gLogKey");
+            let logStr: string = stringifyLog(logs);
+            let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
             kvStore.put(logStr, true)
             .then(function() {
                 localCommit();
@@ -729,29 +743,22 @@ window.Log = (function($, Log) {
                 console.error("Overwrite log fails!", error);
             });
         } else {
-            if (isRestore) { // if restore, log is an array
-                for (var i = 0; i < log.length; i++) {
-                    logCursor++;
-                    logs[logCursor] = log[i];
-                }
-            } else {
-                logCursor++;
-                logs[logCursor] = log;
-                logToCommit += JSON.stringify(log) + ",";
-                // XXX FIXME: uncomment it if commit on errorLog only has bug
-                // localCommit();
-            }
+            logCursor++;
+            logs[logCursor] = log;
+            logToCommit += JSON.stringify(log) + ",";
+            // XXX FIXME: uncomment it if commit on errorLog only has bug
+            // localCommit();
         }
 
-        showLog(log, logCursor, isRestore);
+        showLog(log, logCursor);
     }
 
     // XXX TODO: update it if necessary
-    function dropUndoneTables() {
-        var deferred = PromiseHelper.deferred();
-        var tables = [];
-        var table;
-        for (var tableId in gTables) {
+    function dropUndoneTables(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let tables: TableId[] = [];
+        let table: TableMeta;
+        for (let tableId in gTables) {
             table = gTables[tableId];
             if (table.getType() === TableType.Undone) {
                 tables.push(table.getId());
@@ -770,8 +777,8 @@ window.Log = (function($, Log) {
         return deferred.promise();
     }
 
-    function getUndoType(xcLog) {
-        var operation = xcLog.getOperation();
+    function getUndoType(xcLog: XcLog): number {
+        let operation: string = xcLog.getOperation();
         if (operation == null) {
             console.error("Invalid log", xcLog);
             return UndoType.Invalid;
@@ -802,7 +809,7 @@ window.Log = (function($, Log) {
             case "roundToFixed": // this is a deprecated op in Chronos Patch Set 1
                 return UndoType.Skip;
             default:
-                var options = xcLog.getOptions();
+                let options = xcLog.getOptions();
                 if (options && options.tableName) {
                     if (DagTable.Instance.getTable() !== options.tableName) {
                         if (options.newTableName && // sort case
@@ -818,13 +825,13 @@ window.Log = (function($, Log) {
         }
     }
 
-    function undoLog(xcLog, cursor) {
+    function undoLog(xcLog: XcLog, cursor: number): XDPromise<number> {
         xcAssert((xcLog != null), "invalid log");
 
-        var deferred = PromiseHelper.deferred();
+        let deferred: XDDeferred<number> = PromiseHelper.deferred();
 
-        var logLen = logs.length;
-        var isMostRecent = (cursor === (logLen - 1));
+        let logLen: number = logs.length;
+        let isMostRecent: boolean = (cursor === (logLen - 1));
         Undo.run(xcLog, isMostRecent)
         .then(function() {
             if (logs.length !== logLen) {
@@ -840,12 +847,12 @@ window.Log = (function($, Log) {
         return deferred.promise();
     }
 
-    function redoLog(xcLog, cursor) {
+    function redoLog(xcLog, cursor): XDPromise<number>  {
         xcAssert((xcLog != null), "invalid log");
 
-        var deferred = PromiseHelper.deferred();
+        let deferred: XDDeferred<number> = PromiseHelper.deferred();
 
-        var logLen = logs.length;
+        let logLen: number = logs.length;
         Redo.run(xcLog)
         .then(function() {
             if (logs.length !== logLen) {
@@ -861,20 +868,18 @@ window.Log = (function($, Log) {
         return deferred.promise();
     }
 
-    Log.updateUndoRedoState = updateUndoRedoState;
-
-    function updateUndoRedoState() {
+    export function updateUndoRedoState(): void {
         xcTooltip.hideAll();
 
         // check redo
-        var next = logCursor + 1;
+        let next: number = logCursor + 1;
         while (next < logs.length && getUndoType(logs[next]) === UndoType.Skip) {
             next++;
         }
 
         if (next === logs.length) {
             // when nothing to redo
-            var tooltip = TooltipTStr.NoRedo;
+            let tooltip: string = TooltipTStr.NoRedo;
             $redo.addClass("disabled")
                  .data("lastmessage", tooltip)
                  .data("laststate", "disabled");
@@ -888,7 +893,7 @@ window.Log = (function($, Log) {
             xcTooltip.changeText($redo, TooltipTStr.NoRedo);
         } else {
             // when can redo
-            var redoTitle = xcStringHelper.replaceMsg(TooltipTStr.Redo, {
+            let redoTitle: string = xcStringHelper.replaceMsg(TooltipTStr.Redo, {
                 "op": logs[next].getTitle()
             });
 
@@ -899,7 +904,7 @@ window.Log = (function($, Log) {
         }
 
         // check undo
-        var cur = logCursor;
+        let cur: number = logCursor;
         while (cur >= 0 &&
             cur > lastRestoreCursor &&
             getUndoType(logs[cur]) === UndoType.Skip
@@ -907,7 +912,7 @@ window.Log = (function($, Log) {
             cur--;
         }
 
-        var undoTitle;
+        let undoTitle;
         if (cur === -1 || cur === lastRestoreCursor) {
             // when no operation to undo
             $undo.addClass("disabled")
@@ -936,15 +941,15 @@ window.Log = (function($, Log) {
         }
     }
 
-    function updateLogPanel(cursor) {
+    function updateLogPanel(cursor: number): void {
         // the idea is: we use an id the mark the log and cli,
         // so all logs/clis before logCurosor's position should show
         // others should hide
-        var $logs = $($textarea.find(".logContentWrap").get().reverse());
+        let $logs: JQuery = $($textarea.find(".logContentWrap").get().reverse());
         $logs.show();
         $logs.each(function() {
-            var $log = $(this);
-            var id = $log.data("log");
+            let $log: JQuery = $(this);
+            let id: number = $log.data("log");
             if (id > cursor) {
                 $log.hide();
             } else {
@@ -952,11 +957,11 @@ window.Log = (function($, Log) {
             }
         });
 
-        var $clis = $($machineTextarea.find(".cliWrap").get().reverse());
+        let $clis: JQuery = $($machineTextarea.find(".cliWrap").get().reverse());
         $clis.show();
         $clis.each(function() {
-            var $cli = $(this);
-            var cliId = $cli.data("cli");
+            let $cli: JQuery = $(this);
+            let cliId: number = $cli.data("cli");
             if (cliId > cursor) {
                 $cli.hide();
             } else {
@@ -964,14 +969,14 @@ window.Log = (function($, Log) {
             }
         });
 
-        Log.scrollToBottom();
+        scrollToBottom();
     }
 
-    function resetLoclStore() {
+    function resetLoclStore(): void {
         xcLocalStorage.removeItem(logLocalStoreKey);
     }
 
-    function localCommit() {
+    function localCommit(): void {
         if (!isOverflow) {
             if (!xcLocalStorage.setItem(logLocalStoreKey, JSON.stringify(logCache))) {
                 isOverflow = true;
@@ -981,15 +986,15 @@ window.Log = (function($, Log) {
     }
 
     // if isRestore, log is an array of logs
-    function showLog(log, cursor, isRestore) {
+    function showLog(log: XcLog, cursor: number, restoredLogs?: XcLog[]): void {
         // some log is overwritten because of undo and redo, should remove them
-        var cliHtml = "";
-        var cliMachine = "";
-        if (!isRestore) {
-            var $logs = $($textarea.find(".logContentWrap").get().reverse());
+        let cliHtml: string = "";
+        let cliMachine: string = "";
+        if (!restoredLogs) {
+            let $logs: JQuery = $($textarea.find(".logContentWrap").get().reverse());
             $logs.each(function() {
-                var $log = $(this);
-                var id = $log.data("log");
+                let $log: JQuery = $(this);
+                let id: number = $log.data("log");
                 if (id >= cursor) {
                     $log.remove();
                 } else {
@@ -997,10 +1002,10 @@ window.Log = (function($, Log) {
                 }
             });
 
-            var $clis = $($machineTextarea.find(".cliWrap").get().reverse());
+            let $clis: JQuery = $($machineTextarea.find(".cliWrap").get().reverse());
             $clis.each(function() {
-                var $cli = $(this);
-                var cliId = $cli.data("cli");
+                let $cli: JQuery = $(this);
+                let cliId: number = $cli.data("cli");
                 if (cliId >= cursor) {
                     $cli.remove();
                 } else {
@@ -1010,9 +1015,9 @@ window.Log = (function($, Log) {
             cliHtml = getCliHTML(log, logCursor);
             cliMachine = getCliMachine(log, logCursor);
         } else {
-            for (var i = 0; i < log.length; i++) {
-                cliHtml += getCliHTML(log[i], i);
-                cliMachine += getCliMachine(log[i], i);
+            for (let i = 0; i < restoredLogs.length; i++) {
+                cliHtml += getCliHTML(restoredLogs[i], i);
+                cliMachine += getCliMachine(restoredLogs[i], i);
             }
         }
 
@@ -1020,39 +1025,39 @@ window.Log = (function($, Log) {
         $machineTextarea.append(cliMachine);
     }
 
-    function getCliHTML(xcLog, id) {
-        var options = xcLog.options;
-        if (xcLog.sqlType === SQLType.Error) {
+    function getCliHTML(xcLog: XcLog, id: number): HTML {
+        let options = xcLog.options;
+        if (xcLog.getSQLType() === SQLType.Error) {
             return "";
         }
 
-        var undoType = getUndoType(xcLog);
+        let undoType: number = getUndoType(xcLog);
         if (undoType === UndoType.Skip) {
             // not display it
             return "";
         }
 
-        var opsToExclude = options.htmlExclude || []; // array of keys to
+        let opsToExclude: any[] = options.htmlExclude || []; // array of keys to
         // exclude from HTML
         opsToExclude.push("noUndo"); // XXX temp
-        var collapseClass;
+        let collapseClass: string;
         if (isCollapsed) {
             collapseClass = " collapsed";
         } else {
             collapseClass = " expanded";
         }
-        var html = '<div class="logContentWrap '+ collapseClass +
+        let html: HTML = '<div class="logContentWrap '+ collapseClass +
                     '" data-log=' + id + '>' +
-                    '<div class="title"> >>' + xcLog.title +
+                    '<div class="title"> >>' + xcLog.getTitle() +
                         '<span class="colon">:</span>' +
                         '<span class="expand">' +
                             '<i class="icon xi-arrow-down"></i>' +
                         '</span>' +
                     '</div>' +
                     '<div class="content">{';
-        var count = 0;
+        let count: number = 0;
 
-        for (var key in options) {
+        for (let key in options) {
             // not show up null value
             if (options[key] == null) {
                 continue;
@@ -1064,7 +1069,7 @@ window.Log = (function($, Log) {
             if (count > 0) {
                 html += ',';
             }
-            var val = JSON.stringify(options[key]);
+            let val: string = JSON.stringify(options[key]);
             val = xcStringHelper.escapeHTMLSpecialChar(val);
             html += '<span class="' + key + '">' +
                         '<span class="logKey">' + key + '</span>' +
@@ -1080,28 +1085,28 @@ window.Log = (function($, Log) {
         return (html);
     }
 
-    function getCliMachine(xcLog, id) {
+    function getCliMachine(xcLog: XcLog, id: number): HTML {
         // Here's the real code
-        if (xcLog.sqlType === SQLType.Error) {
+        if (xcLog.getSQLType() === SQLType.Error) {
             return "";
         }
 
-        var isBackOp = isBackendOperation(xcLog);
+        let isBackOp: boolean = isBackendOperation(xcLog);
 
         if (isBackOp == null || isBackOp === false) {
             // unsupport operation or front end operation
             return "";
         } else {
             // thrift operation
-            var string = '<span class="cliWrap" data-cli=' + id + '>' +
-                            xcStringHelper.escapeHTMLSpecialChar(xcLog.cli) +
+            let string: HTML = '<span class="cliWrap" data-cli=' + id + '>' +
+                            xcStringHelper.escapeHTMLSpecialChar(xcLog.getCli()) +
                          '</span>';
             return string;
         }
     }
 
-    function downloadLog() {
-        var value;
+    function downloadLog(): void {
+        let value: string;
         if ($machineTextarea.is(":visible")) {
             xcAssert(!$textarea.is(":visible"),
                     "human and android cannot coexist!");
@@ -1111,12 +1116,12 @@ window.Log = (function($, Log) {
                     "human and android cannot coexist!");
             xcAssert($textarea.is(":visible"),
                     "At least one bar should be showing");
-            value = JSON.stringify(Log.getAllLogs());
+            value = JSON.stringify(getAllLogs());
         }
         xcHelper.downloadAsFile("xcalar.log", value, false);
     }
 
-    function toggleLogSize($section) {
+    function toggleLogSize($section: JQuery): void {
         $section.toggleClass("collapsed");
         $section.toggleClass("expanded");
         if ($textarea.find(".expanded").length) {
@@ -1126,18 +1131,18 @@ window.Log = (function($, Log) {
         }
     }
 
-    function getCondensedErrors() {
-        var condErrors = [];
-        var lastError = {};
-        var diffFound;
-        var numRepeats = 0;
-        var currError;
+    function getCondensedErrors(): XcLog[] {
+        let condErrors: XcLog[]  = [];
+        let lastError: XcLog;
+        let diffFound: boolean;
+        let numRepeats: number = 0;
+        let currError: XcLog;
 
-        for (var i = 0; i < errors.length; i++) {
+        for (let i = 0; i < errors.length; i++) {
             currError = errors[i];
             diffFound = false;
-            if (currError.title === lastError.title) {
-                for (var prop in currError) {
+            if (lastError && currError.getTitle() === lastError.getTitle()) {
+                for (let prop in currError) {
                     if (prop !== "timestamp") {
                         if (typeof currError[prop] === "object") {
                             if (typeof lastError[prop] === "object") {
@@ -1169,7 +1174,7 @@ window.Log = (function($, Log) {
 
         addError();
 
-        function addError() {
+        function addError(): void {
             if (!$.isEmptyObject(lastError)) {
                 if (numRepeats) {
                     lastError["errorRepeated"] = numRepeats;
@@ -1182,8 +1187,8 @@ window.Log = (function($, Log) {
         return condErrors;
     }
 
-    function isBackendOperation(xcLog) {
-        var operation = xcLog.getOperation();
+    function isBackendOperation(xcLog: XcLog): boolean {
+        let operation: string = xcLog.getOperation();
 
         switch (operation) {
             // front end opeartion
@@ -1251,17 +1256,17 @@ window.Log = (function($, Log) {
         }
     }
 
-    function commitOverwrittenLogs() {
+    function commitOverwrittenLogs(): XDPromise<void> {
         if (overwrittenToCommit === "") {
             return PromiseHelper.resolve();
         }
 
-        var deferred = PromiseHelper.deferred();
-        var tmpLog = overwrittenToCommit;
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let tmpLog: string = overwrittenToCommit;
         overwrittenToCommit = "";
 
-        var key = KVStore.getKey("gOverwrittenLogKey");
-        var kvStore = new KVStore(key, gKVScope.WKBK)
+        let key: string = KVStore.getKey("gOverwrittenLogKey");
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK)
         kvStore.append(tmpLog, true)
         .then(deferred.resolve)
         .fail(function(error) {
@@ -1272,24 +1277,23 @@ window.Log = (function($, Log) {
         return deferred.promise();
     }
 
-    function refreshTooltip($button) {
-        $button = $button.filter((index, el) => {
+    function refreshTooltip($button: JQuery) {
+        $button = $button.filter((_index, el) => {
             return $(el).is(":visible");
         });
         xcTooltip.refresh($button, 2000);
     }
 
 
-    /* Unit Test Only */
-    if (window.unitTestMode) {
-        Log.__testOnly__ = {};
-        Log.__testOnly__.isBackendOperation = isBackendOperation;
-        Log.__testOnly__.getCliMachine = getCliMachine;
-        Log.__testOnly__.getCliHTML = getCliHTML;
-        Log.__testOnly__.getUndoType = getUndoType;
-        Log.__testOnly__.UndoType = UndoType;
+    // /* Unit Test Only */
+    if (window["unitTestMode"]) {
+        Log["__testOnly__"] = {
+            isBackendOperation: isBackendOperation,
+            getCliMachine: getCliMachine,
+            getCliHTML: getCliHTML,
+            getUndoType: getUndoType,
+            UndoType: UndoType
+        };
     }
-    /* End Of Unit Test Only */
-
-    return (Log);
-}(jQuery, {}));
+    // /* End Of Unit Test Only */
+}

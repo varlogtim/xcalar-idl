@@ -866,31 +866,18 @@ declare namespace PromiseHelper {
     export function chain<T>(...args): XDPromise<T>;
 }
 
-declare namespace Log {
-    export function getAllLogs(): object[];
-    export function getErrorLogs(): XcLog[];
-    export function getLogs(): XcLog[];
-    export function getLocalStorage(): string;
-    export function getBackup(): string;
-    export function commit(): XDPromise<void>;
-    export function restore(oldLogCursor: number): XDPromise<void>;
-    export function upgrade(oldLog: string): string;
-    export function hasUncommitChange(): boolean;
-    export function lockUndoRedo(): void;
-    export function unlockUndoRedo(): void;
-    export function backup(): void;
-    export function add(title: string, options: object | null, cli?: string, willCommit?: boolean): void;
-    export function getCursor(): number;
-    export function errorLog(title: string, sql: object, cli: string, error: string | object);
-    export function commitErrors(): XDPromise<any>;
-    export function repeat(): void;
-    export function undo(): void;
-    export function redo(): void;
-    export function isRedo(): boolean;
-    export function isUndo(): boolean;
-    export function viewLastAction(): string;
-    export function updateUndoRedoState(): void;
+declare namespace Repeat {
+    export function run(log: XcLog): XDPromise<void>;
 }
+
+declare namespace Undo {
+    export function run(log: XcLog, isMostRecent?: boolean): XDPromise<void>;
+}
+
+declare namespace Redo {
+    export function run(log: XcLog): XDPromise<void>;
+}
+
 
 declare namespace SupTicketModal {
     export function setup(): void;

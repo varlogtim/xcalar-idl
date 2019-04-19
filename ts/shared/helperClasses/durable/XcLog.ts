@@ -6,6 +6,7 @@ class XcLog extends Durable {
     private error: string; // (optional) error log
     private sqlType: string; // (optional) log's type
     private timestamp: number; // time
+    public version: number;
 
     constructor(options: XcLogDurable) {
         options = options || <XcLogDurable>{};
@@ -45,6 +46,14 @@ class XcLog extends Durable {
         return this.options;
     }
 
+    public getSQLType(): string {
+        return this.sqlType;
+    }
+
+    public getCli(): string {
+        return this.cli;
+    }
+
     // not used
     public serialize(): string {
         return null;
@@ -53,4 +62,5 @@ class XcLog extends Durable {
     protected _getDurable() {
         return null;
     }
+
 }

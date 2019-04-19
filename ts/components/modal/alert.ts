@@ -531,7 +531,12 @@ namespace Alert {
                 $btn.click(function() {
                     $(this).blur();
 
-                    const logCaches: object[] = Log.getAllLogs();
+                    const logCaches: {
+                        logs: XcLog[],
+                        errors: XcLog[],
+                        overwrittenLogs: XcLog[],
+                        version?: string
+                    } = Log.getAllLogs();
                     let log: string;
                     if (logCaches['logs'].length === 0 &&
                         logCaches['errors'].length === 0)
