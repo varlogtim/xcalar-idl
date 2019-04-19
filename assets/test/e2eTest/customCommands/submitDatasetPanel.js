@@ -15,7 +15,14 @@ class SubmitDatasetPanel extends EventEmitter {
             .click("#datasetOpPanel .submit")
             .waitForElementNotVisible("#datasetOpPanel", 2000);
 
-            this.emit("complete");
+            this.api.isVisible("#alertModal", results => {
+                if (results.value) {
+                    /* is visible */
+                    this.api.click("#alertModal .cancel");
+                    this.api.pause(1000);
+                }
+                this.emit("complete");
+            });
         });
 
         return this;
