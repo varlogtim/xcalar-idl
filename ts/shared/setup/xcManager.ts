@@ -733,9 +733,9 @@ namespace xcManager {
         .then(() => {
             return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
         })
-        .then(() => {
-            ExtensionPanel.setup();
-        })
+        // .then(() => {
+        //     ExtensionPanel.setup();
+        // })
         .then(() => {
             TutorialPanel.Instance.setup();
         })
@@ -762,7 +762,6 @@ namespace xcManager {
         Alert.setup();
         Profile.setup();
         WorkbookPanel.setup();
-        ExtModal.setup();
         LicenseModal.setup();
         SupTicketModal.setup();
         FileInfoModal.setup();

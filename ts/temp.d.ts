@@ -731,7 +731,8 @@ declare enum StatusT {
     StatusNsNotFound,
     StatusNoEnt,
     StatusIsDir,
-    StatusAllFilesEmpty
+    StatusAllFilesEmpty,
+    StatusUdfModuleInUse
 }
 
 declare enum FunctionCategoryT {
@@ -1008,17 +1009,6 @@ declare namespace FileBrowser {
     export function clear(): void
 }
 
-declare namespace ExtensionManager {
-    export function setup(): XDPromise<void>;
-    export function openView(colNum: number, tableId: TableId): void;
-    export function triggerFromDF(moduleName: string, funcName: string, args: object): XDPromise<string>;
-    export function getEnabledExtensions(): ExtensionInfo[]
-}
-
-declare namespace ExtensionPanel {
-    export function setup(): void;
-}
-
 declare namespace ExtModal {
     export function setup(): void;
 }
@@ -1089,6 +1079,14 @@ declare namespace XcSDK {
         public constructor(colName: string, colType: ColumnType);
         public getName(): string;
         public getType(): ColumnType;
+    }
+
+    class Extension {
+        public initialize(table: string, worksheet, args, modelingMode)
+        public runBeforeStart(extButton: any): XDPromise<void>;
+        public run(txId: number): XDPromise<any>;
+        public runAfterFinish(): XDPromise<any>;
+        public getTable(tableName: string): any;
     }
 }
 

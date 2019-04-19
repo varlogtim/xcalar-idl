@@ -100,7 +100,7 @@ window.UExtTableau = (function(UExtTableau, $) {
                         '</div>' +
                     '</div>';
         $("#extContent").html(html);
-        ExtModal.show();
+        ExtensionModal.Instance.show();
     }
 
     function waitForUpdate(waitTime) {

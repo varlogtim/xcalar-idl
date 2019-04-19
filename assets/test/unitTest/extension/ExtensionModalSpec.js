@@ -8,7 +8,7 @@ describe("ExtModal Test", function() {
 
     describe("Behavior Test", function() {
         it("Should show extModal", function() {
-            ExtModal.show();
+            ExtensionModal.Instance.show();
             assert.isTrue($extModal.is(":visible"));
         });
 

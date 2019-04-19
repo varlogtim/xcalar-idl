@@ -1,0 +1,76 @@
+describe("ExtCategory Constructor Test", function() {
+    var extItem;
+
+    before(function() {
+        extItem = new ExtItem({
+            "appName": "testItem",
+            "version": "2.0",
+            "description": "test",
+            "author": "test user",
+            "image": "testImage",
+            "category": "test",
+            "main": "main"
+        });
+    });
+
+    it("ExtCategory should be a constructor", function() {
+        var extCategory = new ExtCategory("test category");
+
+        expect(extCategory).to.be.an("object");
+        expect(Object.keys(extCategory).length).to.equal(2);
+
+        expect(extCategory.getName()).to.equal("test category");
+        var res = extCategory.addExtension(extItem);
+        expect(res).to.be.true;
+        // cannot add the same extension twice
+        res = extCategory.addExtension(extItem);
+        expect(res).to.be.false;
+
+        expect(extCategory.getExtension("testItem").getName()).to.equal("testItem");
+        expect(extCategory.hasExtension("testItem")).to.equal(true);
+
+        var list = extCategory.getExtensionList();
+        expect(list.length).to.equal(1);
+        expect(list[0].getName()).to.equal("testItem");
+        list = extCategory.getExtensionList("noResultKey");
+        expect(list.length).to.equal(0);
+
+        list = extCategory.getAvailableExtensionList();
+        expect(list.length).to.equal(0);
+    });
+
+    it("ExtCategorySet should be constructor", function() {
+        var extSet = new ExtCategorySet();
+
+        expect(extSet).to.be.an("object");
+        expect(Object.keys(extSet).length).to.equal(1);
+
+        expect(extSet.has("test")).to.be.false;
+        extSet.addExtension(extItem);
+        expect(extSet.get("test").getName()).to.equal("test");
+
+        var item2 = new ExtItem({
+            "appName": "marketTestItem",
+            "installed": false,
+            "category": "marketTest",
+            "repository": {
+                "type": "market"
+            }
+        });
+
+        expect(extSet.has("marketTest")).to.be.false;
+        extSet.addExtension(item2);
+        expect(extSet.has("marketTest")).to.be.true;
+        expect(extSet.get("marketTest").getName()).to.equal("markettest");
+        var ext = extSet.getExtension("wrong category", "test");
+        expect(ext).to.be.null;
+        ext = extSet.getExtension("marketTest", "marketTestItem");
+        expect(ext).not.to.be.null;
+        expect(ext.getName()).to.equal("marketTestItem");
+
+        var list = extSet.getList(true);
+        expect(list.length).to.equal(2);
+        expect(list[0].getName()).to.equal("markettest");
+        expect(list[1].getName()).to.equal("test");
+    });
+});

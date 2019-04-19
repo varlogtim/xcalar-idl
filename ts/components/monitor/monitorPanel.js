@@ -126,7 +126,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $("#monitor-extension").addClass("active");
                     $extSearch.removeClass("xc-hidden");
                     $menu.find(".menuSection.extension").removeClass("xc-hidden");
-                    ExtensionPanel.active();
+                    ExtensionPanel.Instance.active();
                     title += MonitorTStr.Ext;
                     break;
                 case ("tutorialSettingButton"):

@@ -210,8 +210,6 @@ window.BottomMenu = (function($, BottomMenu) {
             });
         }
         popInModal(null, topMenuOpening);
-
-        ExtensionManager.closeView();
         return !topMenuOpening;
     }
 
@@ -321,16 +319,6 @@ window.BottomMenu = (function($, BottomMenu) {
         }
 
         refreshEditor();
-
-        if (sectionId === "extension-ops") {
-
-            MainMenu.closeForms();
-            // close these views before we open extensionManager otherwise
-            // extensionmanager listeners and classes might be removed
-            ExtensionManager.openView();
-        } else {
-            ExtensionManager.closeView();
-        }
         return hasAnim;
     }
 

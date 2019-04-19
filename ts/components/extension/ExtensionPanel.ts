@@ -1,98 +1,150 @@
-window.ExtensionPanel = (function(ExtensionPanel, $) {
-    var $panel;    // $("#extensionInstallPanel");
-    var $extLists; // $("#extension-lists");
-    var extSet;
-    var isFirstTouch = true;
-    var extInInstall = null;
-    var enabledHTMLStr = "";
+class ExtensionPanel {
+    private static _instance: ExtensionPanel;
 
-    ExtensionPanel.setup = function() {
-        extSet = new ExtCategorySet();
-        $panel = $("#extensionInstallPanel");
-        $extLists = $("#extension-lists");
+    public static get Instance() {
+        return this._instance || (this._instance = new this());
+    }
 
-        $("#refreshExt").click(function() {
-            refreshAfterInstall();
+    /**
+     * ExtensionPanel.imageError
+     */
+    public static imageError = function(ele) {
+        let imgSrc = paths.XCExt;
+        ele.src = imgSrc;
+        let ext = ExtensionPanel.Instance.getExtensionFromEle($(ele).closest(".item"));
+        ext.setImage(imgSrc);
+    }
+
+    private extSet: ExtCategorySet;
+    private isFirstTouch: boolean = true;
+    private extInInstall: string = null;
+    private enabledHTMLStr: string = "";
+    private _extensionUploadCard: ExtensionUploadCard;
+
+    private constructor() {
+        this.extSet = new ExtCategorySet();
+        this._addEventListeners();
+        this._setupExtLists();
+        this._extensionUploadCard = new ExtensionUploadCard("extension-upload");
+    }
+
+    /**
+     * ExtensionPanel.Instance.active
+     */
+    public active(): void {
+        if (this.isFirstTouch) {
+            this.isFirstTouch = false;
+
+            this._getEnabledExtList(false)
+            .then(() => {
+                let prommise = this._generateInstalledExtList();
+                return PromiseHelper.alwaysResolve(prommise);
+            })
+            .then(() => {
+                this._fetchData();
+            });
+        }
+    }
+
+    /**
+     * ExtensionPanel.Instance.getEnabledList
+     */
+    public getEnabledList(): XDPromise<string> {
+        return this._getEnabledExtList(false);
+    }
+
+    /**
+     * ExtensionPanel.Instance.request
+     * @param json
+     */
+    public request(json: object): XDPromise<any> {
+        var deferred = PromiseHelper.deferred();
+        HTTPService.Instance.ajax(json)
+        .then((...args) => {
+            try {
+                let res = args[0];
+                if (res.status === Status.Error) {
+                    deferred.reject(res.error);
+                } else {
+                    deferred.resolve(...args);
+                }
+            } catch (e) {
+                console.error(e);
+                deferred.resolve(...args);
+            }
+        })
+        .fail((error) => {
+            deferred.reject(JSON.stringify(error));
         });
 
+        return deferred.promise();
+    }
+
+    /**
+     * ExtensionPanel.Instance.getExtensionFromEle
+     * @param $ext
+     */
+    public getExtensionFromEle($ext: JQuery): ExtItem | null {
+        let extName: string = $ext.find(".extensionName").data("name");
+        let category: string = $ext.closest(".category").data("category");
+        let ext = this.extSet.getExtension(category, extName);
+        return ext;
+    }
+
+    private _getPanel(): JQuery {
+        return $("#extensionInstallPanel");
+    }
+
+    private _getList(): JQuery {
+        return $("#extension-lists");
+    }
+
+    private _addEventListeners(): void {
+        $("#uploadExtension").click(() => {
+            this._extensionUploadCard.show();
+            $("#monitorPanel").find(".mainContent").scrollTop(0);
+        });
+
+        $("#refreshExt").click(() => {
+            this._refreshExtensionAsync();
+        });
+
+        let $panel = this._getPanel();
         $panel.on("click", ".item .more", function() {
             $(this).closest(".item").toggleClass("fullSize");
         });
 
-        $panel.on("click", ".item .install", function() {
-            var ext = getExtensionFromEle($(this).closest(".item"));
-            installExtension(ext, $(this));
+        $panel.on("click", ".item .install", (event) => {
+            let $el = $(event.currentTarget);
+            let ext = this.getExtensionFromEle($el.closest(".item"));
+            this._installExtension(ext, $el);
         });
 
         $panel.on("click", ".item .website", function() {
-            var url = $(this).data("url");
+            let url: string = $(this).data("url");
             if (url == null) {
                 return;
             } else {
                 if (!url.startsWith("http:") && !url.startsWith("https:")) {
                     url = "http://" + url;
                 }
-                window.open(url);
-            }
-        });
-
-        $("#extension-search").on("input", "input", function() {
-            var searchKey = $(this).val().trim();
-            refreshExtension(searchKey);
-        });
-
-        setupExtLists();
-        UploadExtensionCard.setup();
-    };
-
-    ExtensionPanel.active = function() {
-        if (isFirstTouch) {
-            isFirstTouch = false;
-
-            getEnabledExtList()
-            .then(function() {
-                generateInstalledExtList()
-                .always(function() {
-                    fetchData();
-                });
-            });
-        }
-    };
-
-    ExtensionPanel.getEnabledList = function() {
-        return getEnabledExtList(false);
-    };
-
-    ExtensionPanel.imageError = function(ele) {
-        var imgSrc = paths.XCExt;
-        ele.src = imgSrc;
-        var ext = getExtensionFromEle($(ele).closest(".item"));
-        ext.setImage(imgSrc);
-    };
-
-    ExtensionPanel.request = function(json) {
-        var deferred = PromiseHelper.deferred();
-        HTTPService.Instance.ajax(json)
-        .then(function(res) {
-            try {
-                if (res.status === Status.Error) {
-                    deferred.reject(res.error);
-                } else {
-                    deferred.resolve.apply(this, arguments);
+                if (typeof window !== "undefined") {
+                    window.open(url);
                 }
-            } catch (e) {
-                console.error(e);
-                deferred.resolve.apply(this, arguments);
+                
             }
-        })
-        .fail(function(error) {
-            deferred.reject(JSON.stringify(error));
         });
 
-        return deferred.promise();
-    };
+        $("#extension-search").on("input", "input", (event) => {
+            let searchKey: string = $(event.currentTarget).val().trim();
+            this._refreshExtension(searchKey);
+        });
+    }
 
-    function setupExtLists() {
+    private _setupExtLists(): void {
+        let $extLists = this._getList();
+        let $panel = this._getPanel();
+
         if (Admin.isAdmin()) {
             $extLists.addClass("admin");
             $panel.addClass("admin");
@@ -102,32 +154,32 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             $(this).closest(".listWrap").toggleClass("active");
         });
 
-        $extLists.on("click", ".switch", function() {
-            toggleExtension($(this));
+        $extLists.on("click", ".switch", (event) => {
+            this._toggleExtension($(event.currentTarget));
         });
 
-        $extLists.on("click", ".delete", function() {
-            var $ext = $(this).closest(".item");
-            removeExtension($ext);
+        $extLists.on("click", ".delete", (event) => {
+            let $ext = $(event.currentTarget).closest(".item");
+            this._removeExtension($ext);
         });
 
-        $extLists.on("mousedown", ".item", function(event) {
+        $extLists.on("mousedown", ".item", (event) => {
             if (event.which !== 1) {
                 return;
             }
 
-            var $item = $(this);
-            var $target = $(event.target);
+            let $item = $(event.currentTarget);
+            let $target = $(event.target);
             // scroll to extension in right card if found
             if (!$target.closest(".delete, .switch").length) {
-                var name = getExtNameFromList($item);
-                var $cardItem = $panel.find(".item .extensionName[data-name='" +
+                let name = this._getExtNameFromList($item);
+                let $cardItem = $panel.find(".item .extensionName[data-name='" +
                                             name + "']").closest(".item");
                 if ($cardItem.length) {
-                    var $container = $("#monitorPanel").find(".mainContent");
-                    var cardTop = $container.offset().top +
+                    let $container = $("#monitorPanel").find(".mainContent");
+                    let cardTop = $container.offset().top +
                                   $panel.find(".cardHeader").height();
-                    var itemTop = $container.scrollTop() +
+                    let itemTop = $container.scrollTop() +
                                    $cardItem.position().top - cardTop;
                     $container.animate({scrollTop: itemTop}, 300);
                 }
@@ -142,127 +194,152 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         });
     }
 
-    function fetchData() {
+    private _fetchData(): void {
+        let $panel = this._getPanel();
         $panel.addClass("wait");
-        var url = xcHelper.getAppUrl();
-        ExtensionPanel.request({
+        let url: string = xcHelper.getAppUrl();
+        this.request({
             "type": "GET",
             "dataType": "JSON",
             "url": url + "/extension/listPackage"
         })
-        .then(function(data) {
+        .then((data) => {
             $panel.removeClass("wait");
             try {
-                var d = data;
-                initializeExtCategory(d);
+                this._initializeExtCategory(data);
             } catch (error) {
-                handleError(error);
+                this._handleError(error);
             }
         })
-        .fail(function(error) {
-            handleError(error);
+        .fail((error) => {
+            this._handleError(error);
         });
     }
 
-    function handleError(error) {
+    private _handleError(error: any): void {
         console.error("get extension error", error);
-        $panel.removeClass("wait").removeClass("hint").addClass("error");
+        this._getPanel()
+        .removeClass("wait")
+        .removeClass("hint")
+        .addClass("error");
     }
 
-    function initializeExtCategory(extensions) {
+    private _initializeExtCategory(extensions: object[]): void {
         extensions = extensions || [];
 
-        for (var i = 0, len = extensions.length; i < len; i++) {
-            extSet.addExtension(extensions[i]);
+        for (let i = 0, len = extensions.length; i < len; i++) {
+            this.extSet.addExtension(extensions[i]);
         }
 
-        refreshExtension();
+        this._refreshExtension();
     }
 
-    function refreshExtension(searchKey) {
-        var categoryList = extSet.getList();
-        generateExtView(categoryList, searchKey);
+    private _refreshExtension(searchKey?: string): void {
+        let categoryList = this.extSet.getList();
+        this._generateExtView(categoryList, searchKey);
     }
 
-    function installExtension(ext, $submitBtn) {
+    private _refreshExtensionAsync(): void {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let $extLists = this._getList();
+        $extLists.addClass("refreshing");
+
+        xcUIHelper.showRefreshIcon($extLists, true, deferred.promise());
+
+        this._getEnabledExtList(true)
+        .then(() => {
+            return ExtensionManager.install();
+        })
+        .then(() => {
+            return this._generateInstalledExtList();
+        })
+        .always(() => {
+            $("#extension-search").val("");
+            this._refreshExtension();
+            $extLists.removeClass("refreshing");
+            deferred.resolve();
+        });
+    }
+
+    private _installExtension(ext: ExtItem, $submitBtn: JQuery): void {
         if (ext == null) {
             Alert.error(ErrTStr.ExtDownloadFailure, ErrTStr.Unknown);
             return;
         }
-        var url = xcHelper.getAppUrl();
-        xcUIHelper.toggleBtnInProgress($submitBtn);
+        let url = xcHelper.getAppUrl();
+        xcUIHelper.toggleBtnInProgress($submitBtn, false);
 
-        extInInstall = ext.getName();
-        ExtensionPanel.request({
+        this.extInInstall = ext.getName();
+        this.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/download",
             "data": {name: ext.getName(), version: ext.getVersion()},
         })
-        .then(function() {
+        .then(() =>{
             // Now we need to enable after installing
             // console.log(data);
-            return enableExtension(ext.getName());
+            return this._enableExtension(ext.getName());
         })
-        .then(function() {
+        .then(() => {
             // need to toggle back progress then can the text be changed
-            xcUIHelper.toggleBtnInProgress($submitBtn);
-            if (extInInstall === ext.getName()) {
-                refreshAfterInstall();
+            xcUIHelper.toggleBtnInProgress($submitBtn, false);
+            if (this.extInInstall === ext.getName()) {
+                this._refreshExtensionAsync();
                 xcUIHelper.showSuccess(SuccessTStr.ExtDownload);
             } else {
                 $submitBtn.addClass("installed").text(ExtTStr.Installed);
             }
         })
-        .fail(function(error) {
-            xcUIHelper.toggleBtnInProgress($submitBtn);
+        .fail((error) => {
+            xcUIHelper.toggleBtnInProgress($submitBtn, false);
             Alert.error(ErrTStr.ExtDownloadFailure, error);
         });
     }
 
-    function removeExtension($ext) {
-        var url = xcHelper.getAppUrl();
-        var extName = getExtNameFromList($ext);
+    private _removeExtension($ext: JQuery): void {
+        let url = xcHelper.getAppUrl();
+        let extName = this._getExtNameFromList($ext);
         $ext.addClass("xc-disabled");
 
-        ExtensionPanel.request({
+        this.request({
             "type": "DELETE",
             "dataType": "JSON",
             "url": url + "/extension/remove",
             "data": {"name": extName}
         })
-        .then(function() {
+        .then(() => {
             xcUIHelper.showSuccess(SuccessTStr.ExtRemove);
             $ext.remove();
-            refreshAfterInstall();
+            this._refreshExtensionAsync();
         })
-        .fail(function(error) {
+        .fail((error) => {
             Alert.error(ErrTStr.ExtRemovalFailure, error);
             $ext.removeClass("xc-disabled");
         });
     }
 
-    function toggleExtension($slider) {
+    private _toggleExtension($slider: JQuery): void {
         if ($slider.hasClass("unavailable")) {
             return;
         }
 
-        var promise;
-        var $ext = $slider.closest(".item");
-        var extName = getExtNameFromList($ext);
-        var enable;
+        let promise: XDPromise<void>;
+        let $ext = $slider.closest(".item");
+        let extName = this._getExtNameFromList($ext);
+        let enable: boolean;
 
         if ($slider.hasClass("on")) {
             enable = false;
-            promise = disableExtension(extName);
+            promise = this._disableExtension(extName);
         } else {
             enable = true;
-            promise = enableExtension(extName);
+            promise = this._enableExtension(extName);
         }
 
         $ext.addClass("xc-disabled");
         promise
-        .then(function() {
+        .then(() => {
             if (enable) {
                 $slider.addClass("on");
                 $ext.addClass("enabled");
@@ -270,23 +347,23 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                 $slider.removeClass("on");
                 $ext.removeClass("enabled");
             }
-            var msg = enable ? SuccessTStr.ExtEnable : SuccessTStr.ExtDisable;
+            let msg = enable ? SuccessTStr.ExtEnable : SuccessTStr.ExtDisable;
             xcUIHelper.showSuccess(msg);
-            refreshAfterInstall();
+            this._refreshExtensionAsync();
         })
-        .fail(function(error) {
-            var title = enable ? ErrTStr.ExtEnableFailure :
+        .fail((error) => {
+            let title = enable ? ErrTStr.ExtEnableFailure :
                                  ErrTStr.ExtDisableFailure;
             Alert.error(title, error);
         })
-        .always(function() {
+        .always(() => {
             $ext.removeClass("xc-disabled");
         });
     }
 
-    function enableExtension(extName) {
-        var url = xcHelper.getAppUrl();
-        return ExtensionPanel.request({
+    private _enableExtension(extName: string): XDPromise<void> {
+        let url = xcHelper.getAppUrl();
+        return this.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/enable",
@@ -294,9 +371,9 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         });
     }
 
-    function disableExtension(extName) {
-        var url = xcHelper.getAppUrl();
-        return ExtensionPanel.request({
+    private _disableExtension(extName: string): XDPromise<void> {
+        let url = xcHelper.getAppUrl();
+        return this.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/disable",
@@ -304,112 +381,89 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         });
     }
 
-    function refreshAfterInstall() {
-        // $panel.addClass("refreshing");
-        $extLists.addClass("refreshing");
-
-        var promises = [];
-        promises.push(getEnabledExtList.bind(this, true));
-        promises.push(ExtensionManager.install.bind(this));
-        promises.push(generateInstalledExtList.bind(this));
-        var promise = PromiseHelper.chain(promises);
-        xcUIHelper.showRefreshIcon($extLists, true, promise);
-
-        promise
-        .always(function() {
-            $("#extension-search").val("");
-            refreshExtension();
-            // $panel.removeClass("refreshing");
-            $extLists.removeClass("refreshing");
-        });
-    }
-
-    function getExtNameFromList($el) {
+    private _getExtNameFromList($el: JQuery): string {
         return $el.find(".name").text();
     }
 
-    function getExtensionFromEle($ext) {
-        var extName = $ext.find(".extensionName").data("name");
-        var category = $ext.closest(".category").data("category");
-        var ext = extSet.getExtension(category, extName);
-        return ext;
-    }
-
-    function generateInstalledExtList() {
-        var deferred = PromiseHelper.deferred();
-        var url = xcHelper.getAppUrl();
-        ExtensionPanel.request({
+    private _generateInstalledExtList(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let url = xcHelper.getAppUrl();
+        this.request({
             "type": "GET",
             "dataType": "JSON",
             "url": url + "/extension/getAvailable"
         })
-        .then(function(data) {
+        .then((data) => {
             // {status: Status.Ok, extensionsAvailable: ["bizRules", "dev"]}
             try {
-                getInstalledExtListHTML(data.extensionsAvailable);
+                this._getInstalledExtListHTML(data.extensionsAvailable);
                 deferred.resolve();
             } catch (error) {
                 console.error(error);
-                handleExtListError();
+                this._handleExtListError();
                 deferred.reject(error);
             }
         })
-        .fail(function(error) {
+        .fail((error) => {
             console.error(error);
-            handleExtListError();
+            this._handleExtListError();
             deferred.reject(error);
         });
 
         return deferred.promise();
     }
 
-    function getEnabledExtList(reset) {
-        if (!reset && enabledHTMLStr) {
-            return PromiseHelper.resolve(enabledHTMLStr);
+    private _getEnabledExtList(reset: boolean): XDPromise<string> {
+        if (!reset && this.enabledHTMLStr) {
+            return PromiseHelper.resolve(this.enabledHTMLStr);
         }
 
-        var deferred = PromiseHelper.deferred();
-        var url = xcHelper.getAppUrl();
-        ExtensionPanel.request({
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let url = xcHelper.getAppUrl();
+        this.request({
             "type": "GET",
             "dataType": "JSON",
             "url": url + "/extension/getEnabled",
         })
-        .then(function(data) {
+        .then((data) => {
             if (data.status === Status.Ok) {
-                enabledHTMLStr = data.data;
-                deferred.resolve(enabledHTMLStr);
+                this.enabledHTMLStr = data.data;
+                deferred.resolve(this.enabledHTMLStr);
             } else {
                 console.error("Failed to get enabled extension");
-                enabledHTMLStr = "";
+                this.enabledHTMLStr = "";
                 deferred.reject();
             }
         })
-        .then(deferred.resolve)
-        .fail(function(error) {
-            enabledHTMLStr = "";
+        .fail((error) => {
+            this.enabledHTMLStr = "";
             deferred.reject(error);
         });
 
         return deferred.promise();
     }
 
-    function isExtensionEnabled(extName) {
-        extName = extName + ".ext.js";
-        return enabledHTMLStr.includes(extName);
+    private _isExtensionEnabled(extName: string): boolean {
+        let name: string = extName + ".ext.js";
+        return this.enabledHTMLStr.includes(name);
     }
 
-    function handleExtListError() {
+    private _handleExtListError(): void {
+        let $extLists = this._getList();
         $extLists.html('<div class="error">' + ExtTStr.extListFail + '</div>');
     }
 
-    function generateExtView(categoryList, searchKey) {
-        var html = "";
+    private _generateExtView(
+        categoryList: ExtCategory[],
+        searchKey: string
+    ): void {
+        let html: HTML = "";
 
-        for (var i = 0, len = categoryList.length; i < len; i++) {
-            html += getExtViewHTML(categoryList[i], searchKey);
+        for (let i = 0, len = categoryList.length; i < len; i++) {
+            html += this._getExtViewHTML(categoryList[i], searchKey);
         }
 
+        let $panel = this._getPanel();
         if (html === "") {
             $panel.addClass("hint");
         } else {
@@ -419,10 +473,10 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         }
     }
 
-    function getInstalledExtListHTML(extensions) {
-        var extLen = extensions.length;
+    private _getInstalledExtListHTML(extensions): void {
+        let extLen = extensions.length;
         // XXX this is a hack, which assume we only have 1 category
-        var html = '<div class="listWrap xc-expand-list active">' +
+        let html = '<div class="listWrap xc-expand-list active">' +
                         '<div class="listInfo no-selection">' +
                             '<span class="expand">' +
                                 '<i class="icon xi-down fa-13"></i>' +
@@ -434,18 +488,19 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                         '</div>' +
                         '<ul class="itemList">';
 
-        for (var i = 0, len = extLen; i < len; i++) {
-            var enabled = "";
-            var status = "";
-            var extName = extensions[i];
-            var icon = '<i class="icon xi-menu-extension fa-15"></i>';
-            if (isExtensionEnabled(extName)) {
+        for (let i = 0, len = extLen; i < len; i++) {
+            let enabled = "";
+            let status = "";
+            let extName = extensions[i];
+            let icon = '<i class="icon xi-menu-extension fa-15"></i>';
+            if (this._isExtensionEnabled(extName)) {
                 enabled = "enabled";
                 status = "on";
                 // only when has active workbook does the ExtensioManger setup
                 if (WorkbookManager.getActiveWKBK() != null &&
-                    !ExtensionManager.isInstalled(extName)) {
-                    var error = ExtensionManager.getInstallError(extName);
+                    !ExtensionManager.isInstalled(extName)
+                ) {
+                    let error = ExtensionManager.getInstallError(extName);
                     icon = '<i class="icon xi-critical fa-15 hasError"' +
                             ' data-toggle="tooltip"' +
                             ' data-container="body"' +
@@ -468,31 +523,36 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         }
 
         html += '</ul></div>';
+        let $extLists = this._getList();
         $extLists.html(html);
     }
 
-    function getExtViewHTML(category, searchKey) {
-        var extensions = category.getExtensionList(searchKey);
-        var extLen = extensions.length;
+    private _getExtViewHTML(
+        category: ExtCategory,
+        searchKey: string
+    ): HTML {
+        let extensions = category.getExtensionList(searchKey);
+        let extLen = extensions.length;
         if (extLen === 0) {
             // no qualified category
             return "";
         }
-        var categoryName = category.getName();
-        var html = '<div class="category cardContainer" data-category="' + categoryName + '">' +
+        let categoryName = category.getName();
+        let html = '<div class="category cardContainer" data-category="' + categoryName + '">' +
                     '<header class="cardHeader">' +
                         '<div class="title textOverflowOneLine categoryName">' +
                             "Category: " + categoryName +
                         '</div>' +
                     '</header>' +
                     '<div class="cardMain items">';
-        var imgEvent = 'onerror="ExtensionPanel.imageError(this)"';
+        let imgEvent = 'onerror="ExtensionPanel.imageError(this)"';
 
-        for (var i = 0; i < extLen; i++) {
-            var ext = extensions[i];
-            var btnText;
-            var website = ext.getWebsite();
-            var websiteEle = "";
+        for (let i = 0; i < extLen; i++) {
+            let ext = extensions[i];
+            let btnText: string;
+            let btnClass: string;
+            let website = ext.getWebsite();
+            let websiteEle: HTML = "";
 
             if (ext.isInstalled()) {
                 btnClass = "installed";
@@ -511,7 +571,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                 websiteEle = "";
             }
 
-            var image = ext.getImage();
+            let image = ext.getImage();
             html += '<div class="item">' +
                         '<section class="mainSection">' +
                         '<div class="leftPart">' +
@@ -575,15 +635,4 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
         return html;
     }
-
-    function getActiveUsers() {
-        var url = xcHelper.getAppUrl();
-        return ExtensionPanel.request({
-            "type": "GET",
-            "dataType": "JSON",
-            "url": url + "/extension/activeUsers"
-        });
-    }
-
-    return (ExtensionPanel);
-}({}, jQuery));
+}
