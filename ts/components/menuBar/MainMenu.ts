@@ -1,23 +1,22 @@
-window.MainMenu = (function($, MainMenu) {
-    var $menuBar; // $("#menuBar");
-    var $mainMenu; // $("#mainMenu");
-    // var menuAction;
-    var isMenuOpen = false;
-    var menuAnimCheckers = [];
-    var closedOffset = 65; // in pixels, how much the panels are horizonally
+namespace MainMenu {
+    let $menuBar: JQuery; // $("#menuBar");
+    let $mainMenu: JQuery; // $("#mainMenu");
+    let _isMenuOpen: boolean = false;
+    let menuAnimCheckers: XDDeferred<void>[] = [];
+    const closedOffset: number = 65; // in pixels, how much the panels are horizonally
     // offset when a menu is closed (includes 5px padding in .mainContent)
-    var openOffset = 350; // when the menu is open
-    var defaultWidth = 295;
-    var currWidth = defaultWidth;
-    var isFormOpen = false; // if export, join, map etc is open
-    var ignoreRestoreState = false; // boolean flag - if closing of a form is
+    const openOffset: number = 350; // when the menu is open
+    const defaultWidth: number = 295;
+    let currWidth: number = defaultWidth;
+    let _isFormOpen: boolean = false; // if export, join, map etc is open
+    let ignoreRestoreState: boolean = false; // boolean flag - if closing of a form is
     // triggered by the clicking of a mainMenu tab, we do not want to restore
     // the pre-form state of the menu so we turn the flag on temporarily
-    var clickable = true;
-    var hasSetUp = false;
-    var formPanels = [];
+    let clickable: boolean = true;
+    let hasSetUp: boolean = false;
+    const formPanels: BaseOpPanel[] = [];
 
-    MainMenu.setup = function() {
+    export function setup() {
         if (hasSetUp) {
             return;
         }
@@ -27,25 +26,25 @@ window.MainMenu = (function($, MainMenu) {
         setupTabbing();
         setupBtns();
         setupResizable();
-        MainMenu.switchMode(true);
+        MainMenu.switchMode();
     };
 
-    MainMenu.registerPanels = function(panel) {
+    export function registerPanels(panel): void {
         formPanels.push(panel);
     };
 
-    MainMenu.switchMode = function(isSetup) {
-        var $dataflowMenu = $("#dataflowMenu");
-        var isSQLMode = XVM.isSQLMode();
+    export function switchMode(): boolean {
+        const $dataflowMenu: JQuery = $("#dataflowMenu");
+        const isSQLMode: boolean = XVM.isSQLMode();
         if (isSQLMode) {
             $dataflowMenu.data("tab", "sqlTab");
         } else {
             $dataflowMenu.data("tab", "modelingDataflowTab");
         }
 
-        var $sqlModeTabs = $("#sqlTab");
-        var $advModeTabs = $("#modelingDataflowTab, #jupyterTab, #inButton");
-        var allPanelsClosed = false;
+        const $sqlModeTabs: JQuery = $("#sqlTab");
+        const $advModeTabs: JQuery = $("#modelingDataflowTab, #jupyterTab, #inButton");
+        let allPanelsClosed: boolean = false;
         if (isSQLMode) {
             $("#inButton").addClass("xc-hidden");
             $sqlModeTabs.removeClass("xc-hidden");
@@ -75,7 +74,7 @@ window.MainMenu = (function($, MainMenu) {
         return allPanelsClosed;
     };
 
-    MainMenu.openDefaultPanel = function() {
+    export function openDefaultPanel(): void {
         if (XVM.isSQLMode()) {
             MainMenu.openPanel("sqlPanel");
         } else {
@@ -83,8 +82,8 @@ window.MainMenu = (function($, MainMenu) {
         }
     };
 
-    MainMenu.close = function(noAnim, makeInactive) {
-        var wasClickable = clickable;
+    export function close(noAnim?: boolean, makeInactive?: boolean): void {
+        const wasClickable: boolean = clickable;
         closeMenu($menuBar.find(".topMenuBarTab.active"), noAnim,
                   makeInactive);
         if (!noAnim && wasClickable) {
@@ -94,28 +93,28 @@ window.MainMenu = (function($, MainMenu) {
 
     // checks main menu and bottom menu
     // or checks specific one if you pass in the id
-    MainMenu.isMenuOpen = function(menu) {
+    export function isMenuOpen(menu?: string): boolean {
         if (menu) {
             if (menu === "mainMenu") {
-                return isMenuOpen;
+                return _isMenuOpen;
             } else {
                 return BottomMenu.isMenuOpen();
             }
         } else {
-            return (isMenuOpen || BottomMenu.isMenuOpen());
+            return (_isMenuOpen || BottomMenu.isMenuOpen());
         }
     };
 
-    MainMenu.open = function(noAnim) {
-        var wasClickable = clickable;
-        var hasAnim = openMenu($menuBar.find(".topMenuBarTab.active"), noAnim);
+    export function open(noAnim?: boolean): void {
+        const wasClickable: boolean = clickable;
+        const hasAnim: boolean = openMenu($menuBar.find(".topMenuBarTab.active"), noAnim);
         if (hasAnim && wasClickable) {
             addAnimatingClass();
         }
     };
 
-    MainMenu.openPanel = function(panelId, subTabId) {
-        var $tab;
+    export function openPanel(panelId: string, subTabId?: string): void {
+       let $tab: JQuery;
         switch (panelId) {
             case ("monitorPanel"):
                 $tab = $("#monitorTab");
@@ -135,14 +134,12 @@ window.MainMenu = (function($, MainMenu) {
                 break;
         }
         if ($tab) {
-            var wasActive = true;
             if (!$tab.hasClass("active") || WorkbookPanel.isWBMode()) {
-                wasActive = false;
                 $tab.click();
             }
 
             if (subTabId && $tab.find("#" + subTabId).length) {
-                var $subTab =  $tab.find("#" + subTabId);
+                const $subTab: JQuery =  $tab.find("#" + subTabId);
                 if (!$subTab.hasClass("active")) {
                     $subTab.click();
                 }
@@ -150,20 +147,20 @@ window.MainMenu = (function($, MainMenu) {
         }
     };
 
-    MainMenu.checkMenuAnimFinish = function() {
-        const deferred = PromiseHelper.deferred();
+    export function checkMenuAnimFinish(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!$menuBar.hasClass("animating")) {
             deferred.resolve();
         } else {
-            checkMenuAnimFinish()
+            _checkMenuAnimFinish()
             .always(deferred.resolve);
         }
 
         return deferred.promise();
     }
 
-    MainMenu.getOffset = function() {
-        if (isMenuOpen) {
+    export function getOffset(): number {
+        if (_isMenuOpen) {
             return (openOffset);
         } else if (BottomMenu.isMenuOpen()) {
             if (BottomMenu.isPoppedOut()) {
@@ -176,10 +173,17 @@ window.MainMenu = (function($, MainMenu) {
         }
     };
 
-    MainMenu.getState = function() {
-        var state = {
+    export function getState(): {
+        isPoppedOut: boolean,
+        isTopOpen: boolean,
+        isBottomOpen: boolean,
+        $activeTopSection: JQuery,
+        $activeBottomSection: JQuery,
+        $activeDataflowMenu: JQuery
+    } {
+        const state = {
             isPoppedOut: BottomMenu.isPoppedOut(),
-            isTopOpen: isMenuOpen,
+            isTopOpen: _isMenuOpen,
             isBottomOpen: BottomMenu.isMenuOpen(),
             $activeTopSection: $mainMenu.find(".commonSection.active"),
             $activeBottomSection: $("#bottomMenu").find(".menuSection.active"),
@@ -188,32 +192,39 @@ window.MainMenu = (function($, MainMenu) {
         return (state);
     };
 
-    MainMenu.setFormOpen = function() {
-        isFormOpen = true;
-        return isFormOpen;
+    export function setFormOpen(): boolean {
+        _isFormOpen = true;
+        return _isFormOpen;
     };
 
-    MainMenu.setFormClose = function() {
-        isFormOpen = false;
-        return isFormOpen;
+    export function setFormClose(): boolean {
+        _isFormOpen = false;
+        return _isFormOpen;
     };
 
-    MainMenu.isFormOpen = function() {
-        return isFormOpen;
+    export function isFormOpen(): boolean {
+        return _isFormOpen;
     };
 
     // xx currently only supporting form views in the worksheet panel
-    MainMenu.restoreState = function(prevState, ignoreClose) {
+    export function restoreState(prevState: {
+        isPoppedOut: boolean,
+        isTopOpen: boolean,
+        isBottomOpen: boolean,
+        $activeTopSection: JQuery,
+        $activeBottomSection: JQuery,
+        $activeDataflowMenu: JQuery
+    }, ignoreClose?: boolean) {
         // ignoreRestoreState is temporarily set when mainMenu tab is clicked
         // and form is open
         // ignoreClose will be true if different menu tab has been clicked
         // and form is no longer visible
         if (!ignoreRestoreState && !ignoreClose) {
-            var noAnim;
+            let noAnim: boolean;
             if (prevState.isBottomOpen && !BottomMenu.isMenuOpen()) {
                 BottomMenu.openSection(prevState.$activeBottomSection.index());
             }
-            if (isMenuOpen && !prevState.isTopOpen) {
+            if (_isMenuOpen && !prevState.isTopOpen) {
                 noAnim = false;
                 if (prevState.isBottomOpen) {
                     noAnim = true;
@@ -231,32 +242,34 @@ window.MainMenu = (function($, MainMenu) {
 
     };
 
-    MainMenu.tempNoAnim = function() {
+    export function tempNoAnim(): void {
         checkAnim(true);
     };
 
-    MainMenu.closeForms = function() {
-        if (isFormOpen) {
+    export function closeForms(): void {
+        if (_isFormOpen) {
             ignoreRestoreState = true;
             formPanels.forEach((panel) => {
-                panel.close();
+                if (panel["close"]) {
+                    panel["close"]();
+                }
             });
 
             ignoreRestoreState = false;
         }
     };
 
-    function setupResizable() {
-        var $menuPanel = $mainMenu;
-        var minWidth = defaultWidth + 3;
-        var isSmall = true;
+    function setupResizable(): void {
+        const $menuPanel: JQuery = $mainMenu;
+        const minWidth: number = defaultWidth + 3;
+        let isSmall: boolean = true;
         $mainMenu.resizable({
             "handles": "e",
             "minWidth": 295,
             "distance": 2,
             "start": function() {
                 // set boundaries so it can"t resize past window
-                var panelRight = $menuPanel[0].getBoundingClientRect().right;
+                let panelRight: number = $menuPanel[0].getBoundingClientRect().right;
 
                 panelRight = $(window).width() - panelRight +
                              $menuPanel.width();
@@ -275,13 +288,13 @@ window.MainMenu = (function($, MainMenu) {
             },
             "stop": function() {
                 $menuPanel.css("max-width", "").css("max-height", "");
-                var width = $menuPanel.width();
+                let width: number = $menuPanel.width();
 
                 width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
 
                 $menuPanel.width(width);
                 $mainMenu.removeClass("resizing");
-                var newWidth = $mainMenu.width();
+                const newWidth: number = $mainMenu.width();
                 if (newWidth < minWidth) {
                     $mainMenu.width(defaultWidth);
                     $mainMenu.removeClass("expanded");
@@ -297,8 +310,8 @@ window.MainMenu = (function($, MainMenu) {
                         if (panel.getEditor && panel.getEditor()) {
                             panel.getEditor().refresh();
                         }
-                        if (panel.getSQLEditor && panel.getSQLEditor()) {
-                            panel.getSQLEditor().refresh();
+                        if (panel["getSQLEditor"] && panel["getSQLEditor"]()) {
+                            panel["getSQLEditor"]().refresh();
                         }
                         if (panel.panelResize) {
                             panel.panelResize();
@@ -309,20 +322,20 @@ window.MainMenu = (function($, MainMenu) {
         });
     }
 
-    function setupBtns() {
+    function setupBtns(): void {
         $mainMenu.find(".minimizeBtn").click(function() {
             MainMenu.close();
         });
     }
 
-    function setupTabbing() {
-        var $tabs = $menuBar.find(".topMenuBarTab");
+    function setupTabbing(): void {
+        const $tabs: JQuery = $menuBar.find(".topMenuBarTab");
 
         $tabs.click(function(event) {
             WorkbookPanel.hide(true);
 
-            var $curTab = $(this);
-            var $target = $(event.target);
+            const $curTab: JQuery = $(this);
+            const $target: JQuery = $(event.target);
 
             resolveMenuAnim();
             $menuBar.removeClass("animating");
@@ -332,7 +345,7 @@ window.MainMenu = (function($, MainMenu) {
                 if ($curTab.hasClass("noLeftPanel")) {
                     return;
                 }
-                var hasAnim = false;
+                let hasAnim: boolean = false;
                 if ($target.closest(".mainTab").length) {
                     // clicking on active main tab
                     if ($("#container").hasClass("noWorkbookMenuBar") &&
@@ -340,13 +353,13 @@ window.MainMenu = (function($, MainMenu) {
                     ) {
                         openIMDPanel();
                     } else {
-                        var $subTab = $curTab.find(".subTab.active");
+                        const $subTab = $curTab.find(".subTab.active");
                         if (!$subTab.hasClass("noLeftPanel")) {
                             hasAnim = toggleMenu($curTab);
                         }
                     }
                 } else if ($target.closest(".subTab").length) {
-                    var $subTab = $target.closest(".subTab");
+                    const $subTab = $target.closest(".subTab");
                     if ($subTab.hasClass("noLeftPanel")) {
                         closeMenu($curTab, true);
                     } else if ($subTab.hasClass("active")) {
@@ -366,8 +379,8 @@ window.MainMenu = (function($, MainMenu) {
                     addAnimatingClass();
                 }
             } else { // this tab was inactive, will make active
-                var $lastActiveTab = $tabs.filter(".active");
-                var lastTabId = $lastActiveTab.attr("id");
+                const $lastActiveTab: JQuery = $tabs.filter(".active");
+                const lastTabId: string = $lastActiveTab.attr("id");
                 $lastActiveTab.addClass("noTransition")
                               .find(".icon")
                               .addClass("noTransition");
@@ -378,8 +391,8 @@ window.MainMenu = (function($, MainMenu) {
                          .removeClass("noTransition");
                 }, 100);
 
-                var noAnim = true;
-                var $subTab = $curTab.find(".subTab.active");
+                const noAnim: boolean = true;
+                const $subTab: JQuery = $curTab.find(".subTab.active");
                 if ($curTab.hasClass("mainMenuOpen") &&
                     !$curTab.hasClass("noLeftPanel") &&
                     !$subTab.hasClass("noLeftPanel")) {
@@ -394,7 +407,7 @@ window.MainMenu = (function($, MainMenu) {
 
         });
 
-        $mainMenu[0].addEventListener(transitionEnd, function(event) {
+        $mainMenu[0].addEventListener(window["transitionEnd"], function(event) {
             if (!$(event.target).is("#mainMenu")) {
                 return;
             }
@@ -402,8 +415,8 @@ window.MainMenu = (function($, MainMenu) {
         });
     }
 
-    function resolveMenuAnim() {
-        for (var i = 0; i < menuAnimCheckers.length; i++) {
+    function resolveMenuAnim(): void {
+        for (let i = 0; i < menuAnimCheckers.length; i++) {
             if (menuAnimCheckers[i]) {
                 menuAnimCheckers[i].resolve();
             }
@@ -412,19 +425,19 @@ window.MainMenu = (function($, MainMenu) {
     }
 
 
-    function checkMenuAnimFinish() {
-        var menuAnimDeferred = PromiseHelper.deferred();
+    function _checkMenuAnimFinish(): XDPromise<void> {
+        const menuAnimDeferred: XDDeferred<void> = PromiseHelper.deferred();
         menuAnimCheckers.push(menuAnimDeferred);
 
         return menuAnimDeferred.promise();
     }
 
-    function closeMainPanels() {
+    function closeMainPanels(): void {
         $menuBar.find(".topMenuBarTab").removeClass("active");
         $(".mainPanel").removeClass("active");
     }
 
-    function panelSwitchingHandler($curTab, lastTabId) {
+    function panelSwitchingHandler($curTab: JQuery, lastTabId: string): void {
         if (lastTabId === "monitorTab") {
             MonitorPanel.inActive();
         } else if (lastTabId === "modelingDataflowTab") {
@@ -434,13 +447,13 @@ window.MainMenu = (function($, MainMenu) {
         }
         closeMainPanels();
         $("#container").removeClass("monitorViewOpen");
-        var curTab = $curTab.attr("id");
+        const curTab: string = $curTab.attr("id");
         $menuBar.find(".topMenuBarTab").removeClass("active");
         $curTab.addClass("active");
 
         switch (curTab) {
             case ("dataStoresTab"):
-                let noWorkbook = $("#container").hasClass("noWorkbookMenuBar");
+                let noWorkbook: boolean = $("#container").hasClass("noWorkbookMenuBar");
                 $("#datastorePanel").addClass("active");
                 DSTable.refresh();
                 if ($curTab.hasClass("firstTouch")) {
@@ -494,23 +507,23 @@ window.MainMenu = (function($, MainMenu) {
                 $(".underConstruction").addClass("active");
         }
 
-        StatusMessage.updateLocation();
+        StatusMessage.updateLocation(null, null);
         $(".tableDonePopupWrap").remove();
     }
 
-    function openIMDPanel() {
+    function openIMDPanel(): void {
         closeMenu($("#dataStoresTab"), true);
         $("#imdTab").click();
     }
 
-    function openMenu($curTab, noAnim) {
+    function openMenu($curTab: JQuery, noAnim?: boolean): boolean {
         // Don't open side menu when the UDF panel is opening the file manager,
         // Otherwise the UDF panel will be blocked by the side menu.
         if ($("#udfSection").hasClass("switching")) {
             return;
         }
 
-        var id = $curTab.attr("id");
+        const id: string = $curTab.attr("id");
         if (id === "dataStoresTab" && $("#imdTab").hasClass("active")) {
             return;
         }
@@ -528,25 +541,22 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu.width(currWidth);
 
         if (BottomMenu.isMenuOpen()) {
-            var mainMenuOpening = true;
+            const mainMenuOpening = true;
             BottomMenu.close(mainMenuOpening);
         }
-        isMenuOpen = true;
+        _isMenuOpen = true;
         $("#container").addClass("mainMenuOpen");
 
         $curTab.addClass("mainMenuOpen");
 
         if ($("#monitor-queries").hasClass("active")) {
             QueryManager.scrollToFocused();
-            menuAnimAlign = null;
-        } else {
-            menuAnimAlign = null;
         }
         if ($("#modelingDagPanel").hasClass("active")) {
             if (noAnim) {
                 DagCategoryBar.Instance.showOrHideArrows();
             } else {
-                checkMenuAnimFinish()
+                _checkMenuAnimFinish()
                 .then(function() {
                     DagCategoryBar.Instance.showOrHideArrows();
                 });
@@ -556,7 +566,7 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     // makeInactive is used in "noWorkbook" mode
-    function closeMenu($curTab, noAnim, makeInactive) {
+    function closeMenu($curTab: JQuery, noAnim?: boolean, makeInactive?: boolean): void {
         checkAnim(noAnim);
         $mainMenu.removeClass("open");
         $mainMenu.width(defaultWidth);
@@ -567,7 +577,7 @@ window.MainMenu = (function($, MainMenu) {
             $curTab.removeClass("mainMenuOpen");
         }
 
-        isMenuOpen = false;
+        _isMenuOpen = false;
 
         setCloseClass(noAnim);
 
@@ -577,12 +587,11 @@ window.MainMenu = (function($, MainMenu) {
 
 
         IMDPanel.redraw();
-        menuAnimAlign = null;
         if ($("#modelingDagPanel").hasClass("active")) {
             if (noAnim) {
                 DagCategoryBar.Instance.showOrHideArrows();
             } else {
-                checkMenuAnimFinish()
+                _checkMenuAnimFinish()
                 .then(function() {
                     DagCategoryBar.Instance.showOrHideArrows();
                 });
@@ -591,7 +600,7 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     // turns off animation during open or close
-    function checkAnim(noAnim) {
+    function checkAnim(noAnim: boolean): void {
         $mainMenu.removeClass("noAnim");
         $("#container").removeClass("noMenuAnim");
         if (noAnim) {
@@ -604,13 +613,11 @@ window.MainMenu = (function($, MainMenu) {
                 $mainMenu.removeClass("noAnim");
                 $("#container").removeClass("noMenuAnim");
             }, 0);
-        } else {
-            menuAction = null;
         }
     }
 
-    function toggleMenu($curTab) {
-        var hasAnim;
+    function toggleMenu($curTab): boolean {
+        let hasAnim: boolean;
         if ($mainMenu.hasClass("open")) {
             closeMenu($curTab);
             hasAnim = true;
@@ -620,27 +627,24 @@ window.MainMenu = (function($, MainMenu) {
         return hasAnim;
     }
 
-    function setCloseClass(noAnim) {
+    function setCloseClass(noAnim): void {
         if (noAnim) {
-            menuAction = null;
             $mainMenu.addClass("closed");
         } else {
-            checkMenuAnimFinish()
+            _checkMenuAnimFinish()
             .then(function() {
                 $mainMenu.addClass("closed");
             });
         }
     }
 
-    function addAnimatingClass() {
+    function addAnimatingClass(): void {
         clickable = false;
         $menuBar.addClass("animating");
-        checkMenuAnimFinish()
+        _checkMenuAnimFinish()
         .then(function() {
             $menuBar.removeClass("animating");
             clickable = true;
         });
     }
-
-    return (MainMenu);
-}(jQuery, {}));
+}

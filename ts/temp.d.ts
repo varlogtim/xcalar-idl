@@ -871,10 +871,6 @@ declare namespace Repeat {
     export function run(log: XcLog): XDPromise<void>;
 }
 
-declare namespace Redo {
-    export function run(log: XcLog): XDPromise<void>;
-}
-
 declare namespace SupTicketModal {
     export function setup(): void;
     export function show(): void;
@@ -898,40 +894,14 @@ declare namespace TPrefix {
     export function setup(): void;
 }
 
-declare namespace Aggregates {
-    export function restore(oldMeat: object): void;
-    export function getAgg(tableId: TableId, backColName: string, aggrOp: string): any
-    export function addAgg(aggRes: object, isTemp: boolean): void;
-    export function getNamedAggs(): any[];
-}
-
-declare namespace MainMenu {
-    export function setup(): void;
-    export function getOffset(): number;
-    export function openPanel(panelId: string, subTabId?: string): void;
-    export function tempNoAnim(): void;
-    export function close(noAnim?: boolean, makeInactive?: boolean): void;
-    export function setFormOpen(): void;
-    export function setFormClose(): void;
-    export function isFormOpen(): boolean;
-    export function isMenuOpen(type: string): boolean;
-    export function open(noAnim?: boolean): void;
-    export function getState(): object;
-    export function restoreState(state: object, ignoreClose?: boolean): void;
-    export function closeForms(): void;
-    export function registerPanels(panels: BaseOpPanel): void;
-    export function checkMenuAnimFinish(): XDPromise<void>;
-    export function switchMode(): XDPromise<void>;
-    export function isMenuOpen(): boolean;
-    export function openDefaultPanel(): void;
-}
-
 declare namespace BottomMenu {
     export function setup(): void;
+    export function isMenuOpen(): boolean;
     export function initialize(): void;
     export function unsetMenuCache(): void;
     export function openSection(index: number): void;
     export function close(something?: boolean): void;
+    export function isPoppedOut(): boolean;
 }
 
 declare namespace DSForm {
@@ -939,6 +909,7 @@ declare namespace DSForm {
     export function hide(): void;
     export function show(createTableMode: boolean): void;
     export function switchView(view: string);
+    export function initialize(): void;
     export var View: any;
 }
 
