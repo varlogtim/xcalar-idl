@@ -2,17 +2,43 @@ namespace ExtensionManager {
     let enabledExts = {};
     let extMap = {};
     let cachedExts = [];
-    let hasSetup: boolean = false;
+    let hasInitialLoad: boolean = false;
+    let hasRenderPanels: boolean = false;
+    let extensionLoader: ExtensionLoader;
+    let extensionPanel: ExtensionPanel;
+    let extensionUploadCard: ExtensionUploadCard;
 
     /**
      * ExtensionManager.setup
      */
-    export function setup(): XDPromise<void> {
-        if (hasSetup) {
+    export function setup(): void {
+        extensionLoader = new ExtensionLoader("extension-ops-script");
+        setupExtensionLoaderEvents();
+    }
+
+    /**
+     * ExtensionManager.loadEnabledExtension
+     */
+    export function loadEnabledExtension(): XDPromise<void> {
+        if (hasInitialLoad) {
             return PromiseHelper.reject();
         }
-        hasSetup = true;
+        hasInitialLoad = true;
         return ExtensionManager.install();
+    }
+
+    /**
+     * ExtensionManager.renderPanels
+     */
+    export function renderPanels(): void {
+        if (hasRenderPanels) {
+            return;
+        }
+        extensionPanel = new ExtensionPanel(extensionLoader);
+        extensionUploadCard = new ExtensionUploadCard("extension-upload", extensionLoader);
+        addPanelEventListeners();
+
+        extensionPanel.render();
     }
 
     /**
@@ -20,26 +46,10 @@ namespace ExtensionManager {
      */
     export function install(): XDPromise<void> {
         // if set up has not been called, will not do the install
-        if (!hasSetup || WorkbookManager.getActiveWKBK() == null) {
+        if (!hasInitialLoad || WorkbookManager.getActiveWKBK() == null) {
             return PromiseHelper.resolve();
         }
-        initInstall();
-
-        let deferred: XDDeferred<void> = PromiseHelper.deferred();
-
-        ExtensionPanel.Instance.getEnabledList()
-        .then(function(enabledExtHTMl) {
-            return loadExtensions(enabledExtHTMl);
-        })
-        .then(function() {
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("install extension fails", error);
-            deferred.resolve(); // still resolve it
-        });
-
-        return deferred.promise();
+        return extensionLoader.install();
     }
 
     /**
@@ -49,99 +59,43 @@ namespace ExtensionManager {
         return cachedExts;
     }
 
-    function initInstall() {
-        extMap = {};
-        enabledExts = {};
-        // extensions.html should be autopopulated by the backend
-        $("#extension-ops-script").empty(); // Clean up for idempotency
-        // change to async call later
-        // jquery 3 should not need it
-        $.ajaxPrefilter("script", function(options) {
-            // only apply when it's loading extension
-            if (options.url.indexOf("assets/extensions/") >= 0) {
-                options.async = true;
-            }
-        });
+    /**
+     * ExtensionManager.imageError
+     * @param ele
+     */
+    export function imageError(ele) {
+        let imgSrc = paths.XCExt;
+        ele.src = imgSrc;
+        let ext = extensionPanel.getExtensionFromEle($(ele).closest(".item"));
+        ext.setImage(imgSrc);
     }
 
-    function loadExtensions(htmlString) {
-        if (!htmlString) {
-            console.error("Failed to get extensions");
-            return PromiseHelper.resolve();
-        }
-
-        var deferred = PromiseHelper.deferred();
-        var promises = [];
-        var $tag = $('<div>' + htmlString + '</div>');
-        $tag.find("script").each(function() {
-            var $script = $(this);
-            promises.push(loadScript($script));
-        });
-
-        PromiseHelper.when.apply(this, promises)
-        .then(function() {
-            return loadUDFs();
+    function setupExtensionLoaderEvents(): void {
+        extensionLoader
+        .on("beforeLoadScript", function(extensionName) {
+            cacheEnabledExtension(extensionName);
         })
-        .then(function() {
+        .on("afterLoadScript", function(extensionName) {
+            setExtensionState(extensionName, "installScript", true);
+        })
+        .on("failLoadScript", function(exensionName, error) {
+            setExtensionState(exensionName, "error", error);
+        })
+        .on("afterLoadUDF", function(extensionName) {
+            setExtensionState(extensionName, "installUDF", true);
+        })
+        .on("failLoadUDF", function(extensionName) {
+            setExtensionState(extensionName, "error", ExtTStr.LoadUDFFail);
+        })
+        .on("loadFinish", function() {
             setupExtensions();
-            deferred.resolve();
         })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function loadScript($script) {
-        var deferred = PromiseHelper.deferred();
-        var src = $script.attr("src");
-        var extName = parseExtNameFromSrc(src);
-        cacheEnabledExtension(extName);
-
-        $.getScript(src)
-        .then(function() {
-            $("#extension-ops-script").append($script);
-            setExtensionState(extName, "installScript", true);
-            deferred.resolve();
-        })
-        .fail(function(err) {
-            var error;
-            try {
-                if (err.status === 404) {
-                    error = ExtTStr.NoScript;
-                } else if (err.status === 200) {
-                    error = ExtTStr.ParseFail;
-                } else {
-                    error = ExtTStr.LoadScriptFail;
-                }
-            } catch (e) {
-                console.error(e);
-                error = ExtTStr.LoadScriptFail;
-            }
-
-            console.error(error, src + " could not be loaded.");
-            setExtensionState(extName, "error", error);
-            deferred.resolve(); // still resolve it
+        .on("getLoadedExtension", function() {
+            let extNames = Object.keys(enabledExts).filter(function(extName) {
+                return getExtensionState(extName, "installScript");
+            });
+            return extNames;
         });
-
-        return deferred.promise();
-    }
-
-    function loadUDFs() {
-        // check that python modules have been uploaded
-        var extNames = Object.keys(enabledExts).filter(function(extName) {
-            return getExtensionState(extName, "installScript");
-        });
-        // Check that the python modules are uploaded
-        // For now, we reupload everything everytime.
-        var pythonReuploadList = checkPythonFunctions(extNames);
-        // if python module is gone, reupload by reading file from local system
-        var extPromises = pythonReuploadList.map(function(extName) {
-            return loadAndStorePython(extName);
-        });
-
-        var promise = PromiseHelper.when.apply(this, extPromises);
-        // always resolve the promise, even if extPromises is empty.
-        return PromiseHelper.alwaysResolve(promise);
     }
 
     function setupExtensions() {
@@ -160,6 +114,7 @@ namespace ExtensionManager {
                         extNames[i].toLowerCase())
                     {
                         // Found it!
+                        setExtMap(objs);
                         extList.push(objs);
                         extNames.splice(i, 1);
                         break;
@@ -181,106 +136,14 @@ namespace ExtensionManager {
         });
     }
 
-    function checkPythonFunctions(extNames) {
-        // XcalarListXdfs with fnName = extPrefix+":"
-        // Also check that the module has a python file
-        var needReupload = [];
-        for (var j = 0; j < extNames.length; j++) {
-            needReupload.push(extNames[j]);
-            continue;
-            // XXX This part is not run because we are currently blindly
-            // reuploading everything
-            // var extPrefix = extNames[j].substring(0, extNames[j].length - 4);
-            // var found = false;
-            // for (var i = 0; i < udfFunctions.length; i++) {
-            //     if (udfFunctions[i].indexOf(extPrefix + ":") !== -1) {
-            //         found = true;
-            //         console.log("Found ext python: " + extPrefix);
-            //         break;
-            //     }
-            // }
-            // if (!found) {
-            //     console.log("Did not find ext python: " + extPrefix);
-            //     needReupload.push(extNames[j]);
-            // }
+    function setExtMap(modName: string): void {
+        let funcList = window[modName].buttons || [];
+        extMap[modName] = {};
+        for (let i = 0, len = funcList.length; i < len; i++) {
+            let func = funcList[i];
+            let fnName = func.fnName;
+            extMap[modName][fnName] = func;
         }
-        return (needReupload);
-    }
-
-    function loadAndStorePython(extName) {
-        // python name need to be lowercase
-        var pyModName = extName.toLowerCase();
-        var deferred = PromiseHelper.deferred();
-
-        jQuery.ajax({
-            type: "GET",
-            url: "assets/extensions/ext-enabled/" + extName + ".ext.py"
-        })
-        .then(function(response) {
-            // Success case
-            var data = response;
-            return uploadPython(pyModName, data);
-        },
-        function(error) {
-            // Fail case
-            console.error("Python file not found!", error);
-        })
-        .then(function() {
-            setExtensionState(extName, "installUDF", true);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("Extension", extName, "failed to upload", error);
-            setExtensionState(extName, "error", ExtTStr.LoadUDFFail);
-            deferred.resolve(); // still resolve it
-        });
-        return deferred.promise();
-    }
-
-    function uploadPython(pyModName, data) {
-        // only upload non-empty python
-        if (isEmptyPython(data)) {
-            return PromiseHelper.resolve();
-        }
-
-        var deferred = PromiseHelper.deferred();
-        // upload to shared space
-        var udfPath = UDFFileManager.Instance.getSharedUDFPath() + pyModName;
-        var upload = false;
-        XcalarListXdfs(udfPath + "*", "User*")
-        .then(function(res) {
-            try {
-                if (res.numXdfs === 0) {
-                    // udf not already exist
-                    upload = true;
-                    return XcalarUploadPython(udfPath, data, true, true);
-                }
-            } catch (e) {
-                return PromiseHelper.reject(e.message);
-            }
-        })
-        .then(function() {
-            if (upload) {
-                UDFFileManager.Instance.storePython(pyModName, data);
-            }
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            if (typeof error === "object" &&
-                error.status === StatusT.StatusUdfModuleInUse)
-            {
-                // udf in use case, don't faill the promise
-                deferred.resolve();
-            } else {
-                deferred.reject(error);
-            }
-        });
-
-        return deferred.promise();
-    }
-
-    function isEmptyPython(data) {
-        return (data == null || data === "");
     }
 
     function cacheEnabledExtension(extName) {
@@ -303,24 +166,11 @@ namespace ExtensionManager {
         }
     }
 
-    function parseExtNameFromSrc(src) {
-        // src format: assets/extensions/ext-enabled/dev.ext.js
-        var res = null;
-        try {
-            var start = src.lastIndexOf("/") + 1;
-            var end = src.lastIndexOf(".ext.js");
-            res = src.substring(start, end);
-        } catch (error) {
-            console.error(error);
-        }
-        return res;
-    }
-
     /**
      * ExtensionManager.isInstalled
      * @param extName
      */
-    export function isInstalled (extName: string): boolean {
+    export function isInstalled(extName: string): boolean {
         for (var extKey in extMap) {
             if (extMap.hasOwnProperty(extKey)) {
                 if (extKey.toLowerCase() === "uext" + extName.toLowerCase()) {
@@ -470,5 +320,12 @@ namespace ExtensionManager {
                 extMap[ext].configParams = {};
             }
         }
+    }
+
+    function addPanelEventListeners(): void {
+        $("#uploadExtension").click(() => {
+            extensionUploadCard.show();
+            $("#monitorPanel").find(".mainContent").scrollTop(0);
+        });
     }
 }

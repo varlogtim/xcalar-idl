@@ -1,11 +1,13 @@
 class ExtensionUploadCard {
     private _id: string;
+    private _extensionLoader: ExtensionLoader;
     private _file;
     private _extName;
     private _lockTimer;
 
-    public constructor(id) {
+    public constructor(id, extensionLoader: ExtensionLoader) {
         this._id = id;
+        this._extensionLoader = extensionLoader;
         this._addEventListeners();
     }
 
@@ -144,7 +146,7 @@ class ExtensionUploadCard {
         let url = xcHelper.getAppUrl();
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         
-        ExtensionPanel.Instance.request({
+        this._extensionLoader.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/upload",

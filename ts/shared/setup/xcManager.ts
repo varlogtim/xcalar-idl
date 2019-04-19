@@ -76,8 +76,8 @@ namespace xcManager {
             $("#topMenuBarTabs").removeClass("xc-hidden");
             MainMenu.setup();
             setupModeArea();
-            StatusMessage.updateLocation(false, "Loading Extensions");
-            return ExtensionManager.setup();
+            // StatusMessage.updateLocation(false, "Loading Extensions");
+            ExtensionManager.loadEnabledExtension(); // async load of extnesion
         })
         .then(function() {
             StatusMessage.updateLocation(false, "Loading UDFs");
@@ -733,10 +733,8 @@ namespace xcManager {
         .then(() => {
             return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
         })
-        // .then(() => {
-        //     ExtensionPanel.setup();
-        // })
         .then(() => {
+            ExtensionManager.setup();
             TutorialPanel.Instance.setup();
         })
         .then(() => {

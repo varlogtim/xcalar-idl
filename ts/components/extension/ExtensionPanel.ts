@@ -1,83 +1,25 @@
 class ExtensionPanel {
-    private static _instance: ExtensionPanel;
-
-    public static get Instance() {
-        return this._instance || (this._instance = new this());
-    }
-
-    /**
-     * ExtensionPanel.imageError
-     */
-    public static imageError = function(ele) {
-        let imgSrc = paths.XCExt;
-        ele.src = imgSrc;
-        let ext = ExtensionPanel.Instance.getExtensionFromEle($(ele).closest(".item"));
-        ext.setImage(imgSrc);
-    }
+    private _extensionLoader: ExtensionLoader;
 
     private extSet: ExtCategorySet;
-    private isFirstTouch: boolean = true;
     private extInInstall: string = null;
-    private enabledHTMLStr: string = "";
-    private _extensionUploadCard: ExtensionUploadCard;
 
-    private constructor() {
+    public constructor(extensionLoader: ExtensionLoader) {
+        this._extensionLoader = extensionLoader;
         this.extSet = new ExtCategorySet();
         this._addEventListeners();
         this._setupExtLists();
-        this._extensionUploadCard = new ExtensionUploadCard("extension-upload");
     }
 
-    /**
-     * ExtensionPanel.Instance.active
-     */
-    public active(): void {
-        if (this.isFirstTouch) {
-            this.isFirstTouch = false;
-
-            this._getEnabledExtList(false)
-            .then(() => {
-                let prommise = this._generateInstalledExtList();
-                return PromiseHelper.alwaysResolve(prommise);
-            })
-            .then(() => {
-                this._fetchData();
-            });
-        }
-    }
-
-    /**
-     * ExtensionPanel.Instance.getEnabledList
-     */
-    public getEnabledList(): XDPromise<string> {
-        return this._getEnabledExtList(false);
-    }
-
-    /**
-     * ExtensionPanel.Instance.request
-     * @param json
-     */
-    public request(json: object): XDPromise<any> {
-        var deferred = PromiseHelper.deferred();
-        HTTPService.Instance.ajax(json)
-        .then((...args) => {
-            try {
-                let res = args[0];
-                if (res.status === Status.Error) {
-                    deferred.reject(res.error);
-                } else {
-                    deferred.resolve(...args);
-                }
-            } catch (e) {
-                console.error(e);
-                deferred.resolve(...args);
-            }
+    public render(): void {
+        this._extensionLoader.getEnabledList()
+        .then(() => {
+            let prommise = this._generateInstalledExtList();
+            return PromiseHelper.alwaysResolve(prommise);
         })
-        .fail((error) => {
-            deferred.reject(JSON.stringify(error));
+        .then(() => {
+            this._fetchData();
         });
-
-        return deferred.promise();
     }
 
     /**
@@ -100,11 +42,6 @@ class ExtensionPanel {
     }
 
     private _addEventListeners(): void {
-        $("#uploadExtension").click(() => {
-            this._extensionUploadCard.show();
-            $("#monitorPanel").find(".mainContent").scrollTop(0);
-        });
-
         $("#refreshExt").click(() => {
             this._refreshExtensionAsync();
         });
@@ -198,7 +135,7 @@ class ExtensionPanel {
         let $panel = this._getPanel();
         $panel.addClass("wait");
         let url: string = xcHelper.getAppUrl();
-        this.request({
+        this._extensionLoader.request({
             "type": "GET",
             "dataType": "JSON",
             "url": url + "/extension/listPackage"
@@ -246,7 +183,7 @@ class ExtensionPanel {
 
         xcUIHelper.showRefreshIcon($extLists, true, deferred.promise());
 
-        this._getEnabledExtList(true)
+        this._extensionLoader.refresh()
         .then(() => {
             return ExtensionManager.install();
         })
@@ -270,7 +207,7 @@ class ExtensionPanel {
         xcUIHelper.toggleBtnInProgress($submitBtn, false);
 
         this.extInInstall = ext.getName();
-        this.request({
+        this._extensionLoader.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/download",
@@ -302,7 +239,7 @@ class ExtensionPanel {
         let extName = this._getExtNameFromList($ext);
         $ext.addClass("xc-disabled");
 
-        this.request({
+        this._extensionLoader.request({
             "type": "DELETE",
             "dataType": "JSON",
             "url": url + "/extension/remove",
@@ -363,7 +300,7 @@ class ExtensionPanel {
 
     private _enableExtension(extName: string): XDPromise<void> {
         let url = xcHelper.getAppUrl();
-        return this.request({
+        return this._extensionLoader.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/enable",
@@ -373,7 +310,7 @@ class ExtensionPanel {
 
     private _disableExtension(extName: string): XDPromise<void> {
         let url = xcHelper.getAppUrl();
-        return this.request({
+        return this._extensionLoader.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/disable",
@@ -388,7 +325,7 @@ class ExtensionPanel {
     private _generateInstalledExtList(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let url = xcHelper.getAppUrl();
-        this.request({
+        this._extensionLoader.request({
             "type": "GET",
             "dataType": "JSON",
             "url": url + "/extension/getAvailable"
@@ -411,41 +348,6 @@ class ExtensionPanel {
         });
 
         return deferred.promise();
-    }
-
-    private _getEnabledExtList(reset: boolean): XDPromise<string> {
-        if (!reset && this.enabledHTMLStr) {
-            return PromiseHelper.resolve(this.enabledHTMLStr);
-        }
-
-        let deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let url = xcHelper.getAppUrl();
-        this.request({
-            "type": "GET",
-            "dataType": "JSON",
-            "url": url + "/extension/getEnabled",
-        })
-        .then((data) => {
-            if (data.status === Status.Ok) {
-                this.enabledHTMLStr = data.data;
-                deferred.resolve(this.enabledHTMLStr);
-            } else {
-                console.error("Failed to get enabled extension");
-                this.enabledHTMLStr = "";
-                deferred.reject();
-            }
-        })
-        .fail((error) => {
-            this.enabledHTMLStr = "";
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    }
-
-    private _isExtensionEnabled(extName: string): boolean {
-        let name: string = extName + ".ext.js";
-        return this.enabledHTMLStr.includes(name);
     }
 
     private _handleExtListError(): void {
@@ -493,7 +395,7 @@ class ExtensionPanel {
             let status = "";
             let extName = extensions[i];
             let icon = '<i class="icon xi-menu-extension fa-15"></i>';
-            if (this._isExtensionEnabled(extName)) {
+            if (this._extensionLoader.isExtensionEnabled(extName)) {
                 enabled = "enabled";
                 status = "on";
                 // only when has active workbook does the ExtensioManger setup
@@ -545,7 +447,7 @@ class ExtensionPanel {
                         '</div>' +
                     '</header>' +
                     '<div class="cardMain items">';
-        let imgEvent = 'onerror="ExtensionPanel.imageError(this)"';
+        let imgEvent = 'onerror="ExtensionManager.imageError(this)"';
 
         for (let i = 0; i < extLen; i++) {
             let ext = extensions[i];
