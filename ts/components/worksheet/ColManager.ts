@@ -81,7 +81,7 @@ namespace ColManager {
         colNum: number,
         tableId: TableId,
         direction: number,
-        colOptions
+        colOptions?: any
     ): void {
         let defaultOptions = {
             "isNewCol": true,
@@ -107,7 +107,7 @@ namespace ColManager {
 
     //options
     // noAnimate: boolean, if true, no animation is applied
-    export function hideCol(colNums: number[], tableId: TableId, options): XDPromise<void> {
+    export function hideCol(colNums: number[], tableId: TableId, options?): XDPromise<void> {
         options = options || {};
         // deletes an array of columns
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -324,7 +324,7 @@ namespace ColManager {
         colNum: number,
         tableId: TableId,
         newName: string,
-        options
+        options?: any
     ): void {
         options = options || {};
 
@@ -742,7 +742,7 @@ namespace ColManager {
         return deferred.promise();
     };
 
-    export function maximizeCols(colNums: number[], tableId: TableId, noAnim: boolean): XDPromise<void> {
+    export function maximizeCols(colNums: number[], tableId: TableId, noAnim?: boolean): XDPromise<void> {
          const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let $table = $("#xcTable-" + tableId);
         let table = gTables[tableId];

@@ -870,14 +870,9 @@ declare namespace Repeat {
     export function run(log: XcLog): XDPromise<void>;
 }
 
-declare namespace Undo {
-    export function run(log: XcLog, isMostRecent?: boolean): XDPromise<void>;
-}
-
 declare namespace Redo {
     export function run(log: XcLog): XDPromise<void>;
 }
-
 
 declare namespace SupTicketModal {
     export function setup(): void;
@@ -893,6 +888,8 @@ declare namespace TblAnim {
     export function startRowResize($el: JQuery, event: JQueryMouseEventObject): void;
     export function startColResize($el: JQuery, event: JQueryMouseEventObject, options: object): void;
     export function startColDrag($headCol: JQuery, event: JQueryEventObject): void;
+    export function resizeColumn(tableId: TableId, colNum: number, fromWidth: number, toWidth: number, sizeTo: string): void;
+    export function resizeRow(rowNum: number, tableId: TableId, toHeight: number, fromHeight: number): void;
 }
 
 declare namespace TPrefix {
@@ -956,18 +953,6 @@ declare namespace Profile {
 declare namespace JupyterUDFModal {
     export function setup(): void;
     export function show(type: string, params?: any): void;
-}
-
-declare namespace JupyterPanel {
-    export function setup(): void;
-    export function appendStub(stubName: string, args?: object): void;
-    export function newWorkbook(workbookName: string): XDPromise<string>;
-    export function renameWorkbook(jupyterFolder: string, newName: string): XDPromise<string>;
-    export function deleteWorkbook(workbookId: string): void;
-    export function updateFolderName(newFoldername: string): void;
-    export function copyWorkbook(oldJupyterFolder: string, newJupyterFolder: string): void;
-    export function initialize(noRestore?: boolean): void;
-    export function publishTable(tableName: string, numRows?: number, hasVerifiedNames?: boolean): void;
 }
 
 declare namespace MonitorPanel {

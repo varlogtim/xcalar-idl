@@ -19,7 +19,7 @@ class TblManager {
         newTableNames: string[],
         tableCols: ProgCol[],
         oldTableNames: string[] | string,
-        txId: number
+        txId?: number
     ): XDPromise<string | void> {
         if (txId != null) {
             if (Transaction.checkCanceled(txId)) {
@@ -1658,7 +1658,7 @@ class TblManager {
         colNums: number[],
         widths: (number| string)[],
         sizeTo: string[],
-        wasHidden: boolean[]
+        wasHidden?: boolean[]
     ): void {
         const table: TableMeta = gTables[tableId];
         if (table == null) {
@@ -1885,7 +1885,7 @@ class TblManager {
      */
     public static highlightColumn(
         $el: JQuery,
-        keepOthersSelected: boolean,
+        keepOthersSelected: boolean = false,
         modalHighlight: boolean = false
     ): void {
         const index: number = ColManager.parseColNum($el);

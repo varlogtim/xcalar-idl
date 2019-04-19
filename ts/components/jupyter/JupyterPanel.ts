@@ -47,7 +47,7 @@ namespace JupyterPanel {
         JupyterStubMenu.setup();
     };
 
-    export function initialize(noRestore: boolean): XDPromise<void> {
+    export function initialize(noRestore?: boolean): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (window["jupyterNode"] == null || window["jupyterNode"] === "") {
             window["jupyterNode"] = hostname + '/jupyter';
@@ -510,7 +510,7 @@ namespace JupyterPanel {
         return kvStore.put(JSON.stringify(currNotebook), true);
     }
 
-    export function appendStub(stubName: string, args) {
+    export function appendStub(stubName: string, args?: any) {
         let stubStruct = {action: "stub", stubName: stubName, args: args};
         sendMessageToJupyter(stubStruct);
     };
