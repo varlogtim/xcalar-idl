@@ -190,7 +190,11 @@ class ColSchemaSection {
                 }
             },
             container: selector,
-            bounds: selector
+            bounds: selector,
+            bottomPadding: 2,
+            fixedPosition: {
+                selector: "input"
+            }
         }).setupListeners();
 
         // colName hint dropdown
@@ -263,7 +267,12 @@ class ColSchemaSection {
                 $text.text($li.text());
             },
             container: selector,
-            bounds: selector
+            bounds: selector,
+            bottomPadding: 2,
+            fixedPosition: {
+                selector: ".text",
+                rightMargin: 26
+            }
         }).setupListeners();
     }
 

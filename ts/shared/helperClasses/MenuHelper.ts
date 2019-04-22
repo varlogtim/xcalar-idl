@@ -5,6 +5,7 @@ interface MenuHelperOptions {
     exclude?: boolean;
     container?: string;
     onlyClickIcon?: boolean;
+    fixedPosition?: FixedPositionOption;
     beforeOpenAsync?: Function;
     onSelect?: Function;
     onOpen?: Function;
@@ -40,6 +41,11 @@ interface DropdownOptions {
     prefix?: string;
     color?: string;
     tableId?: TableId;
+}
+
+interface FixedPositionOption {
+    selector: string, // selector of element to base positioning off of
+    rightMargin?: number
 }
 
 /*
@@ -88,6 +94,9 @@ class MenuHelper {
     private $container: JQuery;
     private timer: MenuHelperTimer;
     private $iconWrapper: JQuery;
+    private $scrollListeningEls: JQuery; // when dropdown is fixed positioned,
+    // the dropdown's parents get scroll listeners attached which closes the
+    // dropdown when scrolled
 
     public constructor($dropDownList: JQuery, options?: MenuHelperOptions) {
         options = options || {};
@@ -342,6 +351,12 @@ class MenuHelper {
         $(document).off("mousedown.closeDropDown" + self.id);
         $(document).off("keydown.closeDropDown" + self.id);
         $(document).off('keydown.listNavigation' + self.id);
+        if (this.$scrollListeningEls) {
+            this.$scrollListeningEls.off("scroll.dropdownScrollListening" + self.id);
+            this.$scrollListeningEls = null;
+            $(window).off("resize.dropdownWinResize" + self.id);
+        }
+
         if (self.options.onClose) {
             self.options.onClose();
         }
@@ -422,6 +437,27 @@ class MenuHelper {
 
             if (typeof self.options.onOpen === "function") {
                 self.options.onOpen($curlDropDownList);
+            }
+            if (self.options.fixedPosition) {
+                let $baseElement = self.$dropDownList.find(self.options.fixedPosition.selector);
+                if (!$baseElement.length) {
+                    return;
+                }
+                const parentPos: ClientRect = $baseElement[0].getBoundingClientRect();
+                self.$list.css({
+                    "position": "fixed",
+                    "left": parentPos.left,
+                    "top": parentPos.top + parentPos.height,
+                    "width": parentPos.width - (self.options.fixedPosition.rightMargin || 0);
+                });
+                const $scrollListeningEls = self.$dropDownList.parentsUntil(self.$container.parent());
+                self.$scrollListeningEls = $scrollListeningEls;
+                $scrollListeningEls.on("scroll.dropdownScrollListening" + self.id, () => {
+                    self.hideDropdowns();
+                });
+                $(window).on("resize.dropdownWinResize" + self.id, () => {
+                    self.hideDropdowns();
+                });
             }
             self.showOrHideScrollers();
             $('.selectedCell').removeClass('selectedCell');
