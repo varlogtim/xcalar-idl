@@ -733,7 +733,8 @@ declare enum StatusT {
     StatusNoEnt,
     StatusIsDir,
     StatusAllFilesEmpty,
-    StatusUdfModuleInUse
+    StatusUdfModuleInUse,
+    StatusIO
 }
 
 declare enum FunctionCategoryT {
@@ -907,10 +908,12 @@ declare namespace BottomMenu {
 
 declare namespace DSForm {
     export function setup(): void;
+    export function show(): void;
     export function hide(): void;
     export function show(createTableMode: boolean): void;
     export function switchView(view: string);
     export function initialize(): void;
+    export function addHistoryPath(targetName: string, path: string): void;
     export var View: any;
 }
 
@@ -961,6 +964,7 @@ declare namespace DSTargetManager {
     export function isSparkParquet(targetName: string): boolean;
     export function isGeneratedTarget(targetName: string): boolean;
     export function isDatabaseTarget(targetName: string): boolean;
+    export function isPreSharedTarget(targetName: string): boolean;
 }
 
 declare namespace JSONModal {
@@ -974,21 +978,19 @@ declare namespace AggModal {
     export function corrAgg(tableId: TableId, vertColNums?: number[], horColNums?: number[]): void;
 }
 
-declare namespace FileBrowser {
-    export function restore(): void;
-    export function close(): void;
-    export function show(targetName: string, path: string, flag: boolean);
-    export function clear(): void
-}
-
-declare namespace ExtModal {
-    export function setup(): void;
-}
 declare namespace LicenseModal {
     export function setup(): void;
 }
 
 declare namespace FileInfoModal {
+    export function setup(): void;
+    export function show(optoins: any): void;
+}
+
+declare namespace FilePreviewer {
+    export function show(options: any): void;
+    export function close(): void;
+    export function isOpen(): boolean;
     export function setup(): void;
 }
 

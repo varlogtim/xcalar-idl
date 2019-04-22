@@ -1,36 +1,49 @@
-window.FileBrowser = (function($, FileBrowser) {
-    var $fileBrowser;     // $("#fileBrowser")
-    var $container;       // $("#fileBrowserContainer")
-    var $containerWrapper;// $("#fileBrowserContainer .wrapper")
-    var $innerContainer;  // $("#innerFileBrowserContainer")
-    var $fileBrowserMain; // $("#fileBrowserMain")
-    var $infoContainer;   // $("#fileInfoContainer")
-    var $pickedFileList; // $("#fileBrowserContainer .pickedFileList")
+namespace FileBrowser {
+    interface XcFile {
+        name: string;
+        attr: {
+            isDirectory: boolean;
+            extension: string;
+            size: number;
+            ctime: number;
+            mtime: number;
+        };
+        isSelected: boolean;
+        isPicked: boolean;
+    }
 
-    var $pathSection;     // $("#fileBrowserPath")
-    var $pathLists;       // $("#fileBrowserPathMenu")
-    var $searchSection;    // $("#fileBrowserSearch");
-    var $searchDropdown;  // $("#fileSearchDropdown")
-    var $visibleFiles;   // will hold nonhidden files
+    let $fileBrowser: JQuery;     // $("#fileBrowser")
+    let $container: JQuery;       // $("#fileBrowserContainer")
+    let $containerWrapper: JQuery;// $("#fileBrowserContainer .wrapper")
+    let $innerContainer: JQuery;  // $("#innerFileBrowserContainer")
+    let $fileBrowserMain: JQuery; // $("#fileBrowserMain")
+    let $infoContainer: JQuery;   // $("#fileInfoContainer")
+    let $pickedFileList: JQuery; // $("#fileBrowserContainer .pickedFileList")
 
-    var fileBrowserId;
-    var searchId;
+    let $pathSection: JQuery;     // $("#fileBrowserPath")
+    let $pathLists: JQuery;       // $("#fileBrowserPathMenu")
+    let $searchSection: JQuery;    // $("#fileBrowserSearch");
+    let $searchDropdown: JQuery;  // $("#fileSearchDropdown")
+    let $visibleFiles: JQuery;   // will hold nonhidden files
 
-    var dragInfo = {};
+    let fileBrowserId: string;
+    let searchId: string;
+
+    let dragInfo: any = {};
 
     /* Contants */
-    var defaultSortKey  = "name"; // default is sort by name;
-    var dsIconHeight = 77;
-    var dsIconWidth = 70; // width height get calculated later but default to this
-    var dsListHeight = 29;
-    var lowerFileLimit = 800; // when we start hiding files
-    var upperFileLimit = 110000; // show error if over 110K
-    var subUpperFileLimit = 25000; // file limit if not chrome
-    var sortFileLimit = 25000; // do not allow sort if over 25k
-    var oldBrowserError = "Deferred From Old Browser";
-    var oldSearchError = "Deferred From Old Search";
-    var defaultPath = "/";
-    var listFormatMap = {
+    const defaultSortKey: string = "name"; // default is sort by name;
+    let dsIconHeight: number = 77;
+    let dsIconWidth: number = 70; // width height get calculated later but default to this
+    let dsListHeight: number = 29;
+    let lowerFileLimit: number = 800; // when we start hiding files
+    let upperFileLimit: number = 110000; // show error if over 110K
+    const subUpperFileLimit: number = 25000; // file limit if not chrome
+    const sortFileLimit: number = 25000; // do not allow sort if over 25k
+    const oldBrowserError: string = "Deferred From Old Browser";
+    const oldSearchError: string = "Deferred From Old Search";
+    const defaultPath: string = "/";
+    const listFormatMap = {
         "JSON": "xi-json-big-file",
         "CSV": "xi-csv-big-file",
         "Excel": "xi-xls-big-file",
@@ -45,7 +58,7 @@ window.FileBrowser = (function($, FileBrowser) {
         "GIF": "xi-gif-big-file",
         "BMP": "xi-bmp-big-file"
     };
-    var gridFormatMap = {
+    const gridFormatMap = {
         "JSON": "xi-json-file",
         "CSV": "xi-csv-file",
         "Excel": "xi-xls-file",
@@ -62,18 +75,21 @@ window.FileBrowser = (function($, FileBrowser) {
     };
     /* End Of Contants */
 
-    var curFiles = [];
-    var curPathFiles = [];
-    var allFiles = [];
-    var sortKey = defaultSortKey;
-    var sortRegEx;
-    var reverseSort = false;
-    var $anchor; // The anchor for selected files
-    var pathDropdownMenu;
-    var searchDropdownMenu;
-    var searchInfo = "";
+    let curFiles = [];
+    let curPathFiles = [];
+    let allFiles = [];
+    let sortKey = defaultSortKey;
+    let sortRegEx;
+    let reverseSort = false;
+    let $anchor: JQuery; // The anchor for selected files
+    let pathDropdownMenu: MenuHelper;
+    let searchDropdownMenu: MenuHelper;
+    let searchInfo: string = "";
 
-    FileBrowser.setup = function() {
+    /**
+     * FileBrowser.setup
+     */
+    export function setup(): void {
         $fileBrowser = $("#fileBrowser");
         $container = $("#fileBrowserContainer");
         $containerWrapper = $("#fileBrowserContainer .wrapper").eq(0);
@@ -93,7 +109,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         FilePreviewer.setup();
 
-        if (!window.isBrowserChrome) {
+        if (!window["isBrowserChrome"]) {
             lowerFileLimit = 600;
             upperFileLimit = subUpperFileLimit;
         }
@@ -105,31 +121,50 @@ window.FileBrowser = (function($, FileBrowser) {
         addInfoContainerEvents();
 
         fileBrowserScrolling();
-    };
+    }
 
-    FileBrowser.restore = function() {
+    /**
+     * FileBrowser.restore
+     */
+    export function restore(): void {
         // restore list view if saved
-        var isListView = UserSettings.getPref('browserListView');
+        let isListView: boolean = UserSettings.getPref('browserListView');
         if (isListView) {
             toggleView(true, true);
         }
-    };
+    }
 
-    FileBrowser.clear = function() {
+    /**
+     * FileBrowser.clear
+     */
+    export function clear(): void {
         clearAll();
-    };
+    }
 
-    FileBrowser.close = function() {
+    /**
+     * FileBrowser.close
+     */
+    export function close(): void {
         backToForm();
-    };
+    }
 
-    FileBrowser.show = function(targetName, path, restore) {
-        var deferred = PromiseHelper.deferred();
+    /**
+     * FileBrowser.show
+     * @param targetName
+     * @param path
+     * @param restore
+     */
+    export function show(
+        targetName: string,
+        path: string,
+        restore: boolean
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!restore) {
             clearAll();
         }
         setMode();
-        updateActiveFileInfo();
+        updateActiveFileInfo(null);
         DSForm.switchView(DSForm.View.Browser);
 
         addKeyBoardEvent();
@@ -158,7 +193,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 loadFailHandler(error, path);
                 deferred.reject(error);
             } else {
-                retrievePaths(defaultPath)
+                retrievePaths(defaultPath, false, false)
                 .then(function() {
                     redirectHandler(path);
                     deferred.resolve();
@@ -173,10 +208,10 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         return deferred.promise();
-    };
+    }
 
-    function setMode() {
-        var $switch = $("#fileInfoBottom .switchWrap");
+    function setMode(): void {
+        let $switch = $("#fileInfoBottom .switchWrap");
         if (DSPreview.isCreateTableMode()) {
             $switch.find(".switch").removeClass("on");
             $switch.addClass("xc-hidden");
@@ -187,7 +222,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function addContainerEvents() {
+    function addContainerEvents(): void {
         $fileBrowser.on("click", "input", function() {
             hideBrowserMenu();
         });
@@ -205,7 +240,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileBrowser.on({
             "click": function(event) {
                 // click to focus
-                var $grid = $(this);
+                let $grid = $(this);
                 event.stopPropagation();
 
                 if ((isSystemMac && event.metaKey) ||
@@ -234,7 +269,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
             },
             "dblclick": function() {
-                var $grid = $(this);
+                let $grid = $(this);
                 if (isDS($grid)) {
                     if (!$grid.hasClass("picked")) {
                         // dblclick on a non-picked file will import it
@@ -242,15 +277,15 @@ window.FileBrowser = (function($, FileBrowser) {
                     }
                     return;
                 }
-                var path = getCurrentPath() + getGridUnitName($grid) + '/';
+                let path = getCurrentPath() + getGridUnitName($grid) + '/';
                 displayFiles(path);
             },
             "mouseenter": function() {
-                var $grid = $(this);
+                let $grid = $(this);
                 $grid.addClass("hovering");
             },
             "mouseleave": function() {
-                var $grid = $(this);
+                let $grid = $(this);
                 $grid.removeClass("hovering");
             },
         }, ".grid-unit");
@@ -259,7 +294,7 @@ window.FileBrowser = (function($, FileBrowser) {
             "click": function(event) {
                 // This behavior is in essence the same as a ctrl+click
                 event.stopPropagation();
-                var $grid = $(this).closest(".grid-unit");
+                let $grid = $(this).closest(".grid-unit");
                 if ($grid.hasClass("selected")) {
                     cleanContainer({keepSelected: true,
                                     keepPicked: true,
@@ -278,7 +313,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 selectSingleFile($grid);
                 togglePickedFiles($grid);
                 if ($grid.hasClass("picked")) {
-                    updatePickedFilesList();
+                    updatePickedFilesList(null, null);
                 } else {
                     updatePickedFilesList(null, {isRemove: true});
                 }
@@ -298,8 +333,8 @@ window.FileBrowser = (function($, FileBrowser) {
         $("#fileBrowserRefresh").click(function(event) {
             $(this).blur();
             // the first option in pathLists
-            var $curPath = $pathLists.find("li").eq(0);
-            xcUIHelper.showRefreshIcon($fileBrowserMain);
+            let $curPath = $pathLists.find("li").eq(0);
+            xcUIHelper.showRefreshIcon($fileBrowserMain, false, null);
             event.stopPropagation();
             goToPath($curPath);
         });
@@ -314,13 +349,13 @@ window.FileBrowser = (function($, FileBrowser) {
         // toggle between listview and gridview
         $("#fileBrowserGridView").click(function(event) {
             event.stopPropagation();
-            toggleView();
+            toggleView(null, false);
         });
 
         // click on title to sort
-        var titleLabel = ".title";
+        let titleLabel = ".title";
         $fileBrowserMain.on("click", titleLabel, function(event) {
-            var $title = $(this).closest(".title");
+            let $title = $(this).closest(".title");
 
             event.stopPropagation();
             if ($fileBrowser.hasClass('unsortable')) {
@@ -329,8 +364,8 @@ window.FileBrowser = (function($, FileBrowser) {
             // click on selected title, reverse sort
             if ($title.hasClass("select")) {
                 reverseFiles();
-                var $icon = $title.find(".icon").eq(0);
-                toggleSortIcon($icon);
+                let $icon = $title.find(".icon").eq(0);
+                toggleSortIcon($icon, false);
             } else {
                 sortAction($title, false);
             }
@@ -345,24 +380,24 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function addInfoContainerEvents() {
+    function addInfoContainerEvents(): void {
         $infoContainer.find(".infoTitle .close").on("click", "span, i", function() {
             // Clear all
-            cleanContainer();
+            cleanContainer(null);
             $fileBrowser.find(".pickedFileList").empty();
         });
 
         $infoContainer.find(".pickedFiles .addRegex").on("click", "span", function() {
             // Add a regex pattern to list
-            var html = createListElement();
-            var $span = $(html).appendTo($pickedFileList).find("span");
+            let html = createListElement(null, false);
+            let $span = $(html).appendTo($pickedFileList).find("span");
             refreshFileListEllipsis($span, true);
             updateButtons();
         });
 
         $infoContainer.on("click", ".selectAll", function() {
             // Toggle all recursive flags
-            var $unchecked = $infoContainer.find(".xi-ckbox-empty:not(.xc-disabled)");
+            let $unchecked = $infoContainer.find(".xi-ckbox-empty:not(.xc-disabled)");
             if ($unchecked.length > 0) {
                 checkCkBox($unchecked);
             } else {
@@ -372,7 +407,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         $infoContainer.on("click", ".xi-ckbox-selected, .xi-ckbox-empty", function() {
             // Uncheck single recursive flag
-            var $checkBox = $(this);
+            let $checkBox = $(this);
             if ($checkBox.hasClass("xi-ckbox-selected")) {
                 uncheckCkBox($checkBox);
             } else {
@@ -381,14 +416,14 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $infoContainer.on("click", ".pickedFileList .close", function() {
-            var $li = $(this).closest("li");
-            var fileName = String($li.data("name"));
-            var concatPath = getCurrentPath() + fileName;
-            var fullPath = $li.data("fullpath");
+            let $li = $(this).closest("li");
+            let fileName = String($li.data("name"));
+            let concatPath = getCurrentPath() + fileName;
+            let fullPath = $li.data("fullpath");
             if (!$li.hasClass("regex") && (fullPath === concatPath)) {
                 // Unselect single file from pickedFileList
-                var escName = xcStringHelper.escapeDblQuote(fileName);
-                var $grid = $fileBrowser
+                let escName = xcStringHelper.escapeDblQuote(fileName);
+                let $grid = $fileBrowser
                             .find('.fileName[data-name="' + escName + '"]')
                             .closest(".grid-unit");
                 unselectSingleFile($grid);
@@ -401,7 +436,7 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $infoContainer.on("click", ".switch", function() {
-            var $switch = $(this);
+            let $switch = $(this);
             if ($switch.hasClass("on")) {
                 $switch.removeClass("on");
                 $switch.next().removeClass("highlighted");
@@ -414,9 +449,9 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $infoContainer.on("click", ".switchLabel", function() {
-            var $label = $(this);
+            let $label = $(this);
             if (!$label.hasClass("highlighted")) {
-                var $switch = $label.siblings(".switch");
+                let $switch = $label.siblings(".switch");
                 if ($label.is(":first-child")) {
                     $switch.removeClass("on");
                 } else {
@@ -428,18 +463,18 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $infoContainer.on("click", ".fileRawData .btn", function() {
-            var $grid = getFocusedGridEle();
+            let $grid = getFocusedGridEle();
             previewDS($grid);
         });
 
         // confirm to open a ds
         $infoContainer.on("click", ".confirm", function() {
-            submitForm();
+            submitForm(null);
         });
 
         // goes to folder location of file on click
         $infoContainer.on("click", ".pickedFileList li span", function() {
-            var filePath = $(this).parent().attr("data-fullpath");
+            let filePath = $(this).parent().attr("data-fullpath");
             if (filePath) {
                 if (filePath.endsWith("/")) {
                     filePath = filePath.substring(0, filePath.length - 1);
@@ -450,10 +485,10 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function displayFiles(filePath) {
-        listFiles(filePath)
+    function displayFiles(filePath: string): void {
+        listFiles(filePath, null)
         .then(function() {
-            appendPath(filePath);
+            appendPath(filePath, false);
             checkIfCanGoUp();
         })
         .fail(function(error) {
@@ -463,10 +498,10 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function addSortMenuEvents() {
+    function addSortMenuEvents(): void {
         // toggle sort menu, should use mousedown for toggle
-        var $sortMenu = $("#fileBrowserSortMenu");
-        var $sortSection = $("#fileBrowserSort");
+        let $sortMenu = $("#fileBrowserSortMenu");
+        let $sortSection = $("#fileBrowserSort");
 
         xcMenu.add($sortMenu);
         $sortSection.on({
@@ -493,7 +528,7 @@ window.FileBrowser = (function($, FileBrowser) {
             if (event.which !== 1) {
                 return;
             }
-            var $li = $(this);
+            let $li = $(this);
 
             event.stopPropagation();
             $sortMenu.hide();
@@ -510,22 +545,22 @@ window.FileBrowser = (function($, FileBrowser) {
         }).setupListeners();
     }
 
-    function addPathSectionEvents() {
-        var timer;
+    function addPathSectionEvents(): void {
+        let timer;
         $pathSection.on({
             "keyup": function(event) {
                 clearTimeout(timer);
 
-                var key = event.which;
+                let key = event.which;
                 if (key === keyCode.Up || key === keyCode.Down ||
                     key === keyCode.Left || key === keyCode.Right)
                 {
                     return true;
                 }
 
-                var $input = $(this);
-                var currentVal = $input.val();
-                var path = currentVal;
+                let $input = $(this);
+                let currentVal = $input.val();
+                let path = currentVal;
 
                 if (key === keyCode.Enter) {
                     if (!path.endsWith("/")) {
@@ -556,15 +591,15 @@ window.FileBrowser = (function($, FileBrowser) {
         }, ".text");
     }
 
-    function pathInput(path) {
+    function pathInput(path: string): XDPromise<void> {
         if (path === getCurrentPath()) {
             // when the input path is still equal to current path
             // do not retrievePath
             return PromiseHelper.resolve();
         }
 
-        var deferred = PromiseHelper.deferred();
-        retrievePaths(path)
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        retrievePaths(path, false ,false)
         .then(deferred.resolve)
         .fail(function(error) {
             showPathError();
@@ -574,11 +609,11 @@ window.FileBrowser = (function($, FileBrowser) {
         return deferred.promise();
     }
 
-    function showPathError() {
-        var $input = $("#fileBrowserPath .text");
-        var width = $input.width();
-        var textWidth = xcUIHelper.getTextWidth($input);
-        var offset = width - textWidth - 50; // padding 50px
+    function showPathError(): void {
+        let $input = $("#fileBrowserPath .text");
+        let width: number = $input.width();
+        let textWidth = xcUIHelper.getTextWidth($input);
+        let offset: number = width - textWidth - 50; // padding 50px
 
         StatusBox.show(ErrTStr.InvalidFilePath, $input, false, {
             "side": "right",
@@ -586,7 +621,7 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function addSearchSectionEvents() {
+    function addSearchSectionEvents(): void {
         searchDropdownMenu = new MenuHelper($searchSection, {
             "onlyClickIcon": false,
             "onSelect": applySearchPattern,
@@ -595,28 +630,28 @@ window.FileBrowser = (function($, FileBrowser) {
 
         $searchSection.on("input", "input", function() {
             // Refreshing the dropdown options
-            var searchKey = $(this).val();
+            let searchKey = $(this).val();
             refreshSearchDropdown(searchKey);
             if ((searchKey.length > 0 && !$searchSection.hasClass("open")) ||
                 (searchKey.length === 0 && $searchSection.hasClass("open"))) {
                 searchDropdownMenu.toggleList($searchSection);
             }
             if (searchKey.length === 0) {
-                searchFiles(null);
+                searchFiles(null, null);
             }
         });
 
         $searchSection.on("keyup", "input", function(e) {
-            var keyCode = e.which;
+            let keyCode = e.which;
             if (keyCode === 13) {
                 // Do a regular search
-                var searchKey = $(this).val();
+                let searchKey = $(this).val();
                 if (searchKey.length > 0) {
                     if ($searchSection.hasClass("open")) {
                         searchDropdownMenu.toggleList($searchSection);
                     }
                     $(this).blur();
-                    searchFiles(searchKey);
+                    searchFiles(searchKey, null);
                 }
             }
         });
@@ -625,27 +660,27 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function refreshSearchDropdown(key) {
+    function refreshSearchDropdown(key: string): void {
         if (key != null) {
             $searchDropdown.find("span").text(key);
         }
     }
 
-    function applySearchPattern($pattern) {
+    function applySearchPattern($pattern: JQuery): XDPromise<void> {
         $searchDropdown.find("li").removeClass("selected");
         $pattern.addClass("selected");
-        var type = $pattern.find("span").attr("class");
-        var searchKey = $pattern.find("span").text() || null;
+        let type: string = $pattern.find("span").attr("class");
+        let searchKey: string = $pattern.find("span").text() || null;
         return searchFiles(searchKey, type);
     }
 
-    function hideBrowserMenu() {
+    function hideBrowserMenu(): void {
         $("#fileBrowserMenu").hide();
         $("#fileBrowserSortMenu").hide();
     }
 
-    function fileBrowserScrolling() {
-        var scrollTimer;
+    function fileBrowserScrolling(): void {
+        let scrollTimer;
         $containerWrapper.scroll(function() {
             hideBrowserMenu();
             if ($(this).hasClass('noScrolling') ||
@@ -663,35 +698,31 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function showScrolledFiles() {
+    function showScrolledFiles(): void {
         $innerContainer.height(getScrollHeight());
 
-        var scrollTop = $containerWrapper.scrollTop();
-        var rowNum;
-        var startIndex;
-        var endIndex;
-        var visibleRowsBelow;
-        var visibleRowsAbove;
-        var numVisibleRows;
+        let scrollTop: number = $containerWrapper.scrollTop();
+        let startIndex: number;
+        let endIndex: number;
         if ($fileBrowserMain.hasClass("gridView")) {
-            visibleRowsBelow = 5; // number of rows that have display:block
-            visibleRowsAbove = 7;
-            rowNum = Math.floor(scrollTop / dsIconHeight) - visibleRowsBelow;
+            let visibleRowsBelow: number = 5; // number of rows that have display:block
+            let visibleRowsAbove: number = 7;
+            let rowNum: number = Math.floor(scrollTop / dsIconHeight) - visibleRowsBelow;
 
-            var filesPerRow = getFilesPerRow();
-            var filesBelow = rowNum * filesPerRow;
+            let filesPerRow = getFilesPerRow();
+            let filesBelow: number = rowNum * filesPerRow;
 
-            numVisibleRows = Math.ceil($container.height() / dsIconHeight);
+            let numVisibleRows: number = Math.ceil($container.height() / dsIconHeight);
 
             startIndex = Math.max(0, filesBelow);
             endIndex = startIndex + (filesPerRow *
                     (numVisibleRows + visibleRowsBelow + visibleRowsAbove));
             $container.find(".sizer").show().height(rowNum * dsIconHeight);
         } else {
-            visibleRowsBelow = 20;
-            visibleRowsAbove = 25;
-            rowNum = Math.floor(scrollTop / dsListHeight) - visibleRowsBelow;
-            numVisibleRows = Math.ceil($container.height() / dsListHeight);
+            let visibleRowsBelow: number = 20;
+            let visibleRowsAbove: number = 25;
+            let rowNum: number = Math.floor(scrollTop / dsListHeight) - visibleRowsBelow;
+            let numVisibleRows: number = Math.ceil($container.height() / dsListHeight);
             startIndex = Math.max(0, rowNum);
             endIndex = startIndex + numVisibleRows + visibleRowsBelow +
                             visibleRowsAbove;
@@ -705,21 +736,20 @@ window.FileBrowser = (function($, FileBrowser) {
         $containerWrapper.scrollTop(scrollTop);
     }
 
-    function getFilesPerRow() {
-        var scrollBarWidth = 11;
-        return (Math.floor(($containerWrapper.width() -
-                            scrollBarWidth) / dsIconWidth));
+    function getFilesPerRow(): number {
+        const scrollBarWidth: number = 11;
+        return Math.floor(($containerWrapper.width() - scrollBarWidth) / dsIconWidth);
     }
-    function getScrollHeight() {
-        var scrollHeight;
+
+    function getScrollHeight(): number {
+        let scrollHeight: number;
         if ($fileBrowserMain.hasClass('listView')) {
             scrollHeight = Math.max(dsListHeight *
                                     $container.find('.grid-unit').length,
                                     $containerWrapper.height());
         } else {
-            var iconsPerRow = getFilesPerRow();
-            var rows = Math.ceil($container.find('.grid-unit').length /
-                                iconsPerRow);
+            let iconsPerRow = getFilesPerRow();
+            let rows: number = Math.ceil($container.find('.grid-unit').length / iconsPerRow);
             scrollHeight = rows * dsIconHeight;
             scrollHeight = Math.max(scrollHeight, $containerWrapper.height());
         }
@@ -727,8 +757,11 @@ window.FileBrowser = (function($, FileBrowser) {
         return scrollHeight;
     }
 
-    function toggleView(toListView, noRefreshTooltip) {
-        var $btn = $("#fileBrowserGridView");
+    function toggleView(
+        toListView: boolean,
+        noRefreshTooltip: boolean
+    ): void {
+        let $btn: JQuery = $("#fileBrowserGridView");
         FilePreviewer.close();
         if (toListView == null) {
             // if current is gridView, change to listView;
@@ -758,20 +791,20 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     // centers a grid-unit if it is highlighted
-    function centerUnitIfHighlighted(isListView) {
-        var unitHeight = isListView ? dsListHeight : dsIconHeight;
-        var $unit = $container.find('.grid-unit.active');
+    function centerUnitIfHighlighted(isListView: boolean): void {
+        let unitHeight: number = isListView ? dsListHeight : dsIconHeight;
+        let $unit = $container.find('.grid-unit.active');
         if ($unit.length) {
-            var containerHeight = $container.height();
+            let containerHeight: number = $container.height();
             if ($container.hasClass('manyFiles')) {
-                var index = $unit.index() - 1; // $('.sizer') is at 0 index
-                var filesPerRow;
+                let index: number = $unit.index() - 1; // $('.sizer') is at 0 index
+                let filesPerRow: number;
                 if (isListView) {
                     filesPerRow = 1;
                 } else {
                     filesPerRow = getFilesPerRow();
                 }
-                var row = Math.floor(index / filesPerRow);
+                let row: number = Math.floor(index / filesPerRow);
                 $container.addClass('noScrolling');
                 $containerWrapper.scrollTop(row * unitHeight - (containerHeight / 2));
                 showScrolledFiles();
@@ -781,42 +814,43 @@ window.FileBrowser = (function($, FileBrowser) {
                     $container.removeClass('noScrolling');
                 });
             } else {
-                var unitOffSetTop = $unit.position().top;
-                var scrollTop = $containerWrapper.scrollTop();
+                let unitOffSetTop = $unit.position().top;
+                let scrollTop = $containerWrapper.scrollTop();
                 $containerWrapper.scrollTop(scrollTop + unitOffSetTop -
                                     (containerHeight - unitHeight) / 2);
             }
         }
     }
 
-    function getCurrentTarget() {
+    function getCurrentTarget(): string {
         return $pathSection.find(".targetName").text();
     }
 
-    function getCurrentPath() {
-        var path = $pathLists.find("li:first-of-type").text();
-        return path;
+    function getCurrentPath(): string {
+        return $pathLists.find("li:first-of-type").text();;
     }
 
-    function getGridUnitName($grid) {
+    function getGridUnitName($grid: JQuery): string {
         // edge case: null should be "null"
         return String($grid.find('.label').data("name"));
     }
 
-    function setPath(path) {
+    function setPath(path: string): void {
         path = path || "";
         $pathSection.find(".text").val(path);
     }
 
-    function appendPath(path, noPathUpdate) {
+    function appendPath(
+        path: string,
+        noPathUpdate: boolean
+    ): void {
         if (!noPathUpdate) {
             setPath(path);
         }
-
         $pathLists.prepend('<li>' + path + '</li>');
     }
 
-    function clearAll() {
+    function clearAll(): void {
         $("#fileBrowserUp").addClass("disabled");
         setPath("");
         $pathLists.empty();
@@ -842,12 +876,20 @@ window.FileBrowser = (function($, FileBrowser) {
         FilePreviewer.close();
     }
 
-    function cleanContainer(options) {
+    function cleanContainer(
+        options?: {
+            keepSelected?: boolean
+            removeUnpicked?: boolean
+            keepAnchor?: boolean
+            keepPicked?: boolean
+        }
+    ): void {
+        options = options || {};
         $container.find(".active").removeClass("active");
-        updateActiveFileInfo();
-        if (!options || !options.keepSelected) {
+        updateActiveFileInfo(null);
+        if (!options.keepSelected) {
             var $allGrids;
-            if (options && options.removeUnpicked) {
+            if (options.removeUnpicked) {
                 $allGrids = $innerContainer.find(".selected:not(.picked)");
             } else {
                 $allGrids = $innerContainer.find(".selected");
@@ -858,28 +900,28 @@ window.FileBrowser = (function($, FileBrowser) {
                 curFiles[$grid.data("index")].isSelected = false;
             });
         }
-        if (!options || !options.keepAnchor) {
+        if (!options.keepAnchor) {
             $anchor = null;
         }
-        if (!options || !options.keepPicked) {
-            togglePickedFiles();
+        if (!options.keepPicked) {
+            togglePickedFiles(null);
             // clearAll flag
             updatePickedFilesList(null, {clearAll: true});
         }
     }
 
-    function backToForm() {
+    function backToForm(): void {
         clearAll();
         DSForm.show();
     }
 
-    function redirectHandler(path) {
-        var deferred = PromiseHelper.deferred();
+    function redirectHandler(path: string): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         setTimeout(function() {
             // do this because fadeIn has 300 dealy,
             // if statusBox show before the fadeIn finish, it will fail
-            var error = xcStringHelper.replaceMsg(ErrWRepTStr.NoPath, {
+            let error = xcStringHelper.replaceMsg(ErrWRepTStr.NoPath, {
                 "path": path
             });
             StatusBox.show(error, $pathSection, false, {side: 'top'});
@@ -889,31 +931,32 @@ window.FileBrowser = (function($, FileBrowser) {
         return deferred.promise();
     }
 
-    function loadFailHandler(error, path) {
+    function loadFailHandler(error: any, path: string): void {
         $pathLists.empty();
-        appendPath(path);
+        appendPath(path, false);
 
         console.error(error);
-        var msg = xcStringHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
+        let msg = xcStringHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
             "path": path
         });
         if (typeof error === "object" && error.log) {
             msg += " " + AlertTStr.Error + ": " + error.log;
         }
-        var html = '<div class="error">' +
-                        '<div>' + msg + '</div>' +
-                        '<div>' + DSTStr.DSSourceHint + '</div>' +
-                    '</div>';
+        let html: HTML =
+        '<div class="error">' +
+            '<div>' + msg + '</div>' +
+            '<div>' + DSTStr.DSSourceHint + '</div>' +
+        '</div>';
         $innerContainer.html(html);
         $innerContainer.height("auto");
         $container.removeClass('manyFiles');
         $fileBrowser.removeClass('unsortable').addClass("errorMode");
     }
 
-    function parsePath(path) {
-        var paths = [];
+    function parsePath(path: string): string[] {
+        let paths: string[] = [];
         // parse path
-        for (var i = path.length - 1; i >= (defaultPath.length - 1); i--) {
+        for (let i = path.length - 1; i >= (defaultPath.length - 1); i--) {
             // XXX Does not handle file paths with escaped slashes
             if (path.charAt(i) === "/") {
                 paths.push(path.substring(0, i + 1));
@@ -923,11 +966,11 @@ window.FileBrowser = (function($, FileBrowser) {
         return paths;
     }
 
-    function setTarget(targetName) {
+    function setTarget(targetName: string): void {
         $pathSection.find(".targetName").text(targetName);
     }
 
-    function setHistoryPath() {
+    function setHistoryPath(): void {
         var path = getCurrentPath();
         if (path !== defaultPath) {
             var targetName = getCurrentTarget();
@@ -935,10 +978,13 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function dedupFiles(targetName, files) {
+    function dedupFiles(
+        targetName: string,
+        files: {name: string}[]
+    ): {name: string}[] {
         if (DSTargetManager.isPreSharedTarget(targetName)) {
-            var dedupFiles = [];
-            var nameSet = {};
+            let dedupFiles: {name: string}[] = [];
+            let nameSet = {};
             files.forEach(function(file) {
                 if (!nameSet.hasOwnProperty(file.name)) {
                     nameSet[file.name] = true;
@@ -951,10 +997,10 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function addFileExtensionAttr(files) {
+    function addFileExtensionAttr(files: XcFile[]): void {
         files.forEach(function(file) {
             if (!file.attr.isDirectory) {
-                var index = file.name.lastIndexOf(".");
+                let index: number = file.name.lastIndexOf(".");
                 if (index === -1) {
                     file.attr.extension = "";
                 } else {
@@ -965,19 +1011,19 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function listFiles(path, options) {
-        var deferred = PromiseHelper.deferred();
-        var $loadSection = $fileBrowserMain.find(".loadingSection");
-        var $searchLoadingSection = $fileBrowserMain.find(".searchLoadingSection");
-        var targetName = getCurrentTarget();
-        var curBrowserId = fileBrowserId;
-        var curSearchId = null;
+    function listFiles(path: string, options: any): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let $loadSection: JQuery = $fileBrowserMain.find(".loadingSection");
+        let $searchLoadingSection: JQuery = $fileBrowserMain.find(".searchLoadingSection");
+        let targetName: string = getCurrentTarget();
+        let curBrowserId: string = fileBrowserId;
+        let curSearchId: string = null;
         if (options) {
             curSearchId = searchId;
         }
 
         $fileBrowser.addClass("loadMode");
-        var timer = setTimeout(function() {
+        let timer = setTimeout(function() {
             if (options) {
                 // If it's a search
                 $searchLoadingSection.show();
@@ -986,7 +1032,12 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         }, 500);
 
-        var args = {targetName: targetName, path: path};
+        let args = {
+            targetName: targetName,
+            path: path,
+            recursive: undefined,
+            fileNamePattern: undefined
+        };
         if (options && options.hasOwnProperty("recursive") &&
                        options.hasOwnProperty("fileNamePattern")) {
             args.recursive = options.recursive;
@@ -1010,7 +1061,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     curPathFiles = allFiles;
                     clearSearch();
                 }
-                sortFilesBy(sortKey, sortRegEx);
+                sortFilesBy(sortKey, sortRegEx, false);
                 deferred.resolve();
             } else {
                 deferred.reject({"error": oldBrowserError, "oldBrowser": true});
@@ -1044,27 +1095,26 @@ window.FileBrowser = (function($, FileBrowser) {
         return deferred.promise();
     }
 
-    function goIntoFolder() {
-        var $grid = getFocusedGridEle();
+    function goIntoFolder(): void {
+        let $grid = getFocusedGridEle();
         if ($grid.hasClass("folder")) {
             $grid.trigger("dblclick");
         }
     }
 
-    function goUpPath() {
+    function goUpPath(): void {
         // the second option in pathLists
-        var $newPath = $pathLists.find("li").eq(1);
+        let $newPath = $pathLists.find("li").eq(1);
         goToPath($newPath);
     }
 
-    function goToPath($newPath) {
+    function goToPath($newPath: JQuery): XDPromise<void> {
         // for unit test, use promise
-        var deferred = PromiseHelper.deferred();
-
         if ($newPath == null || $newPath.length === 0) {
-            deferred.resolve();
-            return deferred.promise();
+            return PromiseHelper.resolve();
         }
+
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if ($pathSection.hasClass("open")) {
             pathDropdownMenu.toggleList($pathSection);
         }
@@ -1074,7 +1124,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var oldPath = getCurrentPath();
         var path = $newPath.text();
 
-        listFiles(path)
+        listFiles(path, null)
         .then(function() {
             setPath(path);
             $pathLists.find("li").removeClass("select");
@@ -1099,7 +1149,7 @@ window.FileBrowser = (function($, FileBrowser) {
         return deferred.promise();
     }
 
-    function checkIfCanGoUp() {
+    function checkIfCanGoUp(): void {
         if (getCurrentPath() === defaultPath) {
             $("#fileBrowserUp").addClass("disabled");
         } else {
@@ -1107,31 +1157,32 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function submitForm($ds) {
-        var curDir = getCurrentPath();
-        var targetName = getCurrentTarget();
-        var size = 0;
-        var files = [];
-        var invalidRegex = false;
+    function submitForm($ds: JQuery): void {
+        let curDir = getCurrentPath();
+        let targetName = getCurrentTarget();
+        let size: number = 0;
+        let files = [];
+        let invalidRegex: boolean = false;
         // load dataset
         if ($ds != null && $ds.length > 0) {
-            var fileName = getGridUnitName($ds);
-            var path = curDir + fileName;
+            let fileName = getGridUnitName($ds);
+            let path: string = curDir + fileName;
             files.push({
                 path: path,
                 recursive: false,
                 isFolder: false
             });
         } else {
-            var $fileList = $fileBrowser.find(".pickedFileList li");
+            let $fileList = $fileBrowser.find(".pickedFileList li");
             $fileList.each(function () {
-                var $li = $(this);
+                let $li = $(this);
+                let path: string
                 if ($li.hasClass("regex")) {
-                    var path = $li.data("path");
-                    var recursive = $li.find(".icon").eq(1)
+                    path = $li.data("path");
+                    let recursive: boolean = $li.find(".icon").eq(1)
                                            .hasClass("xi-ckbox-selected");
-                    var searchKey = $li.find("input").val();
-                    var pattern;
+                    let searchKey: string = $li.find("input").val();
+                    let pattern: string;
                     if (searchKey === "") {
                         invalidRegex = true;
                     } else {
@@ -1154,10 +1205,10 @@ window.FileBrowser = (function($, FileBrowser) {
                         fileNamePattern: pattern
                     });
                 } else {
-                    var path = $li.data("fullpath");
-                    var recursive = $li.find(".icon").eq(1)
+                    path = $li.data("fullpath");
+                    let recursive: boolean = $li.find(".icon").eq(1)
                                            .hasClass("xi-ckbox-selected");
-                    var isFolder = ($li.data("type") === "Folder");
+                    let isFolder: boolean = ($li.data("type") === "Folder");
 
                     files.push({
                         path: path,
@@ -1189,21 +1240,24 @@ window.FileBrowser = (function($, FileBrowser) {
             });
             return;
         }
-        var multiDS = $("#fileInfoBottom").find(".switch").hasClass("on");
-        var options = {
+        let multiDS: boolean = $("#fileInfoBottom").find(".switch").hasClass("on");
+        let options = {
             "targetName": targetName,
             "files": files,
             "multiDS": multiDS
         };
         setHistoryPath();
 
-        DSPreview.show(options, curDir);
+        DSPreview.show(options, curDir, false);
     }
 
-    function searchFiles(searchKey, type) {
+    function searchFiles(
+        searchKey: string,
+        type: string
+    ): XDPromise<void> {
         // for unit test, use promise
-        var deferred = PromiseHelper.deferred();
-        var $input = $("#fileBrowserSearch input").removeClass("error");
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let $input = $("#fileBrowserSearch input").removeClass("error");
         FilePreviewer.close();
         if (type == null) {
             $searchDropdown.find("li").removeClass("selected");
@@ -1215,9 +1269,9 @@ window.FileBrowser = (function($, FileBrowser) {
             $container.find(".filePathBottom .content").text(searchInfo);
             return deferred.resolve().promise();
         }
-        var fullTextMatch = false;
+        let fullTextMatch: boolean = false;
         searchInfo = "Searching";
-        var origKey = searchKey;
+        let origKey: string = searchKey;
         if (type == null) {
             // Do a regular text search
             searchKey = xcStringHelper.escapeRegExp(searchKey);
@@ -1248,20 +1302,20 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             searchKey = xcStringHelper.containRegExKey(searchKey);
         }
-        var isValidRegex = true;
+        let isValidRegex: boolean = true;
         try {
             // Check if it's valid regex
             new RegExp(searchKey);
         } catch (e) {
             isValidRegex = false;
         }
-        var pattern = xcStringHelper.getFileNamePattern(searchKey, true);
-        var path = getCurrentPath();
+        let pattern = xcStringHelper.getFileNamePattern(searchKey, true);
+        let path = getCurrentPath();
         $("#fileBrowserSearch input").addClass("xc-disabled");
         $innerContainer.hide();
 
         searchId = xcHelper.randName("search");
-        var cancelSearch = false;
+        let cancelSearch: boolean = false;
 
         listFiles(path, {recursive: true, fileNamePattern: pattern})
         .fail(function(error) {
@@ -1294,7 +1348,7 @@ window.FileBrowser = (function($, FileBrowser) {
         return deferred.promise();
     }
 
-    function clearSearch() {
+    function clearSearch(): void {
         searchId = null;
         $("#fileBrowserSearch input").removeClass("error xc-disabled").val("");
         $searchDropdown.find("li").removeClass("selected");
@@ -1307,36 +1361,39 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function handleSearchError(error) {
-        var html = '<div class="error">' +
+    function handleSearchError(error: string): void {
+        let html = '<div class="error">' +
                         '<div>' + error + '</div>' +
                     '</div>';
         $innerContainer.html(html);
     }
 
-    function sortAction($option, isFromSortOption) {
-        var grid = getFocusGrid();
-        var key = $option.data("sortkey");
+    function sortAction(
+        $option: JQuery,
+        isFromSortOption: boolean
+    ): void {
+        let grid = getFocusGrid();
+        let key: string = $option.data("sortkey");
 
         FilePreviewer.close();
         $option.siblings(".select").each(function() {
-            var $currOpt = $(this);
+            let $currOpt = $(this);
             $currOpt.removeClass("select");
             toggleSortIcon($currOpt.find(".icon").eq(0), true);
         });
         $option.addClass("select");
-        toggleSortIcon($option.find(".icon").eq(0));
+        toggleSortIcon($option.find(".icon").eq(0), false);
 
         reverseSort = false;
-        sortFilesBy(key, sortRegEx);
+        sortFilesBy(key, sortRegEx, false);
 
         if (isFromSortOption) {
             $fileBrowserMain.find(".titleSection .title").each(function() {
-                var $title = $(this);
-                var $icon = $title.find(".icon").eq(0);
+                let $title = $(this);
+                let $icon = $title.find(".icon").eq(0);
                 if ($title.data("sortkey") === key) {
                     $title.addClass("select");
-                    toggleSortIcon($icon);
+                    toggleSortIcon($icon, false);
                 } else {
                     $title.removeClass("select");
                     toggleSortIcon($icon, true);
@@ -1345,8 +1402,7 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             // mark sort key on li
             $("#fileBrowserSortMenu").find("li").each(function() {
-                var $li = $(this);
-
+                let $li = $(this);
                 if ($li.data("sortkey") === key) {
                     $li.addClass("select");
                 } else {
@@ -1359,7 +1415,11 @@ window.FileBrowser = (function($, FileBrowser) {
         centerUnitIfHighlighted($fileBrowserMain.hasClass('listView'));
     }
 
-    function sortFilesBy(key, regEx, isRestore) {
+    function sortFilesBy(
+        key: string,
+        regEx: RegExp,
+        isRestore: boolean
+    ): void {
         if (allFiles.length > upperFileLimit) {
             oversizeHandler();
             return;
@@ -1388,8 +1448,8 @@ window.FileBrowser = (function($, FileBrowser) {
         getHTMLFromFiles(curFiles);
     }
 
-    function oversizeHandler() {
-        var html = '<div class="error">' +
+    function oversizeHandler(): void {
+        let html = '<div class="error">' +
                     '<div>' + DSTStr.FileOversize + '</div>' +
                    '</div>';
         $innerContainer.html(html);
@@ -1398,23 +1458,22 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileBrowser.removeClass('unsortable');
     }
 
-    function filterFiles(files, regEx) {
-        var result = [];
-
-        for (var i = 0, len = files.length; i < len; i++) {
-            var fileObj = files[i];
-            var name = fileObj.name;
+    function filterFiles(files: XcFile[], regEx: RegExp): XcFile[] {
+        let result: XcFile[] = [];
+        for (let i = 0, len = files.length; i < len; i++) {
+            let fileObj = files[i];
+            let name = fileObj.name;
             if (regEx.test(name) === true)
             {
                 result.push(fileObj);
             }
         }
-        return (result);
+        return result;
     }
 
-    function sortFiles(files, key) {
-        var folders = [];
-        var datasets = [];
+    function sortFiles(files: XcFile[], key: string): XcFile[] {
+        let folders: XcFile[] = [];
+        let datasets: XcFile[] = [];
 
         files.forEach(function(file) {
             // folders sort by name
@@ -1491,9 +1550,8 @@ window.FileBrowser = (function($, FileBrowser) {
         return files;
     }
 
-    function reverseFiles() {
-        var grid = getFocusGrid();
-
+    function reverseFiles(): void {
+        let grid = getFocusGrid();
         reverseSort = !reverseSort;
         curFiles.reverse();
         getHTMLFromFiles(curFiles);
@@ -1501,14 +1559,18 @@ window.FileBrowser = (function($, FileBrowser) {
         centerUnitIfHighlighted($fileBrowserMain.hasClass('listView'));
     }
 
-    function focusOn(grid, isAll, showError) {
+    function focusOn(
+        grid: any,
+        isAll = false,
+        showError = false
+    ): void {
         if (grid == null) {
             $anchor = null;
             return;
         }
 
-        var str;
-        var name;
+        let str: string;
+        let name: string;
 
         if (typeof grid === "string") {
             name = xcStringHelper.escapeRegExp(grid);
@@ -1521,7 +1583,7 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             name = xcStringHelper.escapeRegExp(grid.name);
             name = xcStringHelper.escapeDblQuote(name);
-            var type = grid.type;
+            let type: string = grid.type;
 
             if (type == null) {
                 str = '.grid-unit' + ' .label[data-name="' + name + '"]';
@@ -1537,7 +1599,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $anchor = $grid;
 
             if ($fileBrowserMain.hasClass("listView")) {
-                scrollIconIntoView($grid);
+                scrollIconIntoView($grid, false);
             } else {
                 scrollIconIntoView($grid, true);
             }
@@ -1546,13 +1608,16 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function showNoFileError() {
+    function showNoFileError(): void {
         StatusBox.show(ErrTStr.NoFile, $container, false, {side: "top"});
     }
 
-    function getFocusGrid() {
-        var $grid = getFocusedGridEle();
-        var grid;
+    function getFocusGrid(): {
+        name: string,
+        type: string
+    } | null {
+        let $grid = getFocusedGridEle();
+        let grid = null;
 
         if ($grid.length > 0) {
             grid = {
@@ -1561,14 +1626,18 @@ window.FileBrowser = (function($, FileBrowser) {
             };
         }
 
-        return (grid);
+        return grid;
     }
 
-    function getFocusedGridEle() {
+    function getFocusedGridEle(): JQuery {
         return $container.find(".grid-unit.active");
     }
 
-    function retrievePaths(path, noPathUpdate, restore) {
+    function retrievePaths(
+        path: string,
+        noPathUpdate: boolean,
+        restore: boolean
+    ): XDPromise<void> {
         if (restore) {
             // This is a restore case
             setPath(path);
@@ -1577,15 +1646,14 @@ window.FileBrowser = (function($, FileBrowser) {
         if (!path.startsWith(defaultPath)) {
             path = defaultPath + path;
         }
-        var paths = parsePath(path);
+        let paths = parsePath(path);
         // cannot parse the path
         if (paths.length === 0) {
             return PromiseHelper.reject({"error": ErrTStr.InvalidFilePath});
         }
 
-        var deferred = PromiseHelper.deferred();
-
-        listFiles(paths[0])
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        listFiles(paths[0], null)
         .then(function() {
             $pathLists.empty();
 
@@ -1605,10 +1673,11 @@ window.FileBrowser = (function($, FileBrowser) {
 
         return deferred.promise();
     }
-    function genDateHtml(fileTime, type) {
-        var time = moment(fileTime * 1000);
-        var date = time.calendar();
-        var dateTip = xcTimeHelper.getDateTip(time);
+
+    function genDateHtml(fileTime: number, type: string): HTML {
+        let time = moment(fileTime * 1000);
+        let date = time.calendar();
+        let dateTip = xcTimeHelper.getDateTip(time);
         return '<div class="fileDate ' + type + '">' +
                     '<span ' + dateTip + '>' +
                         date +
@@ -1616,39 +1685,40 @@ window.FileBrowser = (function($, FileBrowser) {
                 '</div>';
 
     }
-    function getHTMLFromFiles(files) {
-        var html = '<div class="sizer"></div>';
+    function getHTMLFromFiles(files: XcFile[]): void {
+        let html: HTML = '<div class="sizer"></div>';
             // used to keep file position when
             // files before it are hidden
-        var hasCtime = false;
-        for (var i = 0, len = files.length; i < len; i++) {
+        let hasCtime: boolean = false;
+        let len: number = files.length; 
+        for (let i = 0; i < len; i++) {
             // fileObj: {name, isSelected, isPicked, attr{isDirectory, size}}
-            var fileObj = files[i];
-            var isDirectory = fileObj.attr.isDirectory;
-            var name = fileObj.name;
-            var ctime = fileObj.attr.ctime;
-            var mtime = fileObj.attr.mtime; // in untix time
-            var isSelected = fileObj.isSelected;
-            var isPicked = fileObj.isPicked;
+            let fileObj = files[i];
+            let isDirectory = fileObj.attr.isDirectory;
+            let name = fileObj.name;
+            let ctime = fileObj.attr.ctime;
+            let mtime = fileObj.attr.mtime; // in untix time
+            let isSelected = fileObj.isSelected;
+            let isPicked = fileObj.isPicked;
 
             if (isDirectory && (name === '.' || name === '..')) {
                 continue;
             }
 
-            var visibilityClass = " visible";
+            let visibilityClass: string = " visible";
             if (len > lowerFileLimit && i > 200) {
                 visibilityClass = "";
             }
 
-            var gridClass = isDirectory ? "folder" : "ds";
-            var iconClass = isDirectory ? "xi-folder" : "xi-documentation-paper";
-            var size = isDirectory ? "" :
+            let gridClass: string = isDirectory ? "folder" : "ds";
+            let iconClass: string = isDirectory ? "xi-folder" : "xi-documentation-paper";
+            let size = isDirectory ? "" :
                         xcHelper.sizeTranslator(fileObj.attr.size);
-            var escName = xcStringHelper.escapeDblQuoteForHTML(name);
+            let escName = xcStringHelper.escapeDblQuoteForHTML(name);
 
-            var selectedClass = isSelected ? " selected" : "";
-            var pickedClass = isPicked ? " picked" : "";
-            var ckBoxClass = isPicked ? "xi-ckbox-selected" : "xi-ckbox-empty";
+            let selectedClass: string = isSelected ? " selected" : "";
+            let pickedClass: string = isPicked ? " picked" : "";
+            let ckBoxClass: string = isPicked ? "xi-ckbox-selected" : "xi-ckbox-empty";
 
             html +=
                 '<div title="' + escName + '" class="' + gridClass +
@@ -1711,25 +1781,25 @@ window.FileBrowser = (function($, FileBrowser) {
 
     }
 
-    function sizeFileNameColumn() {
-        var containerWidth = $fileBrowserMain.find(".titleSection").width();
-        var fileNameWidth = $fileBrowserMain.find(".titleSection")
+    function sizeFileNameColumn(): void {
+        let containerWidth = $fileBrowserMain.find(".titleSection").width();
+        let fileNameWidth = $fileBrowserMain.find(".titleSection")
                                             .find(".fileName").outerWidth();
-        var fileNamePct = 100 * (fileNameWidth + 20 ) / containerWidth;
-        var siblingPct = (100 - fileNamePct) / 2;
+        let fileNamePct = 100 * (fileNameWidth + 20 ) / containerWidth;
+        let siblingPct = (100 - fileNamePct) / 2;
         $innerContainer.find(".fileName").css("width", "calc(" + fileNamePct +
                                               "% - 20px)");
         $innerContainer.find(".fileDate, .fileSize").css("width", "calc(" +
                                                     siblingPct + "% - 20px)");
     }
 
-    function refreshIcon() {
-        var isListView = $fileBrowserMain.hasClass("listView");
+    function refreshIcon(): void {
+        let isListView: boolean = $fileBrowserMain.hasClass("listView");
         $container.find(".grid-unit.ds").each(function() {
-            var $grid = $(this);
-            var $icon = $grid.find(".icon").eq(1);
-            var name = getGridUnitName($grid);
-            var fileType = xcHelper.getFormat(name);
+            let $grid = $(this);
+            let $icon = $grid.find(".icon").eq(1);
+            let name = getGridUnitName($grid);
+            let fileType = xcHelper.getFormat(name);
             if (fileType && listFormatMap.hasOwnProperty(fileType) &&
                 gridFormatMap.hasOwnProperty(fileType)) {
                 $icon.removeClass();
@@ -1745,7 +1815,7 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function refreshEllipsis() {
+    function refreshEllipsis(): void {
         // do not use middle ellipsis if too many files, it's slow
         if (curFiles.length > lowerFileLimit) {
             return;
@@ -1753,37 +1823,40 @@ window.FileBrowser = (function($, FileBrowser) {
 
         // note: we are handling listView width as static when the modal width
         // is not static
-        var isListView = $fileBrowserMain.hasClass("listView");
-        var maxChar = isListView ? 40 : 8;
-        var maxWidth = isListView ? $innerContainer.find(".fileName").width() : 52;
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
+        let isListView: boolean = $fileBrowserMain.hasClass("listView");
+        const maxChar: number = isListView ? 40 : 8;
+        const maxWidth: number = isListView ? $innerContainer.find(".fileName").width() : 52;
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
         ctx.font = isListView ? '700 12px Open Sans' : '700 9px Open Sans';
 
         $innerContainer.find(".grid-unit").each(function() {
-            var $grid = $(this);
-            var $label = $grid.find(".label").eq(0);
-            var name = getGridUnitName($grid);
-            var ellipsis = xcHelper.middleEllipsis(name, $label, maxChar,
+            let $grid = $(this);
+            let $label = $grid.find(".label").eq(0);
+            let name = getGridUnitName($grid);
+            let ellipsis = xcHelper.middleEllipsis(name, $label, maxChar,
                                                    maxWidth, !isListView, ctx);
             toggleTooltip($label, name, ellipsis);
         });
     }
-    function refreshFileListEllipsis($fileName, hasRegex) {
-        var maxChar = hasRegex? 20 : 38;
-        var maxWidth = hasRegex? 170 : 280;
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
+    function refreshFileListEllipsis(
+        $fileName: JQuery,
+        hasRegex: boolean
+    ): void {
+        const maxChar: number = hasRegex? 20 : 38;
+        const maxWidth: number = hasRegex? 170 : 280;
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
         ctx.font = '700 13px Open Sans';
-        var ellipsis = false;
-        var name = $fileName.text();
+        let ellipsis: boolean = false;
+        let name: string = $fileName.text();
         if ($fileName && $fileName.length > 0) {
             ellipsis = xcHelper.middleEllipsis(name, $fileName, maxChar,
                                                maxWidth, false, ctx);
             toggleTooltip($fileName, name, ellipsis);
         } else {
             $pickedFileList.find("span").each(function() {
-                var $span = $(this);
+                let $span = $(this);
                 name = $span.text();
                 ellipsis = xcHelper.middleEllipsis(name, $span, maxChar,
                                                    maxWidth, false, ctx);
@@ -1792,28 +1865,31 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function refreshFilePathEllipsis(emptyTooltip) {
-        var $path = $container.find(".filePathBottom .content");
+    function refreshFilePathEllipsis(emptyTooltip: boolean): void {
+        let $path = $container.find(".filePathBottom .content");
 
         if (emptyTooltip) {
             xcTooltip.remove($path);
         }
 
-        var name = $path.attr("data-original-title") || $path.text();
-        var maxChar = 38;
-        var maxWidth = $path.parent().width();
+        let name: string = $path.attr("data-original-title") || $path.text();
+        const maxChar: number = 38;
+        let maxWidth = $path.parent().width();
 
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
         ctx.font = '700 13px Open Sans';
-        var ellipsis = false;
-
+        let ellipsis: boolean = false;
         ellipsis = xcHelper.middleEllipsis(name, $path, maxChar,
                                            maxWidth, false, ctx);
         toggleTooltip($path, name, ellipsis);
     }
 
-    function toggleTooltip($text, name, isEllipsis) {
+    function toggleTooltip(
+        $text: JQuery,
+        name: string,
+        isEllipsis: boolean
+    ): void {
         // GridView may have different ellipsis than listView
         if (isEllipsis) {
             xcTooltip.add($text, {title: name});
@@ -1822,22 +1898,22 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function addKeyBoardEvent() {
-        var fileNavigator = createFileNavigator();
+    function addKeyBoardEvent(): void {
+        let fileNavigator: any = createFileNavigator();
 
         $(document).on("keydown.fileBrowser", function(event) {
             // up to parent folder
-            var $target = $(event.target);
+            let $target = $(event.target);
             if ($target.closest("#fileBrowserPreview").length > 0) {
                 return;
             }
 
-            var code = event.which;
-            var $lastTarget = gMouseEvents.getLastMouseDownTarget();
-            var $lastTargParents = gMouseEvents.getLastMouseDownParents();
+            let code = event.which;
+            let $lastTarget = gMouseEvents.getLastMouseDownTarget();
+            let $lastTargParents = gMouseEvents.getLastMouseDownParents();
 
             hideBrowserMenu();
-            var $activeEl = $(document.activeElement);
+            let $activeEl = $(document.activeElement);
             if ($fileBrowser.is(":visible") && !$activeEl.is("textarea") &&
                 !$activeEl.is("input")) {
                 // filebrowser is visible and there's no cursor in an input so
@@ -1889,7 +1965,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 code === keyCode.Down) {
                 keyBoardNavigate(code, event);
             } else {
-                var file = fileNavigator.navigate(code, curFiles);
+                let file = fileNavigator.navigate(code, curFiles);
                 if (file != null) {
                     // Clean selected files in browser
                     cleanContainer({keepPicked: true});
@@ -1899,8 +1975,8 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function addResizeEvent() {
-        var timeout;
+    function addResizeEvent(): void {
+        let timeout;
         $(window).on("resize.fileBrowserResize", function() {
             refreshFilePathEllipsis(false);
             clearTimeout(timeout);
@@ -1913,11 +1989,11 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     // A singleton to do file search
-    function createFileNavigator() {
+    function createFileNavigator(): void {
         return new FileNavigator();
 
         function FileNavigator() {
-            var self = this;
+            let self = this;
             self.timer = null;
             self.searchString = "";
             self.navigate = function(code, files) {
@@ -1960,7 +2036,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function keyBoardInBackFolder(code) {
+    function keyBoardInBackFolder(code: number): void {
         if (code === keyCode.Up) {
             goUpPath();
         } else if (code === keyCode.Down) {
@@ -1968,14 +2044,14 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function keyBoardNavigate(code, event) {
-        var $nextIcon;
-        var $curIcon = $container.find('.grid-unit.active');
+    function keyBoardNavigate(code: number, event): void {
+        let $nextIcon;
+        let $curIcon = $container.find('.grid-unit.active');
         if (!$curIcon.length) {
             $container.find('.grid-unit:visible').eq(0).click();
             return;
         }
-        var isGridView = $fileBrowserMain.hasClass("gridView");
+        let isGridView: boolean = $fileBrowserMain.hasClass("gridView");
         if (isGridView) {
             if (code === keyCode.Left) {
                 $nextIcon = $curIcon.prev();
@@ -1998,13 +2074,13 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function findVerticalIcon($curIcon, code) {
-        var $targetIcon;
-        var curIndex = $curIcon.index() - 1; // .sizer is at 0 index
-        var containerWidth = $innerContainer.width();
-        var gridsPerRow = Math.floor(containerWidth / dsIconWidth);
+    function findVerticalIcon($curIcon: JQuery, code: number): JQuery {
+        let $targetIcon: JQuery;
+        let curIndex: number = $curIcon.index() - 1; // .sizer is at 0 index
+        let containerWidth = $innerContainer.width();
+        let gridsPerRow = Math.floor(containerWidth / dsIconWidth);
         if (code === keyCode.Up) {
-            var newIndex = curIndex - gridsPerRow;
+            let newIndex: number = curIndex - gridsPerRow;
             if (newIndex < 0) {
                 $targetIcon = $curIcon;
             } else {
@@ -2028,28 +2104,28 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
             }
         }
-        return ($targetIcon);
+        return $targetIcon;
     }
 
-    function scrollIconIntoView($icon, isGridView) {
-        var iconHeight = isGridView ? dsIconHeight : dsListHeight;
-        var containerHeight = $containerWrapper.height();
-        var scrollTop = $containerWrapper.scrollTop();
+    function scrollIconIntoView($icon: JQuery, isGridView: boolean): void {
+        let iconHeight: number = isGridView ? dsIconHeight : dsListHeight;
+        let containerHeight = $containerWrapper.height();
+        let scrollTop = $containerWrapper.scrollTop();
 
         if ($container.hasClass('manyFiles')) {
-            var index = $icon.index() - 1; // .sizer is at 0
-            var filesPerRow;
+            let index: number = $icon.index() - 1; // .sizer is at 0
+            let filesPerRow: number;
             if (isGridView) {
                 filesPerRow = getFilesPerRow();
             } else {
                 filesPerRow = 1;
             }
-            var containerBottom = scrollTop + containerHeight;
+            let containerBottom: number = scrollTop + containerHeight;
 
-            var row = Math.floor(index / filesPerRow);
-            var iconPosition = row * iconHeight;
+            let row: number = Math.floor(index / filesPerRow);
+            let iconPosition: number = row * iconHeight;
 
-            var newScrollTop;
+            let newScrollTop: number;
             if (iconPosition < scrollTop) {
                 newScrollTop = row * iconHeight;
             } else if (iconPosition + iconHeight > containerBottom) {
@@ -2069,8 +2145,8 @@ window.FileBrowser = (function($, FileBrowser) {
                 });
             }
         } else {
-            var iconOffsetTop = $icon.position().top;
-            var iconBottom = iconOffsetTop + iconHeight;
+            let iconOffsetTop: number = $icon.position().top;
+            let iconBottom: number = iconOffsetTop + iconHeight;
 
             if (iconBottom > containerHeight) {
                 $containerWrapper.scrollTop(scrollTop + (iconBottom - containerHeight));
@@ -2081,12 +2157,12 @@ window.FileBrowser = (function($, FileBrowser) {
 
     }
 
-    function measureDSIcon() {
+    function measureDSIcon(): void {
         if (!$fileBrowserMain.hasClass("gridView")) {
             return;
         }
-        var $grid = $container.find(".grid-unit").eq(0);
-        var iconHeight = $grid.outerHeight();
+        let $grid = $container.find(".grid-unit").eq(0);
+        let iconHeight = $grid.outerHeight();
         if (iconHeight) {
             dsIconHeight = iconHeight +
                            parseInt($grid.css('margin-top')) +
@@ -2097,12 +2173,12 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function measureDSListHeight() {
+    function measureDSListHeight(): void {
         if (!$fileBrowserMain.hasClass("listView")) {
             return;
         }
-        var $grid = $container.find(".grid-unit").eq(0);
-        var iconHeight = $grid.outerHeight();
+        let $grid = $container.find(".grid-unit").eq(0);
+        let iconHeight = $grid.outerHeight();
         if (iconHeight) {
             dsListHeight = iconHeight +
                            parseInt($grid.css('margin-top')) +
@@ -2110,11 +2186,11 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function isDS($grid) {
+    function isDS($grid: JQuery): boolean {
         return $grid.hasClass("ds");
     }
 
-    function previewDS($grid) {
+    function previewDS($grid: JQuery): void {
         if ($grid.length === 0) {
             return;
         }
@@ -2125,14 +2201,14 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function getFolderInfo($grid) {
-        var index = Number($grid.data("index"));
-        var file = curFiles[index];
-        var name = file.name;
-        var path = getCurrentPath() + name;
-        var mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
-        var isFolder = file.attr.isDirectory;
-        var size = isFolder ? null : xcHelper.sizeTranslator(file.attr.size);
+    function getFolderInfo($grid: JQuery): void {
+        let index: number = Number($grid.data("index"));
+        let file = curFiles[index];
+        let name = file.name;
+        let path = getCurrentPath() + name;
+        let mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
+        let isFolder = file.attr.isDirectory;
+        let size = isFolder ? null : xcHelper.sizeTranslator(file.attr.size);
 
         FileInfoModal.show({
             "targetName": getCurrentTarget(),
@@ -2144,7 +2220,7 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function toggleSortIcon($icon, restoreDefault) {
+    function toggleSortIcon($icon: JQuery, restoreDefault: boolean): void {
         if (restoreDefault) {
             // If restore to non-sorted
             $icon.removeClass("xi-arrow-up xi-arrow-down fa-8");
@@ -2160,7 +2236,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function updateActiveFileInfo($grid) {
+    function updateActiveFileInfo($grid: JQuery): void {
         if (!$grid) {
             $infoContainer.find(".fileName").text("--");
             $infoContainer.find(".fileType").text("--");
@@ -2173,18 +2249,16 @@ window.FileBrowser = (function($, FileBrowser) {
             $container.find(".filePathBottom .content").text(searchInfo);
             return;
         }
-        var index = Number($grid.data("index"));
-        var file = curFiles[index];
-        var name = file.name;
-        var path = getCurrentPath() + name;
-        var mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
-        // var cTime = file.attr.ctime ?
-        //             moment(file.attr.ctime * 1000).format("h:mm:ss A ll") :
-        //             "--";
-        var isFolder = file.attr.isDirectory;
-        var size = isFolder ? "--" : xcHelper.sizeTranslator(file.attr.size);
-        var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
-        var $fileIcon = $infoContainer.find(".fileIcon").eq(0);
+        let index: number = Number($grid.data("index"));
+        let file = curFiles[index];
+        let name = file.name;
+        let path = getCurrentPath() + name;
+        let mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
+
+        let isFolder = file.attr.isDirectory;
+        let size: string = isFolder ? "--" : <string>xcHelper.sizeTranslator(file.attr.size);
+        let fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
+        let $fileIcon = $infoContainer.find(".fileIcon").eq(0);
 
         // Update file name & type
         if (name.length > 30) {
@@ -2204,8 +2278,10 @@ window.FileBrowser = (function($, FileBrowser) {
             $infoContainer.find(".fileRawData .btn").addClass("xc-disabled");
         } else {
             $infoContainer.find(".fileRawData .btn").removeClass("xc-disabled");
-            if (fileType && listFormatMap.hasOwnProperty(fileType) &&
-                    gridFormatMap.hasOwnProperty(fileType)) {
+            if (fileType &&
+                listFormatMap.hasOwnProperty(fileType) &&
+                gridFormatMap.hasOwnProperty(fileType)
+            ) {
                 $fileIcon.addClass(gridFormatMap[fileType]);
             } else {
                 $fileIcon.addClass("xi-documentation-paper");
@@ -2215,23 +2291,22 @@ window.FileBrowser = (function($, FileBrowser) {
 
         // Update file info
         $infoContainer.find(".mdate .content").text(mTime);
-        // $infoContainer.find(".cdate .content").text(cTime);
         $infoContainer.find(".fileSize .content").text(size);
         // Update bottom file path
         $container.find(".filePathBottom .content").text(path);
         refreshFilePathEllipsis(true);
     }
 
-    function selectMultiFiles($curActiveGrid) {
+    function selectMultiFiles($curActiveGrid: JQuery): void {
         // Selecet but not pick
-        var startIndex;
+        let startIndex: number;
         if (!$anchor) {
             startIndex = 0;
         } else {
             startIndex = $anchor.data("index");
         }
-        var endIndex = $curActiveGrid.data("index");
-        var $grids;
+        let endIndex: number = $curActiveGrid.data("index");
+        let $grids: JQuery;
         if (startIndex > endIndex) {
             $grids = $container.find(".grid-unit")
                                .slice(endIndex, startIndex + 1);
@@ -2239,7 +2314,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $grids = $container.find(".grid-unit").slice(startIndex, endIndex);
         }
         $grids.each(function() {
-            var $cur = $(this);
+            let $cur = $(this);
             $cur.addClass("selected");
             curFiles[$cur.data("index")].isSelected = true;
         });
@@ -2247,31 +2322,27 @@ window.FileBrowser = (function($, FileBrowser) {
         $curActiveGrid.addClass('active selected');
         curFiles[$curActiveGrid.data("index")].isSelected = true;
         updateActiveFileInfo($curActiveGrid);
-
-        if (FilePreviewer.isOpen()) {
-            previewDS($grid);
-        }
     }
 
-    function getFullPath(path, isFolder) {
+    function getFullPath(path: string, isFolder: boolean): string {
         return isFolder ? path + '/' : path;
     }
 
-    function createListElement($grid, preChecked) {
+    function createListElement($grid: JQuery, preChecked: boolean): HTML {
         // e.g. path can be "/netstore" and name can be "/datasets/test.txt"
-        var curDir = getCurrentPath();
-        var escDir = xcStringHelper.escapeDblQuoteForHTML(curDir);
+        let curDir = getCurrentPath();
+        let escDir = xcStringHelper.escapeDblQuoteForHTML(curDir);
         if ($grid != null) {
-            var index = $grid.data("index");
-            var file = curFiles[index];
+            let index: number = $grid.data("index");
+            let file = curFiles[index];
             file.isPicked = true;
-            var name = file.name;
-            var escName = xcStringHelper.escapeDblQuoteForHTML(name);
-            var isFolder = file.attr.isDirectory;
-            var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
-            var ckBoxClass = isFolder ? "xi-ckbox-empty" : "xi-ckbox-empty xc-disabled";
-            var fullPath = getFullPath(escDir + escName, isFolder);
-            var displayPath = getFullPath(curDir + name, isFolder);
+            let name = file.name;
+            let escName = xcStringHelper.escapeDblQuoteForHTML(name);
+            let isFolder = file.attr.isDirectory;
+            let fileType: string = isFolder ? "Folder" : xcHelper.getFormat(name);
+            let ckBoxClass: string = isFolder ? "xi-ckbox-empty" : "xi-ckbox-empty xc-disabled";
+            let fullPath = getFullPath(escDir + escName, isFolder);
+            let displayPath = getFullPath(curDir + name, isFolder);
             if (preChecked) {
                 ckBoxClass = "xi-ckbox-selected";
             }
@@ -2294,54 +2365,56 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function updatePickedFilesList($grid, options) {
-        // options: clearAll, isRemove
-        var path = getCurrentPath();
-        var escPath = xcStringHelper.escapeDblQuote(path);
-        if (options && options.clearAll) {
+    function updatePickedFilesList(
+        $grid: JQuery,
+        options: {
+            clearAll?: boolean
+            isRemove?: boolean
+        }
+    ): void {
+        options = options || {};
+        let path = getCurrentPath();
+        let escPath = xcStringHelper.escapeDblQuote(path);
+        if (options.clearAll) {
             $pickedFileList.empty();
         } else if (!$grid || $grid.length === 0) {
             // Multiple files
             $innerContainer.find(".grid-unit.selected").each(function() {
-                var $ele = $(this);
-                var name = getGridUnitName($ele);
-                var escName = xcStringHelper.escapeDblQuote(name);
-                var isFolder = $ele.hasClass("folder");
-                var fullpath = getFullPath(escPath + escName, isFolder);
-                if (options && options.isRemove) {
-                    $pickedFileList.find('li[data-fullpath="' + fullpath +
-                                     '"]').remove();
-                } else if ($pickedFileList.find('li[data-fullpath="' +
-                            fullpath + '"]').length === 0) {
+                let $ele = $(this);
+                let name = getGridUnitName($ele);
+                let escName = xcStringHelper.escapeDblQuote(name);
+                let isFolder: boolean = $ele.hasClass("folder");
+                let fullpath = getFullPath(escPath + escName, isFolder);
+                if (options.isRemove) {
+                    $pickedFileList.find('li[data-fullpath="' + fullpath + '"]').remove();
+                } else if ($pickedFileList.find('li[data-fullpath="' + fullpath + '"]').length === 0) {
                     // If it doesn't exist, append the file
-                    var html = createListElement($ele);
-                    var $span = $(html).appendTo($pickedFileList).find("span");
-                    refreshFileListEllipsis($span);
+                    let html = createListElement($ele, false);
+                    let $span = $(html).appendTo($pickedFileList).find("span");
+                    refreshFileListEllipsis($span, false);
                 }
             });
         } else {
             // Single file
-            var name = getGridUnitName($grid);
-            var escName = xcStringHelper.escapeDblQuote(name);
-            var isFolder = $grid.hasClass("folder");
-            var fullpath = getFullPath(escPath + escName, isFolder);
+            let name = getGridUnitName($grid);
+            let escName = xcStringHelper.escapeDblQuote(name);
+            let isFolder: boolean = $grid.hasClass("folder");
+            let fullpath = getFullPath(escPath + escName, isFolder);
             if (options && options.isRemove) {
-                $pickedFileList.find('li[data-fullpath="' + fullpath +
-                                     '"]').remove();
-            } else if ($pickedFileList.find('li[data-fullpath="' + fullpath +
-                                    '"]').length === 0) {
+                $pickedFileList.find('li[data-fullpath="' + fullpath + '"]').remove();
+            } else if ($pickedFileList.find('li[data-fullpath="' + fullpath + '"]').length === 0) {
                 // If it doesn't exist, append the file
-                var html = createListElement($grid);
-                var $span = $(html).appendTo($pickedFileList).find("span");
-                refreshFileListEllipsis($span);
+                let html = createListElement($grid, false);
+                let $span = $(html).appendTo($pickedFileList).find("span");
+                refreshFileListEllipsis($span, false);
             }
         }
         updateButtons();
     }
 
-    function updateButtons() {
-        var len = $pickedFileList.find("li").length;
-        var $switch = $infoContainer.find(".switch").eq(0);
+    function updateButtons(): void {
+        let len = $pickedFileList.find("li").length;
+        let $switch = $infoContainer.find(".switch").eq(0);
         // Enable / disable switch
         if (len === 0 || len === 1) {
             if ($switch.hasClass("on")) {
@@ -2361,7 +2434,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function selectSingleFile($grid) {
+    function selectSingleFile($grid: JQuery): void {
         $grid.addClass('active selected');
         if ($grid.data("index") != null) {
             curFiles[$grid.data("index")].isSelected = true;
@@ -2373,12 +2446,12 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function unselectSingleFile($grid) {
+    function unselectSingleFile($grid: JQuery): void {
         if ($grid.length > 0) {
             curFiles[$grid.data("index")].isSelected = false;
             if ($grid.hasClass("active")) {
                 // If it is an active file, remove file info
-                updateActiveFileInfo();
+                updateActiveFileInfo(null);
             }
             $grid.removeClass("selected active picked");
             // A picked file must be a selected file. So we unpick when unselect
@@ -2388,23 +2461,23 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function checkCkBox($checkBox) {
+    function checkCkBox($checkBox: JQuery): void {
         $checkBox.removeClass("xi-ckbox-empty").addClass("xi-ckbox-selected");
     }
 
-    function uncheckCkBox($checkBox) {
+    function uncheckCkBox($checkBox: JQuery): void {
         $checkBox.removeClass("xi-ckbox-selected").addClass("xi-ckbox-empty");
     }
 
-    function togglePickedFiles($grid) {
-        var $allSelected = $innerContainer.find(".grid-unit.selected");
+    function togglePickedFiles($grid: JQuery): void {
+        let $allSelected = $innerContainer.find(".grid-unit.selected");
         if (!$grid) {
             // For the case when we clear all
             $allSelected = $innerContainer.find(".grid-unit.picked");
         }
         if (!$grid || $grid.hasClass("picked")) {
             $allSelected.each(function() {
-                var $cur = $(this);
+                let $cur = $(this);
                 $cur.removeClass("picked");
                 curFiles[$cur.data("index")].isPicked = false;
             });
@@ -2412,7 +2485,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         } else {
             $allSelected.each(function() {
-                var $cur = $(this);
+                let $cur = $(this);
                 $cur.addClass("picked");
                 curFiles[$cur.data("index")].isPicked = true;
             });
@@ -2420,14 +2493,14 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function checkPicked(files, path) {
+    function checkPicked(files: XcFile[], path: string): void {
         // Can be optimized later
-        var escPath = xcStringHelper.escapeDblQuote(path);
-        for (var i = 0; i < files.length; i++) {
-            var name = files[i].name;
-            var escName = xcStringHelper.escapeDblQuote(name);
-            var isFolder = files[i].attr.isDirectory;
-            var fullPath = getFullPath(escPath + escName, isFolder);
+        let escPath = xcStringHelper.escapeDblQuote(path);
+        for (let i = 0; i < files.length; i++) {
+            let name = files[i].name;
+            let escName = xcStringHelper.escapeDblQuote(name);
+            let isFolder = files[i].attr.isDirectory;
+            let fullPath = getFullPath(escPath + escName, isFolder);
             if (name !== "\\" &&
                 $pickedFileList.find('li[data-fullpath="' + fullPath +
                                  '"]').length > 0) {
@@ -2436,7 +2509,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function startColResize($el, event) {
+    function startColResize($el: JQuery, event: any): void {
         dragInfo.$header = $el.closest(".title");
         dragInfo.$header.addClass("dragging");
         dragInfo.$headerSiblings = $fileBrowserMain.find(".titleSection").find(".mdate, .fileSize");
@@ -2450,24 +2523,24 @@ window.FileBrowser = (function($, FileBrowser) {
         dragInfo.minWidth = 80;
         dragInfo.maxWidth = dragInfo.containerWidth - 200;
 
-        var cursorStyle = '<div id="resizeCursor"></div>';
+        let cursorStyle = '<div id="resizeCursor"></div>';
         $('body').addClass('tooltipOff').append(cursorStyle);
         $(document).on('mousemove.onColResize', onColResize);
         $(document).on('mouseup.endColResize', endColResize);
     }
 
-    function onColResize(event) {
-        var newWidth = (event.pageX - dragInfo.mouseStart) + dragInfo.startWidth;
+    function onColResize(event: any): void {
+        let newWidth = (event.pageX - dragInfo.mouseStart) + dragInfo.startWidth;
         newWidth = Math.min(dragInfo.maxWidth, Math.max(newWidth, dragInfo.minWidth));
-        var pct = 100 * (newWidth + 20) / dragInfo.containerWidth;
-        var siblingPct = (100 - pct) / 2;
+        let pct = 100 * (newWidth + 20) / dragInfo.containerWidth;
+        let siblingPct = (100 - pct) / 2;
         dragInfo.$header.css("width", "calc(" + pct + "% - 20px)");
         dragInfo.$bodyCols.css("width", "calc(" + pct + "% - 20px)");
         dragInfo.$headerSiblings.css("width", "calc(" + siblingPct + "% - 20px)");
         dragInfo.$bodySiblings.css("width", "calc(" + siblingPct + "% - 20px)");
     }
 
-    function endColResize() {
+    function endColResize(): void {
         dragInfo.$header.removeClass("dragging");
         dragInfo = {};
         $(document).off('mousemove.onColResize');
@@ -2479,50 +2552,49 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        FileBrowser.__testOnly__ = {};
-        FileBrowser.__testOnly__.getCurFiles = function() {
+    export let __testOnly__: any = {};
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__ = {};
+        __testOnly__.getCurFiles = function() {
             return curFiles;
         };
-        FileBrowser.__testOnly__.setCurFiles = function(files) {
+        __testOnly__.setCurFiles = function(files) {
             curFiles = files;
         };
-        FileBrowser.__testOnly__.setTarget = setTarget;
-        FileBrowser.__testOnly__.getCurrentTarget = getCurrentTarget;
-        FileBrowser.__testOnly__.getCurrentPath = getCurrentPath;
-        FileBrowser.__testOnly__.getGridUnitName = getGridUnitName;
-        FileBrowser.__testOnly__.appendPath = appendPath;
-        FileBrowser.__testOnly__.filterFiles = filterFiles;
-        FileBrowser.__testOnly__.sortFiles = sortFiles;
-        FileBrowser.__testOnly__.goToPath = goToPath;
-        FileBrowser.__testOnly__.focusOn = focusOn;
-        FileBrowser.__testOnly__.isDS = isDS;
-        FileBrowser.__testOnly__.previewDS = previewDS;
-        FileBrowser.__testOnly__.showPathError = showPathError;
-        FileBrowser.__testOnly__.getFolderInfo = getFolderInfo;
-        FileBrowser.__testOnly__.findVerticalIcon = findVerticalIcon;
-        FileBrowser.__testOnly__.redirectHandler = redirectHandler;
-        FileBrowser.__testOnly__.oversizeHandler = oversizeHandler;
-        FileBrowser.__testOnly__.submitForm = submitForm;
-        FileBrowser.__testOnly__.showScrolledFiles = showScrolledFiles;
-        FileBrowser.__testOnly__.applySearchPattern = applySearchPattern;
-        FileBrowser.__testOnly__.selectMultiFiles = selectMultiFiles;
-        FileBrowser.__testOnly__.selectSingleFile = selectSingleFile;
-        FileBrowser.__testOnly__.unselectSingleFile = unselectSingleFile;
-        FileBrowser.__testOnly__.updatePickedFilesList = updatePickedFilesList;
-        FileBrowser.__testOnly__.togglePickedFiles = togglePickedFiles;
-        FileBrowser.__testOnly__.checkPicked = checkPicked;
-        FileBrowser.__testOnly__.getHTMLFromFiles = getHTMLFromFiles;
-        FileBrowser.__testOnly__.searchFiles = searchFiles;
-        FileBrowser.__testOnly__.startColResize = startColResize;
-        FileBrowser.__testOnly__.onColResize = onColResize;
-        FileBrowser.__testOnly__.endColResize = endColResize;
-        FileBrowser.__testOnly__.getDragInfo = function() {
+        __testOnly__.setTarget = setTarget;
+        __testOnly__.getCurrentTarget = getCurrentTarget;
+        __testOnly__.getCurrentPath = getCurrentPath;
+        __testOnly__.getGridUnitName = getGridUnitName;
+        __testOnly__.appendPath = appendPath;
+        __testOnly__.filterFiles = filterFiles;
+        __testOnly__.sortFiles = sortFiles;
+        __testOnly__.goToPath = goToPath;
+        __testOnly__.focusOn = focusOn;
+        __testOnly__.isDS = isDS;
+        __testOnly__.previewDS = previewDS;
+        __testOnly__.showPathError = showPathError;
+        __testOnly__.getFolderInfo = getFolderInfo;
+        __testOnly__.findVerticalIcon = findVerticalIcon;
+        __testOnly__.redirectHandler = redirectHandler;
+        __testOnly__.oversizeHandler = oversizeHandler;
+        __testOnly__.submitForm = submitForm;
+        __testOnly__.showScrolledFiles = showScrolledFiles;
+        __testOnly__.applySearchPattern = applySearchPattern;
+        __testOnly__.selectMultiFiles = selectMultiFiles;
+        __testOnly__.selectSingleFile = selectSingleFile;
+        __testOnly__.unselectSingleFile = unselectSingleFile;
+        __testOnly__.updatePickedFilesList = updatePickedFilesList;
+        __testOnly__.togglePickedFiles = togglePickedFiles;
+        __testOnly__.checkPicked = checkPicked;
+        __testOnly__.getHTMLFromFiles = getHTMLFromFiles;
+        __testOnly__.searchFiles = searchFiles;
+        __testOnly__.startColResize = startColResize;
+        __testOnly__.onColResize = onColResize;
+        __testOnly__.endColResize = endColResize;
+        __testOnly__.getDragInfo = function() {
             return dragInfo;
         };
 
     }
     /* End Of Unit Test Only */
-
-    return (FileBrowser);
-}(jQuery, {}));
+}

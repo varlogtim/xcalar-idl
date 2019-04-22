@@ -1,17 +1,17 @@
 interface DSPreviewOptions {
-    dsName: string;
-    format: string;
+    dsName?: string;
+    format?: string;
     hasHeader?: boolean;
     fieldDelim?: string;
     lineDelim?: string;
     quoteChar?: string;
     skipRows?: number;
     files: any[];
-    moduleName: string;
-    funcName: string;
-    udfQuery: any;
-    typedColumns: {colName: string, colType: string}[];
-    advancedArgs: any;
+    moduleName?: string;
+    funcName?: string;
+    udfQuery?: any;
+    typedColumns?: {colName: string, colType: string}[];
+    advancedArgs?: any;
 }
 
 namespace DSPreview {
