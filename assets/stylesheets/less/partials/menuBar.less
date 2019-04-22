@@ -1165,6 +1165,41 @@ ul.CodeMirror-hints {
         top: 82px;
         background: @color-white;
     }
+
+    .helpResources {
+        width: 100%;
+        .helpResource {
+            width: 100%;
+            height: 30px;
+            font-size: 12px;
+            color: @color-font-edge;
+            padding-left: 17px;
+            cursor: pointer;
+            line-height: 30px;
+
+            &:hover {
+                background-color: #E7F5FB;
+                font-weight: 600px;
+            }
+
+            span {
+                padding-top: 5px;
+            }
+
+            .icon {
+                width: 20px;
+                height: 20px;
+                float: right;
+                font-size: 12px;
+                padding-top: 8px;
+            }
+
+            &.active {
+                background-color: #E7F5FB;
+                font-weight: 600px;
+            }
+        }
+    }
 }
 
 #helpSearchArea {

@@ -797,10 +797,7 @@ namespace xcManager {
             if (event.which !== 1) {
                 return;
             }
-            const $tab: JQuery = $("#helpTab");
-            if (!$tab.hasClass("active")) {
-                $tab.click();
-            }
+            HelpPanel.Instance.openHelpResource("docsResource");
         });
 
         $menu.on("mouseup", ".discourse", function(event: JQueryEventObject): void {

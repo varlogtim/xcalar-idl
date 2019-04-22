@@ -130,6 +130,10 @@ namespace MainMenu {
                 break;
             case ("sqlPanel"):
                 $tab = $("#sqlWorkSpace");
+                break;
+            case ("helpPanel"):
+                $tab = $("#helpTab");
+                break;
             default:
                 break;
         }
@@ -502,6 +506,9 @@ namespace MainMenu {
                 BottomMenu.unsetMenuCache();
                 $("#sqlWorkSpacePanel").addClass("active");
                 SQLWorkSpace.Instance.focus();
+                break;
+            case ("helpTab"):
+                $("#helpPanel").addClass("active");
                 break;
             default:
                 $(".underConstruction").addClass("active");

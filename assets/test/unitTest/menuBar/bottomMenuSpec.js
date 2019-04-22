@@ -56,7 +56,7 @@ describe("Bottom Menu Test", function() {
         });
 
         it("should click to open bottom menu", function() {
-            var $tab = $("#helpTab");
+            var $tab = $("#helpMenuTab");
             $tab.click();
             expect($tab.hasClass("active")).to.be.true;
             expect(BottomMenu.isMenuOpen()).to.be.true;

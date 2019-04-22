@@ -11,7 +11,8 @@ window.BottomMenu = (function($, BottomMenu) {
         setupButtons();
         Log.setup();
         UDFPanel.Instance.setup();
-        Help.setup();
+        HelpPanel.Instance.setup();
+        DocsPanel.Instance.setup();
     };
 
     BottomMenu.initialize = function() {

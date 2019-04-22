@@ -57,34 +57,34 @@
     <!-- end of UDF Section -->
 
     <!-- Help Section -->
-    <section id="helpSection" class="menuSection no-selection">
+    <section id="helpSection" class="menuSection no-selection common-section" data-tab="helpTab">
       <header class="heading draggable">
         <h2><%= dicts.bottomMenu.HelpSupport %></h2>
       </header>
       <div class="menuContent">
-        <!-- Help Search -->
-        <form id="helpSearchArea" class="clearfix" action="index.html">
-          <input id="helpSearch" type="text"
-            spellcheck="false" placeholder="Type in your question..."
-            autocomplete="off">
-            <div id="helpSubmit">
-              <i class="icon xi-search"></i>
-            </div>
-        </form>
-        <div class="helpBg"></div>
-        <!-- Help Result -->
-        <div id="helpResults" class="helpBox">
-          <div class="categoryArea">
-            <div class="mainHeading"><%= dicts.bottomMenu.HelpTopics %></div>
+        <div class="helpResources">
+          <div id="tutorialResource" class="helpResource">
+            <span>Tutorial Workbooks</span>
+            <i class="icon xi-next"></i>
           </div>
-          <div class="resultsArea">
-            <div class="mainHeading">
-              <span><%= dicts.bottomMenu.SearchRes %></span>
-              <button id="discourseButton" class="btn"><%= dicts.bottomMenu.SearchDiscourse %></button>
-            </div>
-            <span class="noResults"><%= dicts.bottomMenu.useSearch %><br/><a href="<%= dicts.paths.helpUserDocs %>" target="xchelp" class="visitHelpGuide"><%= dicts.bottomMenu.visitHelp %></a></span>
-            <iframe id="mcfResults"></iframe>
+          <div id="tooltipResource" class="helpResource">
+            <span>Tooltip Walkthroughs</span>
+            <i class="icon xi-next"></i>
           </div>
+          <div id="docsResource" class="helpResource">
+              <span>Documentation</span>
+              <i class="icon xi-next"></i>
+          </div>
+          <div id="discourseResource" class="helpResource">
+            <span>Discourse</span>
+          </div>
+          <div id="ticketResource" class="helpResource">
+            <span>File a Ticket</span>
+          </div>
+          <div id="chatResource" class="helpResource">
+            <span>Live Chat</span>
+          </div>
+            
         </div>
       </div>
     </section>

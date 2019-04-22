@@ -1,25 +1,31 @@
-window.Help = (function($, Help) {
-    var searchURL;
-    var curHelpHashTags;
-    var helpContentPath;
+class DocsPanel {
+    private static _instance = null;
 
-    Help.setup = function() {
-        searchURL = paths.helpUserSearch;
-        curHelpHashTags = helpHashTags;
-        helpContentPath = paths.helpUserContent;
+    public static get Instance(): DocsPanel {
+        return this._instance || (this._instance = new this());
+    }
+    public searchURL: string;
+    public curHelpHashTags;
+    public helpContentPath: string ;
+
+    public setup(): void {
+        this.searchURL = paths.helpUserSearch;
+        this.curHelpHashTags = helpHashTags;
+        this.helpContentPath = paths.helpUserContent;
 
         // Toggling helper tooltips
-        setupHelpSearch();
+        this.setupHelpSearch();
     };
 
-    function setupHelpSearch() {
-        var $searchInput = $("#helpSearch");
-        var $categoryArea = $("#helpResults").find(".categoryArea");
-        var $resultsArea = $("#helpResults").find(".resultsArea");
+    public setupHelpSearch(): void {
+        const self = this;
+        let $searchInput = $("#helpSearch");
+        let $categoryArea = $("#helpResults").find(".categoryArea");
+        let $resultsArea = $("#helpResults").find(".resultsArea");
 
         $("#helpSubmit").click(function() {
             $("#helpResults").find(".noResults").hide();
-            $searchInput.trigger({type: "keyup", which: keyCode.Enter});
+            $searchInput.trigger("keyup", {which: keyCode.Enter});
         });
 
         $("#helpSearchArea").submit(function() {
@@ -35,7 +41,7 @@ window.Help = (function($, Help) {
         });
 
         $("#discourseButton").click(function() {
-            var searchText = $searchInput.val();
+            let searchText = $searchInput.val();
             window.open("https://discourse.xcalar.com/search?q=" + searchText,
                         "xcalar");
         });
@@ -52,11 +58,11 @@ window.Help = (function($, Help) {
                     $resultsArea.hide();
                     // Must remove and reattach. Else the .load trick doesn't
                     // work
-                    var $iframe = $("#mcfResults");
+                    let $iframe = $("#mcfResults");
                     $iframe.remove();
                     $resultsArea.append('<iframe id="mcfResults"></iframe>');
                     $iframe = $("#mcfResults");
-                    $iframe.attr("src", searchURL + $searchInput.val());
+                    $iframe.attr("src", self.searchURL + $searchInput.val());
                     $iframe.load(function() {
                         $resultsArea.show();
                     });
@@ -71,22 +77,22 @@ window.Help = (function($, Help) {
             }
         });
 
-        generateHelpTopics();
+        this.generateHelpTopics();
     }
 
-    function generateHelpTopics() {
-        var categoriesObj = {};
-        var url;
-        var maxToDisplay = 100;
-        var html = "";
-        var subTopic;
+    public generateHelpTopics(): void {
+        let categoriesObj = {};
+        let url;
+        let maxToDisplay = 100;
+        let html = "";
+        let subTopic;
 
-        categorizeTopics(categoriesObj);
+        this.categorizeTopics(categoriesObj);
 
         // need to make into array in order to sort topics by titles
-        var categories = [];
+        let categories = [];
         // Sort categories in order of the names of topics
-        for (var category in categoriesObj) {
+        for (let category in categoriesObj) {
             categories.push(categoriesObj[category]);
         }
 
@@ -99,14 +105,14 @@ window.Help = (function($, Help) {
             return 0;
         });
 
-        for (var i = 0; i < categories.length; i++) {
+        for (let i = 0; i < categories.length; i++) {
 
             html += '<div class="categoryBlock">' +
                         '<div class="categoryWrap">' +
                             '<div class="subHeading">';
             if (categories[i].more) {
-                html += '<a href="' + helpContentPath +
-                        getFormattedUrl(categories[i].more.url) +
+                html += '<a href="' + this.helpContentPath +
+                        this.getFormattedUrl(categories[i].more.url) +
                         '" target="xchelp">' +
                         categories[i].title +
                         '</a>';
@@ -116,21 +122,22 @@ window.Help = (function($, Help) {
             html += '</div>';
             subTopic = categories[i].subTopics;
 
-            sortByTitles(subTopic);
+            this.sortByTitles(subTopic);
 
-            var numToDisplay = subTopic.length;
+            let numToDisplay = subTopic.length;
 
             if (categories[i].more) {
                 numToDisplay = Math.min(numToDisplay, maxToDisplay);
             }
+            let j = 0;
 
-            for (var j = 0; j < numToDisplay; j++) {
+            for (j = 0; j < numToDisplay; j++) {
                 // create new row for every 2 links
                 if (j % 2 === 0) {
                     html += '<div class="row clearfix">';
                 }
-                url = getFormattedUrl(subTopic[j].url);
-                html += '<div class="linkWrap"><a href="' + helpContentPath +
+                url = this.getFormattedUrl(subTopic[j].url);
+                html += '<div class="linkWrap"><a href="' + this.helpContentPath +
                          url + '" ' + 'target="xchelp">' + subTopic[j].title +
                          '</a></div>';
                 if (j % 2 !== 0) {
@@ -147,14 +154,14 @@ window.Help = (function($, Help) {
         $('#helpResults').find('.categoryArea .mainHeading').after(html);
     }
 
-    function categorizeTopics(categories) {
-        var page;
-        var topic;
-        var topicIndex;
-        var url;
-        var fullName;
-        for (var i = 0; i < curHelpHashTags.length; i++) {
-            page = curHelpHashTags[i];
+    public categorizeTopics(categories): void {
+        let page;
+        let topic;
+        let topicIndex;
+        let url;
+        let fullName;
+        for (let i = 0; i < this.curHelpHashTags.length; i++) {
+            page = this.curHelpHashTags[i];
             topic = page.url;
             topicIndex = topic.indexOf('Content/ContentXDHelp/');
             url = topic.slice(topicIndex + 'Content/ContentXDHelp/'.length);
@@ -184,12 +191,12 @@ window.Help = (function($, Help) {
         }
     }
 
-    function getFormattedUrl(url) {
-        var index = url.indexOf('Content/ContentXDHelp/');
+    public getFormattedUrl(url): string {
+        let index = url.indexOf('Content/ContentXDHelp/');
         return (url.slice(index).slice(8));
     }
 
-    function sortByTitles(list) {
+    public sortByTitles(list): void {
         list.sort(function(a, b) {
             a = a.url;
             b = b.url;
@@ -206,8 +213,4 @@ window.Help = (function($, Help) {
             }
         });
     }
-
-
-    return (Help);
-
-}(jQuery, {}));
+}

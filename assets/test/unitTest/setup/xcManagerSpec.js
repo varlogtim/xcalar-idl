@@ -253,13 +253,15 @@ describe("xcManager Test", function() {
         it("should mouseup .help to open help tab", function() {
             // normal mouseup not work
             $menu.find(".help").mouseup();
-            expect($("#bottomMenu").hasClass("open")).to.be.false;
+            expect($("#help-documentation").hasClass("active")).to.be.false;
             $menu.find(".help").trigger(fakeEvent.mouseup);
-            expect($("#bottomMenu").hasClass("open")).to.be.true;
-            expect($("#helpSection").hasClass("active")).to.be.true;
-
-            // close bottomo menu
-            $("#bottomMenu .close").click();
+            expect($("#help-documentation").hasClass("active")).to.be.true;
+            // Leave help tab
+            if (XVM.isAdvancedMode()) {
+                $("#modelingDataflowTab").click();
+            } else {
+                $("#sqlTab").click();
+            }
         });
 
         it("should mouseup .about to open about modal", function() {

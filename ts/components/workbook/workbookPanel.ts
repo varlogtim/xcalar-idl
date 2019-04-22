@@ -326,7 +326,10 @@ namespace WorkbookPanel {
         // Tutorial listener
 
         $('#tutorialWorkbookMarketplace').click(function() {
-            MainMenu.openPanel("monitorPanel", "tutorialSettingButton");
+            $("#helpMenuTab").addClass("active");
+
+            $("#tutorialResource").addClass("active");
+            MainMenu.openPanel("helpPanel", "tutorialSettingButton");
         });
 
         // go to monitor panel
