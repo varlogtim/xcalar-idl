@@ -1,18 +1,21 @@
-window.DSTargetManager = (function($, DSTargetManager) {
-    var targetSet = {};
-    var typeSet = {};
-    var $gridView;
-    var $targetCreateCard;
-    var $targetInfoCard;
-    var $targetTypeList;
-    var $udfModuleList;
-    var $udfFuncList;
-    var udfModuleListItems;
-    var udfFuncListItems;
-    var udfModuleHint;
-    var udfFuncHint;
+namespace DSTargetManager {
+    let targetSet = {};
+    let typeSet = {};
+    let $gridView: JQuery;
+    let $targetCreateCard: JQuery;
+    let $targetInfoCard: JQuery;
+    let $targetTypeList: JQuery;
+    let $udfModuleList: JQuery;
+    let $udfFuncList: JQuery;
+    let udfModuleListItems: string;
+    let udfFuncListItems: string;
+    let udfModuleHint: InputDropdownHint;
+    let udfFuncHint: InputDropdownHint;
 
-    DSTargetManager.setup = function() {
+    /**
+     * DSTargetManager.setup
+     */
+    export function setup(): void {
         $gridView = $("#dsTarget-list .gridItems");
         $targetCreateCard = $("#dsTarget-create-card");
         $targetInfoCard = $("#dsTarget-info-card");
@@ -20,27 +23,42 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
         addEventListeners();
         setupGridMenu();
-    };
+    }
 
-    DSTargetManager.getTarget = function(targetName) {
+    /**
+     * DSTargetManager.getTarget
+     * @param targetName
+     */
+    export function getTarget(targetName: string): any {
         return targetSet[targetName];
-    };
+    }
 
-    DSTargetManager.getAllTargets = function() {
+    /**
+     * DSTargetManager.getAllTargets
+     */
+    export function getAllTargets(): any {
         return targetSet;
-    };
+    }
 
-    DSTargetManager.isGeneratedTarget = function(targetName) {
-        var target = DSTargetManager.getTarget(targetName);
+    /**
+     * DSTargetManager.isGeneratedTarget
+     * @param targetName
+     */
+    export function isGeneratedTarget(targetName: string): boolean {
+        let target = DSTargetManager.getTarget(targetName);
         if (target && target.type_id === "memory") {
             return true;
         } else {
             return false;
         }
-    };
+    }
 
-    DSTargetManager.isDatabaseTarget = function(targetName) {
-        const target = DSTargetManager.getTarget(targetName);
+    /**
+     * DSTargetManager.isDatabaseTarget
+     * @param targetName
+     */
+    export function isDatabaseTarget(targetName: string): boolean {
+        let target = DSTargetManager.getTarget(targetName);
         if (target && target.type_id === "dsn") {
             return true;
         } else {
@@ -48,57 +66,82 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     }
 
-    DSTargetManager.isPreSharedTarget = function(targetName) {
-        var target = DSTargetManager.getTarget(targetName);
+    /**
+     * DSTargetManager.isPreSharedTarget
+     * @param targetName
+     */
+    export function isPreSharedTarget(targetName: string): boolean {
+        let target = DSTargetManager.getTarget(targetName);
         if (target && target.type_id === "sharednothingsymm") {
             return true;
         } else {
             return false;
         }
-    };
+    }
 
-    DSTargetManager.isSlowPreviewTarget = function(targetName) {
+    /**
+     * DSTargetManager.isSlowPreviewTarget
+     * @param targetName
+     */
+    export function isSlowPreviewTarget(targetName: string): boolean {
         // azblobenviron, azblobfullaccount, gcsenviron
-        var target = DSTargetManager.getTarget(targetName);
-        var idLists = ["gcsenviron"];
+        let target = DSTargetManager.getTarget(targetName);
+        let idLists = ["gcsenviron"];
         if (target && idLists.includes(target.type_id)) {
             return true;
         } else {
             return false;
         }
-    };
+    }
 
-    DSTargetManager.refreshTargets = function(noWaitIcon) {
-        var deferred = PromiseHelper.deferred();
-        var updateTargetMenu = function(targets) {
-            var html = targets.map(function(targetName) {
+    /**
+     * DSTargetManager.isSparkParquet
+     * @param targetName
+     */
+    export function isSparkParquet(targetName: string): boolean {
+        let target = DSTargetManager.getTarget(targetName);
+        if (target && target.type_id === "parquetds") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * DSTargetManager.refreshTargets
+     * @param noWaitIcon
+     */
+    export function refreshTargets(noWaitIcon: boolean): XDPromise<any> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let updateTargetMenu = function(targets) {
+            let html: HTML = targets.map(function(targetName) {
                 return "<li>" + targetName + "</li>";
             }).join("");
             $("#dsForm-targetMenu ul").html(html);
             JupyterUDFModal.refreshTarget(html);
 
-            var $input = $("#dsForm-target input");
-            var targetName = $input.val();
+            let $input = $("#dsForm-target input");
+            let targetName = $input.val();
             if (DSTargetManager.getTarget(targetName) == null) {
                 $input.val("");
             }
         };
-        var updateNumTargets = function(num) {
+        let updateNumTargets = function(num): void {
             $(".numDSTargets").html(num);
         };
         if (!noWaitIcon) {
-            xcUIHelper.showRefreshIcon($("#dsTarget-list"));
+            xcUIHelper.showRefreshIcon($("#dsTarget-list"), false, null);
         }
 
-        var $activeIcon = $gridView.find(".target.active");
-        var activeName;
+        let $activeIcon: JQuery = $gridView.find(".target.active");
+        let activeName: string;
         if ($activeIcon.length) {
             activeName = $activeIcon.data("name");
         }
 
         XcalarTargetList()
         .then(function(targetList) {
-            var targets = cacheTargets(targetList);
+            let targets = cacheTargets(targetList);
             updateTargetMenu(targets);
             updateTargetGrids(targets, activeName);
             updateNumTargets(targets.length);
@@ -108,25 +151,28 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
 
         return deferred.promise();
-    };
+    }
 
-    DSTargetManager.getTargetTypeList = function() {
-        var deferred = PromiseHelper.deferred();
-        var updateTargetType = function() {
-            var typeNames = [];
-            var typeNameToIdMap = {};
-            for (var typeId in typeSet) {
-                var typeName = typeSet[typeId].type_name;
+    /**
+     * DSTargetManager.getTargetTypeList
+     */
+    export function getTargetTypeList(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let updateTargetType = function() {
+            let typeNames: string[] = [];
+            let typeNameToIdMap = {};
+            for (let typeId in typeSet) {
+                let typeName: string = typeSet[typeId].type_name;
                 typeNameToIdMap[typeName] = typeId;
                 typeNames.push(typeName);
             }
             typeNames.sort(function(a, b) {
-                var aName = a.toLowerCase();
-                var bName = b.toLowerCase();
+                let aName: string = a.toLowerCase();
+                let bName: string = b.toLowerCase();
                 return (aName < bName ? -1 : (aName > bName ? 1 : 0));
             });
-            var html = typeNames.map(function(typeName) {
-                var typeId = typeNameToIdMap[typeName];
+            let html = typeNames.map(function(typeName) {
+                let typeId: string = typeNameToIdMap[typeName];
                 return '<li data-id="' + typeId + '">' +
                             typeName +
                         '</li>';
@@ -148,31 +194,29 @@ window.DSTargetManager = (function($, DSTargetManager) {
             $targetCreateCard.removeClass("loading");
         });
 
-        var promise = deferred.promise();
+        let promise = deferred.promise();
         xcUIHelper.showRefreshIcon($targetCreateCard, null, promise);
         return promise;
-    };
+    }
 
-    DSTargetManager.clickFirstGrid = function() {
+    /**
+     * DSTargetManager.clickFirstGrid
+     */
+    export function clickFirstGrid(): void {
         $gridView.find(".target").eq(0).click();
-    };
+    }
 
-    DSTargetManager.isSparkParquet = function(targetName) {
-        var target = DSTargetManager.getTarget(targetName);
-        if (target && target.type_id === "parquetds") {
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    DSTargetManager.updateUDF = function(listXdfsObj) {
+    /**
+     * DSTargetManager.updateUDF
+     * @param listXdfsObj
+     */
+    export function updateUDF(listXdfsObj: any): void {
         listUDFSection(listXdfsObj);
-    };
+    }
 
-    function addEventListeners() {
+    function addEventListeners(): void {
         $("#dsTarget-refresh").click(function() {
-            DSTargetManager.refreshTargets();
+            DSTargetManager.refreshTargets(false);
         });
 
         $("#dsTarget-create").click(function() {
@@ -182,7 +226,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
 
         $("#dsTarget-delete").click(function() {
-            var $grid = $gridView.find(".grid-unit.active");
+            let $grid = $gridView.find(".grid-unit.active");
             deleteTarget($grid);
         });
 
@@ -193,8 +237,8 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
         new MenuHelper($targetTypeList, {
             "onSelect": function($li) {
-                var typeId = $li.data("id");
-                var $input = $targetTypeList.find(".text");
+                let typeId = $li.data("id");
+                let $input = $targetTypeList.find(".text");
                 if ($input.data("id") === typeId) {
                     return;
                 }
@@ -212,7 +256,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
 
         $("#dsTarget-reset").click(function() {
-            var $form = $("#dsTarget-form");
+            let $form = $("#dsTarget-form");
             $form.find(".description").addClass("xc-hidden")
                  .find("#dsTarget-description").empty();
             $form.find(".params").addClass("xc-hidden")
@@ -222,14 +266,14 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
     }
 
-    function setupGridMenu() {
-        var $gridMenu = $("#dsTarget-menu");
+    function setupGridMenu(): void {
+        let $gridMenu = $("#dsTarget-menu");
         xcMenu.add($gridMenu);
 
         $gridView.closest(".mainSection").contextmenu(function(event) {
-            var $target = $(event.target);
-            var $grid = $target.closest(".grid-unit");
-            var classes = "";
+            let $target = $(event.target);
+            let $grid = $target.closest(".grid-unit");
+            let classes: string = "";
             clearSelectedTarget();
 
             if ($grid.length) {
@@ -247,7 +291,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
             } else {
                 classes += " bgOpts";
             }
-            var $deleteLi = $gridMenu.find('.targetOpt[data-action="delete"]');
+            let $deleteLi = $gridMenu.find('.targetOpt[data-action="delete"]');
             if (isDefaultTarget($grid.data("name")) || (!Admin.isAdmin())) {
                 $deleteLi.addClass("unavailable");
                 xcTooltip.add($deleteLi, {
@@ -289,7 +333,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                     showTargetCreateView();
                     break;
                 case ("refresh"):
-                    DSTargetManager.refreshTargets();
+                    DSTargetManager.refreshTargets(false);
                     break;
                 default:
                     console.warn("menu action not recognized:", action);
@@ -299,15 +343,15 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
     }
 
-    function isDefaultTarget(targetName) {
-        var defaultTargetList = ["Default Shared Root",
+    function isDefaultTarget(targetName: string): boolean {
+        let defaultTargetList = ["Default Shared Root",
                                 "Preconfigured Azure Storage Account",
                                 "Preconfigured Google Cloud Storage Account",
                                 "Preconfigured S3 Account"];
         return defaultTargetList.includes(targetName);
     }
 
-    function cacheTargets(targetList) {
+    function cacheTargets(targetList): string[] {
         targetSet = {};
         targetList.forEach(function(target) {
             targetSet[target.name] = target;
@@ -315,9 +359,12 @@ window.DSTargetManager = (function($, DSTargetManager) {
         return Object.keys(targetSet).sort();
     }
 
-    function updateTargetGrids(targets, activeTargetName) {
-        var getGridHtml = function(targetName) {
-            var html =
+    function updateTargetGrids(
+        targets: string[],
+        activeTargetName: string
+    ): void {
+        let getGridHtml = function(targetName) {
+            let html: HTML =
                 '<div class="target grid-unit" ' +
                 'data-name="' + targetName + '">' +
                     '<div class="gridIcon">' +
@@ -331,11 +378,10 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 '</div>';
             return html;
         };
-        var html = targets.map(getGridHtml).join("");
+        let html: HTML = targets.map(getGridHtml).join("");
         $gridView.html(html);
         if (activeTargetName) {
-            var $activeGrid = $gridView.find('.target[data-name="' +
-                                             activeTargetName + '"]');
+            let $activeGrid = $gridView.find('.target[data-name="' + activeTargetName + '"]');
             if (!$activeGrid.length) {
                 showTargetCreateView();
             } else {
@@ -344,15 +390,15 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     }
 
-    function clearSelectedTarget() {
+    function clearSelectedTarget(): void {
         $gridView.find(".grid-unit.selected").removeClass("selected");
     }
 
-    function clearActiveTarget() {
+    function clearActiveTarget(): void {
         $gridView.find(".grid-unit.active").removeClass("active");
     }
 
-    function selectTarget($grid) {
+    function selectTarget($grid: JQuery): void {
         clearSelectedTarget();
         if ($grid.hasClass("active")) {
             return;
@@ -363,7 +409,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         showTargetInfoView($grid.data("name"));
     }
 
-    function showTargetCreateView() {
+    function showTargetCreateView(): void {
         clearActiveTarget();
         if ($targetCreateCard.hasClass("xc-hidden")) {
             $targetCreateCard.removeClass("xc-hidden");
@@ -374,33 +420,33 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     }
 
-    function showTargetInfoView(targetName) {
+    function showTargetInfoView(targetName: string): void {
         $targetCreateCard.addClass("xc-hidden");
         $targetInfoCard.removeClass("xc-hidden");
 
-        var target = targetSet[targetName];
-        var $form = $targetInfoCard.find("form");
+        let target = targetSet[targetName];
+        let $form = $targetInfoCard.find("form");
 
         $form.find(".name .text").text(target.name);
         $form.find(".type .text").text(target.type_name);
-        var $paramSection = $form.find(".params");
+        let $paramSection = $form.find(".params");
 
         try {
-            var tarInfo = typeSet[target.type_id];
-            var paramList = tarInfo.parameters.map(function(param, index) {
+            let tarInfo = typeSet[target.type_id];
+            let paramList = tarInfo.parameters.map(function(param) {
                 return param.name;
             });
-            var paramKeys = Object.keys(target.params);
+            let paramKeys = Object.keys(target.params);
             if (paramKeys.length === 0) {
                 $paramSection.addClass("xc-hidden");
             } else {
-                var paramHtml = paramList.map(function(paramName) {
+                let paramHtml = paramList.map(function(paramName) {
                     if (!paramKeys.includes(paramName)) {
                         // This parameter wasnt specified.
                         return "";
                     }
-                    var paramVal = target.params[paramName];
-                    var classes = "text";
+                    let paramVal = target.params[paramName];
+                    let classes = "text";
                     if (typeof paramVal !== "string") {
                         paramVal = JSON.stringify(paramVal);
                     }
@@ -417,7 +463,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 var $rows = $(paramHtml);
                 encryptionSecretField($rows);
                 $paramSection.removeClass("xc-hidden")
-                            .find(".formContent").html($rows);
+                            .find(".formContent").html(<any>$rows);
             }
         } catch (e) {
             console.error(e);
@@ -432,7 +478,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     }
 
-    function encryptionSecretField($rows) {
+    function encryptionSecretField($rows: JQuery): void {
         $rows.each(function() {
             var $text = $(this).find(".text");
             if ($text.hasClass("secret")) {
@@ -445,24 +491,22 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
     }
 
-    function selectUDFModule(module) {
-        if (module == null) {
-            module = "";
-        }
-        module = module.split("/").pop(); // use relative module name
+    function selectUDFModule(moduleName: string): void {
+        moduleName = moduleName || "";
+        moduleName = moduleName.split("/").pop(); // use relative module name
 
-        udfModuleHint.setInput(module);
+        udfModuleHint.setInput(moduleName);
 
-        if (module === "") {
+        if (moduleName === "") {
             $udfFuncList.addClass("disabled");
             selectUDFFunc("");
         } else {
             $udfFuncList.removeClass("disabled");
-            var $funcLis = $udfFuncList.find(".list li").addClass("hidden")
-                            .filter(function() {
-                                var relativeModule = $(this).data("module").split("/").pop();
-                                return relativeModule === module;
-                            }).removeClass("hidden");
+            let $funcLis = $udfFuncList.find(".list li").addClass("hidden")
+            .filter(function() {
+                let relativeModule = $(this).data("module").split("/").pop();
+                return relativeModule === module;
+            }).removeClass("hidden");
             if ($funcLis.length === 1) {
                 selectUDFFunc($funcLis.eq(0).text());
             } else {
@@ -471,7 +515,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     }
 
-    function selectUDFFunc(func) {
+    function selectUDFFunc(func: string): void {
         func = func || "";
         if (func) {
             udfFuncHint.setInput(func);
@@ -480,13 +524,13 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     }
 
-    function validateUDF() {
-        var $moduleInput = $udfModuleList.find("input");
-        var $funcInput = $udfFuncList.find("input");
-        var module = $moduleInput.val();
-        var func = $funcInput.val();
+    function validateUDF(): boolean {
+        let $moduleInput = $udfModuleList.find("input");
+        let $funcInput = $udfFuncList.find("input");
+        let moduleName = $moduleInput.val();
+        let func = $funcInput.val();
 
-        var isValid = xcHelper.validate([
+        let isValid = xcHelper.validate([
             {
                 "$ele": $moduleInput,
                 "error": ErrTStr.NoEmptyList
@@ -495,9 +539,9 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 "$ele": $moduleInput,
                 "error": ErrTStr.InvalidUDFModule,
                 "check": function() {
-                    var inValid = true;
-                    $udfModuleList.find(".list li").each(function($li) {
-                    if (module === $(this).text()){
+                    let inValid: boolean = true;
+                    $udfModuleList.find(".list li").each(function() {
+                    if (moduleName === $(this).text()){
                         inValid = false;
                         return false;
                     }
@@ -513,9 +557,9 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 "$ele": $funcInput,
                 "error": ErrTStr.InvalidUDFFunction,
                 "check": function() {
-                    var inValid = true;
-                    $udfFuncList.find(".list li").each(function($li) {
-                        var relativeModule = $(this).data("module").split("/").pop();
+                    let inValid: boolean = true;
+                    $udfFuncList.find(".list li").each(function() {
+                        let relativeModule = $(this).data("module").split("/").pop();
                     if (relativeModule === module && $(this).text() === func){
                         inValid = false;
                         return false;
@@ -533,14 +577,14 @@ window.DSTargetManager = (function($, DSTargetManager) {
         return true;
     }
 
-    function selectTargetType(typeId) {
-        var $form = $("#dsTarget-form");
-        var targetType = typeSet[typeId];
+    function selectTargetType(typeId: string): void {
+        let $form = $("#dsTarget-form");
+        let targetType = typeSet[typeId];
         $form.find(".description").removeClass("xc-hidden")
              .find("#dsTarget-description").text(targetType.description);
 
         if (targetType.parameters.length > 0) {
-            var html = getTargetTypeParamOptions(targetType.parameters);
+            let html = getTargetTypeParamOptions(targetType.parameters);
             $form.find(".params").removeClass("xc-hidden")
                  .find(".formContent").html(html);
         } else {
@@ -548,14 +592,14 @@ window.DSTargetManager = (function($, DSTargetManager) {
                  .find(".formContent").empty();
         }
 
-        var $menuparms = $('#dsTarget-params-targets');
+        let $menuparms = $('#dsTarget-params-targets');
         $udfModuleList = $("#dsTarget-params-udfModule");
         $udfFuncList = $("#dsTarget-params-udfFunc");
 
         new MenuHelper($menuparms, {
             "onSelect": function($li) {
-                var typeId = $li.data("id");
-                var $input = $menuparms.find(".text");
+                let typeId: string = $li.data("id");
+                let $input = $menuparms.find(".text");
                 if ($input.data("id") === typeId) {
                     return;
                 }
@@ -566,18 +610,18 @@ window.DSTargetManager = (function($, DSTargetManager) {
             "bounds": "#dsTarget-create-card"
         }).setupListeners();
 
-        var moduleMenuHelper = new MenuHelper($udfModuleList, {
+        let moduleMenuHelper = new MenuHelper($udfModuleList, {
                 "onSelect": function($li) {
-                    var module = $li.text();
-                    selectUDFModule(module);
+                    let moduleName = $li.text();
+                    selectUDFModule(moduleName);
                 },
                 "container": "#dsTarget-create-card",
                 "bounds": "#dsTarget-create-card"
             });
 
-        var funcMenuHelper = new MenuHelper($udfFuncList, {
+            let funcMenuHelper = new MenuHelper($udfFuncList, {
                 "onSelect": function($li) {
-                    var func = $li.text();
+                    let func = $li.text();
                     selectUDFFunc(func);
                 },
                 "container": "#dsTarget-create-card",
@@ -597,113 +641,116 @@ window.DSTargetManager = (function($, DSTargetManager) {
         selectUDFModule("");
     }
 
-    function getTargetsForParamOptions(param, index) {
-        var labelName = "dsTarget-param-" + index;
-        var targets = Object.values(DSTargetManager.getAllTargets());
-        var lstHtml = targets.map(function(target) {
-                        return '<li data-id="' + target.type_id + '">' +
-                                    target.name +
-                                '</li>';
-                    }).join("");
-        return '<div class="formRow">' +
-                  '<label for="' + labelName + '" ' +
-                        'data-name="' + param.name + '">' +
-                            param.name + ":" +
-                  '</label>' +
-                  '<div id="dsTarget-params-targets" class="dropDownList yesclickable">' +
-                    '<input class="text" type="text" value="" spellcheck="false" disabled="disabled">' +
-                    '<div class="iconWrapper">' +
-                      '<i class="icon xi-arrow-down"></i>' +
-                    '</div>' +
-                    '<div id="dsTarget-params-targets-menu" class="list">' +
-                      '<ul>' +
-                        lstHtml +
-                      '</ul>' +
-                      '<div class="scrollArea top stopped">' +
-                        '<i class="arrow icon xi-arrow-up"></i>' +
-                      '</div>' +
-                      '<div class="scrollArea bottom">' +
-                        '<i class="arrow icon xi-arrow-down"></i>' +
-                      '</div>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>'
+    function getTargetsForParamOptions(
+        param: {name: string},
+        index: number
+    ): HTML {
+        let labelName = "dsTarget-param-" + index;
+        let targets: any[] = Object.values(DSTargetManager.getAllTargets());
+        let lstHtml = targets.map(function(target) {
+            return '<li data-id="' + target.type_id + '">' +
+                        target.name +
+                    '</li>';
+        }).join("");
+        let html: HTML =
+        '<div class="formRow">' +
+            '<label for="' + labelName + '" ' +
+                'data-name="' + param.name + '">' +
+                    param.name + ":" +
+            '</label>' +
+            '<div id="dsTarget-params-targets" class="dropDownList yesclickable">' +
+            '<input class="text" type="text" value="" spellcheck="false" disabled="disabled">' +
+            '<div class="iconWrapper">' +
+                '<i class="icon xi-arrow-down"></i>' +
+            '</div>' +
+            '<div id="dsTarget-params-targets-menu" class="list">' +
+                '<ul>' +
+                lstHtml +
+                '</ul>' +
+                '<div class="scrollArea top stopped">' +
+                '<i class="arrow icon xi-arrow-up"></i>' +
+                '</div>' +
+                '<div class="scrollArea bottom">' +
+                '<i class="arrow icon xi-arrow-down"></i>' +
+                '</div>' +
+            '</div>' +
+            '</div>' +
+        '</div>';
+        return html;
     }
 
-    function getUDFsForParamOptions(param, index) {
-        var labelName = "dsTarget-param-" + index;
-        var type = param.secret ? "password" : "text";
-        var inputClass = "xc-input";
-        var descrp = param.description;
+    function getUDFsForParamOptions(
+        param: {name: string},
+        index: number
+    ): HTML {
+        let labelName: string = "dsTarget-param-" + index;
         if(!udfModuleListItems) {
             udfModuleListItems = "";
         }
         if (!udfFuncListItems) {
             udfFuncListItems = "";
         }
-        return '<div class="formRow">' +
-                    '<label for="' + labelName + '" ' +
-                    'data-name="' + param.name + '">' +
-                        param.name + ":" +
-                    '</label>' +
-                    '<div class="listSection" data-original-title="" title=""">' +
-                      '<div id="dsTarget-params-udfModule" class="rowContent dropDownList yesclickable"">' +
-                        '<input class="text inputable" type="text" spellcheck="false" placeholder="UDF Module">' +
-                        '<div class="iconWrapper">' +
-                          '<i class="icon xi-arrow-down"></i>' +
-                        '</div>' +
-                        '<div class="list">' +
-                          '<ul>' +
-                            udfModuleListItems +
-                          '</ul>' +
-                          '<div class="scrollArea top">' +
-                            '<i class="arrow icon xi-arrow-up"></i>' +
-                          '</div>' +
-                          '<div class="scrollArea bottom">' +
-                            '<i class="arrow icon xi-arrow-down"></i>' +
-                          '</div>' +
-                        '</div>' +
-                      '</div>' +
-                      '<div id="dsTarget-params-udfFunc" class="dropDownList disabled yesclickable">' +
-                        '<input class="text inputable" type="text" spellcheck="false" placeholder="UDF Function">' +
-                        '<div class="iconWrapper">' +
-                          '<i class="icon xi-arrow-down"></i>' +
-                        '</div>' +
-                        '<div class="list">' +
-                          '<ul>' +
-                            udfFuncListItems +
-                          '</ul>' +
-                          '<div class="scrollArea top">' +
-                            '<i class="arrow icon xi-arrow-up"></i>' +
-                          '</div>' +
-                          '<div class="scrollArea bottom">' +
-                            '<i class="arrow icon xi-arrow-down"></i>' +
-                          '</div>' +
-                        '</div>' +
-                      '</div>' +
+        let html: HTML =
+        '<div class="formRow">' +
+            '<label for="' + labelName + '" ' +
+            'data-name="' + param.name + '">' +
+                param.name + ":" +
+            '</label>' +
+            '<div class="listSection" data-original-title="" title=""">' +
+                '<div id="dsTarget-params-udfModule" class="rowContent dropDownList yesclickable"">' +
+                '<input class="text inputable" type="text" spellcheck="false" placeholder="UDF Module">' +
+                '<div class="iconWrapper">' +
+                    '<i class="icon xi-arrow-down"></i>' +
+                '</div>' +
+                '<div class="list">' +
+                    '<ul>' +
+                    udfModuleListItems +
+                    '</ul>' +
+                    '<div class="scrollArea top">' +
+                    '<i class="arrow icon xi-arrow-up"></i>' +
                     '</div>' +
-                '</div>';
+                    '<div class="scrollArea bottom">' +
+                    '<i class="arrow icon xi-arrow-down"></i>' +
+                    '</div>' +
+                '</div>' +
+                '</div>' +
+                '<div id="dsTarget-params-udfFunc" class="dropDownList disabled yesclickable">' +
+                '<input class="text inputable" type="text" spellcheck="false" placeholder="UDF Function">' +
+                '<div class="iconWrapper">' +
+                    '<i class="icon xi-arrow-down"></i>' +
+                '</div>' +
+                '<div class="list">' +
+                    '<ul>' +
+                    udfFuncListItems +
+                    '</ul>' +
+                    '<div class="scrollArea top">' +
+                    '<i class="arrow icon xi-arrow-up"></i>' +
+                    '</div>' +
+                    '<div class="scrollArea bottom">' +
+                    '<i class="arrow icon xi-arrow-down"></i>' +
+                    '</div>' +
+                '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+        return html;
     }
 
-    function listUDFSection(listXdfsObj) {
-        var deferred = PromiseHelper.deferred();
+    function listUDFSection(listXdfsObj): void {
         updateUDFList(listXdfsObj);
-        deferred.resolve();
-
-        return deferred.promise();
     }
 
-    function updateUDFList(listXdfsObj) {
-        var udfObj = xcHelper.getUDFList(listXdfsObj);
+    function updateUDFList(listXdfsObj): void {
+        let udfObj = xcHelper.getUDFList(listXdfsObj, false);
         udfModuleListItems = udfObj.moduleLis;
         udfFuncListItems = udfObj.fnLis;
     }
 
-    function isSecrectParam(typeId, paramName) {
+    function isSecrectParam(typeId: string, paramName: string): boolean {
         try {
-            var targetType = typeSet[typeId];
-            for (var i = 0; i < targetType.parameters.length; i++) {
-                var param = targetType.parameters[i];
+            let targetType = typeSet[typeId];
+            for (let i = 0; i < targetType.parameters.length; i++) {
+                let param = targetType.parameters[i];
                 if (param.name === paramName) {
                     return param.secret;
                 }
@@ -714,12 +761,19 @@ window.DSTargetManager = (function($, DSTargetManager) {
         return false;
     }
 
-    function getTargetTypeParamOptions(params) {
+    function getTargetTypeParamOptions(
+        params: {
+            name: string,
+            description: string,
+            secret: boolean
+            optional: boolean
+        }[]
+    ): HTML {
         return params.map(function(param, index) {
-            var labelName = "dsTarget-param-" + index;
-            var type = param.secret ? "password" : "text";
-            var inputClass = "xc-input";
-            var descrp = param.description;
+            let labelName: string = "dsTarget-param-" + index;
+            let type: string = param.secret ? "password" : "text";
+            let inputClass: string = "xc-input";
+            let descrp = param.description;
 
             if (param.optional) {
                 inputClass += " optional";
@@ -753,9 +807,9 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }).join("");
     }
 
-    function deleteTarget($grid) {
-        var targetName = $grid.data("name");
-        var msg = xcStringHelper.replaceMsg(DSTargetTStr.DelConfirmMsg, {
+    function deleteTarget($grid: JQuery): void {
+        let targetName: string = $grid.data("name");
+        let msg = xcStringHelper.replaceMsg(DSTargetTStr.DelConfirmMsg, {
             target: targetName
         });
         Alert.show({
@@ -769,7 +823,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                         showTargetCreateView();
                     }
                     $grid.remove();
-                    DSTargetManager.refreshTargets();
+                    DSTargetManager.refreshTargets(false);
                 })
                 .fail(function(error) {
                     Alert.error(DSTargetTStr.DelFail, error.error);
@@ -778,18 +832,19 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
     }
 
-    function validateForm($form) {
-        var $targetName = $("#dsTarget-name");
-        var targetType = $("#dsTarget-type .text").data("id");
-        var targetName = $targetName.val();
-        var targetParams = {};
-        var eles = [{
+    function validateForm($form: JQuery): [string, string, any] | null {
+        let $targetName = $("#dsTarget-name");
+        let targetType: string = $("#dsTarget-type .text").data("id");
+        let targetName: string = $targetName.val();
+        let targetParams = {};
+        let eles = [{
             $ele: $targetName
         }, {
             $ele: $targetName,
             error: ErrTStr.InvalidTargetName,
             check: function() {
-                return !xcHelper.checkNamePattern("target", "check", targetName);
+                return !xcHelper.checkNamePattern(PatternCategory.Target,
+                    PatternAction.Check, targetName);
             },
         }, {
             $ele: $targetName,
@@ -822,22 +877,22 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     }
 
-    function resetForm() {
+    function resetForm(): void {
         $("#dsTarget-reset").click();
     }
 
-    function submitForm() {
-        var deferred = PromiseHelper.deferred();
-        var $form = $("#dsTarget-form");
+    function submitForm(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let $form = $("#dsTarget-form");
         $form.find("input").blur();
-        var $submitBtn = $("#dsTarget-submit").blur();
+        let $submitBtn = $("#dsTarget-submit").blur();
 
-        var args = validateForm($form);
+        let args = validateForm($form);
         if (!args) {
             deferred.reject();
             return deferred.promise();
         }
-        var params = args[2]
+        let params = args[2]
         if (params.listUdf) {
             // need to create abspolute path for the udfModule
             if (params.listUdf === "default") {
@@ -846,7 +901,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 params.listUdf = UDFFileManager.Instance.getCurrWorkbookPath() + params.listUdf;
             }
 
-            var funVal = $udfFuncList.find("input").val();
+            let funVal: string = $udfFuncList.find("input").val();
 
             params.listUdf += ":" + funVal;
             if(!validateUDF()) {
@@ -855,7 +910,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
             }
         }
         xcUIHelper.toggleBtnInProgress($submitBtn, true);
-        var errorParser = function(log) {
+        let errorParser = function(log) {
             try {
                 return log.split("ValueError:")[1].split("\\")[0];
             } catch (e) {
@@ -897,11 +952,11 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
 
         function checkMountPoint() {
-            var innerDeferred = PromiseHelper.deferred();
+            let innerDeferred = PromiseHelper.deferred();
             if ((!args) || (args[0] !== "shared")) {
                 innerDeferred.resolve();
             } else {
-                var url = args[2].mountpoint;
+                let url: string = args[2].mountpoint;
                 XcalarListFiles({
                     targetName: gDefaultSharedRoot,
                     path: url
@@ -910,7 +965,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                     innerDeferred.resolve();
                 })
                 .fail(function() {
-                    var errorLog = xcStringHelper.replaceMsg(DSTargetTStr.MountpointNoExists, {
+                    let errorLog = xcStringHelper.replaceMsg(DSTargetTStr.MountpointNoExists, {
                         mountpoint: url
                     });
                     innerDeferred.reject({
@@ -923,6 +978,4 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
         return deferred.promise();
     }
-
-    return (DSTargetManager);
-}(jQuery, {}));
+}

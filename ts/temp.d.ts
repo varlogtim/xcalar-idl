@@ -929,6 +929,7 @@ declare namespace Profile {
 declare namespace JupyterUDFModal {
     export function setup(): void;
     export function show(type: string, params?: any): void;
+    export function refreshTarget(html: HTML): void;
 }
 
 declare namespace MonitorPanel {
@@ -950,21 +951,6 @@ declare namespace TutorialsSetup {
 declare namespace xcMixpanel {
     export function setup(): void;
     export function forDev(): boolean;
-}
-
-declare namespace DSTargetManager {
-    export function setup(): void;
-    export function getTargetTypeList(): XDPromise<void>;
-    export function clickFirstGrid(): void;
-    export function getTarget(targetName: string): object;
-    export function getAllTargets(): object[];
-    export function refreshTargets(noWaitIcon: boolean): object[];
-    export function updateUDF(listXdfsObj: any);
-    export function isSlowPreviewTarget(targetName: string): boolean;
-    export function isSparkParquet(targetName: string): boolean;
-    export function isGeneratedTarget(targetName: string): boolean;
-    export function isDatabaseTarget(targetName: string): boolean;
-    export function isPreSharedTarget(targetName: string): boolean;
 }
 
 declare namespace JSONModal {

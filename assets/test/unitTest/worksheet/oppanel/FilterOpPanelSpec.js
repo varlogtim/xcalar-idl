@@ -26,7 +26,6 @@ describe("FilterOpPanel Test", function() {
         }
         openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
 
-        oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         filterOpPanel = FilterOpPanel.Instance;
         editor = filterOpPanel.getEditor();

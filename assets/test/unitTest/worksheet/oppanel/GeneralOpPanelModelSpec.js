@@ -24,7 +24,6 @@ describe("GeneralOpPanelModel Test", function() {
             return [parentNode];
         }
 
-        oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         mapOpPanel = MapOpPanel.Instance;
         openOptions = {

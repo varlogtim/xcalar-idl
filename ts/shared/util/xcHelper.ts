@@ -2279,7 +2279,7 @@ namespace xcHelper {
     export function getUDFList(
         listXdfsObj: any,
         mainOnly: boolean
-    ): object {
+    ): {moduleLis: HTML, fnLis: HTML} {
         let modules: string[] = [];
         let moduleDisplayedNames: string[] = [];
         let moduleObjs: XcalarEvalFnDescT[] = [];

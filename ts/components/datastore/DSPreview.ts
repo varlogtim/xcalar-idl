@@ -908,7 +908,7 @@ namespace DSPreview {
             let pathIndex = loadArgs.getPreivewIndex();
             let path = loadArgs.files[pathIndex].path;
             JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
-                                                path, true);
+            path, true, null, null, null);
         });
         // dropdown list for udf modules and function names
         let moduleMenuHelper = new MenuHelper($udfModuleList, {

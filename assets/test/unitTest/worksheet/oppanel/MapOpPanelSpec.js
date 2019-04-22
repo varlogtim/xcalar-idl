@@ -31,7 +31,6 @@ describe("MapOpPanel Test", function() {
             udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
         };
 
-        oldDatTargetList = DSTargetManager.getAllTargets;
         mapOpPanel = MapOpPanel.Instance;
         editor = mapOpPanel.getEditor();
         $mapOpPanel = $('#mapOpPanel');

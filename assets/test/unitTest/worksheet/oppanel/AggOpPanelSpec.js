@@ -26,7 +26,6 @@ describe("AggOpPanel Test", function() {
         }
         openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
 
-        oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         aggOpPanel = AggOpPanel.Instance;
         editor = aggOpPanel.getEditor();

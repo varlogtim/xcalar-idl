@@ -21,7 +21,6 @@ describe("FilterOpPanelModel Test", function() {
 
         openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
 
-        oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         filterOpPanel = FilterOpPanel.Instance;
     });
