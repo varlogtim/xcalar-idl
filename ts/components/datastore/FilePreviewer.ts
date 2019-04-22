@@ -1,27 +1,34 @@
-window.FilePreviewer = (function(FilePreviewer, $) {
-    var previewArgs = null;
-    var $fileBrowserPreview; // $("#fileBrowserPreview")
-    var $fileInfoContainer;
-    var $fileBrowserContainer;
-    var $cardMain;
-    var idCount = 0;
-    var initialOffset = 0;
-    var totalSize = 0;
+namespace FilePreviewer {
+    let previewArgs = null;
+    let $fileBrowserPreview: JQuery; // $("#fileBrowserPreview")
+    let $fileInfoContainer: JQuery;
+    let $fileBrowserContainer: JQuery;
+    let $cardMain: JQuery;
+    let idCount: number = 0;
+    let initialOffset: number = 0;
+    let totalSize: number = 0;
 
     // constant
-    var outDateError = "preview id is out of date";
-    var lineHeight = 30;
+    const outDateError: string = "preview id is out of date";
+    const lineHeight: number = 30;
 
-    FilePreviewer.setup = function() {
+    /**
+     * FilePreviewer.setup
+     */
+    export function setup(): void {
         $fileBrowserPreview = $("#fileBrowserPreview");
         $fileInfoContainer = $("#fileInfoContainer");
         $fileBrowserContainer = $("#fileBrowserContainer");
         $cardMain = $fileBrowserPreview.parent();
         FilePreviewer.close();
         addEventListener();
-    };
+    }
 
-    FilePreviewer.show = function(options) {
+    /**
+     * FilePreviewer.show
+     * @param options
+     */
+    export function show(options: any): XDPromise<void> {
         $fileInfoContainer.addClass("xc-hidden");
         $fileBrowserContainer.css("width", "100%");
         cleanPreviewer();
@@ -35,22 +42,28 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         } else {
             return initialPreview(options);
         }
-    };
+    }
 
-    FilePreviewer.close = function() {
+    /**
+     * FilePreviewer.close
+     */
+    export function close(): void {
         $fileInfoContainer.removeClass("xc-hidden");
         $fileBrowserContainer.css("width", "calc(100% - 360px");
         $fileBrowserPreview.addClass("xc-hidden");
         $cardMain.removeClass("previewOpen full");
         $("#fileBrowser").removeClass("previewOpen");
         cleanPreviewer();
-    };
+    }
 
-    FilePreviewer.isOpen = function() {
+    /**
+     * FilePreviewer.isOpen
+     */
+    export function isOpen(): boolean {
         return !$fileBrowserPreview.hasClass("xc-hidden");
-    };
+    }
 
-    function cleanPreviewer() {
+    function cleanPreviewer(): void {
         previewArgs = null;
         initialOffset = 0;
         totalSize = 0;
@@ -64,26 +77,25 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         inPreviewMode();
     }
 
-    function initialPreview(options) {
+    function initialPreview(options): XDPromise<void> {
         previewArgs = options;
-        var offset = 0;
-        return previewFile(offset);
+        return previewFile(0);
     }
 
-    function previewFile(offset) {
-        var args = previewArgs;
+    function previewFile(offset: number): XDPromise<void> {
+        let args = previewArgs;
         if (args == null) {
             console.error("invliad arguments");
             return PromiseHelper.reject("invliad arguments");
         }
 
-        var deferred = PromiseHelper.deferred();
-        var perviewerId = getPreviewerId();
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let perviewerId = getPreviewerId();
 
-        var blockSize = calculateCharsPerLine();
-        var numBytesToRequest = calculateBtyesToPreview(blockSize);
-        var wasHexMode = isInHexMode();
-        var timer = inLoadMode();
+        let blockSize = calculateCharsPerLine();
+        let numBytesToRequest = calculateBtyesToPreview(blockSize);
+        let wasHexMode = isInHexMode();
+        let timer = inLoadMode();
 
         args.recursive = false;
         args.fileNamePattern = "";
@@ -122,7 +134,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         return deferred.promise();
     }
 
-    function handleError(error) {
+    function handleError(error: any): void {
         inErrorMode();
         if (typeof error === "object" && error.error) {
             error = error.error;
@@ -130,21 +142,21 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         $fileBrowserPreview.find(".errorSection").text(error);
     }
 
-    function isValidId(previewerId) {
-        var currentId = getPreviewerId();
+    function isValidId(previewerId: number): boolean {
+        let currentId = getPreviewerId();
         return (previewerId === currentId);
     }
 
-    function getPreviewerId() {
+    function getPreviewerId(): number {
         return $fileBrowserPreview.data("id");
     }
 
-    function setPreviewerId() {
+    function setPreviewerId(): void {
         $fileBrowserPreview.data("id", idCount);
         idCount++;
     }
 
-    function inPreviewMode() {
+    function inPreviewMode(): void {
         previewOrHexMode();
         $("#fileBrowserMain").removeClass("xc-hidden");
         $fileBrowserPreview.removeClass("hexMode hexModeAnim");
@@ -157,11 +169,11 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         });
     }
 
-    function isInHexMode() {
+    function isInHexMode(): boolean {
         return $fileBrowserPreview.hasClass("hexMode");
     }
 
-    function inHexMode() {
+    function inHexMode(): void {
         previewOrHexMode();
         $("#fileBrowserMain").addClass("xc-hidden");
         $fileBrowserPreview.addClass("hexMode");
@@ -172,17 +184,17 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         });
     }
 
-    function previewOrHexMode() {
+    function previewOrHexMode(): void {
         $fileBrowserPreview.find(".toggleHex").removeClass("xc-disabled");
         $fileBrowserPreview.removeClass("loading")
                             .removeClass("error");
     }
 
-    function inLoadMode() {
+    function inLoadMode(): any {
         $fileBrowserPreview.find(".toggleHex").addClass("xc-disabled");
 
-        var dealyTime = 1000;
-        var timer = setTimeout(function() {
+        let dealyTime = 1000;
+        let timer = setTimeout(function() {
             $fileBrowserPreview.removeClass("error")
                         .addClass("loading");
         }, dealyTime);
@@ -190,24 +202,24 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         return timer;
     }
 
-    function inErrorMode() {
+    function inErrorMode(): void {
         $fileBrowserPreview.find(".toggleHex").addClass("xc-disabled");
         $fileBrowserPreview.removeClass("loading hexMode")
                         .addClass("error");
     }
 
-    function showPreview(base64Data, blockSize) {
+    function showPreview(base64Data: any, blockSize: number): void {
         // Note: hexdump is different from view the data using editor.
         // so use atob instead of Base64.decode
-        var buffer = atob(base64Data);
-        var codeHtml = "";
-        var charHtml = "";
+        let buffer = atob(base64Data);
+        let codeHtml: string = "";
+        let charHtml: string = "";
 
-        for (var i = 0, len = buffer.length; i < len; i += blockSize) {
-            var endIndex = Math.min(i + blockSize, buffer.length);
-            var block = buffer.slice(i, endIndex);
+        for (let i = 0, len = buffer.length; i < len; i += blockSize) {
+            let endIndex: number = Math.min(i + blockSize, buffer.length);
+            let block = buffer.slice(i, endIndex);
             // use dot to replace special chars
-            var chars = block.replace(/[\x00-\x1F\x20]/g, '.')
+            let chars = block.replace(/[\x00-\x1F\x20]/g, '.')
                                 .replace(/[^\x00-\x7F]/g, '.'); // non-ascii chars
 
             charHtml += getCharHtml(chars, blockSize, i);
@@ -220,104 +232,112 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         hoverEvent();
     }
 
-    function getCharHtml(block, blockSize, startOffset) {
+    function getCharHtml(
+        block: string,
+        blockSize: number,
+        startOffset: number
+    ): HTML {
         startOffset = startOffset || 0;
 
-        var chars = block.split("").map(function(ch, index) {
-            var offset = startOffset + index;
+        let chars = block.split("").map(function(ch, index) {
+            let offset = startOffset + index;
             return getCell(ch, offset);
         }).join("");
 
         if (blockSize != null) {
-            var numOfPaddings = blockSize - block.length;
+            let numOfPaddings = blockSize - block.length;
             chars += '<span class="cell"> </span>'.repeat(numOfPaddings);
         }
 
-        var style = getCellStyle();
-        var html = '<div class="line" style="' + style + '">' +
+        let style = getCellStyle();
+        let html = '<div class="line" style="' + style + '">' +
                         chars +
                     '</div>';
 
         return html;
     }
 
-    function getCodeHtml(block, blockSize, startOffset) {
-        var hex = "0123456789ABCDEF";
-        var codes = block.split("").map(function(ch, index) {
-            var offset = startOffset + index;
-            var code = ch.charCodeAt(0);
-            var hexCode = hex[(0xF0 & code) >> 4] + hex[0x0F & code];
-            var cell = getCell(hexCode, offset);
+    function getCodeHtml(
+        block: string,
+        blockSize: number,
+        startOffset: number
+    ): HTML {
+        let hex: string = "0123456789ABCDEF";
+        let codes = block.split("").map(function(ch, index) {
+            let offset = startOffset + index;
+            let code = ch.charCodeAt(0);
+            let hexCode = hex[(0xF0 & code) >> 4] + hex[0x0F & code];
+            let cell = getCell(hexCode, offset);
             return "" + cell;
         }).join("");
 
-        var numOfPaddings = blockSize - block.length;
+        let numOfPaddings = blockSize - block.length;
         codes += '  <span class="cell">  </span>'.repeat(numOfPaddings);
 
-        var style = getCellStyle();
-        var html = '<div class="line" style="' + style + '">' +
+        let style = getCellStyle();
+        let html = '<div class="line" style="' + style + '">' +
                         codes +
                     '</div>';
         return html;
     }
 
-    function getCell(ch, offset) {
+    function getCell(ch: string, offset: number): HTML {
         offset = initialOffset + offset;
-        var cell = '<span class="cell" data-offset="' + offset + '">' +
-                            xcStringHelper.escapeHTMLSpecialChar(ch) +
-                    '</span>';
+        let cell: HTML =
+        '<span class="cell" data-offset="' + offset + '">' +
+            xcStringHelper.escapeHTMLSpecialChar(ch) +
+        '</span>';
         return cell;
     }
 
-    function getCellStyle() {
-        var style = "height:" + lineHeight + "px; " +
+    function getCellStyle(): string {
+        let style = "height:" + lineHeight + "px; " +
                     "line-height:" + lineHeight + "px;";
         return style;
     }
 
-    function updateCSS() {
-        var charWidth = calculateCharWidth();
+    function updateCSS(): void {
+        let charWidth = calculateCharWidth();
         $fileBrowserPreview.find(".preview.normal .cell")
         .css("width", charWidth + "px");
     }
 
-    function calculateCharWidth() {
-        var $section = $fileBrowserPreview.find(".preview.normal");
-        var $fakeElement = $(getCharHtml("a"));
+    function calculateCharWidth(): number {
+        let $section = $fileBrowserPreview.find(".preview.normal");
+        let $fakeElement = $(getCharHtml("a", null, null));
 
         $fakeElement.css("font-family", "monospace");
         $section.append($fakeElement);
-        var charWidth = xcUIHelper.getTextWidth($fakeElement);
+        let charWidth = xcUIHelper.getTextWidth($fakeElement);
         $fakeElement.remove();
         return charWidth;
     }
 
-    function calculateCharsPerLine() {
-        var sectionWidth;
-        var padding = 57;
+    function calculateCharsPerLine(): number {
+        let sectionWidth: number;
+        const padding: number = 57;
         if ($cardMain.hasClass("full")) {
             sectionWidth = $cardMain.width() - padding;
         } else {
             sectionWidth = 360 - padding;
         }
 
-        var charWidth = calculateCharWidth();
-
-        var oneBlockChars = 8;
-        var numOfBlock = Math.floor(sectionWidth / charWidth / oneBlockChars);
-        var charsPerLine = numOfBlock * oneBlockChars;
+        let charWidth = calculateCharWidth();
+        const oneBlockChars: number = 8;
+        let numOfBlock: number = Math.floor(sectionWidth / charWidth / oneBlockChars);
+        let charsPerLine: number = numOfBlock * oneBlockChars;
         return charsPerLine;
     }
 
-    function calculateBtyesToPreview(charsPerLine) {
-        var $section = $fileBrowserPreview.find(".preview.normal");
-        var height = $section.height();
-        var numLine = Math.floor(height / lineHeight);
-        var numBytes = numLine * charsPerLine;
+    function calculateBtyesToPreview(charsPerLine: number): number {
+        let $section = $fileBrowserPreview.find(".preview.normal");
+        let height = $section.height();
+        let numLine: number = Math.floor(height / lineHeight);
+        let numBytes: number = numLine * charsPerLine;
         return numBytes;
     }
 
-    function addEventListener() {
+    function addEventListener(): void {
         $fileBrowserPreview.on("click", ".toggleHex", function() {
             if (isInHexMode()) {
                 inPreviewMode();
@@ -330,12 +350,12 @@ window.FilePreviewer = (function(FilePreviewer, $) {
             FilePreviewer.close();
         });
 
-        var $skipToOffset = $fileBrowserPreview.find(".skipToOffset");
+        let $skipToOffset = $fileBrowserPreview.find(".skipToOffset");
         $skipToOffset.on("keyup", function(event) {
             if (event.which === keyCode.Enter) {
                 var offset = $(this).val();
                 if (offset !== "") {
-                    updateOffset(Number(offset));
+                    updateOffset(Number(offset), false);
                 }
             }
         });
@@ -353,21 +373,21 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         });
     }
 
-    function hoverEvent() {
+    function hoverEvent(): void {
         $fileBrowserPreview.find(".cell").hover(function() {
-            var offset = $(this).data("offset");
-            updateOffset(offset);
+            let offset = $(this).data("offset");
+            updateOffset(offset, false);
         });
     }
 
     // the noFetch is a prevent of potential resucsive
-    function updateOffset(offset, noFetch) {
+    function updateOffset(offset: number, noFetch: boolean): void {
         if (!Number.isInteger(offset) || offset < 0) {
             return;
         }
 
         $fileBrowserPreview.find(".cell.active").removeClass("active");
-        var $cell = $fileBrowserPreview.find(".cell[data-offset='" + offset + "']");
+        let $cell = $fileBrowserPreview.find(".cell[data-offset='" + offset + "']");
         if ($cell.length > 0) {
             $fileBrowserPreview.find(".offsetNum").text(offset);
             $cell.addClass("active");
@@ -376,8 +396,8 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         }
     }
 
-    function fetchNewPreview(offset) {
-        var $skipToOffset = $fileBrowserPreview.find(".skipToOffset");
+    function fetchNewPreview(offset: number): XDPromise<void> {
+        let $skipToOffset = $fileBrowserPreview.find(".skipToOffset");
         if (offset >= totalSize) {
             StatusBox.show(DSTStr.OffsetErr, $skipToOffset, false, {
                 "side": "left"
@@ -385,8 +405,8 @@ window.FilePreviewer = (function(FilePreviewer, $) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = PromiseHelper.deferred();
-        var normalizedOffset = normalizeOffset(offset);
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let normalizedOffset = normalizeOffset(offset);
         $skipToOffset.addClass("xc-disabled");
 
         previewFile(normalizedOffset)
@@ -402,33 +422,31 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         return deferred.promise();
     }
 
-    function normalizeOffset(offset) {
-        var charsInOneLine = calculateCharsPerLine();
-        offset = Math.floor(offset / charsInOneLine) * charsInOneLine;
-        return offset;
+    function normalizeOffset(offset: number): number {
+        let charsInOneLine = calculateCharsPerLine();
+        return Math.floor(offset / charsInOneLine) * charsInOneLine;
     }
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        FilePreviewer.__testOnly__ = {};
-        FilePreviewer.__testOnly__.isValidId = isValidId;
-        FilePreviewer.__testOnly__.getPreviewerId = getPreviewerId;
-        FilePreviewer.__testOnly__.setPreviewerId = setPreviewerId;
-        FilePreviewer.__testOnly__.inPreviewMode = inPreviewMode;
-        FilePreviewer.__testOnly__.isInHexMode = isInHexMode;
-        FilePreviewer.__testOnly__.inHexMode = inHexMode;
-        FilePreviewer.__testOnly__.inLoadMode = inLoadMode;
-        FilePreviewer.__testOnly__.inErrorMode = inErrorMode;
-        FilePreviewer.__testOnly__.cleanPreviewer = cleanPreviewer;
-        FilePreviewer.__testOnly__.handleError = handleError;
-        FilePreviewer.__testOnly__.getCharHtml = getCharHtml;
-        FilePreviewer.__testOnly__.getCodeHtml = getCodeHtml;
-        FilePreviewer.__testOnly__.getCell = getCell;
-        FilePreviewer.__testOnly__.getCellStyle = getCellStyle;
-        FilePreviewer.__testOnly__.updateOffset = updateOffset;
-        FilePreviewer.__testOnly__.fetchNewPreview = fetchNewPreview;
+    export let __testOnly__: any = {};
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__ = {};
+        __testOnly__.isValidId = isValidId;
+        __testOnly__.getPreviewerId = getPreviewerId;
+        __testOnly__.setPreviewerId = setPreviewerId;
+        __testOnly__.inPreviewMode = inPreviewMode;
+        __testOnly__.isInHexMode = isInHexMode;
+        __testOnly__.inHexMode = inHexMode;
+        __testOnly__.inLoadMode = inLoadMode;
+        __testOnly__.inErrorMode = inErrorMode;
+        __testOnly__.cleanPreviewer = cleanPreviewer;
+        __testOnly__.handleError = handleError;
+        __testOnly__.getCharHtml = getCharHtml;
+        __testOnly__.getCodeHtml = getCodeHtml;
+        __testOnly__.getCell = getCell;
+        __testOnly__.getCellStyle = getCellStyle;
+        __testOnly__.updateOffset = updateOffset;
+        __testOnly__.fetchNewPreview = fetchNewPreview;
     }
     /* End Of Unit Test Only */
-
-    return (FilePreviewer);
-}({}, jQuery));
+}

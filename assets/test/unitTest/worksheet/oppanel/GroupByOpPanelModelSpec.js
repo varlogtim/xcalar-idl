@@ -19,7 +19,6 @@ describe("GroupByOpPanelModel Test", function() {
             return [parentNode];
         }
 
-        oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         groupByOpPanel = GroupByOpPanel.Instance;
 

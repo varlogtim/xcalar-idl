@@ -37,7 +37,6 @@ describe("GeneralOpPanel Test", function() {
         };
 
 
-        oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         mapOpPanel = MapOpPanel.Instance;
         editor = mapOpPanel.getEditor();

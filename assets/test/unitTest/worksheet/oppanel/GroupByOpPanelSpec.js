@@ -29,7 +29,6 @@ describe("GroupByOpPanel Test", function() {
         }
         openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
 
-        oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         groupByOpPanel = GroupByOpPanel.Instance;
         editor = groupByOpPanel.getEditor();

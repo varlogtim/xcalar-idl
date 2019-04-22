@@ -973,13 +973,6 @@ declare namespace FileInfoModal {
     export function show(optoins: any): void;
 }
 
-declare namespace FilePreviewer {
-    export function show(options: any): void;
-    export function close(): void;
-    export function isOpen(): boolean;
-    export function setup(): void;
-}
-
 declare namespace DSInfoModal {
     export function setup(): void;
 }
