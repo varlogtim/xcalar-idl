@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -86,12 +88,13 @@ proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.toObject = func
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.FilterRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.FilterRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    filterstr: msg.getFilterstr(),
-    srctablename: msg.getSrctablename(),
-    dsttablename: msg.getDsttablename()
+    filterstr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    dsttablename: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -150,49 +153,40 @@ proto.xcalar.compute.localtypes.Dataflow.FilterRequest.deserializeBinaryFromRead
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.FilterRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.FilterRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.FilterRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.FilterRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.FilterRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getFilterstr();
+  f = message.getFilterstr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getDsttablename();
+  f = message.getDsttablename();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -203,26 +197,17 @@ proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.serializeBinary
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.FilterRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.FilterRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string filterStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.getFilterstr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.setFilterstr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -231,13 +216,13 @@ proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.setFilterstr = 
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -246,13 +231,13 @@ proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.setSrctablename
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.getDsttablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.FilterRequest.prototype.setDsttablename = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -299,11 +284,12 @@ proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.toObject = fun
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.FilterResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.FilterResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename()
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -358,42 +344,33 @@ proto.xcalar.compute.localtypes.Dataflow.FilterResponse.deserializeBinaryFromRea
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.FilterResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.FilterResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.FilterResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.FilterResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.FilterResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -404,26 +381,17 @@ proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.serializeBinar
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.FilterResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.FilterResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -432,13 +400,13 @@ proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.setQuerystr = 
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.FilterResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -485,13 +453,14 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.toObject = f
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.AggregateRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    aggop: msg.getAggop(),
-    colname: msg.getColname(),
-    srctablename: msg.getSrctablename(),
-    dstaggname: msg.getDstaggname()
+    aggop: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    colname: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    dstaggname: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -554,56 +523,47 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.deserializeBinaryFromR
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.AggregateRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.AggregateRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getAggop();
+  f = message.getAggop();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getColname();
+  f = message.getColname();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getDstaggname();
+  f = message.getDstaggname();
   if (f.length > 0) {
     writer.writeString(
       4,
@@ -614,26 +574,17 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.serializeBin
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.AggregateRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.AggregateRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string aggOp = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.getAggop = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.setAggop = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -642,13 +593,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.setAggop = f
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.getColname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.setColname = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -657,13 +608,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.setColname =
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -672,13 +623,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.setSrctablen
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.getDstaggname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateRequest.prototype.setDstaggname = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -725,12 +676,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.toObj
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    evalstr: msg.getEvalstr(),
-    srctablename: msg.getSrctablename(),
-    dstaggname: msg.getDstaggname()
+    evalstr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    dstaggname: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -789,49 +741,40 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.deserializeBina
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getEvalstr();
+  f = message.getEvalstr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getDstaggname();
+  f = message.getDstaggname();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -842,26 +785,17 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.seria
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string evalStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.getEvalstr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.setEvalstr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -870,13 +804,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.setEv
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -885,13 +819,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.setSr
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.getDstaggname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest.prototype.setDstaggname = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -938,13 +872,14 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.toObject = 
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.AggregateResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    aggval: msg.getAggval(),
-    dstaggname: msg.getDstaggname(),
-    todelete: msg.getTodelete()
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    aggval: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    dstaggname: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    todelete: jspb.Message.getFieldWithDefault(msg, 4, false)
   };
 
   if (includeInstance) {
@@ -1007,56 +942,47 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.deserializeBinaryFrom
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.AggregateResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.AggregateResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getAggval();
+  f = message.getAggval();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getDstaggname();
+  f = message.getDstaggname();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getTodelete();
+  f = message.getTodelete();
   if (f) {
     writer.writeBool(
       4,
@@ -1067,26 +993,17 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.serializeBi
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.AggregateResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.AggregateResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -1095,13 +1012,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.setQuerystr
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.getAggval = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.setAggval = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -1110,13 +1027,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.setAggval =
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.getDstaggname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.setDstaggname = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -1127,13 +1044,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.setDstaggna
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.getTodelete = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 4, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 4, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.AggregateResponse.prototype.setTodelete = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3BooleanField(this, 4, value);
 };
 
 
@@ -1187,14 +1104,15 @@ proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.toObject = functio
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.MapRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    mapstrsList: jspb.Message.getField(msg, 1),
-    newcolnamesList: jspb.Message.getField(msg, 2),
-    srctablename: msg.getSrctablename(),
-    dsttablename: msg.getDsttablename(),
-    icvmode: msg.getIcvmode()
+    mapstrsList: jspb.Message.getRepeatedField(msg, 1),
+    newcolnamesList: jspb.Message.getRepeatedField(msg, 2),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    dsttablename: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    icvmode: jspb.Message.getFieldWithDefault(msg, 5, false)
   };
 
   if (includeInstance) {
@@ -1233,13 +1151,11 @@ proto.xcalar.compute.localtypes.Dataflow.MapRequest.deserializeBinaryFromReader 
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.getMapstrsList().push(value);
-      msg.setMapstrsList(msg.getMapstrsList());
+      msg.addMapstrs(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.getNewcolnamesList().push(value);
-      msg.setNewcolnamesList(msg.getNewcolnamesList());
+      msg.addNewcolnames(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
@@ -1263,63 +1179,54 @@ proto.xcalar.compute.localtypes.Dataflow.MapRequest.deserializeBinaryFromReader 
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.MapRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.MapRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.MapRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.MapRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.MapRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getMapstrsList();
+  f = message.getMapstrsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       1,
       f
     );
   }
-  f = this.getNewcolnamesList();
+  f = message.getNewcolnamesList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       2,
       f
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getDsttablename();
+  f = message.getDsttablename();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = this.getIcvmode();
+  f = message.getIcvmode();
   if (f) {
     writer.writeBool(
       5,
@@ -1330,55 +1237,60 @@ proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.serializeBinaryToW
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.MapRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.MapRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated string mapStrs = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.getMapstrsList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 1));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.setMapstrsList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.addMapstrs = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.clearMapstrsList = function() {
-  jspb.Message.setField(this, 1, []);
+  this.setMapstrsList([]);
 };
 
 
 /**
  * repeated string newColNames = 2;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.getNewcolnamesList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 2));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 2));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.setNewcolnamesList = function(value) {
   jspb.Message.setField(this, 2, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.addNewcolnames = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 2, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.clearNewcolnamesList = function() {
-  jspb.Message.setField(this, 2, []);
+  this.setNewcolnamesList([]);
 };
 
 
@@ -1387,13 +1299,13 @@ proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.clearNewcolnamesLi
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -1402,13 +1314,13 @@ proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.setSrctablename = 
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.getDsttablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.setDsttablename = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -1419,13 +1331,13 @@ proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.setDsttablename = 
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.getIcvmode = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 5, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 5, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.MapRequest.prototype.setIcvmode = function(value) {
-  jspb.Message.setField(this, 5, value);
+  jspb.Message.setProto3BooleanField(this, 5, value);
 };
 
 
@@ -1472,11 +1384,12 @@ proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.toObject = functi
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.MapResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.MapResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename()
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1531,42 +1444,33 @@ proto.xcalar.compute.localtypes.Dataflow.MapResponse.deserializeBinaryFromReader
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.MapResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.MapResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.MapResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.MapResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.MapResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -1577,26 +1481,17 @@ proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.serializeBinaryTo
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.MapResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.MapResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -1605,13 +1500,13 @@ proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.setQuerystr = fun
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.MapResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -1658,12 +1553,13 @@ proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.toObject = f
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    newcolname: msg.getNewcolname(),
-    srctablename: msg.getSrctablename(),
-    dsttablename: msg.getDsttablename()
+    newcolname: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    dsttablename: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -1722,49 +1618,40 @@ proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.deserializeBinaryFromR
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getNewcolname();
+  f = message.getNewcolname();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getDsttablename();
+  f = message.getDsttablename();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -1775,26 +1662,17 @@ proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.serializeBin
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string newColName = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.getNewcolname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.setNewcolname = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -1803,13 +1681,13 @@ proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.setNewcolnam
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -1818,13 +1696,13 @@ proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.setSrctablen
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.getDsttablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumRequest.prototype.setDsttablename = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -1871,11 +1749,12 @@ proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.toObject = 
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename()
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1930,42 +1809,33 @@ proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.deserializeBinaryFrom
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -1976,26 +1846,17 @@ proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.serializeBi
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -2004,13 +1865,13 @@ proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.setQuerystr
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GenRowNumResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -2064,12 +1925,13 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.toObject = fun
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.ProjectRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    columnsList: jspb.Message.getField(msg, 1),
-    srctablename: msg.getSrctablename(),
-    dsttablename: msg.getDsttablename()
+    columnsList: jspb.Message.getRepeatedField(msg, 1),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    dsttablename: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -2108,8 +1970,7 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.deserializeBinaryFromRea
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.getColumnsList().push(value);
-      msg.setColumnsList(msg.getColumnsList());
+      msg.addColumns(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -2129,49 +1990,40 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.deserializeBinaryFromRea
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.ProjectRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.ProjectRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getColumnsList();
+  f = message.getColumnsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       1,
       f
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getDsttablename();
+  f = message.getDsttablename();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -2182,33 +2034,31 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.serializeBinar
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.ProjectRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.ProjectRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated string columns = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.getColumnsList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 1));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.setColumnsList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.addColumns = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.clearColumnsList = function() {
-  jspb.Message.setField(this, 1, []);
+  this.setColumnsList([]);
 };
 
 
@@ -2217,13 +2067,13 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.clearColumnsLi
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -2232,13 +2082,13 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.setSrctablenam
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.getDsttablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.ProjectRequest.prototype.setDsttablename = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -2285,11 +2135,12 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.toObject = fu
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.ProjectResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename()
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -2344,42 +2195,33 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.deserializeBinaryFromRe
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.ProjectResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.ProjectResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -2390,26 +2232,17 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.serializeBina
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.ProjectResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.ProjectResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -2418,13 +2251,13 @@ proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.setQuerystr =
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.ProjectResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -2471,13 +2304,14 @@ proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.toObject = functio
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.AggColInfo} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    operator: msg.getOperator(),
-    aggcolname: msg.getAggcolname(),
-    newcolname: msg.getNewcolname(),
-    isdistinct: msg.getIsdistinct()
+    operator: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    aggcolname: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    newcolname: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    isdistinct: jspb.Message.getFieldWithDefault(msg, 4, false)
   };
 
   if (includeInstance) {
@@ -2540,56 +2374,47 @@ proto.xcalar.compute.localtypes.Dataflow.AggColInfo.deserializeBinaryFromReader 
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.AggColInfo} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.AggColInfo.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.AggColInfo.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.AggColInfo} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.AggColInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getOperator();
+  f = message.getOperator();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getAggcolname();
+  f = message.getAggcolname();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getNewcolname();
+  f = message.getNewcolname();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getIsdistinct();
+  f = message.getIsdistinct();
   if (f) {
     writer.writeBool(
       4,
@@ -2600,26 +2425,17 @@ proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.serializeBinaryToW
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.AggColInfo} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.AggColInfo} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string operator = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.getOperator = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.setOperator = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -2628,13 +2444,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.setOperator = func
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.getAggcolname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.setAggcolname = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -2643,13 +2459,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.setAggcolname = fu
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.getNewcolname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.setNewcolname = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -2660,13 +2476,13 @@ proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.setNewcolname = fu
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.getIsdistinct = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 4, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 4, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.AggColInfo.prototype.setIsdistinct = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3BooleanField(this, 4, value);
 };
 
 
@@ -2720,17 +2536,18 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.toObject = fun
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.GroupByOptions} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.toObject = function(includeInstance, msg) {
   var f, obj = {
-    newtablename: msg.getNewtablename(),
-    groupall: msg.getGroupall(),
-    icvmode: msg.getIcvmode(),
-    dhtname: msg.getDhtname(),
-    clean: msg.getClean(),
-    isincsample: msg.getIsincsample(),
-    samplecolsList: jspb.Message.getField(msg, 7),
-    newkeysList: jspb.Message.getField(msg, 8)
+    newtablename: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    groupall: jspb.Message.getFieldWithDefault(msg, 2, false),
+    icvmode: jspb.Message.getFieldWithDefault(msg, 3, false),
+    dhtname: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    clean: jspb.Message.getFieldWithDefault(msg, 5, false),
+    isincsample: jspb.Message.getFieldWithDefault(msg, 6, false),
+    samplecolsList: jspb.Message.getRepeatedField(msg, 7),
+    newkeysList: jspb.Message.getRepeatedField(msg, 8)
   };
 
   if (includeInstance) {
@@ -2792,13 +2609,12 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.deserializeBinaryFromRea
       msg.setIsincsample(value);
       break;
     case 7:
-      var value = /** @type {!Array.<number>} */ (reader.readPackedUint64());
+      var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
       msg.setSamplecolsList(value);
       break;
     case 8:
       var value = /** @type {string} */ (reader.readString());
-      msg.getNewkeysList().push(value);
-      msg.setNewkeysList(msg.getNewkeysList());
+      msg.addNewkeys(value);
       break;
     default:
       reader.skipField();
@@ -2810,84 +2626,75 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.deserializeBinaryFromRea
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.GroupByOptions} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.GroupByOptions} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getGroupall();
+  f = message.getGroupall();
   if (f) {
     writer.writeBool(
       2,
       f
     );
   }
-  f = this.getIcvmode();
+  f = message.getIcvmode();
   if (f) {
     writer.writeBool(
       3,
       f
     );
   }
-  f = this.getDhtname();
+  f = message.getDhtname();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = this.getClean();
+  f = message.getClean();
   if (f) {
     writer.writeBool(
       5,
       f
     );
   }
-  f = this.getIsincsample();
+  f = message.getIsincsample();
   if (f) {
     writer.writeBool(
       6,
       f
     );
   }
-  f = this.getSamplecolsList();
+  f = message.getSamplecolsList();
   if (f.length > 0) {
     writer.writePackedUint64(
       7,
       f
     );
   }
-  f = this.getNewkeysList();
+  f = message.getNewkeysList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       8,
@@ -2898,26 +2705,17 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.serializeBinar
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.GroupByOptions} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.GroupByOptions} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string newTableName = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -2928,13 +2726,13 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setNewtablenam
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.getGroupall = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setGroupall = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
@@ -2945,13 +2743,13 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setGroupall = 
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.getIcvmode = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 3, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 3, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setIcvmode = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3BooleanField(this, 3, value);
 };
 
 
@@ -2960,13 +2758,13 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setIcvmode = f
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.getDhtname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setDhtname = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -2977,13 +2775,13 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setDhtname = f
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.getClean = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 5, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 5, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setClean = function(value) {
-  jspb.Message.setField(this, 5, value);
+  jspb.Message.setProto3BooleanField(this, 5, value);
 };
 
 
@@ -2994,57 +2792,71 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setClean = fun
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.getIsincsample = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 6, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 6, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setIsincsample = function(value) {
-  jspb.Message.setField(this, 6, value);
+  jspb.Message.setProto3BooleanField(this, 6, value);
 };
 
 
 /**
  * repeated uint64 sampleCols = 7;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<number>}
+ * @return {!Array<number>}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.getSamplecolsList = function() {
-  return /** @type {!Array.<number>} */ (jspb.Message.getField(this, 7));
+  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 7));
 };
 
 
-/** @param {Array.<number>} value  */
+/** @param {!Array<number>} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setSamplecolsList = function(value) {
   jspb.Message.setField(this, 7, value || []);
 };
 
 
+/**
+ * @param {!number} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.addSamplecols = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 7, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.clearSamplecolsList = function() {
-  jspb.Message.setField(this, 7, []);
+  this.setSamplecolsList([]);
 };
 
 
 /**
  * repeated string newKeys = 8;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.getNewkeysList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 8));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 8));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.setNewkeysList = function(value) {
   jspb.Message.setField(this, 8, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.addNewkeys = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 8, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.prototype.clearNewkeysList = function() {
-  jspb.Message.setField(this, 8, []);
+  this.setNewkeysList([]);
 };
 
 
@@ -3098,13 +2910,14 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.toObject = fun
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.GroupByRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     aggargsList: jspb.Message.toObjectList(msg.getAggargsList(),
     proto.xcalar.compute.localtypes.Dataflow.AggColInfo.toObject, includeInstance),
-    groupbycolsList: jspb.Message.getField(msg, 2),
-    srctablename: msg.getSrctablename(),
+    groupbycolsList: jspb.Message.getRepeatedField(msg, 2),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 3, ""),
     options: (f = msg.getOptions()) && proto.xcalar.compute.localtypes.Dataflow.GroupByOptions.toObject(includeInstance, f)
   };
 
@@ -3145,13 +2958,11 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.deserializeBinaryFromRea
     case 1:
       var value = new proto.xcalar.compute.localtypes.Dataflow.AggColInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.AggColInfo.deserializeBinaryFromReader);
-      msg.getAggargsList().push(value);
-      msg.setAggargsList(msg.getAggargsList());
+      msg.addAggargs(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.getGroupbycolsList().push(value);
-      msg.setGroupbycolsList(msg.getGroupbycolsList());
+      msg.addGroupbycols(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
@@ -3172,35 +2983,26 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.deserializeBinaryFromRea
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.GroupByRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.GroupByRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getAggargsList();
+  f = message.getAggargsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
@@ -3208,21 +3010,21 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.serializeBinar
       proto.xcalar.compute.localtypes.Dataflow.AggColInfo.serializeBinaryToWriter
     );
   }
-  f = this.getGroupbycolsList();
+  f = message.getGroupbycolsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       2,
       f
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getOptions();
+  f = message.getOptions();
   if (f != null) {
     writer.writeMessage(
       4,
@@ -3234,29 +3036,28 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.serializeBinar
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.GroupByRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.GroupByRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated AggColInfo aggArgs = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.xcalar.compute.localtypes.Dataflow.AggColInfo>}
+ * @return {!Array<!proto.xcalar.compute.localtypes.Dataflow.AggColInfo>}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.getAggargsList = function() {
-  return /** @type{!Array.<!proto.xcalar.compute.localtypes.Dataflow.AggColInfo>} */ (
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Dataflow.AggColInfo>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.AggColInfo, 1));
 };
 
 
-/** @param {Array.<!proto.xcalar.compute.localtypes.Dataflow.AggColInfo>} value  */
+/** @param {!Array<!proto.xcalar.compute.localtypes.Dataflow.AggColInfo>} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.setAggargsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.AggColInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Dataflow.AggColInfo}
+ */
+proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.addAggargs = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.xcalar.compute.localtypes.Dataflow.AggColInfo, opt_index);
 };
 
 
@@ -3267,23 +3068,30 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.clearAggargsLi
 
 /**
  * repeated string groupByCols = 2;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.getGroupbycolsList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 2));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 2));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.setGroupbycolsList = function(value) {
   jspb.Message.setField(this, 2, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.addGroupbycols = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 2, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.clearGroupbycolsList = function() {
-  jspb.Message.setField(this, 2, []);
+  this.setGroupbycolsList([]);
 };
 
 
@@ -3292,27 +3100,27 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.clearGroupbyco
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
  * optional GroupByOptions options = 4;
- * @return {proto.xcalar.compute.localtypes.Dataflow.GroupByOptions}
+ * @return {?proto.xcalar.compute.localtypes.Dataflow.GroupByOptions}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.getOptions = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Dataflow.GroupByOptions} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Dataflow.GroupByOptions} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.GroupByOptions, 4));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Dataflow.GroupByOptions|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Dataflow.GroupByOptions|undefined} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.setOptions = function(value) {
   jspb.Message.setWrapperField(this, 4, value);
 };
@@ -3325,7 +3133,7 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.clearOptions =
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByRequest.prototype.hasOptions = function() {
   return jspb.Message.getField(this, 4) != null;
@@ -3382,14 +3190,15 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.toObject = fu
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.GroupByResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename(),
-    tempcolsList: jspb.Message.getField(msg, 3),
-    newkeyfieldname: msg.getNewkeyfieldname(),
-    newkeysList: jspb.Message.getField(msg, 5)
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    tempcolsList: jspb.Message.getRepeatedField(msg, 3),
+    newkeyfieldname: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    newkeysList: jspb.Message.getRepeatedField(msg, 5)
   };
 
   if (includeInstance) {
@@ -3436,8 +3245,7 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.deserializeBinaryFromRe
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.getTempcolsList().push(value);
-      msg.setTempcolsList(msg.getTempcolsList());
+      msg.addTempcols(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
@@ -3445,8 +3253,7 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.deserializeBinaryFromRe
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.getNewkeysList().push(value);
-      msg.setNewkeysList(msg.getNewkeysList());
+      msg.addNewkeys(value);
       break;
     default:
       reader.skipField();
@@ -3458,63 +3265,54 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.deserializeBinaryFromRe
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.GroupByResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.GroupByResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getTempcolsList();
+  f = message.getTempcolsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       3,
       f
     );
   }
-  f = this.getNewkeyfieldname();
+  f = message.getNewkeyfieldname();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = this.getNewkeysList();
+  f = message.getNewkeysList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       5,
@@ -3525,26 +3323,17 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.serializeBina
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.GroupByResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.GroupByResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -3553,35 +3342,42 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setQuerystr =
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
  * repeated string tempCols = 3;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.getTempcolsList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 3));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setTempcolsList = function(value) {
   jspb.Message.setField(this, 3, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.addTempcols = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.clearTempcolsList = function() {
-  jspb.Message.setField(this, 3, []);
+  this.setTempcolsList([]);
 };
 
 
@@ -3590,35 +3386,42 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.clearTempcols
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.getNewkeyfieldname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setNewkeyfieldname = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
  * repeated string newKeys = 5;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.getNewkeysList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 5));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setNewkeysList = function(value) {
   jspb.Message.setField(this, 5, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.addNewkeys = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 5, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.clearNewkeysList = function() {
-  jspb.Message.setField(this, 5, []);
+  this.setNewkeysList([]);
 };
 
 
@@ -3665,12 +3468,13 @@ proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.toObject = func
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    orig: msg.getOrig(),
-    pb_new: msg.getNew(),
-    type: msg.getType()
+    orig: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    pb_new: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    type: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -3729,49 +3533,40 @@ proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.deserializeBinaryFromRead
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getOrig();
+  f = message.getOrig();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNew();
+  f = message.getNew();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getType();
+  f = message.getType();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -3782,26 +3577,17 @@ proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.serializeBinary
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string orig = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.getOrig = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.setOrig = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -3810,13 +3596,13 @@ proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.setOrig = funct
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.getNew = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.setNew = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -3825,13 +3611,13 @@ proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.setNew = functi
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.getType = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.prototype.setType = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -3885,17 +3671,18 @@ proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.toObject = func
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    tablename: msg.getTablename(),
-    columnsList: jspb.Message.getField(msg, 2),
-    castsList: jspb.Message.getField(msg, 3),
-    pulledcolumnsList: jspb.Message.getField(msg, 4),
+    tablename: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    columnsList: jspb.Message.getRepeatedField(msg, 2),
+    castsList: jspb.Message.getRepeatedField(msg, 3),
+    pulledcolumnsList: jspb.Message.getRepeatedField(msg, 4),
     renameList: jspb.Message.toObjectList(msg.getRenameList(),
     proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.toObject, includeInstance),
-    allimmediatesList: jspb.Message.getField(msg, 6),
-    removenulls: msg.getRemovenulls()
+    allimmediatesList: jspb.Message.getRepeatedField(msg, 6),
+    removenulls: jspb.Message.getFieldWithDefault(msg, 7, false)
   };
 
   if (includeInstance) {
@@ -3938,29 +3725,24 @@ proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.deserializeBinaryFromRead
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.getColumnsList().push(value);
-      msg.setColumnsList(msg.getColumnsList());
+      msg.addColumns(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.getCastsList().push(value);
-      msg.setCastsList(msg.getCastsList());
+      msg.addCasts(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.getPulledcolumnsList().push(value);
-      msg.setPulledcolumnsList(msg.getPulledcolumnsList());
+      msg.addPulledcolumns(value);
       break;
     case 5:
       var value = new proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.deserializeBinaryFromReader);
-      msg.getRenameList().push(value);
-      msg.setRenameList(msg.getRenameList());
+      msg.addRename(value);
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
-      msg.getAllimmediatesList().push(value);
-      msg.setAllimmediatesList(msg.getAllimmediatesList());
+      msg.addAllimmediates(value);
       break;
     case 7:
       var value = /** @type {boolean} */ (reader.readBool());
@@ -3976,63 +3758,54 @@ proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.deserializeBinaryFromRead
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getTablename();
+  f = message.getTablename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getColumnsList();
+  f = message.getColumnsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       2,
       f
     );
   }
-  f = this.getCastsList();
+  f = message.getCastsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       3,
       f
     );
   }
-  f = this.getPulledcolumnsList();
+  f = message.getPulledcolumnsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       4,
       f
     );
   }
-  f = this.getRenameList();
+  f = message.getRenameList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       5,
@@ -4040,14 +3813,14 @@ proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.serializeBinary
       proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.serializeBinaryToWriter
     );
   }
-  f = this.getAllimmediatesList();
+  f = message.getAllimmediatesList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       6,
       f
     );
   }
-  f = this.getRemovenulls();
+  f = message.getRemovenulls();
   if (f) {
     writer.writeBool(
       7,
@@ -4058,110 +3831,130 @@ proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.serializeBinary
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string tableName = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.getTablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.setTablename = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
  * repeated string columns = 2;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.getColumnsList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 2));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 2));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.setColumnsList = function(value) {
   jspb.Message.setField(this, 2, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.addColumns = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 2, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.clearColumnsList = function() {
-  jspb.Message.setField(this, 2, []);
+  this.setColumnsList([]);
 };
 
 
 /**
  * repeated string casts = 3;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.getCastsList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 3));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.setCastsList = function(value) {
   jspb.Message.setField(this, 3, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.addCasts = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.clearCastsList = function() {
-  jspb.Message.setField(this, 3, []);
+  this.setCastsList([]);
 };
 
 
 /**
  * repeated string pulledColumns = 4;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.getPulledcolumnsList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 4));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.setPulledcolumnsList = function(value) {
   jspb.Message.setField(this, 4, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.addPulledcolumns = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 4, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.clearPulledcolumnsList = function() {
-  jspb.Message.setField(this, 4, []);
+  this.setPulledcolumnsList([]);
 };
 
 
 /**
  * repeated ColRenameInfo rename = 5;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>}
+ * @return {!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.getRenameList = function() {
-  return /** @type{!Array.<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} */ (
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, 5));
 };
 
 
-/** @param {Array.<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} value  */
+/** @param {!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.setRenameList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 5, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
+ */
+proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.addRename = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 5, opt_value, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, opt_index);
 };
 
 
@@ -4172,23 +3965,30 @@ proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.clearRenameList
 
 /**
  * repeated string allImmediates = 6;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.getAllimmediatesList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 6));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 6));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.setAllimmediatesList = function(value) {
   jspb.Message.setField(this, 6, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.addAllimmediates = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 6, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.clearAllimmediatesList = function() {
-  jspb.Message.setField(this, 6, []);
+  this.setAllimmediatesList([]);
 };
 
 
@@ -4199,13 +3999,13 @@ proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.clearAllimmedia
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.getRemovenulls = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 7, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 7, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.prototype.setRemovenulls = function(value) {
-  jspb.Message.setField(this, 7, value);
+  jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 
@@ -4252,14 +4052,15 @@ proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.toObject = functi
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinOptions} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.toObject = function(includeInstance, msg) {
   var f, obj = {
-    newtablename: msg.getNewtablename(),
-    clean: msg.getClean(),
-    evalstr: msg.getEvalstr(),
-    existencecol: msg.getExistencecol(),
-    keepallcolumns: msg.getKeepallcolumns()
+    newtablename: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    clean: jspb.Message.getFieldWithDefault(msg, 2, false),
+    evalstr: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    existencecol: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    keepallcolumns: jspb.Message.getFieldWithDefault(msg, 5, false)
   };
 
   if (includeInstance) {
@@ -4326,63 +4127,54 @@ proto.xcalar.compute.localtypes.Dataflow.JoinOptions.deserializeBinaryFromReader
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinOptions} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinOptions.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.JoinOptions.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinOptions} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.JoinOptions.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getClean();
+  f = message.getClean();
   if (f) {
     writer.writeBool(
       2,
       f
     );
   }
-  f = this.getEvalstr();
+  f = message.getEvalstr();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getExistencecol();
+  f = message.getExistencecol();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = this.getKeepallcolumns();
+  f = message.getKeepallcolumns();
   if (f) {
     writer.writeBool(
       5,
@@ -4393,26 +4185,17 @@ proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.serializeBinaryTo
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.JoinOptions} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.JoinOptions} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string newTableName = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -4423,13 +4206,13 @@ proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.setNewtablename =
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.getClean = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.setClean = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
@@ -4438,13 +4221,13 @@ proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.setClean = functi
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.getEvalstr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.setEvalstr = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -4453,13 +4236,13 @@ proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.setEvalstr = func
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.getExistencecol = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.setExistencecol = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -4470,13 +4253,13 @@ proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.setExistencecol =
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.getKeepallcolumns = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 5, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 5, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinOptions.prototype.setKeepallcolumns = function(value) {
-  jspb.Message.setField(this, 5, value);
+  jspb.Message.setProto3BooleanField(this, 5, value);
 };
 
 
@@ -4523,10 +4306,11 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.toObject = functi
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    jointype: msg.getJointype(),
+    jointype: jspb.Message.getFieldWithDefault(msg, 1, 0),
     ltableinfo: (f = msg.getLtableinfo()) && proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.toObject(includeInstance, f),
     rtableinfo: (f = msg.getRtableinfo()) && proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.toObject(includeInstance, f),
     options: (f = msg.getOptions()) && proto.xcalar.compute.localtypes.Dataflow.JoinOptions.toObject(includeInstance, f)
@@ -4595,42 +4379,33 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.deserializeBinaryFromReader
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.JoinRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.JoinRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getJointype();
+  f = message.getJointype();
   if (f !== 0) {
     writer.writeUint32(
       1,
       f
     );
   }
-  f = this.getLtableinfo();
+  f = message.getLtableinfo();
   if (f != null) {
     writer.writeMessage(
       2,
@@ -4638,7 +4413,7 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.serializeBinaryTo
       proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.serializeBinaryToWriter
     );
   }
-  f = this.getRtableinfo();
+  f = message.getRtableinfo();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -4646,7 +4421,7 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.serializeBinaryTo
       proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo.serializeBinaryToWriter
     );
   }
-  f = this.getOptions();
+  f = message.getOptions();
   if (f != null) {
     writer.writeMessage(
       4,
@@ -4658,40 +4433,31 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.serializeBinaryTo
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.JoinRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.JoinRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional uint32 joinType = 1;
  * @return {number}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.getJointype = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.setJointype = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
 /**
  * optional JoinTableInfo lTableInfo = 2;
- * @return {proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo}
+ * @return {?proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.getLtableinfo = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo, 2));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo|undefined} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.setLtableinfo = function(value) {
   jspb.Message.setWrapperField(this, 2, value);
 };
@@ -4704,7 +4470,7 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.clearLtableinfo =
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.hasLtableinfo = function() {
   return jspb.Message.getField(this, 2) != null;
@@ -4713,15 +4479,15 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.hasLtableinfo = f
 
 /**
  * optional JoinTableInfo rTableInfo = 3;
- * @return {proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo}
+ * @return {?proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.getRtableinfo = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo, 3));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Dataflow.JoinTableInfo|undefined} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.setRtableinfo = function(value) {
   jspb.Message.setWrapperField(this, 3, value);
 };
@@ -4734,7 +4500,7 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.clearRtableinfo =
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.hasRtableinfo = function() {
   return jspb.Message.getField(this, 3) != null;
@@ -4743,15 +4509,15 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.hasRtableinfo = f
 
 /**
  * optional JoinOptions options = 4;
- * @return {proto.xcalar.compute.localtypes.Dataflow.JoinOptions}
+ * @return {?proto.xcalar.compute.localtypes.Dataflow.JoinOptions}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.getOptions = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Dataflow.JoinOptions} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Dataflow.JoinOptions} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.JoinOptions, 4));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Dataflow.JoinOptions|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Dataflow.JoinOptions|undefined} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.setOptions = function(value) {
   jspb.Message.setWrapperField(this, 4, value);
 };
@@ -4764,7 +4530,7 @@ proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.clearOptions = fu
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinRequest.prototype.hasOptions = function() {
   return jspb.Message.getField(this, 4) != null;
@@ -4821,12 +4587,13 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename(),
-    tempcolsList: jspb.Message.getField(msg, 3),
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    tempcolsList: jspb.Message.getRepeatedField(msg, 3),
     lrename: (f = msg.getLrename()) && proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.toObject(includeInstance, f),
     rrename: (f = msg.getRrename()) && proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.toObject(includeInstance, f)
   };
@@ -4875,8 +4642,7 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.deserializeBinaryFromReade
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.getTempcolsList().push(value);
-      msg.setTempcolsList(msg.getTempcolsList());
+      msg.addTempcols(value);
       break;
     case 4:
       var value = new proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo;
@@ -4898,56 +4664,47 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.JoinResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.JoinResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getTempcolsList();
+  f = message.getTempcolsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       3,
       f
     );
   }
-  f = this.getLrename();
+  f = message.getLrename();
   if (f != null) {
     writer.writeMessage(
       4,
@@ -4955,7 +4712,7 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.serializeBinaryT
       proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.serializeBinaryToWriter
     );
   }
-  f = this.getRrename();
+  f = message.getRrename();
   if (f != null) {
     writer.writeMessage(
       5,
@@ -4967,26 +4724,17 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.JoinResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.JoinResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -4995,49 +4743,56 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setQuerystr = fu
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
  * repeated string tempCols = 3;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getTempcolsList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 3));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setTempcolsList = function(value) {
   jspb.Message.setField(this, 3, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.addTempcols = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.clearTempcolsList = function() {
-  jspb.Message.setField(this, 3, []);
+  this.setTempcolsList([]);
 };
 
 
 /**
  * optional ColRenameInfo lRename = 4;
- * @return {proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
+ * @return {?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getLrename = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, 4));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo|undefined} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setLrename = function(value) {
   jspb.Message.setWrapperField(this, 4, value);
 };
@@ -5050,7 +4805,7 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.clearLrename = f
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.hasLrename = function() {
   return jspb.Message.getField(this, 4) != null;
@@ -5059,15 +4814,15 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.hasLrename = fun
 
 /**
  * optional ColRenameInfo rRename = 5;
- * @return {proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
+ * @return {?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getRrename = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, 5));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo|undefined} value */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setRrename = function(value) {
   jspb.Message.setWrapperField(this, 5, value);
 };
@@ -5080,7 +4835,7 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.clearRrename = f
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.hasRrename = function() {
   return jspb.Message.getField(this, 5) != null;
@@ -5130,13 +4885,14 @@ proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: msg.getName(),
-    rename: msg.getRename(),
-    type: msg.getType(),
-    cast: msg.getCast()
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    rename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    type: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    cast: jspb.Message.getFieldWithDefault(msg, 4, false)
   };
 
   if (includeInstance) {
@@ -5199,56 +4955,47 @@ proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getName();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getRename();
+  f = message.getRename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getType();
+  f = message.getType();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getCast();
+  f = message.getCast();
   if (f) {
     writer.writeBool(
       4,
@@ -5259,26 +5006,17 @@ proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string name = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.setName = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -5287,13 +5025,13 @@ proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.setName = functi
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.getRename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.setRename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -5302,13 +5040,13 @@ proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.setRename = func
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.getType = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.setType = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -5319,13 +5057,13 @@ proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.setType = functi
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.getCast = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 4, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 4, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.prototype.setCast = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3BooleanField(this, 4, value);
 };
 
 
@@ -5379,10 +5117,11 @@ proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.toObject = fun
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    tablename: msg.getTablename(),
+    tablename: jspb.Message.getFieldWithDefault(msg, 1, ""),
     columnsList: jspb.Message.toObjectList(msg.getColumnsList(),
     proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.toObject, includeInstance)
   };
@@ -5428,8 +5167,7 @@ proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.deserializeBinaryFromRea
     case 2:
       var value = new proto.xcalar.compute.localtypes.Dataflow.UnionColInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.UnionColInfo.deserializeBinaryFromReader);
-      msg.getColumnsList().push(value);
-      msg.setColumnsList(msg.getColumnsList());
+      msg.addColumns(value);
       break;
     default:
       reader.skipField();
@@ -5441,42 +5179,33 @@ proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.deserializeBinaryFromRea
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getTablename();
+  f = message.getTablename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getColumnsList();
+  f = message.getColumnsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       2,
@@ -5488,44 +5217,43 @@ proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.serializeBinar
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string tableName = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.getTablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.setTablename = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
  * repeated UnionColInfo columns = 2;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo>}
+ * @return {!Array<!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo>}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.getColumnsList = function() {
-  return /** @type{!Array.<!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo>} */ (
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.UnionColInfo, 2));
 };
 
 
-/** @param {Array.<!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo>} value  */
+/** @param {!Array<!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo>} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.setColumnsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 2, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Dataflow.UnionColInfo}
+ */
+proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.prototype.addColumns = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 2, opt_value, proto.xcalar.compute.localtypes.Dataflow.UnionColInfo, opt_index);
 };
 
 
@@ -5584,14 +5312,15 @@ proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     tableinfosList: jspb.Message.toObjectList(msg.getTableinfosList(),
     proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.toObject, includeInstance),
-    dedup: msg.getDedup(),
-    newtablename: msg.getNewtablename(),
-    uniontype: msg.getUniontype()
+    dedup: jspb.Message.getFieldWithDefault(msg, 2, false),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    uniontype: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -5631,8 +5360,7 @@ proto.xcalar.compute.localtypes.Dataflow.UnionRequest.deserializeBinaryFromReade
     case 1:
       var value = new proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.deserializeBinaryFromReader);
-      msg.getTableinfosList().push(value);
-      msg.setTableinfosList(msg.getTableinfosList());
+      msg.addTableinfos(value);
       break;
     case 2:
       var value = /** @type {boolean} */ (reader.readBool());
@@ -5656,35 +5384,26 @@ proto.xcalar.compute.localtypes.Dataflow.UnionRequest.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.UnionRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.UnionRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getTableinfosList();
+  f = message.getTableinfosList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
@@ -5692,21 +5411,21 @@ proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.serializeBinaryT
       proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo.serializeBinaryToWriter
     );
   }
-  f = this.getDedup();
+  f = message.getDedup();
   if (f) {
     writer.writeBool(
       2,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getUniontype();
+  f = message.getUniontype();
   if (f !== 0) {
     writer.writeUint32(
       4,
@@ -5717,29 +5436,28 @@ proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.UnionRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.UnionRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated UnionTableInfo tableInfos = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo>}
+ * @return {!Array<!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo>}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.getTableinfosList = function() {
-  return /** @type{!Array.<!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo>} */ (
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo, 1));
 };
 
 
-/** @param {Array.<!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo>} value  */
+/** @param {!Array<!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo>} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.setTableinfosList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo}
+ */
+proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.addTableinfos = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.xcalar.compute.localtypes.Dataflow.UnionTableInfo, opt_index);
 };
 
 
@@ -5755,13 +5473,13 @@ proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.clearTableinfosL
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.getDedup = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.setDedup = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
@@ -5770,13 +5488,13 @@ proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.setDedup = funct
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -5785,13 +5503,13 @@ proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.setNewtablename 
  * @return {number}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.getUniontype = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 4, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionRequest.prototype.setUniontype = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
@@ -5845,11 +5563,12 @@ proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.toObject = func
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename(),
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
     newtablecolsList: jspb.Message.toObjectList(msg.getNewtablecolsList(),
     proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.toObject, includeInstance)
   };
@@ -5899,8 +5618,7 @@ proto.xcalar.compute.localtypes.Dataflow.UnionResponse.deserializeBinaryFromRead
     case 3:
       var value = new proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.deserializeBinaryFromReader);
-      msg.getNewtablecolsList().push(value);
-      msg.setNewtablecolsList(msg.getNewtablecolsList());
+      msg.addNewtablecols(value);
       break;
     default:
       reader.skipField();
@@ -5912,49 +5630,40 @@ proto.xcalar.compute.localtypes.Dataflow.UnionResponse.deserializeBinaryFromRead
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.UnionResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getNewtablecolsList();
+  f = message.getNewtablecolsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       3,
@@ -5962,68 +5671,6 @@ proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.serializeBinary
       proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.serializeBinaryToWriter
     );
   }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional string queryStr = 1;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * optional string newTableName = 2;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-/**
- * repeated RenameInfo newTableCols = 3;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo>}
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.getNewtablecolsList = function() {
-  return /** @type{!Array.<!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo, 3));
-};
-
-
-/** @param {Array.<!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo>} value  */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.setNewtablecolsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 3, value);
-};
-
-
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.clearNewtablecolsList = function() {
-  this.setNewtablecolsList([]);
 };
 
 
@@ -6070,11 +5717,12 @@ proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.toOb
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    rename: msg.getRename(),
-    type: msg.getType()
+    rename: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    type: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -6129,42 +5777,33 @@ proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.deserializeBin
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getRename();
+  f = message.getRename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getType();
+  f = message.getType();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -6175,26 +5814,17 @@ proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.seri
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string rename = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.getRename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.setRename = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -6203,13 +5833,74 @@ proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.setR
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.getType = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo.prototype.setType = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string queryStr = 1;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.getQuerystr = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.setQuerystr = function(value) {
+  jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string newTableName = 2;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.getNewtablename = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.setNewtablename = function(value) {
+  jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * repeated RenameInfo newTableCols = 3;
+ * @return {!Array<!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo>}
+ */
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.getNewtablecolsList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo, 3));
+};
+
+
+/** @param {!Array<!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo>} value */
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.setNewtablecolsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 3, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo}
+ */
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.addNewtablecols = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 3, opt_value, proto.xcalar.compute.localtypes.Dataflow.UnionResponse.RenameInfo, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.Dataflow.UnionResponse.prototype.clearNewtablecolsList = function() {
+  this.setNewtablecolsList([]);
 };
 
 
@@ -6263,14 +5954,15 @@ proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    colnamesList: jspb.Message.getField(msg, 1),
-    srctablename: msg.getSrctablename(),
-    dsttablename: msg.getDsttablename(),
-    newkeysList: jspb.Message.getField(msg, 4),
-    dhtname: msg.getDhtname()
+    colnamesList: jspb.Message.getRepeatedField(msg, 1),
+    srctablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    dsttablename: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    newkeysList: jspb.Message.getRepeatedField(msg, 4),
+    dhtname: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -6309,8 +6001,7 @@ proto.xcalar.compute.localtypes.Dataflow.IndexRequest.deserializeBinaryFromReade
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.getColnamesList().push(value);
-      msg.setColnamesList(msg.getColnamesList());
+      msg.addColnames(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -6322,8 +6013,7 @@ proto.xcalar.compute.localtypes.Dataflow.IndexRequest.deserializeBinaryFromReade
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.getNewkeysList().push(value);
-      msg.setNewkeysList(msg.getNewkeysList());
+      msg.addNewkeys(value);
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
@@ -6339,63 +6029,54 @@ proto.xcalar.compute.localtypes.Dataflow.IndexRequest.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.IndexRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.IndexRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getColnamesList();
+  f = message.getColnamesList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       1,
       f
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getDsttablename();
+  f = message.getDsttablename();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getNewkeysList();
+  f = message.getNewkeysList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       4,
       f
     );
   }
-  f = this.getDhtname();
+  f = message.getDhtname();
   if (f.length > 0) {
     writer.writeString(
       5,
@@ -6406,33 +6087,31 @@ proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.IndexRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.IndexRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated string colNames = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.getColnamesList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 1));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.setColnamesList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.addColnames = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.clearColnamesList = function() {
-  jspb.Message.setField(this, 1, []);
+  this.setColnamesList([]);
 };
 
 
@@ -6441,13 +6120,13 @@ proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.clearColnamesLis
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -6456,35 +6135,42 @@ proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.setSrctablename 
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.getDsttablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.setDsttablename = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
  * repeated string newKeys = 4;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.getNewkeysList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 4));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.setNewkeysList = function(value) {
   jspb.Message.setField(this, 4, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.addNewkeys = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 4, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.clearNewkeysList = function() {
-  jspb.Message.setField(this, 4, []);
+  this.setNewkeysList([]);
 };
 
 
@@ -6493,13 +6179,13 @@ proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.clearNewkeysList
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.getDhtname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 5, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexRequest.prototype.setDhtname = function(value) {
-  jspb.Message.setField(this, 5, value);
+  jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
@@ -6553,14 +6239,15 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.toObject = func
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename(),
-    iscache: msg.getIscache(),
-    newkeysList: jspb.Message.getField(msg, 4),
-    tempcolsList: jspb.Message.getField(msg, 5)
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    iscache: jspb.Message.getFieldWithDefault(msg, 3, false),
+    newkeysList: jspb.Message.getRepeatedField(msg, 4),
+    tempcolsList: jspb.Message.getRepeatedField(msg, 5)
   };
 
   if (includeInstance) {
@@ -6611,13 +6298,11 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.deserializeBinaryFromRead
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.getNewkeysList().push(value);
-      msg.setNewkeysList(msg.getNewkeysList());
+      msg.addNewkeys(value);
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.getTempcolsList().push(value);
-      msg.setTempcolsList(msg.getTempcolsList());
+      msg.addTempcols(value);
       break;
     default:
       reader.skipField();
@@ -6629,63 +6314,54 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.deserializeBinaryFromRead
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.IndexResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.IndexResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getIscache();
+  f = message.getIscache();
   if (f) {
     writer.writeBool(
       3,
       f
     );
   }
-  f = this.getNewkeysList();
+  f = message.getNewkeysList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       4,
       f
     );
   }
-  f = this.getTempcolsList();
+  f = message.getTempcolsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       5,
@@ -6696,26 +6372,17 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.serializeBinary
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.IndexResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.IndexResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -6724,13 +6391,13 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setQuerystr = f
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -6741,57 +6408,71 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setNewtablename
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.getIscache = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 3, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 3, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setIscache = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3BooleanField(this, 3, value);
 };
 
 
 /**
  * repeated string newKeys = 4;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.getNewkeysList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 4));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setNewkeysList = function(value) {
   jspb.Message.setField(this, 4, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.addNewkeys = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 4, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.clearNewkeysList = function() {
-  jspb.Message.setField(this, 4, []);
+  this.setNewkeysList([]);
 };
 
 
 /**
  * repeated string tempCols = 5;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.getTempcolsList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 5));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setTempcolsList = function(value) {
   jspb.Message.setField(this, 5, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.addTempcols = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 5, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.clearTempcolsList = function() {
-  jspb.Message.setField(this, 5, []);
+  this.setTempcolsList([]);
 };
 
 
@@ -6838,12 +6519,13 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.toObj
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    dsname: msg.getDsname(),
-    dsttablename: msg.getDsttablename(),
-    prefix: msg.getPrefix()
+    dsname: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    dsttablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    prefix: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -6902,49 +6584,40 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.deserializeBina
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getDsname();
+  f = message.getDsname();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getDsttablename();
+  f = message.getDsttablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getPrefix();
+  f = message.getPrefix();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -6955,26 +6628,17 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.seria
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string dsName = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.getDsname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.setDsname = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -6983,13 +6647,13 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.setDs
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.getDsttablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.setDsttablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -6998,13 +6662,13 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.setDs
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.getPrefix = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest.prototype.setPrefix = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -7051,12 +6715,13 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.toOb
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename(),
-    prefix: msg.getPrefix()
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    prefix: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -7115,49 +6780,40 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.deserializeBin
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getPrefix();
+  f = message.getPrefix();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -7168,26 +6824,17 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.seri
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -7196,13 +6843,13 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.setQ
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -7211,13 +6858,13 @@ proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.setN
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.getPrefix = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.IndexFromDatasetResponse.prototype.setPrefix = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -7271,14 +6918,15 @@ proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.toObject = functi
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.SortRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     keyinfosList: jspb.Message.toObjectList(msg.getKeyinfosList(),
     proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.toObject, includeInstance),
-    srctablename: msg.getSrctablename(),
-    dsttablename: msg.getDsttablename(),
-    dhtname: msg.getDhtname()
+    srctablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    dsttablename: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    dhtname: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -7318,8 +6966,7 @@ proto.xcalar.compute.localtypes.Dataflow.SortRequest.deserializeBinaryFromReader
     case 1:
       var value = new proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.deserializeBinaryFromReader);
-      msg.getKeyinfosList().push(value);
-      msg.setKeyinfosList(msg.getKeyinfosList());
+      msg.addKeyinfos(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -7343,35 +6990,26 @@ proto.xcalar.compute.localtypes.Dataflow.SortRequest.deserializeBinaryFromReader
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.SortRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.SortRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.SortRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getKeyinfosList();
+  f = message.getKeyinfosList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
@@ -7379,104 +7017,27 @@ proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.serializeBinaryTo
       proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.serializeBinaryToWriter
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getDsttablename();
+  f = message.getDsttablename();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getDhtname();
+  f = message.getDhtname();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.SortRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.SortRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * repeated keyInfo keyInfos = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo>}
- */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.getKeyinfosList = function() {
-  return /** @type{!Array.<!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo, 1));
-};
-
-
-/** @param {Array.<!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo>} value  */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.setKeyinfosList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
-
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.clearKeyinfosList = function() {
-  this.setKeyinfosList([]);
-};
-
-
-/**
- * optional string srcTableName = 2;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-/**
- * optional string dstTableName = 3;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.getDsttablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.setDsttablename = function(value) {
-  jspb.Message.setField(this, 3, value);
-};
-
-
-/**
- * optional string dhtName = 4;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.getDhtname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.setDhtname = function(value) {
-  jspb.Message.setField(this, 4, value);
 };
 
 
@@ -7523,12 +7084,13 @@ proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.toObject 
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: msg.getName(),
-    ordering: msg.getOrdering(),
-    type: msg.getType()
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    ordering: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    type: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -7587,49 +7149,40 @@ proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.deserializeBinaryFr
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getName();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getOrdering();
+  f = message.getOrdering();
   if (f !== 0) {
     writer.writeUint32(
       2,
       f
     );
   }
-  f = this.getType();
+  f = message.getType();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -7640,26 +7193,17 @@ proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.serialize
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string name = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.setName = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -7668,13 +7212,13 @@ proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.setName =
  * @return {number}
  */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.getOrdering = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.setOrdering = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
@@ -7683,13 +7227,89 @@ proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.setOrderi
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.getType = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo.prototype.setType = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * repeated keyInfo keyInfos = 1;
+ * @return {!Array<!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo>}
+ */
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.getKeyinfosList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo, 1));
+};
+
+
+/** @param {!Array<!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo>} value */
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.setKeyinfosList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 1, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo}
+ */
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.addKeyinfos = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.xcalar.compute.localtypes.Dataflow.SortRequest.keyInfo, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.clearKeyinfosList = function() {
+  this.setKeyinfosList([]);
+};
+
+
+/**
+ * optional string srcTableName = 2;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.getSrctablename = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.setSrctablename = function(value) {
+  jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string dstTableName = 3;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.getDsttablename = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.setDsttablename = function(value) {
+  jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string dhtName = 4;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.getDhtname = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Dataflow.SortRequest.prototype.setDhtname = function(value) {
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -7743,12 +7363,13 @@ proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.SortResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.SortResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename(),
-    newkeysList: jspb.Message.getField(msg, 3)
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    newkeysList: jspb.Message.getRepeatedField(msg, 3)
   };
 
   if (includeInstance) {
@@ -7795,8 +7416,7 @@ proto.xcalar.compute.localtypes.Dataflow.SortResponse.deserializeBinaryFromReade
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.getNewkeysList().push(value);
-      msg.setNewkeysList(msg.getNewkeysList());
+      msg.addNewkeys(value);
       break;
     default:
       reader.skipField();
@@ -7808,49 +7428,40 @@ proto.xcalar.compute.localtypes.Dataflow.SortResponse.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.SortResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.SortResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.SortResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.SortResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.SortResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getNewkeysList();
+  f = message.getNewkeysList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       3,
@@ -7861,26 +7472,17 @@ proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.SortResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.SortResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -7889,35 +7491,42 @@ proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.setQuerystr = fu
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
  * repeated string newKeys = 3;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.getNewkeysList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 3));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.setNewkeysList = function(value) {
   jspb.Message.setField(this, 3, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.addNewkeys = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Dataflow.SortResponse.prototype.clearNewkeysList = function() {
-  jspb.Message.setField(this, 3, []);
+  this.setNewkeysList([]);
 };
 
 
@@ -7971,14 +7580,15 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.toObject = 
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     colinfosList: jspb.Message.toObjectList(msg.getColinfosList(),
     proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.toObject, includeInstance),
-    srctablename: msg.getSrctablename(),
-    dsttablename: msg.getDsttablename(),
-    samesession: msg.getSamesession()
+    srctablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    dsttablename: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    samesession: jspb.Message.getFieldWithDefault(msg, 4, false)
   };
 
   if (includeInstance) {
@@ -8018,8 +7628,7 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.deserializeBinaryFrom
     case 1:
       var value = new proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.deserializeBinaryFromReader);
-      msg.getColinfosList().push(value);
-      msg.setColinfosList(msg.getColinfosList());
+      msg.addColinfos(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -8043,35 +7652,26 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.deserializeBinaryFrom
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getColinfosList();
+  f = message.getColinfosList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
@@ -8079,21 +7679,21 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.serializeBi
       proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.serializeBinaryToWriter
     );
   }
-  f = this.getSrctablename();
+  f = message.getSrctablename();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getDsttablename();
+  f = message.getDsttablename();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getSamesession();
+  f = message.getSamesession();
   if (f) {
     writer.writeBool(
       4,
@@ -8104,29 +7704,28 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.serializeBi
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated ColRenameInfo colInfos = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>}
+ * @return {!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>}
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.getColinfosList = function() {
-  return /** @type{!Array.<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} */ (
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, 1));
 };
 
 
-/** @param {Array.<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} value  */
+/** @param {!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} value */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.setColinfosList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
+ */
+proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.addColinfos = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, opt_index);
 };
 
 
@@ -8140,13 +7739,13 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.clearColinf
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.getSrctablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.setSrctablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -8155,13 +7754,13 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.setSrctable
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.getDsttablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.setDsttablename = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -8172,13 +7771,13 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.setDsttable
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.getSamesession = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 4, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 4, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeRequest.prototype.setSamesession = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3BooleanField(this, 4, value);
 };
 
 
@@ -8225,11 +7824,12 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.toObject =
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystr: msg.getQuerystr(),
-    newtablename: msg.getNewtablename()
+    querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    newtablename: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -8284,42 +7884,33 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.deserializeBinaryFro
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQuerystr();
+  f = message.getQuerystr();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getNewtablename();
+  f = message.getNewtablename();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -8330,26 +7921,17 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.serializeB
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string queryStr = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.getQuerystr = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.setQuerystr = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -8358,13 +7940,13 @@ proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.setQueryst
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.getNewtablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.SynthesizeResponse.prototype.setNewtablename = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 

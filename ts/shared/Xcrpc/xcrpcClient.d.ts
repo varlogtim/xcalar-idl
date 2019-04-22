@@ -8,7 +8,7 @@ declare namespace xce {
 
     export class KvStoreService {
         constructor(client: XceClient);
-        lookup(request: proto.xcalar.compute.localtypes.KvStore.LookupRequest): XDPromise<proto.xcalar.compute.localtypes.KvStore.LookupResponse>;
+        lookup(request: proto.xcalar.compute.localtypes.KvStore.LookupRequest): Promise<proto.xcalar.compute.localtypes.KvStore.LookupResponse>;
     }
     
     export class LicenseService {

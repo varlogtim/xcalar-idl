@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -61,10 +63,11 @@ proto.xcalar.compute.localtypes.License.LicenseValue.prototype.toObject = functi
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.License.LicenseValue} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.License.LicenseValue.toObject = function(includeInstance, msg) {
   var f, obj = {
-    value: msg.getValue()
+    value: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -115,35 +118,26 @@ proto.xcalar.compute.localtypes.License.LicenseValue.deserializeBinaryFromReader
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.License.LicenseValue} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.License.LicenseValue.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.License.LicenseValue.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.License.LicenseValue.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.License.LicenseValue} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.License.LicenseValue.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.License.LicenseValue.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getValue();
+  f = message.getValue();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -154,26 +148,17 @@ proto.xcalar.compute.localtypes.License.LicenseValue.prototype.serializeBinaryTo
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.License.LicenseValue} The clone.
- */
-proto.xcalar.compute.localtypes.License.LicenseValue.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.License.LicenseValue} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string value = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.License.LicenseValue.prototype.getValue = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.License.LicenseValue.prototype.setValue = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -220,6 +205,7 @@ proto.xcalar.compute.localtypes.License.CreateRequest.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.License.CreateRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.License.CreateRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -275,35 +261,26 @@ proto.xcalar.compute.localtypes.License.CreateRequest.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.License.CreateRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.License.CreateRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.License.CreateRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.License.CreateRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.License.CreateRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.License.CreateRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.License.CreateRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getLicensevalue();
+  f = message.getLicensevalue();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -315,25 +292,16 @@ proto.xcalar.compute.localtypes.License.CreateRequest.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.License.CreateRequest} The clone.
- */
-proto.xcalar.compute.localtypes.License.CreateRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.License.CreateRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional LicenseValue licenseValue = 1;
- * @return {proto.xcalar.compute.localtypes.License.LicenseValue}
+ * @return {?proto.xcalar.compute.localtypes.License.LicenseValue}
  */
 proto.xcalar.compute.localtypes.License.CreateRequest.prototype.getLicensevalue = function() {
-  return /** @type{proto.xcalar.compute.localtypes.License.LicenseValue} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.License.LicenseValue} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.License.LicenseValue, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.License.LicenseValue|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.License.LicenseValue|undefined} value */
 proto.xcalar.compute.localtypes.License.CreateRequest.prototype.setLicensevalue = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -346,7 +314,7 @@ proto.xcalar.compute.localtypes.License.CreateRequest.prototype.clearLicensevalu
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.License.CreateRequest.prototype.hasLicensevalue = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -396,6 +364,7 @@ proto.xcalar.compute.localtypes.License.DestroyRequest.prototype.toObject = func
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.License.DestroyRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.License.DestroyRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -446,43 +415,25 @@ proto.xcalar.compute.localtypes.License.DestroyRequest.deserializeBinaryFromRead
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.License.DestroyRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.License.DestroyRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.License.DestroyRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.License.DestroyRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.License.DestroyRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.License.DestroyRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.License.DestroyRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.License.DestroyRequest} The clone.
- */
-proto.xcalar.compute.localtypes.License.DestroyRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.License.DestroyRequest} */ (jspb.Message.cloneMessage(this));
 };
 
 
@@ -529,6 +480,7 @@ proto.xcalar.compute.localtypes.License.GetRequest.prototype.toObject = function
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.License.GetRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.License.GetRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -579,43 +531,25 @@ proto.xcalar.compute.localtypes.License.GetRequest.deserializeBinaryFromReader =
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.License.GetRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.License.GetRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.License.GetRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.License.GetRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.License.GetRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.License.GetRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.License.GetRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.License.GetRequest} The clone.
- */
-proto.xcalar.compute.localtypes.License.GetRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.License.GetRequest} */ (jspb.Message.cloneMessage(this));
 };
 
 
@@ -662,22 +596,23 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.toObject = functio
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.License.GetResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.License.GetResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    loaded: msg.getLoaded(),
-    expired: msg.getExpired(),
-    platform: msg.getPlatform(),
-    product: msg.getProduct(),
-    productfamily: msg.getProductfamily(),
-    productversion: msg.getProductversion(),
-    expiration: msg.getExpiration(),
-    nodecount: msg.getNodecount(),
-    usercount: msg.getUsercount(),
-    attributes: msg.getAttributes(),
-    licensee: msg.getLicensee(),
-    compressedlicensesize: msg.getCompressedlicensesize(),
-    compressedlicense: msg.getCompressedlicense()
+    loaded: jspb.Message.getFieldWithDefault(msg, 1, false),
+    expired: jspb.Message.getFieldWithDefault(msg, 2, false),
+    platform: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    product: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    productfamily: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    productversion: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    expiration: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    nodecount: jspb.Message.getFieldWithDefault(msg, 8, 0),
+    usercount: jspb.Message.getFieldWithDefault(msg, 9, 0),
+    attributes: jspb.Message.getFieldWithDefault(msg, 10, ""),
+    licensee: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    compressedlicensesize: jspb.Message.getFieldWithDefault(msg, 12, 0),
+    compressedlicense: jspb.Message.getFieldWithDefault(msg, 13, "")
   };
 
   if (includeInstance) {
@@ -776,119 +711,110 @@ proto.xcalar.compute.localtypes.License.GetResponse.deserializeBinaryFromReader 
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.License.GetResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.License.GetResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.License.GetResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.License.GetResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.License.GetResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getLoaded();
+  f = message.getLoaded();
   if (f) {
     writer.writeBool(
       1,
       f
     );
   }
-  f = this.getExpired();
+  f = message.getExpired();
   if (f) {
     writer.writeBool(
       2,
       f
     );
   }
-  f = this.getPlatform();
+  f = message.getPlatform();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getProduct();
+  f = message.getProduct();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = this.getProductfamily();
+  f = message.getProductfamily();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = this.getProductversion();
+  f = message.getProductversion();
   if (f.length > 0) {
     writer.writeString(
       6,
       f
     );
   }
-  f = this.getExpiration();
+  f = message.getExpiration();
   if (f.length > 0) {
     writer.writeString(
       7,
       f
     );
   }
-  f = this.getNodecount();
+  f = message.getNodecount();
   if (f !== 0) {
     writer.writeInt64(
       8,
       f
     );
   }
-  f = this.getUsercount();
+  f = message.getUsercount();
   if (f !== 0) {
     writer.writeInt64(
       9,
       f
     );
   }
-  f = this.getAttributes();
+  f = message.getAttributes();
   if (f.length > 0) {
     writer.writeString(
       10,
       f
     );
   }
-  f = this.getLicensee();
+  f = message.getLicensee();
   if (f.length > 0) {
     writer.writeString(
       11,
       f
     );
   }
-  f = this.getCompressedlicensesize();
+  f = message.getCompressedlicensesize();
   if (f !== 0) {
     writer.writeInt64(
       12,
       f
     );
   }
-  f = this.getCompressedlicense();
+  f = message.getCompressedlicense();
   if (f.length > 0) {
     writer.writeString(
       13,
@@ -899,28 +825,19 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.serializeBinaryToW
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.License.GetResponse} The clone.
- */
-proto.xcalar.compute.localtypes.License.GetResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.License.GetResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional bool loaded = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getLoaded = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 1, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 1, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setLoaded = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -931,13 +848,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setLoaded = functi
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getExpired = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setExpired = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
@@ -946,13 +863,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setExpired = funct
  * @return {string}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getPlatform = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setPlatform = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -961,13 +878,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setPlatform = func
  * @return {string}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getProduct = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProduct = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -976,13 +893,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProduct = funct
  * @return {string}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getProductfamily = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 5, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProductfamily = function(value) {
-  jspb.Message.setField(this, 5, value);
+  jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
@@ -991,13 +908,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProductfamily =
  * @return {string}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getProductversion = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 6, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProductversion = function(value) {
-  jspb.Message.setField(this, 6, value);
+  jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -1006,13 +923,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setProductversion 
  * @return {string}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getExpiration = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 7, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setExpiration = function(value) {
-  jspb.Message.setField(this, 7, value);
+  jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
@@ -1021,13 +938,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setExpiration = fu
  * @return {number}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getNodecount = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 8, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setNodecount = function(value) {
-  jspb.Message.setField(this, 8, value);
+  jspb.Message.setProto3IntField(this, 8, value);
 };
 
 
@@ -1036,13 +953,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setNodecount = fun
  * @return {number}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getUsercount = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 9, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setUsercount = function(value) {
-  jspb.Message.setField(this, 9, value);
+  jspb.Message.setProto3IntField(this, 9, value);
 };
 
 
@@ -1051,13 +968,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setUsercount = fun
  * @return {string}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getAttributes = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 10, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setAttributes = function(value) {
-  jspb.Message.setField(this, 10, value);
+  jspb.Message.setProto3StringField(this, 10, value);
 };
 
 
@@ -1066,13 +983,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setAttributes = fu
  * @return {string}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getLicensee = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 11, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setLicensee = function(value) {
-  jspb.Message.setField(this, 11, value);
+  jspb.Message.setProto3StringField(this, 11, value);
 };
 
 
@@ -1081,13 +998,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setLicensee = func
  * @return {number}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getCompressedlicensesize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 12, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 12, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setCompressedlicensesize = function(value) {
-  jspb.Message.setField(this, 12, value);
+  jspb.Message.setProto3IntField(this, 12, value);
 };
 
 
@@ -1096,13 +1013,13 @@ proto.xcalar.compute.localtypes.License.GetResponse.prototype.setCompressedlicen
  * @return {string}
  */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.getCompressedlicense = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 13, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.License.GetResponse.prototype.setCompressedlicense = function(value) {
-  jspb.Message.setField(this, 13, value);
+  jspb.Message.setProto3StringField(this, 13, value);
 };
 
 
@@ -1149,6 +1066,7 @@ proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.License.UpdateRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.License.UpdateRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -1204,35 +1122,26 @@ proto.xcalar.compute.localtypes.License.UpdateRequest.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.License.UpdateRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.License.UpdateRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.License.UpdateRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.License.UpdateRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.License.UpdateRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getLicensevalue();
+  f = message.getLicensevalue();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -1244,25 +1153,16 @@ proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.License.UpdateRequest} The clone.
- */
-proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.License.UpdateRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional LicenseValue licenseValue = 1;
- * @return {proto.xcalar.compute.localtypes.License.LicenseValue}
+ * @return {?proto.xcalar.compute.localtypes.License.LicenseValue}
  */
 proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.getLicensevalue = function() {
-  return /** @type{proto.xcalar.compute.localtypes.License.LicenseValue} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.License.LicenseValue} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.License.LicenseValue, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.License.LicenseValue|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.License.LicenseValue|undefined} value */
 proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.setLicensevalue = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -1275,7 +1175,7 @@ proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.clearLicensevalu
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.License.UpdateRequest.prototype.hasLicensevalue = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -1325,6 +1225,7 @@ proto.xcalar.compute.localtypes.License.ValidateRequest.prototype.toObject = fun
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.License.ValidateRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.License.ValidateRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -1375,43 +1276,25 @@ proto.xcalar.compute.localtypes.License.ValidateRequest.deserializeBinaryFromRea
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.License.ValidateRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.License.ValidateRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.License.ValidateRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.License.ValidateRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.License.ValidateRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.License.ValidateRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.License.ValidateRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.License.ValidateRequest} The clone.
- */
-proto.xcalar.compute.localtypes.License.ValidateRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.License.ValidateRequest} */ (jspb.Message.cloneMessage(this));
 };
 
 
@@ -1458,10 +1341,11 @@ proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.toObject = fu
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.License.ValidateResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.License.ValidateResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    islicensecompliant: msg.getIslicensecompliant()
+    islicensecompliant: jspb.Message.getFieldWithDefault(msg, 1, false)
   };
 
   if (includeInstance) {
@@ -1512,35 +1396,26 @@ proto.xcalar.compute.localtypes.License.ValidateResponse.deserializeBinaryFromRe
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.License.ValidateResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.License.ValidateResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.License.ValidateResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.License.ValidateResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.License.ValidateResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getIslicensecompliant();
+  f = message.getIslicensecompliant();
   if (f) {
     writer.writeBool(
       1,
@@ -1551,28 +1426,19 @@ proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.serializeBina
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.License.ValidateResponse} The clone.
- */
-proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.License.ValidateResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional bool isLicenseCompliant = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.getIslicensecompliant = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 1, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 1, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.License.ValidateResponse.prototype.setIslicensecompliant = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 

@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -64,11 +66,12 @@ proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.toObject = function(
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.ScopedKey} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.ScopedKey.toObject = function(includeInstance, msg) {
   var f, obj = {
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
-    name: msg.getName()
+    name: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -124,35 +127,26 @@ proto.xcalar.compute.localtypes.KvStore.ScopedKey.deserializeBinaryFromReader = 
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.ScopedKey} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.ScopedKey.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.ScopedKey.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.ScopedKey} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.ScopedKey.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getScope();
+  f = message.getScope();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -160,7 +154,7 @@ proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.serializeBinaryToWri
       xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
     );
   }
-  f = this.getName();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -171,25 +165,16 @@ proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.serializeBinaryToWri
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.ScopedKey} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.ScopedKey} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 1;
- * @return {proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
+ * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
  */
 proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.getScope = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
     jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
 proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.setScope = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -202,7 +187,7 @@ proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.clearScope = functio
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.hasScope = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -214,13 +199,13 @@ proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.hasScope = function(
  * @return {string}
  */
 proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.KvStore.ScopedKey.prototype.setName = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -267,10 +252,11 @@ proto.xcalar.compute.localtypes.KvStore.KeyValue.prototype.toObject = function(o
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.KeyValue} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.KeyValue.toObject = function(includeInstance, msg) {
   var f, obj = {
-    text: msg.getText()
+    text: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -321,35 +307,26 @@ proto.xcalar.compute.localtypes.KvStore.KeyValue.deserializeBinaryFromReader = f
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.KeyValue} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.KeyValue.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.KeyValue.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.KeyValue.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.KeyValue} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.KeyValue.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.KeyValue.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getText();
+  f = message.getText();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -360,26 +337,17 @@ proto.xcalar.compute.localtypes.KvStore.KeyValue.prototype.serializeBinaryToWrit
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.KeyValue} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.KeyValue.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.KeyValue} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string text = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.KvStore.KeyValue.prototype.getText = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.KvStore.KeyValue.prototype.setText = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -426,6 +394,7 @@ proto.xcalar.compute.localtypes.KvStore.LookupRequest.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.LookupRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.LookupRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -481,35 +450,26 @@ proto.xcalar.compute.localtypes.KvStore.LookupRequest.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.LookupRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.LookupRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.LookupRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.LookupRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.LookupRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.LookupRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.LookupRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getKey();
+  f = message.getKey();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -521,25 +481,16 @@ proto.xcalar.compute.localtypes.KvStore.LookupRequest.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.LookupRequest} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.LookupRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.LookupRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional ScopedKey key = 1;
- * @return {proto.xcalar.compute.localtypes.KvStore.ScopedKey}
+ * @return {?proto.xcalar.compute.localtypes.KvStore.ScopedKey}
  */
 proto.xcalar.compute.localtypes.KvStore.LookupRequest.prototype.getKey = function() {
-  return /** @type{proto.xcalar.compute.localtypes.KvStore.ScopedKey} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.KvStore.ScopedKey} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.KvStore.ScopedKey, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.KvStore.ScopedKey|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.KvStore.ScopedKey|undefined} value */
 proto.xcalar.compute.localtypes.KvStore.LookupRequest.prototype.setKey = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -552,7 +503,7 @@ proto.xcalar.compute.localtypes.KvStore.LookupRequest.prototype.clearKey = funct
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.LookupRequest.prototype.hasKey = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -602,6 +553,7 @@ proto.xcalar.compute.localtypes.KvStore.LookupResponse.prototype.toObject = func
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.LookupResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.LookupResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -657,35 +609,26 @@ proto.xcalar.compute.localtypes.KvStore.LookupResponse.deserializeBinaryFromRead
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.LookupResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.LookupResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.LookupResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.LookupResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.LookupResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.LookupResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.LookupResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getValue();
+  f = message.getValue();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -697,25 +640,16 @@ proto.xcalar.compute.localtypes.KvStore.LookupResponse.prototype.serializeBinary
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.LookupResponse} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.LookupResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.LookupResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional KeyValue value = 1;
- * @return {proto.xcalar.compute.localtypes.KvStore.KeyValue}
+ * @return {?proto.xcalar.compute.localtypes.KvStore.KeyValue}
  */
 proto.xcalar.compute.localtypes.KvStore.LookupResponse.prototype.getValue = function() {
-  return /** @type{proto.xcalar.compute.localtypes.KvStore.KeyValue} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.KvStore.KeyValue} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.KvStore.KeyValue, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.KvStore.KeyValue|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.KvStore.KeyValue|undefined} value */
 proto.xcalar.compute.localtypes.KvStore.LookupResponse.prototype.setValue = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -728,7 +662,7 @@ proto.xcalar.compute.localtypes.KvStore.LookupResponse.prototype.clearValue = fu
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.LookupResponse.prototype.hasValue = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -778,11 +712,12 @@ proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.toObject =
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     key: (f = msg.getKey()) && proto.xcalar.compute.localtypes.KvStore.ScopedKey.toObject(includeInstance, f),
-    persist: msg.getPersist(),
+    persist: jspb.Message.getFieldWithDefault(msg, 2, false),
     value: (f = msg.getValue()) && proto.xcalar.compute.localtypes.KvStore.KeyValue.toObject(includeInstance, f)
   };
 
@@ -844,35 +779,26 @@ proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.deserializeBinaryFro
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getKey();
+  f = message.getKey();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -880,14 +806,14 @@ proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.serializeB
       proto.xcalar.compute.localtypes.KvStore.ScopedKey.serializeBinaryToWriter
     );
   }
-  f = this.getPersist();
+  f = message.getPersist();
   if (f) {
     writer.writeBool(
       2,
       f
     );
   }
-  f = this.getValue();
+  f = message.getValue();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -899,25 +825,16 @@ proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.serializeB
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional ScopedKey key = 1;
- * @return {proto.xcalar.compute.localtypes.KvStore.ScopedKey}
+ * @return {?proto.xcalar.compute.localtypes.KvStore.ScopedKey}
  */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.getKey = function() {
-  return /** @type{proto.xcalar.compute.localtypes.KvStore.ScopedKey} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.KvStore.ScopedKey} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.KvStore.ScopedKey, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.KvStore.ScopedKey|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.KvStore.ScopedKey|undefined} value */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.setKey = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -930,7 +847,7 @@ proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.clearKey =
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.hasKey = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -944,27 +861,27 @@ proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.hasKey = f
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.getPersist = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.setPersist = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
 /**
  * optional KeyValue value = 3;
- * @return {proto.xcalar.compute.localtypes.KvStore.KeyValue}
+ * @return {?proto.xcalar.compute.localtypes.KvStore.KeyValue}
  */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.getValue = function() {
-  return /** @type{proto.xcalar.compute.localtypes.KvStore.KeyValue} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.KvStore.KeyValue} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.KvStore.KeyValue, 3));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.KvStore.KeyValue|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.KvStore.KeyValue|undefined} value */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.setValue = function(value) {
   jspb.Message.setWrapperField(this, 3, value);
 };
@@ -977,7 +894,7 @@ proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.clearValue
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest.prototype.hasValue = function() {
   return jspb.Message.getField(this, 3) != null;
@@ -1027,6 +944,7 @@ proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.prototype.toObject = fu
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -1082,35 +1000,26 @@ proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.deserializeBinaryFromRe
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getKey();
+  f = message.getKey();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -1122,25 +1031,16 @@ proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.prototype.serializeBina
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional ScopedKey key = 1;
- * @return {proto.xcalar.compute.localtypes.KvStore.ScopedKey}
+ * @return {?proto.xcalar.compute.localtypes.KvStore.ScopedKey}
  */
 proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.prototype.getKey = function() {
-  return /** @type{proto.xcalar.compute.localtypes.KvStore.ScopedKey} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.KvStore.ScopedKey} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.KvStore.ScopedKey, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.KvStore.ScopedKey|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.KvStore.ScopedKey|undefined} value */
 proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.prototype.setKey = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -1153,7 +1053,7 @@ proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.prototype.clearKey = fu
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest.prototype.hasKey = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -1203,11 +1103,12 @@ proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.AppendRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.AppendRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     key: (f = msg.getKey()) && proto.xcalar.compute.localtypes.KvStore.ScopedKey.toObject(includeInstance, f),
-    suffix: msg.getSuffix()
+    suffix: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1263,35 +1164,26 @@ proto.xcalar.compute.localtypes.KvStore.AppendRequest.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.AppendRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.AppendRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.AppendRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.AppendRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.AppendRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getKey();
+  f = message.getKey();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -1299,7 +1191,7 @@ proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.serializeBinaryT
       proto.xcalar.compute.localtypes.KvStore.ScopedKey.serializeBinaryToWriter
     );
   }
-  f = this.getSuffix();
+  f = message.getSuffix();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -1310,25 +1202,16 @@ proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.AppendRequest} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.AppendRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional ScopedKey key = 1;
- * @return {proto.xcalar.compute.localtypes.KvStore.ScopedKey}
+ * @return {?proto.xcalar.compute.localtypes.KvStore.ScopedKey}
  */
 proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.getKey = function() {
-  return /** @type{proto.xcalar.compute.localtypes.KvStore.ScopedKey} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.KvStore.ScopedKey} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.KvStore.ScopedKey, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.KvStore.ScopedKey|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.KvStore.ScopedKey|undefined} value */
 proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.setKey = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -1341,7 +1224,7 @@ proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.clearKey = funct
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.hasKey = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -1353,13 +1236,13 @@ proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.hasKey = functio
  * @return {string}
  */
 proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.getSuffix = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.KvStore.AppendRequest.prototype.setSuffix = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -1406,17 +1289,18 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.toObject = f
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
-    persist: msg.getPersist(),
-    countsecondarypairs: msg.getCountsecondarypairs(),
-    keycompare: msg.getKeycompare(),
-    valuecompare: msg.getValuecompare(),
-    valuereplace: msg.getValuereplace(),
-    keysecondary: msg.getKeysecondary(),
-    valuesecondary: msg.getValuesecondary()
+    persist: jspb.Message.getFieldWithDefault(msg, 2, false),
+    countsecondarypairs: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    keycompare: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    valuecompare: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    valuereplace: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    keysecondary: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    valuesecondary: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -1496,35 +1380,26 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.deserializeBinaryFromR
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getScope();
+  f = message.getScope();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -1532,49 +1407,49 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.serializeBin
       xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
     );
   }
-  f = this.getPersist();
+  f = message.getPersist();
   if (f) {
     writer.writeBool(
       2,
       f
     );
   }
-  f = this.getCountsecondarypairs();
+  f = message.getCountsecondarypairs();
   if (f !== 0) {
     writer.writeUint32(
       3,
       f
     );
   }
-  f = this.getKeycompare();
+  f = message.getKeycompare();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = this.getValuecompare();
+  f = message.getValuecompare();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = this.getValuereplace();
+  f = message.getValuereplace();
   if (f.length > 0) {
     writer.writeString(
       6,
       f
     );
   }
-  f = this.getKeysecondary();
+  f = message.getKeysecondary();
   if (f.length > 0) {
     writer.writeString(
       7,
       f
     );
   }
-  f = this.getValuesecondary();
+  f = message.getValuesecondary();
   if (f.length > 0) {
     writer.writeString(
       8,
@@ -1585,25 +1460,16 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.serializeBin
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 1;
- * @return {proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
+ * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getScope = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
     jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setScope = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -1616,7 +1482,7 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.clearScope =
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.hasScope = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -1630,13 +1496,13 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.hasScope = f
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getPersist = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setPersist = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
@@ -1645,13 +1511,13 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setPersist =
  * @return {number}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getCountsecondarypairs = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 3, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setCountsecondarypairs = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
@@ -1660,13 +1526,13 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setCountseco
  * @return {string}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getKeycompare = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setKeycompare = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -1675,13 +1541,13 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setKeycompar
  * @return {string}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getValuecompare = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 5, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValuecompare = function(value) {
-  jspb.Message.setField(this, 5, value);
+  jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
@@ -1690,13 +1556,13 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValuecomp
  * @return {string}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getValuereplace = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 6, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValuereplace = function(value) {
-  jspb.Message.setField(this, 6, value);
+  jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -1705,13 +1571,13 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValuerepl
  * @return {string}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getKeysecondary = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 7, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setKeysecondary = function(value) {
-  jspb.Message.setField(this, 7, value);
+  jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
@@ -1720,13 +1586,13 @@ proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setKeysecond
  * @return {string}
  */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.getValuesecondary = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 8, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest.prototype.setValuesecondary = function(value) {
-  jspb.Message.setField(this, 8, value);
+  jspb.Message.setProto3StringField(this, 8, value);
 };
 
 
@@ -1773,11 +1639,12 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.toObject = functio
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.ListRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.ListRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
-    keyregex: msg.getKeyregex()
+    keyregex: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1833,35 +1700,26 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.deserializeBinaryFromReader 
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.ListRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.ListRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.ListRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.ListRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.ListRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getScope();
+  f = message.getScope();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -1869,7 +1727,7 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.serializeBinaryToW
       xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
     );
   }
-  f = this.getKeyregex();
+  f = message.getKeyregex();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -1880,25 +1738,16 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.serializeBinaryToW
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.ListRequest} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.ListRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 1;
- * @return {proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
+ * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
  */
 proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.getScope = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
     jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
 proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.setScope = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -1911,7 +1760,7 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.clearScope = funct
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.hasScope = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -1923,13 +1772,13 @@ proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.hasScope = functio
  * @return {string}
  */
 proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.getKeyregex = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.KvStore.ListRequest.prototype.setKeyregex = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -1983,10 +1832,11 @@ proto.xcalar.compute.localtypes.KvStore.ListResponse.prototype.toObject = functi
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.KvStore.ListResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.KvStore.ListResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    keysList: jspb.Message.getField(msg, 1)
+    keysList: jspb.Message.getRepeatedField(msg, 1)
   };
 
   if (includeInstance) {
@@ -2025,8 +1875,7 @@ proto.xcalar.compute.localtypes.KvStore.ListResponse.deserializeBinaryFromReader
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.getKeysList().push(value);
-      msg.setKeysList(msg.getKeysList());
+      msg.addKeys(value);
       break;
     default:
       reader.skipField();
@@ -2038,35 +1887,26 @@ proto.xcalar.compute.localtypes.KvStore.ListResponse.deserializeBinaryFromReader
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.KvStore.ListResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.KvStore.ListResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.KvStore.ListResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.KvStore.ListResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.KvStore.ListResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.KvStore.ListResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.KvStore.ListResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getKeysList();
+  f = message.getKeysList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       1,
@@ -2077,33 +1917,31 @@ proto.xcalar.compute.localtypes.KvStore.ListResponse.prototype.serializeBinaryTo
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.KvStore.ListResponse} The clone.
- */
-proto.xcalar.compute.localtypes.KvStore.ListResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.KvStore.ListResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated string keys = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.KvStore.ListResponse.prototype.getKeysList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 1));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.KvStore.ListResponse.prototype.setKeysList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.KvStore.ListResponse.prototype.addKeys = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.KvStore.ListResponse.prototype.clearKeysList = function() {
-  jspb.Message.setField(this, 1, []);
+  this.setKeysList([]);
 };
 
 

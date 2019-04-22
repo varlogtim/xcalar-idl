@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -56,10 +58,11 @@ proto.xcalar.compute.localtypes.Echo.EchoResponse.prototype.toObject = function(
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Echo.EchoResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Echo.EchoResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    echoed: msg.getEchoed()
+    echoed: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -110,35 +113,26 @@ proto.xcalar.compute.localtypes.Echo.EchoResponse.deserializeBinaryFromReader = 
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Echo.EchoResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Echo.EchoResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Echo.EchoResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Echo.EchoResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Echo.EchoResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Echo.EchoResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Echo.EchoResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getEchoed();
+  f = message.getEchoed();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -149,26 +143,17 @@ proto.xcalar.compute.localtypes.Echo.EchoResponse.prototype.serializeBinaryToWri
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Echo.EchoResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Echo.EchoResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Echo.EchoResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string echoed = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Echo.EchoResponse.prototype.getEchoed = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Echo.EchoResponse.prototype.setEchoed = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -215,10 +200,11 @@ proto.xcalar.compute.localtypes.Echo.EchoRequest.prototype.toObject = function(o
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Echo.EchoRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Echo.EchoRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    echo: msg.getEcho()
+    echo: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -269,35 +255,26 @@ proto.xcalar.compute.localtypes.Echo.EchoRequest.deserializeBinaryFromReader = f
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Echo.EchoRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Echo.EchoRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Echo.EchoRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Echo.EchoRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Echo.EchoRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Echo.EchoRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Echo.EchoRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getEcho();
+  f = message.getEcho();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -308,26 +285,17 @@ proto.xcalar.compute.localtypes.Echo.EchoRequest.prototype.serializeBinaryToWrit
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Echo.EchoRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Echo.EchoRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Echo.EchoRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string echo = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Echo.EchoRequest.prototype.getEcho = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Echo.EchoRequest.prototype.setEcho = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -374,10 +342,11 @@ proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.prototype.toObject = funct
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Echo.EchoErrorRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    error: msg.getError()
+    error: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -428,35 +397,26 @@ proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.deserializeBinaryFromReade
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Echo.EchoErrorRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Echo.EchoErrorRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getError();
+  f = message.getError();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -467,26 +427,17 @@ proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.prototype.serializeBinaryT
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Echo.EchoErrorRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Echo.EchoErrorRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string error = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.prototype.getError = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Echo.EchoErrorRequest.prototype.setError = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 

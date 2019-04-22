@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -54,11 +56,12 @@ proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.toObject = function
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Table.IndexRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Table.IndexRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    tableName: msg.getTableName(),
-    keyName: msg.getKeyName()
+    tableName: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    keyName: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -113,42 +116,33 @@ proto.xcalar.compute.localtypes.Table.IndexRequest.deserializeBinaryFromReader =
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Table.IndexRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Table.IndexRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Table.IndexRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Table.IndexRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Table.IndexRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getTableName();
+  f = message.getTableName();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getKeyName();
+  f = message.getKeyName();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -159,26 +153,17 @@ proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.serializeBinaryToWr
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Table.IndexRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Table.IndexRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string table_name = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.getTableName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.setTableName = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -187,13 +172,13 @@ proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.setTableName = func
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.getKeyName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Table.IndexRequest.prototype.setKeyName = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 

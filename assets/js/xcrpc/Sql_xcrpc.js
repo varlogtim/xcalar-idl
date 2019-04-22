@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -40,8 +28,7 @@ function SqlService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 SqlService.prototype = {
-    executeSQL: function(sQLQueryRequest) {
-        var deferred = jQuery.Deferred();
+    executeSQL: async function(sQLQueryRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -50,21 +37,14 @@ SqlService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Sql.SQLQueryRequest");
         //anyWrapper.pack(sQLQueryRequest.serializeBinary(), "SQLQueryRequest");
 
-        var response = this.client.execute("Sql", "ExecuteSQL", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var sQLQueryResponse =
-            //    responseData.unpack(sql.SQLQueryResponse.deserializeBinary,
-            //                        "SQLQueryResponse");
-            var sQLQueryResponse = sql.SQLQueryResponse.deserializeBinary(specificBytes);
-            deferred.resolve(sQLQueryResponse);
-        })
-        .fail(function(error) {
-            console.log("executeSQL fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Sql", "ExecuteSQL", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var sQLQueryResponse =
+        //    responseData.unpack(sql.SQLQueryResponse.deserializeBinary,
+        //                        "SQLQueryResponse");
+        var sQLQueryResponse = sql.SQLQueryResponse.deserializeBinary(specificBytes);
+        return sQLQueryResponse;
     },
 };
 

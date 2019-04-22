@@ -13,14 +13,13 @@ module.exports = function(env, argv) {
                 filename: 'libxce.js'
             },
             externals: {
-                jquery: 'jQuery',
-                // jsdom and require-context are used for node, but not for
-                // the browser. The code is designed such that these modules
-                // will never be used in the browser, due to checks like
-                // if (!isBrowser) require("jsdom");
-                // Since they will never be used, we make webpack ignore them.
-                jsdom: 'notused',
                 'require-context': 'notused',
+            },
+            node: {
+                fs: 'empty',
+                net: 'empty',
+                tls: 'empty',
+                setImmediate: false
             }
         },
         {

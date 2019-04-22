@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -40,8 +28,7 @@ function UserDefinedFunctionService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 UserDefinedFunctionService.prototype = {
-    getResolution: function(getResolutionRequest) {
-        var deferred = jQuery.Deferred();
+    getResolution: async function(getResolutionRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -50,21 +37,14 @@ UserDefinedFunctionService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.UDF.GetResolutionRequest");
         //anyWrapper.pack(getResolutionRequest.serializeBinary(), "GetResolutionRequest");
 
-        var response = this.client.execute("UserDefinedFunction", "GetResolution", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var getResolutionResponse =
-            //    responseData.unpack(uDF.GetResolutionResponse.deserializeBinary,
-            //                        "GetResolutionResponse");
-            var getResolutionResponse = uDF.GetResolutionResponse.deserializeBinary(specificBytes);
-            deferred.resolve(getResolutionResponse);
-        })
-        .fail(function(error) {
-            console.log("getResolution fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("UserDefinedFunction", "GetResolution", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var getResolutionResponse =
+        //    responseData.unpack(uDF.GetResolutionResponse.deserializeBinary,
+        //                        "GetResolutionResponse");
+        var getResolutionResponse = uDF.GetResolutionResponse.deserializeBinary(specificBytes);
+        return getResolutionResponse;
     },
 };
 

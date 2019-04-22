@@ -62,7 +62,7 @@ namespace Xcrpc {
         
                 // Step #2: Call xcrpc service
                 const kvService = new ApiKvStore(this._apiClient);
-                const response = await PromiseHelper.convertToNative(kvService.lookup(request));
+                const response = await kvService.lookup(request);
 
                 // Step #3: Parse xcrpc service response
                 return response.getValue().getText();

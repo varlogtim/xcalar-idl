@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -41,8 +29,7 @@ function LicenseService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 LicenseService.prototype = {
-    create: function(createRequest) {
-        var deferred = jQuery.Deferred();
+    create: async function(createRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -51,24 +38,16 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.CreateRequest");
         //anyWrapper.pack(createRequest.serializeBinary(), "CreateRequest");
 
-        var response = this.client.execute("License", "Create", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("create fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("License", "Create", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
-    destroy: function(destroyRequest) {
-        var deferred = jQuery.Deferred();
+    destroy: async function(destroyRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -77,24 +56,16 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.DestroyRequest");
         //anyWrapper.pack(destroyRequest.serializeBinary(), "DestroyRequest");
 
-        var response = this.client.execute("License", "Destroy", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("destroy fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("License", "Destroy", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
-    get: function(getRequest) {
-        var deferred = jQuery.Deferred();
+    get: async function(getRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -103,24 +74,16 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.GetRequest");
         //anyWrapper.pack(getRequest.serializeBinary(), "GetRequest");
 
-        var response = this.client.execute("License", "Get", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var getResponse =
-            //    responseData.unpack(license.GetResponse.deserializeBinary,
-            //                        "GetResponse");
-            var getResponse = license.GetResponse.deserializeBinary(specificBytes);
-            deferred.resolve(getResponse);
-        })
-        .fail(function(error) {
-            console.log("get fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("License", "Get", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var getResponse =
+        //    responseData.unpack(license.GetResponse.deserializeBinary,
+        //                        "GetResponse");
+        var getResponse = license.GetResponse.deserializeBinary(specificBytes);
+        return getResponse;
     },
-    validate: function(validateRequest) {
-        var deferred = jQuery.Deferred();
+    validate: async function(validateRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -129,24 +92,16 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.ValidateRequest");
         //anyWrapper.pack(validateRequest.serializeBinary(), "ValidateRequest");
 
-        var response = this.client.execute("License", "Validate", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var validateResponse =
-            //    responseData.unpack(license.ValidateResponse.deserializeBinary,
-            //                        "ValidateResponse");
-            var validateResponse = license.ValidateResponse.deserializeBinary(specificBytes);
-            deferred.resolve(validateResponse);
-        })
-        .fail(function(error) {
-            console.log("validate fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("License", "Validate", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var validateResponse =
+        //    responseData.unpack(license.ValidateResponse.deserializeBinary,
+        //                        "ValidateResponse");
+        var validateResponse = license.ValidateResponse.deserializeBinary(specificBytes);
+        return validateResponse;
     },
-    update: function(updateRequest) {
-        var deferred = jQuery.Deferred();
+    update: async function(updateRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -155,21 +110,14 @@ LicenseService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.License.UpdateRequest");
         //anyWrapper.pack(updateRequest.serializeBinary(), "UpdateRequest");
 
-        var response = this.client.execute("License", "Update", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("update fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("License", "Update", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
 };
 

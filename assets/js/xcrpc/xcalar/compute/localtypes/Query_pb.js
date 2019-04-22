@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -56,10 +58,11 @@ proto.xcalar.compute.localtypes.Query.ListRequest.prototype.toObject = function(
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Query.ListRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Query.ListRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    namePattern: msg.getNamePattern()
+    namePattern: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -110,35 +113,26 @@ proto.xcalar.compute.localtypes.Query.ListRequest.deserializeBinaryFromReader = 
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Query.ListRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Query.ListRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Query.ListRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Query.ListRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Query.ListRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Query.ListRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Query.ListRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getNamePattern();
+  f = message.getNamePattern();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -149,26 +143,17 @@ proto.xcalar.compute.localtypes.Query.ListRequest.prototype.serializeBinaryToWri
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Query.ListRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Query.ListRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Query.ListRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string name_pattern = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Query.ListRequest.prototype.getNamePattern = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Query.ListRequest.prototype.setNamePattern = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -215,11 +200,13 @@ proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.toObject = function(op
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Query.QueryInfo} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Query.QueryInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: msg.getName(),
-    millisecondsElapsed: msg.getMillisecondsElapsed()
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    millisecondsElapsed: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    state: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -264,6 +251,10 @@ proto.xcalar.compute.localtypes.Query.QueryInfo.deserializeBinaryFromReader = fu
       var value = /** @type {number} */ (reader.readUint64());
       msg.setMillisecondsElapsed(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setState(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -274,57 +265,46 @@ proto.xcalar.compute.localtypes.Query.QueryInfo.deserializeBinaryFromReader = fu
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Query.QueryInfo} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Query.QueryInfo.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Query.QueryInfo.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Query.QueryInfo} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Query.QueryInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getName();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getMillisecondsElapsed();
+  f = message.getMillisecondsElapsed();
   if (f !== 0) {
     writer.writeUint64(
       2,
       f
     );
   }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Query.QueryInfo} The clone.
- */
-proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Query.QueryInfo} */ (jspb.Message.cloneMessage(this));
+  f = message.getState();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -333,13 +313,13 @@ proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.cloneMessage = functio
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.setName = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -348,13 +328,28 @@ proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.setName = function(val
  * @return {number}
  */
 proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.getMillisecondsElapsed = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.setMillisecondsElapsed = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * optional string state = 3;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.getState = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Query.QueryInfo.prototype.setState = function(value) {
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -408,6 +403,7 @@ proto.xcalar.compute.localtypes.Query.ListResponse.prototype.toObject = function
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Query.ListResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Query.ListResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -452,8 +448,7 @@ proto.xcalar.compute.localtypes.Query.ListResponse.deserializeBinaryFromReader =
     case 1:
       var value = new proto.xcalar.compute.localtypes.Query.QueryInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Query.QueryInfo.deserializeBinaryFromReader);
-      msg.getQueriesList().push(value);
-      msg.setQueriesList(msg.getQueriesList());
+      msg.addQueries(value);
       break;
     default:
       reader.skipField();
@@ -465,35 +460,26 @@ proto.xcalar.compute.localtypes.Query.ListResponse.deserializeBinaryFromReader =
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Query.ListResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Query.ListResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Query.ListResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Query.ListResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Query.ListResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Query.ListResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Query.ListResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getQueriesList();
+  f = message.getQueriesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
@@ -505,29 +491,28 @@ proto.xcalar.compute.localtypes.Query.ListResponse.prototype.serializeBinaryToWr
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Query.ListResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Query.ListResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Query.ListResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated QueryInfo queries = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.xcalar.compute.localtypes.Query.QueryInfo>}
+ * @return {!Array<!proto.xcalar.compute.localtypes.Query.QueryInfo>}
  */
 proto.xcalar.compute.localtypes.Query.ListResponse.prototype.getQueriesList = function() {
-  return /** @type{!Array.<!proto.xcalar.compute.localtypes.Query.QueryInfo>} */ (
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Query.QueryInfo>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Query.QueryInfo, 1));
 };
 
 
-/** @param {Array.<!proto.xcalar.compute.localtypes.Query.QueryInfo>} value  */
+/** @param {!Array<!proto.xcalar.compute.localtypes.Query.QueryInfo>} value */
 proto.xcalar.compute.localtypes.Query.ListResponse.prototype.setQueriesList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Query.QueryInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Query.QueryInfo}
+ */
+proto.xcalar.compute.localtypes.Query.ListResponse.prototype.addQueries = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.xcalar.compute.localtypes.Query.QueryInfo, opt_index);
 };
 
 

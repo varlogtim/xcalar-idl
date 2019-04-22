@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -55,10 +57,11 @@ proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.toObject = function(o
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Cgroup.CgRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Cgroup.CgRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    jsoninput: msg.getJsoninput()
+    jsoninput: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -109,35 +112,26 @@ proto.xcalar.compute.localtypes.Cgroup.CgRequest.deserializeBinaryFromReader = f
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Cgroup.CgRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Cgroup.CgRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Cgroup.CgRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Cgroup.CgRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Cgroup.CgRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getJsoninput();
+  f = message.getJsoninput();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -148,26 +142,17 @@ proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.serializeBinaryToWrit
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Cgroup.CgRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Cgroup.CgRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string jsonInput = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.getJsoninput = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.setJsoninput = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -214,10 +199,11 @@ proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.toObject = function(
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Cgroup.CgResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Cgroup.CgResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    jsonoutput: msg.getJsonoutput()
+    jsonoutput: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -268,35 +254,26 @@ proto.xcalar.compute.localtypes.Cgroup.CgResponse.deserializeBinaryFromReader = 
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Cgroup.CgResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Cgroup.CgResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Cgroup.CgResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Cgroup.CgResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Cgroup.CgResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getJsonoutput();
+  f = message.getJsonoutput();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -307,26 +284,17 @@ proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.serializeBinaryToWri
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Cgroup.CgResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Cgroup.CgResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string jsonOutput = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.getJsonoutput = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.setJsonoutput = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 

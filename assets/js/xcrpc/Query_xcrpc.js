@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -40,8 +28,7 @@ function QueryService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 QueryService.prototype = {
-    list: function(listRequest) {
-        var deferred = jQuery.Deferred();
+    list: async function(listRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -50,21 +37,14 @@ QueryService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Query.ListRequest");
         //anyWrapper.pack(listRequest.serializeBinary(), "ListRequest");
 
-        var response = this.client.execute("Query", "List", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var listResponse =
-            //    responseData.unpack(query.ListResponse.deserializeBinary,
-            //                        "ListResponse");
-            var listResponse = query.ListResponse.deserializeBinary(specificBytes);
-            deferred.resolve(listResponse);
-        })
-        .fail(function(error) {
-            console.log("list fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Query", "List", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var listResponse =
+        //    responseData.unpack(query.ListResponse.deserializeBinary,
+        //                        "ListResponse");
+        var listResponse = query.ListResponse.deserializeBinary(specificBytes);
+        return listResponse;
     },
 };
 

@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -41,8 +29,7 @@ function EchoService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 EchoService.prototype = {
-    echoMessage: function(echoRequest) {
-        var deferred = jQuery.Deferred();
+    echoMessage: async function(echoRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -51,24 +38,16 @@ EchoService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Echo.EchoRequest");
         //anyWrapper.pack(echoRequest.serializeBinary(), "EchoRequest");
 
-        var response = this.client.execute("Echo", "EchoMessage", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var echoResponse =
-            //    responseData.unpack(echo.EchoResponse.deserializeBinary,
-            //                        "EchoResponse");
-            var echoResponse = echo.EchoResponse.deserializeBinary(specificBytes);
-            deferred.resolve(echoResponse);
-        })
-        .fail(function(error) {
-            console.log("echoMessage fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Echo", "EchoMessage", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var echoResponse =
+        //    responseData.unpack(echo.EchoResponse.deserializeBinary,
+        //                        "EchoResponse");
+        var echoResponse = echo.EchoResponse.deserializeBinary(specificBytes);
+        return echoResponse;
     },
-    echoErrorMessage: function(echoErrorRequest) {
-        var deferred = jQuery.Deferred();
+    echoErrorMessage: async function(echoErrorRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -77,21 +56,14 @@ EchoService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Echo.EchoErrorRequest");
         //anyWrapper.pack(echoErrorRequest.serializeBinary(), "EchoErrorRequest");
 
-        var response = this.client.execute("Echo", "EchoErrorMessage", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("echoErrorMessage fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Echo", "EchoErrorMessage", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
 };
 

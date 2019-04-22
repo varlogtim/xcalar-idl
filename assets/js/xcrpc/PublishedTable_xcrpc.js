@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -40,8 +28,7 @@ function PublishedTableService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 PublishedTableService.prototype = {
-    select: function(selectRequest) {
-        var deferred = jQuery.Deferred();
+    select: async function(selectRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -50,21 +37,32 @@ PublishedTableService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.PublishedTable.SelectRequest");
         //anyWrapper.pack(selectRequest.serializeBinary(), "SelectRequest");
 
-        var response = this.client.execute("PublishedTable", "Select", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var selectResponse =
-            //    responseData.unpack(publishedTable.SelectResponse.deserializeBinary,
-            //                        "SelectResponse");
-            var selectResponse = publishedTable.SelectResponse.deserializeBinary(specificBytes);
-            deferred.resolve(selectResponse);
-        })
-        .fail(function(error) {
-            console.log("select fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("PublishedTable", "Select", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var selectResponse =
+        //    responseData.unpack(publishedTable.SelectResponse.deserializeBinary,
+        //                        "SelectResponse");
+        var selectResponse = publishedTable.SelectResponse.deserializeBinary(specificBytes);
+        return selectResponse;
+    },
+    listTables: async function(listTablesRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(listTablesRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.PublishedTable.ListTablesRequest");
+        //anyWrapper.pack(listTablesRequest.serializeBinary(), "ListTablesRequest");
+
+        var responseData = await this.client.execute("PublishedTable", "ListTables", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var listTablesResponse =
+        //    responseData.unpack(publishedTable.ListTablesResponse.deserializeBinary,
+        //                        "ListTablesResponse");
+        var listTablesResponse = publishedTable.ListTablesResponse.deserializeBinary(specificBytes);
+        return listTablesResponse;
     },
 };
 

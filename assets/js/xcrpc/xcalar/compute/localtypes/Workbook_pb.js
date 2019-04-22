@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -60,6 +62,7 @@ proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.prototype.toObject = fu
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -110,43 +113,25 @@ proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.deserializeBinaryFromRe
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier} The clone.
- */
-proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier} */ (jspb.Message.cloneMessage(this));
 };
 
 
@@ -193,6 +178,7 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.toObject = 
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -248,35 +234,26 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.deserializeBinaryFrom
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getName();
+  f = message.getName();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -284,45 +261,6 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.serializeBi
       proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.serializeBinaryToWriter
     );
   }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier} The clone.
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional NameSpecifier name = 1;
- * @return {proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.getName = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier} */ (
-    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier, 1));
-};
-
-
-/** @param {proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier|undefined} value  */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.setName = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.clearName = function() {
-  this.setName(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.hasName = function() {
-  return jspb.Message.getField(this, 1) != null;
 };
 
 
@@ -369,11 +307,12 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototy
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.toObject = function(includeInstance, msg) {
   var f, obj = {
-    username: msg.getUsername(),
-    workbookname: msg.getWorkbookname()
+    username: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    workbookname: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -428,42 +367,33 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.deseria
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getUsername();
+  f = message.getUsername();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getWorkbookname();
+  f = message.getWorkbookname();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -474,26 +404,17 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototy
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier} The clone.
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string username = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototype.getUsername = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototype.setUsername = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -502,13 +423,43 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototy
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototype.getWorkbookname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototype.setWorkbookname = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional NameSpecifier name = 1;
+ * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier}
+ */
+proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.getName = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier} */ (
+    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier, 1));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier|undefined} value */
+proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.setName = function(value) {
+  jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.clearName = function() {
+  this.setName(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.hasName = function() {
+  return jspb.Message.getField(this, 1) != null;
 };
 
 
@@ -581,6 +532,7 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.toObject = func
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookScope} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookScope.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -642,35 +594,26 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookScope.deserializeBinaryFromRead
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookScope} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookScope.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Workbook.WorkbookScope.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookScope} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Workbook.WorkbookScope.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getGlobl();
+  f = message.getGlobl();
   if (f != null) {
     writer.writeMessage(
       2,
@@ -678,7 +621,7 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.serializeBinary
       proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.serializeBinaryToWriter
     );
   }
-  f = this.getWorkbook();
+  f = message.getWorkbook();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -690,25 +633,16 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.serializeBinary
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Workbook.WorkbookScope} The clone.
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional GlobalSpecifier globl = 2;
- * @return {proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier}
+ * @return {?proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier}
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.getGlobl = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier, 2));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier|undefined} value */
 proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.setGlobl = function(value) {
   jspb.Message.setOneofWrapperField(this, 2, proto.xcalar.compute.localtypes.Workbook.WorkbookScope.oneofGroups_[0], value);
 };
@@ -721,7 +655,7 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.clearGlobl = fu
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.hasGlobl = function() {
   return jspb.Message.getField(this, 2) != null;
@@ -730,15 +664,15 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.hasGlobl = func
 
 /**
  * optional WorkbookSpecifier workbook = 3;
- * @return {proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier}
+ * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier}
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.getWorkbook = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier, 3));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier|undefined} value */
 proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.setWorkbook = function(value) {
   jspb.Message.setOneofWrapperField(this, 3, proto.xcalar.compute.localtypes.Workbook.WorkbookScope.oneofGroups_[0], value);
 };
@@ -751,7 +685,7 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.clearWorkbook =
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.hasWorkbook = function() {
   return jspb.Message.getField(this, 3) != null;
@@ -808,16 +742,17 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.toOb
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    kvsstringList: jspb.Message.getField(msg, 1),
-    dataflowname: msg.getDataflowname(),
-    optimized: msg.getOptimized(),
-    listxdfsoutput: msg.getListxdfsoutput(),
-    username: msg.getUsername(),
-    sessionid: msg.getSessionid(),
-    workbookname: msg.getWorkbookname()
+    kvsstringList: jspb.Message.getRepeatedField(msg, 1),
+    dataflowname: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    optimized: jspb.Message.getFieldWithDefault(msg, 3, false),
+    listxdfsoutput: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    username: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    sessionid: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    workbookname: jspb.Message.getFieldWithDefault(msg, 7, "")
   };
 
   if (includeInstance) {
@@ -856,8 +791,7 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.deserializeBin
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.getKvsstringList().push(value);
-      msg.setKvsstringList(msg.getKvsstringList());
+      msg.addKvsstring(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -893,77 +827,68 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.deserializeBin
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getKvsstringList();
+  f = message.getKvsstringList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       1,
       f
     );
   }
-  f = this.getDataflowname();
+  f = message.getDataflowname();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getOptimized();
+  f = message.getOptimized();
   if (f) {
     writer.writeBool(
       3,
       f
     );
   }
-  f = this.getListxdfsoutput();
+  f = message.getListxdfsoutput();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = this.getUsername();
+  f = message.getUsername();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = this.getSessionid();
+  f = message.getSessionid();
   if (f.length > 0) {
     writer.writeString(
       6,
       f
     );
   }
-  f = this.getWorkbookname();
+  f = message.getWorkbookname();
   if (f.length > 0) {
     writer.writeString(
       7,
@@ -974,33 +899,31 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.seri
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated string kvsString = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getKvsstringList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 1));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {Array.<string>} value  */
+/** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setKvsstringList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
 
 
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.addKvsstring = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+};
+
+
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.clearKvsstringList = function() {
-  jspb.Message.setField(this, 1, []);
+  this.setKvsstringList([]);
 };
 
 
@@ -1009,13 +932,13 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.clea
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getDataflowname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setDataflowname = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -1026,13 +949,13 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setD
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getOptimized = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 3, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 3, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setOptimized = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3BooleanField(this, 3, value);
 };
 
 
@@ -1041,13 +964,13 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setO
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getListxdfsoutput = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setListxdfsoutput = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -1056,13 +979,13 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setL
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getUsername = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 5, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setUsername = function(value) {
-  jspb.Message.setField(this, 5, value);
+  jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
@@ -1071,13 +994,13 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setU
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getSessionid = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 6, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setSessionid = function(value) {
-  jspb.Message.setField(this, 6, value);
+  jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -1086,13 +1009,13 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setS
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getWorkbookname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 7, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setWorkbookname = function(value) {
-  jspb.Message.setField(this, 7, value);
+  jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
@@ -1139,11 +1062,12 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.toO
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    converted: msg.getConverted(),
-    resultstring: msg.getResultstring()
+    converted: jspb.Message.getFieldWithDefault(msg, 1, false),
+    resultstring: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1198,42 +1122,33 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.deserializeBi
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getConverted();
+  f = message.getConverted();
   if (f) {
     writer.writeBool(
       1,
       f
     );
   }
-  f = this.getResultstring();
+  f = message.getResultstring();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -1244,28 +1159,19 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.ser
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional bool converted = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.getConverted = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 1, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 1, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.setConverted = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -1274,13 +1180,13 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.set
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.getResultstring = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.setResultstring = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 

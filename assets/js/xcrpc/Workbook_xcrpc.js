@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -40,8 +28,7 @@ function WorkbookService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 WorkbookService.prototype = {
-    convertKvsToQuery: function(convertKvsToQueryRequest) {
-        var deferred = jQuery.Deferred();
+    convertKvsToQuery: async function(convertKvsToQueryRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -50,21 +37,14 @@ WorkbookService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest");
         //anyWrapper.pack(convertKvsToQueryRequest.serializeBinary(), "ConvertKvsToQueryRequest");
 
-        var response = this.client.execute("Workbook", "ConvertKvsToQuery", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var convertKvsToQueryResponse =
-            //    responseData.unpack(workbook.ConvertKvsToQueryResponse.deserializeBinary,
-            //                        "ConvertKvsToQueryResponse");
-            var convertKvsToQueryResponse = workbook.ConvertKvsToQueryResponse.deserializeBinary(specificBytes);
-            deferred.resolve(convertKvsToQueryResponse);
-        })
-        .fail(function(error) {
-            console.log("convertKvsToQuery fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Workbook", "ConvertKvsToQuery", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var convertKvsToQueryResponse =
+        //    responseData.unpack(workbook.ConvertKvsToQueryResponse.deserializeBinary,
+        //                        "ConvertKvsToQueryResponse");
+        var convertKvsToQueryResponse = workbook.ConvertKvsToQueryResponse.deserializeBinary(specificBytes);
+        return convertKvsToQueryResponse;
     },
 };
 

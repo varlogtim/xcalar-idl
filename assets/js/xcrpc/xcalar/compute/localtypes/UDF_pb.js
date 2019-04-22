@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -57,11 +59,12 @@ proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.toObject = function(opt_
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.UDF.UdfModule} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.UDF.UdfModule.toObject = function(includeInstance, msg) {
   var f, obj = {
     scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
-    name: msg.getName()
+    name: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -117,35 +120,26 @@ proto.xcalar.compute.localtypes.UDF.UdfModule.deserializeBinaryFromReader = func
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.UDF.UdfModule} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.UDF.UdfModule.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.UDF.UdfModule.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.UDF.UdfModule} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.UDF.UdfModule.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getScope();
+  f = message.getScope();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -153,7 +147,7 @@ proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.serializeBinaryToWriter 
       xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
     );
   }
-  f = this.getName();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -164,25 +158,16 @@ proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.serializeBinaryToWriter 
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.UDF.UdfModule} The clone.
- */
-proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.UDF.UdfModule} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 1;
- * @return {proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
+ * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
  */
 proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.getScope = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
     jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
 proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.setScope = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -195,7 +180,7 @@ proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.clearScope = function() 
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.hasScope = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -207,13 +192,13 @@ proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.hasScope = function() {
  * @return {string}
  */
 proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.UDF.UdfModule.prototype.setName = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -260,10 +245,11 @@ proto.xcalar.compute.localtypes.UDF.FQname.prototype.toObject = function(opt_inc
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.UDF.FQname} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.UDF.FQname.toObject = function(includeInstance, msg) {
   var f, obj = {
-    text: msg.getText()
+    text: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -314,35 +300,26 @@ proto.xcalar.compute.localtypes.UDF.FQname.deserializeBinaryFromReader = functio
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.UDF.FQname} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.UDF.FQname.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.UDF.FQname.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.UDF.FQname.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.UDF.FQname} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.UDF.FQname.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.UDF.FQname.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getText();
+  f = message.getText();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -353,26 +330,17 @@ proto.xcalar.compute.localtypes.UDF.FQname.prototype.serializeBinaryToWriter = f
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.UDF.FQname} The clone.
- */
-proto.xcalar.compute.localtypes.UDF.FQname.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.UDF.FQname} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string text = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.UDF.FQname.prototype.getText = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.UDF.FQname.prototype.setText = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -419,6 +387,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.toObject = fu
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.UDF.GetResolutionRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -474,35 +443,26 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.deserializeBinaryFromRe
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.UDF.GetResolutionRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.UDF.GetResolutionRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getUdfmodule();
+  f = message.getUdfmodule();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -514,25 +474,16 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.serializeBina
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.UDF.GetResolutionRequest} The clone.
- */
-proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.UDF.GetResolutionRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional UdfModule udfModule = 1;
- * @return {proto.xcalar.compute.localtypes.UDF.UdfModule}
+ * @return {?proto.xcalar.compute.localtypes.UDF.UdfModule}
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.getUdfmodule = function() {
-  return /** @type{proto.xcalar.compute.localtypes.UDF.UdfModule} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.UDF.UdfModule} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.UDF.UdfModule, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.UDF.UdfModule|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.UDF.UdfModule|undefined} value */
 proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.setUdfmodule = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -545,7 +496,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.clearUdfmodul
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionRequest.prototype.hasUdfmodule = function() {
   return jspb.Message.getField(this, 1) != null;
@@ -595,6 +546,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.toObject = f
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.UDF.GetResolutionResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -650,35 +602,26 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.deserializeBinaryFromR
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.UDF.GetResolutionResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.UDF.GetResolutionResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getFqmodname();
+  f = message.getFqmodname();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -690,25 +633,16 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.serializeBin
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.UDF.GetResolutionResponse} The clone.
- */
-proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.UDF.GetResolutionResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional FQname fqModName = 1;
- * @return {proto.xcalar.compute.localtypes.UDF.FQname}
+ * @return {?proto.xcalar.compute.localtypes.UDF.FQname}
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.getFqmodname = function() {
-  return /** @type{proto.xcalar.compute.localtypes.UDF.FQname} */ (
+  return /** @type{?proto.xcalar.compute.localtypes.UDF.FQname} */ (
     jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.UDF.FQname, 1));
 };
 
 
-/** @param {proto.xcalar.compute.localtypes.UDF.FQname|undefined} value  */
+/** @param {?proto.xcalar.compute.localtypes.UDF.FQname|undefined} value */
 proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.setFqmodname = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -721,7 +655,7 @@ proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.clearFqmodna
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.xcalar.compute.localtypes.UDF.GetResolutionResponse.prototype.hasFqmodname = function() {
   return jspb.Message.getField(this, 1) != null;

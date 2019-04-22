@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -57,16 +59,17 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.toObject = functio
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    username: msg.getUsername(),
-    userid: msg.getUserid(),
-    sessionname: msg.getSessionname(),
-    resulttablename: msg.getResulttablename(),
-    querystring: msg.getQuerystring(),
-    tableprefix: msg.getTableprefix(),
-    queryname: msg.getQueryname(),
+    username: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    userid: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    sessionname: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    resulttablename: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    querystring: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    tableprefix: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    queryname: jspb.Message.getFieldWithDefault(msg, 7, ""),
     optimizations: (f = msg.getOptimizations()) && proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.toObject(includeInstance, f)
   };
 
@@ -147,84 +150,75 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.deserializeBinaryFromReader 
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getUsername();
+  f = message.getUsername();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getUserid();
+  f = message.getUserid();
   if (f !== 0) {
     writer.writeUint32(
       2,
       f
     );
   }
-  f = this.getSessionname();
+  f = message.getSessionname();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getResulttablename();
+  f = message.getResulttablename();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = this.getQuerystring();
+  f = message.getQuerystring();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = this.getTableprefix();
+  f = message.getTableprefix();
   if (f.length > 0) {
     writer.writeString(
       6,
       f
     );
   }
-  f = this.getQueryname();
+  f = message.getQueryname();
   if (f.length > 0) {
     writer.writeString(
       7,
       f
     );
   }
-  f = this.getOptimizations();
+  f = message.getOptimizations();
   if (f != null) {
     writer.writeMessage(
       9,
@@ -232,150 +226,6 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.serializeBinaryToW
       proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.serializeBinaryToWriter
     );
   }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest} The clone.
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional string userName = 1;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getUsername = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setUsername = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * optional uint32 userId = 2;
- * @return {number}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getUserid = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
-};
-
-
-/** @param {number} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setUserid = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-/**
- * optional string sessionName = 3;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getSessionname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setSessionname = function(value) {
-  jspb.Message.setField(this, 3, value);
-};
-
-
-/**
- * optional string resultTableName = 4;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getResulttablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setResulttablename = function(value) {
-  jspb.Message.setField(this, 4, value);
-};
-
-
-/**
- * optional string queryString = 5;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getQuerystring = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 5, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setQuerystring = function(value) {
-  jspb.Message.setField(this, 5, value);
-};
-
-
-/**
- * optional string tablePrefix = 6;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getTableprefix = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 6, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setTableprefix = function(value) {
-  jspb.Message.setField(this, 6, value);
-};
-
-
-/**
- * optional string queryName = 7;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getQueryname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 7, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setQueryname = function(value) {
-  jspb.Message.setField(this, 7, value);
-};
-
-
-/**
- * optional Optimizations optimizations = 9;
- * @return {proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getOptimizations = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations} */ (
-    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations, 9));
-};
-
-
-/** @param {proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations|undefined} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setOptimizations = function(value) {
-  jspb.Message.setWrapperField(this, 9, value);
-};
-
-
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.clearOptimizations = function() {
-  this.setOptimizations(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.hasOptimizations = function() {
-  return jspb.Message.getField(this, 9) != null;
 };
 
 
@@ -422,13 +272,14 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.toOb
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.toObject = function(includeInstance, msg) {
   var f, obj = {
-    dropasyougo: msg.getDropasyougo(),
-    dropsrctables: msg.getDropsrctables(),
-    randomcrossjoin: msg.getRandomcrossjoin(),
-    pushtoselect: msg.getPushtoselect()
+    dropasyougo: jspb.Message.getFieldWithDefault(msg, 1, false),
+    dropsrctables: jspb.Message.getFieldWithDefault(msg, 2, false),
+    randomcrossjoin: jspb.Message.getFieldWithDefault(msg, 3, false),
+    pushtoselect: jspb.Message.getFieldWithDefault(msg, 4, false)
   };
 
   if (includeInstance) {
@@ -491,56 +342,47 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.deserializeBin
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getDropasyougo();
+  f = message.getDropasyougo();
   if (f) {
     writer.writeBool(
       1,
       f
     );
   }
-  f = this.getDropsrctables();
+  f = message.getDropsrctables();
   if (f) {
     writer.writeBool(
       2,
       f
     );
   }
-  f = this.getRandomcrossjoin();
+  f = message.getRandomcrossjoin();
   if (f) {
     writer.writeBool(
       3,
       f
     );
   }
-  f = this.getPushtoselect();
+  f = message.getPushtoselect();
   if (f) {
     writer.writeBool(
       4,
@@ -551,28 +393,19 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.seri
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations} The clone.
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional bool dropAsYouGo = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.getDropasyougo = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 1, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 1, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.setDropasyougo = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -583,13 +416,13 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.setD
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.getDropsrctables = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.setDropsrctables = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
@@ -600,13 +433,13 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.setD
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.getRandomcrossjoin = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 3, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 3, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.setRandomcrossjoin = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3BooleanField(this, 3, value);
 };
 
 
@@ -617,13 +450,148 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.setR
  * @return {boolean}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.getPushtoselect = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 4, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 4, false));
 };
 
 
-/** @param {boolean} value  */
+/** @param {boolean} value */
 proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations.prototype.setPushtoselect = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3BooleanField(this, 4, value);
+};
+
+
+/**
+ * optional string userName = 1;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getUsername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setUsername = function(value) {
+  jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional uint32 userId = 2;
+ * @return {number}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getUserid = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/** @param {number} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setUserid = function(value) {
+  jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * optional string sessionName = 3;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getSessionname = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setSessionname = function(value) {
+  jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string resultTableName = 4;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getResulttablename = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setResulttablename = function(value) {
+  jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string queryString = 5;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getQuerystring = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setQuerystring = function(value) {
+  jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string tablePrefix = 6;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getTableprefix = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setTableprefix = function(value) {
+  jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional string queryName = 7;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getQueryname = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setQueryname = function(value) {
+  jspb.Message.setProto3StringField(this, 7, value);
+};
+
+
+/**
+ * optional Optimizations optimizations = 9;
+ * @return {?proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.getOptimizations = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations} */ (
+    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations, 9));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.Optimizations|undefined} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.setOptimizations = function(value) {
+  jspb.Message.setWrapperField(this, 9, value);
+};
+
+
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.clearOptimizations = function() {
+  this.setOptimizations(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryRequest.prototype.hasOptimizations = function() {
+  return jspb.Message.getField(this, 9) != null;
 };
 
 
@@ -677,10 +645,11 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.toObject = functi
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    tablename: msg.getTablename(),
+    tablename: jspb.Message.getFieldWithDefault(msg, 1, ""),
     orderedcolumnsList: jspb.Message.toObjectList(msg.getOrderedcolumnsList(),
     proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.toObject, includeInstance)
   };
@@ -726,8 +695,7 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.deserializeBinaryFromReader
     case 2:
       var value = new proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.deserializeBinaryFromReader);
-      msg.getOrderedcolumnsList().push(value);
-      msg.setOrderedcolumnsList(msg.getOrderedcolumnsList());
+      msg.addOrderedcolumns(value);
       break;
     default:
       reader.skipField();
@@ -739,42 +707,33 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.deserializeBinaryFromReader
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getTablename();
+  f = message.getTablename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getOrderedcolumnsList();
+  f = message.getOrderedcolumnsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       2,
@@ -782,53 +741,6 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.serializeBinaryTo
       proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.serializeBinaryToWriter
     );
   }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse} The clone.
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional string tableName = 1;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.getTablename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.setTablename = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * repeated ColInfo orderedColumns = 2;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo>}
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.getOrderedcolumnsList = function() {
-  return /** @type{!Array.<!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo, 2));
-};
-
-
-/** @param {Array.<!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo>} value  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.setOrderedcolumnsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
-};
-
-
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.clearOrderedcolumnsList = function() {
-  this.setOrderedcolumnsList([]);
 };
 
 
@@ -875,13 +787,14 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.toObject 
  *     http://goto/soy-param-migration
  * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    colname: msg.getColname(),
-    colid: msg.getColid(),
-    coltype: msg.getColtype(),
-    rename: msg.getRename()
+    colname: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    colid: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    coltype: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    rename: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -944,56 +857,47 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.deserializeBinaryFr
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.serializeBinaryToWriter = function (writer) {
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getColname();
+  f = message.getColname();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getColid();
+  f = message.getColid();
   if (f !== 0) {
     writer.writeUint32(
       2,
       f
     );
   }
-  f = this.getColtype();
+  f = message.getColtype();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getRename();
+  f = message.getRename();
   if (f.length > 0) {
     writer.writeString(
       4,
@@ -1004,26 +908,17 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.serialize
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo} The clone.
- */
-proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string colName = 1;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.getColname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.setColname = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -1032,13 +927,13 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.setColnam
  * @return {number}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.getColid = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.setColid = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
@@ -1047,13 +942,13 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.setColid 
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.getColtype = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.setColtype = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -1062,13 +957,59 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.setColtyp
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.getRename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.setRename = function(value) {
-  jspb.Message.setField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string tableName = 1;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.getTablename = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.setTablename = function(value) {
+  jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * repeated ColInfo orderedColumns = 2;
+ * @return {!Array<!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo>}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.getOrderedcolumnsList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo, 2));
+};
+
+
+/** @param {!Array<!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo>} value */
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.setOrderedcolumnsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 2, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.addOrderedcolumns = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 2, opt_value, proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.prototype.clearOrderedcolumnsList = function() {
+  this.setOrderedcolumnsList([]);
 };
 
 

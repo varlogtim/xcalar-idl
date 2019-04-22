@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -40,8 +28,7 @@ function DataflowService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 DataflowService.prototype = {
-    filter: function(filterRequest) {
-        var deferred = jQuery.Deferred();
+    filter: async function(filterRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -50,24 +37,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.FilterRequest");
         //anyWrapper.pack(filterRequest.serializeBinary(), "FilterRequest");
 
-        var response = this.client.execute("Dataflow", "Filter", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var filterResponse =
-            //    responseData.unpack(dataflow.FilterResponse.deserializeBinary,
-            //                        "FilterResponse");
-            var filterResponse = dataflow.FilterResponse.deserializeBinary(specificBytes);
-            deferred.resolve(filterResponse);
-        })
-        .fail(function(error) {
-            console.log("filter fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "Filter", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var filterResponse =
+        //    responseData.unpack(dataflow.FilterResponse.deserializeBinary,
+        //                        "FilterResponse");
+        var filterResponse = dataflow.FilterResponse.deserializeBinary(specificBytes);
+        return filterResponse;
     },
-    aggregate: function(aggregateRequest) {
-        var deferred = jQuery.Deferred();
+    aggregate: async function(aggregateRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -76,24 +55,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.AggregateRequest");
         //anyWrapper.pack(aggregateRequest.serializeBinary(), "AggregateRequest");
 
-        var response = this.client.execute("Dataflow", "Aggregate", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var aggregateResponse =
-            //    responseData.unpack(dataflow.AggregateResponse.deserializeBinary,
-            //                        "AggregateResponse");
-            var aggregateResponse = dataflow.AggregateResponse.deserializeBinary(specificBytes);
-            deferred.resolve(aggregateResponse);
-        })
-        .fail(function(error) {
-            console.log("aggregate fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "Aggregate", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var aggregateResponse =
+        //    responseData.unpack(dataflow.AggregateResponse.deserializeBinary,
+        //                        "AggregateResponse");
+        var aggregateResponse = dataflow.AggregateResponse.deserializeBinary(specificBytes);
+        return aggregateResponse;
     },
-    aggregateWithEvalStr: function(aggregateEvalStrRequest) {
-        var deferred = jQuery.Deferred();
+    aggregateWithEvalStr: async function(aggregateEvalStrRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -102,24 +73,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.AggregateEvalStrRequest");
         //anyWrapper.pack(aggregateEvalStrRequest.serializeBinary(), "AggregateEvalStrRequest");
 
-        var response = this.client.execute("Dataflow", "AggregateWithEvalStr", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var aggregateResponse =
-            //    responseData.unpack(dataflow.AggregateResponse.deserializeBinary,
-            //                        "AggregateResponse");
-            var aggregateResponse = dataflow.AggregateResponse.deserializeBinary(specificBytes);
-            deferred.resolve(aggregateResponse);
-        })
-        .fail(function(error) {
-            console.log("aggregateWithEvalStr fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "AggregateWithEvalStr", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var aggregateResponse =
+        //    responseData.unpack(dataflow.AggregateResponse.deserializeBinary,
+        //                        "AggregateResponse");
+        var aggregateResponse = dataflow.AggregateResponse.deserializeBinary(specificBytes);
+        return aggregateResponse;
     },
-    map: function(mapRequest) {
-        var deferred = jQuery.Deferred();
+    map: async function(mapRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -128,24 +91,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.MapRequest");
         //anyWrapper.pack(mapRequest.serializeBinary(), "MapRequest");
 
-        var response = this.client.execute("Dataflow", "Map", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var mapResponse =
-            //    responseData.unpack(dataflow.MapResponse.deserializeBinary,
-            //                        "MapResponse");
-            var mapResponse = dataflow.MapResponse.deserializeBinary(specificBytes);
-            deferred.resolve(mapResponse);
-        })
-        .fail(function(error) {
-            console.log("map fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "Map", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var mapResponse =
+        //    responseData.unpack(dataflow.MapResponse.deserializeBinary,
+        //                        "MapResponse");
+        var mapResponse = dataflow.MapResponse.deserializeBinary(specificBytes);
+        return mapResponse;
     },
-    genRowNum: function(genRowNumRequest) {
-        var deferred = jQuery.Deferred();
+    genRowNum: async function(genRowNumRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -154,24 +109,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.GenRowNumRequest");
         //anyWrapper.pack(genRowNumRequest.serializeBinary(), "GenRowNumRequest");
 
-        var response = this.client.execute("Dataflow", "GenRowNum", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var genRowNumResponse =
-            //    responseData.unpack(dataflow.GenRowNumResponse.deserializeBinary,
-            //                        "GenRowNumResponse");
-            var genRowNumResponse = dataflow.GenRowNumResponse.deserializeBinary(specificBytes);
-            deferred.resolve(genRowNumResponse);
-        })
-        .fail(function(error) {
-            console.log("genRowNum fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "GenRowNum", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var genRowNumResponse =
+        //    responseData.unpack(dataflow.GenRowNumResponse.deserializeBinary,
+        //                        "GenRowNumResponse");
+        var genRowNumResponse = dataflow.GenRowNumResponse.deserializeBinary(specificBytes);
+        return genRowNumResponse;
     },
-    project: function(projectRequest) {
-        var deferred = jQuery.Deferred();
+    project: async function(projectRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -180,24 +127,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.ProjectRequest");
         //anyWrapper.pack(projectRequest.serializeBinary(), "ProjectRequest");
 
-        var response = this.client.execute("Dataflow", "Project", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var projectResponse =
-            //    responseData.unpack(dataflow.ProjectResponse.deserializeBinary,
-            //                        "ProjectResponse");
-            var projectResponse = dataflow.ProjectResponse.deserializeBinary(specificBytes);
-            deferred.resolve(projectResponse);
-        })
-        .fail(function(error) {
-            console.log("project fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "Project", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var projectResponse =
+        //    responseData.unpack(dataflow.ProjectResponse.deserializeBinary,
+        //                        "ProjectResponse");
+        var projectResponse = dataflow.ProjectResponse.deserializeBinary(specificBytes);
+        return projectResponse;
     },
-    join: function(joinRequest) {
-        var deferred = jQuery.Deferred();
+    join: async function(joinRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -206,24 +145,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.JoinRequest");
         //anyWrapper.pack(joinRequest.serializeBinary(), "JoinRequest");
 
-        var response = this.client.execute("Dataflow", "Join", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var joinResponse =
-            //    responseData.unpack(dataflow.JoinResponse.deserializeBinary,
-            //                        "JoinResponse");
-            var joinResponse = dataflow.JoinResponse.deserializeBinary(specificBytes);
-            deferred.resolve(joinResponse);
-        })
-        .fail(function(error) {
-            console.log("join fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "Join", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var joinResponse =
+        //    responseData.unpack(dataflow.JoinResponse.deserializeBinary,
+        //                        "JoinResponse");
+        var joinResponse = dataflow.JoinResponse.deserializeBinary(specificBytes);
+        return joinResponse;
     },
-    unionOp: function(unionRequest) {
-        var deferred = jQuery.Deferred();
+    unionOp: async function(unionRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -232,24 +163,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.UnionRequest");
         //anyWrapper.pack(unionRequest.serializeBinary(), "UnionRequest");
 
-        var response = this.client.execute("Dataflow", "UnionOp", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var unionResponse =
-            //    responseData.unpack(dataflow.UnionResponse.deserializeBinary,
-            //                        "UnionResponse");
-            var unionResponse = dataflow.UnionResponse.deserializeBinary(specificBytes);
-            deferred.resolve(unionResponse);
-        })
-        .fail(function(error) {
-            console.log("unionOp fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "UnionOp", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var unionResponse =
+        //    responseData.unpack(dataflow.UnionResponse.deserializeBinary,
+        //                        "UnionResponse");
+        var unionResponse = dataflow.UnionResponse.deserializeBinary(specificBytes);
+        return unionResponse;
     },
-    groupBy: function(groupByRequest) {
-        var deferred = jQuery.Deferred();
+    groupBy: async function(groupByRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -258,24 +181,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.GroupByRequest");
         //anyWrapper.pack(groupByRequest.serializeBinary(), "GroupByRequest");
 
-        var response = this.client.execute("Dataflow", "GroupBy", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var groupByResponse =
-            //    responseData.unpack(dataflow.GroupByResponse.deserializeBinary,
-            //                        "GroupByResponse");
-            var groupByResponse = dataflow.GroupByResponse.deserializeBinary(specificBytes);
-            deferred.resolve(groupByResponse);
-        })
-        .fail(function(error) {
-            console.log("groupBy fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "GroupBy", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var groupByResponse =
+        //    responseData.unpack(dataflow.GroupByResponse.deserializeBinary,
+        //                        "GroupByResponse");
+        var groupByResponse = dataflow.GroupByResponse.deserializeBinary(specificBytes);
+        return groupByResponse;
     },
-    indexFromDataset: function(indexFromDatasetRequest) {
-        var deferred = jQuery.Deferred();
+    indexFromDataset: async function(indexFromDatasetRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -284,24 +199,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.IndexFromDatasetRequest");
         //anyWrapper.pack(indexFromDatasetRequest.serializeBinary(), "IndexFromDatasetRequest");
 
-        var response = this.client.execute("Dataflow", "IndexFromDataset", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var indexFromDatasetResponse =
-            //    responseData.unpack(dataflow.IndexFromDatasetResponse.deserializeBinary,
-            //                        "IndexFromDatasetResponse");
-            var indexFromDatasetResponse = dataflow.IndexFromDatasetResponse.deserializeBinary(specificBytes);
-            deferred.resolve(indexFromDatasetResponse);
-        })
-        .fail(function(error) {
-            console.log("indexFromDataset fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "IndexFromDataset", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var indexFromDatasetResponse =
+        //    responseData.unpack(dataflow.IndexFromDatasetResponse.deserializeBinary,
+        //                        "IndexFromDatasetResponse");
+        var indexFromDatasetResponse = dataflow.IndexFromDatasetResponse.deserializeBinary(specificBytes);
+        return indexFromDatasetResponse;
     },
-    index: function(indexRequest) {
-        var deferred = jQuery.Deferred();
+    index: async function(indexRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -310,24 +217,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.IndexRequest");
         //anyWrapper.pack(indexRequest.serializeBinary(), "IndexRequest");
 
-        var response = this.client.execute("Dataflow", "Index", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var indexResponse =
-            //    responseData.unpack(dataflow.IndexResponse.deserializeBinary,
-            //                        "IndexResponse");
-            var indexResponse = dataflow.IndexResponse.deserializeBinary(specificBytes);
-            deferred.resolve(indexResponse);
-        })
-        .fail(function(error) {
-            console.log("index fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "Index", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var indexResponse =
+        //    responseData.unpack(dataflow.IndexResponse.deserializeBinary,
+        //                        "IndexResponse");
+        var indexResponse = dataflow.IndexResponse.deserializeBinary(specificBytes);
+        return indexResponse;
     },
-    sort: function(sortRequest) {
-        var deferred = jQuery.Deferred();
+    sort: async function(sortRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -336,24 +235,16 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.SortRequest");
         //anyWrapper.pack(sortRequest.serializeBinary(), "SortRequest");
 
-        var response = this.client.execute("Dataflow", "Sort", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var sortResponse =
-            //    responseData.unpack(dataflow.SortResponse.deserializeBinary,
-            //                        "SortResponse");
-            var sortResponse = dataflow.SortResponse.deserializeBinary(specificBytes);
-            deferred.resolve(sortResponse);
-        })
-        .fail(function(error) {
-            console.log("sort fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "Sort", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var sortResponse =
+        //    responseData.unpack(dataflow.SortResponse.deserializeBinary,
+        //                        "SortResponse");
+        var sortResponse = dataflow.SortResponse.deserializeBinary(specificBytes);
+        return sortResponse;
     },
-    synthesize: function(synthesizeRequest) {
-        var deferred = jQuery.Deferred();
+    synthesize: async function(synthesizeRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -362,21 +253,14 @@ DataflowService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.SynthesizeRequest");
         //anyWrapper.pack(synthesizeRequest.serializeBinary(), "SynthesizeRequest");
 
-        var response = this.client.execute("Dataflow", "Synthesize", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var synthesizeResponse =
-            //    responseData.unpack(dataflow.SynthesizeResponse.deserializeBinary,
-            //                        "SynthesizeResponse");
-            var synthesizeResponse = dataflow.SynthesizeResponse.deserializeBinary(specificBytes);
-            deferred.resolve(synthesizeResponse);
-        })
-        .fail(function(error) {
-            console.log("synthesize fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Dataflow", "Synthesize", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var synthesizeResponse =
+        //    responseData.unpack(dataflow.SynthesizeResponse.deserializeBinary,
+        //                        "SynthesizeResponse");
+        var synthesizeResponse = dataflow.SynthesizeResponse.deserializeBinary(specificBytes);
+        return synthesizeResponse;
     },
 };
 

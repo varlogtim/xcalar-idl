@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -41,8 +29,7 @@ function KvStoreService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 KvStoreService.prototype = {
-    lookup: function(lookupRequest) {
-        var deferred = jQuery.Deferred();
+    lookup: async function(lookupRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -51,24 +38,16 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.LookupRequest");
         //anyWrapper.pack(lookupRequest.serializeBinary(), "LookupRequest");
 
-        var response = this.client.execute("KvStore", "Lookup", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var lookupResponse =
-            //    responseData.unpack(kvStore.LookupResponse.deserializeBinary,
-            //                        "LookupResponse");
-            var lookupResponse = kvStore.LookupResponse.deserializeBinary(specificBytes);
-            deferred.resolve(lookupResponse);
-        })
-        .fail(function(error) {
-            console.log("lookup fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("KvStore", "Lookup", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var lookupResponse =
+        //    responseData.unpack(kvStore.LookupResponse.deserializeBinary,
+        //                        "LookupResponse");
+        var lookupResponse = kvStore.LookupResponse.deserializeBinary(specificBytes);
+        return lookupResponse;
     },
-    addOrReplace: function(addOrReplaceRequest) {
-        var deferred = jQuery.Deferred();
+    addOrReplace: async function(addOrReplaceRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -77,24 +56,16 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.AddOrReplaceRequest");
         //anyWrapper.pack(addOrReplaceRequest.serializeBinary(), "AddOrReplaceRequest");
 
-        var response = this.client.execute("KvStore", "AddOrReplace", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("addOrReplace fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("KvStore", "AddOrReplace", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
-    deleteKey: function(deleteKeyRequest) {
-        var deferred = jQuery.Deferred();
+    deleteKey: async function(deleteKeyRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -103,24 +74,16 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.DeleteKeyRequest");
         //anyWrapper.pack(deleteKeyRequest.serializeBinary(), "DeleteKeyRequest");
 
-        var response = this.client.execute("KvStore", "DeleteKey", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("deleteKey fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("KvStore", "DeleteKey", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
-    append: function(appendRequest) {
-        var deferred = jQuery.Deferred();
+    append: async function(appendRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -129,24 +92,16 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.AppendRequest");
         //anyWrapper.pack(appendRequest.serializeBinary(), "AppendRequest");
 
-        var response = this.client.execute("KvStore", "Append", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("append fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("KvStore", "Append", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
-    setIfEqual: function(setIfEqualRequest) {
-        var deferred = jQuery.Deferred();
+    setIfEqual: async function(setIfEqualRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -155,24 +110,16 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.SetIfEqualRequest");
         //anyWrapper.pack(setIfEqualRequest.serializeBinary(), "SetIfEqualRequest");
 
-        var response = this.client.execute("KvStore", "SetIfEqual", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("setIfEqual fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("KvStore", "SetIfEqual", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
-    list: function(listRequest) {
-        var deferred = jQuery.Deferred();
+    list: async function(listRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -181,21 +128,14 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.ListRequest");
         //anyWrapper.pack(listRequest.serializeBinary(), "ListRequest");
 
-        var response = this.client.execute("KvStore", "List", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var listResponse =
-            //    responseData.unpack(kvStore.ListResponse.deserializeBinary,
-            //                        "ListResponse");
-            var listResponse = kvStore.ListResponse.deserializeBinary(specificBytes);
-            deferred.resolve(listResponse);
-        })
-        .fail(function(error) {
-            console.log("list fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("KvStore", "List", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var listResponse =
+        //    responseData.unpack(kvStore.ListResponse.deserializeBinary,
+        //                        "ListResponse");
+        var listResponse = kvStore.ListResponse.deserializeBinary(specificBytes);
+        return listResponse;
     },
 };
 

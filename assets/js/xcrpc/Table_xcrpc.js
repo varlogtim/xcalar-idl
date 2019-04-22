@@ -9,18 +9,6 @@
 // regarding the use and redistribution of this software.
 //
 
-var jQuery;
-// Explicitly check if this code is running under nodejs
-if ((typeof process !== 'undefined') &&
-    (typeof process.versions !== 'undefined') &&
-    (typeof process.versions.node !== 'undefined')) {
-    const jsdom = require("jsdom");
-    const { JSDOM } = jsdom;
-    const { window } = new JSDOM();
-    jQuery = require("jquery")(window);
-} else {
-    jQuery = require('jquery');
-};
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
@@ -40,8 +28,7 @@ function TableService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 TableService.prototype = {
-    addIndex: function(indexRequest) {
-        var deferred = jQuery.Deferred();
+    addIndex: async function(indexRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -50,24 +37,16 @@ TableService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.IndexRequest");
         //anyWrapper.pack(indexRequest.serializeBinary(), "IndexRequest");
 
-        var response = this.client.execute("Table", "AddIndex", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("addIndex fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Table", "AddIndex", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
-    removeIndex: function(indexRequest) {
-        var deferred = jQuery.Deferred();
+    removeIndex: async function(indexRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
@@ -76,21 +55,14 @@ TableService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.IndexRequest");
         //anyWrapper.pack(indexRequest.serializeBinary(), "IndexRequest");
 
-        var response = this.client.execute("Table", "RemoveIndex", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            deferred.resolve(empty);
-        })
-        .fail(function(error) {
-            console.log("removeIndex fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
+        var responseData = await this.client.execute("Table", "RemoveIndex", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var empty =
+        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+        //                        "Empty");
+        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+        return empty;
     },
 };
 

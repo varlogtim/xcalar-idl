@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -12,6 +14,7 @@ var global = Function('return this')();
 var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
 goog.exportSymbol('proto.ProtoFieldValue', null, global);
 goog.exportSymbol('proto.ProtoFieldValue.ArrayValue', null, global);
+goog.exportSymbol('proto.ProtoFieldValue.NumericVal', null, global);
 goog.exportSymbol('proto.ProtoFieldValue.ObjectValue', null, global);
 goog.exportSymbol('proto.ProtoRow', null, global);
 
@@ -40,7 +43,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.ProtoFieldValue.oneofGroups_ = [[1,2,3,4,5,6,7,8,9,10,11,12]];
+proto.ProtoFieldValue.oneofGroups_ = [[1,2,3,4,5,6,7,8,9,10,11,12,13]];
 
 /**
  * @enum {number}
@@ -58,7 +61,8 @@ proto.ProtoFieldValue.DatavalueCase = {
   BYTEVAL: 9,
   ARRAYVALUE: 10,
   OBJECTVALUE: 11,
-  TIMEVAL: 12
+  TIMEVAL: 12,
+  NUMERICVAL: 13
 };
 
 /**
@@ -93,21 +97,23 @@ proto.ProtoFieldValue.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.ProtoFieldValue} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.ProtoFieldValue.toObject = function(includeInstance, msg) {
   var f, obj = {
-    stringval: jspb.Message.getField(msg, 1),
-    boolval: jspb.Message.getField(msg, 2),
-    uint32val: jspb.Message.getField(msg, 3),
-    int32val: jspb.Message.getField(msg, 4),
-    uint64val: jspb.Message.getField(msg, 5),
-    int64val: jspb.Message.getField(msg, 6),
-    float32val: jspb.Message.getOptionalFloatingPointField(msg, 7),
-    float64val: jspb.Message.getOptionalFloatingPointField(msg, 8),
+    stringval: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    boolval: jspb.Message.getFieldWithDefault(msg, 2, false),
+    uint32val: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    int32val: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    uint64val: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    int64val: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    float32val: +jspb.Message.getFieldWithDefault(msg, 7, 0.0),
+    float64val: +jspb.Message.getFieldWithDefault(msg, 8, 0.0),
     byteval: msg.getByteval_asB64(),
     arrayvalue: (f = msg.getArrayvalue()) && proto.ProtoFieldValue.ArrayValue.toObject(includeInstance, f),
     objectvalue: (f = msg.getObjectvalue()) && proto.ProtoFieldValue.ObjectValue.toObject(includeInstance, f),
-    timeval: (f = msg.getTimeval()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f)
+    timeval: (f = msg.getTimeval()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
+    numericval: (f = msg.getNumericval()) && proto.ProtoFieldValue.NumericVal.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -195,6 +201,11 @@ proto.ProtoFieldValue.deserializeBinaryFromReader = function(msg, reader) {
       reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
       msg.setTimeval(value);
       break;
+    case 13:
+      var value = new proto.ProtoFieldValue.NumericVal;
+      reader.readMessage(value,proto.ProtoFieldValue.NumericVal.deserializeBinaryFromReader);
+      msg.setNumericval(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -205,98 +216,89 @@ proto.ProtoFieldValue.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.ProtoFieldValue} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.ProtoFieldValue.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.ProtoFieldValue.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.ProtoFieldValue.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.ProtoFieldValue} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.ProtoFieldValue.prototype.serializeBinaryToWriter = function (writer) {
+proto.ProtoFieldValue.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = jspb.Message.getField(this, 1);
+  f = /** @type {string} */ (jspb.Message.getField(message, 1));
   if (f != null) {
     writer.writeString(
       1,
       f
     );
   }
-  f = jspb.Message.getField(this, 2);
+  f = /** @type {boolean} */ (jspb.Message.getField(message, 2));
   if (f != null) {
     writer.writeBool(
       2,
       f
     );
   }
-  f = jspb.Message.getField(this, 3);
+  f = /** @type {number} */ (jspb.Message.getField(message, 3));
   if (f != null) {
     writer.writeUint32(
       3,
       f
     );
   }
-  f = jspb.Message.getField(this, 4);
+  f = /** @type {number} */ (jspb.Message.getField(message, 4));
   if (f != null) {
     writer.writeSint32(
       4,
       f
     );
   }
-  f = jspb.Message.getField(this, 5);
+  f = /** @type {number} */ (jspb.Message.getField(message, 5));
   if (f != null) {
     writer.writeUint64(
       5,
       f
     );
   }
-  f = jspb.Message.getField(this, 6);
+  f = /** @type {number} */ (jspb.Message.getField(message, 6));
   if (f != null) {
     writer.writeSint64(
       6,
       f
     );
   }
-  f = jspb.Message.getField(this, 7);
+  f = /** @type {number} */ (jspb.Message.getField(message, 7));
   if (f != null) {
     writer.writeFloat(
       7,
       f
     );
   }
-  f = jspb.Message.getField(this, 8);
+  f = /** @type {number} */ (jspb.Message.getField(message, 8));
   if (f != null) {
     writer.writeDouble(
       8,
       f
     );
   }
-  f = jspb.Message.getField(this, 9);
+  f = /** @type {!(string|Uint8Array)} */ (jspb.Message.getField(message, 9));
   if (f != null) {
     writer.writeBytes(
       9,
       f
     );
   }
-  f = this.getArrayvalue();
+  f = message.getArrayvalue();
   if (f != null) {
     writer.writeMessage(
       10,
@@ -304,7 +306,7 @@ proto.ProtoFieldValue.prototype.serializeBinaryToWriter = function (writer) {
       proto.ProtoFieldValue.ArrayValue.serializeBinaryToWriter
     );
   }
-  f = this.getObjectvalue();
+  f = message.getObjectvalue();
   if (f != null) {
     writer.writeMessage(
       11,
@@ -312,7 +314,7 @@ proto.ProtoFieldValue.prototype.serializeBinaryToWriter = function (writer) {
       proto.ProtoFieldValue.ObjectValue.serializeBinaryToWriter
     );
   }
-  f = this.getTimeval();
+  f = message.getTimeval();
   if (f != null) {
     writer.writeMessage(
       12,
@@ -320,392 +322,14 @@ proto.ProtoFieldValue.prototype.serializeBinaryToWriter = function (writer) {
       google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
   }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.ProtoFieldValue} The clone.
- */
-proto.ProtoFieldValue.prototype.cloneMessage = function() {
-  return /** @type {!proto.ProtoFieldValue} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional string stringVal = 1;
- * @return {string}
- */
-proto.ProtoFieldValue.prototype.getStringval = function() {
-  return /** @type {string} */ (!this.hasStringval() ? "" : jspb.Message.getField(this, 1));
-};
-
-
-/** @param {string?|undefined} value  */
-proto.ProtoFieldValue.prototype.setStringval = function(value) {
-  jspb.Message.setOneofField(this, 1, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearStringval = function() {
-  jspb.Message.setOneofField(this, 1, proto.ProtoFieldValue.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasStringval = function() {
-  return jspb.Message.getField(this, 1) != null;
-};
-
-
-/**
- * optional bool boolVal = 2;
- * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
- * You should avoid comparisons like {@code val === true/false} in those cases.
- * @return {boolean}
- */
-proto.ProtoFieldValue.prototype.getBoolval = function() {
-  return /** @type {boolean} */ (!this.hasBoolval() ? false : jspb.Message.getField(this, 2));
-};
-
-
-/** @param {boolean?|undefined} value  */
-proto.ProtoFieldValue.prototype.setBoolval = function(value) {
-  jspb.Message.setOneofField(this, 2, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearBoolval = function() {
-  jspb.Message.setOneofField(this, 2, proto.ProtoFieldValue.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasBoolval = function() {
-  return jspb.Message.getField(this, 2) != null;
-};
-
-
-/**
- * optional uint32 uint32Val = 3;
- * @return {number}
- */
-proto.ProtoFieldValue.prototype.getUint32val = function() {
-  return /** @type {number} */ (!this.hasUint32val() ? 0 : jspb.Message.getField(this, 3));
-};
-
-
-/** @param {number?|undefined} value  */
-proto.ProtoFieldValue.prototype.setUint32val = function(value) {
-  jspb.Message.setOneofField(this, 3, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearUint32val = function() {
-  jspb.Message.setOneofField(this, 3, proto.ProtoFieldValue.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasUint32val = function() {
-  return jspb.Message.getField(this, 3) != null;
-};
-
-
-/**
- * optional sint32 int32Val = 4;
- * @return {number}
- */
-proto.ProtoFieldValue.prototype.getInt32val = function() {
-  return /** @type {number} */ (!this.hasInt32val() ? 0 : jspb.Message.getField(this, 4));
-};
-
-
-/** @param {number?|undefined} value  */
-proto.ProtoFieldValue.prototype.setInt32val = function(value) {
-  jspb.Message.setOneofField(this, 4, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearInt32val = function() {
-  jspb.Message.setOneofField(this, 4, proto.ProtoFieldValue.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasInt32val = function() {
-  return jspb.Message.getField(this, 4) != null;
-};
-
-
-/**
- * optional uint64 uint64Val = 5;
- * @return {number}
- */
-proto.ProtoFieldValue.prototype.getUint64val = function() {
-  return /** @type {number} */ (!this.hasUint64val() ? 0 : jspb.Message.getField(this, 5));
-};
-
-
-/** @param {number?|undefined} value  */
-proto.ProtoFieldValue.prototype.setUint64val = function(value) {
-  jspb.Message.setOneofField(this, 5, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearUint64val = function() {
-  jspb.Message.setOneofField(this, 5, proto.ProtoFieldValue.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasUint64val = function() {
-  return jspb.Message.getField(this, 5) != null;
-};
-
-
-/**
- * optional sint64 int64Val = 6;
- * @return {number}
- */
-proto.ProtoFieldValue.prototype.getInt64val = function() {
-  return /** @type {number} */ (!this.hasInt64val() ? 0 : jspb.Message.getField(this, 6));
-};
-
-
-/** @param {number?|undefined} value  */
-proto.ProtoFieldValue.prototype.setInt64val = function(value) {
-  jspb.Message.setOneofField(this, 6, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearInt64val = function() {
-  jspb.Message.setOneofField(this, 6, proto.ProtoFieldValue.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasInt64val = function() {
-  return jspb.Message.getField(this, 6) != null;
-};
-
-
-/**
- * optional float float32Val = 7;
- * @return {number}
- */
-proto.ProtoFieldValue.prototype.getFloat32val = function() {
-  return /** @type {number} */ (!this.hasFloat32val() ? 0.0 : +jspb.Message.getField(this, 7));
-};
-
-
-/** @param {number?|undefined} value  */
-proto.ProtoFieldValue.prototype.setFloat32val = function(value) {
-  jspb.Message.setOneofField(this, 7, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearFloat32val = function() {
-  jspb.Message.setOneofField(this, 7, proto.ProtoFieldValue.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasFloat32val = function() {
-  return jspb.Message.getField(this, 7) != null;
-};
-
-
-/**
- * optional double float64Val = 8;
- * @return {number}
- */
-proto.ProtoFieldValue.prototype.getFloat64val = function() {
-  return /** @type {number} */ (!this.hasFloat64val() ? 0.0 : +jspb.Message.getField(this, 8));
-};
-
-
-/** @param {number?|undefined} value  */
-proto.ProtoFieldValue.prototype.setFloat64val = function(value) {
-  jspb.Message.setOneofField(this, 8, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearFloat64val = function() {
-  jspb.Message.setOneofField(this, 8, proto.ProtoFieldValue.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasFloat64val = function() {
-  return jspb.Message.getField(this, 8) != null;
-};
-
-
-/**
- * optional bytes byteVal = 9;
- * @return {(string|Uint8Array)}
- */
-proto.ProtoFieldValue.prototype.getByteval = function() {
-  return /** @type {(string|Uint8Array)} */ (!this.hasByteval() ? "" : jspb.Message.getField(this, 9));
-};
-
-
-/**
- * optional bytes byteVal = 9;
- * This is a type-conversion wrapper around `getByteval()`
- * @return {string}
- */
-proto.ProtoFieldValue.prototype.getByteval_asB64 = function() {
-  return /** @type {string} */ (jspb.Message.bytesAsB64(
-      this.getByteval()));
-};
-
-
-/**
- * optional bytes byteVal = 9;
- * Note that Uint8Array is not supported on all browsers.
- * @see http://caniuse.com/Uint8Array
- * This is a type-conversion wrapper around `getByteval()`
- * @return {Uint8Array}
- */
-proto.ProtoFieldValue.prototype.getByteval_asU8 = function() {
-  return /** @type {Uint8Array} */ (jspb.Message.bytesAsU8(
-      this.getByteval()));
-};
-
-
-/** @param {(string|Uint8Array)|undefined} value  */
-proto.ProtoFieldValue.prototype.setByteval = function(value) {
-  jspb.Message.setOneofField(this, 9, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearByteval = function() {
-  jspb.Message.setOneofField(this, 9, proto.ProtoFieldValue.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasByteval = function() {
-  return jspb.Message.getField(this, 9) != null;
-};
-
-
-/**
- * optional ArrayValue arrayValue = 10;
- * @return {proto.ProtoFieldValue.ArrayValue}
- */
-proto.ProtoFieldValue.prototype.getArrayvalue = function() {
-  return /** @type{proto.ProtoFieldValue.ArrayValue} */ (
-    jspb.Message.getWrapperField(this, proto.ProtoFieldValue.ArrayValue, 10));
-};
-
-
-/** @param {proto.ProtoFieldValue.ArrayValue|undefined} value  */
-proto.ProtoFieldValue.prototype.setArrayvalue = function(value) {
-  jspb.Message.setOneofWrapperField(this, 10, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearArrayvalue = function() {
-  this.setArrayvalue(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasArrayvalue = function() {
-  return jspb.Message.getField(this, 10) != null;
-};
-
-
-/**
- * optional ObjectValue objectValue = 11;
- * @return {proto.ProtoFieldValue.ObjectValue}
- */
-proto.ProtoFieldValue.prototype.getObjectvalue = function() {
-  return /** @type{proto.ProtoFieldValue.ObjectValue} */ (
-    jspb.Message.getWrapperField(this, proto.ProtoFieldValue.ObjectValue, 11));
-};
-
-
-/** @param {proto.ProtoFieldValue.ObjectValue|undefined} value  */
-proto.ProtoFieldValue.prototype.setObjectvalue = function(value) {
-  jspb.Message.setOneofWrapperField(this, 11, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearObjectvalue = function() {
-  this.setObjectvalue(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasObjectvalue = function() {
-  return jspb.Message.getField(this, 11) != null;
-};
-
-
-/**
- * optional google.protobuf.Timestamp timeVal = 12;
- * @return {proto.google.protobuf.Timestamp}
- */
-proto.ProtoFieldValue.prototype.getTimeval = function() {
-  return /** @type{proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 12));
-};
-
-
-/** @param {proto.google.protobuf.Timestamp|undefined} value  */
-proto.ProtoFieldValue.prototype.setTimeval = function(value) {
-  jspb.Message.setOneofWrapperField(this, 12, proto.ProtoFieldValue.oneofGroups_[0], value);
-};
-
-
-proto.ProtoFieldValue.prototype.clearTimeval = function() {
-  this.setTimeval(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.ProtoFieldValue.prototype.hasTimeval = function() {
-  return jspb.Message.getField(this, 12) != null;
+  f = message.getNumericval();
+  if (f != null) {
+    writer.writeMessage(
+      13,
+      f,
+      proto.ProtoFieldValue.NumericVal.serializeBinaryToWriter
+    );
+  }
 };
 
 
@@ -759,6 +383,7 @@ proto.ProtoFieldValue.ArrayValue.prototype.toObject = function(opt_includeInstan
  *     http://goto/soy-param-migration
  * @param {!proto.ProtoFieldValue.ArrayValue} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.ProtoFieldValue.ArrayValue.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -803,8 +428,7 @@ proto.ProtoFieldValue.ArrayValue.deserializeBinaryFromReader = function(msg, rea
     case 1:
       var value = new proto.ProtoFieldValue;
       reader.readMessage(value,proto.ProtoFieldValue.deserializeBinaryFromReader);
-      msg.getElementsList().push(value);
-      msg.setElementsList(msg.getElementsList());
+      msg.addElements(value);
       break;
     default:
       reader.skipField();
@@ -816,35 +440,26 @@ proto.ProtoFieldValue.ArrayValue.deserializeBinaryFromReader = function(msg, rea
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.ProtoFieldValue.ArrayValue} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.ProtoFieldValue.ArrayValue.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.ProtoFieldValue.ArrayValue.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.ProtoFieldValue.ArrayValue.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.ProtoFieldValue.ArrayValue} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.ProtoFieldValue.ArrayValue.prototype.serializeBinaryToWriter = function (writer) {
+proto.ProtoFieldValue.ArrayValue.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getElementsList();
+  f = message.getElementsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
@@ -856,29 +471,28 @@ proto.ProtoFieldValue.ArrayValue.prototype.serializeBinaryToWriter = function (w
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.ProtoFieldValue.ArrayValue} The clone.
- */
-proto.ProtoFieldValue.ArrayValue.prototype.cloneMessage = function() {
-  return /** @type {!proto.ProtoFieldValue.ArrayValue} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * repeated ProtoFieldValue elements = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.ProtoFieldValue>}
+ * @return {!Array<!proto.ProtoFieldValue>}
  */
 proto.ProtoFieldValue.ArrayValue.prototype.getElementsList = function() {
-  return /** @type{!Array.<!proto.ProtoFieldValue>} */ (
+  return /** @type{!Array<!proto.ProtoFieldValue>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.ProtoFieldValue, 1));
 };
 
 
-/** @param {Array.<!proto.ProtoFieldValue>} value  */
+/** @param {!Array<!proto.ProtoFieldValue>} value */
 proto.ProtoFieldValue.ArrayValue.prototype.setElementsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
+};
+
+
+/**
+ * @param {!proto.ProtoFieldValue=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.ProtoFieldValue}
+ */
+proto.ProtoFieldValue.ArrayValue.prototype.addElements = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.ProtoFieldValue, opt_index);
 };
 
 
@@ -930,10 +544,11 @@ proto.ProtoFieldValue.ObjectValue.prototype.toObject = function(opt_includeInsta
  *     http://goto/soy-param-migration
  * @param {!proto.ProtoFieldValue.ObjectValue} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.ProtoFieldValue.ObjectValue.toObject = function(includeInstance, msg) {
   var f, obj = {
-    valuesMap: (f = msg.getValuesMap(true)) ? f.toArray() : []
+    valuesMap: (f = msg.getValuesMap()) ? f.toObject(includeInstance, proto.ProtoFieldValue.toObject) : []
   };
 
   if (includeInstance) {
@@ -973,7 +588,7 @@ proto.ProtoFieldValue.ObjectValue.deserializeBinaryFromReader = function(msg, re
     case 1:
       var value = msg.getValuesMap();
       reader.readMessage(value, function(message, reader) {
-        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.ProtoFieldValue.deserializeBinaryFromReader);
+        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.ProtoFieldValue.deserializeBinaryFromReader, "");
          });
       break;
     default:
@@ -986,47 +601,29 @@ proto.ProtoFieldValue.ObjectValue.deserializeBinaryFromReader = function(msg, re
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.ProtoFieldValue.ObjectValue} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.ProtoFieldValue.ObjectValue.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.ProtoFieldValue.ObjectValue.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.ProtoFieldValue.ObjectValue.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.ProtoFieldValue.ObjectValue} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.ProtoFieldValue.ObjectValue.prototype.serializeBinaryToWriter = function (writer) {
+proto.ProtoFieldValue.ObjectValue.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getValuesMap(true);
+  f = message.getValuesMap(true);
   if (f && f.getLength() > 0) {
     f.serializeBinary(1, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeMessage, proto.ProtoFieldValue.serializeBinaryToWriter);
   }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.ProtoFieldValue.ObjectValue} The clone.
- */
-proto.ProtoFieldValue.ObjectValue.prototype.cloneMessage = function() {
-  return /** @type {!proto.ProtoFieldValue.ObjectValue} */ (jspb.Message.cloneMessage(this));
 };
 
 
@@ -1043,6 +640,581 @@ proto.ProtoFieldValue.ObjectValue.prototype.getValuesMap = function(opt_noLazyCr
 };
 
 
+proto.ProtoFieldValue.ObjectValue.prototype.clearValuesMap = function() {
+  this.getValuesMap().clear();
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.ProtoFieldValue.NumericVal = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.ProtoFieldValue.NumericVal.repeatedFields_, null);
+};
+goog.inherits(proto.ProtoFieldValue.NumericVal, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.ProtoFieldValue.NumericVal.displayName = 'proto.ProtoFieldValue.NumericVal';
+}
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.ProtoFieldValue.NumericVal.repeatedFields_ = [1];
+
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.ProtoFieldValue.NumericVal.prototype.toObject = function(opt_includeInstance) {
+  return proto.ProtoFieldValue.NumericVal.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.ProtoFieldValue.NumericVal} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.ProtoFieldValue.NumericVal.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    valList: jspb.Message.getRepeatedField(msg, 1)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.ProtoFieldValue.NumericVal}
+ */
+proto.ProtoFieldValue.NumericVal.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.ProtoFieldValue.NumericVal;
+  return proto.ProtoFieldValue.NumericVal.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.ProtoFieldValue.NumericVal} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.ProtoFieldValue.NumericVal}
+ */
+proto.ProtoFieldValue.NumericVal.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
+      msg.setValList(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.ProtoFieldValue.NumericVal.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.ProtoFieldValue.NumericVal.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.ProtoFieldValue.NumericVal} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.ProtoFieldValue.NumericVal.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getValList();
+  if (f.length > 0) {
+    writer.writePackedUint64(
+      1,
+      f
+    );
+  }
+};
+
+
+/**
+ * repeated uint64 val = 1;
+ * @return {!Array<number>}
+ */
+proto.ProtoFieldValue.NumericVal.prototype.getValList = function() {
+  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+};
+
+
+/** @param {!Array<number>} value */
+proto.ProtoFieldValue.NumericVal.prototype.setValList = function(value) {
+  jspb.Message.setField(this, 1, value || []);
+};
+
+
+/**
+ * @param {!number} value
+ * @param {number=} opt_index
+ */
+proto.ProtoFieldValue.NumericVal.prototype.addVal = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+};
+
+
+proto.ProtoFieldValue.NumericVal.prototype.clearValList = function() {
+  this.setValList([]);
+};
+
+
+/**
+ * optional string stringVal = 1;
+ * @return {string}
+ */
+proto.ProtoFieldValue.prototype.getStringval = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.ProtoFieldValue.prototype.setStringval = function(value) {
+  jspb.Message.setOneofField(this, 1, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearStringval = function() {
+  jspb.Message.setOneofField(this, 1, proto.ProtoFieldValue.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasStringval = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional bool boolVal = 2;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.ProtoFieldValue.prototype.getBoolval = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
+};
+
+
+/** @param {boolean} value */
+proto.ProtoFieldValue.prototype.setBoolval = function(value) {
+  jspb.Message.setOneofField(this, 2, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearBoolval = function() {
+  jspb.Message.setOneofField(this, 2, proto.ProtoFieldValue.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasBoolval = function() {
+  return jspb.Message.getField(this, 2) != null;
+};
+
+
+/**
+ * optional uint32 uint32Val = 3;
+ * @return {number}
+ */
+proto.ProtoFieldValue.prototype.getUint32val = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+};
+
+
+/** @param {number} value */
+proto.ProtoFieldValue.prototype.setUint32val = function(value) {
+  jspb.Message.setOneofField(this, 3, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearUint32val = function() {
+  jspb.Message.setOneofField(this, 3, proto.ProtoFieldValue.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasUint32val = function() {
+  return jspb.Message.getField(this, 3) != null;
+};
+
+
+/**
+ * optional sint32 int32Val = 4;
+ * @return {number}
+ */
+proto.ProtoFieldValue.prototype.getInt32val = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/** @param {number} value */
+proto.ProtoFieldValue.prototype.setInt32val = function(value) {
+  jspb.Message.setOneofField(this, 4, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearInt32val = function() {
+  jspb.Message.setOneofField(this, 4, proto.ProtoFieldValue.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasInt32val = function() {
+  return jspb.Message.getField(this, 4) != null;
+};
+
+
+/**
+ * optional uint64 uint64Val = 5;
+ * @return {number}
+ */
+proto.ProtoFieldValue.prototype.getUint64val = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+};
+
+
+/** @param {number} value */
+proto.ProtoFieldValue.prototype.setUint64val = function(value) {
+  jspb.Message.setOneofField(this, 5, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearUint64val = function() {
+  jspb.Message.setOneofField(this, 5, proto.ProtoFieldValue.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasUint64val = function() {
+  return jspb.Message.getField(this, 5) != null;
+};
+
+
+/**
+ * optional sint64 int64Val = 6;
+ * @return {number}
+ */
+proto.ProtoFieldValue.prototype.getInt64val = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+};
+
+
+/** @param {number} value */
+proto.ProtoFieldValue.prototype.setInt64val = function(value) {
+  jspb.Message.setOneofField(this, 6, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearInt64val = function() {
+  jspb.Message.setOneofField(this, 6, proto.ProtoFieldValue.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasInt64val = function() {
+  return jspb.Message.getField(this, 6) != null;
+};
+
+
+/**
+ * optional float float32Val = 7;
+ * @return {number}
+ */
+proto.ProtoFieldValue.prototype.getFloat32val = function() {
+  return /** @type {number} */ (+jspb.Message.getFieldWithDefault(this, 7, 0.0));
+};
+
+
+/** @param {number} value */
+proto.ProtoFieldValue.prototype.setFloat32val = function(value) {
+  jspb.Message.setOneofField(this, 7, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearFloat32val = function() {
+  jspb.Message.setOneofField(this, 7, proto.ProtoFieldValue.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasFloat32val = function() {
+  return jspb.Message.getField(this, 7) != null;
+};
+
+
+/**
+ * optional double float64Val = 8;
+ * @return {number}
+ */
+proto.ProtoFieldValue.prototype.getFloat64val = function() {
+  return /** @type {number} */ (+jspb.Message.getFieldWithDefault(this, 8, 0.0));
+};
+
+
+/** @param {number} value */
+proto.ProtoFieldValue.prototype.setFloat64val = function(value) {
+  jspb.Message.setOneofField(this, 8, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearFloat64val = function() {
+  jspb.Message.setOneofField(this, 8, proto.ProtoFieldValue.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasFloat64val = function() {
+  return jspb.Message.getField(this, 8) != null;
+};
+
+
+/**
+ * optional bytes byteVal = 9;
+ * @return {!(string|Uint8Array)}
+ */
+proto.ProtoFieldValue.prototype.getByteval = function() {
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+};
+
+
+/**
+ * optional bytes byteVal = 9;
+ * This is a type-conversion wrapper around `getByteval()`
+ * @return {string}
+ */
+proto.ProtoFieldValue.prototype.getByteval_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getByteval()));
+};
+
+
+/**
+ * optional bytes byteVal = 9;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getByteval()`
+ * @return {!Uint8Array}
+ */
+proto.ProtoFieldValue.prototype.getByteval_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getByteval()));
+};
+
+
+/** @param {!(string|Uint8Array)} value */
+proto.ProtoFieldValue.prototype.setByteval = function(value) {
+  jspb.Message.setOneofField(this, 9, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearByteval = function() {
+  jspb.Message.setOneofField(this, 9, proto.ProtoFieldValue.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasByteval = function() {
+  return jspb.Message.getField(this, 9) != null;
+};
+
+
+/**
+ * optional ArrayValue arrayValue = 10;
+ * @return {?proto.ProtoFieldValue.ArrayValue}
+ */
+proto.ProtoFieldValue.prototype.getArrayvalue = function() {
+  return /** @type{?proto.ProtoFieldValue.ArrayValue} */ (
+    jspb.Message.getWrapperField(this, proto.ProtoFieldValue.ArrayValue, 10));
+};
+
+
+/** @param {?proto.ProtoFieldValue.ArrayValue|undefined} value */
+proto.ProtoFieldValue.prototype.setArrayvalue = function(value) {
+  jspb.Message.setOneofWrapperField(this, 10, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearArrayvalue = function() {
+  this.setArrayvalue(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasArrayvalue = function() {
+  return jspb.Message.getField(this, 10) != null;
+};
+
+
+/**
+ * optional ObjectValue objectValue = 11;
+ * @return {?proto.ProtoFieldValue.ObjectValue}
+ */
+proto.ProtoFieldValue.prototype.getObjectvalue = function() {
+  return /** @type{?proto.ProtoFieldValue.ObjectValue} */ (
+    jspb.Message.getWrapperField(this, proto.ProtoFieldValue.ObjectValue, 11));
+};
+
+
+/** @param {?proto.ProtoFieldValue.ObjectValue|undefined} value */
+proto.ProtoFieldValue.prototype.setObjectvalue = function(value) {
+  jspb.Message.setOneofWrapperField(this, 11, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearObjectvalue = function() {
+  this.setObjectvalue(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasObjectvalue = function() {
+  return jspb.Message.getField(this, 11) != null;
+};
+
+
+/**
+ * optional google.protobuf.Timestamp timeVal = 12;
+ * @return {?proto.google.protobuf.Timestamp}
+ */
+proto.ProtoFieldValue.prototype.getTimeval = function() {
+  return /** @type{?proto.google.protobuf.Timestamp} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 12));
+};
+
+
+/** @param {?proto.google.protobuf.Timestamp|undefined} value */
+proto.ProtoFieldValue.prototype.setTimeval = function(value) {
+  jspb.Message.setOneofWrapperField(this, 12, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearTimeval = function() {
+  this.setTimeval(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasTimeval = function() {
+  return jspb.Message.getField(this, 12) != null;
+};
+
+
+/**
+ * optional NumericVal numericVal = 13;
+ * @return {?proto.ProtoFieldValue.NumericVal}
+ */
+proto.ProtoFieldValue.prototype.getNumericval = function() {
+  return /** @type{?proto.ProtoFieldValue.NumericVal} */ (
+    jspb.Message.getWrapperField(this, proto.ProtoFieldValue.NumericVal, 13));
+};
+
+
+/** @param {?proto.ProtoFieldValue.NumericVal|undefined} value */
+proto.ProtoFieldValue.prototype.setNumericval = function(value) {
+  jspb.Message.setOneofWrapperField(this, 13, proto.ProtoFieldValue.oneofGroups_[0], value);
+};
+
+
+proto.ProtoFieldValue.prototype.clearNumericval = function() {
+  this.setNumericval(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoFieldValue.prototype.hasNumericval = function() {
+  return jspb.Message.getField(this, 13) != null;
+};
+
+
 
 /**
  * Generated by JsPbCodeGenerator.
@@ -1055,19 +1227,12 @@ proto.ProtoFieldValue.ObjectValue.prototype.getValuesMap = function(opt_noLazyCr
  * @constructor
  */
 proto.ProtoRow = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.ProtoRow.repeatedFields_, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.ProtoRow, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
   proto.ProtoRow.displayName = 'proto.ProtoRow';
 }
-/**
- * List of repeated fields within this message type.
- * @private {!Array<number>}
- * @const
- */
-proto.ProtoRow.repeatedFields_ = [1];
-
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -1093,11 +1258,11 @@ proto.ProtoRow.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.ProtoRow} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.ProtoRow.toObject = function(includeInstance, msg) {
   var f, obj = {
-    fieldsList: jspb.Message.toObjectList(msg.getFieldsList(),
-    proto.ProtoFieldValue.toObject, includeInstance)
+    fieldsMap: (f = msg.getFieldsMap()) ? f.toObject(includeInstance, proto.ProtoFieldValue.toObject) : []
   };
 
   if (includeInstance) {
@@ -1135,10 +1300,10 @@ proto.ProtoRow.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.ProtoFieldValue;
-      reader.readMessage(value,proto.ProtoFieldValue.deserializeBinaryFromReader);
-      msg.getFieldsList().push(value);
-      msg.setFieldsList(msg.getFieldsList());
+      var value = msg.getFieldsMap();
+      reader.readMessage(value, function(message, reader) {
+        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.ProtoFieldValue.deserializeBinaryFromReader, "");
+         });
       break;
     default:
       reader.skipField();
@@ -1150,74 +1315,47 @@ proto.ProtoRow.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.ProtoRow} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.ProtoRow.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.ProtoRow.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.ProtoRow.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.ProtoRow} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.ProtoRow.prototype.serializeBinaryToWriter = function (writer) {
+proto.ProtoRow.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getFieldsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.ProtoFieldValue.serializeBinaryToWriter
-    );
+  f = message.getFieldsMap(true);
+  if (f && f.getLength() > 0) {
+    f.serializeBinary(1, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeMessage, proto.ProtoFieldValue.serializeBinaryToWriter);
   }
 };
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.ProtoRow} The clone.
+ * map<string, ProtoFieldValue> fields = 1;
+ * @param {boolean=} opt_noLazyCreate Do not create the map if
+ * empty, instead returning `undefined`
+ * @return {!jspb.Map<string,!proto.ProtoFieldValue>}
  */
-proto.ProtoRow.prototype.cloneMessage = function() {
-  return /** @type {!proto.ProtoRow} */ (jspb.Message.cloneMessage(this));
+proto.ProtoRow.prototype.getFieldsMap = function(opt_noLazyCreate) {
+  return /** @type {!jspb.Map<string,!proto.ProtoFieldValue>} */ (
+      jspb.Message.getMapField(this, 1, opt_noLazyCreate,
+      proto.ProtoFieldValue));
 };
 
 
-/**
- * repeated ProtoFieldValue fields = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.ProtoFieldValue>}
- */
-proto.ProtoRow.prototype.getFieldsList = function() {
-  return /** @type{!Array.<!proto.ProtoFieldValue>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.ProtoFieldValue, 1));
-};
-
-
-/** @param {Array.<!proto.ProtoFieldValue>} value  */
-proto.ProtoRow.prototype.setFieldsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
-
-proto.ProtoRow.prototype.clearFieldsList = function() {
-  this.setFieldsList([]);
+proto.ProtoRow.prototype.clearFieldsMap = function() {
+  this.getFieldsMap().clear();
 };
 
 

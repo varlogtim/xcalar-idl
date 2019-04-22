@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -55,11 +57,12 @@ proto.ServiceRequest.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.ServiceRequest} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.ServiceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    servicename: msg.getServicename(),
-    methodname: msg.getMethodname(),
+    servicename: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    methodname: jspb.Message.getFieldWithDefault(msg, 2, ""),
     body: (f = msg.getBody()) && google_protobuf_any_pb.Any.toObject(includeInstance, f)
   };
 
@@ -120,49 +123,40 @@ proto.ServiceRequest.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.ServiceRequest} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.ServiceRequest.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.ServiceRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.ServiceRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.ServiceRequest} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.ServiceRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.ServiceRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getServicename();
+  f = message.getServicename();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getMethodname();
+  f = message.getMethodname();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getBody();
+  f = message.getBody();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -174,26 +168,17 @@ proto.ServiceRequest.prototype.serializeBinaryToWriter = function (writer) {
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.ServiceRequest} The clone.
- */
-proto.ServiceRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.ServiceRequest} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional string serviceName = 1;
  * @return {string}
  */
 proto.ServiceRequest.prototype.getServicename = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.ServiceRequest.prototype.setServicename = function(value) {
-  jspb.Message.setField(this, 1, value);
+  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -202,27 +187,27 @@ proto.ServiceRequest.prototype.setServicename = function(value) {
  * @return {string}
  */
 proto.ServiceRequest.prototype.getMethodname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
-/** @param {string} value  */
+/** @param {string} value */
 proto.ServiceRequest.prototype.setMethodname = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
  * optional google.protobuf.Any body = 3;
- * @return {proto.google.protobuf.Any}
+ * @return {?proto.google.protobuf.Any}
  */
 proto.ServiceRequest.prototype.getBody = function() {
-  return /** @type{proto.google.protobuf.Any} */ (
+  return /** @type{?proto.google.protobuf.Any} */ (
     jspb.Message.getWrapperField(this, google_protobuf_any_pb.Any, 3));
 };
 
 
-/** @param {proto.google.protobuf.Any|undefined} value  */
+/** @param {?proto.google.protobuf.Any|undefined} value */
 proto.ServiceRequest.prototype.setBody = function(value) {
   jspb.Message.setWrapperField(this, 3, value);
 };
@@ -235,7 +220,7 @@ proto.ServiceRequest.prototype.clearBody = function() {
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.ServiceRequest.prototype.hasBody = function() {
   return jspb.Message.getField(this, 3) != null;
@@ -285,6 +270,7 @@ proto.ServiceResponse.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.ServiceResponse} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.ServiceResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -340,35 +326,26 @@ proto.ServiceResponse.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.ServiceResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.ServiceResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.ServiceResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.ServiceResponse.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.ServiceResponse} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.ServiceResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.ServiceResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getBody();
+  f = message.getBody();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -380,25 +357,16 @@ proto.ServiceResponse.prototype.serializeBinaryToWriter = function (writer) {
 
 
 /**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.ServiceResponse} The clone.
- */
-proto.ServiceResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.ServiceResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
  * optional google.protobuf.Any body = 1;
- * @return {proto.google.protobuf.Any}
+ * @return {?proto.google.protobuf.Any}
  */
 proto.ServiceResponse.prototype.getBody = function() {
-  return /** @type{proto.google.protobuf.Any} */ (
+  return /** @type{?proto.google.protobuf.Any} */ (
     jspb.Message.getWrapperField(this, google_protobuf_any_pb.Any, 1));
 };
 
 
-/** @param {proto.google.protobuf.Any|undefined} value  */
+/** @param {?proto.google.protobuf.Any|undefined} value */
 proto.ServiceResponse.prototype.setBody = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
@@ -411,7 +379,7 @@ proto.ServiceResponse.prototype.clearBody = function() {
 
 /**
  * Returns whether this field is set.
- * @return{!boolean}
+ * @return {!boolean}
  */
 proto.ServiceResponse.prototype.hasBody = function() {
   return jspb.Message.getField(this, 1) != null;
