@@ -28,7 +28,7 @@ interface TableDurable {
     version?: number;
     tableName: string;
     tableId: TableId;
-    tableCols: ProgColDurable[] | ProgCol[];
+    tableCols?: ProgColDurable[] | ProgCol[];
     status?: TableType;
     timeStamp?: number;
     highlightedCells?: object;

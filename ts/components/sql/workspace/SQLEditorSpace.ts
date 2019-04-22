@@ -110,6 +110,21 @@ class SQLEditorSpace {
                 tables: acTables
             });
         }
+        this._setExecuteBtnTooltip();
+    }
+
+    private _setExecuteBtnTooltip(): void {
+        let $btn: JQuery = this._getEditorSpaceEl().find(".bottomSection .execute");
+        let title: string = "Execute Query" + "<br/> (";
+        if (isSystemMac) {
+            title += "Cmd + E";
+        } else {
+            title += "Ctrl + E";
+        }
+        title += ")";
+        xcTooltip.add($btn, {
+            title: title
+        });
     }
 
     private _onLoadMode(promise: XDPromise<any>): any {
