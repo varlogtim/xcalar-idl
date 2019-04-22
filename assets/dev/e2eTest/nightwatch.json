@@ -3,6 +3,7 @@
     "filter" : "*.js",
     "custom_commands_path": ["../../test/e2eTest/customCommands"],
     "globals_path": "../../test/e2eTest/globalModule.js",
+    "launch_url": "http://localhost:8888/",
     "webdriver" : {
       "start_process": true,
       "server_path": "node_modules/.bin/chromedriver",
@@ -11,6 +12,20 @@
 
     "test_settings" : {
       "default" : {
+        "globals": {
+            "launchUrl": "http://localhost:8888/"
+        },
+        "desiredCapabilities": {
+          "browserName": "chrome",
+          "chromeOptions": {
+            "args": ["--headless", "window-size=1280,800"]
+          }
+        }
+      },
+      "jenkins": {
+        "globals": {
+            "launchUrl": "https://localhost:8443/"
+        },
         "desiredCapabilities": {
           "browserName": "chrome",
           "chromeOptions": {

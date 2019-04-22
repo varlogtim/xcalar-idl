@@ -16,8 +16,10 @@ module.exports = {
     '@tags': ["upgrade test", "allTests"],
 
     before: function(browser) {
+        console.log(browser.globals.buildTestUrl(browser, browser.globals.user));
         browser
-            .url(browser.globals.buildTestUrl(browser.globals.user))
+            .url(browser.globals.buildTestUrl(browser, browser.globals.user))
+            .waitForElementVisible('#container', 10000)
             .waitForElementVisible('#container.noWorkbook', 10000);
     },
 
@@ -49,7 +51,7 @@ module.exports = {
             });
 
         }
-        browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
+        // browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
     },
 
     'upload and enter workbook': function(browser) {
@@ -133,7 +135,12 @@ module.exports = {
                     "primaryKeys": [
                         "$CLASS_ID_MAXINTEGER"
                     ],
-                    "operator": "$CLASS_ID_MAXINTEGER"
+                    "operator": "$CLASS_ID_MAXINTEGER",
+                    "columns": [
+                        "CLASS_ID_CONCAT",
+                        "CLASS_ID_MAXINTEGER",
+                        "CLASS_ID"
+                    ]
                 };
 
                 browser
@@ -339,8 +346,9 @@ module.exports = {
     'loadExportedDataset': function(browser) {
         for (const tabName of Object.keys(testTabs)) {
             const newTabName = tabName;
-            const nodes =[
+            const nodes = [
                 {
+                    "version": 1,
                     "type": "dataset",
                     "subType": null,
                     "display": {
@@ -348,12 +356,14 @@ module.exports = {
                         "y": 140
                     },
                     "description": "exportedDataset",
+                    "title": "Node 1",
                     "input": {
-                        "source": "dftest3.01369.upgradeTest",
+                        "source": "dftest3.35829.upgradeTest",
                         "prefix": "upgradeTest",
                         "synthesize": false,
-                        "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"dftest3.01369.upgradeTest\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/home/jenkins/export_test/upgradeTest.csv\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\r\\\\n\\\",\\\"fieldDelim\\\":\\\",\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"columnType\": \"DfFloat64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID\",\n                        \"destColumn\": \"CLASS_ID\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarOpCode\",\n                        \"destColumn\": \"XcalarOpCode\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_CONCAT\",\n                        \"destColumn\": \"CLASS_ID_CONCAT\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarRankOver\",\n                        \"destColumn\": \"XcalarRankOver\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                     {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_udf\",\n                        \"destColumn\": \"CLASS_ID_udf\",\n                        \"columnType\": \"DfString\"\n                    }\n                               ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
+                        "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"dftest3.35829.upgradeTest\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/netstore/tmp/export_test/upgradeTest2.csv\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\n\\\",\\\"fieldDelim\\\":\\\"\\\\t\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"columnType\": \"DfFloat64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID\",\n                        \"destColumn\": \"CLASS_ID\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarOpCode\",\n                        \"destColumn\": \"XcalarOpCode\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_CONCAT\",\n                        \"destColumn\": \"CLASS_ID_CONCAT\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarRankOver\",\n                        \"destColumn\": \"XcalarRankOver\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_udf\",\n                        \"destColumn\": \"CLASS_ID_udf\",\n                        \"columnType\": \"DfInt64\"\n                    }\n                ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
                     },
+                    "id": "dag_5D0326270431FEE7_1560487772757_42",
                     "state": "Configured",
                     "configured": true,
                     "aggregates": [],
@@ -384,13 +394,11 @@ module.exports = {
                         },
                         {
                             "name": "CLASS_ID_udf",
-                            "type": "string"
+                            "type": "integer"
                         }
                     ],
-                    "parents": [],
-                    "nodeId": "dag_5C764BC624079350_1551258374774_81"
+                    "parents": []
                 }
-
             ];
             browser.switchTab(newTabName);
 
@@ -426,7 +434,7 @@ module.exports = {
             browser.perform(() => {
 
                 let input = {
-                    "source": "dftest3.01369.upgradeTest",
+                    "source": "dftest3.35829.upgradeTest",
                     "prefix": "upgradeTest",
                     "synthesize": false,
                     "schema": [
@@ -459,7 +467,7 @@ module.exports = {
                             "type": "string"
                         }
                     ],
-                    "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"dftest3.01369.upgradeTest\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/home/jenkins/export_test/upgradeTest.csv\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\r\\\\n\\\",\\\"fieldDelim\\\":\\\",\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"columnType\": \"DfFloat64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID\",\n                        \"destColumn\": \"CLASS_ID\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarOpCode\",\n                        \"destColumn\": \"XcalarOpCode\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_CONCAT\",\n                        \"destColumn\": \"CLASS_ID_CONCAT\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarRankOver\",\n                        \"destColumn\": \"XcalarRankOver\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                      {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_udf\",\n                        \"destColumn\": \"CLASS_ID_udf\",\n                        \"columnType\": \"DfString\"\n                    }\n                              ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
+                    "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"dftest3.35829.upgradeTest\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/netstore/tmp/export_test/upgradeTest2.csv\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\n\\\",\\\"fieldDelim\\\":\\\"\\\\t\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"columnType\": \"DfFloat64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID\",\n                        \"destColumn\": \"CLASS_ID\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarOpCode\",\n                        \"destColumn\": \"XcalarOpCode\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_CONCAT\",\n                        \"destColumn\": \"CLASS_ID_CONCAT\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarRankOver\",\n                        \"destColumn\": \"XcalarRankOver\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_udf\",\n                        \"destColumn\": \"CLASS_ID_udf\",\n                        \"columnType\": \"DfInt64\"\n                    }\n                ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
                 }
 
                 browser

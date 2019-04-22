@@ -6,8 +6,15 @@ module.exports = {
     },
     "default": {
         user: "dftest",
-        buildTestUrl: function(user) {
-            return `http://localhost:8888/testSuite.html?
+        buildTestUrl: function(browser, user) {
+            return `${browser.globals.launchUrl}testSuite.html?
+                test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${user}&id=0`
+        }
+    },
+    "jenkins": {
+        user: "dftest",
+        buildTestUrl: function(browser, user) {
+            return `${browser.globals.launchUrl}testSuite.html?
                 test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${user}&id=0`
         }
     }

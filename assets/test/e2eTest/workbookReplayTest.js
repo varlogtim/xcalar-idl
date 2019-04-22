@@ -3,11 +3,13 @@ module.exports = {
     'open browser': function(browser) {
         // let user = "dftest" + Math.floor(Math.random() * 1000 + 1);
         let user = "dftest";
-        let url = "https://carey/testSuite.html" +
+        // let url = "https://carey/testSuite.html" +
+        let url = browser.globals.launchUrl + "/testSuite.html" +
         "?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=" + user + "&id=0"
         // open browser
         browser
             .url(url)
+            .waitForElementVisible('#container', 10000)
             .waitForElementVisible('#container.noWorkbook', 10000);
     },
 

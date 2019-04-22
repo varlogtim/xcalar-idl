@@ -5,11 +5,11 @@ function replay(testConfig, tags) {
     const testTabMapping = new Map(); // WB tabName => newTabName
     const testDfIdMapping = new Map(); // WB df_id => new df_id
     const testTabDfMapping = new Map(); // tabName => dfId
-    
-    function buildTestUrl(testConfig) {
-        return `http://localhost:8888/testSuite.html?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${testConfig.user}&id=0`
+
+    function buildTestUrl(browser, testConfig) {
+        return `${browser.globals.launchUrl}testSuite.html?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${testConfig.user}&id=0`
     }
-    
+
     function findValidateNodeIndex(linkOutName, nodeInfos) {
         for (let i = 0; i < nodeInfos.length; i ++) {
             const nodeInfo = nodeInfos[i];
@@ -25,18 +25,19 @@ function replay(testConfig, tags) {
 
         before: function(browser) {
             browser
-                .url(buildTestUrl(testConfig))
+                .url(buildTestUrl(browser, testConfig))
+                .waitForElementVisible('#container', 1000 * 60 * 30)
                 .waitForElementVisible('#container.noWorkbook', 10000);
         },
-    
+
         after: function(browser) {
             browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
         },
-    
+
         'upload and enter workbook': function(browser) {
             browser.uploadAndEnterWorkbook(testConfig.workbook);
         },
-    
+
         'disable auto exec': function(browser) {
             browser.execute(execFunctions.disableAutoExec, []);
         },
@@ -46,7 +47,7 @@ function replay(testConfig, tags) {
                 testTabs = result.value;
             });
         },
-    
+
         'new tabs': function(browser) {
             browser.waitForElementNotVisible("#initialLoadScreen", 100000);
             const tabNames = Object.keys(testTabs);
@@ -67,11 +68,11 @@ function replay(testConfig, tags) {
                         testTabDfMapping.set(tabName, testTabs[tabName].id); // uploaded df
                         testTabDfMapping.set(testTabMapping.get(tabName), result.value); // replayed df
                     });
-    
+
                 newTabIndex ++;
             }
         },
-    
+
         'clearAggs': function(browser) {
             browser.execute(function() {
                 let aggs = DagAggManager.Instance.getAggMap();
@@ -79,12 +80,12 @@ function replay(testConfig, tags) {
                     DagAggManager.Instance.removeAgg(agg);
                 }
                 setInterval(function() {
-    
+
                 })
                 return true;
             }, [], null);
         },
-    
+
         'recreate nodes': function(browser) {
             for (const tabName of Object.keys(testTabs)) {
                 const newTabName = testTabMapping.get(tabName);
@@ -95,14 +96,14 @@ function replay(testConfig, tags) {
                 });
             }
         },
-    
+
           // imdTable nodes depend on publishedIMD node to be executed first
         'config imdTable nodes': function(browser) {
             for (const tabName of Object.keys(testTabs)) {
                 const newTabName = testTabMapping.get(tabName);
                 browser.switchTab(newTabName);
                 let modifier = 1;
-    
+
                 testTabs[tabName].nodes.forEach((node, i) => {
                     let input = JSON.parse(JSON.stringify(node.input));
                     if (node.type === "IMDTable") {
@@ -126,20 +127,20 @@ function replay(testConfig, tags) {
                         // we have to change the modifier to represent that the custom nodes are created last during the recreate nodes step.
                         modifier--;
                     }
-    
+
                 });
             }
         },
-    
+
         'execute': function(browser) {
             for (const tabName of Object.keys(testTabs)) {
                 const newTabName = testTabMapping.get(tabName);
                 const numOfNodes = testTabs[tabName].nodes.length;
-    
+
                 const linkOutNode = testTabs[tabName].nodes.find((node) => {
                     return node.subType === "link out Optimized";
                 });
-    
+
                 browser
                     .switchTab(newTabName)
                     .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
@@ -149,7 +150,7 @@ function replay(testConfig, tags) {
                         browser.assert.ok(result.value.length < numOfNodes);
                     })
                     .executeAll(numOfNodes * 20000);
-    
+
                     if (linkOutNode) {
                         browser.elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
                             browser.assert.equal(result.value.length, 1); // link out optimized not executed
@@ -165,9 +166,9 @@ function replay(testConfig, tags) {
                             browser.assert.equal(result.value.length, numOfNodes);
                         });
                     }
-    
+
                     browser.waitForElementNotPresent(".dataflowArea.active.locked");
-    
+
                     if (linkOutNode) {
                         // let linkOutNodeId = linkOutNode.nodeId;
                         let selector = '.operator[data-subtype="link out Optimized"]';
@@ -182,7 +183,7 @@ function replay(testConfig, tags) {
                     }
             }
         },
-    
+
         'validate': function(browser) {
             // The validation nodes must be DFLinkOut
             for (const {dfName, nodeName} of testConfig.validation) {
@@ -201,7 +202,7 @@ function replay(testConfig, tags) {
                     });
             }
         },
-    
+
         // remove imd table
         'clean up': function(browser) {
             if (testConfig.IMDNames && testConfig.IMDNames.length) {
@@ -211,7 +212,7 @@ function replay(testConfig, tags) {
                 .click("#datastoreMenu .table .iconSection .refresh")
                 .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
                 .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]')
-    
+
                 testConfig.IMDNames.forEach((IMDName) => {
                     browser
                         .moveToElement('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 20, 20)
@@ -223,7 +224,7 @@ function replay(testConfig, tags) {
                 });
             }
         },
-    
+
     };
 }
 

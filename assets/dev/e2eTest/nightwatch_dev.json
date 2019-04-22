@@ -11,6 +11,9 @@
 
     "test_settings" : {
       "default" : {
+        "globals": {
+            "launchUrl": "http://localhost:8888/"
+        },
         "desiredCapabilities": {
           "browserName": "chrome"
         }

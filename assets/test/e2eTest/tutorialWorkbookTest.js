@@ -1,6 +1,5 @@
 const testConfig = {
     workbook: 'Tutorial1-Parsers',
-    baseUrl: 'http://localhost:8888/testSuite.html',
     finalNodeName: 'Node 1', // output node we want to test the result of
     resultDatasetPath: "/home/jenkins/export_test/upgradeTest.csv" // change this to the location of the exported result
 };
@@ -16,6 +15,7 @@ module.exports = {
     before: function(browser) {
         browser
             .url(browser.globals.buildTestUrl(browser.globals.user))
+            .waitForElementVisible('#container', 10000)
             .waitForElementVisible('#container.noWorkbook', 10000);
     },
 

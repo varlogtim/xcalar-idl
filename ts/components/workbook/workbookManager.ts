@@ -239,6 +239,7 @@ namespace WorkbookManager {
     * @param workbookBox - if opening in a new tab, the workbook card that should be updated to active, optional
     */
     export function switchWKBK(wkbkId: string, newTab: boolean = false, $workbookBox?: JQuery): XDPromise<void> {
+        console.log("switching wkbks: " + wkbkId);
         // validation
         if (wkbkId === activeWKBKId) {
             return PromiseHelper.reject({
@@ -256,6 +257,7 @@ namespace WorkbookManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         if (!newTab) {
+            console.log("showing initial load screen");
             $("#initialLoadScreen").show();
         } else {
             if ($workbookBox.hasClass("active")) {
@@ -270,13 +272,15 @@ namespace WorkbookManager {
                         commitActiveWkbk() : PromiseHelper.resolve();
 
         XcSupport.stopHeartbeatCheck();
-
+        console.log("commitactivewkbk")
         promise
         .then(function() {
+            console.log("switchWorkBookHelper")
             return switchWorkBookHelper(toWkbk);
         })
         .then(function() {
             if (!newTab) {
+                console.log("setActiveWKBK")
                 setActiveWKBK(wkbkId);
                 return switchWorkbookAnimation();
             } else {
@@ -288,11 +292,13 @@ namespace WorkbookManager {
         })
         .then(function() {
             if (!newTab) {
+                console.log("WorkbookManager.gotoWorkbook")
                 WorkbookManager.gotoWorkbook(wkbkId);
             }
             deferred.resolve();
         })
         .fail(function(error) {
+            console.log("switch failllllled");
             console.error("Switch Workbook Fails", error);
             error = error || {error: "Error occurred while switching workbooks"};
             if (!newTab) {

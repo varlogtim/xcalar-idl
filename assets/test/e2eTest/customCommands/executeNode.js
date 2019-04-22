@@ -10,7 +10,7 @@ class ExecuteNode extends EventEmitter {
             .moveToElement("#dagNodeMenu li.executeNode", 10, 1)
             .waitForElementNotPresent(".dataflowArea.active.locked")
             .mouseButtonClick('left')
-            .waitForElementPresent(".dataflowArea.active.locked")
+            .waitForElementPresent(".dataflowArea.active.locked", 20000)
             .waitForElementNotPresent(".dataflowArea.active.locked", time || 100000);
 
         this.emit('complete');

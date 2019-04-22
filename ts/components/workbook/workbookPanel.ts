@@ -688,6 +688,7 @@ namespace WorkbookPanel {
     function activateWorkbook($workbookBox: JQuery, newTab: boolean = false): void {
         const workbookId: string = $workbookBox.attr("data-workbook-id");
         const activeWKBKId: string = WorkbookManager.getActiveWKBK();
+        console.log("activating workbook: " + workbookId);
         if (!newTab) {
             if (activeWKBKId === workbookId) {
                 WorkbookPanel.hide();
@@ -699,8 +700,10 @@ namespace WorkbookPanel {
             } else {
                 alertActivate(workbookId, activeWKBKId)
                 .then(function() {
+                    console.log("passed alert activiate, switching wkbks");
                     WorkbookManager.switchWKBK(workbookId)
                     .fail(function(error) {
+                        console.log("switch failed");
                         handleError(error, $workbookBox);
                         // has chance that inactivate the fromWorkbook
                         // but fail to activate the toWorkbook

@@ -88,11 +88,12 @@ module.exports = {
         let user = testConfig.user;
         browser.globals['gTestUserName'] = user;
         browser.globals['gTestExportDirectory'] = "/home/jenkins/export_test/";
-        let url = "http://localhost:8888/testSuite.html" +
+        let url = browser.globals.launchUrl + "testSuite.html" +
         "?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=" + user + "&id=0"
         // open browser
         browser
             .url(url)
+            .waitForElementVisible('#container', 10000)
             .waitForElementVisible('#container.noWorkbook', 10000);
     },
 
