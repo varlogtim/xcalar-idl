@@ -1190,8 +1190,6 @@ namespace xcHelper {
        }
    }
 
-    var successTimers: SuccessTimer = <SuccessTimer>{};
-
     /**
      * xcHelper.validate
      * @param eles

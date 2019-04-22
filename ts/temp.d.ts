@@ -906,17 +906,6 @@ declare namespace BottomMenu {
     export function isPoppedOut(): boolean;
 }
 
-declare namespace DSForm {
-    export function setup(): void;
-    export function show(): void;
-    export function hide(): void;
-    export function show(createTableMode: boolean): void;
-    export function switchView(view: string);
-    export function initialize(): void;
-    export function addHistoryPath(targetName: string, path: string): void;
-    export var View: any;
-}
-
 declare namespace Profile {
     export function setup(): void;
     export function restore(oldMeat: object): void;

@@ -12,6 +12,7 @@ interface DSPreviewOptions {
     udfQuery?: any;
     typedColumns?: {colName: string, colType: string}[];
     advancedArgs?: any;
+    targetName?: string;
 }
 
 namespace DSPreview {
@@ -600,7 +601,7 @@ namespace DSPreview {
     /**
      * DSPreview.update
      */
-    export function update(listXdfsObj: any): void {
+    export function update(listXdfsObj?: any): void {
         let moduleName = $udfModuleList.find("input").data("module");
         let funcName = $udfFuncList.find("input").val();
 
@@ -1220,7 +1221,7 @@ namespace DSPreview {
         }
     }
 
-    function listUDFSection(listXdfsObj: any): XDPromise<void> {
+    function listUDFSection(listXdfsObj?: any): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!listXdfsObj) {
             // update python module list

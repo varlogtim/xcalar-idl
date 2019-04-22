@@ -1,18 +1,21 @@
-/*
- * Module for the dataset form part
- */
-window.DSForm = (function($, DSForm) {
-    var $pathCard; // $("#dsForm-path");
-    var $filePath;  // $("#filePath");
-    var historyPathsSet = {};
+namespace DSForm {
+    let $pathCard: JQuery; // $("#dsForm-path");
+    let $filePath: JQuery;  // $("#filePath");
+    let historyPathsSet = {};
 
-    DSForm.View = {
-        "Path": "DSForm",
-        "Browser": "FileBrowser",
-        "Preview": "DSPreview"
+    /**
+     * DSForm.View
+     */
+    export enum View {
+        "Path" = "DSForm",
+        "Browser" = "FileBrowser",
+        "Preview" = "DSPreview"
     };
 
-    DSForm.setup = function() {
+    /**
+     * DSForm.setup
+     */
+    export function setup(): void {
         $pathCard = $("#dsForm-path");
         $filePath = $("#filePath");
 
@@ -22,33 +25,43 @@ window.DSForm = (function($, DSForm) {
 
         // click to go to form section
         $("#datastoreMenu .iconSection .import").click(function() {
-            var $btn = $(this);
+            let $btn = $(this);
             $btn.blur();
-            var createTableMode = $btn.hasClass("createTable");
+            let createTableMode: boolean = $btn.hasClass("createTable");
             DSForm.show(createTableMode);
             xcTooltip.transient($("#filePath"), {
                 "title": TooltipTStr.Focused
             }, 800);
         });
-    };
+    }
 
-    DSForm.initialize = function() {
+    /**
+     * DSForm.initialize
+     */
+    export function initialize(): void {
         // reset anything browser may have autofilled
         resetForm();
         DSPreview.update();
         $("#dsForm-target input").val(gDefaultSharedRoot);
-    };
+    }
 
-    DSForm.show = function(createTableMode) {
+    /**
+     * DSForm.show
+     * @param createTableMode
+     */
+    export function show(createTableMode?: boolean): void {
         if (createTableMode != null) {
             DSPreview.setMode(createTableMode);
         }
         DSForm.switchView(DSForm.View.Path);
         $filePath.focus();
-    };
+    }
 
-    DSForm.switchView = function(view) {
-        var $cardToSwitch = null;
+    /**
+     * DSForm.switchView
+     */
+    export function switchView(view: DSForm.View): void {
+        let $cardToSwitch: JQuery = null;
         switch (view) {
             case DSForm.View.Path:
                 $cardToSwitch = $pathCard;
@@ -67,24 +80,32 @@ window.DSForm = (function($, DSForm) {
         $cardToSwitch.removeClass("xc-hidden")
         .siblings().addClass("xc-hidden");
 
-        var $dsFormView = $("#dsFormView");
+        let $dsFormView = $("#dsFormView");
         if (!$dsFormView.is(":visible")) {
             $dsFormView.removeClass("xc-hidden");
             DSTable.hide();
             TblSourcePreview.Instance.close();
         }
-    };
+    }
 
-    DSForm.hide = function() {
+    /**
+     * DSForm.hide
+     */
+    export function hide(): void {
         $("#dsFormView").addClass("xc-hidden");
         DSPreview.clear();
         FileBrowser.clear();
-    };
+    }
 
-    DSForm.addHistoryPath = function(targetName, path) {
+    /**
+     * DSForm.addHistoryPath
+     * @param targetName
+     * @param path
+     */
+    export function addHistoryPath(targetName: string, path: string): void {
         historyPathsSet[targetName] = historyPathsSet[targetName] || [];
-        var historyPaths = historyPathsSet[targetName];
-        for (var i = 0, len = historyPaths.length; i < len; i++) {
+        let historyPaths = historyPathsSet[targetName];
+        for (let i = 0, len = historyPaths.length; i < len; i++) {
             if (historyPaths[i] === path) {
                 historyPaths.splice(i, 1);
                 break;
@@ -99,18 +120,18 @@ window.DSForm = (function($, DSForm) {
         if (getDataTarget() === targetName) {
             $filePath.val(path);
         }
-    };
+    }
 
-    function isValidPathToBrowse() {
-        var isValid = xcHelper.validate([{
+    function isValidPathToBrowse(): boolean {
+        let isValid = xcHelper.validate([{
             $ele: $("#dsForm-target").find(".text")
         }]);
         if (!isValid) {
             return false;
         }
 
-        var targetName = getDataTarget();
-        var path = $filePath.val().trim();
+        let targetName = getDataTarget();
+        let path: string = $filePath.val().trim();
         if (DSTargetManager.isGeneratedTarget(targetName)) {
             isValid = xcHelper.validate([{
                 $ele: $filePath,
@@ -124,18 +145,17 @@ window.DSForm = (function($, DSForm) {
         return isValid;
     }
 
-    function isValidToPreview() {
-        var isValid = xcHelper.validate([{
+    function isValidToPreview(): boolean {
+        return xcHelper.validate([{
             $ele: $filePath
         }]);
-        return isValid;
     }
 
-    function getDataTarget() {
+    function getDataTarget(): string {
         return $("#dsForm-target input").val();
     }
 
-    function setDataTarget(targetName) {
+    function setDataTarget(targetName: string): void {
         $("#dsForm-target input").val(targetName);
         if (DSTargetManager.isGeneratedTarget(targetName)) {
             $pathCard.addClass("target-generated");
@@ -154,24 +174,24 @@ window.DSForm = (function($, DSForm) {
             $filePath.removeAttr("disabled");
         }
 
-        var historyPaths = historyPathsSet[targetName];
-        var oldPath = "";
+        let historyPaths = historyPathsSet[targetName];
+        let oldPath = "";
         if (historyPaths != null) {
             oldPath = historyPaths[0] || "";
         }
         $filePath.val(oldPath).focus();
     }
 
-    function setPathMenu() {
-        var $list = $filePath.closest(".dropDownList").find(".list");
-        var $ul = $list.find("ul");
-        var target = getDataTarget();
-        var historyPaths = historyPathsSet[target];
+    function setPathMenu(): void {
+        let $list = $filePath.closest(".dropDownList").find(".list");
+        let $ul = $list.find("ul");
+        let target = getDataTarget();
+        let historyPaths = historyPathsSet[target];
         if (historyPaths == null || historyPaths.length === 0) {
             $ul.empty();
             $list.addClass("empty");
         } else {
-            var list = historyPaths.map(function(path) {
+            let list = historyPaths.map(function(path) {
                 return "<li>" + path + "</li>";
             }).join("");
             $ul.html(list);
@@ -179,8 +199,8 @@ window.DSForm = (function($, DSForm) {
         }
     }
 
-    function getFilePath(targetName) {
-        var path = $filePath.val().trim();
+    function getFilePath(targetName: string): string {
+        let path: string = $filePath.val().trim();
         if (!path.startsWith("/") && !DSTargetManager.isGeneratedTarget(targetName)) {
             path = "/" + path;
         }
@@ -190,7 +210,7 @@ window.DSForm = (function($, DSForm) {
         return path;
     }
 
-    function setupPathCard() {
+    function setupPathCard(): void {
         //set up dropdown list for data target
         new MenuHelper($("#dsForm-target"), {
             onSelect: function($li) {
@@ -200,7 +220,7 @@ window.DSForm = (function($, DSForm) {
             bounds: "#dsFormView"
         }).setupListeners();
 
-        var $filePathDropDown = $filePath.closest(".dropDownList");
+        let $filePathDropDown = $filePath.closest(".dropDownList");
         new MenuHelper($filePathDropDown, {
             onOpen: setPathMenu,
             onSelect: function($li) {
@@ -229,27 +249,27 @@ window.DSForm = (function($, DSForm) {
         });
     }
 
-    function resetForm() {
-        var targetName = getDataTarget() || "";
+    function resetForm(): void {
+        let targetName: string = getDataTarget() || "";
         setDataTarget(targetName);
         $filePath.val("").focus();
     }
 
-    function goToBrowse() {
+    function goToBrowse(): void {
         if (!isValidPathToBrowse()) {
             return;
         }
-        var targetName = getDataTarget();
-        var path = getFilePath();
-        FileBrowser.show(targetName, path);
+        let targetName = getDataTarget();
+        let path = getFilePath(null);
+        FileBrowser.show(targetName, path, false);
     }
 
-    function goToPreview() {
+    function goToPreview(): void {
         if (!isValidPathToBrowse() || !isValidToPreview()) {
             return;
         }
-        var targetName = getDataTarget();
-        var path = getFilePath(targetName);
+        let targetName = getDataTarget();
+        let path = getFilePath(targetName);
         if (path !== "/") {
             DSForm.addHistoryPath(targetName, path);
         }
@@ -257,20 +277,19 @@ window.DSForm = (function($, DSForm) {
         DSPreview.show({
             targetName: targetName,
             files: [{path: path}]
-        }, null);
+        }, null, false);
     }
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        DSForm.__testOnly__ = {};
-        DSForm.__testOnly__.resetForm = resetForm;
-        DSForm.__testOnly__.getFilePath = getFilePath;
-        DSForm.__testOnly__.setDataTarget = setDataTarget;
-        DSForm.__testOnly__.getDataTarget = getDataTarget;
-        DSForm.__testOnly__.isValidPathToBrowse = isValidPathToBrowse;
-        DSForm.__testOnly__.isValidToPreview = isValidToPreview;
+    export let __testOnly__: any = {};
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__ = {};
+        __testOnly__.resetForm = resetForm;
+        __testOnly__.getFilePath = getFilePath;
+        __testOnly__.setDataTarget = setDataTarget;
+        __testOnly__.getDataTarget = getDataTarget;
+        __testOnly__.isValidPathToBrowse = isValidPathToBrowse;
+        __testOnly__.isValidToPreview = isValidToPreview;
     }
     /* End Of Unit Test Only */
-
-    return (DSForm);
-}(jQuery, {}));
+}
