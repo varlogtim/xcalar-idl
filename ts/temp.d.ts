@@ -679,6 +679,7 @@ declare var XcalarGetTableRefCount: any;
 declare var isBrowserMicrosoft: boolean;
 
 declare var mixpanel: any;
+declare var domtoimage: any;
 /* ============== GLOBAL FUNCTIONS ============= */
 // Declaration of XcalarApi moved to IXcalarApi.ts
 /* ============= THRIFT ENUMS ================= */
