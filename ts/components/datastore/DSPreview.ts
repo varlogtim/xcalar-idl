@@ -3510,7 +3510,7 @@ namespace DSPreview {
 
     function resetPreviewFile(): void {
         let $file = $("#preview-file");
-        $file.find(".text").text();
+        $file.find(".text").val("");
         xcTooltip.remove($file.find(".text"));
     }
 
@@ -6081,7 +6081,7 @@ namespace DSPreview {
 
         function setStateAsync( { newState = {}, noRender = false }) {
             const deferred = libs.PromiseHelper.deferred();
-            state = newState;
+            state = <any>newState;
             if (!noRender) {
                 setTimeout( () => { render(); deferred.resolve(); }, 0);
             } else {
@@ -6091,7 +6091,7 @@ namespace DSPreview {
         }
 
         function setStateSync( { newState = {}, noRender = false }) {
-            state = newState;
+            state = <any>newState;
             if (!noRender) {
                 render();
             }
