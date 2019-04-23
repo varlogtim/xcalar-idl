@@ -39,7 +39,7 @@ namespace DagNodeMenu {
             case("configureNode"):
                 const nodeIds = [options.node.getId()];
                 const nodesToCheck = nodeIds.filter((nodeId) => {
-                    return nodeId.startsWith("dag");
+                    return !nodeId.startsWith("comment");
                 });
                 if (DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck)) {
                     Alert.show({
@@ -291,7 +291,7 @@ namespace DagNodeMenu {
                 case ("resetAllNodes"):
                 case ("configureNode"):
                     const nodesToCheck = nodeIds.filter((nodeId) => {
-                        return nodeId.startsWith("dag");
+                        return !nodeId.startsWith("comment");
                     });
                     if (DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck)) {
                         Alert.show({

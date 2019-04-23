@@ -137,7 +137,8 @@ namespace xcHelper {
     export function isNodeJs(): boolean {
         return ((typeof process !== 'undefined') &&
                 (typeof process.versions !== 'undefined') &&
-                (typeof process.versions.node !== 'undefined'));
+                (typeof process.versions.node !== 'undefined') &&
+                (typeof nw === "undefined"));
     }
 
     /**

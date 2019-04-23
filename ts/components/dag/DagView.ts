@@ -802,7 +802,7 @@ class DagView {
         for (let i = nodeIds.length - 1; i >= 0; i--) {
             const nodeId: DagNodeId = nodeIds[i];
             let node;
-            if (nodeId.startsWith("dag")) {
+            if (!nodeId.startsWith("comment")) {
                 node = this.graph.addBackNode(nodeId, spliceInfo[nodeId]);
                 const childrenNodes = node.getChildren();
                 childrenNodes.forEach((childNode) => {
@@ -825,7 +825,7 @@ class DagView {
         }
         this.graph.turnOffBulkStateSwitch();
         const dagNodes = nodes.filter(node => {
-            return node.getId().startsWith("dag");
+            return !node.getId().startsWith("comment");
         });
 
         const comments = nodes.filter(node => {
@@ -2806,7 +2806,7 @@ class DagView {
         const removedNodeIds: string[] = [];
         const self = this;
         nodeIds.forEach((nodeId) => {
-            if (nodeId.startsWith("dag")) {
+            if (!nodeId.startsWith("comment")) {
                 dagNodeIds.push(nodeId);
             } else {
                 commentNodeIds.push(nodeId);
@@ -2831,7 +2831,7 @@ class DagView {
                 if (ret.errorNodeIds.indexOf(nodeId) > -1) {
                     return;
                 }
-                if (nodeId.startsWith("dag")) {
+                if (!nodeId.startsWith("comment")) {
                     // Remove tabs for custom OP
                     const dagNode = this.graph.getNode(nodeId);
                     if (dagNode == null) {
@@ -3680,7 +3680,7 @@ class DagView {
         const includeTitle: boolean = (options.includeTitle == null) ? true : options.includeTitle;
         let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
-            if (nodeId.startsWith("dag")) {
+            if (!nodeId.startsWith("comment")) {
                 const node: DagNode = graph.getNode(nodeId);
                 if (node == null) {
                     return;
