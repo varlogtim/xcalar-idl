@@ -246,10 +246,10 @@ namespace SqlQueryHistoryPanel {
          */
         protected _cleanupQueries(queryMap: SqlQueryMap): XDPromise<boolean> {
             return XcalarQueryList(`${DagNodeSQL.PREFIX}*`)
-            .then((ret: XcalarApiQueryListOutputT) => {
+            .then((queries: Xcrpc.QueryService.QueryInfo[]) => {
                 // Step 1: Get queries left in backend
                 const missingQueries = new Map<string, {state: number, elapsed: number}>();
-                const getMissingQueries = ret.queries.map(({name}) => {
+                const getMissingQueries = queries.map(({name}) => {
                     const deferred: XDDeferred<void> = PromiseHelper.deferred();
                     XcalarQueryState(name)
                     .then((ret: XcalarApiQueryStateOutputT) => {

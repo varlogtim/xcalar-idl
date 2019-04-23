@@ -88,12 +88,12 @@ class DagSharedActionService {
         const prefix: string = DagNodeExecutor.getTableNamePrefix(tabId);
         let isExecuting: boolean = false;
         let queryName: string = null;
-        
+
         XcalarQueryList(prefix + "*")
-        .then((res) => {
-            if (res.queries.length > 0) {
+        .then((queries) => {
+            if (queries.length > 0) {
                 try {
-                    queryName = res.queries[0].name;
+                    queryName = queries[0].name;
                     return XcalarQueryState(queryName);
                 } catch (e) {
                     console.log("error", e);
@@ -145,7 +145,7 @@ class DagSharedActionService {
                     arg.oldState = dagNode.getState();
                     arg.id = nodeId;
                     arg.node = dagNode;
-                    return arg;                    
+                    return arg;
                 default:
                     return arg;
             }

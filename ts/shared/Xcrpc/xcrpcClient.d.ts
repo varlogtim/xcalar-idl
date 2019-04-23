@@ -10,11 +10,16 @@ declare namespace xce {
         constructor(client: XceClient);
         lookup(request: proto.xcalar.compute.localtypes.KvStore.LookupRequest): Promise<proto.xcalar.compute.localtypes.KvStore.LookupResponse>;
     }
-    
+
     export class LicenseService {
         constructor(client: XceClient);
         get(request: proto.xcalar.compute.localtypes.License.GetRequest): XDPromise<proto.xcalar.compute.localtypes.License.GetResponse>;
         update(request: proto.xcalar.compute.localtypes.License.UpdateRequest): XDPromise<void>;
+    }
+
+    export class QueryService {
+        constructor(client: XceClient);
+        list(request: proto.xcalar.compute.localtypes.Query.ListRequest): XDPromise<proto.xcalar.compute.localtypes.Query.ListResponse>;
     }
 }
 // === Service definitions: End ===
@@ -76,4 +81,20 @@ declare namespace proto.xcalar.compute.localtypes.License {
         setValue(value: string): void;
     }
 }
+
+declare namespace proto.xcalar.compute.localtypes.Query {
+    export class ListRequest {
+        setNamePattern(value: string): void;
+    }
+    export class ListResponse {
+        getQueriesList(): QueryInfo[];
+    }
+
+    export class QueryInfo {
+        getName(): string;
+        getMillisecondsElapsed(): number;
+        getState(): string;
+    }
+}
+
 // === Data structure definitions: End ===

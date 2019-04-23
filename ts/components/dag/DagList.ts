@@ -789,7 +789,6 @@ class DagList extends Durable {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarQueryList("*")
         .then((queries) => {
-            queries = queries.queries;
             const activeWKBNK: string = WorkbookManager.getActiveWKBK();
             const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
             const abandonedQueryPrefix: string = "table_DF2_" + workbook.sessionId + "_";
