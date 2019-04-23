@@ -31,7 +31,7 @@ namespace XVM {
         });
     }
 
-    function parseLicense(license: any): string | null {
+    function parseLicense(license: proto.xcalar.compute.localtypes.License.GetResponse): string | null {
         try {
             if (typeof (license) === 'string') {
                 // This is an error. Otherwise it will be an object

@@ -11,6 +11,10 @@ namespace Xcrpc {
         public getKVStoreService(): KVStoreService {
             return new Xcrpc.KVStoreService(this._apiClient);
         }
+
+        public getLicenseService(): LicenseService {
+            return new Xcrpc.LicenseService(this._apiClient);
+        }
     }
 }
 

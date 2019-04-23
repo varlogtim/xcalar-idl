@@ -521,30 +521,16 @@ XcalarGetVersion = function(
     return deferred.promise();
 };
 
-XcalarGetLicense = function(): XDPromise<any> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
+XcalarGetLicense = function(): XDPromise<proto.xcalar.compute.localtypes.License.GetResponse> {
+    return PromiseHelper.convertToJQuery(Xcrpc.getClient("DEFAULT")
+                                              .getLicenseService().getLicense());
+};
 
-    const deferred: XDDeferred<any> = PromiseHelper.deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-    var client = new xce.XceClient(xcHelper.getAppUrl() + "/service/xce/");
-    var licenseService = new xce.LicenseService(client);
-    var getRequest = new proto.xcalar.compute.localtypes.License.GetRequest();
-
-    licenseService.get(getRequest)
-    .then(function(res) {
-        deferred.resolve(res);
-    })
-    .fail(function(error: XcalarApiError) {
-        console.error("Your license has not been properly set up!");
-        const thriftError: ThriftError = thriftLog("XcalarGetLicense", error);
-        deferred.reject(thriftError);
-    });
-
-    return deferred.promise();
+XcalarUpdateLicense = function(
+    newLicense: string
+): XDPromise<void> {
+    return PromiseHelper.convertToJQuery(Xcrpc.getClient("DEFAULT")
+                        .getLicenseService().updateLicense(newLicense));
 };
 
 XcalarGetNodeName = function(
@@ -570,30 +556,6 @@ XcalarGetNodeName = function(
 
     return deferred.promise();
 };
-
-/*
-XcalarUpdateLicense = function(
-    newLicense: string
-): XDPromise<number|{}> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
-    const deferred: XDDeferred<number> = PromiseHelper.deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-
-    xcalarUpdateLicense(tHandle, newLicense)
-    .then(deferred.resolve)
-    .fail(function(error: XcalarApiError) {
-        const thriftError: ThriftError = thriftLog("XcalarUpdateLicense", error);
-        deferred.reject(thriftError);
-    });
-
-    return deferred.promise();
-};
-*/
 
 interface XcalarPreviewOutput {
     fileName: string,

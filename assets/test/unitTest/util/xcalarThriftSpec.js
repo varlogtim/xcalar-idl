@@ -110,19 +110,16 @@ describe("XcalarThrift Test", function() {
 
     it("XcalarGetLicense should handle xcalar error", function(done) {
         var oldApiCall = xce.LicenseService.prototype.get;
+        var errorMsg = {"xcalarStatus": 1, "log": "1234"};
         xce.LicenseService.prototype.get = function() {
-            return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
+            return PromiseHelper.reject(errorMsg);
         };
         XcalarGetLicense()
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.status).to.equal(1);
-            expect(error.httpStatus).to.equal(undefined);
-            expect(error.error).to.equal("Error: " + StatusTStr[1]);
-            expect(error.log).to.equal("1234");
-            expect(error.output).to.equal(undefined);
+            expect(error.error).to.deep.equal(errorMsg);
             done();
         })
         .always(function() {
@@ -131,22 +128,17 @@ describe("XcalarThrift Test", function() {
     });
 
     it("XcalarGetLicense should handle error by proxy", function(done) {
-
         var oldApiCall = xce.LicenseService.prototype.get;
+        var errorMsg = {"httpStatus": 500};
         xce.LicenseService.prototype.get = function() {
-            return PromiseHelper.reject({"httpStatus": 500});
+            return PromiseHelper.reject(errorMsg);
         };
         XcalarGetLicense()
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.status).to.equal(undefined);
-            expect(error.httpStatus).to.equal(500);
-            expect(error.error)
-                  .to.equal("Error: Proxy Error with http status code: 500");
-            expect(error.log).to.equal(undefined);
-            expect(error.output).to.equal(undefined);
+            expect(error.error).to.deep.equal(errorMsg);
             done();
         })
         .always(function() {
@@ -199,48 +191,41 @@ describe("XcalarThrift Test", function() {
         });
     });
 
-    it.skip("XcalarUpdateLicense should handle xcalar error", function(done) {
-        var oldApiCall = xcalarUpdateLicense;
-        xcalarUpdateLicense = function() {
-            return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
+    it("XcalarUpdateLicense should handle xcalar error", function(done) {
+        var oldApiCall = xce.LicenseService.prototype.update;
+        var errorMsg = {"xcalarStatus": 1, "log": "1234"};
+        xce.LicenseService.prototype.update = function() {
+            return PromiseHelper.reject(errorMsg);
         };
         XcalarUpdateLicense()
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.status).to.equal(1);
-            expect(error.httpStatus).to.equal(undefined);
-            expect(error.error).to.equal("Error: " + StatusTStr[1]);
-            expect(error.log).to.equal("1234");
-            expect(error.output).to.equal(undefined);
+            expect(error.error).to.deep.equal(errorMsg);
             done();
         })
         .always(function() {
-            xcalarUpdateLicense = oldApiCall;
+            xce.LicenseService.prototype.update = oldApiCall;
         });
     });
 
-    it.skip("XcalarUpdateLicense should handle error by proxy", function(done) {
-        var oldApiCall = xcalarUpdateLicense;
-        xcalarUpdateLicense = function() {
-            return PromiseHelper.reject({"httpStatus": 500});
+    it("XcalarUpdateLicense should handle error by proxy", function(done) {
+        var oldApiCall = xce.LicenseService.prototype.update;
+        var errorMsg = {"httpStatus": 500};
+        xce.LicenseService.prototype.update = function() {
+            return PromiseHelper.reject(errorMsg);
         };
         XcalarUpdateLicense()
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.status).to.equal(undefined);
-            expect(error.httpStatus).to.equal(500);
-            expect(error.error)
-                  .to.equal("Error: Proxy Error with http status code: 500");
-            expect(error.log).to.equal(undefined);
-            expect(error.output).to.equal(undefined);
+            expect(error.error).to.deep.equal(errorMsg);
             done();
         })
         .always(function() {
-            xcalarUpdateLicense = oldApiCall;
+            xce.LicenseService.prototype.update = oldApiCall;
         });
     });
 

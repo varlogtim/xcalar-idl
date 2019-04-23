@@ -25,16 +25,9 @@ window.LicenseModal = (function($, LicenseModal) {
     }
 
     function submitForm() {
-        var client = new xce.XceClient(xcHelper.getAppUrl() + "/service/xce/");
-        var licenseService = new xce.LicenseService(client);
-        var updateRequest = new proto.xcalar.compute.localtypes.License.UpdateRequest();
-        var licenseValue = new proto.xcalar.compute.localtypes.License.LicenseValue();
-
         var newLicense = $modal.find(".newLicenseKey").val();
-        licenseValue.setValue(newLicense);
-        updateRequest.setLicensevalue(licenseValue);
 
-        licenseService.update(updateRequest)
+        XcalarUpdateLicense(newLicense)
         .then(function() {
             xcUIHelper.showSuccess(SuccessTStr.UpdateLicense);
         })

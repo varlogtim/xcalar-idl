@@ -10,6 +10,12 @@ declare namespace xce {
         constructor(client: XceClient);
         lookup(request: proto.xcalar.compute.localtypes.KvStore.LookupRequest): XDPromise<proto.xcalar.compute.localtypes.KvStore.LookupResponse>;
     }
+    
+    export class LicenseService {
+        constructor(client: XceClient);
+        get(request: proto.xcalar.compute.localtypes.License.GetRequest): XDPromise<proto.xcalar.compute.localtypes.License.GetResponse>;
+        update(request: proto.xcalar.compute.localtypes.License.UpdateRequest): XDPromise<void>;
+    }
 }
 // === Service definitions: End ===
 
@@ -50,6 +56,24 @@ declare namespace proto.xcalar.compute.localtypes.Workbook {
 
     export const ScopeType: {
         GLOBALSCOPETYPE: number, WORKBOOKSCOPETYPE: number
+    }
+}
+
+declare namespace proto.xcalar.compute.localtypes.License {
+    export class GetRequest {}
+    export class GetResponse {
+        getExpiration(): string;
+        getNodecount(): number;
+        getUsercount(): number;
+        getLicensee(): string;
+        getCompressedlicense(): string;
+        getExpired(): boolean;
+    }
+    export class UpdateRequest {
+        setLicensevalue(value: LicenseValue): void;
+    }
+    export class LicenseValue {
+        setValue(value: string): void;
     }
 }
 // === Data structure definitions: End ===
