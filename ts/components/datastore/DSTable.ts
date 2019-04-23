@@ -436,7 +436,7 @@ class DSTable {
                              !dsObj.advancedArgs.allowRecordErrors;
                 dsName = dsObj.getName();
             }
-            FileListModal.show(dsId, dsName, isFileError);
+            FileListModal.Instance.show(dsId, dsName, isFileError);
         });
 
         $("#createDF").click(() => {

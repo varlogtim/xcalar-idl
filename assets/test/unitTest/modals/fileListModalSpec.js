@@ -26,7 +26,7 @@ describe("FileListModal Test", function() {
             };
 
 
-            FileListModal.show("dsId", null);
+            FileListModal.Instance.show("dsId", null);
             assert.isTrue($modal.is(":visible"));
             expect($modal.hasClass("load"));
             UnitTest.testFinish(function() {
@@ -66,7 +66,7 @@ describe("FileListModal Test", function() {
             };
 
 
-            FileListModal.show("dsId", null);
+            FileListModal.Instance.show("dsId", null);
             assert.isTrue($modal.is(":visible"));
             expect($modal.hasClass("load"));
             UnitTest.testFinish(function() {
@@ -92,7 +92,7 @@ describe("FileListModal Test", function() {
                 return PromiseHelper.resolve(['{"fullPath": "a"}','{"fullPath": "b"}']);
             };
 
-            FileListModal.__testOnly__.getList()
+            FileListModal.Instance._getList()
             .then(function(list) {
                 expect(list.length).to.equal(2);
                 expect(list[0]).to.equal("a");
@@ -110,7 +110,7 @@ describe("FileListModal Test", function() {
                 return PromiseHelper.resolve([]);
             };
 
-            FileListModal.__testOnly__.getList()
+            FileListModal.Instance._getList()
             .then(function(list) {
                 expect("pass").to.equal("fail");
             })
@@ -120,9 +120,8 @@ describe("FileListModal Test", function() {
         });
 
         it("constructTree should work", function(){
-            FileListModal.__testOnly__.constructTree(["/a"], "testName");
-            var info = FileListModal.__testOnly__.getInfo();
-            var nodesMap = info.nodesMap;
+            FileListModal.Instance._constructTree(["/a"], "testName");
+            var nodesMap = FileListModal.Instance._nodesMap;
             expect(Object.keys(nodesMap).length).to.equal(2);
             expect(nodesMap.hasOwnProperty("testName")).to.be.true;
             expect(nodesMap.hasOwnProperty("testName/a")).to.be.true;
@@ -139,9 +138,8 @@ describe("FileListModal Test", function() {
             expect(nodesMap["testName/a"].value.isRoot).to.be.false;
 
 
-            FileListModal.__testOnly__.constructTree(["/a/b.txt", "/a/c.txt", "/a/b/c.txt"], "testName");
-            var info = FileListModal.__testOnly__.getInfo();
-            var nodesMap = info.nodesMap;
+            FileListModal.Instance._constructTree(["/a/b.txt", "/a/c.txt", "/a/b/c.txt"], "testName");
+            var nodesMap = FileListModal.Instance._nodesMap;
 
             expect(Object.keys(nodesMap).length).to.equal(6);
             expect(nodesMap.hasOwnProperty("testName")).to.be.true;
@@ -177,11 +175,11 @@ describe("FileListModal Test", function() {
             expect(nodesMap["testName/a/b/c.txt"].value.name).to.equal("c.txt");
             expect(nodesMap["testName/a/b/c.txt"].value.isRoot).to.be.false;
 
-            expect(Object.keys(info.roots).length).to.equal(1);
-            expect(info.roots.hasOwnProperty("testName")).to.be.true;
+            expect(Object.keys(FileListModal.Instance._roots).length).to.equal(1);
+            expect(FileListModal.Instance._roots.hasOwnProperty("testName")).to.be.true;
         });
 
-        // using filelistmodal.show to create the whole thing
+        // using FileListModal.Instance.show to create the whole thing
         // XXX fails jenkins: should not text UI
         it.skip("draw tree should work", function() {
             $modal.find(".close").click();
@@ -193,7 +191,7 @@ describe("FileListModal Test", function() {
                 return PromiseHelper.resolve(['{"fullPath": "/a/d.txt"}','{"fullPath": "/a/b.txt"}', '{"fullPath": "/c.txt"}']);
             };
 
-            FileListModal.show("dsId", null);
+            FileListModal.Instance.show("dsId", null);
             expect($modal.height()).to.equal(400);
             expect($modal.width()).to.equal(400);
 
@@ -254,7 +252,7 @@ describe("FileListModal Test", function() {
             expect($modal.height()).to.equal(400);
             expect($modal.width()).to.equal(400);
 
-            FileListModal.__testOnly__.resizeModal();
+            FileListModal.Instance._resizeModal();
 
             expect($modal.height()).to.equal(554);
             expect($modal.width()).to.equal(580);

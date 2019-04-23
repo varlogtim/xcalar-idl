@@ -770,7 +770,6 @@ namespace xcManager {
         LiveHelpModal.setup();
         JupyterFinalizeModal.setup();
         JupyterUDFModal.setup();
-        FileListModal.setup();
     }
 
     function setupUserArea(): void {
