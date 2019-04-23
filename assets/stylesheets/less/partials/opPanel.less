@@ -51,7 +51,25 @@
             }
         }
 
-        .close {
+        .headerIcons {
+            float: right;
+            color: @color-bg-cardHeader;
+
+            .icon {
+                line-height: @title-height;
+                margin-right: 10px;
+                float: right;
+                font-size: 16px;
+                // color: @color-bg-cardHeader;
+                cursor: pointer;
+                opacity: @opacity-unhover;
+                &:hover {
+                    opacity: @opacity-hover;
+                }
+            }
+        }
+
+        > .close {
             line-height: @title-height;
             margin-right: 10px;
             float: right;

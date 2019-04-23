@@ -126,6 +126,20 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._fileLister.setFileObj(this._dsList)
     }
 
+    private _refreshDatasetList(): void {
+        const sharedOnly: boolean = DagViewManager.Instance.getActiveTab() instanceof DagTabPublished;
+        const rootPath: string = sharedOnly ? DSObjTerm.SharedFolder : DSTStr.Home;
+        this._dsList = DS.listDatasets(sharedOnly);
+        this._fileLister.setFileObj(this._dsList);
+
+        let curPath = this._fileLister.getCurrentPath();
+        let path: string = rootPath + "/";
+        if (curPath) {
+            path += curPath + "/";
+        }
+        this._fileLister.goToPath(path, false);
+    }
+
     private _convertAdvConfigToModel(): {
         prefix: string,
         source: string,
@@ -256,6 +270,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     private _gotoStep(): void {
         let btnHTML: HTML = "";
         const $section: JQuery = this.$panel.find(".modalTopMain");
+        this.$panel.find(".refreshDatasetList").addClass("xc-hidden");
         if (this._advMode) {
             btnHTML =
                 '<button class="btn btn-submit btn-rounded submit">' +
@@ -269,6 +284,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 '<button class="btn btn-next btn-rounded next">' +
                     CommonTxtTstr.Next +
                 '</button>';
+            this.$panel.find(".refreshDatasetList").removeClass("xc-hidden");
         } else if (this._currentStep === 2) {
             $section.find(".step2").removeClass("xc-hidden")
                     .end()
@@ -339,6 +355,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const $panel: JQuery = this.$panel;
         $panel.on("click", ".close, .cancel", () => {
             this.close();
+        });
+
+        $panel.on("click", ".refreshDatasetList", () => {
+            this._refreshDatasetList();
         });
 
         $panel.on("click", ".next", () => {

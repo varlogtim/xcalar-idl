@@ -112,6 +112,72 @@ describe("Dataset Operator Panel Test", function() {
             expect($("#datasetOpBrowser .pathSection .pathWrap > .path").text()).to.equal("Home / folder /");
         });
 
+        it("Should refresh list properly", function() {
+            expect($("#dsOpListSection").find("li").length).to.equal(1);
+            expect($("#dsOpListSection").find("li").eq(0).text()).to.equal("ds2");
+
+            DS.listDatasets = function() {
+                return [
+                    {
+                        path: "ds1",
+                        id: "support@ds1",
+                        suffix: "",
+                        options: {inActivated: false}
+                    },
+                    {
+                        path: "/folder/ds2",
+                        id: "support@ds2",
+                        suffix: "",
+                        options: {inActivated: false}
+                    },
+                    {
+                        path: "/folder/ds3",
+                        id: "support@ds3",
+                        suffix: "",
+                        options: {inActivated: false}
+                    }
+                ]
+            };
+            $("#datasetOpPanel .refreshDatasetList").click();
+            expect($("#datasetOpBrowser .pathSection .pathWrap > .path").text()).to.equal("Home / folder /");
+            expect($("#dsOpListSection").find("li").length).to.equal(2);
+            expect($("#dsOpListSection").find("li").eq(0).text()).to.equal("ds2");
+            expect($("#dsOpListSection").find("li").eq(1).text()).to.equal("ds3");
+
+            DS.listDatasets = function() {
+                return [
+                    {
+                        path: "ds1",
+                        id: "support@ds1",
+                        suffix: "",
+                        options: {inActivated: false}
+                    }
+                ]
+            };
+            $("#datasetOpPanel .refreshDatasetList").click();
+            expect($("#datasetOpBrowser .pathSection .pathWrap > .path").text()).to.equal("Home /");
+            expect($("#dsOpListSection").find("li").length).to.equal(1);
+            expect($("#dsOpListSection").find("li").eq(0).text()).to.equal("ds1");
+
+            DS.listDatasets = function() {
+                return [
+                    {
+                        path: "ds1",
+                        id: "support@ds1",
+                        suffix: "",
+                        options: {inActivated: false}
+                    },
+                    {
+                        path: "/folder/ds2",
+                        id: "support@ds2",
+                        suffix: "",
+                        options: {inActivated: false}
+                    }
+                ]
+            }
+            $("#datasetOpPanel .refreshDatasetList").click();
+        });
+
         it ("Should not submit empty arguments", function () {
             datasetOpPanel.show(node);
             $('#datasetOpPanel .submit').click();
@@ -170,6 +236,7 @@ describe("Dataset Operator Panel Test", function() {
     describe("Advanced Dataset Panel Tests", function() {
         it("Should switch from advanced panel correctly", function() {
             datasetOpPanel.show(node);
+            expect($("#datasetOpPanel .refreshDatasetList").is(":visible")).to.be.true;
             JSON.parse = function(obj) {
                 return {
                     source: "support@ds1",
@@ -177,7 +244,9 @@ describe("Dataset Operator Panel Test", function() {
                 };
             };
             $("#datasetOpPanel .bottomSection .xc-switch").click();
+            expect($("#datasetOpPanel .refreshDatasetList").is(":visible")).to.be.false;
             $("#datasetOpPanel .bottomSection .xc-switch").click();
+            expect($("#datasetOpPanel .refreshDatasetList").is(":visible")).to.be.true;
             expect($("#datasetOpPanel .datasetPrefix .arg").val()).to.equal("pref");
             expect($("#datasetOpPanel #dsOpListSection .fileName.active").text()).to.equal("ds1");
             datasetOpPanel.close();
