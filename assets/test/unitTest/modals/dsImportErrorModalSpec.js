@@ -21,10 +21,10 @@ describe("DSImportErrorModal Test", function() {
                 return  PromiseHelper.resolve(['{"fullPath": "a", "numErrors": 1, "errors": [{"error": "fakeError", "recordNumber": 3}]}']);
             };
 
-            DSImportErrorModal.show("testName", 1);
+            DSImportErrorModal.Instance.show("testName", 1);
             expect(called).to.be.true;
 
-            var scrollMeta = DSImportErrorModal.__testOnly__.getScrollmeta();
+            var scrollMeta = DSImportErrorModal.Instance._scrollMeta;
             expect(scrollMeta.currentRowNumber).to.equal(1);
             expect(scrollMeta.numRecords).to.equal(1);
 
@@ -84,11 +84,11 @@ describe("DSImportErrorModal Test", function() {
                 return  PromiseHelper.resolve(list);
             };
 
-            DSImportErrorModal.show("testName", null);
+            DSImportErrorModal.Instance.show("testName", null);
             expect(called).to.be.true;
             expect(calledAgain).to.be.true;
 
-            scrollMeta = DSImportErrorModal.__testOnly__.getScrollmeta();
+            scrollMeta = DSImportErrorModal.Instance._scrollMeta;
             expect(scrollMeta.currentRowNumber).to.equal(30);
             expect(scrollMeta.numRecords).to.equal(100);
 
@@ -129,10 +129,10 @@ describe("DSImportErrorModal Test", function() {
                 return  PromiseHelper.resolve(list);
             };
 
-            DSImportErrorModal.show("testName", null);
+            DSImportErrorModal.Instance.show("testName", null);
             expect(called).to.be.true;
 
-            scrollMeta = DSImportErrorModal.__testOnly__.getScrollmeta();
+            scrollMeta = DSImportErrorModal.Instance._scrollMeta;
             expect(scrollMeta.currentRowNumber).to.equal(20);
             expect(scrollMeta.numRecords).to.equal(100);
 
@@ -245,10 +245,10 @@ describe("DSImportErrorModal Test", function() {
 
                 return PromiseHelper.resolve(list);
             };
-            DSImportErrorModal.__testOnly__fetchRows(20, 10);
+            DSImportErrorModal.Instance._fetchRows(20, 10);
 
             expect(called).to.be.true;
-            var scrollMeta = DSImportErrorModal.__testOnly__.getScrollmeta();
+            var scrollMeta = DSImportErrorModal.Instance._scrollMeta;
             expect(scrollMeta.currentRowNumber).to.equal(30);
             expect($modal.find(".errorFileList .row").length).to.equal(30);
             expect($modal.find(".errorFileList .row").first().hasClass("row0")).to.be.true;

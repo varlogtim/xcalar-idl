@@ -771,7 +771,6 @@ namespace xcManager {
         JupyterFinalizeModal.setup();
         JupyterUDFModal.setup();
         FileListModal.setup();
-        DSImportErrorModal.setup();
     }
 
     function setupUserArea(): void {

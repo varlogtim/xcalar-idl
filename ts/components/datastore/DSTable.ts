@@ -454,7 +454,7 @@ class DSTable {
                 isRecordError = dsObj.advancedArgs.allowRecordErrors;
                 numTotalErrors = dsObj.numErrors;
             }
-            DSImportErrorModal.show(dsId, numTotalErrors, isRecordError);
+            DSImportErrorModal.Instance.show(dsId, numTotalErrors, isRecordError);
         });
     }
 
