@@ -618,10 +618,10 @@ window.Profile = (function($, Profile, d3) {
 
         PromiseHelper.when.apply(window, promises)
         .then(deferred.resolve)
-        .fail(function() {
+        .fail(function(args) {
             var error;
-            for (var t = 0; t < arguments.length; t++) {
-                error = error || arguments[t];
+            for (var t = 0; t < args.length; t++) {
+                error = error || args[t];
             }
             deferred.reject(error);
         });

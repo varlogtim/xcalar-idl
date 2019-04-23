@@ -100,8 +100,8 @@ namespace WorkbookManager {
     * gets workbook based on id asyncronously
     * @param refreshing - boolean, if only refreshing perform no modifications
     */
-    export function getWKBKsAsync(refreshing?: boolean): XDPromise<object> {
-        const deferred: XDDeferred<object> = PromiseHelper.deferred();
+    export function getWKBKsAsync(refreshing?: boolean): XDPromise<{oldWorkbooks: any, sessionInfo: any, refreshing: boolean}> {
+        const deferred: XDDeferred<{oldWorkbooks: any, sessionInfo: any, refreshing: boolean}> = PromiseHelper.deferred();
         let sessionInfo: object[];
 
         XcalarListWorkbooks("*", true)
@@ -109,8 +109,8 @@ namespace WorkbookManager {
             sessionInfo = sessionRes;
             return wkbkStore.getAndParse();
         })
-        .then(function(wkbk) {
-            deferred.resolve(wkbk, sessionInfo, refreshing);
+        .then(function(wkbks) {
+            deferred.resolve({oldWorkbooks: wkbks, sessionInfo: sessionInfo, refreshing: refreshing});
         })
         .fail(deferred.reject);
 
@@ -966,9 +966,9 @@ namespace WorkbookManager {
     }
 
     // sync sessionInfo with wkbkInfo
-    function syncSessionInfo(oldWorkbooks: object, sessionInfo: any, refreshing: boolean): XDPromise<string> {
+    function syncSessionInfo(info: {oldWorkbooks: object, sessionInfo: any, refreshing: boolean}): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-
+        const {oldWorkbooks, sessionInfo, refreshing} = info;
         syncWorkbookMeta(oldWorkbooks, sessionInfo, refreshing)
         .then(function() {
             const activeWorkbooks: string[] = getActiveWorkbooks(sessionInfo);

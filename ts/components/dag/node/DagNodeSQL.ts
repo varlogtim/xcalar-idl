@@ -1009,7 +1009,7 @@ class DagNodeSQL extends DagNode {
         const tempTab: DagTabSQLFunc = DagTabSQLFunc.getFunc(funcName);
         let newTableName;
         PromiseHelper.when(...promises)
-        .then((...tableNames) => {
+        .then((tableNames: string[]) => {
             for (const tableName of tableNames) {
                 if (tableName) {
                     inputTableNames.push(tableName);

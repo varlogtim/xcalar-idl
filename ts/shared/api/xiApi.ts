@@ -461,7 +461,9 @@ namespace XIApi {
 
         const deferred: XDDeferred<JoinIndexInfo> = PromiseHelper.deferred();
         PromiseHelper.when(def1, def2)
-        .then((lRes: CastResult, rRes: CastResult) => {
+        .then((res) => {
+            const lRes: CastResult = res[0];
+            const rRes: CastResult = res[1];
             const tempTables: string[] = [];
             if (lRes.newTable) {
                 tempTables.push(lRes.tableName);
@@ -479,7 +481,7 @@ namespace XIApi {
                 "tempTables": tempTables
             });
         })
-        .fail((...error) => {
+        .fail((error) => {
             deferred.reject(xcHelper.getPromiseWhenError(<any>error));
         });
 
@@ -563,7 +565,9 @@ namespace XIApi {
         const deferred: XDDeferred<JoinIndexResult> = PromiseHelper.deferred();
 
         PromiseHelper.when(def1, def2)
-        .then((res1, res2) => {
+        .then((res) => {
+            const res1 = res[0];
+            const res2 = res[1];
             lIndexedTable = res1[0];
             rIndexedTable = res2[0];
             lNewKeys = res1[2];
@@ -598,7 +602,7 @@ namespace XIApi {
             };
             deferred.resolve(lInfo, rInfo, tempTables, tempCols);
         })
-        .fail((...error) => {
+        .fail((error) => {
             deferred.reject(xcHelper.getPromiseWhenError(<any>error));
         });
 
@@ -950,8 +954,10 @@ namespace XIApi {
         }
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let whenPassed = false;
         PromiseHelper.when.apply(this, promises)
         .then(() => {
+            whenPassed = true;
             // Now we want to do cascading joins on the newTableNames
             if (onlyDistinct) {
                 gbTableName = distinctGbTables[0];
@@ -963,7 +969,13 @@ namespace XIApi {
         .then((finalJoinedTable) => {
             deferred.resolve(finalJoinedTable, tempTables, tempCols);
         })
-        .fail(deferred.reject);
+        .fail((args) => {
+            if (!whenPassed) {
+                deferred.reject(xcHelper.getPromiseWhenError(args));
+            } else {
+                deferred.reject.apply(this, arguments);
+            }
+        });
 
         return deferred.promise();
     }
@@ -1084,7 +1096,9 @@ namespace XIApi {
         .then(() => {
             deferred.resolve(unionRenameInfos, tempTables);
         })
-        .fail(deferred.reject);
+        .fail((args) => {
+            deferred.reject(xcHelper.getPromiseWhenError(args));
+        });
 
         return deferred.promise();
     }
@@ -1174,7 +1188,9 @@ namespace XIApi {
         .then(() => {
             deferred.resolve(unionRenameInfos, tempTables, indexKeys);
         })
-        .fail(deferred.reject);
+        .fail((args) => {
+            deferred.reject(xcHelper.getPromiseWhenError(args));
+        });
 
         return deferred.promise();
     }
@@ -1282,7 +1298,8 @@ namespace XIApi {
         .then(() => {
             return PromiseHelper.when(getAggValue(txId, dstAggName));
         })
-        .then((val) => {
+        .then((res) => {
+            const val = res[0];
             if (val != null && val.error) {
                 err = val.error;
                 aggVal = null;

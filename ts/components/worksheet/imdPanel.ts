@@ -1341,7 +1341,7 @@ namespace IMDPanel {
         })
         .fail(function(err) {
             removeWaitScreen();
-            Alert.error("Coalesce Failed",err);
+            Alert.error("Coalesce Failed",err[0]);
         });
 
         return deferred.promise();

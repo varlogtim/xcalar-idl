@@ -82,7 +82,9 @@ window.UExtCompleteColumns = (function(UExtCompleteColumns) {
             var excRowsPromise = ext.filter(excStr, srcTableName, newTableName);
 
             XcSDK.Promise.when(excRowsPromise, dataPromise)
-            .then(function(tableAfterExclude, data) {
+            .then(function(ret) {
+                const tableAfterExclude = ret[0];
+                const data = ret[1];
                 // display all columns using information in data, the array of
                 // objects which has all field names
                 var table = ext.getTable(tableAfterExclude);

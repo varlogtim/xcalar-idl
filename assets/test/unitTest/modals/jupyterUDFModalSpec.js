@@ -8,8 +8,11 @@ describe("JupyterUDFModal Test", function() {
     var workbook;
     var dfTablePrefix;
     var cachedDetDagTabById;
+    let oldgTables;
 
     before(function() {
+        oldgTables = gTables;
+        gTables = [];
         $modal = $("#jupyterUDFTemplateModal");
         UnitTest.onMinMode();
         activeWKBNK = WorkbookManager.getActiveWKBK();
@@ -226,7 +229,7 @@ describe("JupyterUDFModal Test", function() {
             expect($modal.find(".tableList .list").is(":visible")).to.be.true;
             expect($modal.find(".tableName").val()).to.equal("");
             expect($modal.find(".columnsList li").length).to.equal(0);
-            $modal.find(".tableList li:contains('test dataflow')")
+            $modal.find(".tableList li:contains('test dataflow')").eq(0)
                   .trigger(fakeEvent.mouseup);
 
             expect($modal.find(".tableName").val()).to.equal("test dataflow (inactive dataflow) " + tableName2);
@@ -292,6 +295,7 @@ describe("JupyterUDFModal Test", function() {
         UnitTest.offMinMode();
         delete gTables[tableId];
         delete gTables[tableId2];
+        gTables = oldgTables;
         DagList.Instance.getDagTabById = cachedDetDagTabById;
     });
 });

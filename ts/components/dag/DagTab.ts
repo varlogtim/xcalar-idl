@@ -193,7 +193,7 @@ abstract class DagTab extends Durable {
 
     /**
      * Construct a graph from JSON
-     * @param dagInfo 
+     * @param dagInfo
      * @throws Error
      */
     protected _loadFromJSON(dagInfo): { dagInfo: any, graph: DagGraph } {
@@ -267,7 +267,7 @@ abstract class DagTab extends Durable {
             return PromiseHelper.when(...promises);
         })
         .then(deferred.resolve)
-        .fail((...errors) => {
+        .fail((errors) => {
             let error;
             for (let i = 0; i < errors.length; i++) {
                 if (errors[i] && errors[i]["status"] === StatusT.StatusRetinaInUse) {

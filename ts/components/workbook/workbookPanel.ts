@@ -238,13 +238,14 @@ namespace WorkbookPanel {
             }, 500);
 
             PromiseHelper.when(promise, loadDef.promise())
-            .then(function(curWorkbookId) {
+            .then(function(res) {
+                const curWorkbookId = res[0];
                 updateWorkbookInfo($workbookBox, <string>curWorkbookId);
                 deferred.resolve();
             })
-            .fail(function(error) {
-                handleError(error, $workbookBox);
-                deferred.reject(error);
+            .fail(function(errors) {
+                handleError(errors[0], $workbookBox);
+                deferred.reject(errors[0]);
             })
             .always(function() {
                 $workbookBox.removeClass("loading")
@@ -445,10 +446,12 @@ namespace WorkbookPanel {
                                                     currentWorkbookName);
 
             PromiseHelper.when(deferred1, deferred2)
-            .then(function($fauxCard, newId) {
-                replaceLoadingCard(<JQuery>$fauxCard, newId);
+            .then(function(res: [JQuery, string]) {
+                replaceLoadingCard(<JQuery>res[0], res[1]);
             })
-            .fail(function($fauxCard, error) {
+            .fail(function(ret) {
+                const $fauxCard = ret[0];
+                const error = ret[1];
                 handleError(error, $dropDownMenu);
                 removeWorkbookBox($fauxCard);
             })
@@ -575,8 +578,9 @@ namespace WorkbookPanel {
             const deferred2: XDPromise<JQuery> = createLoadingCard($sibling);
             return PromiseHelper.when(deferred1, deferred2);
         })
-        .then(function(id: string, $fauxCard) {
-            replaceLoadingCard($fauxCard, <string>id, true);
+        .then(function(res) {
+            const id = res[0];
+            replaceLoadingCard(res[1], <string>id, true);
             const wkbk = WorkbookManager.getWorkbook(id);
             if (wkbk != null) {
                 description = description || wkbk.getDescription();
@@ -584,7 +588,11 @@ namespace WorkbookPanel {
             return WorkbookPanel.edit(<string>id, workbookName, description, true);
         })
         .then(deferred.resolve)
-        .fail(function(error, $fauxCard, isCancel) {
+        .fail(function(res) {
+            res = res || [];
+            const error = res[0];
+            const $fauxCard = res[1];
+            const isCancel = res[2];
             if (isCancel) {
                 deferred.resolve();
                 return;
@@ -616,7 +624,7 @@ namespace WorkbookPanel {
                 msg: msg,
                 onConfirm: deferred.resolve,
                 onCancel: function() {
-                    deferred.reject(null, null, true);
+                    deferred.reject([null, null, true]);
                 }
             });
         }

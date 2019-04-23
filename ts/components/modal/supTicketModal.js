@@ -128,8 +128,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         }
 
         PromiseHelper.when.apply(window, promises)
-        .then(function() {
-            var tixs = arguments;
+        .then(function(tixs) {
             var allTix = [];
             for (var i = 0; i < tixs.length; i++) {
                 if (!tixs[i]) {

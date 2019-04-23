@@ -264,10 +264,10 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                     xcUIHelper.showSuccess(SuccessTStr.SaveParam);
                 }
             })
-            .fail(function() {
+            .fail(function(args) {
                 // XXX also need to handle partial failures better
                 // (alert restarat if necessary)
-                submitFailHandler(arguments, rows);
+                submitFailHandler(args, rows);
             })
             .always(function() {
                 MonitorConfig.refreshParams()

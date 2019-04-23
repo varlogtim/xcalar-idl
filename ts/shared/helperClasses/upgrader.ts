@@ -17,8 +17,9 @@ class Upgrader {
         const version: number = this._version;
 
         WorkbookManager.getWKBKsAsync()
-            .then((_oldWorkbooks, sessionInfo, isWrongNode) => {
-                if (isWrongNode) {
+            .then((info) => {
+                const {sessionInfo, refreshing} = info;
+                if (refreshing) {
                     // wrong node don't do upgrade
                     return;
                 } else {

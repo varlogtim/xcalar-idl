@@ -486,7 +486,7 @@ class DagCategoryCustom extends DagCategory {
 
             // Execute the KVStore actions in parallel
             return PromiseHelper.when(...taskList)
-            .then((...categoryNodes) => {
+            .then((categoryNodes: DagCategoryNode[]) => {
                 // All KVStore actions are done
                 const nodeList: DagCategoryNode[] = [];
                 for (const node of categoryNodes) {

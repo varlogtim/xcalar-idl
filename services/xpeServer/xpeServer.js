@@ -541,21 +541,21 @@ require("jsdom").env("", function(err, window) {
         var dockerJsonPromise = getDockerConfigData();
         var sysJsonPromise = getSystemConfigData();
         PromiseHelper.when(sysJsonPromise, dockerJsonPromise)
-        .then(function(ret1, ret2) {
+        .then(function(ret) {
             deferred.resolve({
                 "status": httpStatus.OK,
                 "system": {
-                    "os": ret1.os
+                    "os": ret[0].os
                 },
                 "docker": {
-                    "version": ret2.version,
-                    "maxCores": ret2.maxCores,
-                    "maxRam": ret2.maxRam
+                    "version": ret[1].version,
+                    "maxCores": ret[1].maxCores,
+                    "maxRam": ret[1].maxRam
                 }
             });
         })
-        .fail(function(fail1, fail2) {
-            var errMsg = concatErrMsg([fail1, fail2]);
+        .fail(function(fails) {
+            var errMsg = concatErrMsg(fails);
             deferred.reject({
                 "status": httpStatus.InternalServerError,
                 "errorLog": errMsg
@@ -624,12 +624,12 @@ require("jsdom").env("", function(err, window) {
         var dockerVersionPromise = getDockerVersion();
         var dockerMaxSettingsPromise = getDockerMaxSettings();
         PromiseHelper.when(dockerMaxSettingsPromise, dockerVersionPromise)
-        .then(function(ret1, ret2) {
-            deferred.resolve(Object.assign(ret1, ret2));
+        .then(function(ret) {
+            deferred.resolve(Object.assign(ret[0], ret[1]));
         })
-        .fail(function(fail1, fail2) {
+        .fail(function(fails) {
             console.log("one of the Docker config promises were rejected");
-            var errMsg = concatErrMsg([fail1, fail2]);
+            var errMsg = concatErrMsg(fails);
             deferred.reject({
                 "status": httpStatus.InternalServerError,
                 "errorLog": errMsg
@@ -832,10 +832,10 @@ require("jsdom").env("", function(err, window) {
                 "images": imageJsons
             });
         })
-        .fail(function () {
+        .fail(function (errors) {
             var error = null;
-            for (var i = 0; i < arguments.length; i++) {
-                var arg = arguments[i];
+            for (var i = 0; i < errors.length; i++) {
+                var arg = errors[i];
                 if (arg != null && typeof arg === "object" && !(arg instanceof Array)) {
                     error = arg;
                     break;

@@ -989,6 +989,17 @@ XcalarDatasetDeactivate = function(
         }
     })
     .fail(function(error) {
+        if (typeof error === "object" && error instanceof Array) {
+            const errors = error;
+            for (let i = 0; i < errors.length; i++) {
+                let arg = errors[i];
+                if (arg != null && typeof arg === "object" &&
+                    !(arg instanceof Array)) {
+                    error = arg;
+                    break;
+                }
+            }
+        }
         const thriftError: ThriftError = thriftLog("XcalarDatasetDeactivate", error);
         deferred.reject(thriftError);
     });
@@ -1091,7 +1102,17 @@ XcalarDatasetDeleteLoadNode = function(datasetName: string, wkbkName: string): X
         }
     })
     .then(deferred.resolve)
-    .fail((error) => {
+    .fail((errors) => {
+        var error = null;
+        for (var i = 0; i < errors.length; i++) {
+            var arg = errors[i];
+            if (arg != null && typeof arg === "object" &&
+                !(arg instanceof Array)) {
+                error = arg;
+                break;
+            }
+        }
+
         const thriftError: ThriftError = thriftLog("XcalarDatasetDeleteLoadNode", error);
         deferred.reject(thriftError);
     });
@@ -3556,7 +3577,7 @@ XcalarGetRetinaJson = function(retName: string): XDPromise<object> {
         return PromiseHelper.resolve(null);
     }
 
-    const deferred: XDDeferred<object> = jQuery.Deferred();
+    const deferred: XDDeferred<object> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -5350,7 +5371,7 @@ XcalarListPublishedTables = function(
         return PromiseHelper.resolve(null);
     }
 
-    const deferred: XDDeferred<XcalarApiListTablesOutputT> = jQuery.Deferred();
+    const deferred: XDDeferred<XcalarApiListTablesOutputT> = PromiseHelper.deferred();
     // Note that the arguments are not in the same order. This is deliberate for
     // programmer UX.
     xcalarListPublishedTables(tHandle, pubPatternMatch, getUpdates,
@@ -5372,7 +5393,7 @@ XcalarUnpublishTable = function(
         return PromiseHelper.resolve(null);
     }
 
-    const deferred: XDDeferred<StatusT> = jQuery.Deferred();
+    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
     xcalarUnpublish(tHandle, pubTableName, inactivateOnly)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -5392,7 +5413,7 @@ XcalarPublishTable = function(
         return PromiseHelper.resolve(null);
     }
 
-    const deferred: XDDeferred<StatusT> = jQuery.Deferred();
+    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
 
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -5430,7 +5451,7 @@ XcalarUpdateTable = function(
         return PromiseHelper.resolve(null);
     }
 
-    const deferred: XDDeferred<XcalarApiUpdateOutputT> = jQuery.Deferred();
+    const deferred: XDDeferred<XcalarApiUpdateOutputT> = PromiseHelper.deferred();
     const unixTS = null;
     xcalarApiUpdate(tHandle, deltaTableNames, pubTableNames, unixTS, false)
     .then(deferred.resolve)
@@ -5504,7 +5525,7 @@ XcalarRestoreTable = function(pubTableName: string): XDPromise<any> {
         return PromiseHelper.resolve(null);
     }
 
-    const deferred: XDDeferred<any> = jQuery.Deferred();
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
     xcalarRestoreTable(tHandle, pubTableName)
         .then(deferred.resolve)
         .fail(function (error) {
@@ -5520,7 +5541,7 @@ XcalarCoalesce = function(pubTableName: string): XDPromise<StatusT> {
         return PromiseHelper.resolve(null);
     }
 
-    const deferred: XDDeferred<StatusT> = jQuery.Deferred();
+    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
     xcalarCoalesce(tHandle, pubTableName)
         .then(deferred.resolve)
         .fail(function (error) {

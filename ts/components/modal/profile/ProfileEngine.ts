@@ -506,7 +506,9 @@ class ProfileEngine {
         let def2 = this._getAggResult(txId, aggMap.sum, colName, tableName);
 
         PromiseHelper.when(def1, def2)
-        .then((ret1, ret2) => {
+        .then((ret) => {
+            const ret1 = ret[0];
+            const ret2 = ret[1];
             let maxVal: number = ret1[0];
             let sumVal: number = ret2[0];
             deferred.resolve(maxVal, sumVal);

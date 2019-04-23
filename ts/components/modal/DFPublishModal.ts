@@ -164,12 +164,12 @@ class DFPublishModal {
             });
             return PromiseHelper.when(...promises);
         };
-        
+
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         shareDS()
         .then(deferred.resolve)
-        .fail((...arg) => {
-            const error: string = arg.filter((e) => e != null).join("\n");
+        .fail((args) => {
+            const error: string = args.filter((e) => e != null).join("\n");
             deferred.reject(error);
         });
 

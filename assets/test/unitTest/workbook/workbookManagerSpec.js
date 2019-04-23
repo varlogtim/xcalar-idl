@@ -151,7 +151,7 @@ describe("WorkbookManager Test", function() {
         });
 
         it("syncSessionInfo should handle error case", function(done) {
-            WorkbookManager.__testOnly__.syncSessionInfo(null, null)
+            WorkbookManager.__testOnly__.syncSessionInfo({oldWorkbooks: null, sessionInfo: null})
             .then(function() {
                 done("fail");
             })
@@ -166,7 +166,7 @@ describe("WorkbookManager Test", function() {
                 "numSessions": 0,
                 "sessions": []
             };
-            WorkbookManager.__testOnly__.syncSessionInfo(null, sessionInfo)
+            WorkbookManager.__testOnly__.syncSessionInfo({oldWorkbooks: null, sessionInfo: sessionInfo})
             .then(function(storedActiveId) {
                 expect(storedActiveId).to.be.null;
                 done();

@@ -157,10 +157,10 @@ function deleteImages() {
             console.log("all delete promises were resolved");
             deferred.resolve();
         })
-        .fail(function() {
+        .fail(function(args) {
             var error = null;
-            for (var i = 0; i < arguments.length; i++) {
-                var arg = arguments[i];
+            for (var i = 0; i < args.length; i++) {
+                var arg = args[i];
                 if (arg != null && typeof arg === "object" && !(arg instanceof Array)) {
                     error = arg;
                     break;

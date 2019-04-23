@@ -68,8 +68,10 @@ function finalizeTable(publishArgsList, cleanup, checkTime) {
             .fail(innerDeferred.reject);
         promiseArray.push(innerDeferred.promise());
     });
+    let whenCallReturned = false;
     PromiseHelper.when.apply(this, promiseArray)
     .then(function() {
+        whenCallReturned = true;
         if (cleanup) {
             xcConsole.log("clean up after select");
             return cleanAllTables(sqlTables, checkTime);
@@ -78,7 +80,23 @@ function finalizeTable(publishArgsList, cleanup, checkTime) {
     .then(function() {
         deferred.resolve(res);
     })
-    .fail(deferred.reject);
+    .fail(function() {
+        if (!whenCallReturned) {
+            let args = arguments;
+            let error = null;
+            for (let i = 0; i < args.length; i++) {
+                if (args[i] && (args[i].error ||
+                    args[i] === StatusTStr[StatusT.StatusCanceled])) {
+                    error = args[i];
+                    break;
+                }
+            }
+            deferred.reject(error);
+        } else {
+            deferred.reject.apply(this, arguments);
+        }
+
+    });
     return deferred.promise();
 }
 
@@ -109,9 +127,12 @@ function sqlSelect(publishNames, sessionPrefix, cleanup, checkTime) {
     })
     .then(function() {
         xcConsole.log("Finalizing tables");
-        return finalizeTable(publishArgsList, cleanup, checkTime);
+        finalizeTable(publishArgsList, cleanup, checkTime)
+        .then(deferred.resolve)
+        .fail(function(errors) {
+            deferred.reject(errors[0]);
+        });
     })
-    .then(deferred.resolve)
     .fail(deferred.reject);
 
     return deferred.promise();
@@ -188,9 +209,9 @@ function listAllTables(pattern, pubTables, xdTables) {
     tableListPromiseArray.push(XcalarListPublishedTables(patternMatch));
     tableListPromiseArray.push(XcalarGetTables(patternMatch));
     PromiseHelper.when.apply(this, tableListPromiseArray)
-    .then(function() {
-        var pubTablesRes = arguments[0];
-        var xdTablesRes = arguments[1];
+    .then(function(res) {
+        var pubTablesRes = res[0];
+        var xdTablesRes = res[1];
         pubTablesRes.tables.forEach(function(table){
             if (table.active) {
                 pubTables.set(table.name.toUpperCase(), table.name);
@@ -201,7 +222,18 @@ function listAllTables(pattern, pubTables, xdTables) {
         });
         deferred.resolve(pubTablesRes);
     })
-    .fail(deferred.reject);
+    .fail(function() {
+        let args = arguments;
+        let error = null;
+        for (let i = 0; i < args.length; i++) {
+            if (args[i] && (args[i].error ||
+                args[i] === StatusTStr[StatusT.StatusCanceled])) {
+                error = args[i];
+                break;
+            }
+        }
+        deferred.reject(error);
+    });
     return deferred.promise();
 };
 
@@ -575,6 +607,8 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, sessionInfo) {
     var pubTableRes;
 
     var prom;
+    var whenCallSent = false;
+    var whenCallReturned = false;
     //XXX Doing this not to mess up with odbc calls
     // but works without doing this for odbc, need to remove
     // this when we unify sdk and odbc code paths
@@ -639,10 +673,12 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, sessionInfo) {
         for (var xdTable of xdTables) {
             tableValidPromiseArray.push(getInfoForXDTable(xdTable, sessionInfo));
         }
+        whenCallSent = true;
         return PromiseHelper.when(...tableValidPromiseArray);
     })
-    .then(function() {
-        returns = arguments;
+    .then(function(ret) {
+        returns = ret;
+        whenCallReturned = true;
         // XXX FIX ME We need to make sure from when we check to when we run
         // this call, that the table still exists and that no one has dropped
         // it in the meantime. Alternatively, we can just put in a backup clause
@@ -681,7 +717,22 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, sessionInfo) {
 
         deferred.resolve(query_array, allSchemas, allSelects);
     })
-    .fail(deferred.reject);
+    .fail(function() {
+        if (whenCallSent && !whenCallReturned) {
+            let args = arguments;
+            let error = null;
+            for (let i = 0; i < args.length; i++) {
+                if (args[i] && (args[i].error ||
+                    args[i] === StatusTStr[StatusT.StatusCanceled])) {
+                    error = args[i];
+                    break;
+                }
+            }
+            deferred.reject(error);
+        } else {
+            deferred.reject.apply(this, arguments);
+        }
+    });
     return deferred.promise();
 }
 

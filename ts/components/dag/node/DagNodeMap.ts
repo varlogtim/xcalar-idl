@@ -156,7 +156,7 @@ class DagNodeMap extends DagNode {
         });
 
         return PromiseHelper.when(...taskList)
-        .then((...rets) => {
+        .then((rets: any[]) => {
             const result: Map<string, string> = new Map();
             for (const ret of rets) {
                 if (ret != null) {

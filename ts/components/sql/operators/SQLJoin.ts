@@ -536,7 +536,9 @@ class SQLJoin {
         const rightTableName = globalStruct.rightTableName;
         PromiseHelper.when<CliStruct>(handleMaps(leftMapArray, leftTableName, leftCols),
                            handleMaps(rightMapArray, rightTableName, rightCols))
-        .then(function(retLeft, retRight) {
+        .then(function(res) {
+            const retLeft = res[0];
+            const retRight = res[1];
             leftTempCols = retLeft.newCols || [];
             rightTempCols = retRight.newCols || [];
             return SQLJoin.__groupbyForExistenceJoin(globalStruct,

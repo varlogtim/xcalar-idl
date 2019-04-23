@@ -519,7 +519,7 @@ class DagGraph extends Durable {
         });
 
         PromiseHelper.when(...promises)
-        .always((...rets) => {
+        .always((rets) => {
             const errorNodeIds = [];
             rets.forEach((error) => {
                 if (error && error.error && error.error.status === StatusT.StatusRetinaInUse) {

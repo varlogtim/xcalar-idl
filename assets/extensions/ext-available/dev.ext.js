@@ -223,7 +223,11 @@ window.UExtDev = (function(UExtDev) {
 
             XcSDK.Promise.when(leftPromise, rightPromise, leftRowsPromise,
                                rightRowsPromise)
-            .then(function(leftArray, rightArray, numLeftRows, numRightRows) {
+            .then(function(ret) {
+                const leftArray = ret[0];
+                const rightArray = ret[1];
+                const numLeftRows = ret[2];
+                const numRightRows = ret[3];
                 var maxSum = 0;
                 var expSum = 0;
                 var minSum = 0;
@@ -328,10 +332,10 @@ window.UExtDev = (function(UExtDev) {
                     });
                 }
             })
-            .fail(function() {
+            .fail(function(args) {
                 var error = null;
-                for (var i = 0; i < arguments.length; i++) {
-                    var arg = arguments[i];
+                for (var i = 0; i < args.length; i++) {
+                    var arg = args[i];
                     if (arg != null &&
                         typeof arg === "object" &&
                         !(arg instanceof Array)) {

@@ -50,7 +50,7 @@
     PromiseHelper.when = function() {
         var numProm = arguments.length;
         if (numProm === 0) {
-            return PromiseHelper.resolve(null);
+            return PromiseHelper.resolve([]);
         }
         var mainDeferred = PromiseHelper.deferred();
 
@@ -82,9 +82,9 @@
                         console.log("All done!");
                     }
                     if (hasFailures) {
-                        mainDeferred.reject.apply($, returns);
+                        mainDeferred.reject.call($, returns);
                     } else {
-                        mainDeferred.resolve.apply($, returns);
+                        mainDeferred.resolve.call($, returns);
                     }
                 }
             }, function() {
@@ -100,9 +100,8 @@
                 hasFailures = true;
                 if (numDone === numProm) {
                     console.log("All done!");
-                    mainDeferred.reject.apply($, returns);
+                    mainDeferred.reject.call($, returns);
                 }
-
             });
         }
 
@@ -183,11 +182,11 @@
                 } catch(e) {
                     reject(e);
                 }
-            });    
+            });
         } else {
             // Native promise
             return promise;
-        }            
+        }
     };
 
     /**

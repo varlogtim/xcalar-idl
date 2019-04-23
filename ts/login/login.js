@@ -40,17 +40,15 @@ $(document).ready(function() {
         isSSOTokenResolved = true;
     }
 
-    getMSALConfig(hostname)
-    .always(function(config) {
+    PromiseHelper.alwaysResolve(getMSALConfig(hostname))
+    .then(function(config) {
         if (config.hasOwnProperty('msalEnabled') &&
             config.msalEnabled) {
             $("body").addClass("msalEnabled");
         }
         isMsalResolved = true;
         attemptShowMissedSplashScreen();
-    })
-    .then(function() {
-        msalSetup()
+        msalSetup();
     });
 
     if (xcLocalStorage.getItem("noSplashLogin") === "true" ||

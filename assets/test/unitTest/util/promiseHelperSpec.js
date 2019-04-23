@@ -89,7 +89,7 @@ describe("PromiseHelper Test", function() {
     it("PromiseHelper.when should resolve null if no args", function(done) {
         PromiseHelper.when()
         .then(function(ret) {
-            expect(ret).to.be.null;
+            expect(ret).to.deep.equal([]);
             done();
         })
         .fail(function() {
@@ -103,7 +103,10 @@ describe("PromiseHelper Test", function() {
         var def3 = PromiseHelper.resolve("a", "b");
 
         PromiseHelper.when(def1, def2, def3)
-        .then(function(ret1, ret2, ret3) {
+        .then(function(ret) {
+            const ret1 = ret[0];
+            const ret2 = ret[1];
+            const ret3 = ret[2];
             expect(ret1).to.be.undefined;
             expect(ret2).to.equal("test");
             expect(ret3[0]).to.equal("a");
@@ -124,7 +127,10 @@ describe("PromiseHelper Test", function() {
         .then(function() {
             done("fail");
         })
-        .fail(function(ret1, ret2, ret3) {
+        .fail(function(ret) {
+            const ret1 = ret[0];
+            const ret2 = ret[1];
+            const ret3 = ret[2];
             expect(ret1).to.be.undefined;
             expect(ret2).to.equal("test");
             expect(ret3[0]).to.equal("a");
@@ -142,8 +148,8 @@ describe("PromiseHelper Test", function() {
         .then(function() {
             done("fail");
         })
-        .fail(function(ret1) {
-            expect(ret1).to.equal("test");
+        .fail(function(ret) {
+            expect(ret[0]).to.equal("test");
             done();
         });
     });

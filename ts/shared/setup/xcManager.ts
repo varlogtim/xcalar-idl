@@ -423,8 +423,11 @@ namespace xcManager {
                 const concurrency: Concurrency = new Concurrency(mutex);
                 promises.push(concurrency.initLock());
             });
-
-            return PromiseHelper.when.apply(this, promises);
+            let def: XDDeferred<any> = PromiseHelper.deferred();
+            PromiseHelper.when.apply(this, promises)
+            .then(def.resolve)
+            .fail(args => def.reject(xcHelper.getPromiseWhenError(args)));
+            return def.promise();
         }
 
         function actualOneTimeSetup(force: boolean = false): XDPromise<any> {

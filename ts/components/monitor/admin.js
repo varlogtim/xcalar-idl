@@ -416,8 +416,7 @@ window.Admin = (function($, Admin) {
         }
 
         PromiseHelper.when.apply(window, promises)
-        .always(function() {
-            var users = arguments;
+        .always(function(users) {
             var data;
             var tempUserList = [];
             var memText;

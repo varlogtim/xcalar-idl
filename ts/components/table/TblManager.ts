@@ -816,9 +816,10 @@ class TblManager {
             defArray.push(table.freeResultset());
         });
         // Free the result set pointer that is still pointing to it
-
+        let whenPassed = false;
         PromiseHelper.when.apply(window, defArray)
         .then(() => {
+            whenPassed = true;
             if (names.length === 1) {
                 // XIAPi.deleteTable has the fail handler for dag in use case
                 // which XIAPI.deleteTables doesn't have
@@ -833,16 +834,22 @@ class TblManager {
             deferred.resolve.apply(this, arg);
         })
         .fail((...arg) => {
-            for (let i = 0; i < arg.length; i++) {
+            let args = arg;
+            if (!whenPassed) {
+                args = arg[0];
+            }
+
+            for (let i = 0; i < args.length; i++) {
                 const tableId: TableId = tableIds[i];
-                if (arg[i] == null) {
+                if (args[i] == null) {
                     resolveTable(tableId);
                 } else {
                     TblFunc.unlockTable(tableId);
                 }
             }
+
             TblManager.alignTableEls();
-            deferred.reject.apply(this, arg);
+            deferred.reject.apply(this, args);
         });
 
         return deferred.promise();
