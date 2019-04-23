@@ -961,11 +961,6 @@ declare namespace LicenseModal {
     export function setup(): void;
 }
 
-declare namespace FileInfoModal {
-    export function setup(): void;
-    export function show(optoins: any): void;
-}
-
 declare namespace DSInfoModal {
     export function setup(): void;
 }

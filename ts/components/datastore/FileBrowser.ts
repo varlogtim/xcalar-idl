@@ -2201,25 +2201,6 @@ namespace FileBrowser {
         });
     }
 
-    function getFolderInfo($grid: JQuery): void {
-        let index: number = Number($grid.data("index"));
-        let file = curFiles[index];
-        let name = file.name;
-        let path = getCurrentPath() + name;
-        let mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
-        let isFolder = file.attr.isDirectory;
-        let size = isFolder ? null : xcHelper.sizeTranslator(file.attr.size);
-
-        FileInfoModal.show({
-            "targetName": getCurrentTarget(),
-            "path": path,
-            "name": name,
-            "modified": mTime,
-            "size": size,
-            "isFolder": isFolder
-        });
-    }
-
     function toggleSortIcon($icon: JQuery, restoreDefault: boolean): void {
         if (restoreDefault) {
             // If restore to non-sorted
@@ -2573,7 +2554,6 @@ namespace FileBrowser {
         __testOnly__.isDS = isDS;
         __testOnly__.previewDS = previewDS;
         __testOnly__.showPathError = showPathError;
-        __testOnly__.getFolderInfo = getFolderInfo;
         __testOnly__.findVerticalIcon = findVerticalIcon;
         __testOnly__.redirectHandler = redirectHandler;
         __testOnly__.oversizeHandler = oversizeHandler;

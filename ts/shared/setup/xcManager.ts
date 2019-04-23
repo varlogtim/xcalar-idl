@@ -762,7 +762,6 @@ namespace xcManager {
         WorkbookPanel.setup();
         LicenseModal.setup();
         SupTicketModal.setup();
-        FileInfoModal.setup();
         WorkbookInfoModal.setup();
         LoginConfigModal.setup();
         LiveHelpModal.setup();

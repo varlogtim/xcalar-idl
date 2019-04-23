@@ -34,7 +34,6 @@ window.UnitTestManager = (function(UnitTestManager, $) {
         "Delete Table Modal Test",
         "DSInfoModal Test",
         "ExtModal Test",
-        "FileInfoModal Test",
         "License Modal Test",
         "LiveHelp Modal Test",
         "Profile-Profile Chart Test",
