@@ -412,9 +412,9 @@ describe("Dataset-DSPreview Test", function() {
             };
 
             DSPreview.__testOnly__.getURLToPreview()
-            .then(function(index, path) {
-                expect(index).to.equal(0);
-                expect(path).to.equal("/url/test");
+            .then(function({sourceIndex, url}) {
+                expect(sourceIndex).to.equal(0);
+                expect(url).to.equal("/url/test");
                 done();
             })
             .fail(function() {
@@ -997,7 +997,7 @@ describe("Dataset-DSPreview Test", function() {
             })
             .fail(function(error) {
                 expect(called).to.equal(2);
-                expect(error.error).to.equal(DSTStr.NoParse);
+                expect(error).to.equal(DSTStr.NoParse);
                 done();
             });
         });

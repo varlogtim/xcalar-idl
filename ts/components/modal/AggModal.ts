@@ -603,7 +603,7 @@ class AggModal {
         let tableName = table.getName();
 
         XIApi.aggregateWithEvalStr(txId, evalStr, tableName)
-        .then((value) => {
+        .then(({value}) => {
             // cache value
             this._corrCache[tableId] = this._corrCache[tableId] || {};
             this._corrCache[tableId][evalStr] = value;
@@ -821,7 +821,7 @@ class AggModal {
         let tableName = table.getName();
 
         XIApi.aggregate(txId, opString, fieldName, tableName)
-        .then((value) => {
+        .then(({value}) => {
             // cache value
             this._aggCache[tableId] = this._aggCache[tableId] || {};
             let tableAgg = this._aggCache[tableId];

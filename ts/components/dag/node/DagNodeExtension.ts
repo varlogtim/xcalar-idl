@@ -106,17 +106,20 @@ class DagNodeExtension extends DagNode {
         }
     };
 
-    public getQuery(): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+    public getQuery(): XDPromise<{resTable: string, query: string}> {
+        const deferred: XDDeferred<{resTable: string, query: string}> = PromiseHelper.deferred();
         try {
             const params: DagNodeExtensionInputStruct = this._getConvertedParam();
             let args = params.args;
             const startCols: ProgCol[] = this._getColumnsFromArg(args);
             ExtensionManager.triggerFromDF(params.moduleName, params.functName, args)
-            .then((finalTable, query, cols: ProgCol[]) => {
+            .then((ret) => {
+                const finalTable = ret.finalTableName;
+                const query = ret.query;
+                const cols = ret.cols;
                 let finalCols = this._getFinalCols(cols);
                 this._updateColumnsChange(startCols, finalCols);
-                deferred.resolve(finalTable, query);
+                deferred.resolve({resTable: finalTable, query: query});
             })
             .fail(deferred.reject);
         } catch (e) {

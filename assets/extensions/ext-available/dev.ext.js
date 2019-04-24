@@ -167,7 +167,8 @@ window.UExtDev = (function(UExtDev) {
             };
             var leftPromise = ext.groupBy(AggrOp.Count, lColNames, lColName,
                                           srcTableName, leftGBColName, lOpts)
-            .then(function(tableName) {
+            .then(function(ret) {
+                const tableName = ret.dstTable;
                 leftGBTableName = tableName;
                 return ext.getNumRows(tableName);
             })
@@ -198,7 +199,8 @@ window.UExtDev = (function(UExtDev) {
             };
             var rightPromise = ext.groupBy(AggrOp.Count, rColNames, rColName,
                                            rTableName, rightGBColName, rOpts)
-            .then(function(tableName) {
+            .then(function(ret) {
+                const tableName = ret.dstTable;
                 rightGBTableName = tableName;
                 return ext.getNumRows(tableName);
             })

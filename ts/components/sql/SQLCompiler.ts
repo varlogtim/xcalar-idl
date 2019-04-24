@@ -62,7 +62,8 @@ class SQLCompiler {
                                                   tree.newTableName,
                                                   tree.usrCols, tree.orderCols);
             })
-            .then(function(xcQueryString, newTableName, allColumns) {
+            .then(function(ret) {
+                const {xcQueryString, newTableName, allColumns} = ret;
                 sqlQueryObj.xcQueryString = xcQueryString;
                 sqlQueryObj.newTableName = newTableName;
                 sqlQueryObj.allColumns = allColumns;
@@ -73,7 +74,7 @@ class SQLCompiler {
                 sqlQueryObj.errorMsg = errorMsg;
                 deferred.reject(errorMsg);
             })
-            .always(function () { 
+            .always(function () {
                 if (typeof KVStore !== "undefined" && oldKVcommit) {
                     // Restore the old KVcommit code
                     KVStore.commit = oldKVcommit;
@@ -674,7 +675,7 @@ class SQLCompiler {
         // Expression case, where we want to cut the tree at the top most
         // Aggregate Expression
         for (let i = 0; i < node.children.length; i++) {
-            node.children[i] = SQLCompiler.secondTraverse(node.children[i], 
+            node.children[i] = SQLCompiler.secondTraverse(node.children[i],
                                                   options, false, tablePrefix);
         }
 
@@ -726,7 +727,7 @@ class SQLCompiler {
                     case "t":
                         node.colType = SQLColumnType.Timestamp;
                         break;
-                    default: 
+                    default:
                         SQLUtil.assert(false, "Unsupported xdf type: " + xdfType);
                 }
                 node.value.name = node.value.name.substring(1);

@@ -29,7 +29,7 @@ describe("ProfileEngine Test", function() {
 
         oldIndex = XIApi.index;
         XIApi.index = function() {
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({});
         };
 
         oldGetNumRows = XIApi.getNumRows;
@@ -38,7 +38,7 @@ describe("ProfileEngine Test", function() {
         };
 
         oldGroupBy = XIApi.groupBy;
-        XIApi.groupBy = () => PromiseHelper.resolve();
+        XIApi.groupBy = () => PromiseHelper.resolve({});
 
         oldDelete = XIApi.deleteTable;
         XIApi.deleteTable = function() {
@@ -47,12 +47,12 @@ describe("ProfileEngine Test", function() {
 
         oldSort = XIApi.sort;
         XIApi.sort = function() {
-            return PromiseHelper.resolve("test", []);
+            return PromiseHelper.resolve({newTableName: "test", newKeys: []});
         };
 
         oldAgg = XIApi.aggregateWithEvalStr;
         XIApi.aggregateWithEvalStr = function() {
-            return PromiseHelper.resolve(30);
+            return PromiseHelper.resolve({value: 30});
         };
 
         oldGetTables = XcalarGetTables;
@@ -291,7 +291,6 @@ describe("ProfileEngine Test", function() {
             colName: "test",
             table: "testTable"
         });
-
         profileEngine.bucket(null, "testTable", profileInfo, true)
         .then(function() {
             expect(profileInfo.groupByInfo.isComplete).to.be.true;
@@ -392,7 +391,7 @@ describe("ProfileEngine Test", function() {
     it("should resolve for unsorted case in genStats test 2", function(done) {
         var oldCheckOrder = XIApi.checkOrder;
         XIApi.checkOrder = function() {
-            return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingUnordered);
+            return PromiseHelper.resolve({tableOrder: XcalarOrderingT.XcalarOrderingUnordered});
         };
 
         var profileInfo = new ProfileInfo({
@@ -418,13 +417,13 @@ describe("ProfileEngine Test", function() {
     it("genStats should work", function(done) {
         var oldCheckOrder = XIApi.checkOrder;
         XIApi.checkOrder = function() {
-            return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingAscending,
-                                        [{name: "sortCol"}]);
+            return PromiseHelper.resolve({tableOrder: XcalarOrderingT.XcalarOrderingAscending,
+                                        tableKeys: [{name: "sortCol"}]});
         };
 
         var oldSortAsc = XIApi.sortAscending;
         XIApi.sortAscending = function() {
-            return PromiseHelper.resolve("sort table", [{name: "sortCol"}]);
+            return PromiseHelper.resolve({newTableName: "sort table", newKeys: [{name: "sortCol"}]});
         };
 
         var profileInfo = new ProfileInfo({

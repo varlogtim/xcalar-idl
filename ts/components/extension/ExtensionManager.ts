@@ -208,7 +208,7 @@ namespace ExtensionManager {
         moduleName: string,
         funcName: string,
         args: any
-    ): XDPromise<string> {
+    ): XDPromise<{finalTableName: string, query: string, cols: ProgCol[], runBeforeStartRet: any}> {
         if (moduleName == null || funcName == null || moduleName.indexOf("UExt") !== 0) {
             return PromiseHelper.reject("Invalid argument in extension");
         }
@@ -221,7 +221,7 @@ namespace ExtensionManager {
             return PromiseHelper.reject(msg);
         }
 
-        let deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let deferred: XDDeferred<{finalTableName: string, query: string, cols: ProgCol[], runBeforeStartRet: any}> = PromiseHelper.deferred();
         var notTableDependent = extMap[moduleName].configParams.notTableDependent;
 
         var table;
@@ -264,7 +264,7 @@ namespace ExtensionManager {
                 runBeforeStartRet = ret;
                 return ext.runAfterFinish();
             })
-            .then(function(finalTables, finalReplaces) {
+            .then(function({finalTables, finalReplaces}) {
                 // XXX TODO modify it
                 var finalTableName;
                 if (finalTables != null && finalTables.length > 0) {
@@ -294,7 +294,7 @@ namespace ExtensionManager {
                         }
                     });
                 }
-                deferred.resolve(finalTableName, query, finalCols, runBeforeStartRet);
+                deferred.resolve({finalTableName: finalTableName, query: query, cols: finalCols, runBeforeStartRet: runBeforeStartRet});
             })
             .fail(function(error) {
                 if (error == null) {

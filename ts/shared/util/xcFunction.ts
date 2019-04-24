@@ -53,7 +53,11 @@ namespace xcFunction {
             orders.push(colInfo.ordering);
         });
 
-        function typeCastHelper(srcTable: string): XDPromise<string> {
+        function typeCastHelper(srcTable: string): XDPromise<{
+            tableToSort: string,
+            newColInfos: any[],
+            newTableCols: ProgCol[]
+        }> {
             const typesToCast: ColumnType[] = [];
             const mapStrs: string[] = [];
             const mapColNames: string[] = [];
@@ -120,16 +124,28 @@ namespace xcFunction {
             });
 
             if (!mapStrs.length) {
-                return PromiseHelper.resolve(srcTable, newColInfos, tableCols);
+                return PromiseHelper.resolve({
+                    tableToSort: srcTable,
+                    newColInfos: newColInfos,
+                    newTableCols: tableCols
+                });
             }
 
             sql['typeToCast'] = typesToCast;
-            const innerDeferred: XDDeferred<string> = PromiseHelper.deferred();
+            const innerDeferred: XDDeferred<{
+                tableToSort: string,
+                newColInfos: any[],
+                newTableCols: ProgCol[]
+            }> = PromiseHelper.deferred();
 
             XIApi.map(txId, mapStrs, srcTable, mapColNames)
             .then((mapTableName) => {
                 TblManager.setOrphanTableMeta(mapTableName, newTableCols);
-                innerDeferred.resolve(mapTableName, newColInfos, newTableCols);
+                innerDeferred.resolve({
+                    tableToSort: mapTableName,
+                    newColInfos: newColInfos,
+                    newTableCols: newTableCols
+                });
             })
             .fail(innerDeferred.reject);
 
@@ -175,7 +191,8 @@ namespace xcFunction {
         let finalTableCols: ProgCol[];
 
         typeCastHelper(tableName)
-        .then((tableToSort, newColInfos, newTableCols) => {
+        .then((res) => {
+            const {tableToSort, newColInfos, newTableCols} = res;
             finalTableCols = newTableCols;
 
             newColInfos.forEach((colInfo) => {
@@ -196,8 +213,8 @@ namespace xcFunction {
 
             return XIApi.sort(txId, newColInfos, tableToSort);
         })
-        .then((sortTableName) => {
-            finalTableName = sortTableName;
+        .then((ret) => {
+            finalTableName = ret.newTableName;
             // sort will filter out KNF, so it change the profile
             return TblManager.refreshTable([finalTableName], finalTableCols, [tableName], txId);
         })
@@ -214,18 +231,12 @@ namespace xcFunction {
             });
             deferred.resolve(finalTableName);
         })
-        .fail((error, sorted) => {
+        .fail((error) => {
             if (table.hasLock()) {
                 TblFunc.unlockTable(tableId);
             }
 
-            if (sorted) {
-                Transaction.cancel(txId);
-                const msg: string = xcStringHelper.replaceMsg(IndexTStr.SortedErr, {
-                    order: XcalarOrderingTStr[orders[0]].toLowerCase() // XXX fix this
-                });
-                Alert.error(IndexTStr.Sorted, msg);
-            } else if (error.error === SQLType.Cancel) {
+            if (error.error === SQLType.Cancel) {
                 Transaction.cancel(txId);
                 deferred.resolve();
             } else {

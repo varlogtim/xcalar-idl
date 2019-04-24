@@ -39,7 +39,7 @@ describe("XcDatasetViewer Test", function() {
         viewer._getSampleTable =
         viewer.dataset.fetch = () => {
             called++;
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({jsons: [],  jsonKeys: []});
         };
 
         viewer.render($())
@@ -59,7 +59,7 @@ describe("XcDatasetViewer Test", function() {
         viewer._getSampleTable =
         viewer.dataset.fetch = () => {
             called++;
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({jsons: [],  jsonKeys: []});
         };
         viewer.dataset.setError("test");
 
@@ -86,7 +86,7 @@ describe("XcDatasetViewer Test", function() {
         let oldFunc = PTblManager.Instance.getSchemaArrayFromDataset;
         let schemaArray = [[{"name": "test", "type": ColumnType.string}]];
         PTblManager.Instance.getSchemaArrayFromDataset = () => {
-            return PromiseHelper.resolve(schemaArray);
+            return PromiseHelper.resolve({schemaArray});
         };
 
         viewer._fetchSchema()
@@ -194,7 +194,7 @@ describe("XcDatasetViewer Test", function() {
         viewer.$view = $(html);
         viewer.dataset.fetch = () => {
             called = true;
-            return PromiseHelper.resolve([{"h1": "test"}]);
+            return PromiseHelper.resolve({jsons: [{"h1": "test"}], jsonKeys: []});
         };
 
         viewer._scrollSampleAndParse(1, 1)
@@ -215,7 +215,7 @@ describe("XcDatasetViewer Test", function() {
         viewer.totalRows = 1000;
         viewer._scrollSampleAndParse = function() {
             called = true;
-            return PromiseHelper.resolve();  
+            return PromiseHelper.resolve();
         };
 
         viewer._dataStoreTableScroll($('<div></div>'))
@@ -235,7 +235,7 @@ describe("XcDatasetViewer Test", function() {
         viewer.totalRows = 10;
         viewer._scrollSampleAndParse = function() {
             called = true;
-            return PromiseHelper.resolve();  
+            return PromiseHelper.resolve();
         };
 
         viewer._dataStoreTableScroll($())

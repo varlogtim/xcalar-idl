@@ -71,11 +71,11 @@ class SQLSimulator {
                 const cli = SQLSimulator.end(txId);
                 const synthesizeQuery = cli.endsWith(",") ? cli.slice(0, -1) : cli;
                 xcQueryString = xcQueryString.slice(0, -1) + "," + synthesizeQuery + "]";
-                deferred.resolve(xcQueryString, finalTable, newCols);
+                deferred.resolve({xcQueryString: xcQueryString, newTableName: finalTable, allColumns: newCols});
             })
             .fail(deferred.reject);
         } else {
-            deferred.resolve(xcQueryString, tableName, newCols);
+            deferred.resolve({xcQueryString: xcQueryString, newTableName: tableName, allColumns: newCols});
         }
         return deferred.promise();
     }
@@ -123,7 +123,9 @@ class SQLSimulator {
         const txId = SQLSimulator.start();
 
         XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName)
-        .then((val, finalDstDagName) => {
+        .then((ret) => {
+            const val  = ret.value;
+            const finalDstDagName = ret.aggName;
             const cli = SQLSimulator.end(txId);
             deferred.resolve({
                 "val": val,
@@ -145,7 +147,9 @@ class SQLSimulator {
         const txId = SQLSimulator.start();
 
         XIApi.aggregateWithEvalStr(txId, evalStr, tableName, dstAggName)
-        .then((val, finalDstDagName) => {
+        .then((ret) => {
+            const val = ret.value;
+            const finalDstDagName  = ret.aggName;
             const cli = SQLSimulator.end(txId);
             deferred.resolve({
                 "val": val,
@@ -171,7 +175,8 @@ class SQLSimulator {
         })
 
         XIApi.sort(txId, sortColsAndOrderCopy, tableName, newTableName)
-        .then((finalTable) => {
+        .then((ret) => {
+            const finalTable = ret.newTableName;
             let cli = SQLSimulator.end(txId);
             cli = cli.replace(/\\t/g, "\\\\t");
             deferred.resolve({
@@ -267,7 +272,9 @@ class SQLSimulator {
         const txId = SQLSimulator.start();
 
         XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
-        .then((dstTable, tempCols, lRename, rRename) => {
+        .then((ret) => {
+            const dstTable = ret.newTableName;
+            const tempCols = ret.tempCols;
             const cli = SQLSimulator.end(txId);
             deferred.resolve({
                 "newTableName": dstTable,
@@ -310,7 +317,9 @@ class SQLSimulator {
         const txId = SQLSimulator.start();
 
         XIApi.union(txId, tableInfos, dedup, newTableName, unionType)
-        .then((dstTable, dstCols) => {
+        .then((ret) => {
+            const dstTable = ret.newTableName;
+            const dstCols = ret.newTableCols;
             const cli = SQLSimulator.end(txId);
             const newTableCols = dstCols.map((col) => {
                 return ColManager.newPullCol(col.rename, null, col.type);
@@ -351,7 +360,7 @@ class SQLSimulator {
         }
 
         XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
-        .then(function(finalTable, tempCols, newKeyFieldName, newKeys) {
+        .then(function({finalTable, tempCols}) {
             const cli = SQLSimulator.end(txId);
             deferred.resolve({
                 "newTableName": finalTable,

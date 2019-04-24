@@ -215,7 +215,8 @@ window.UExtNormalization = (function(UExtNormalization) {
             return ext.groupBy(operator, [concatColName], concatColName,
                 tableAfterConcat, groupByCol, options);
         })
-        .then(function(tableAfterGroupBy) {
+        .then(function(ret) {
+            const tableAfterGroupBy = ret.dstTable;
             function getTableWithIdCol(inputTable) {
                 var tempDeferred = XcSDK.Promise.deferred();
                 if (idCol) {
@@ -241,12 +242,14 @@ window.UExtNormalization = (function(UExtNormalization) {
                         return ext.groupBy(operator, [newColName], groupByCol,
                             tableWithIdCol, tempColName, opt);
                     })
-                    .then(function(tableWithCountOfId) {
+                    .then(function(ret) {
+                        const tableWithCountOfId = ret.dstTable;
                         // get the max in the field just created with the count
                         return ext.aggregate(XcSDK.Enums.AggType.Max,
                             tempColName, tableWithCountOfId);
                     })
-                    .then(function(maxCount) {
+                    .then(function(ret) {
+                        const maxCount = ret.value;
                         if (maxCount > 1) {
                             // id column is not unique, return error
                             tempDeferred.reject('The Column "' + idCol.getName()

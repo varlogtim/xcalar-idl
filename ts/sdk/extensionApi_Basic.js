@@ -325,7 +325,7 @@ window.XcSDK.Extension.prototype = (function() {
 
                 PromiseHelper.when.apply(null, promises)
                 .always(function() {
-                    deferred.resolve(finalActiveTables, finalReplaces);
+                    deferred.resolve({finalTables: finalActiveTables, finalReplaces: finalReplaces});
                 });
             })
             .fail(deferred.reject);

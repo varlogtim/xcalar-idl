@@ -257,9 +257,9 @@ class DSObj extends Durable {
         this.activated = false;
     }
 
-    public fetch(rowToGo: number, rowsToFetch: number): XDPromise<any[]> {
+    public fetch(rowToGo: number, rowsToFetch: number): XDPromise<{jsons: any[], jsonKeys: any[]}> {
         // rowToGo stats from 0
-        let deferred: XDDeferred<any[]> = PromiseHelper.deferred();
+        let deferred: XDDeferred<{jsons: any[], jsonKeys: any[]}> = PromiseHelper.deferred();
         this._fetch(rowToGo, rowsToFetch)
         .then((data) => {
             if (!data) {
@@ -270,7 +270,7 @@ class DSObj extends Durable {
                 let jsons: any[];
                 let jsonKeys: string[];
                 [jsons, jsonKeys] = this._parseFetchedData(data);
-                deferred.resolve(jsons, jsonKeys);
+                deferred.resolve({jsons, jsonKeys});
             } catch (e) {
                 console.error(e);
                 deferred.reject(e);

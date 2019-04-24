@@ -889,7 +889,7 @@ XcalarDatasetLoad = function(
 ): XDPromise<any> {
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
-        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+        return (deferred.reject({error: StatusTStr[StatusT.StatusCanceled]}).promise());
     }
 
     let def: XDPromise<any>;
@@ -916,7 +916,7 @@ XcalarDatasetLoad = function(
     def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
-            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            deferred.reject({error: StatusTStr[StatusT.StatusCanceled]});
         } else {
             Transaction.log(txId, query, dsName, ret.timeElapsed);
             deferred.resolve(ret);
@@ -928,7 +928,7 @@ XcalarDatasetLoad = function(
         }
         const thriftError: ThriftError = thriftLog("XcalarLoad", error);
         if (has_require) {
-            deferred.reject(thriftError);
+            deferred.reject({error: thriftError});
         } else if (thriftError.httpStatus != null) {
             // 502 = Bad Gateway server error
             // Thrift time out
@@ -950,7 +950,7 @@ XcalarDatasetLoad = function(
                     }) + "\n" + loadError;
                 }
             }
-            deferred.reject(thriftError, loadError);
+            deferred.reject({error: thriftError, loadError: loadError});
         }
     });
 
@@ -2531,7 +2531,7 @@ XcalarAggregate = function(
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
             Transaction.log(txId, query, dstAggName, ret.timeElapsed);
-            deferred.resolve(ret, dstAggName);
+            deferred.resolve(ret);
         }
     })
     .fail(function(error) {
@@ -4395,24 +4395,29 @@ XcalarKeySetIfEqual = function(
     keyCompare: string,
     oldValue: string,
     newValue: string
-): XDPromise<StatusT> {
+): XDPromise<{res: StatusT, noKV: boolean}> {
     if (tHandle == null) {
-        return PromiseHelper.resolve(null);
+        return PromiseHelper.resolve({res: null, noKV: false});
     }
-    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
+    const deferred: XDDeferred<{res: StatusT, noKV: boolean}> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
 
     xcalarKeySetIfEqual(tHandle, scope, persist, keyCompare, oldValue, newValue)
-    .then(deferred.resolve)
+    .then((res) => {
+        deferred.resolve({
+            res: res,
+            noKV: false
+        });
+    })
     .fail(function(error) {
         const thriftError = thriftLog("XcalarKeySetIfEqual", error);
         if (thriftError.status === StatusT.StatusKvEntryNotFound) {
-            deferred.resolve(null, true);
+            deferred.resolve({res: null, noKV: true});
         } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
             console.warn("Status", error, "kvStore, not found");
-            deferred.resolve(null, true);
+            deferred.resolve({res: null, noKV: true});
         } else {
             Log.errorLog("Key Set If Equal", null, null, thriftError);
             deferred.reject(thriftError);

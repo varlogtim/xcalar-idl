@@ -60,7 +60,7 @@ describe("xcFunction Test", function () {
                 return PromiseHelper.resolve('testMap');
             };
 
-            XIApi.sort = () => PromiseHelper.resolve('testSort#test');
+            XIApi.sort = () => PromiseHelper.resolve({newTableName: 'testSort#test'});
 
             const colInfos = [{ colNum: 1, ordering: ordering }];
             xcFunction.sort(tableId, colInfos)
@@ -86,7 +86,7 @@ describe("xcFunction Test", function () {
                 return PromiseHelper.resolve('testMap');
             };
 
-            XIApi.sort = () => PromiseHelper.resolve('testSort#test');
+            XIApi.sort = () => PromiseHelper.resolve({newTableName: 'testSort#test'});
 
             const colInfos = [{
                 colNum: 1,
@@ -121,27 +121,6 @@ describe("xcFunction Test", function () {
                 .fail((error) => {
                     expect(error).to.equal('test');
                     done();
-                });
-        });
-
-        it('xcFunction.sort should handle sorted case', (done) => {
-            XIApi.sort = () => PromiseHelper.reject('test', true);
-            const oldFunc = Alert.error;
-            let test = false;
-            Alert.error = () => { test = true };
-
-            const colInfos = [{ colNum: 1, ordering: ordering }];
-            xcFunction.sort(tableId, colInfos)
-                .then(() => {
-                    done('fail');
-                })
-                .fail((error) => {
-                    expect(test).to.be.true;
-                    expect(error).to.equal('test');
-                    done();
-                })
-                .always(() => {
-                    Alert.error = oldFunc;
                 });
         });
 

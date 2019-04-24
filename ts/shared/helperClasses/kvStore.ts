@@ -424,8 +424,8 @@ class KVStore {
         newValue: string,
         persist: boolean,
         noCommitCheck: boolean = false
-    ): XDPromise<any> {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    ): XDPromise<{res: StatusT, noKV: boolean}> {
+        const deferred: XDDeferred<{res: StatusT, noKV: boolean}> = PromiseHelper.deferred();
         const key: string = this.key;
         const scope: number = this.scope;
 

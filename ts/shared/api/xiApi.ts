@@ -240,8 +240,8 @@ namespace XIApi {
         tableName: string,
         newTableName: string,
         dhtName: string
-    ): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+    ): XDPromise<{newTableName: string, newKeys: string[]}> {
+        const deferred: XDDeferred<{newTableName: string, newKeys: string[]}> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
         let newKeys: string[];
         XcalarIndexFromTable(tableName, keyInfos, newTableName, dhtName, simuldateTxId)
@@ -252,7 +252,7 @@ namespace XIApi {
             return XIApi.query(txId, queryName, query);
         })
         .then(() => {
-            deferred.resolve(newTableName, newKeys);
+            deferred.resolve({newTableName, newKeys});
         })
         .fail(deferred.reject);
 
@@ -492,21 +492,8 @@ namespace XIApi {
         txId: number,
         colNames: string[],
         tableName: string
-    ): XDPromise<string>[] {
-        const def1: XDDeferred<string> = PromiseHelper.deferred();
-        const def2: XDDeferred<string> = PromiseHelper.deferred();
-
-        XIApi.index(txId, colNames, tableName)
-        .then((...arg) => {
-            def1.resolve.apply(this, arg);
-            def2.resolve.apply(this, arg);
-        })
-        .fail((...arg) => {
-            def1.reject.apply(this, arg);
-            def2.reject.apply(this, arg);
-        });
-
-        return [def1.promise(), def2.promise()];
+    ): XDPromise<{newTableName: string, isCache: boolean, newKeys: string[], tempCols: string[]}> {
+        return  XIApi.index(txId, colNames, tableName);
     }
 
     /**
@@ -520,7 +507,12 @@ namespace XIApi {
         txId: number,
         joinInfo: JoinIndexInfo,
         removeNulls: boolean
-    ): XDPromise<JoinIndexResult> {
+    ): XDPromise<{
+        lRes: JoinIndexResult,
+        rRes: JoinIndexResult,
+        tempTablesInIndex: string[],
+        tempCols: string[]
+    }> {
         const lColNames: string[] = joinInfo.lColNames;
         const rColNames: string[] = joinInfo.rColNames;
         const lTableName: string = joinInfo.lTableName;
@@ -542,14 +534,15 @@ namespace XIApi {
                 oldKeys: [],
                 newKeys: []
             };
-            return PromiseHelper.resolve(lInfo, rInfo, [], []);
+            return PromiseHelper.resolve({lRes: lInfo, rRes: rInfo, tempTablesInIndex: [], tempCols: []});
         }
 
-        let def1: XDPromise<string>;
-        let def2: XDPromise<string>;
+        let def1: XDPromise<{newTableName: string, isCache: boolean, newKeys: string[], tempCols: string[]}>;
+        let def2: XDPromise<{newTableName: string, isCache: boolean, newKeys: string[], tempCols: string[]}>;
         if (lTableName === rTableName && isSameKey(lColNames, rColNames)) {
             // when it's self join
-            [def1, def2] = selfJoinIndex(txId, lColNames, lTableName);
+            def1 = selfJoinIndex(txId, lColNames, lTableName);
+            def2 = def1;
         } else {
             def1 = XIApi.index(txId, lColNames, lTableName);
             def2 = XIApi.index(txId, rColNames, rTableName);
@@ -562,22 +555,27 @@ namespace XIApi {
         let tempCols: string[];
 
         let tempTables: string[] = [];
-        const deferred: XDDeferred<JoinIndexResult> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{
+            lRes: JoinIndexResult,
+            rRes: JoinIndexResult,
+            tempTablesInIndex: string[],
+            tempCols: string[]
+        }> = PromiseHelper.deferred();
 
         PromiseHelper.when(def1, def2)
         .then((res) => {
             const res1 = res[0];
             const res2 = res[1];
-            lIndexedTable = res1[0];
-            rIndexedTable = res2[0];
-            lNewKeys = res1[2];
-            rNewKeys = res2[2];
+            lIndexedTable = res1.newTableName;
+            rIndexedTable = res2.newTableName;
+            lNewKeys = res1.newKeys;
+            rNewKeys = res2.newKeys;
 
-            let currentTempCols = res1[3] || [];
+            let currentTempCols = res1.tempCols|| [];
             if (lTableName === rTableName && isSameKey(lColNames, rColNames)) {
                 tempCols = currentTempCols;
             } else {
-                tempCols = currentTempCols.concat(res2[3] || []);
+                tempCols = currentTempCols.concat(res2.tempCols || []);
             }
 
             if (removeNulls) {
@@ -600,7 +598,13 @@ namespace XIApi {
                 oldKeys: rColNames,
                 newKeys: rNewKeys
             };
-            deferred.resolve(lInfo, rInfo, tempTables, tempCols);
+
+            deferred.resolve({
+                lRes: lInfo,
+                rRes: rInfo,
+                tempTablesInIndex: tempTables,
+                tempCols: tempCols
+            });
         })
         .fail((error) => {
             deferred.reject(xcHelper.getPromiseWhenError(<any>error));
@@ -744,11 +748,11 @@ namespace XIApi {
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XIApi.index(txId, newGroupOnCols, origTableName)
-        .then((indexedTableName) => {
+        .then((ret) => {
+            const indexedTableName = ret.newTableName;
             for (let i: number = 0; i < newGroupOnCols.length; i++) {
                 newGroupOnCols[i] = stripColName(newGroupOnCols[i]);
             }
-
 
             const newAggColName = "XC_COUNT_" + Authentication.getHashId().substring(3)
                                   + "_" + xcHelper.getTableId(gbTableName);
@@ -934,7 +938,7 @@ namespace XIApi {
         normalAggArgs: AggColInfo[],
         gbTableName: string,
         onlyDistinct: boolean
-    ): XDPromise<string> {
+    ): XDPromise<{resTable: string, resTempTables: string[], resTempCols: string[]}> {
         const promises: XDPromise<void>[] = [];
         const distinctGbTables: string[] = [];
         const tempTables: string[] = [];
@@ -953,7 +957,7 @@ namespace XIApi {
                             distinctGbTables, tempTables, tempCols));
         }
 
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{resTable: string, resTempTables: string[], resTempCols: string[]}> = PromiseHelper.deferred();
         let whenPassed = false;
         PromiseHelper.when.apply(this, promises)
         .then(() => {
@@ -967,7 +971,7 @@ namespace XIApi {
                                   tempTables, tempCols, gbOutputCols);
         })
         .then((finalJoinedTable) => {
-            deferred.resolve(finalJoinedTable, tempTables, tempCols);
+            deferred.resolve({resTable: finalJoinedTable, resTempTables: tempTables, resTempCols: tempCols});
         })
         .fail((args) => {
             if (!whenPassed) {
@@ -1042,7 +1046,7 @@ namespace XIApi {
     function unionCast(
         txId: number,
         tableInfos: UnionTableInfo[]
-    ): XDPromise<UnionRenameInfo[]> {
+    ): XDPromise<{unionRenameInfos: UnionRenameInfo[], resTempTables: string[]}> {
         const unionRenameInfos: UnionRenameInfo[] = [];
         const tempTables: string[] = [];
         const caseHelper = function(
@@ -1091,10 +1095,10 @@ namespace XIApi {
         };
 
         const promises: XDPromise<void>[] = tableInfos.map(caseHelper);
-        const deferred: XDDeferred<UnionRenameInfo[]> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{unionRenameInfos: UnionRenameInfo[], resTempTables: string[]}> = PromiseHelper.deferred();
         PromiseHelper.when.apply(this, promises)
         .then(() => {
-            deferred.resolve(unionRenameInfos, tempTables);
+            deferred.resolve({unionRenameInfos: unionRenameInfos, resTempTables: tempTables});
         })
         .fail((args) => {
             deferred.reject(xcHelper.getPromiseWhenError(args));
@@ -1157,7 +1161,8 @@ namespace XIApi {
             // step 2: index on the concat column
             return XIApi.index(txId, [concatColName], curTableName);
         })
-        .then((finalTableName) => {
+        .then((ret) => {
+            const finalTableName = ret.newTableName;
             tempTables.push(curTableName);
             unionRenameInfo.tableName = finalTableName;
             const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(
@@ -1175,7 +1180,7 @@ namespace XIApi {
     function unionAllIndex(
         txId: number,
         unionRenameInfos: UnionRenameInfo[]
-    ): XDPromise<UnionRenameInfo[]> {
+    ): XDPromise<{unionRenameInfos: UnionRenameInfo[], resTempTables: string[], indexKeys: string[][]}> {
         const tempTables: string[] = [];
         const indexKeys: string[][] = [];
         const indexColName: string = xcHelper.randName("XC_UNION_INDEX");
@@ -1183,10 +1188,10 @@ namespace XIApi {
             return unionAllIndexHelper(txId, renameInfo, indexColName, tempTables, i, indexKeys);
         });
 
-        const deferred: XDDeferred<UnionRenameInfo[]> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{unionRenameInfos: UnionRenameInfo[], resTempTables: string[], indexKeys: string[][]}> = PromiseHelper.deferred();
         PromiseHelper.when.apply(this, promises)
         .then(() => {
-            deferred.resolve(unionRenameInfos, tempTables, indexKeys);
+            deferred.resolve({unionRenameInfos: unionRenameInfos, resTempTables: tempTables, indexKeys: indexKeys});
         })
         .fail((args) => {
             deferred.reject(xcHelper.getPromiseWhenError(args));
@@ -1269,12 +1274,12 @@ namespace XIApi {
         evalStr: string,
         tableName: string,
         dstAggName?: string
-    ): XDPromise<string | number> {
+    ): XDPromise<{value: string | number, aggName: string, toDelete: boolean}> {
         if (evalStr == null || tableName == null || txId == null) {
             return PromiseHelper.reject("Invalid args in aggregate");
         }
 
-        const deferred: XDDeferred<string | number> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{value: string | number, aggName: string, toDelete: boolean}> = PromiseHelper.deferred();
         let toDelete = false;
         let err: string;
 
@@ -1314,7 +1319,7 @@ namespace XIApi {
             if (err != null) {
                 deferred.reject({error: err});
             } else {
-                deferred.resolve(aggVal, dstAggName, toDelete);
+                deferred.resolve({value: aggVal, aggName: dstAggName, toDelete: toDelete});
             }
         })
         .fail(deferred.reject);
@@ -1337,7 +1342,7 @@ namespace XIApi {
         colName: string,
         tableName: string,
         dstAggName?: string
-    ): XDPromise<string | number> {
+    ): XDPromise<{value: string | number, aggName: string, toDelete: boolean}> {
         if (colName == null ||
             tableName == null ||
             aggOp == null ||
@@ -1346,7 +1351,7 @@ namespace XIApi {
             return PromiseHelper.reject("Invalid args in aggregate");
         }
 
-        const deferred: XDDeferred<string | number> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{value: string | number, aggName: string, toDelete: boolean}> = PromiseHelper.deferred();
         XIApi.genAggStr(colName, aggOp)
         .then((evalStr) => {
             return XIApi.aggregateWithEvalStr(txId, evalStr,
@@ -1362,16 +1367,16 @@ namespace XIApi {
      * @param tableName
      * @returns XDPromise<order, keys>
      */
-    export function checkOrder(tableName: string): XDPromise<number> {
+    export function checkOrder(tableName: string): XDPromise<{tableOrder: number, tableKeys: {name: string, ordering: XcalarOrderingT}[]}> {
         if (tableName == null) {
             return PromiseHelper.reject("Invalid args in checkOrder");
         }
 
-        const deferred: XDDeferred<number> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{tableOrder: number, tableKeys: {name: string, ordering: XcalarOrderingT}[]}> = PromiseHelper.deferred();
         XcalarGetTableMeta(tableName)
         .then((tableMeta) => {
             const keys: {name: string, ordering: XcalarOrderingT}[] = xcHelper.getTableKeyInfoFromMeta(tableMeta);
-            deferred.resolve(tableMeta.ordering, keys);
+            deferred.resolve({tableOrder: tableMeta.ordering, tableKeys: keys});
         })
         .fail(deferred.reject);
 
@@ -1485,11 +1490,11 @@ namespace XIApi {
         //     return XIApi.query(txId, queryName, query);
         // })
         .then(deferred.resolve)
-        .fail((error, loadError) => {
+        .fail((error) => {
             if (hasCreate) {
                 XcalarDatasetDelete(dsName);
             }
-            deferred.reject(error, loadError);
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -1547,12 +1552,12 @@ namespace XIApi {
         dsName: string,
         newTableName: string,
         prefix: string
-    ): XDPromise<string> {
+    ): XDPromise<{newTableName: string, prefix: string}> {
         if (txId == null || dsName == null) {
             return PromiseHelper.reject("Invalid args in indexFromDataset");
         }
 
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{newTableName: string, prefix: string}> = PromiseHelper.deferred();
         if (!isValidTableName(newTableName)) {
             newTableName = getNewTableName(newTableName);
         }
@@ -1569,7 +1574,7 @@ namespace XIApi {
             return XIApi.query(txId, queryName, query);
         })
         .then(() => {
-            deferred.resolve(newTableName, prefix);
+            deferred.resolve({newTableName, prefix});
         })
         .fail(deferred.reject);
 
@@ -1594,7 +1599,7 @@ namespace XIApi {
         newTableName?: string,
         newKeys?: string[],
         dhtName?: string
-    ): XDPromise<string> {
+    ): XDPromise<{newTableName: string, isCache: boolean, newKeys: string[], tempCols: string[]}> {
         if (txId == null ||
             colNames == null ||
             tableName == null ||
@@ -1603,13 +1608,13 @@ namespace XIApi {
             return PromiseHelper.reject("Invalid args in index");
         }
 
-        let indexFunc = (): XDPromise<string> => {
+        let indexFunc = (): XDPromise<{newTableName: string, isCache: boolean, newKeys: string[], tempCols: string[]}> => {
             if (colNames.length === 0) {
-                return PromiseHelper.resolve(tableName, false, colNames, []);
+                return PromiseHelper.resolve({newTableName: tableName, isCache: false, newKeys: colNames, tempCols: []});
             }
 
             newKeys = newKeys || [];
-            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            const deferred: XDDeferred<{newTableName: string, isCache: boolean, newKeys: string[], tempCols: string[]}> = PromiseHelper.deferred();
             let keysList: string[] = [];
             let tempCols: string[] = [];
             const keyInfos: {
@@ -1634,10 +1639,11 @@ namespace XIApi {
                 newTableName = getNewTableName(tableName, ".index");
             }
             indexHelper(txId, keyInfos, tableName, newTableName, dhtName)
-            .then((newTableName, newKeys) => {
+            .then((ret) => {
+                const {newTableName, newKeys} = ret;
                 XIApi.cacheIndexTable(tableName, colNames,
                                             newTableName, newKeys, tempCols);
-                deferred.resolve(newTableName, false, newKeys, tempCols);
+                deferred.resolve({newTableName: newTableName, isCache: false, newKeys: newKeys, tempCols: tempCols});
             })
             .fail(deferred.reject);
 
@@ -1672,7 +1678,7 @@ namespace XIApi {
             // log this indexed table as part of the transaction so afterwards
             // we can add a tag to the indexed table to indicate it is
             // part of the transaction
-            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            const deferred: XDDeferred<{newTableName: string, isCache: boolean, newKeys: string[], tempCols: string[]}> = PromiseHelper.deferred();
             checkIfTableExists(indexCache.tableName)
             .then((exist) => {
                 if (!exist) {
@@ -1689,8 +1695,8 @@ namespace XIApi {
                     QueryManager.addIndexTable(txId, indexCache.tableName);
                 }
                 console.info("has cached of index table", indexCache.tableName);
-                return PromiseHelper.resolve(indexCache.tableName, true,
-                    indexCache.keys, indexCache.tempCols);
+                const retStruct = {newTableName: indexCache.tableName, isCache: true, newKeys: indexCache.keys, tempCols: indexCache.tempCols};
+                return PromiseHelper.resolve(retStruct);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -1719,7 +1725,7 @@ namespace XIApi {
         tableName: string,
         newTableName?: string,
         dhtName?: string
-    ): XDPromise<string> {
+    ): XDPromise<{newTableName: string, newKeys: string[]}> {
         if (txId == null ||
             keyInfos == null ||
             tableName == null ||
@@ -1728,15 +1734,13 @@ namespace XIApi {
             return PromiseHelper.reject("Invalid args in sort");
         }
 
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{newTableName: string, newKeys: string[]}> = PromiseHelper.deferred();
         if (!isValidTableName(newTableName)) {
             newTableName = getNewTableName(tableName);
         }
 
         indexHelper(txId, keyInfos, tableName, newTableName, dhtName)
-        .then((newTableName, newKeys) => {
-            deferred.resolve(newTableName, newKeys);
-        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
@@ -1755,7 +1759,7 @@ namespace XIApi {
         colNames: string[],
         tableName: string,
         newTableName?: string
-    ): XDPromise<string> {
+    ): XDPromise<{newTableName: string, newKeys: string[]}> {
         // a quick function to sort ascending
         const keyInfos: {
             name: string, ordering: XcalarOrderingT
@@ -1781,7 +1785,7 @@ namespace XIApi {
         colNames: string[],
         tableName: string,
         newTableName?: string
-    ): XDPromise<string> {
+    ): XDPromise<{newTableName: string, newKeys: string[]}> {
         // a quick function to sort descending
         const keyInfos: {
             name: string, ordering: XcalarOrderingT
@@ -1871,7 +1875,12 @@ namespace XIApi {
         lTableInfo: JoinTableInfo,
         rTableInfo: JoinTableInfo,
         options: JoinOptions = <JoinOptions>{}
-    ): XDPromise<string> {
+    ): XDPromise<{
+        newTableName: string,
+        tempCols: string[],
+        lRename: ColRenameInfo[],
+        rRename: ColRenameInfo[]
+    }> {
         if (txId == null ||
             joinType == null ||
             !(joinType in JoinOperatorTStr || joinType in JoinCompoundOperator) ||
@@ -1937,7 +1946,12 @@ namespace XIApi {
             casts: rCasts
         };
 
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{
+            newTableName: string,
+            tempCols: string[],
+            lRename: ColRenameInfo[],
+            rRename: ColRenameInfo[]
+        }> = PromiseHelper.deferred();
 
         // Step 1: cast columns
         joinCast(txId, lCastInfo, rCastInfo)
@@ -1947,8 +1961,8 @@ namespace XIApi {
             rIndexColNames = res.rColNames;
             return joinIndex(txId, res, lTableInfo.removeNulls);
         })
-        .then((lRes: JoinIndexResult, rRes: JoinIndexResult, tempTablesInIndex:
-                string[], tempCols: string[]) => {
+        .then((ret) => {
+            const {lRes, rRes, tempTablesInIndex, tempCols} = ret;
             tempTables = tempTables.concat(tempTablesInIndex);
             tempColNames = tempCols;
             // Step 3: resolve name collision
@@ -1995,10 +2009,10 @@ namespace XIApi {
             if (clean) {
                 XIApi.deleteTableInBulk(txId, tempTables, true)
                 .always(() => {
-                    deferred.resolve(newTableName, tempCols, lRename, rRename);
+                    deferred.resolve({newTableName, tempCols, lRename, rRename});
                 });
             } else {
-                deferred.resolve(newTableName, tempCols, lRename, rRename);
+                deferred.resolve({newTableName, tempCols, lRename, rRename});
             }
         })
         .fail(deferred.reject);
@@ -2021,7 +2035,7 @@ namespace XIApi {
         groupByCols: string[],
         tableName: string,
         options: GroupByOptions = <GroupByOptions>{}
-    ): XDPromise<string> {
+    ): XDPromise<{finalTable: string, tempCols: string[], newKeyFieldName: string, newKeys: string[]}> {
         if (txId == null ||
             aggArgs == null ||
             groupByCols == null ||
@@ -2082,14 +2096,16 @@ namespace XIApi {
             }
         });
 
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{finalTable: string, tempCols: string[], newKeyFieldName: string, newKeys: string[]}> = PromiseHelper.deferred();
         let promise: any;
         // tableName is the original table name that started xiApi.groupby
         if (onlyDistinct) {
             promise = PromiseHelper.resolve();
         } else {
             promise = XIApi.index(txId, groupByCols, tableName, null, newKeys, options.dhtName)
-            .then((indexedTable, _isCache, indexKeys) => {
+            .then((ret) => {
+                const indexedTable = ret.newTableName;
+                const indexKeys = ret.newKeys;
                 newKeys = indexKeys;
                 // table name may have changed after sort!
                 let indexedColName: string = indexKeys.length === 0 ?
@@ -2122,7 +2138,8 @@ namespace XIApi {
             return distinctGroupby(txId, tableName, groupByCols, aggCols,
                                    normalAggArgs, gbTableName, onlyDistinct);
         })
-        .then((resTable, resTempTables, resTempCols) => {
+        .then((ret) => {
+            const {resTable, resTempTables, resTempCols} = ret;
             finalTable = resTable;
             tempTables = tempTables.concat(resTempTables);
             tempCols = tempCols.concat(resTempCols);
@@ -2134,7 +2151,7 @@ namespace XIApi {
             }
         })
         .then(() => {
-            deferred.resolve(finalTable, tempCols, newKeyFieldName, newKeys);
+            deferred.resolve({finalTable, tempCols, newKeyFieldName, newKeys});
         })
         .fail(deferred.reject);
 
@@ -2166,7 +2183,7 @@ namespace XIApi {
         dedup: boolean = false,
         newTableName?: string,
         unionType?: UnionOperatorT
-    ): XDPromise<string> {
+    ): XDPromise<{newTableName: string, newTableCols: {rename: string, type: ColumnType}[]}> {
         if (unionType === undefined) {
             unionType = UnionOperatorT.UnionStandard;
         }
@@ -2181,18 +2198,20 @@ namespace XIApi {
         }
 
         let tempTables: string[] = [];
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{newTableName: string, newTableCols: {rename: string, type: ColumnType}[]}> = PromiseHelper.deferred();
         unionCast(txId, tableInfos)
-        .then((unionRenameInfos: UnionRenameInfo[], resTempTables: string[]) => {
+        .then((ret) => {
+            const {unionRenameInfos, resTempTables} = ret;
             tempTables = tempTables.concat(resTempTables);
 
             if (dedup || unionType !== UnionOperatorT.UnionStandard) {
                 return unionAllIndex(txId, unionRenameInfos);
             } else {
-                return PromiseHelper.resolve(unionRenameInfos, [], []);
+                return PromiseHelper.resolve({unionRenameInfos: unionRenameInfos, resTempTables: [], indexKeys: []});
             }
         })
-        .then((unionRenameInfos: UnionRenameInfo[], resTempTables: string[], indexKeys: string[]) => {
+        .then((ret: {unionRenameInfos: UnionRenameInfo[], resTempTables: string[], indexKeys: string[]}) => {
+            const {unionRenameInfos, resTempTables, indexKeys} = ret;
             tempTables = tempTables.concat(resTempTables);
 
             const tableNames: string[] = [];
@@ -2210,7 +2229,10 @@ namespace XIApi {
                     "type": col.type
                 };
             });
-            deferred.resolve(newTableName, newTableCols);
+            deferred.resolve({
+                newTableName: newTableName,
+                newTableCols: newTableCols
+            });
         })
         .fail(deferred.reject);
 
@@ -2456,8 +2478,13 @@ namespace XIApi {
             const txId: number = options.txId;
             const colName: string = options.colName;
             const aggOp: string = AggrOp.Count;
-            return <XDPromise<number>>XIApi.aggregate(txId, aggOp, colName,
-                                                    tableName, dstAggName);
+            const deferred: XDDeferred<number> = PromiseHelper.deferred();
+            XIApi.aggregate(txId, aggOp, colName,tableName, dstAggName)
+            .then((ret) => {
+                deferred.resolve(<number>ret.value);
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
         }
         return XcalarGetTableCount(tableName);
     }
@@ -2800,7 +2827,8 @@ namespace XIApi {
             const dhtName: string = "";
             return indexHelper(txId, primaryKeyList, table, indexTableName, dhtName);
         })
-        .then((newTableName) => {
+        .then((ret) => {
+            const { newTableName } = ret;
             XIApi.deleteTable(txId, tableToDelete);
             deferred.resolve(newTableName);
         })

@@ -89,12 +89,14 @@ window.UExtDmetaphone = (function(UExtDmetaphone) {
                 return ext.groupBy(operator, [clusterColName], clusterColName,
                                    tableAfterMap, countClusterColName, options);
             })
-            .then(function(tableAfterGroupby) {
+            .then(function(ret) {
+                const tableAfterGroupby = ret.dstTable;
                 // step 3
                 return conditionalGroupby(ext, tableAfterGroupby,
                                           metaphoneCol, countClusterColName);
             })
-            .then(function(tableAfterGroupby) {
+            .then(function(ret) {
+                const tableAfterGroupby = ret.dstTable;
                 // step 4 t4 rename clusterCol col to newColName -> t5
                 var castStr = clusterCol.getTypeForCast() + "(" +
                               clusterColName + ")";
@@ -168,7 +170,8 @@ window.UExtDmetaphone = (function(UExtDmetaphone) {
         //  3.1. group t2 on metaphone, max clusterCol_count -> t3
         ext.groupBy(operator, [groupByCol], aggCol,
                     srcTable, newColName, options)
-        .then(function(tableAfterGroupby) {
+        .then(function(ret) {
+            const tableAfterGroupby = ret.dstTable;
             // 3.2 join join t3 back to t2 on metaphone, max_count -> t4
             var joinType = XcSDK.Enums.JoinType.InnerJoin;
             var lTableInfo = {

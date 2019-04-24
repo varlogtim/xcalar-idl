@@ -56,7 +56,8 @@ class XcDatasetViewer extends XcViewer {
         .then(() => {
             return this.dataset.fetch(0, this.initialNumRowsToFetch);
         })
-        .then((jsons, jsonKeys) => {
+        .then((ret) => {
+            const {jsons, jsonKeys} = ret;
             if (this.dataset.getError() != null) {
                 return PromiseHelper.reject(DSTStr.PointErr);
             }
@@ -115,7 +116,7 @@ class XcDatasetViewer extends XcViewer {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         PTblManager.Instance.getSchemaArrayFromDataset(this.dataset.getFullName())
         .then((res) => {
-            this._schemaArray = res;
+            this._schemaArray = res.schemaArray;
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -230,7 +231,6 @@ class XcDatasetViewer extends XcViewer {
         let tr: string = "";
         let i: number = 0;
         let knf: boolean = false;
-
         jsons.forEach((json) => {
             tr += '<tr>';
             tr += '<td class="lineMarker"><div class="idSpan">' +
@@ -345,7 +345,7 @@ class XcDatasetViewer extends XcViewer {
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.dataset.fetch(rowToGo, rowsToFetch)
-        .then((jsons) => {
+        .then(({jsons}) => {
             const $table = this._getTableEle();
             const jsonKeys: string[] = [];
 

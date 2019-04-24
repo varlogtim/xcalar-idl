@@ -121,7 +121,7 @@ class TblManager {
             if (numBackTables === 0) {
                 gDroppedTables = {}; // no need to keep meta when no tables
             }
-            deferred.resolve(backTableSet, numBackTables);
+            deferred.resolve(backTableSet);
         })
         .fail(deferred.reject);
 

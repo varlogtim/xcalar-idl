@@ -129,7 +129,7 @@ describe("PTblManager Test", function() {
             called = true;
             return PromiseHelper.resolve();
         };
-        
+
         PTblManager.Instance.getTablesAsync(true)
         .then(function(res) {
             expect(called).equal(true);
@@ -154,7 +154,7 @@ describe("PTblManager Test", function() {
             called = true;
             return PromiseHelper.resolve();
         };
-        
+
         PTblManager.Instance.getTablesAsync(false)
         .then(function(res) {
             expect(called).equal(false);
@@ -238,11 +238,12 @@ describe("PTblManager Test", function() {
             PTblManager.Instance._checkSchemaInDatasetCreation = () => PromiseHelper.resolve([]);
             PTblManager.Instance._createTable = () => PromiseHelper.resolve();
             PTblManager.Instance.addTable = () => PromiseHelper.resolve();
-        
+
             Transaction = {
                 "start": () => {},
                 "done": () => {},
-                "fail": () => {}
+                "fail": () => {},
+                "checkCanceled": () => {}
             };
         });
 
@@ -263,7 +264,7 @@ describe("PTblManager Test", function() {
             .then(function() {
                 done("fail");
             })
-            .fail(function(error, hasDataset) {
+            .fail(function({error, hasDataset}) {
                 expect(error).to.equal("test");
                 expect(hasDataset).to.be.false;
                 done();
@@ -272,17 +273,19 @@ describe("PTblManager Test", function() {
 
         it("should reject schema error", function(done) {
             PTblManager.Instance._createDataset = () => PromiseHelper.resolve();
-            PTblManager.Instance._checkSchemaInDatasetCreation = () => PromiseHelper.reject("test2", true);
-            
+            PTblManager.Instance._checkSchemaInDatasetCreation = () => PromiseHelper.reject({error: "test2", fromDatasetCreation: true});
+
             let oldFunc = PTblManager.Instance.addDatasetTable;
             let called = false;
             PTblManager.Instance.addDatasetTable = () => { called = true; };
-            
+
             PTblManager.Instance.createTableFromSource(tableInfo, {})
             .then(function() {
                 done("fail");
             })
-            .fail(function(error, hasDataset) {
+            .fail(function(ret) {
+                const error = ret.error;
+                const hasDataset = ret.hasDataset;
                 expect(error).to.equal("test2");
                 expect(hasDataset).to.be.true;
                 expect(called).to.be.true;
@@ -296,16 +299,16 @@ describe("PTblManager Test", function() {
         it("should reject create table error", function(done) {
             PTblManager.Instance._checkSchemaInDatasetCreation = () => PromiseHelper.resolve();
             PTblManager.Instance._createTable = () => PromiseHelper.reject("test3");
-            
+
             let oldFunc = XIApi.deleteDataset;
             let called = false;
             XIApi.deleteDataset = () => { called = true; };
-            
+
             PTblManager.Instance.createTableFromSource(tableInfo, {})
             .then(function() {
                 done("fail");
             })
-            .fail(function(error, hasDataset) {
+            .fail(function({error, hasDataset}) {
                 expect(error).to.equal("test3");
                 expect(hasDataset).to.be.true;
                 expect(called).to.be.true;
@@ -346,7 +349,7 @@ describe("PTblManager Test", function() {
             PTblManager.Instance._refreshTblView = () => {};
             PTblManager.Instance._createTable = () => PromiseHelper.resolve();
             PTblManager.Instance.addTable = () => PromiseHelper.resolve();
-        
+
             Transaction = {
                 "start": () => {},
                 "done": () => {},
@@ -419,7 +422,7 @@ describe("PTblManager Test", function() {
 
             XIApi.publishTable = () => PromiseHelper.resolve();
             PTblManager.Instance.addTable = () => PromiseHelper.resolve();
-        
+
             Transaction = {
                 "start": () => {},
                 "done": () => {},
@@ -574,7 +577,7 @@ describe("PTblManager Test", function() {
 
             PTblManager.Instance._deactivateTables = () => {
                 called++;
-                return PromiseHelper.resolve([], []);
+                return PromiseHelper.resolve({succeeds:[], failures: []});
             };
 
             Alert.show = (options) => {
@@ -604,7 +607,7 @@ describe("PTblManager Test", function() {
         it("should hanndle has failure case", function(done) {
             PTblManager.Instance._deactivateTables = () => {
                 called++;
-                return PromiseHelper.resolve([], ["A"]);
+                return PromiseHelper.resolve({succeeds: [], failures: ["A"]});
             };
 
             PTblManager.Instance.deactivateTables(["A"])
@@ -672,7 +675,7 @@ describe("PTblManager Test", function() {
 
             PTblManager.Instance._deleteTables = () => {
                 called++;
-                return PromiseHelper.resolve([], []);
+                return PromiseHelper.resolve({succeeds: [], failures: []});
             };
 
             Alert.show = (options) => {
@@ -702,7 +705,7 @@ describe("PTblManager Test", function() {
         it("should hanndle has failure case", function(done) {
             PTblManager.Instance._deleteTables = () => {
                 called++;
-                return PromiseHelper.resolve([], ["A"]);
+                return PromiseHelper.resolve({succeds: [], failures: ["A"]});
             };
 
             PTblManager.Instance.deleteTables(["A"])
@@ -918,7 +921,7 @@ describe("PTblManager Test", function() {
         let oldRefresh = TblSource.Instance.refresh;
         let called = 0;
 
-        PTblManager.Instance._addOneTable = 
+        PTblManager.Instance._addOneTable =
         TblSource.Instance.refresh = () => { called++; };
 
         PTblManager.Instance._updateAdded(["A"]);
@@ -960,7 +963,7 @@ describe("PTblManager Test", function() {
         };
 
         PTblManager.Instance._deactivateTables(["A"])
-        .then(function(succeeds, failures) {
+        .then(function({succeeds, failures}) {
             expect(succeeds).to.be.an("array");
             expect(failures).to.be.an("array");
             done();
@@ -1004,7 +1007,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-    
+
         it("_deactivateOneTable should handle fail case", function(done) {
             tableInfo.deactivate = () => PromiseHelper.reject("test");
             PTblManager.Instance._deactivateOneTable(tableName, succeeds, failures)
@@ -1017,7 +1020,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-    
+
         it("_deactivateOneTable should handle invalide case", function(done) {
             tableInfo.active = false;
             PTblManager.Instance._deactivateOneTable(tableName, succeeds, failures)
@@ -1030,7 +1033,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-        
+
         after(function() {
             PTblManager.Instance._tableMap.delete(tableName);
         });
@@ -1051,7 +1054,7 @@ describe("PTblManager Test", function() {
                 activate: () => PromiseHelper.resolve()
             };
             PTblManager.Instance._tableMap.set(tableName, tableInfo);
-        
+
             oldMark = TblSource.Instance.markActivating;
             oldList = PTblManager.Instance._listOneTable;
             TblSource.Instance.markActivating = () => {};
@@ -1074,7 +1077,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-    
+
         it("_activateOneTable should handle fail case", function(done) {
             tableInfo.activate = () => PromiseHelper.reject("test");
             PTblManager.Instance._activateOneTable(tableName, succeeds, failures)
@@ -1087,7 +1090,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-    
+
         it("_activateOneTable should handle invalide case", function(done) {
             tableInfo.active = true;
             PTblManager.Instance._activateOneTable(tableName, succeeds, failures)
@@ -1100,7 +1103,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-        
+
         after(function() {
             PTblManager.Instance._tableMap.delete(tableName);
             TblSource.Instance.markActivating = oldMark;
@@ -1116,7 +1119,7 @@ describe("PTblManager Test", function() {
         };
 
         PTblManager.Instance._deleteTables(["A"])
-        .then(function(succeeds, failures) {
+        .then(function({succeeds, failures}) {
             expect(succeeds).to.be.an("array");
             expect(failures).to.be.an("array");
             done();
@@ -1141,7 +1144,7 @@ describe("PTblManager Test", function() {
             tableInfo = {
                 delete: () => PromiseHelper.resolve()
             };
-        
+
             oldCheck = PTblManager.Instance._checkDeleteDependency;
             PTblManager.Instance._checkDeleteDependency = () => PromiseHelper.resolve();
         });
@@ -1164,7 +1167,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-    
+
         it("_deleteOneTable should handle fail case", function(done) {
             tableInfo.delete = () => PromiseHelper.reject("test");
             PTblManager.Instance._deleteOneTable(tableName, succeeds, failures)
@@ -1177,7 +1180,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-    
+
         it("_deleteOneTable should delete ds", function(done) {
             let name = xcHelper.randName("TABLE2");
             let oldFunc = PTblManager.Instance._deleteDSTable;
@@ -1196,7 +1199,7 @@ describe("PTblManager Test", function() {
                 PTblManager.Instance._deleteDSTable = oldFunc;
             });
         });
-        
+
         after(function() {
             PTblManager.Instance._tableMap.delete(tableName);
             PTblManager.Instance._checkDeleteDependency = oldCheck;
@@ -1231,7 +1234,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-    
+
         it("_deleteOneTable should handle fail case", function(done) {
             tableInfo.delete = () => PromiseHelper.reject("test");
             PTblManager.Instance._deleteDSTable(tableName, failures)
@@ -1243,7 +1246,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-    
+
         it("_deleteOneTable should handle invalid case", function(done) {
             delete PTblManager.Instance._datasetTables[tableName];
 
@@ -1256,7 +1259,7 @@ describe("PTblManager Test", function() {
                 done("fail");
             });
         });
-        
+
         after(function() {
             delete PTblManager.Instance._datasetTables[tableName];
         });
@@ -1308,7 +1311,7 @@ describe("PTblManager Test", function() {
         });
 
         it("should reject with load error", function(done) {
-            XIApi.loadDataset = () => PromiseHelper.reject("test", "test2");
+            XIApi.loadDataset = () => PromiseHelper.reject({error: "test", loadError: "test2"});
 
             PTblManager.Instance._createDataset(1, "test")
             .then(function() {
@@ -1346,7 +1349,7 @@ describe("PTblManager Test", function() {
 
         it("should work for normal case", function(done) {
             let schema = [{name: "test", type: ColumnType.string}];
-            PTblManager.Instance._getSchemaArrayFromDataset = () => PromiseHelper.resolve([schema], false);
+            PTblManager.Instance._getSchemaArrayFromDataset = () => PromiseHelper.resolve({schemaArray: [schema], hasMultipleSchema: false});
 
             PTblManager.Instance._checkSchemaInDatasetCreation("ds")
             .then(function(res) {
@@ -1360,29 +1363,29 @@ describe("PTblManager Test", function() {
         });
 
         it("should reject with multi schema", function(done) {
-            PTblManager.Instance._getSchemaArrayFromDataset = () => PromiseHelper.resolve([], true);
+            PTblManager.Instance._getSchemaArrayFromDataset = () => PromiseHelper.resolve({schemaArray: [], hasMultipleSchema: true});
 
             PTblManager.Instance._checkSchemaInDatasetCreation("ds")
             .then(function() {
                 done("fail");
             })
-            .fail(function(error, isSchemaError) {
-                expect(error).to.be.an("object");
-                expect(isSchemaError).to.be.true;
+            .fail(function({error, fromDatasetCreation}) {
+                expect(error).to.equal('Multiple Schemas are detected when creating table "ds", please select the schema for the table.');
+                expect(fromDatasetCreation).to.be.true;
                 done();
             });
         });
 
         it("should reject with error", function(done) {
-            PTblManager.Instance._getSchemaArrayFromDataset = () => PromiseHelper.reject("test");
+            PTblManager.Instance._getSchemaArrayFromDataset = () => PromiseHelper.reject({error: "test"});
 
             PTblManager.Instance._checkSchemaInDatasetCreation("ds")
             .then(function() {
                 done("fail");
             })
-            .fail(function(error, isSchemaError) {
+            .fail(function({error, fromDatasetCreation}) {
                 expect(error).to.equal("test");
-                expect(isSchemaError).to.be.false;
+                expect(fromDatasetCreation).to.be.false;
                 done();
             });
         });
@@ -1412,7 +1415,7 @@ describe("PTblManager Test", function() {
             };
 
             PTblManager.Instance._getSchemaArrayFromDataset("ds")
-            .then(function(schemaArray, hasMultipleSchema) {
+            .then(function({schemaArray, hasMultipleSchema}) {
                 expect(schemaArray.length).to.equal(1);
                 expect(schemaArray[0].length).to.equal(1);
                 expect(hasMultipleSchema).to.be.false;
@@ -1443,7 +1446,7 @@ describe("PTblManager Test", function() {
             };
 
             PTblManager.Instance._getSchemaArrayFromDataset("ds")
-            .then(function(schemaArray, hasMultipleSchema) {
+            .then(function({schemaArray, hasMultipleSchema}) {
                 expect(schemaArray.length).to.equal(1);
                 expect(schemaArray[0].length).to.equal(2);
                 expect(hasMultipleSchema).to.be.true;

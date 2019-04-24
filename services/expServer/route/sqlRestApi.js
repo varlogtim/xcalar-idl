@@ -196,7 +196,7 @@ function listPublishedTables(pattern) {
                 publishedTables.push(table.name);
             }
         }
-        deferred.resolve(res, publishedTables);
+        deferred.resolve({pubTablesRes: res, publishedTables: publishedTables});
     })
     .fail(deferred.reject);
     return deferred.promise();
@@ -220,7 +220,7 @@ function listAllTables(pattern, pubTables, xdTables) {
         xdTablesRes.nodeInfo.forEach(function(node){
             xdTables.set(node.name.toUpperCase(), node.name);
         });
-        deferred.resolve(pubTablesRes);
+        deferred.resolve({pubTablesRes: pubTablesRes});
     })
     .fail(function() {
         let args = arguments;
@@ -619,11 +619,12 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, sessionInfo) {
         prom = listAllTables('*', pubTablesMap, xdTablesMap);
     }
     prom
-    .then(function(retPubTableRes, retPubTables) {
+    .then(function(ret) {
         //XXX converting pubTables array to Map
         // making xdTables to empty Map
-        pubTableRes = retPubTableRes;
+        pubTableRes = ret.pubTablesRes;
         if (type === 'odbc') {
+            const retPubTables = ret.publishedTables;
             for (var pubTable of retPubTables) {
                 pubTablesMap.set(pubTable.toUpperCase(), pubTable);
             }
@@ -1380,7 +1381,9 @@ router.post("/xcsql/list", [support.checkAuth], function(req, res) {
         xcConsole.log("connected");
         return listPublishedTables(pattern);
     })
-    .then(function(results, tables) {
+    .then(function(ret) {
+        const results = ret.pubTablesRes;
+        const tables = ret.publishedTables;
         var retStruct = [];
 
         for (var pubTable of tables) {

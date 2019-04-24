@@ -8,7 +8,9 @@ function indexFromDataset(indexRequest) {
     var newTableName = indexRequest.getDsttablename();
     var txId = Transaction.start({ "simulate": true });
     XIApi.indexFromDataset(txId, dsName, newTableName, prefix)
-        .then(function (dstTable, prefix) {
+        .then(function (ret) {
+            const dstTable = ret.newTableName;
+            const prefix = ret.prefix;
             var indexResponse = new dataflow_pb.IndexFromDatasetResponse();
             indexResponse.setQuerystr(Transaction.done(txId));
             indexResponse.setNewtablename(dstTable);
@@ -154,7 +156,8 @@ function unionOp(unionReq) {
     var tableName = unionReq.getNewtablename();
     var txId = Transaction.start({ "simulate": true });
     XIApi.union(txId, tableInfos, dedup, tableName, unionType)
-        .then(function (newTableName, newTableCols) {
+        .then(function (ret) {
+            const {newTableName, newTableCols} = ret;
             var unionRes = new dataflow_pb.UnionResponse();
             unionRes.setQuerystr(Transaction.done(txId));
             unionRes.setNewtablename(newTableName);
@@ -229,7 +232,7 @@ function join(joinReq) {
         XIApi.deleteIndexTable(rIndexCache.tableName);
     }
     XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
-        .then(function (newTableName, tempCols, lRename, rRename) {
+        .then(function ({newTableName, tempCols, lRename, rRename}) {
             var joinRes = new dataflow_pb.JoinResponse();
             joinRes.setQuerystr(Transaction.done(txId));
             joinRes.setNewtablename(newTableName);
@@ -279,7 +282,7 @@ function groupBy(groupByReq) {
         XIApi.deleteIndexTable(indexCache.tableName);
     }
     XIApi.groupBy(txId, aggArgs, groupByCols, tableName, options)
-        .then(function (finalTable, tempCols, newKeyFieldName, newKeys) {
+        .then(function ({finalTable, tempCols, newKeyFieldName, newKeys}) {
             var groupByRes = new dataflow_pb.GroupByResponse();
             groupByRes.setQuerystr(Transaction.done(txId));
             groupByRes.setNewtablename(finalTable);
@@ -305,7 +308,8 @@ function index(indexReq) {
     var dhtName = indexReq.getDhtname();
     var txId = Transaction.start({ "simulate": true });
     XIApi.index(txId, colNames, tableName, newTableName, newKeys, dhtName)
-        .then(function (newTableName, isCache, newKeys, tempCols) {
+        .then(function (ret) {
+            const {newTableName, isCache, newKeys, tempCols} = ret;
             var indexRes = new dataflow_pb.IndexResponse();
             indexRes.setQuerystr(Transaction.done(txId));
             indexRes.setNewtablename(newTableName);
@@ -339,7 +343,8 @@ function sort(sortReq) {
     var dhtName = sortReq.getDhtname();
     var txId = Transaction.start({ "simulate": true });
     XIApi.sort(txId, keyInfos, tableName, newTableName, dhtName)
-        .then(function (newTableName, newKeys) {
+        .then(function (ret) {
+            const {newTableName, newKeys} = ret;
             var sortRes = new dataflow_pb.SortResponse();
             sortRes.setQuerystr(Transaction.done(txId));
             sortRes.setNewtablename(newTableName);

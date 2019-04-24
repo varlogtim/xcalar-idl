@@ -12,6 +12,7 @@
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
+var table = require("./xcalar/compute/localtypes/Table_pb");
 var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 
 

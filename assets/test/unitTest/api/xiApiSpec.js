@@ -414,7 +414,7 @@ describe('XIApi Test', () => {
                     rTableName: 'r#efg',
                     rColNames: []
                 })
-                    .then((lRes, rRes) => {
+                    .then(({lRes, rRes}) => {
                         expect(lRes.tableName).to.equal('l#abc');
                         expect(lRes.oldKeys.length).to.equal(0);
                         expect(lRes.newKeys.length).to.equal(0);
@@ -442,7 +442,10 @@ describe('XIApi Test', () => {
                     rTableName: tableName,
                     rColNames: ['key']
                 }, true)
-                    .then((lRes, rRes, tempTables) => {
+                    .then((ret) => {
+                        const lRes = ret.lRes;
+                        const rRes = ret.rRes;
+                        const tempTables = ret.tempTablesInIndex;
                         expect(test).to.be.true;
                         expect(lRes.tableName).to.equal(tableName);
                         expect(lRes.oldKeys.length).to.equal(1);
@@ -498,7 +501,10 @@ describe('XIApi Test', () => {
                     rTableName: tableName,
                     rColNames: ['key2']
                 }, false)
-                    .then((lRes, rRes, tempTables) => {
+                    .then((ret) => {
+                        const lRes = ret.lRes;
+                        const rRes = ret.rRes;
+                        const tempTables = ret.tempTablesInIndex;
                         expect(lRes.tableName).to.equal(tableName);
                         expect(lRes.oldKeys.length).to.equal(1);
                         expect(lRes.oldKeys[0]).to.equal('key');
@@ -634,7 +640,7 @@ describe('XIApi Test', () => {
                 let test = false;
                 XIApi.index = () => {
                     test = true;
-                    return PromiseHelper.resolve(null, false, ["newKey"]);
+                    return PromiseHelper.resolve({newTableName: null, isCache: false, newKeys: ["newKey"]});
                 };
 
                 computeDistinctGroupby(txId, tableName, groupOnCols, distinctCol,
@@ -676,7 +682,7 @@ describe('XIApi Test', () => {
 
                 XcalarJoin = (_lTable, _rTable, _newTable, joinType, ..._rest) => {
                     testJoinType = joinType
-                    return PromiseHelper.resolve();
+                    return PromiseHelper.resolve({});
                 };
 
                 XIApi.query = () => PromiseHelper.resolve();
@@ -790,7 +796,10 @@ describe('XIApi Test', () => {
 
             distinctGroupby(txId, tableName, groupOnCols,
                 distinctAggArgs, normalAggArgs, gbTableName, true)
-                .then((finalJoinedTable, tempTables, tempCols) => {
+                .then((res) => {
+                    let finalJoinedTable = res.resTable;
+                    let tempTables = res.resTempTables;
+                    let tempCols = res.resTempCols;
                     expect(finalJoinedTable).to.be.a('string');
                     expect(tempTables.length).to.equal(2);
                     expect(tempCols.length).to.equal(1);
@@ -863,7 +872,9 @@ describe('XIApi Test', () => {
 
             const tableInfos = [tableInfo];
             unionCast(txId, tableInfos)
-                .then((unionRenameInfos, tempTables) => {
+                .then((ret) => {
+                    let unionRenameInfos = ret.unionRenameInfos;
+                    let tempTables = ret.resTempTables;
                     expect(unionRenameInfos.length).to.equal(1);
                     const renameInfo = unionRenameInfos[0];
                     expect(renameInfo.tableName).not.to.equal(tableName);
@@ -893,7 +904,7 @@ describe('XIApi Test', () => {
             const oldMap = XIApi.map;
             const oldIndex = XIApi.index;
             XIApi.map = () => PromiseHelper.resolve('testMapTable');
-            XIApi.index = () => PromiseHelper.resolve('testIndexTable');
+            XIApi.index = () => PromiseHelper.resolve({newTableName: 'testIndexTable'});
 
             const txId = 0;
             const renameInfo = {
@@ -905,7 +916,10 @@ describe('XIApi Test', () => {
                 }]
             };
             unionAllIndex(txId, [renameInfo])
-                .then((unionRenameInfos, tempTables, indexKeys) => {
+                .then((ret) => {
+                    let unionRenameInfos = ret.unionRenameInfos;
+                    let tempTables = ret.resTempTables;
+                    let indexKeys = ret.indexKeys
                     expect(unionRenameInfos.length).to.equal(1);
                     expect(unionRenameInfos[0].tableName).to.equal('testIndexTable');
                     expect(unionRenameInfos[0].renames.length).to.equal(2);
@@ -1004,7 +1018,9 @@ describe('XIApi Test', () => {
             };
 
             XIApi.aggregateWithEvalStr(1, 'count(a)', 'a#1')
-                .then((val, dstAggName) => {
+                .then((ret) => {
+                    let val = ret.value;
+                    let dstAggName = ret.aggName;
                     expect(val).to.equal(1);
                     expect(dstAggName).to.contains('a');
                     done();
@@ -1039,12 +1055,12 @@ describe('XIApi Test', () => {
             };
 
             XIApi.aggregateWithEvalStr = () => {
-                return PromiseHelper.resolve('test');
+                return PromiseHelper.resolve({value: 'test'});
             };
 
             XIApi.aggregate(1, 'count', 'test', 'a#1', 'a#2')
                 .then((res) => {
-                    expect(res).to.equal('test');
+                    expect(res.value).to.equal('test');
                     done();
                 })
                 .fail(() => {
@@ -1084,7 +1100,9 @@ describe('XIApi Test', () => {
             XcalarGetTableMeta = () => PromiseHelper.resolve(ret);
 
             XIApi.checkOrder('test1')
-                .then((ordering, keys) => {
+                .then((res) => {
+                    let ordering = res.tableOrder;
+                    let keys = res.tableKeys;
                     expect(ordering).to.equal(XcalarOrderingTStr[3]);
                     expect(keys[0].name).to.equal("user::test");
                     done();
@@ -1145,9 +1163,9 @@ describe('XIApi Test', () => {
             XIApi.query = () => PromiseHelper.resolve();
 
             XIApi.indexFromDataset(0, 'dsName', 'test', 'prefix')
-                .then((newTableName, prefix) => {
-                    expect(newTableName).to.equal('test#12');
-                    expect(prefix).to.equal('prefix');
+                .then((ret) => {
+                    expect(ret.newTableName).to.equal('test#12');
+                    expect(ret.prefix).to.equal('prefix');
                     done();
                 })
                 .fail(() => {
@@ -1172,10 +1190,10 @@ describe('XIApi Test', () => {
         it('XIApi.index should resolve empty column case', (done) => {
             const tableName = 'test#a';
             XIApi.index(1, [], tableName)
-            .then((indexTable, isCached, newKeys) => {
-                expect(indexTable).to.equal(tableName);
-                expect(isCached).to.be.false;
-                expect(newKeys.length).to.equal(0);
+            .then((ret) => {
+                expect(ret.newTableName).to.equal(tableName);
+                expect(ret.isCache).to.be.false;
+                expect(ret.newKeys.length).to.equal(0);
                 done();
             })
             .fail(() => {
@@ -1193,10 +1211,10 @@ describe('XIApi Test', () => {
             };
 
             XIApi.index(1, ['col'], 'test#a')
-                .then((indexTable, isCached, newKeys) => {
-                    expect(indexTable).to.equal('indexTable');
-                    expect(isCached).to.be.true;
-                    expect(newKeys.length).to.equal(1);
+                .then((ret) => {
+                    expect(ret.newTableName).to.equal('indexTable');
+                    expect(ret.isCache).to.be.true;
+                    expect(ret.newKeys.length).to.equal(1);
                     done();
                 })
                 .fail(() => {
@@ -1244,7 +1262,8 @@ describe('XIApi Test', () => {
                 ordering: XcalarOrderingT.XcalarOrderingAscending
             };
             XIApi.sort(1, [colInfo], tableName)
-                .then((newTableName, newKeys) => {
+                .then((ret) => {
+                    const {newTableName, newKeys} = ret;
                     expect(newTableName).to.be.a('string');
                     expect(newKeys[0]).to.equal('newKey');
                     expect(test).to.be.true;
@@ -1429,7 +1448,7 @@ describe('XIApi Test', () => {
                     rename: [{ orig: 'old', new: 'new', type: 4 }]
                 };
                 XIApi.join(1, joinType, lTableInfo, rTableInfo)
-                .then((newTableName, tempCols, lRename, rRename) => {
+                .then(({newTableName, tempCols, lRename, rRename}) => {
                     expect(newTableName).to.equal('l-r#12');
                     expect(tempCols.length).to.equal(0);
                     expect(lRename.length).to.equal(1);
@@ -1523,7 +1542,8 @@ describe('XIApi Test', () => {
                 const tableName = 'test#a';
 
                 XIApi.groupBy(1, aggArgs, groupByCols, tableName)
-                    .then((finalTable, tempCols, newKeyFieldName, newKeys) => {
+                    .then(({finalTable, tempCols, newKeyFieldName, newKeys}) => {
+
                         expect(finalTable).to.equal('test-GB#12');
                         expect(tempCols.length).to.equal(0);
                         expect(newKeyFieldName).to.equal("key");
@@ -1581,7 +1601,7 @@ describe('XIApi Test', () => {
                 XIApi.cacheIndexTable = () => { };
 
                 XIApi.groupBy(1, aggArgs, groupByCols, tableName)
-                    .then((finalTable, tempCols, newKeyFieldName, newKeys) => {
+                    .then(({finalTable, tempCols, newKeyFieldName, newKeys}) => {
                         expect(finalTable).to.equal('testgb#12');
                         expect(tempCols.length).to.equal(1);
                         expect(newKeyFieldName).to.be.undefined;
@@ -1632,7 +1652,7 @@ describe('XIApi Test', () => {
                 }];
 
                 XIApi.union(1, tableInfos)
-                    .then((newTableName, newTableCols) => {
+                    .then(({newTableName, newTableCols}) => {
                         expect(newTableName).to.equal('t1#12');
                         expect(newTableCols.length).to.equal(1);
                         expect(newTableCols[0].rename).to.equal('col');
@@ -1658,7 +1678,7 @@ describe('XIApi Test', () => {
                 XIApi.index = () => PromiseHelper.resolve('testIndex');
 
                 XIApi.union(1, tableInfos, true)
-                    .then((newTableName, newTableCols) => {
+                    .then(({newTableName, newTableCols}) => {
                         expect(newTableName).to.equal('t1#12');
                         expect(newTableCols[0].rename).to.equal('col');
                         expect(newTableCols[0].type).to.equal(ColumnType.integer);
@@ -1859,7 +1879,7 @@ describe('XIApi Test', () => {
 
             it('XIApi.getNumRows should handle constant case', (done) => {
                 const oldAgg = XIApi.aggregate;
-                XIApi.aggregate = () => PromiseHelper.resolve(1);
+                XIApi.aggregate = () => PromiseHelper.resolve({value: 1});
 
                 XIApi.getNumRows('test#a', { useConstant: true, constantName: 'agg' })
                     .then((res) => {

@@ -99,8 +99,8 @@ class DagTabSQLFunc extends DagTabUser {
         return "/" + DagTabSQLFunc.HOMEDIR + "/" + this.getName();
     }
 
-    public getQuery(inputs: string[]): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+    public getQuery(inputs: string[]): XDPromise<{queryStr: string, destTable: string}> {
+        const deferred: XDDeferred<{queryStr: string, destTable: string}> = PromiseHelper.deferred();
         this._loadGraph()
         .then(() => {
             let clonedGraph: DagGraph;
@@ -112,13 +112,13 @@ class DagTabSQLFunc extends DagTabUser {
                 return PromiseHelper.reject({
                     hasError: true,
                     type: DagNodeErrorType.InvalidSQLFunc
-                })
+                });
             }
         })
         .then((ret: any) => {
             let {queryStr, destTables} = ret;
             let desTable: string = destTables[destTables.length - 1];
-            deferred.resolve(queryStr, desTable);
+            deferred.resolve({queryStr: queryStr, destTable: desTable});
         })
         .fail((result) => {
             if (typeof result === "object" &&
@@ -215,7 +215,7 @@ class DagTabSQLFunc extends DagTabUser {
         const clonedGraph: DagGraph = this.getGraph().clone();
         const clonedTab = new DagTabSQLFunc({
             name: this.getName(),
-            dagGraph: clonedGraph, 
+            dagGraph: clonedGraph,
             createdTime: xcTimeHelper.now()
         });
         return clonedTab;

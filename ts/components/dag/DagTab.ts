@@ -44,7 +44,7 @@ abstract class DagTab extends Durable {
     public abstract save(): XDPromise<void>
     public abstract delete(): XDPromise<void>
     public abstract download(name: string, optimized?: boolean): XDPromise<void>
-    public abstract upload(fileContent: string, overwriteUDF: boolean): XDPromise<DagTab>;
+    public abstract upload(fileContent: string, overwriteUDF: boolean): XDPromise<{tabUploaded: DagTab, alertOption: Alert.AlertOptions}>;
     /**
      * Get Tab's name
      */
@@ -172,16 +172,16 @@ abstract class DagTab extends Durable {
     }
 
     // the save version of meta
-    protected _loadFromKVStore(): XDPromise<any> {
+    protected _loadFromKVStore(): XDPromise<{dagInfo: any, graph: DagGraph}> {
         if (this._kvStore == null) {
             return PromiseHelper.reject("Initialize error");
         }
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{dagInfo: any, graph: DagGraph}> = PromiseHelper.deferred();
         this._kvStore.getAndParse()
         .then((dagInfo) => {
             try {
                 const { dagInfo: retInfo, graph } = this._loadFromJSON(dagInfo);
-                deferred.resolve(retInfo, graph);
+                deferred.resolve({dagInfo: retInfo, graph: graph});
             } catch(e) {
                 deferred.reject({ error: e.message });
             }

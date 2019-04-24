@@ -79,7 +79,8 @@ window.UExtConditionalSelect = (function(UExtConditionalSelect) {
 
             // step 1: group by
             conditionalGroupby(ext, operator, groupByCols, sortColName)
-            .then(function(tableAfterGroupby) {
+            .then(function(ret) {
+                const tableAfterGroupby = ret.dstTable;
                 // step 2 rename
                 var promises = [];
                 var selectCols = args.selectCols instanceof Array
@@ -165,9 +166,10 @@ window.UExtConditionalSelect = (function(UExtConditionalSelect) {
         // 1.1 group by
         ext.groupBy(operator, groupByCols, sortColName,
                     srcTableName, newColName, options)
-        .then(function(tableAfterGroupby, cols) {
+        .then(function(ret) {
             // 1.2 join back
-
+            const tableAfterGroupby = ret.dstTable;
+            const cols = ret.dstColumnsSDK;
             var joinType = XcSDK.Enums.JoinType.InnerJoin;
             var lTableInfo = {
                 "tableName": srcTableName,

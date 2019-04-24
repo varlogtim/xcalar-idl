@@ -52,7 +52,7 @@ class DFUploadModal {
 
         let shared: boolean = false;
         let uploadTab: DagTab = new DagTabUser({
-            name: path, 
+            name: path,
             createdTime: xcTimeHelper.now()
         });
         let shortName: string = uploadTab.getName();
@@ -128,8 +128,8 @@ class DFUploadModal {
         .then((fileContent) => {
             return tab.upload(fileContent, overwriteUDF);
         })
-        .then((tab: DagTab, alertOption: Alert.AlertOptions) => {
-            resultTab = tab;
+        .then(({tabUploaded, alertOption}) => {
+            resultTab = tabUploaded;
 
             if (alertOption != null) {
                 // error case;

@@ -46,7 +46,7 @@ function tailLog(requireLineNum, filePath, fileName) {
     .then(function() {
         return getPath(filePath, fileName);
     })
-    .then(function(logPath, stat) {
+    .then(function({logPath, stat}) {
         var deferred = jQuery.Deferred();
         if (!stat || stat.size === 0) {
             var retMsg = {
@@ -66,13 +66,13 @@ function tailLog(requireLineNum, filePath, fileName) {
                     };
                     deferred.reject(retMsg);
                 } else {
-                    deferred.resolve(fd, stat);
+                    deferred.resolve({fd, stat});
                 }
             });
         }
         return deferred.promise();
     })
-    .then(function(fd, stat) {
+    .then(function({fd, stat}) {
         var deferred = jQuery.Deferred();
         //  How many line end have been meet
         var lineEndNum = 0;
@@ -104,7 +104,7 @@ function tailLog(requireLineNum, filePath, fileName) {
                             // the last bits as they are non sense
                             if ((lines.length + 1) >= stat.size) {
                                 lines = lines.substring(lines.length - stat.size);
-                                deferred.resolve(lines, stat);
+                                deferred.resolve({lines, stat});
                                 return;
                             }
                             // meet a '\n'
@@ -114,7 +114,7 @@ function tailLog(requireLineNum, filePath, fileName) {
                                 // want to have requireNum + 1 lines, you need to
                                 // meet require + 1 '\n'
                                 if (lineEndNum === requireLineNum + 1) {
-                                    deferred.resolve(lines, stat);
+                                    deferred.resolve({lines, stat});
                                     return;
                                 }
                             }
@@ -127,7 +127,7 @@ function tailLog(requireLineNum, filePath, fileName) {
         };
         return readFromEnd(new Buffer(bufferSize));
     })
-    .then(function(lines, stat) {
+    .then(function({lines, stat}) {
         var retMsg = {
             "status": httpStatus.OK,
             "logs": lines,
@@ -158,7 +158,7 @@ function monitorLog(lastMonitor, filePath, fileName) {
 function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
     var deferredOut = jQuery.Deferred();
     getPath(filePath, fileName)
-    .then(function(logPath, stat) {
+    .then(function({logPath, stat}) {
         var deferred = jQuery.Deferred();
         if (!stat || stat.size === 0) {
             var retMsg = {
@@ -178,13 +178,13 @@ function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
                     };
                     deferred.reject(retMsg);
                 } else {
-                    deferred.resolve(fd, stat);
+                    deferred.resolve({fd, stat});
                 }
             });
         }
         return deferred.promise();
     })
-    .then(function(fd, stat) {
+    .then(function({fd, stat}) {
         var lines = '';
         var buf = new Buffer(bufferSize);
         var deferred = jQuery.Deferred();
@@ -204,14 +204,14 @@ function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
                     if (bytesRead === bufferSize) {
                         readRecentLogs();
                     } else {
-                        deferred.resolve(lines, stat);
+                        deferred.resolve({lines, stat});
                     }
                 });
             return deferred.promise();
         };
         return readRecentLogs();
     })
-    .then(function(lines, stat) {
+    .then(function({lines, stat}) {
         if (lines) {
             xcConsole.log(lines.substring(0, lines.length - 1));
         }
@@ -364,8 +364,8 @@ function getPath(filePath, fileName) {
         xcConsole.log("Reading file stat: " + logPath);
         return readFileStat(logPath);
     })
-    .then(function(currFile, stat) {
-        deferredOut.resolve(currFile, stat);
+    .then(function(ret) {
+        deferredOut.resolve(ret);
     })
     .fail(function(retMsg) {
         deferredOut.reject(retMsg);
@@ -430,7 +430,7 @@ function readFileStat(currFile) {
             };
             deferred.reject(retMsg);
         } else {
-            deferred.resolve(currFile, stat);
+            deferred.resolve({logPath: currFile, stat: stat});
         }
     });
     return deferred.promise();
@@ -464,7 +464,7 @@ function fakeGetPath() {
     getPath = function(filePath, fileName) {
         var logPath = "Invalid Path";
         var stat = {stat:"success"};
-        return jQuery.Deferred().resolve(logPath, stat).promise();
+        return jQuery.Deferred().resolve({logPath, stat}).promise();
     }
 }
 function fakeTailLog() {

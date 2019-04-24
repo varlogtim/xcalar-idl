@@ -171,7 +171,7 @@ class PTblManager {
      * PTblManager.Instance.getSchemaArrayFromDataset
      * @param dsName
      */
-    public getSchemaArrayFromDataset(dsName): XDPromise<ColSchema[][]> {
+    public getSchemaArrayFromDataset(dsName): XDPromise<{schemaArray: ColSchema[][], hasMultipleSchema: boolean}> {
         return this._getSchemaArrayFromDataset(dsName);
     }
 
@@ -251,7 +251,9 @@ class PTblManager {
             delete this._loadingTables[tableName];
             deferred.resolve(tableName);
         })
-        .fail((error, isSchemaError) => {
+        .fail((ret) => {
+            const error = ret.error || ret;
+            const isSchemaError = ret && ret.fromDatasetCreation;
             let noAlert: boolean = false;
             delete this._loadingTables[tableName];
             tableInfo.state = PbTblState.Error;
@@ -268,7 +270,7 @@ class PTblManager {
                 noNotification: true,
                 error: error
             });
-            deferred.reject(error, hasDataset);
+            deferred.reject({error, hasDataset});
         })
         .always(() => {
             delete tableInfo.txId;
@@ -464,7 +466,7 @@ class PTblManager {
             }),
             'onConfirm': () => {
                 this._deactivateTables(tableNames)
-                .then((succeeds, failures) => {
+                .then(({succeeds, failures}) => {
                     if (failures.length > 0) {
                         let error: string = failures.join("\n");
                         Alert.error(IMDTStr.DeactivateTableFail, error);
@@ -518,7 +520,8 @@ class PTblManager {
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._deleteTables(tableNames)
-        .then((succeeds, failures) => {
+        .then((ret) => {
+            const {succeeds, failures} = ret;
             if (failures.length > 0) {
                 let error: string = failures.join("\n");
                 if (showError) {
@@ -635,8 +638,8 @@ class PTblManager {
         return this._listOneTable(tableName);
     }
 
-    private _deactivateTables(tableNames: string[]): XDPromise<string[]> {
-        const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
+    private _deactivateTables(tableNames: string[]): XDPromise<{succeeds: string[], failures: any[]}> {
+        const deferred: XDDeferred<{succeeds: string[], failures: any[]}> = PromiseHelper.deferred();
         const succeeds: string[] = [];
         const failures: string[] = [];
         const promises = tableNames.map((tableName) => {
@@ -647,7 +650,7 @@ class PTblManager {
 
         PromiseHelper.chain(promises)
         .then(() => {
-            deferred.resolve(succeeds, failures);
+            deferred.resolve({succeeds, failures});
         })
         .fail(deferred.reject);
 
@@ -709,8 +712,8 @@ class PTblManager {
         return deferred.promise();
     }
 
-    private _deleteTables(tableNames: string[]): XDPromise<string[]> {
-        const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
+    private _deleteTables(tableNames: string[]): XDPromise<{succeeds: string[], failures: any[]}> {
+        const deferred: XDDeferred<{succeeds: string[], failures: any[]}> = PromiseHelper.deferred();
         const succeeds: string[] = [];
         const failures: string[] = [];
         const promises = tableNames.map((tableName) => {
@@ -721,7 +724,7 @@ class PTblManager {
 
         PromiseHelper.chain(promises)
         .then(() => {
-            deferred.resolve(succeeds, failures);
+            deferred.resolve({succeeds: succeeds, failures: failures});
         })
         .fail(deferred.reject);
 
@@ -801,8 +804,11 @@ class PTblManager {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         XIApi.loadDataset(txId, dsName, sourceArgs)
         .then(deferred.resolve)
-        .fail((error, loadError) => {
-            deferred.reject(loadError || error);
+        .fail((error) => {
+            if (error) {
+                error = error.loadError || error.error || error;
+            }
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -813,25 +819,27 @@ class PTblManager {
         schema: ColSchema[]
     ): XDPromise<ColSchema[]> {
         if (schema != null) {
-            return PromiseHelper.resolve(schema, false);
+            return PromiseHelper.resolve(schema);
         }
         const deferred: XDDeferred<ColSchema[]> = PromiseHelper.deferred();
         this._getSchemaArrayFromDataset(dsName)
-        .then((schemaArray, hasMultipleSchema) => {
+        .then((ret) => {
+            const {schemaArray, hasMultipleSchema} = ret;
             if (hasMultipleSchema) {
                 let error: string = xcStringHelper.replaceMsg(TblTStr.MultipleSchema, {
                     name: this._getTableNameFromDSName(dsName)
                 })
                 deferred.reject({
-                    error: error
-                }, true);
+                    error: error,
+                    fromDatasetCreation: true
+                });
             } else {
                 let schema: ColSchema[] = schemaArray.map((schemas) => schemas[0]);
                 deferred.resolve(schema);
             }
         })
         .fail((error) => {
-            deferred.reject(error, false);
+            deferred.reject({error: error.error, fromDatasetCreation: false});
         });
 
         return deferred.promise();
@@ -840,8 +848,8 @@ class PTblManager {
     // XXX TODO combine with getSchemaMeta in ds.js
     private _getSchemaArrayFromDataset(
         dsName: string,
-    ): XDPromise<ColSchema[][]> {
-        const deferred: XDDeferred<ColSchema[][]> = PromiseHelper.deferred();
+    ): XDPromise<{schemaArray: ColSchema[][], hasMultipleSchema: boolean}> {
+        const deferred: XDDeferred<{schemaArray: ColSchema[][], hasMultipleSchema: boolean}> = PromiseHelper.deferred();
         XcalarGetDatasetsInfo(dsName)
         .then((res) => {
             try {
@@ -871,7 +879,7 @@ class PTblManager {
                         });
                     }
                 });
-                deferred.resolve(schemaArray, hasMultipleSchema);
+                deferred.resolve({schemaArray, hasMultipleSchema});
             } catch (e) {
                 console.error(e);
                 deferred.reject({

@@ -30,10 +30,12 @@ window.UExtConcatAll = (function(UExtConcatAll) {
             var self = this;
 
             concatEachGroup(ext)
-            .then(function(mapTable, newColNames) {
+            .then(function({mapTable, newColNames}) {
                 return concatGeneratedGroup(ext, mapTable, newColNames);
             })
-            .then(function(finalTableName, newColName) {
+            .then(function(ret) {
+                const finalTableName = ret.tableName;
+                const newColName = ret.newColName;
                 var table = ext.getTable(finalTableName);
                 if (newColName != null) {
                     table.deleteAllCols();
@@ -69,7 +71,7 @@ window.UExtConcatAll = (function(UExtConcatAll) {
 
         if (cols.length <= 1) {
             // when no columns to concat
-            deferred.resolve(srcTableName, null);
+            deferred.resolve({mapTable: srcTableName, newColNames: null});
             return deferred.promise();
         }
 
@@ -112,7 +114,7 @@ window.UExtConcatAll = (function(UExtConcatAll) {
         var newTableName = ext.createTempTableName();
         ext.map(mapStrs, srcTableName, newColNames, newTableName)
         .then(function(tableAfterMap) {
-            deferred.resolve(tableAfterMap, newColNames);
+            deferred.resolve({mapTable: tableAfterMap, newColNames: newColNames});
         })
         .fail(deferred.reject);
 
@@ -123,7 +125,7 @@ window.UExtConcatAll = (function(UExtConcatAll) {
         var deferred = XcSDK.Promise.deferred();
         if (colNames == null) {
             // when no columns to concat
-            deferred.resolve(tableName);
+            deferred.resolve({tableName});
             return deferred.promise();
         }
 
@@ -153,7 +155,7 @@ window.UExtConcatAll = (function(UExtConcatAll) {
         var newTableName = ext.createTableName(null, null, srcTableName);
         ext.map([mapStr], tableName, [newColName], newTableName)
         .then(function(tableAfterMap) {
-            deferred.resolve(tableAfterMap, newColName);
+            deferred.resolve({tableName: tableAfterMap, newColName: newColName});
         })
         .fail(deferred.reject);
 

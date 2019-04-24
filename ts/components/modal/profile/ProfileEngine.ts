@@ -70,7 +70,9 @@ class ProfileEngine {
             tablesToDelete[tableAfterFilter] = true;
             return XIApi.index(txId, [colName], tableAfterFilter);
         })
-        .then((indexedTableName, isCache) => {
+        .then((ret) => {
+            const indexedTableName = ret.newTableName;
+            const isCache = ret.isCache;
             if (!isCache) {
                 tablesToDelete[indexedTableName] = true;
             }
@@ -97,17 +99,20 @@ class ProfileEngine {
             };
             return XIApi.groupBy(txId, [aggArgs], [colName], srcTable, options);
         })
-        .then((groupbyTable, _tempCols, newKeyFieldName) => {
+        .then((ret) => {
+            const groupbyTable = ret.finalTable;
+            const newKeyFieldName = ret.newKeyFieldName;
             if (profileInfo.groupByInfo.allNull) {
                 finalTable = groupbyTable;
-                return PromiseHelper.resolve(0, 0);
+                return PromiseHelper.resolve({maxVal: 0, sumVal: 0});
             }
 
             finalTable = this._getNewName(tableName, ".profile.final", true);
             colName = newKeyFieldName;
             return this._sortGroupby(txId, colName, groupbyTable, finalTable);
         })
-        .then((maxVal: any, sumVal) => {
+        .then((ret: {maxVal:number, sumVal: number}) => {
+            const {maxVal, sumVal} = ret;
             profileInfo.addBucket(0, {
                 "max": maxVal,
                 "sum": sumVal,
@@ -410,7 +415,9 @@ class ProfileEngine {
         });
 
         XIApi.sortAscending(txId, [colName], tableName)
-        .then((tableAfterSort, newKeys) => {
+        .then((ret) => {
+            const tableAfterSort = ret.newTableName;
+            const newKeys = ret.newKeys;
             sortTable = tableAfterSort;
             profileInfo.statsInfo.unsorted = false;
             profileInfo.statsInfo.key = newKeys[0];
@@ -483,8 +490,8 @@ class ProfileEngine {
         sortCol: string,
         srcTable: string,
         finalTable: string
-    ): XDPromise<number> {
-        let deferred: XDDeferred<number> = PromiseHelper.deferred();
+    ): XDPromise<{maxVal:number, sumVal: number}> {
+        let deferred: XDDeferred<{maxVal:number, sumVal: number}> = PromiseHelper.deferred();
         XIApi.sortAscending(txId, [sortCol], srcTable, finalTable)
         .then(() => {
             return this._aggInGroupby(txId, this._statsColName, finalTable);
@@ -499,8 +506,8 @@ class ProfileEngine {
         txId: number,
         colName: string,
         tableName: string
-    ): XDPromise<number> {
-        let deferred: XDDeferred<number> = PromiseHelper.deferred();
+    ): XDPromise<{maxVal: number, sumVal: number}> {
+        let deferred: XDDeferred<{maxVal:number, sumVal: number}> = PromiseHelper.deferred();
         let aggMap = this.aggMap;
         let def1 = this._getAggResult(txId, aggMap.max, colName, tableName);
         let def2 = this._getAggResult(txId, aggMap.sum, colName, tableName);
@@ -509,9 +516,9 @@ class ProfileEngine {
         .then((ret) => {
             const ret1 = ret[0];
             const ret2 = ret[1];
-            let maxVal: number = ret1[0];
-            let sumVal: number = ret2[0];
-            deferred.resolve(maxVal, sumVal);
+            let maxVal: number = ret1.value;
+            let sumVal: number = ret2.value;
+            deferred.resolve({maxVal: maxVal, sumVal: sumVal});
         })
         .fail(deferred.reject);
 
@@ -523,7 +530,7 @@ class ProfileEngine {
         aggOp: string,
         colName: string,
         tableName: string
-    ): XDPromise<number | string> {
+    ): XDPromise<{value: string | number, aggName: string, toDelete: boolean}> {
         if (aggOp === "sd") {
             // standard deviation
             var evalStr = "sqrt(div(sum(pow(sub(" + colName + ", avg(" +
@@ -553,7 +560,7 @@ class ProfileEngine {
 
         this._getAggResult(txId, aggrOp, fieldName, tableName)
         .then((val) => {
-            res = val;
+            res = val.value;
         })
         .fail((error) => {
             res = "--";
@@ -595,7 +602,8 @@ class ProfileEngine {
 
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._checkOrder(tableName)
-        .then((tableOrder, tableKeys) => {
+        .then((ret) => {
+            const {tableOrder, tableKeys} = ret;
             return this._getStats(tableName, tableOrder, tableKeys, profileInfo);
         })
         .then(deferred.resolve)
@@ -604,14 +612,14 @@ class ProfileEngine {
         return deferred.promise();
     }
 
-    private _checkOrder(tableName: string): XDPromise<number> {
+    private _checkOrder(tableName: string): XDPromise<{tableOrder: number, tableKeys: any}> {
         let tableId: TableId = xcHelper.getTableId(tableName);
         let table: TableMeta = gTables[tableId];
         if (table != null) {
             let keys = table.getKeys();
             let order = table.getOrdering();
             if (keys != null && XcalarOrderingTStr.hasOwnProperty(order)) {
-                return PromiseHelper.resolve(order, keys);
+                return PromiseHelper.resolve({tableOrder: order, tableKeys: keys});
             }
         }
         return XIApi.checkOrder(tableName);
@@ -972,15 +980,18 @@ class ProfileEngine {
             };
             return XIApi.groupBy(txId, [aggArg], [mapCol], mapTable, options)
         })
-        .then((tableAfterGroupby) => {
+        .then((ret) => {
+            const tableAfterGroupby = ret.finalTable;
             let newTableName = this._getNewName(mapTable, ".final", true);
             return XIApi.sortAscending(txId, [mapCol], tableAfterGroupby, newTableName);
         })
-        .then((tableAfterSort) => {
+        .then((ret) => {
+            const tableAfterSort = ret.newTableName;
             finalTable = tableAfterSort;
             return this._aggInGroupby(txId, this._bucketColName, finalTable);
         })
-        .then((maxVal, sumVal) => {
+        .then((ret) => {
+            const {maxVal, sumVal} = ret;
             profileInfo.addBucket(bucketNum, {
                 "max": maxVal,
                 "sum": sumVal,

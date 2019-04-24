@@ -130,7 +130,8 @@ window.UExtDistinct = (function(UExtDistinct) {
             // unique records with respect to those coumns
             ext.groupBy(XcSDK.Enums.AggType.Count, colNames, colNames[0],
                 srcTableName, countColumn, options)
-            .then(function(tableAfterGroupBy) {
+            .then(function(ret) {
+                const tableAfterGroupBy = ret.dstTable;
                 // hide the count column created by the group by and add table
                 // to worksheet
                 var table = ext.getTable(tableAfterGroupBy);
@@ -175,12 +176,14 @@ window.UExtDistinct = (function(UExtDistinct) {
             // unique records with respect to those coumns
             ext.groupBy(XcSDK.Enums.AggType.Count, colNames, colNames[0],
                 srcTableName, countColumn, options)
-            .then(function(tableAfterGroupBy) {
+            .then(function(ret) {
+                const tableAfterGroupBy = ret.dstTable;
                 // count the number of records present in the table
                 return ext.aggregate(XcSDK.Enums.AggType.Count, countColumn,
                     tableAfterGroupBy, aggName);
             })
-            .then(function(uniqueRowsCount) {
+            .then(function(ret) {
+                const uniqueRowsCount = ret.value;
                 // display alert like in actual aggregates
                 var colStr;
                 if (colNames.length > 1) {
@@ -280,7 +283,9 @@ window.UExtDistinct = (function(UExtDistinct) {
             // has only unique records with respect to all provided columns
             ext.groupBy(XcSDK.Enums.AggType.Count, allColNames, allColNames[0],
                 srcTableName, firstCountCol, options)
-            .then(function(tableAfterGroupBy, gByTableCols) {
+            .then(function(ret) {
+                const tableAfterGroupBy = ret.dstTable;
+                const gByTableCols = ret.dstColumnsSDK;
                 // perform a groupBy on only the groupBy columns. Since no two
                 // records in this table are exactly the same, a simple count
                 // operation will provide the number of distinct records with
@@ -304,7 +309,8 @@ window.UExtDistinct = (function(UExtDistinct) {
                 return ext.groupBy(XcSDK.Enums.AggType.Count, modifiedGByColNames,
                     firstCountCol, tableAfterGroupBy, countColumn, opt);
             })
-            .then(function(finalTable) {
+            .then(function(ret) {
+                const finalTable = ret.dstTable;
                 var table = ext.getTable(finalTable);
                 return table.addToWorksheet();
             })

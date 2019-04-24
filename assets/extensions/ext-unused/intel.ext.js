@@ -90,7 +90,8 @@ window.UExtIntel = (function(UExtIntel) {
             return ext.groupBy(operator, "Record ID", dateCol,
                               tableAfterMap, "Max_Date", options);
         })
-        .then(function(tableAfterGroupby) {
+        .then(function(ret) {
+            const tableAfterGroupby = ret.dstTable;
             var map = "default:convertFromUnixTS(Max_Date, \"%m/%d/%Y\")";
             var newTable = ext.createTableName();
             return ext.map(map, tableAfterGroupby, finalCol, newTable);
@@ -157,7 +158,8 @@ window.UExtIntel = (function(UExtIntel) {
             return ext.groupBy(operator, groupByCols, "Forecasted_float",
                                tableAfterMap, "SumByPdt", options);
         })
-        .then(function(tableAfterGroupby) {
+        .then(function(ret) {
+            const tableAfterGroupby = ret.dstTable;
             lTable = tableAfterGroupby;
 
             var operator = XcSDK.Enums.AggType.Max;
@@ -167,7 +169,8 @@ window.UExtIntel = (function(UExtIntel) {
             return ext.groupBy(operator, "ROW_ID", "SumByPdt",
                                tableAfterGroupby, "MaxForRow", options);
         })
-        .then(function(tableAfterGroupby) {
+        .then(function(ret) {
+            const tableAfterGroupby = ret.dstTable;
             rTable = tableAfterGroupby;
 
             var joinType = XcSDK.Enums.JoinType.InnerJoin;
@@ -192,7 +195,8 @@ window.UExtIntel = (function(UExtIntel) {
             return ext.groupBy(operator, "ROW_ID", "ROW_ID",
                                tableAfterJoin, "NumOccur", options);
         })
-        .then(function(finalTable) {
+        .then(function(ret) {
+            const finalTable = ret.dstTable;
             var table = ext.getTable(finalTable);
             table.deleteAllCols();
             table.addCol(new XcSDK.Column("ROW_ID"));

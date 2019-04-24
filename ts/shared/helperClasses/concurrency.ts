@@ -161,7 +161,7 @@ class Concurrency {
 
         // No locks can stay locked across restarts because XD is dead by then
         this._kvStore.setIfEqual(this._unlocked, lockString, false, true)
-            .then((_res, noKV: boolean) => {
+            .then(({noKV}) => {
                 if (noKV) {
                     // This happens when status is kvStore not found or kvEntry
                     // not found.

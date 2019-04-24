@@ -30,10 +30,13 @@ window.XcSDK.Extension.prototype = (function() {
             var self = this;
             var txId = this.txId;
             XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName)
-            .then(function(value, dstDagName, toDelete) {
+            .then(function(ret) {
+                const value = ret.value;
+                const dstDagName = ret.aggName;
+                const toDelete = ret.toDelete;
                 self._addAgg(value, tableName, colName, aggOp, dstAggName,
                     dstDagName);
-                deferred.resolve(value, dstDagName, toDelete);
+                deferred.resolve(ret);
             })
             .fail(deferred.reject);
 
@@ -77,9 +80,11 @@ window.XcSDK.Extension.prototype = (function() {
                 colToIndex = [colToIndex];
             }
             XIApi.index(txId, colToIndex, tableName)
-            .then(function(dstTable, indexArgs) {
+            .then(function(ret) {
+                const dstTable = ret.newTableName;
+                const indexArgs = ret.isCache;
                 self._addMeta(tableName, dstTable);
-                deferred.resolve(dstTable, indexArgs);
+                deferred.resolve({dstTable, indexArgs});
             })
             .fail(deferred.reject);
 
@@ -114,7 +119,8 @@ window.XcSDK.Extension.prototype = (function() {
             });
 
             XIApi.sort(txId, colInfo, tableName, newTableName)
-            .then(function(dstTable) {
+            .then(function(ret) {
+                const dstTable = ret.newTableName;
                 self._addMeta(tableName, dstTable);
                 deferred.resolve(dstTable);
             })
@@ -129,7 +135,8 @@ window.XcSDK.Extension.prototype = (function() {
             var txId = self.txId;
 
             XIApi.sortAscending(txId, colNames, tableName, newTableName)
-            .then(function(dstTable) {
+            .then(function(ret) {
+                const dstTable = ret.newTableName;
                 self._addMeta(tableName, dstTable);
                 deferred.resolve(dstTable);
             })
@@ -144,7 +151,8 @@ window.XcSDK.Extension.prototype = (function() {
             var txId = self.txId;
 
             XIApi.sortDescending(txId, colNames, tableName, newTableName)
-            .then(function(dstTable) {
+            .then(function(ret) {
+                const dstTable = ret.newTableName;
                 self._addMeta(tableName, dstTable);
                 deferred.resolve(dstTable);
             })
@@ -201,12 +209,12 @@ window.XcSDK.Extension.prototype = (function() {
             var txId = self.txId;
 
             XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
-            .then(function(dstTable, tempCols, lRename, rRename) {
+            .then(function({newTableName, tempCols, lRename, rRename}) {
                 var dstCols = createJoinedColumns(lTableInfo.tableName,
                     rTableInfo.tableName, lTableInfo.pulledColumns,
                     rTableInfo.pulledColumns, lRename, rRename);
-                self._addMeta(null, dstTable, dstCols);
-                deferred.resolve(dstTable);
+                self._addMeta(null, newTableName, dstCols);
+                deferred.resolve(newTableName);
             })
             .fail(deferred.reject);
 
@@ -331,7 +339,9 @@ window.XcSDK.Extension.prototype = (function() {
             var txId = self.txId;
 
             XIApi.union(txId, tableInfos, dedup, newTableName, unionType)
-            .then(function(dstTable, dstCols) {
+            .then(function(ret) {
+                const dstTable = ret.newTableName;
+                const dstCols = ret.newTableCols;
                 var newTableCols = dstCols.map((col) => {
                     return ColManager.newPullCol(col.rename, null, col.type);
                 });
@@ -391,7 +401,8 @@ window.XcSDK.Extension.prototype = (function() {
             });
             var isIncSample = options.isIncSample;
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
-            .then(function(dstTable) {
+            .then(function(ret) {
+                const dstTable = ret.finalTable;
                 var sampleCols = isIncSample ? options.columnsToKeep : null;
                 var dstCols = xcHelper.createGroupByColumns(
                     tableName, groupByCols, gbArgs, sampleCols);
@@ -400,7 +411,7 @@ window.XcSDK.Extension.prototype = (function() {
                     return new XcSDK.Column(progcol.getBackColName(),
                         progcol.getType());
                 });
-                deferred.resolve(dstTable, dstColumnsSDK);
+                deferred.resolve({dstTable, dstColumnsSDK});
             })
             .fail(deferred.reject);
 

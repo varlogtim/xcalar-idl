@@ -26,7 +26,7 @@ describe("DagNodeExecutor Test", () => {
             expect(newTableName).not.to.be.empty;
             expect(newTableName).to.be.a("string");
             expect(prefix).to.equal("prefix");
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({newTableName, prefix});
         };
 
         executor.run()
@@ -79,7 +79,7 @@ describe("DagNodeExecutor Test", () => {
             expect(evalStr).to.equal("count(col)");
             expect(tableName).to.equal("testTable");
             expect(dstAggName).to.equal("testConstant");
-            return PromiseHelper.resolve(100);
+            return PromiseHelper.resolve({value:100});
         };
 
         executor.run()
@@ -165,7 +165,7 @@ describe("DagNodeExecutor Test", () => {
             expect(options.isIncSample).to.be.false;
             expect(options.icvMode).to.be.false;
             expect(options.groupAll).to.be.false;
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({finalTable: tableName});
         };
 
         executor.run()
@@ -242,7 +242,7 @@ describe("DagNodeExecutor Test", () => {
             expect(options.newTableName).not.to.be.empty;
             expect(options.newTableName).to.be.a("string");
             expect(options.evalString).to.equal("");
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({});
         };
 
         executor.run()
@@ -375,7 +375,7 @@ describe("DagNodeExecutor Test", () => {
             });
             expect(newTableName).not.to.be.empty;
             expect(newTableName).to.be.a("string");
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({});
         };
 
         executor.run()
@@ -484,7 +484,7 @@ describe("DagNodeExecutor Test", () => {
                 type: 4
             });
             expect(imdCol).to.equal("testCol")
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({});
         };
 
         executor.run()
@@ -738,7 +738,7 @@ describe("DagNodeExecutor Test", () => {
             expect(newKeys.length).to.equal(1);
             expect(newKeys[0]).to.equal("newKey");
             expect(dhtName).to.equal("dht");
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({});
         };
 
         executor.run()
@@ -784,7 +784,7 @@ describe("DagNodeExecutor Test", () => {
             expect(tableName).to.equal("testTable");
             expect(newTableName).to.not.to.be.empty;
             expect(newTableName).to.be.a("string");
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({});
         };
 
         executor.run()

@@ -116,17 +116,25 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
             roGenRowNum(self, ext.getTriggerTable().getName(), "orig_order_")
             .then(function(tableWithRowNum, oriRowNumColName) {
+                const tableWithRowNum = ret.tableAfterGenRowNum;
+                const oriRowNumColName = ret.newColName;
                 return roSortTable(self, tableWithRowNum, [keyColName, oriRowNumColName]);
             })
             .then(function(tableAfterSort) {
                 return roGenRowNum(self, tableAfterSort, "new_order_");
             })
-            .then(function(tableWithNewRowNum, newRowNumColName) {
+            .then(function(ret) {
+                const tableWithNewRowNum = ret.tableAfterGenRowNum;
+                const newRowNumColName = ret.newColName;
                 self.setAttribute("new_order_col", newRowNumColName);
                 self.setAttribute("table_to_group_by", tableWithNewRowNum);
                 return roGroupBy(self, tableWithNewRowNum, keyColName, newRowNumColName);
             })
-            .then(function(groupByTableName, rkeyColName, rkeyType, rGBColName) {
+            .then(function(ret) {
+                const groupByTableName = ret.tableAfterGroupBy;
+                const rkeyColName = ret.keyColNameAfterGroupBy;
+                const rkeyType = ret.keyColTypeAfterGroupBy;
+                const rGBColName = ret.newGBColName;
                 self.setAttribute("GBColName", rGBColName);
                 return roJoinBack(self, self.getAttribute("table_to_group_by"), keyColName, groupByTableName, rkeyColName, rkeyType);
             })
@@ -158,7 +166,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
         ext.genRowNum(srcTable, newColName, dstTable)
         .then(function(tableAfterGenRowNum) {
-            deferred.resolve(tableAfterGenRowNum, newColName);
+            deferred.resolve({tableAfterGenRowNum, newColName});
         })
         .fail(deferred.reject);
 
@@ -171,7 +179,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         var directions = sortColNames.map(function() {
             return XcSDK.Enums.SortType.Asc;
         });
-        
+
         ext.sort(directions, sortColNames, srcTable, dstTable)
         .then(deferred.resolve)
         .fail(function(error, sorted) {
@@ -195,7 +203,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         };
 
         ext.groupBy(aggOp, keyColName, groupByColName, srcTable, newGBColName, options)
-        .then(function(tableAfterGroupBy, dstColumnsSDK) {
+        .then(function(ret) {
+            const tableAfterGroupBy = ret.dstTable;
+            const dstColumnsSDK = ret.dstColumnsSDK;
             var keyColNameAfterGroupBy;
             var keyColTypeAfterGroupBy;
             dstColumnsSDK.forEach(function(col) {
@@ -206,7 +216,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                     return false;
                 }
             });
-            deferred.resolve(tableAfterGroupBy, keyColNameAfterGroupBy, keyColTypeAfterGroupBy, newGBColName);
+            deferred.resolve({tableAfterGroupBy, keyColNameAfterGroupBy, keyColTypeAfterGroupBy, newGBColName});
         })
         .fail(deferred.reject);
 
@@ -221,7 +231,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             "tableName": lTable,
             "columns": [lColName],
         };
-        
+
         var rTableInfo = {
             "tableName": rTable,
             "columns": [rColName],
@@ -384,7 +394,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 // Step 2: Get Row Num Column, on SORTED table and index on it.
                 return winGenRowNum(self, tableAfterSort);
             })
-            .then(function(tableWithRowNum, rowNumColTmp) {
+            .then(function(ret) {
+                const tableWithRowNum = ret.tableAfterIndex;
+                const rowNumColTmp = ret.newColName;
                 // Step 3: For the columns we want to window on, converts
                 // fatptr columns to immediates
                 rowNumCol = rowNumColTmp;
@@ -582,8 +594,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             var newTable = ext.createTempTableName();
             return ext.index(newColName, tableAfterGenRowNum, newTable);
         })
-        .then(function(tableAfterIndex) {
-            deferred.resolve(tableAfterIndex, newColName);
+        .then(function(ret) {
+            const tableAfterIndex = ret.dstTable;
+            deferred.resolve({tableAfterIndex, newColName});
         })
         .fail(deferred.reject);
 
@@ -682,7 +695,8 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         .then(function(tableAfterProject) {
             return ext.index(newColName, tableAfterProject);
         })
-        .then(function(tableAfterIndex) {
+        .then(function(ret) {
+            const tableAfterIndex = ret.dstTable;
             // cache tableName and colName for later user
             tableNames[state][index] = tableAfterIndex;
             rowNumColNames[state][index] = newColName;
@@ -712,7 +726,8 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
         ext.groupBy(aggOp, keyColName, keyColName,
                     srcTable, groupByCol, options)
-        .then(function(tableAfterGroupby) {
+        .then(function(ret) {
+            const tableAfterGroupby = ret.dstTable;
             // Step 2. Sort on desc on groupby table by groupByCol
             // this way, the partitionCol that has most count comes first
             var sortTable = ext.createTempTableName("GB-Sort.");

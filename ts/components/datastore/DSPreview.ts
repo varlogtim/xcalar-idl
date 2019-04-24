@@ -3156,7 +3156,8 @@ namespace DSPreview {
         let initialLoadArgStr: string;
         xcUIHelper.disableSubmit($form.find(".confirm"));
         getURLToPreview()
-        .then((sourceIndex: number, url: string) => {
+        .then((ret: {sourceIndex: number, url: string}) => {
+            const {sourceIndex, url} = ret;
             setPreviewFile(sourceIndex, url);
 
             if (isRestore) {
@@ -3520,10 +3521,10 @@ namespace DSPreview {
         var index = 0;
 
         if (previewingSource != null) {
-            return PromiseHelper.resolve(previewingSource.index, previewingSource.file);
+            return PromiseHelper.resolve({sourceIndex: previewingSource.index, url: previewingSource.file});
         } else if (DSTargetManager.isGeneratedTarget(targetName)) {
             // target of type Generated is a special case
-            return PromiseHelper.resolve(index, loadArgs.files[index].path);
+            return PromiseHelper.resolve({sourceIndex: index, url: loadArgs.files[index].path});
         }
 
         var deferred = PromiseHelper.deferred();
@@ -3537,7 +3538,7 @@ namespace DSPreview {
                     path: firstFile.path
                 }));
             } else {
-                deferred.resolve(index, path);
+                deferred.resolve({sourceIndex: index, url: path});
             }
         })
         .fail(deferred.reject);
@@ -3740,7 +3741,8 @@ namespace DSPreview {
                 return getDataFromPreview(args, buffer, rowsToShow);
             }
         })
-        .then((extraBuffer) => {
+        .then((ret) => {
+            const extraBuffer = ret.buffer;
             if (!isValidPreviewId(curPreviewId)) {
                 deferred.reject();
                 return;
@@ -3767,7 +3769,10 @@ namespace DSPreview {
         let bytesNeed: number = getBytesNeed(buffer, rowsToShow);
         if (bytesNeed <= 0) {
             // when has enough cache to show rows
-            return PromiseHelper.resolve(null, true);
+            return PromiseHelper.resolve({
+                buffer: null,
+                hasEnoughDataInCache: true
+            });
         }
 
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
@@ -3786,7 +3791,7 @@ namespace DSPreview {
                 extraBuffer = res.buffer;
                 previewOffset += res.thisDataSize;
             }
-            deferred.resolve(extraBuffer);
+            deferred.resolve({buffer: extraBuffer});
         })
         .fail(deferred.reject);
 
@@ -3912,8 +3917,15 @@ namespace DSPreview {
             return getDataFromLoadUDF(tempDSName, 1, rowsToFetch);
         })
         .then(deferred.resolve)
-        .fail((error, loadError) => {
-            let displayError = loadError || error;
+        .fail((error) => {
+            let displayError;
+            if (error && error.loadError) {
+                displayError = error.loadError;
+            } else if (error && error.error) {
+                displayError = error.error;
+            } else {
+                displayError = error;
+            }
             deferred.reject(displayError);
         });
 
@@ -3934,7 +3946,9 @@ namespace DSPreview {
         let $previewBottom = $section.find(".previewBottom").addClass("load");
 
         fetchMoreRowsHelper(rowsToAdd)
-        .then((newBuffer, hasEnoughDataInCache) => {
+        .then((ret) => {
+            const newBuffer = ret.buffer;
+            const hasEnoughDataInCache = ret.hasEnoughDataInCache;
             if (newBuffer) {
                 rawData += newBuffer;
             }
@@ -3961,7 +3975,13 @@ namespace DSPreview {
     function fetchMoreRowsHelper(rowsToAdd: number): XDPromise<any> {
         let isFromLoadUDF: boolean = (tableName != null);
         if (isFromLoadUDF) {
-            return fetchMoreRowsFromLoadUDF(rowsToAdd);
+            const deferred = PromiseHelper.deferred();
+            fetchMoreRowsFromLoadUDF(rowsToAdd)
+            .then((buffer) => {
+                deferred.resolve({buffer});
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
         } else {
             return fetchMoreRowsFromPreview(rowsToAdd);
         }
@@ -4738,7 +4758,7 @@ namespace DSPreview {
 
     function lineSplitHelper(
         data: string,
-        delim: string, 
+        delim: string,
         rowsToSkip: number
     ): string[] {
         let quote: string = loadArgs.getQuote();
@@ -4759,7 +4779,7 @@ namespace DSPreview {
     }
 
     function splitLine(
-        data: string, 
+        data: string,
         delim: string,
         quote: string
     ): string[] {

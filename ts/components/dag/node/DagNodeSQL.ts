@@ -1017,10 +1017,11 @@ class DagNodeSQL extends DagNode {
             }
             return tempTab.getQuery(inputTableNames);
         })
-        .then((queries, tableName) => {
-            visitedMap[key] = tableName;
-            newTableName = tableName;
-            JSON.parse(queries).forEach((query) => {
+        .then((ret) => {
+            const {queryStr, destTable} = ret;
+            visitedMap[key] = destTable;
+            newTableName = destTable;
+            JSON.parse(queryStr).forEach((query) => {
                 allQueries.push(JSON.stringify(query));
             })
             return tempTab.getSchema();

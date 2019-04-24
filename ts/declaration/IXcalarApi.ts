@@ -709,7 +709,7 @@ declare function xcalarKeySetIfEqual(
     valueReplace: string,
     keySecondary?: string,
     valueSecondary?: string
-): XDPromise<StatusT>;
+): XDPromise<{res: StatusT, noKV: boolean}>;
 
 declare function xcalarKeyAppend(
     thriftHandle: ThriftHandler,

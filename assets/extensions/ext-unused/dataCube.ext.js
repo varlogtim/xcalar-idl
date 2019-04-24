@@ -126,11 +126,14 @@ window.UExtDataCube = (function(UExtDataCube) {
         ext.start = function() {
             var deferred = XcSDK.Promise.deferred();
             applyAggUDF(ext)
-            .then(function(groupByCols, tableAfterAggUDF) {
+            .then(function(ret) {
+                const groupByCols = ret.groupByCols;
+                const tableAfterAggUDF = ret.nextTable;
                 // groupByCols are the new columns formed by the UDFs
                 return groupbyDimension(ext, groupByCols, tableAfterAggUDF);
             })
-            .then(function(finalTable) {
+            .then(function(ret) {
+                const finalTable = ret.dstTable;
                 var table = ext.getTable(finalTable);
                 return table.addToWorksheet();
             })
@@ -181,7 +184,7 @@ window.UExtDataCube = (function(UExtDataCube) {
 
         XcSDK.Promise.chain(promises)
         .then(function() {
-            deferred.resolve(groupByCols, nextTable);
+            deferred.resolve({groupByCols, nextTable});
         })
         .fail(deferred.reject);
 
@@ -242,7 +245,9 @@ window.UExtDataCube = (function(UExtDataCube) {
             var listAggSep = '"|Xc|"';
 
             getColUniqueValues(ext, cols)
-            .then(function(resVals, resCols) {
+            .then(function(ret) {
+                const resVals = ret.uniqueVals;
+                const resCols = ret.uniqueCols;
                 // resVals are the unique values of 'cols'
                 // resCols[i] is the column names that represents resVals[i]
                 uniqueVals = resVals;
@@ -262,7 +267,8 @@ window.UExtDataCube = (function(UExtDataCube) {
                 return ext.groupBy(aggOp, rowName, concatCol,
                                    tableAfterMap, groupByCol, options);
             })
-            .then(function(tableAfterGroupby) {
+            .then(function(ret) {
+                const tableAfterGroupby = ret.dstTable;
                 // each unique value of 'row' now forms a record with another
                 // field, which is a concatenation of all records of the
                 // 'concatCol' created above that occur with this value
@@ -338,7 +344,7 @@ window.UExtDataCube = (function(UExtDataCube) {
 
         XcSDK.Promise.chain(promises)
         .then(function() {
-            deferred.resolve(uniqueVals, uniqueCols);
+            deferred.resolve({uniqueVals, uniqueCols});
         })
         .fail(deferred.reject);
         return deferred.promise();
@@ -366,7 +372,9 @@ window.UExtDataCube = (function(UExtDataCube) {
         // this way we get the unique value of this column in src table
         ext.groupBy(aggOp, keyColName, keyColName, srcTable, groupByCol,
             options)
-        .then(function(tableAfterGroupby, colsAfterGroupBy) {
+        .then(function(ret) {
+            const tableAfterGroupby = ret.dstTable;
+            const colsAfterGroupBy = ret.dstColumnsSDK;
             uniqueValTable = tableAfterGroupby;
             fetchColName = colsAfterGroupBy[1].getName();
             return ext.getNumRows(uniqueValTable);

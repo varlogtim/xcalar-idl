@@ -248,7 +248,13 @@ class DagNodeExecutor {
 
     private _indexDataset(dsName: string, prefix: string): XDPromise<string> {
         const desTable = this._generateTableName();
-        return XIApi.indexFromDataset(this.txId, dsName, desTable, prefix);
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        XIApi.indexFromDataset(this.txId, dsName, desTable, prefix)
+        .then((ret) => {
+            deferred.resolve(ret.newTableName);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     private _synthesizeDataset(
@@ -312,7 +318,8 @@ class DagNodeExecutor {
         //Update eval string with correct aggregates
 
         XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
-        .then((value, aggName) => {
+        .then((ret) => {
+            const {value , aggName} = ret;
             node.setAggVal(value);
             if (!Transaction.isSimulate(this.txId) && !optimized && value) {
                 // We don't want to add if optimized or ran as a query
@@ -387,11 +394,12 @@ class DagNodeExecutor {
         .then((castTableName) => {
             return XIApi.groupBy(self.txId, aggArgs, params.groupBy, castTableName, options);
         })
-        .then((nTableName, nTableCols, _renamedGBCols) => {
+        .then(({finalTable}) => {
+
             if (params.joinBack) {
-                return _groupByJoinHelper(nTableName);
+                return _groupByJoinHelper(finalTable);
             } else {
-                return PromiseHelper.resolve(nTableName, nTableCols);
+                return PromiseHelper.resolve(finalTable);
             }
         })
         .then(deferred.resolve)
@@ -414,9 +422,14 @@ class DagNodeExecutor {
                 columns: newKeys,
                 rename: node.getJoinRenames()
             };
-
-            return XIApi.join(self.txId, JoinOperatorT.FullOuterJoin,
+            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            XIApi.join(self.txId, JoinOperatorT.FullOuterJoin,
                               lTableInfo, rTableInfo, joinOpts)
+            .then((ret) => {
+                deferred.resolve(ret.newTableName)
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
         }
 
         function cast(): XDPromise<string> {
@@ -515,7 +528,14 @@ class DagNodeExecutor {
             keepAllColumns: false // Backend is removing this flag, so XD should not use it anymore
             // keepAllColumns: params.keepAllColumns
         };
-        return XIApi.join(this.txId, joinType, lTableInfo, rTableInfo, options);
+
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        XIApi.join(this.txId, joinType, lTableInfo, rTableInfo, options)
+        .then((ret) => {
+            deferred.resolve(ret.newTableName);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     private _joinInfoConverter(
@@ -635,8 +655,13 @@ class DagNodeExecutor {
                 columns: columns
             }
         });
-
-        return XIApi.union(this.txId, tableInfos, params.dedup, desTable, unionType);
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        XIApi.union(this.txId, tableInfos, params.dedup, desTable, unionType)
+        .then((ret) => {
+            deferred.resolve(ret.newTableName);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     private _custom(optimized?: boolean): XDPromise<string> {
@@ -987,7 +1012,8 @@ class DagNodeExecutor {
         let finalTable: string
 
         node.getQuery()
-        .then((resTable, query) => {
+        .then((ret) => {
+            const {resTable, query} = ret;
             finalTable = resTable;
             if (!query) {
                 // when the extension doesn't generate query
@@ -1088,7 +1114,13 @@ class DagNodeExecutor {
             newKeys.push(column["keyFieldName"]);
         })
         const srcTable: string = this._getParentNodeTable(0);
-        return XIApi.index(this.txId, colNames, srcTable, undefined, newKeys, params.dhtName);
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        XIApi.index(this.txId, colNames, srcTable, undefined, newKeys, params.dhtName)
+        .then((ret) => {
+            deferred.resolve(ret.newTableName);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     private _sort(): XDPromise<string> {
@@ -1121,7 +1153,8 @@ class DagNodeExecutor {
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         XIApi.sort(this.txId, sortedColumns, srcTable, desTable)
-        .then((tableAfterSort) => {
+        .then((ret) => {
+            const tableAfterSort = ret.newTableName;
             return this._projectCheck(tableAfterSort);
         })
         .then(deferred.resolve)
@@ -1228,7 +1261,7 @@ class DagNodeExecutor {
         .then(function(res) {
             node.getSQLQuery().columns = node.getColumns();
             node.updateSQLQueryHistory();
-            deferred.resolve(newDestTableName, res);
+            deferred.resolve(newDestTableName);
         })
         .fail(function(error) {
             node.setSQLQuery({

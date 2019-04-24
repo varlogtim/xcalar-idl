@@ -169,7 +169,8 @@ class DagTabPublished extends DagTab {
         let dagInfoRes: any;
 
         this._loadFromKVStore()
-        .then((dagInfo, graph) => {
+        .then((ret) => {
+            const {dagInfo, graph} = ret;
             dagInfoRes = dagInfo;
             this._editVersion = dagInfo.editVersion;
             if (reset) {
@@ -197,7 +198,8 @@ class DagTabPublished extends DagTab {
         let oldVersion: number = this._editVersion;
 
         this._loadFromKVStore()
-        .then((dagInfo) => {
+        .then((ret) => {
+            const {dagInfo} = ret;
             // when editVersion not match, cannot save
             if (dagInfo == null || dagInfo.editVersion !== this._editVersion) {
                 return PromiseHelper.reject();
@@ -246,13 +248,13 @@ class DagTabPublished extends DagTab {
         return deferred.promise();
     }
 
-    public upload(content: string): XDPromise<DagTab> {
-        const deferred: XDDeferred<DagTab> = PromiseHelper.deferred();
+    public upload(content: string): XDPromise<{tabUploaded: DagTab, alertOption?: Alert.AlertOptions}> {
+        const deferred: XDDeferred<{tabUploaded: DagTab, alertOption: Alert.AlertOptions}> = PromiseHelper.deferred();
         DagTabPublished._switchSession(null);
         XcalarUploadWorkbook(this._getWKBKName(), content, "")
         .then((sessionId) => {
             this._id = sessionId;
-            deferred.resolve(this);
+            deferred.resolve({tabUploaded: this});
         })
         .fail(deferred.reject);
 

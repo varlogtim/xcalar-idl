@@ -417,7 +417,7 @@ describe("DSObj Constructor Test", function() {
             };
 
             dsObj.fetch(1, 10)
-            .then(function(jsons, jsonKeys) {
+            .then(function({jsons, jsonKeys}) {
                 expect(jsons).to.be.an("array");
                 expect(jsonKeys).to.be.an("array");
                 expect(jsonKeys[0]).to.equal("a");

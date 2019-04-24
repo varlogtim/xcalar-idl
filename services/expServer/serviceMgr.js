@@ -41,7 +41,7 @@ function handleService(protoReqMsg){
     if(!(serviceName in serviceRegistry)) {
         //The service is not implemented in expserver
         //need to route it to backend
-        deferred.resolve(false, null);
+        deferred.resolve({reqHandled: false, resp: null});
         return deferred.promise();
     }
     var methodName = serviceReqMsg.getMethodname();
@@ -50,7 +50,7 @@ function handleService(protoReqMsg){
     if (methodHandle == null || typeof methodHandle != 'function') {
         //The method is not implemented in expserver
         //need to route it to backend
-        deferred.resolve(false, null);
+        deferred.resolve({reqHandled: false, resp: null});
         return deferred.promise();
     }
     console.log(`Service name:: ${serviceName}, Method name:: ${methodName}`);
@@ -61,7 +61,7 @@ function handleService(protoReqMsg){
         var anyRes = packFrom(res, serviceName, methodName);
         var serviceResponse = new proto.ServiceResponse();
         serviceResponse.setBody(anyRes);
-        deferred.resolve(true, serializeResponse(serviceResponse));
+        deferred.resolve({reqHandled: true, resp: serializeResponse(serviceResponse)});
     })
     .fail(function(err){
         deferred.reject(err);

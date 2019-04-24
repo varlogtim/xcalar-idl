@@ -92,6 +92,7 @@ describe("DFUploadModal Test", function() {
 
             DagTabUser.prototype.upload = function() {
                 isAddDF = true;
+                return PromiseHelper.resolve({tabUploaded: {}})
             };
 
             xcUIHelper.showSuccess = function(input) {

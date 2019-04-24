@@ -13,8 +13,8 @@ class DagTabUser extends DagTab {
      */
     public static restore(
         dagList: {name: string, id: string, reset: boolean, createdTime: number}[]
-    ): XDPromise<DagTabUser[]> {
-        const deferred: XDDeferred<DagTabUser[]> = PromiseHelper.deferred();
+    ): XDPromise<{dagTabs: DagTabUser[], metaNotMatch: boolean}> {
+        const deferred: XDDeferred<{dagTabs: DagTabUser[], metaNotMatch: boolean}> = PromiseHelper.deferred();
         const dagIdSet: Set<string> = new Set();
         const dagTabs: DagTabUser[] = [];
         let metaNotMatch: boolean = false;
@@ -74,7 +74,7 @@ class DagTabUser extends DagTab {
             }
         })
         .then(() => {
-            deferred.resolve(dagTabs, metaNotMatch);
+            deferred.resolve({dagTabs: dagTabs, metaNotMatch: metaNotMatch});
         })
         .fail(deferred.reject)
 
@@ -178,7 +178,8 @@ class DagTabUser extends DagTab {
     public load(reset?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._loadFromKVStore()
-        .then((dagInfo, graph: DagGraph) => {
+        .then((ret) => {
+            let {dagInfo, graph} = ret;
             reset = reset|| this._reset;
             if (reset) {
                 graph = this._resetHelper(dagInfo.dag);
@@ -279,20 +280,20 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
-    public upload(content: string, overwriteUDF: boolean): XDPromise<DagTab> {
+    public upload(content: string, overwriteUDF: boolean): XDPromise<{tabUploaded: DagTab, alertOption?: Alert.AlertOptions}> {
         // Step for upload dataflow to local workbook:
         // 1. upload as a temp shared dataflow
         // 2. get the graph and copy to local tab, save the tab
         // 3. get the UDF and copy to local workbook
         // 3. delete the temp shared dataflow
-        const deferred: XDDeferred<DagTab> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{tabUploaded: DagTab, alertOption?: Alert.AlertOptions}> = PromiseHelper.deferred();
         const tempName: string = this._getTempName();
         const fakeTab: DagTabPublished = new DagTabPublished({
             name: tempName
         });
         let hasFakeDag: boolean = false;
         let hasGetMeta: boolean = false;
-        let tabUploaded: DagTab = this;
+        let tabUploaded: DagTab = <DagTab>this;
 
         fakeTab.upload(content)
         .then(() => {
@@ -302,7 +303,7 @@ class DagTabUser extends DagTab {
         .then((dagInfo) => {
             this._dagGraph = fakeTab.getGraph();
             if (this._isSQLFunc(dagInfo)) {
-                tabUploaded = this._convertToSQLFunc();
+                tabUploaded = <DagTab>this._convertToSQLFunc();
             }
         })
         .then(() => {
@@ -314,7 +315,7 @@ class DagTabUser extends DagTab {
             return fakeTab.copyUDFToLocal(overwriteUDF);
         })
         .then(() => {
-            deferred.resolve(tabUploaded);
+            deferred.resolve({tabUploaded});
         })
         .fail((error) => {
             if (hasGetMeta) {
@@ -324,7 +325,7 @@ class DagTabUser extends DagTab {
                     msg: error.error,
                     isAlert: true
                 };
-                deferred.resolve(tabUploaded, alertOption);
+                deferred.resolve({tabUploaded, alertOption});
             } else {
                 deferred.reject(error);
             }

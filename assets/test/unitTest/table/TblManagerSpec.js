@@ -52,10 +52,8 @@ describe("TableManager Test", function() {
 
         it("TblManager.getBackTableSet should work", function(done) {
             TblManager.getBackTableSet()
-            .then(function(backTableSet, numBackTables) {
+            .then(function(backTableSet) {
                 expect(backTableSet).to.be.an("object");
-                expect(Object.keys(backTableSet).length)
-                .to.equal(numBackTables);
                 done();
             })
             .fail(function(error) {

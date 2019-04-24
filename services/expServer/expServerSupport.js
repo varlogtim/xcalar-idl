@@ -80,7 +80,7 @@ function getMatchedHosts(query) {
     var matchNodeIds = [];
     var retMsg = {};
     readHostsFromFile(hostFile)
-    .then(function(hosts, nodeIds) {
+    .then(function({hosts, nodeIds}) {
         if (query.hostnamePattern === "") {
             retMsg = {
                 "status": httpStatus.OK,
@@ -154,7 +154,7 @@ function readHostsFromFile(hostFile) {
                 hosts.push(matches[2]);
             }
         }
-        deferred.resolve(hosts, nodeIds);
+        deferred.resolve({hosts, nodeIds});
     });
     return deferred.promise();
 }
@@ -178,7 +178,7 @@ function masterExecuteAction(action, slaveUrl, content, sessionCookie, withGiven
             var hostFile = process.env.XCE_CONFIG ?
                             process.env.XCE_CONFIG : defaultHostsFile;
             readHostsFromFile(hostFile)
-            .then(function(hosts, nodeIds) {
+            .then(function({hosts, nodeIds}) {
                 if (hosts.length === 0) {
                     retMsg = {
                         "status": httpStatus.NotFound,

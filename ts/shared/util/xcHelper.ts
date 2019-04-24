@@ -2429,15 +2429,15 @@ namespace xcHelper {
 
         if (table && table.backTableMeta) {
             let colMeta: object = changeColMetaToMap(table.backTableMeta.valueAttrs);
-            deferred.resolve(colMeta, true);
+            deferred.resolve({colMeta: colMeta, hasTableMeta: true});
         } else {
             XcalarGetTableMeta(tableName)
             .then(function(tableMeta) {
                 let colMeta: object = changeColMetaToMap(tableMeta.valueAttrs);
-                deferred.resolve(colMeta, true);
+                deferred.resolve({colMeta: colMeta, hasTableMeta: true});
             })
             .fail(function() {
-                deferred.resolve({}, false); // still resolve
+                deferred.resolve({colMeta: {}, hasTableMeta: false}); // still resolve
             });
         }
 
@@ -2478,11 +2478,12 @@ namespace xcHelper {
         const deferred: XDDeferred<object[]> = PromiseHelper.deferred();
         let def: XDPromise<any>;
         if (fakeApiCall) {
-            def = PromiseHelper.resolve({}, false);
+            def = PromiseHelper.resolve({colMeta: {}, hasTableMeta: false});
         } else {
             def = getColMetaHelper(tableName);
         }
-        def.then(function (colMeta, hasTableMeta) {
+        def.then(function (ret) {
+            const {colMeta, hasTableMeta} = ret;
             const res: object[] = keys.map((key) => {
                 const name: string = key.name;
                 const parsedName: PrefixColInfo = xcHelper.parsePrefixColName(name);

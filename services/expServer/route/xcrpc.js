@@ -90,7 +90,7 @@ router.post("/service/xce", function(req, res) {
     var reqBuf = Buffer.from(req.body.data, 'base64');
 
    serviceMgr.handleService(reqBuf)
-   .then(function(reqHandled, resp) {
+   .then(function({reqHandled, resp}) {
        if(!reqHandled) {
            return routeToXce(reqBuf, res);
        }

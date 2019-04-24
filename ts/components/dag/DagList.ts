@@ -652,7 +652,8 @@ class DagList extends Durable {
             }
             return DagTabUser.restore(dags);
         })
-        .then((dagTabs, metaNotMatch) => {
+        .then((ret) => {
+            const {dagTabs, metaNotMatch} = ret;
             userDagTabs = dagTabs;
             if (this._isHideSQLFolder()) {
                 userDagTabs = userDagTabs.filter((dagTab) => !this._isForSQLFolder(dagTab));
@@ -692,7 +693,8 @@ class DagList extends Durable {
             }
             return DagTabSQLFunc.restore(dags);
         })
-        .then((dagTabs, metaNotMatch) => {
+        .then((ret) => {
+            const {dagTabs, metaNotMatch} = ret;
             sqFuncDagTabs = dagTabs;
             sqFuncDagTabs.forEach((dagTab) => {
                 this._dags.set(dagTab.getId(), dagTab);

@@ -544,7 +544,8 @@ class SQLJoin {
             return SQLJoin.__groupbyForExistenceJoin(globalStruct,
                       joinNode, retLeft, retRight, cliArray, overwriteJoinType);
         })
-        .then(function(retLeft, retRight) {
+        .then(function(ret) {
+            const {retLeft, retRight} = ret;
             const lTableInfo: JoinTableInfo = {
                 columns: leftCols,
                 tableName: retLeft.newTableName,
@@ -804,11 +805,11 @@ class SQLJoin {
                                             colType: "DfUnknown"});
                     }
                 }
-                deferred.resolve(retLeft, ret);
+                deferred.resolve({retLeft: retLeft, retRight: ret});
             })
             .fail(deferred.reject);
         } else {
-            deferred.resolve(retLeft, retRight);
+            deferred.resolve({retLeft, retRight});
         }
         return deferred.promise();
     }
