@@ -130,7 +130,8 @@ TooltipTStr = {
     'Redo': 'Redo: <op>',
     'LowMemInTable': 'Warning! Cluster is low on memory for result set. Click this button to drop result sets.',
     'LowMemInDS': 'Warning! Cluster is low on memory for datasets/published tables. Please delete unused datasets/published tables.',
-    'LowMemByOthers': 'Current memory utilization by other cluster users is high. Work with an admin to free memory for your modeling.'
+    'LowMemByOthers': 'Current memory utilization by other cluster users is high. Work with an admin to free memory for your modeling.',
+    'TooltipNoWorkbook': 'A workbook must be opened in order to start a walkthrough'
 };
 
 CommonTxtTstr = {

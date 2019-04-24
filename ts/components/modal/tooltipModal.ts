@@ -38,8 +38,16 @@ class TooltipModal {
         let walkthroughs: {name: string, description: string}[] = TooltipWalkthroughs.getAvailableWalkthroughs();
         let $modalmain = this._getModal().find(".modalMain");
         $modalmain.empty();
-
+        let disable = "";
+        let disableTooltip = "";
         let html = "";
+
+        if (WorkbookManager.getActiveWKBK() == null) {
+            disable = 'xc-disabled';
+            disableTooltip =  'data-toggle="tooltip" data-placement="top" data-container="body" ' +
+                'data-original-title="' + TooltipTStr.TooltipNoWorkbook + '"';
+        }
+
         for( let i = 0; i < walkthroughs.length; i++ ) {
             let walkInfo = walkthroughs[i];
             html += '<div class="item">' +
@@ -53,9 +61,9 @@ class TooltipModal {
                     '</div>' +
                 '</div>' +
                 '<div class="rightPart">' +
-                    '<div class="buttonArea">' +
-                        '<button type="button" class="btn confirm focusable"' + 
-                        ' data-name="' + walkInfo.name + '">Start</button>' + 
+                    '<div class="buttonArea"' + disableTooltip + '>' +
+                        '<button type="button" class="btn confirm focusable ' + disable +'"' +
+                        ' data-name="' + walkInfo.name + '">Start</button>' +
                     '</div>' +
                 '</div>' +
             '</div>';
