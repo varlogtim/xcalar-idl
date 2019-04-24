@@ -95,7 +95,6 @@ namespace xcManager {
             setupOpPanels();
             // XXX TODO, hide these view in Dio
             JSONModal.setup();
-            AggModal.setup();
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
             window["ajv"] = new Ajv(); // json schema validator

@@ -518,7 +518,7 @@ window.Profile = (function($, Profile, d3) {
             // use gMinMode to aviod blink in open/close modal
             gMinModeOn = true;
             closeProfileModal();
-            AggModal.corrAgg(tableId, null, [colNum], colNum);
+            AggModal.Instance.corrAgg(tableId, null, [colNum], colNum);
             gMinModeOn = tmp;
         });
 

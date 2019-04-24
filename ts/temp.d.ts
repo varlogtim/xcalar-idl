@@ -734,7 +734,8 @@ declare enum StatusT {
     StatusIsDir,
     StatusAllFilesEmpty,
     StatusUdfModuleInUse,
-    StatusIO
+    StatusIO,
+    StatusXdfDivByZero
 }
 
 declare enum FunctionCategoryT {
@@ -954,16 +955,7 @@ declare namespace JSONModal {
     export function rehighlightTds($table: JQuery): void;
 }
 
-declare namespace AggModal {
-    export function setup(): void;
-    export function corrAgg(tableId: TableId, vertColNums?: number[], horColNums?: number[]): void;
-}
-
 declare namespace LicenseModal {
-    export function setup(): void;
-}
-
-declare namespace DSInfoModal {
     export function setup(): void;
 }
 
@@ -985,11 +977,6 @@ declare namespace JupyterFinalizeModal {
 declare namespace FileListModal {
     export function setup(): void;
     export function show(dsId: string, dsName: string, hasFileError: boolean): void;
-}
-
-declare namespace DSImportErrorModal {
-    export function setup(): void;
-    export function show(dsId: string, numTotalErrors: number, isRecordError: boolean): void
 }
 
 declare namespace MonitorLog {

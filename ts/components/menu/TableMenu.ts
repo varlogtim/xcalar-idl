@@ -187,7 +187,7 @@ class TableMenu extends AbstractMenu {
                 return;
             }
             const tableId: TableId = $tableMenu.data('tableId');
-            AggModal.corrAgg(tableId);
+            AggModal.Instance.corrAgg(tableId);
         });
 
         $tableMenu.on('mouseup', '.jupyterTable', (event) => {

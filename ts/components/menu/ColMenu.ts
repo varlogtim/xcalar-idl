@@ -164,7 +164,7 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data('colNums');
             const tableId: TableId = $colMenu.data('tableId');
-            AggModal.corrAgg(tableId, colNums, colNums);
+            AggModal.Instance.corrAgg(tableId, colNums, colNums);
         });
 
         $colMenu.on('mouseup', '.join', (event) => {

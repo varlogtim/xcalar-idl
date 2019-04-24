@@ -1,4 +1,4 @@
-describe("Agg Modal Test", function() {
+describe("AggModal Test", function() {
     var $aggModal;
     var $quickAgg;
     var $corr;
@@ -7,7 +7,7 @@ describe("Agg Modal Test", function() {
     var dsName, tableName, tableId;
 
     before(function(done){
-        console.log("Agg Modal Test");
+        console.log("AggModal Test");
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
@@ -33,7 +33,7 @@ describe("Agg Modal Test", function() {
     describe("Html Generating Function Test", function() {
         it("getRowLabelHTML should work", function() {
             var ops = ["op1", "op2"];
-            var html = AggModal.__testOnly__.getRowLabelHTML(ops);
+            var html = AggModal.Instance._getRowLabelHTML(ops);
             var $rowLabels = $(html).find(".rowLabel");
             expect($rowLabels.length).to.equal(2);
             expect($rowLabels.eq(0).text()).to.equal("op1");
@@ -42,7 +42,7 @@ describe("Agg Modal Test", function() {
 
         it("getColLabelHTML should work", function() {
             var labels = [{colName: "label1", prefix: "a"}, {colName: "label2", prefix: "a"}];
-            var html = AggModal.__testOnly__.getColLabelHTML(labels);
+            var html = AggModal.Instance._getColLabelHTML(labels);
             var $container = $('<div>' + html + '</div>');
             expect($container.find(".padding").length).to.equal(1);
             var $colLabels = $container.find(".colLabel");
@@ -57,15 +57,15 @@ describe("Agg Modal Test", function() {
         var aggColLen = 2;
 
         it("aggColsInitialize should work", function() {
-            AggModal.__testOnly__.aggColsInitialize(tableId);
-            var aggCols = AggModal.__testOnly__.getAggCols();
+            AggModal.Instance._aggColsInitialize(gTables[tableId]);
+            var aggCols = AggModal.Instance._aggCols;
             expect(aggCols).to.be.an('array');
             // schedule has 2 number col
             expect(aggCols.length).to.equal(aggColLen);
         });
 
         it("aggTableInitialize should work", function() {
-            AggModal.__testOnly__.aggTableInitialize();
+            AggModal.Instance._aggTableInitialize();
             // 2 rows + 1 blank label
             expect($quickAgg.find(".headerContainer .colLabel").length)
             .to.equal(aggColLen + 1);
@@ -78,7 +78,7 @@ describe("Agg Modal Test", function() {
         });
 
         it("corrTableInitialize should work", function() {
-            AggModal.__testOnly__.corrTableInitialize();
+            AggModal.Instance._corrTableInitialize();
             // 2 rows + 1 blank label
             expect($corr.find(".headerContainer .colLabel").length)
             .to.equal(aggColLen + 1);
@@ -91,7 +91,7 @@ describe("Agg Modal Test", function() {
         });
 
         it("getCorrCell should work", function() {
-            var res = AggModal.__testOnly__.getCorrCell(0, 1);
+            var res = AggModal.Instance._getCorrCell(0, 1);
             expect(res).to.be.an("array");
             expect(res.length).to.equal(3);
 
@@ -105,7 +105,7 @@ describe("Agg Modal Test", function() {
             expect(res[2]).to.equal(false);
 
             // case 2
-            res = AggModal.__testOnly__.getCorrCell(0, 0);
+            res = AggModal.Instance._getCorrCell(0, 0);
             $cell = res[0];
             $cell2 = res[1];
             expect($cell.data("col")).to.equal(0);
@@ -117,35 +117,35 @@ describe("Agg Modal Test", function() {
         });
 
         it("highlightLabel should work", function() {
-            AggModal.__testOnly__.highlightLabel(0, 0);
+            AggModal.Instance._highlightLabel(0, 0);
             expect($corr.find(".rowLabel.active").length).to.equal(1);
             expect($corr.find(".colLabel.active").length).to.equal(1);
         });
 
         it("deHighlightLabel should work", function() {
-            AggModal.__testOnly__.deHighlightLabel(0, 0);
+            AggModal.Instance._deHighlightLabel(0, 0);
             expect($corr.find(".rowLabel.active").length).to.equal(0);
             expect($corr.find(".colLabel.active").length).to.equal(0);
         });
 
         it("checkDupCols should work", function() {
             // bacis case
-            var res = AggModal.__testOnly__.checkDupCols(0);
+            var res = AggModal.Instance._checkDupCols(0);
             expect(res).to.be.an("array");
             expect(res.length).to.equal(0);
             // dup case
-            var aggCols = AggModal.__testOnly__.getAggCols();
+            var aggCols = AggModal.Instance._aggCols;
             // make a dup
             aggCols[2] = aggCols[0];
-            res = AggModal.__testOnly__.checkDupCols(0);
+            res = AggModal.Instance._checkDupCols(0);
             expect(res.length).to.equal(1);
 
             aggCols.slice(2, 1);
         });
 
         it("applyCorrResult should work", function() {
-            AggModal.__testOnly__.applyCorrResult(0, 1, 1, []);
-            var cells = AggModal.__testOnly__.getCorrCell(0, 1);
+            AggModal.Instance._applyCorrResult(0, 1, 1, []);
+            var cells = AggModal.Instance._getCorrCell(0, 1);
             var $cell = cells[0];
             expect($cell.text()).to.equal("1.000");
         });
@@ -162,8 +162,8 @@ describe("Agg Modal Test", function() {
             };
         });
 
-        it("AggModal.quickAgg should fail when has error", function(done) {
-            AggModal.quickAgg(tableId)
+        it("AggModal.Instance.quickAgg should fail when has error", function(done) {
+            AggModal.Instance.quickAgg(tableId)
             .then(function() {
                 // will still resolve the case
                 expect($quickAgg.find(".dash").length).to.be.at.least(1);
@@ -174,8 +174,8 @@ describe("Agg Modal Test", function() {
             });
         });
 
-        it("AggModal.corrAgg should fail when has error", function(done) {
-            AggModal.corrAgg(tableId, null, null, 0)
+        it("AggModal.Instance.corrAgg should fail when has error", function(done) {
+            AggModal.Instance.corrAgg(tableId, null, null, 0)
             .then(function() {
                 // will still resolve the case
                 expect($corr.find(".dash").length).to.be.at.least(1);
@@ -195,8 +195,8 @@ describe("Agg Modal Test", function() {
     describe("Agg Behavior Test", function() {
         var aggColLen = 2;
 
-        it("AggModal.quickAgg should work", function(done) {
-            AggModal.quickAgg(tableId)
+        it("AggModal.Instance.quickAgg should work", function(done) {
+            AggModal.Instance.quickAgg(tableId)
             .then(function() {
                 // 2 rows
                 expect($quickAgg.find(".aggContainer .aggCol").length)
@@ -235,8 +235,8 @@ describe("Agg Modal Test", function() {
             }, 500);
         });
 
-        it("AggModal.corrAgg should work", function(done) {
-            AggModal.corrAgg(tableId)
+        it("AggModal.Instance.corrAgg should work", function(done) {
+            AggModal.Instance.corrAgg(tableId)
             .then(function() {
                 // 2 rows
                 expect($corr.find(".aggContainer .aggCol").length)
@@ -320,7 +320,7 @@ describe("Agg Modal Test", function() {
                 test = true;
             };
 
-            AggModal.quickAgg(tableId)
+            AggModal.Instance.quickAgg(tableId)
             .then(function() {
                 assert.isTrue($aggModal.is(":visible"));
 

@@ -162,9 +162,9 @@ describe('TableMenu Test', function() {
             });
 
             it('corrAgg', function() {
-                var cachedFunc = AggModal.corrAgg;
+                var cachedFunc = AggModal.Instance.corrAgg;
                 var called = false;
-                AggModal.corrAgg = function(tId) {
+                AggModal.Instance.corrAgg = function(tId) {
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -175,7 +175,7 @@ describe('TableMenu Test', function() {
                 $tableMenu.find('.corrAgg').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                AggModal.corrAgg = cachedFunc;
+                AggModal.Instance.corrAgg = cachedFunc;
             });
 
             describe("advanced", function() {
@@ -756,9 +756,9 @@ describe('TableMenu Test', function() {
             });
 
             it("corrAgg", function() {
-                var cachedFunc = AggModal.corrAgg;
+                var cachedFunc = AggModal.Instance.corrAgg;
                 var called = false;
-                AggModal.corrAgg = function(tId, vertColNums, horColNums) {
+                AggModal.Instance.corrAgg = function(tId, vertColNums, horColNums) {
                     expect(tId).to.equal(tableId);
                     expect(vertColNums.length).to.equal(1);
                     expect(vertColNums[0]).to.equal(12);
@@ -771,7 +771,7 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.corrAgg').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                AggModal.corrAgg = cachedFunc;
+                AggModal.Instance.corrAgg = cachedFunc;
             });
 
             it('textAlign', function() {

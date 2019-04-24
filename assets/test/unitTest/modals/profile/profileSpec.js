@@ -660,16 +660,16 @@ describe.skip("Profile-Profile Test", function() {
         });
 
         it("should click to go to corr modal", function() {
-            var oldCorr = AggModal.corrAgg;
+            var oldCorr = AggModal.Instance.corrAgg;
             var test = false;
-            AggModal.corrAgg = function() {
+            AggModal.Instance.corrAgg = function() {
                 test = true;
             };
 
             $("#profile-corr").click();
             expect(test).to.be.true;
             assert.isFalse($modal.is(":visible"));
-            AggModal.corrAgg = oldCorr;
+            AggModal.Instance.corrAgg = oldCorr;
         });
     });
 
