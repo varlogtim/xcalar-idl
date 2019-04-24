@@ -801,6 +801,11 @@ class DagGraphExecutor {
                         let destTable: string = this._dagIdToDestTableMap[nodeId];
                         node.setTable(destTable);
                         DagTblManager.Instance.addTable(destTable);
+                        const tabId: string = this._graph.getTabId();
+                        const tab: DagTab = DagServiceFactory.getDagListService().getDagTabById(tabId);
+                        if (tab != null) {
+                            tab.save(); // save destTable to node
+                        }
                     }
                      // step execute mode does not have dagIdToTableNamesMap
                     if (this._dagIdToTableNamesMap[nodeId]) {
