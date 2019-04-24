@@ -73,6 +73,8 @@ export function connect(hostname: string, username?: string, id?: number):
         setupThrift(hostname);
         Admin.addNewUser(username);
     }
+    const url = "https://" + hostname + "/app/service/xce";
+    Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, url);
     return XcalarGetVersion();
 };
 

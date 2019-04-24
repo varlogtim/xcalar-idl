@@ -1,4 +1,5 @@
 var SqlUtil = {};
+global.Xcrpc = Xcrpc = require('xcalarsdk');
 global.Thrift = Thrift = require("../../../assets/js/thrift/thrift.js").Thrift;
 global.hackFunction = require("./hackFunction.js").hackFunction
 

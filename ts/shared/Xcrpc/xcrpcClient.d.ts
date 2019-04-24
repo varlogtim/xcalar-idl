@@ -34,6 +34,11 @@ declare module 'xcalar' {
         update(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): XDPromise<void>;
         delete(request: proto.xcalar.compute.localtypes.UDF.DeleteRequest): XDPromise<void>;
     }
+    export class PublishedTableService {
+        constructor(client: XceClient)
+        select(request: proto.xcalar.compute.localtypes.PublishedTable.SelectRequest): Promise<proto.xcalar.compute.localtypes.PublishedTable.SelectResponse>;
+        listTables(request: proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest): Promise<proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse>;
+    }
 }
 // === Service definitions: End ===
 
@@ -127,6 +132,102 @@ declare namespace proto.xcalar.compute.localtypes {
             getMillisecondsElapsed(): number;
             getState(): string;
         }
+    }
+
+    export namespace PublishedTable {
+        export class SelectRequest {
+            setSource(value: string): void;
+            setDest(value: string): void;
+            setMinBatchId(value: number): void;
+            setMaxBatchId(value: number): void;
+            setFilterString(value: string): void;
+            setMapsList(value: Operator.XcalarApiEval[]): void;
+            setGroupbysList(value: Operator.XcalarApiEval[]): void;
+            setGroupkeysList(value: string[]): void;
+            setColumnsList(value: Operator.XcalarApiColumn[]): void;
+        }
+
+        export class SelectResponse {
+            getTableName(): string;
+        }
+
+        export class ListTablesRequest {
+            setNamePattern(value: string): void;
+            setUpdateStartBatchId(value: number): void;
+            setMaxUpdateCount(value: number): void;
+            setMaxSelectCount(value: number): void;
+        }
+
+        export class ListTablesResponse {
+            getTablesList(): Array<ListTablesResponse.TableInfo>
+        }
+
+        export namespace ListTablesResponse {
+            export class UpdateInfo {
+                getSrcTableName(): string;
+                getBatchId(): number;
+                getStartTs(): number;
+                getNumRows(): number;
+                getNumInserts(): number;
+                getNumUpdates(): number;
+                getNumDeletes(): number;
+                getSize(): number;
+            }
+
+            export class SelectInfo {
+                getDstTableName(): string;
+                getMinBatchId(): number;
+                getMaxBatchId(): number;
+            }
+
+            export class IndexInfo {
+                getKey(): ColumnAttribute.ColumnAttributeProto;
+                getUptimeMs(): number;
+                getSizeEstimate(): number;
+            }
+
+            export class TableInfo {
+                getName(): string;
+                getNumPersistedUpdates(): number;
+                getSizeTotal(): number;
+                getNumRowsTotal(): number;
+                getOldestBatchId(): number;
+                getNextBatchId(): number;
+                getSrcTableName(): string;
+                getActive(): boolean;
+                getRestoring(): boolean;
+                getUserIdName(): string;
+                getSessionName(): string;
+                getKeysList(): Array<ColumnAttribute.ColumnAttributeProto>;
+                getValuesList(): Array<ColumnAttribute.ColumnAttributeProto>;
+                getUpdatesList(): Array<UpdateInfo>;
+                getSelectsList(): Array<SelectInfo>;
+                getIndexesList(): Array<IndexInfo>;
+            }
+        }
+    }
+
+    export namespace ColumnAttribute {
+        export class ColumnAttributeProto {
+            getName(): string;
+            getType(): string;
+            getValueArrayIdx(): number;
+        }
+
+    }
+
+    export namespace Operator {
+        export class XcalarApiEval {
+            setEvalString(value: string): void;
+            setNewField(value: string): void;
+        }
+
+        export class XcalarApiColumn {
+            setSourceColumn(value: string): void;
+            setDestColumn(value: string): void;
+            setColumnType(value: string): void;
+        }
+
     }
 }
 

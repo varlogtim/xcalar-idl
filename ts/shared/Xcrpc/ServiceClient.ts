@@ -3,6 +3,7 @@ import { KVStoreService } from './KVStore/KVStoreService';
 import { LicenseService } from './License/LicenseService';
 import { QueryService } from './Query/QueryService';
 import { UDFService} from './UDF/UDFService';
+import { PublishedTableService } from './PublishedTable/PublishedTableService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -17,6 +18,10 @@ class ServiceClient {
 
     public getLicenseService(): LicenseService {
         return new LicenseService(this._apiClient);
+    }
+
+    public getPublishedTableService(): PublishedTableService {
+        return new PublishedTableService(this._apiClient);
     }
 
     public getQueryService(): QueryService {

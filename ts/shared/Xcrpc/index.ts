@@ -21,3 +21,5 @@ import * as License from './License/LicenseService';
 export { License };
 import * as Query from './Query/QueryService';
 export { Query };
+import * as PublishedTable from './PublishedTable/PublishedTableService';
+export { PublishedTable };

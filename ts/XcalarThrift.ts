@@ -5378,23 +5378,10 @@ XcalarListPublishedTables = function(
     getSelects: boolean = true,
     getUpdates: boolean = true,
     updateStartBatchId: number = -1
-): XDPromise<XcalarApiListTablesOutputT> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
-    const deferred: XDDeferred<XcalarApiListTablesOutputT> = PromiseHelper.deferred();
-    // Note that the arguments are not in the same order. This is deliberate for
-    // programmer UX.
-    xcalarListPublishedTables(tHandle, pubPatternMatch, getUpdates,
-        updateStartBatchId, getSelects)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarListPublishedTables", error);
-        deferred.reject(thriftError);
-    });
-
-    return deferred.promise();
+): XDPromise<Xcrpc.PublishedTable.listTableOutput> {
+    const promise = Xcrpc.getClient("DEFAULT").getPublishedTableService().listTables(
+        {patternStr:pubPatternMatch, updateStartBatchId: updateStartBatchId, getUpdates:getUpdates, getSelects:getSelects})
+    return PromiseHelper.convertToJQuery(promise)
 };
 
 XcalarUnpublishTable = function(
