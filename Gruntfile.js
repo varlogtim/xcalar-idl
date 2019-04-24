@@ -842,7 +842,6 @@ for (var product of Object.keys(productTypes)) {
     /**
         exclude the files specified for removal in the individual file type builders
     */
-DONT_RSYNC = DONT_RSYNC.concat(constructorMapping.remove.map(x => constructorMapping.src + x));
 // code line above prepends .src attr to each el in .remove list, to obtain path rel to SRCROOT (.src rel to SRCROOT, .remove els rel to .src)
 DONT_RSYNC = DONT_RSYNC.concat(cssMapping.remove.map(x => cssMapping.src + x));
 DONT_RSYNC = DONT_RSYNC.concat(htmlMapping.remove.map(x => htmlMapping.src + x));
@@ -1100,17 +1099,6 @@ module.exports = function(grunt) {
                 dest: BLDROOT + helpContentMapping.src, // confusing naming, it's src because this is the src of where the relative files should be
                     // required generating the actual helep content. hence, why we are creating it now; this target is setting up for that process.
             },
-            /**
-                front-end developers develop the constructor files within their git repo, in constructorMapping.src
-                In the final build, these files need to be in constructorMapping.dest.
-            */
-            constructorFiles: {
-                options: {},
-                cwd: SRCROOT + constructorMapping.src,
-                src: "*", // get ALL files at and nested within cwd.  THey will all be paths relative to cwd (retaining dir structure)
-                expand: true, // allows 'src' arg to be dynamically populated (so will fail without, if you're supplying a glob to 'src')
-                dest: BLDROOT + constructorMapping.dest,
-            },
 
             /**
                 This target being used by watch tasks,
@@ -1161,7 +1149,7 @@ module.exports = function(grunt) {
                     expand: true,
                     flatten: true,
                     src: [
-                        BLDROOT + "assets/js/idl/Durable.js",
+                        BLDROOT + "assets/js/xd_idl/Durable.js",
                         BLDROOT + "assets/js/shared/util/XcUID.js",
                         BLDROOT + "assets/js/shared/setup/enums.js",
                         BLDROOT + "assets/js/components/worksheet/XDFService.js",
@@ -2465,40 +2453,15 @@ module.exports = function(grunt) {
 
         [[constructor file contains a series of constructors,
         which use direct inheritance infrastructure to represent XD metadata]]
-
-        There are two directories used for the purpose of constructor files.
-        1. assets/js/constructor/xcalar-idl/xd/
-            This is the submodule of the xcalar-gui project
-            used to check files in to git repo.
-        2. assets/js/constructor
-            This is the dir where the build will actually use the files from.
-        So for any of the constructor files you'd want to check in to git
-        repo, initially put them in 1, and for those which you only care about the bld using it,
-        (ex., A_construcotr_version which just displays info on the GUI about
-        the build version), put them in to 2.
-        And once everything is done, copy all the constructor files in 1., in to 2.
-
-
     */
     grunt.task.registerTask("constructor_files", "Generate additional js constructor file(s) for the build", function() {
-        grunt.log.debug("Schedule tasks to Autogen constructor files,"
-            + " then copy the auto-generated constructor files, from:\n"
-            + grunt.config('copy.constructorFiles.cwd')
-            + " to:\n"
-            + grunt.config('copy.constructorFiles.dest'));
+        grunt.log.debug("Schedule tasks to Autogen constructor files");
 
-        grunt.task.run("generate_curr_pers_constructor_file");
         // next constructor file is only to show info about the bld to users.
         // devs don't need in their build, and if you auto-gen it, it will
         // cause it to show up in their 'git status', so skip for dev blds
         if (BLDTYPE != DEV && !isWatchEventProcessing()) {
             grunt.task.run("generate_git_var_dec_file");
-        }
-        // copy all constructor files from the xcalar-idl/xd submodule, in to constructor dir used by bld
-        grunt.task.run('copy:constructorFiles');
-
-        if (!KEEPSRC && SRCROOT != BLDROOT) {
-            grunt.task.run("clean_constructor_src");
         }
     });
 
@@ -2508,11 +2471,6 @@ module.exports = function(grunt) {
             Does this by calling variables that (should) hold that data.
             This task creates a central file that decalares and instantiates these variables
             within project scope.
-        This file is auto-generated, and is unique for each build you run;
-        it is not a file you'd ever want to check in to git therefore it will NOT
-        go in to the assets/js/constructor/xcalar-idl/xd/ directory (constructorMapping.dest)
-        where the other constructor files are going, but rather should go directly in to
-        the build constructor directory.
         Similarly, for dev builds we don't want to generate this file.  Because 1. developers
         won't use it and 2. if it's generated, it will show up as a new file in their
         workspace under 'git status' requiring them to delete it
@@ -2533,54 +2491,6 @@ module.exports = function(grunt) {
         }
 
         writeAutoGeneratedFile(filepath, content); // tacks a standard autogen comment and logs before writing file
-
-    });
-
-    /**
-         auto-gens: E_persConstructor.js
-         context:
-    */
-    grunt.task.registerTask("generate_curr_pers_constructor_file", function() {
-
-        // path of file to auto generate
-        var filepath = SRCROOT + constructorMapping.src + "E_persConstructor.js";
-
-        var templateSrc = "site/render/template/constructor.template.js"; // templating file to use to generate
-        var templateFilepathAbs = SRCROOT + templateSrc;
-
-        var str = fs.readFileSync(templateFilepathAbs).toString();
-        var template = _.template(str);
-        var parsedStr = template({
-            "version": null,
-            "isCurCtor": true,
-        });
-        parsedStr = parsedStr.trim() + "\n";
-
-        writeAutoGeneratedFile(filepath, parsedStr);
-    });
-
-    /** remove files/dirs unneeded needed only for generating constructor files */
-    grunt.registerTask("clean_constructor_src", "There are some files required to gerneate the constructor files.  You can remove them when done.", function() {
-
-        grunt.log.writeln(("\nDelete files/dirs necessary for generating constructor files, now that they have been generated\n").bold);
-
-        /**
-           front-end developers develop the constructor files within their git repo, in constructorMapping.src
-            In the final build, these files need to be in constructorMapping.dest.
-            Doing this with cp instead of mv, so that in case src and dest dir are same, won't disrupt.
-            So, once the constructor tasks are complete, now you want to delete the src
-        */
-        var constructorSrcFull = BLDROOT + constructorMapping.src;
-        grunt.log.writeln("Delete src folder for constructor files: " + constructorSrcFull);
-        grunt.file.delete(constructorSrcFull);
-
-        // now dleete anything required but not needed in final bld
-        for (var requiredItem of constructorMapping.required) {
-            fullPath = BLDROOT + requiredItem;
-            grunt.log.write("Delete file/dir " + fullPath + " ... ");
-            grunt.file.delete(fullPath);
-            grunt.log.ok();
-        }
 
     });
 
@@ -5906,7 +5816,7 @@ module.exports = function(grunt) {
     function validateProjectSource() {
 
         // make sure xcalar-infra submodule present
-        xcalaridlpath = SRCROOT + 'assets/js/constructor/xcalar-idl/';
+        xcalaridlpath = SRCROOT + 'ts/xd_idl/';
         submoduleerr = "Try running 'git submodule update --init' within " +
             SRCROOT +
             ", and then re-running the build.\n\n" +
