@@ -426,7 +426,8 @@ class DSTable {
             QueryManager.cancelDS(txId);
         });
 
-        $("#showFileListBtn").click(() => {
+        $("#showFileListBtn").click((event) => {
+            $(event.currentTarget).blur();
             let dsId = this._getPreviewDSId();
             let dsObj = DS.getDSObj(dsId);
             let isFileError : boolean = false;

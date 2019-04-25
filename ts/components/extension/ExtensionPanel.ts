@@ -47,8 +47,10 @@ class ExtensionPanel {
         });
 
         let $panel = this._getPanel();
-        $panel.on("click", ".item .more", function() {
-            $(this).closest(".item").toggleClass("fullSize");
+        $panel.on("click", ".item .more", (event) => {
+            let $button = $(event.currentTarget);
+            $button.blur();
+            $button.closest(".item").toggleClass("fullSize");
         });
 
         $panel.on("click", ".item .install", (event) => {
@@ -457,7 +459,7 @@ class ExtensionPanel {
             let websiteEle: HTML = "";
 
             if (ext.isInstalled()) {
-                btnClass = "installed";
+                btnClass = "btn-submit installed";
                 btnText = ExtTStr.Installed;
             } else {
                 btnClass = "btn-submit";
@@ -499,7 +501,7 @@ class ExtensionPanel {
                                 '<button class="btn install ' + btnClass + '">' +
                                     btnText +
                                 '</button>' +
-                                '<button class="btn btn-next more">' +
+                                '<button class="btn btn-secondary more">' +
                                     '<span class="moreText">' +
                                         ExtTStr.More +
                                     '</span>' +

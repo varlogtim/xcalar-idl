@@ -313,7 +313,6 @@
     border-radius: 4px;
 
     &:hover, &:focus {
-        // background-color: darken(@color-bg-cardHeader, 5%);
         opacity: 0.65;
     }
 
@@ -336,47 +335,6 @@
     }
 }
 
-.btn-submit {
-    background-color: @color-bg-green-submit;
-    &:hover, &:focus {
-        opacity: 1;
-        background-color: @color-bg-green-submit-hover;
-    }
-
-    &:active {
-        opacity: 1;
-        background-color: @color-bg-green-submit;
-        box-shadow: inset 0 0.5px 3px 0 rgba(0, 0, 0, 0.39);
-    }
-}
-
-.btn-next {
-    background-color: @color-white;
-    color: @color-bg-green-submit;
-    border: 1px solid;
-
-    // &:hover, &:focus {
-    //     background-color: @color-white;
-    //     color: darken(@color-bg-green-submit, 5%);
-    // }
-}
-
-.btn-transparent {
-    background-color: transparent;
-    opacity: @opacity-unhover;
-    color: @color-bg-select-blue;
-    border: 1px solid @color-bg-select-blue;
-
-    // &:hover, &:focus {
-    //     opacity: @opacity-hover;
-    //     background-color: transparent;
-    // }
-
-    &:focus {
-        outline: none;
-    }
-}
-
 .btn-small {
     .size(30px, 30px);
     line-height: 30px;
@@ -388,54 +346,39 @@
     }
 }
 
-.btn-icon {
-    .size(30px, 30px);
-    .noSelection;
-    display: inline-block;
-    background-color: transparent;
-    outline: 0;
-    opacity: @opacity-unhover;
-    padding: 0;
-    border: 0;
-    cursor: pointer;
-
-    .icon {
-        .font(@size: 18px, @color: @color-font-warm-grey-two);
-    }
-
-    &:hover, &:focus {
-        background-color: @color-bg-white-two;
-        opacity: @opacity-hover;
-    }
-
-    &:active {
-        border: 1px solid rgba(0, 0, 0, 0.1);
-    }
-}
-
 .btn-large {
     .size(@width: 230px);
 }
 
-.btn-cancel, .btn-secondary {
+.btn-submit {
+    background-color: @color-bg-green-submit;
+    &:hover, &:focus {
+        opacity: 1;
+        background-color: @color-bg-green-submit-hover;
+    }
+
+    &:active {
+        opacity: 1;
+        background-color: @color-bg-green-submit-hover;
+        box-shadow: inset 0 0.5px 3px 0 rgba(0, 0, 0, 0.39);
+    }
+}
+
+.btn-next {
+    .btn-submit;
+}
+
+.btn-next-secondary {
     background-color: @color-white;
     color: @color-bg-green-submit;
     border: 1px solid;
 
-    &.iconBtn {
-        .icon {
-            color: @color-bg-green-submit; 
-        }
-    }
-
-    &:active {
-        box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.1);
-    }
+    // &:hover, &:focus {
+    //     background-color: @color-white;
+    //     color: darken(@color-bg-green-submit, 5%);
+    // }
 }
 
-.btn-back {
-    .btn-cancel;
-}
 
 .btn-clear {
     background-color: @color-white;
@@ -451,17 +394,21 @@
 
     &:hover, &:focus, &:active {
         background-color: @color-bg-cancel-gray-hover;
-        color: @color-font-form-gray;
+        color: @color-white;
         border-color: @color-bg-cancel-gray-hover;
 
         .icon {
-            color: @color-font-form-gray;
+            color: @color-white;
         }
     }
 
     &:active {
         box-shadow: inset 0 0.5px 3px 0 rgba(0, 0, 0, 0.43);
     }
+}
+
+.btn-cancel, .btn-secondary, .btn-back  {
+    .btn-clear;
 }
 
 .btn-disabled {

@@ -720,6 +720,28 @@ body {
 
 #userNameArea {
     margin-left: 5px;
+    .size(30px, 30px);
+    .noSelection;
+    display: inline-block;
+    background-color: transparent;
+    outline: 0;
+    opacity: @opacity-unhover;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+
+    .icon {
+        .font(@size: 18px, @color: @color-font-warm-grey-two);
+    }
+
+    &:hover, &:focus {
+        background-color: @color-bg-white-two;
+        opacity: @opacity-hover;
+    }
+
+    &:active {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
 }
 
 #userMenu {

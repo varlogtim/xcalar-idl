@@ -26,7 +26,9 @@ class TutorialPanel {
         }
 
         this._$panel.on("click", ".item .more", function() {
-            $(this).closest(".item").toggleClass("fullSize");
+            let $button = $(this);
+            $button.blur();
+            $button.closest(".item").toggleClass("fullSize");
         });
 
         this._$panel.on("click", ".item .download", function() {
@@ -255,10 +257,10 @@ class TutorialPanel {
                         '</div>'+
                         '<div class="rightPart">' +
                             '<div class="buttonArea">' +
-                                '<button class="btn install ' + btnClass + '">' +
+                                '<button class="btn btn-submit install ' + btnClass + '">' +
                                     btnText +
                                 '</button>' +
-                                '<button class="btn btn-next more">' +
+                                '<button class="btn btn-secondary more">' +
                                     '<span class="moreText">' +
                                         ExtTStr.More +
                                     '</span>' +
