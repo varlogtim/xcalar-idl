@@ -100,7 +100,7 @@
         }
 
         .vertBar {
-            width: 70px;
+            width: 43px;
         }
 
         .content {
@@ -129,7 +129,7 @@
         }
     }
     .box-large {
-        .size(350px, 250px);
+        .size(350px, 300px);
         .flex(1 0 350px);
         margin-right: 10px;
         margin-bottom: 10px;
@@ -281,26 +281,28 @@
 
     .tutBox {
         .helpText {
-            color: @color-font-select-blue;
+            color: #44515c;
             margin-top: 2px;
-            margin-left: 5px;
+            font-size: 14px;
             a {
-                color: @color-font-select-blue;
                 text-decoration: none;
                 &:hover {
                     text-decoration: underline;
+                }
+
+                &:visited {
+                    color: #44515c;
                 }
             }
         }
 
         .tutBlock {
-            .size(~"calc(100% - 5px)", 45px);
-            line-height: 45px;
-            border: 1px solid @color-border-white-five;
-            margin-top: 6px;
-            margin-left: 5px;
+            .size(100%, 55px);
+            line-height: 55px;
+            margin-top: 15px;
             .noSelection;
             cursor: pointer;
+            border: 1px solid @color-bg-topBarGray2;
 
             a {
                 color: @color-font-form-gray !important;
@@ -308,24 +310,24 @@
             }
 
             &:hover {
-                border: 1px solid @color-bg-white-nine;
-                .tutBtn {
-                    background-color: @color-bg-white-nine;
-                }
+                background-color: @color-bg-topBarGray2;
             }
         }
         .tutBtn {
             float: left;
             .size(45px, 100%);
-            background-color: @color-bg-white-five;
             text-align: center;
             .icon {
-                color: @color-black;
-                font-size: 24px;
-                line-height: 45px;
+                color: @color-font-edge;
+                font-size: 30px;
+                &.xi-videocam {
+                    font-size: 20px;
+                }
+                line-height: 55px;
             }
         }
         .tutText {
+            font-size: 14px;
             float: left;
             .size(~"calc(100% - 45px)", 100%);
             padding-left: 10px;

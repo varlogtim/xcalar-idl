@@ -25,50 +25,35 @@
             </div>
           </div>
         </div>
-        <div class="box box-large newsBox">
+        <div class="box box-large tutBox">
           <div class="leftBar vertBar"></div>
           <div class="content">
             <div class="innerContent">
               <section class="section">
-                <div class="subHeading"><%= dicts.workbook.news %></div>
-                <div class="description">
-                  <ul>
-                    <li>
-                      <a href="https://discourse.xcalar.com/c/news" target="_blank">
-                        <%= dicts.workbook.visit %> Xcalar.com
-                      </a>
-                    </li>
-                  </ul>
+                <div class="subHeading"><%= dicts.common.Learn %></div>
+                <div class="helpText">
+                  Learn more about Xcalar Design
                 </div>
-              </section>
-              <section class="section">
-                <div class="subHeading"><%= dicts.common.Help %></div>
-                <div class="description">
-                  <ul>
-                    <li>
-                      <a href="<%= dicts.paths.helpUserDocs %>" target="xchelp"><%= dicts.workbook.viewNewHelpDoc %></a>
-                    </li>
-                     <!-- INTRO TUTORIALS -->
-                    <!--
-                      <li id="workbookWT" class="walkthrough">
-                      <span><%= dicts.bottomMenu.wkbkTutor %></span>
-                    </li>
-                    Restore when walkthroughs are supported again
-                    -->
-                    <li id="tutorialWorkbookMarketplace" class="walkthrough">
-                        <span><%= dicts.bottomMenu.tutorialWorkbooks %></span>
-                    </li>
-                    <!-- <li id="datastoreWT1" class="walkthrough">
-                     <span><%= dicts.bottomMenu.dsTutor1 %></span>
-                    </li>
-                    <li id="datastoreWT2" class="walkthrough">
-                     <span><%= dicts.bottomMenu.dsTutor2 %></span>
-                    </li> -->
-                  </ul>
+                <div class="tutBlock docsBtn">
+                  <div class="tutBtn">
+                    <i class="icon xi-worksheet"></i>
+                  </div>
+                  <div class="tutText"><%= dicts.workbook.relatedDocs %></div>
+                </div>
+                <div class="tutBlock tutorialBtn">
+                  <div class="tutBtn">
+                    <i class="icon xi-play-circle"></i>
+                  </div>
+                  <div class="tutText"><%= dicts.workbook.tutorialMarketplace %></div>
+                </div>
+                <div class="tutBlock tooltipBtn">
+                  <div class="tutBtn">
+                    <i class="icon xi-videocam"></i>
+                  </div>
+                  <div class="tutText"><%= dicts.workbook.tooltips %></div>
                 </div>
               </section>
             </div>
-            <hr>
           </div>
         </div>
         <div class="box box-large tutBox">
@@ -76,29 +61,21 @@
           <div class="content">
             <div class="innerContent">
               <section class="section">
-                <div class="subHeading"><%= dicts.workbook.Docs %></div>
-                <div class="helpText">
-                  <a href="<%= dicts.paths.helpUserDocs %>" target="xchelp"><%= dicts.workbook.learnMore %></a>
-                </div>
-                <div class="tutBlock">
-                  <a href="<%= dicts.paths.helpUserDocs %>" target="xchelp" >
-                    <div class="tutBtn">
-                      <i class="icon xi-worksheet"></i>
-                    </div>
-                    <div class="tutText"><%= dicts.workbook.relatedDocs %></div>
-                  </a>
-                </div>
-              </section>
-              <section class="section">
                 <div class="subHeading"><%= dicts.monitor.Monitor %></div>
                 <div class="helpText">
-                  <a href="" class="monitorLink"><%= dicts.workbook.monitorStatus %></a>
+                    <a href="" class="monitorLink"><%= dicts.workbook.monitorStatus %></a>
                 </div>
                 <div class="tutBlock monitorBtn">
                   <div class="tutBtn">
-                    <i class="icon xi-system2"></i>
+                    <i class="icon xi-menu-monitoring"></i>
                   </div>
                   <div class="tutText"><%= dicts.workbook.monitorClusterHealth %></div>
+                </div>
+              </section>
+              <section class="section">
+                <div class="subHeading"><%= dicts.common.News %></div>
+                <div class="helpText">
+                    <a href="<%= dicts.paths.news %>" target="_blank"><%= dicts.workbook.viewNews %></a>
                 </div>
               </section>
             </div>

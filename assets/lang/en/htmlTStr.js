@@ -62,6 +62,7 @@ module.exports = {
         "NA": "N/A",
         "Name": "Name",
         "New": "New",
+        "News": "News",
         "Next": "Next",
         "None": "None",
         "Null": "Null",
@@ -99,6 +100,8 @@ module.exports = {
         "Tables": "Tables",
         "TableMenu": "Menu",
         "Target": "Target",
+        "Tutorials": "Tutorials",
+        "Learn": "Learning Xcalar",
         "Type": "Type",
         "URL": "URL",
         "UserName": "User name",
@@ -112,7 +115,8 @@ module.exports = {
     "paths": {
         "tableau": "assets/htmlFiles/tableau.html",
         "helpUserDocs": "assets/help/user/Content/Home.htm",
-        "skewDoc": "assets/help/user/Content/D_Reference/C_WorksheetWindow.htm#Skew"
+        "skewDoc": "assets/help/user/Content/D_Reference/C_WorksheetWindow.htm#Skew",
+        "news": "https://xcalar.com/blog/"
     },
 
     "time": {
@@ -1196,16 +1200,19 @@ module.exports = {
         "hello": "Hello",
         "monitorStatus": "Monitor the status of your Xcalar Cluster",
         "monitorClusterHealth": "Monitor Cluster Health",
+        "tutorialMarketplace":"Tutorials To Get You Started",
+        "tooltips": "Step-by-Step Walkthroughs",
         "news": "News",
         "newWKBK": "New Workbook",
         "uploadWKBK": "Upload Workbook",
         "noActive": "No active worksheets. Please create one first.",
         "learnMore": "Learn more about " + bldVars.prodName,
-        "relatedDocs": "Related Help Docs",
+        "relatedDocs": "Xcalar Design Documentation",
         "walkthroughs": "Available Walkthroughs",
         "Docs": "Help Docs",
         "tuts": "Tutorials",
         "viewNewHelpDoc": "View our help documentation",
+        "viewNews": "View Xcalar's most recent announcements",
         "visit": "Visit",
         "welcomeXI": "Welcome to <b>" + bldVars.prodName + "</b>",
         "Wkbk": "Workbook",

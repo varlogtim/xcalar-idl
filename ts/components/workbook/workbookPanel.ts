@@ -321,15 +321,17 @@ namespace WorkbookPanel {
 
     function addTopbarEvents(): void {
         // Events for the top bar, welcome message, news, etc
-        // Welcome message listener
-        // News-Help listener
-        // Tutorial listener
 
-        $('#tutorialWorkbookMarketplace').click(function() {
-            $("#helpMenuTab").addClass("active");
+        $workbookTopbar.find(".tutorialBtn").click(function() {
+            HelpPanel.Instance.openHelpResource("tutorialResource");
+        });
 
-            $("#tutorialResource").addClass("active");
-            MainMenu.openPanel("helpPanel", "tutorialSettingButton");
+        $workbookTopbar.find(".tooltipBtn").click(function() {
+            HelpPanel.Instance.openHelpResource("tooltipResource");
+        });
+
+        $workbookTopbar.find(".docsBtn").click(function() {
+            HelpPanel.Instance.openHelpResource("docsResource");
         });
 
         // go to monitor panel

@@ -91,6 +91,51 @@ describe("Workbook Panel Test", function() {
             expect($("#container").hasClass("workbookMode")).to.be.true;
         });
 
+        it("Should access docs", function() {
+            var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
+            var called = false;
+
+            HelpPanel.Instance.openHelpResource = function(resource) {
+                if (resource == "docsResource") {
+                    called = true;
+                }
+                return;
+            }
+            $workbookPanel.find(".docsBtn").click();
+            expect(called).to.be.true;
+            HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
+        });
+
+        it("Should access tutorials", function() {
+            var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
+            var called = false;
+
+            HelpPanel.Instance.openHelpResource = function(resource) {
+                if (resource == "tutorialResource") {
+                    called = true;
+                }
+                return;
+            }
+            $workbookPanel.find(".tutorialBtn").click();
+            expect(called).to.be.true;
+            HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
+        });
+
+        it("Should access tooltips", function() {
+            var oldHelpPanelOpen = HelpPanel.Instance.openHelpResource;
+            var called = false;
+
+            HelpPanel.Instance.openHelpResource = function(resource) {
+                if (resource == "tooltipResource") {
+                    called = true;
+                }
+                return;
+            }
+            $workbookPanel.find(".tooltipBtn").click();
+            expect(called).to.be.true;
+            HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
+        });
+
         it("should mouseenter to triger tooltipoverflow", function() {
             var $div = $('<div class="tooltipOverflow"><input></div>');
             var $workbookSection = $workbookPanel.find(".bottomSection");
@@ -581,6 +626,14 @@ describe("Workbook Panel Test", function() {
         it("Should activate inactive workbook", function(done) {
             var oldGet = WorkbookManager.getActiveWKBK;
             var oldSwitch = WorkbookManager.switchWKBK;
+            var oldshow = StatusBox.show;
+            var statusShown = false;
+            StatusBox.show = function(errorText, $ele, bool) {
+                if (errorText == "test") {
+                    statusShown = true;
+                }
+                return;
+            }
             WorkbookManager.getActiveWKBK = function() {
                 return null;
             };
@@ -598,8 +651,9 @@ describe("Workbook Panel Test", function() {
             UnitTest.testFinish(function() {
                 return test === true;
             })
-            .then(function() {
-                UnitTest.hasStatusBoxWithError("test");
+            .then(() => {
+                StatusBox.show = oldshow;
+                expect(statusShown).to.be.true;
                 done();
             })
             .fail(function() {
