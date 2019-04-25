@@ -7,7 +7,6 @@ describe('JsonModal Test', function() {
     var tableId;
     var $table;
     var tabId;
-    var nodeId;
 
     before(function(done) {
         if (XVM.isSQLMode()) {
@@ -21,7 +20,6 @@ describe('JsonModal Test', function() {
             testDs = ds;
             tableName = tName;
             prefix = tPrefix;
-            nodeId = _nodeId;
             tabId = _tabId;
             $jsonModal = $('#jsonModal');
             $modal = $jsonModal;
@@ -34,7 +32,7 @@ describe('JsonModal Test', function() {
                 // unhide derived sorted column
                 gTables[tableId].hiddenSortCols = {};
                 $table = $('#xcTable-' + tableId);
-                JSONModal.show($table.find('.jsonElement').eq(0));
+                JSONModal.Instance.show($table.find('.jsonElement').eq(0));
                 // allow modal to fade in
                 setTimeout(function() {
                     done();
@@ -70,7 +68,7 @@ describe('JsonModal Test', function() {
         });
 
         it("getMissingImmediatesHtml should work", function() {
-            var html = JSONModal.__testOnly__.getMissingImmediatesHtml({
+            var html = JSONModal.Instance._getMissingImmediatesHtml({
                 "something": "string"
             });
             var $html = $(html);
@@ -117,7 +115,7 @@ describe('JsonModal Test', function() {
 
     describe('opening modal from td', function() {
         before(function(done) {
-            JSONModal.__testOnly__.closeJSONModal();
+            JSONModal.Instance._close();
             setTimeout(function() {
                 done();
             }, 100);
@@ -126,7 +124,7 @@ describe('JsonModal Test', function() {
         it('object in mixed col should work', function(done) {
             var $td = $table.find('.row0 .col11');
             $td.find('.originalData').html('{"a":"b"}');
-            JSONModal.show($td, {type: "mixed"});
+            JSONModal.Instance.show($td, {type: "mixed"});
             // allow modal to fade in
             setTimeout(function() {
                 expect($jsonModal.find('.jObject').length).to.equal(1);
@@ -134,7 +132,7 @@ describe('JsonModal Test', function() {
                 var text = $jsonModal.find('.prettyJson').text().replace(/[\s\n]/g, "");
                 expect(text).to.equal('{"a":"b"}');
 
-                JSONModal.__testOnly__.closeJSONModal();
+                JSONModal.Instance._close();
                 setTimeout(function() {
                     done();
                 }, 100);
@@ -144,7 +142,7 @@ describe('JsonModal Test', function() {
         it('array in mixed col should work', function(done) {
             var $td = $table.find('.row0 .col11');
             $td.find('.originalData').html('["a","b"]');
-            JSONModal.show($td, {type: "mixed"});
+            JSONModal.Instance.show($td, {type: "mixed"});
             // allow modal to fade in
             setTimeout(function() {
                 expect($jsonModal.find('.jObject').length).to.equal(1);
@@ -152,7 +150,7 @@ describe('JsonModal Test', function() {
                 var text = $jsonModal.find('.prettyJson').text().replace(/[\s\n]/g, "");
                 expect(text).to.equal('["a","b"]');
 
-                JSONModal.__testOnly__.closeJSONModal();
+                JSONModal.Instance._close();
                 setTimeout(function() {
                     done();
                 }, 100);
@@ -160,7 +158,7 @@ describe('JsonModal Test', function() {
         });
 
         after(function(done) {
-            JSONModal.show($table.find('.jsonElement').eq(0));
+            JSONModal.Instance.show($table.find('.jsonElement').eq(0));
             // allow modal to fade in
             setTimeout(function() {
                 done();
@@ -208,7 +206,7 @@ describe('JsonModal Test', function() {
                 expect($headerInput.closest('th').hasClass('col12')).to.be.true;
                 expect($table.find('.row0 .col12 .displayedData').text()).to.equal("5");
 
-                JSONModal.show($table.find('.jsonElement').eq(0));
+                JSONModal.Instance.show($table.find('.jsonElement').eq(0));
                 // allow modal to fade in
                 setTimeout(function() {
                     done();
@@ -247,7 +245,7 @@ describe('JsonModal Test', function() {
             });
             expect($headerInput.length).to.equal(1);
             expect($headerInput.closest('th.selectedCell')).to.have.lengthOf(0);
-            JSONModal.show($table.find('.jsonElement').eq(0));
+            JSONModal.Instance.show($table.find('.jsonElement').eq(0));
             // allow modal to fade in
             setTimeout(function() {
                 var $yelpingSinceKey = $jsonModal.find('.jKey').filter(function() {
@@ -268,7 +266,7 @@ describe('JsonModal Test', function() {
         it('clicking on object column should work', function(done) {
             var colNum = gTables[tableId].getColNumByBackName(prefix + gPrefixSign + 'compliments');
             expect(colNum).to.be.gt(0);
-            JSONModal.show($table.find('.row0 .col' + colNum), {type: "object"});
+            JSONModal.Instance.show($table.find('.row0 .col' + colNum), {type: "object"});
             UnitTest.timeoutPromise(500)
             .then(function() {
                 expect($jsonModal.find('.bar:visible').length).to.equal(1);
@@ -311,11 +309,11 @@ describe('JsonModal Test', function() {
                 return $(this).find(".displayedData").text() === '2012-11';
             }).eq(0);
 
-            JSONModal.show($td, {type: "string"});
+            JSONModal.Instance.show($td, {type: "string"});
             UnitTest.timeoutPromise(500)
             .then(function() {
                 expect($jsonModal.find('.jsonWrap .prettyJson').text()).to.equal('"2012-11"');
-                JSONModal.__testOnly__.closeJSONModal();
+                JSONModal.Instance._close();
                 setTimeout(function() {
                     done();
                 }, 100);
@@ -324,15 +322,12 @@ describe('JsonModal Test', function() {
     });
 
     describe('multiple json panels', function() {
-        var compare;
         // select 2 dataCol cells
         before(function(done) {
-            compare = JSONModal.__testOnly__.compareIconSelect;
-            duplicate = JSONModal.__testOnly__.duplicateView;
-            JSONModal.show($table.find('.jsonElement').eq(0));
+            JSONModal.Instance.show($table.find('.jsonElement').eq(0));
             // allow modal to fade in
             setTimeout(function() {
-                JSONModal.show($table.find('.jsonElement').eq(4));
+                JSONModal.Instance.show($table.find('.jsonElement').eq(4));
                 setTimeout(function() {
                     done();
                 }, 100);
@@ -341,7 +336,7 @@ describe('JsonModal Test', function() {
 
         it('compare matches on 2 data browser panels', function() {
             // click on 1 compare icon
-            compare($jsonModal.find('.compareIcon').eq(0));
+            JSONModal.Instance._compareIconSelect($jsonModal.find('.compareIcon').eq(0));
             expect($jsonModal.find('.compareIcon').eq(0).hasClass('selected')).to.be.true;
             expect($jsonModal.find('.compareIcon').eq(1).hasClass('selected')).to.be.false;
             expect($jsonModal.find('.jsonWrap').eq(0).hasClass('active')).to.be.true;
@@ -350,7 +345,7 @@ describe('JsonModal Test', function() {
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('comparison')).to.be.false;
 
             // click on 2nd compare icon
-            compare($jsonModal.find('.compareIcon').eq(1));
+            JSONModal.Instance._compareIconSelect($jsonModal.find('.compareIcon').eq(1));
             expect($jsonModal.find('.compareIcon').eq(1).hasClass('selected')).to.be.true;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('active')).to.be.true;
             expect($jsonModal.find('.jsonWrap').eq(0).hasClass('comparison')).to.be.true;
@@ -384,10 +379,10 @@ describe('JsonModal Test', function() {
         it('compare matches on 3 data browser panels', function() {
             var modalWidth = $jsonModal.width();
 
-            JSONModal.show($table.find('.jsonElement').eq(2));
+            JSONModal.Instance.show($table.find('.jsonElement').eq(2));
 
             expect($jsonModal.width()).to.be.gt(modalWidth);
-            compare($jsonModal.find('.compareIcon').eq(2));
+            JSONModal.Instance._compareIconSelect($jsonModal.find('.compareIcon').eq(2));
 
             // check matches
             expect($jsonModal.find('.matched').eq(2).children().length).to.equal(2);
@@ -424,7 +419,7 @@ describe('JsonModal Test', function() {
             expect($jsonModal.find('.jsonWrap').eq(2).hasClass('comparison')).to.be.true;
 
             // click to remove middle comparison
-            compare($jsonModal.find('.compareIcon').eq(1));
+            JSONModal.Instance._compareIconSelect($jsonModal.find('.compareIcon').eq(1));
             expect($jsonModal.find('.compareIcon').eq(1).hasClass('selected')).to.be.false;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('active')).to.be.false;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('comparison')).to.be.false;
@@ -452,16 +447,16 @@ describe('JsonModal Test', function() {
         });
 
         it("sort columns should work", function() {
-            var data = JSONModal.__testOnly__.getJsons();
+            var data = JSONModal.Instance._jsonData;
             var firstVal = data[0].immediates.user_id;
             var secondVal = data[1].immediates.user_id;
             var thirdVal = data[2].immediates.user_id;
 
-            JSONModal.__testOnly__.resortJsons(0, 2);
+            JSONModal.Instance._resortJsons(0, 2);
             expect(data[0].immediates.user_id).to.equal(secondVal);
             expect(data[1].immediates.user_id).to.equal(thirdVal);
             expect(data[2].immediates.user_id).to.equal(firstVal);
-            JSONModal.__testOnly__.resortJsons(2, 0);
+            JSONModal.Instance._resortJsons(2, 0);
             expect(data[0].immediates.user_id).to.equal(firstVal);
             expect(data[1].immediates.user_id).to.equal(secondVal);
             expect(data[2].immediates.user_id).to.equal(thirdVal);
@@ -510,7 +505,7 @@ describe('JsonModal Test', function() {
         var $jsonWrap;
         before(function(done) {
             $jsonWrap = $jsonModal.find('.jsonWrap');
-            JSONModal.show($table.find('.jsonElement').eq(0));
+            JSONModal.Instance.show($table.find('.jsonElement').eq(0));
             setTimeout(function() {
                 done();
             }, 100);
@@ -603,7 +598,7 @@ describe('JsonModal Test', function() {
         });
 
         after(function(done) {
-            JSONModal.show($table.find('.jsonElement').eq(0));
+            JSONModal.Instance.show($table.find('.jsonElement').eq(0));
             setTimeout(function() {
                 $jsonModal.find('.jsonWrap').removeClass('multiSelectMode');
                 done();
@@ -613,31 +608,25 @@ describe('JsonModal Test', function() {
 
     describe('saveLastMode() function test', function() {
         it('save last mode should work', function() {
-            fn = JSONModal.__testOnly__.saveLastMode;
             var $wrap = $jsonModal.find(".jsonWrap");
             expect($wrap.length).to.equal(1);
             var $secondWrap = $wrap.clone();
             $wrap.after($secondWrap);
 
             $wrap.addClass("multiSelectMode"); // 1 multi
-            expect(fn()).to.equal("single");
+            expect(JSONModal.Instance._saveLastMode()).to.equal("single");
 
             $secondWrap.addClass("multiSelectMode"); // 2 multi
-            expect(fn()).to.equal("multiple");
+            expect(JSONModal.Instance._saveLastMode()).to.equal("multiple");
 
             $wrap.removeClass("multiSelectMode"); // 1 single, 1 multi
-            expect(fn()).to.equal("single");
+            expect(JSONModal.Instance._saveLastMode()).to.equal("single");
 
             $secondWrap.remove();
         });
     });
 
     describe('tabs should work', function() {
-        var selectTab;
-        before(function() {
-            selectTab = JSONModal.__testOnly__.selectTab;
-        });
-
         it('tabbing should work', function() {
             expect($jsonModal.find('.tab').length).to.equal(3);
             expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.true;
@@ -645,7 +634,7 @@ describe('JsonModal Test', function() {
             expect($jsonModal.find('.prefixGroupTitle').is(":visible")).to.be.true;
             expect($jsonModal.find('.prefix').is(":visible")).to.be.true;
 
-            selectTab($jsonModal.find('.tab').eq(2));
+            JSONModal.Instance._selectTab($jsonModal.find('.tab').eq(2));
             expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.false;
             expect($jsonModal.find('.tab').eq(2).hasClass('active')).to.be.true;
             expect($jsonModal.find('.prefixGroupTitle').is(":visible")).to.be.false;
@@ -653,7 +642,7 @@ describe('JsonModal Test', function() {
             expect($jsonModal.find('.mainKey').length).to.equal(13);
             expect($jsonModal.find('.mainKey:visible').length).to.equal(12);
 
-            selectTab($jsonModal.find('.tab').eq(0));
+            JSONModal.Instance._selectTab($jsonModal.find('.tab').eq(0));
             expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.true;
             expect($jsonModal.find('.tab').eq(2).hasClass('active')).to.be.false;
             expect($jsonModal.find('.prefixGroupTitle').is(":visible")).to.be.true;
@@ -713,7 +702,7 @@ describe('JsonModal Test', function() {
             $table.find('.jsonModalHighlightBox').remove();
             expect($table.find('.jsonModalHighlightBox').length).to.equal(0);
 
-            JSONModal.rehighlightTds($table);
+            JSONModal.Instance.rehighlightTds($table);
             expect($table.find('.modalHighlighted').length).to.equal(numRows);
             expect($table.find('.jsonModalHighlightBox').length).to.equal(1);
         });
@@ -752,7 +741,7 @@ describe('JsonModal Test', function() {
         });
 
         it('pull all should not pull if all cols pulled already', function(done) {
-            JSONModal.show($table.find('.jsonElement').eq(0));
+            JSONModal.Instance.show($table.find('.jsonElement').eq(0));
             // allow modal to fade in
             setTimeout(function() {
                 var numCols = gTables[tableId].tableCols.length;

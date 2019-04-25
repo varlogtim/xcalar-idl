@@ -178,7 +178,7 @@ class CellMenu extends AbstractMenu {
             colType = ColumnType.string;
         }
         TblManager.unHighlightCells();
-        JSONModal.show($td, {type: colType});
+        JSONModal.Instance.show($td, {type: colType});
     }
 
     private _tdCopy(tableId: TableId) {

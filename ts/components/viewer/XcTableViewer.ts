@@ -516,7 +516,7 @@ class XcTableViewer extends XcViewer {
             .always(() => {
                 if (fetched) {
                     if ($table.find('.jsonElement.modalHighlighted').length) {
-                        JSONModal.rehighlightTds($table);
+                        JSONModal.Instance.rehighlightTds($table);
                     }
                     if (!$.isEmptyObject(table.highlightedCells)) {
                         TblManager.rehighlightCells(tableId);

@@ -308,19 +308,19 @@ class TableMeta extends Durable {
         return this.ordering;
     }
 
-    public getImmediates(): string[] {
+    public getImmediates(): any[] {
         return this._getColMeta(true, null);
     }
 
-    public getFatPtr(): string[] {
+    public getFatPtr(): any[] {
         return this._getColMeta(false, null);
     }
 
-    public getImmediateNames(): string[] {
+    public getImmediateNames(): any[] {
         return this._getColMeta(true, "name");
     }
 
-    public getFatPtrNames(): string[] {
+    public getFatPtrNames(): any[] {
         return this._getColMeta(false, "name");
     }
 
@@ -667,7 +667,7 @@ class TableMeta extends Durable {
         return tableCols;
     }
 
-    private _getColMeta(isImmediate: boolean, meta: any): string[] {
+    private _getColMeta(isImmediate: boolean, meta: any): any[] {
         let res: string[] = [];
         if (this.backTableMeta != null &&
             this.backTableMeta.hasOwnProperty("valueAttrs")

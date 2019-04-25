@@ -949,12 +949,6 @@ declare namespace xcMixpanel {
     export function forDev(): boolean;
 }
 
-declare namespace JSONModal {
-    export function setup(): void;
-    export function show($td: JQuery, options: object): void
-    export function rehighlightTds($table: JQuery): void;
-}
-
 declare namespace LicenseModal {
     export function setup(): void;
 }

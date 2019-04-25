@@ -832,8 +832,8 @@ describe("TableManager Test", function() {
 
             it("Should click json elemet to open json modal", function() {
                 var test = null;
-                var oldFunc = JSONModal.show;
-                JSONModal.show = function() {
+                var oldFunc = JSONModal.Instance.show;
+                JSONModal.Instance.show = function() {
                     test = true;
                 };
 
@@ -849,7 +849,7 @@ describe("TableManager Test", function() {
                 $pop.click();
                 expect(test).to.be.true;
 
-                JSONModal.show = oldFunc;
+                JSONModal.Instance.show = oldFunc;
                 ModalHelper.isModalOn = oldisModalOn;
             });
         });

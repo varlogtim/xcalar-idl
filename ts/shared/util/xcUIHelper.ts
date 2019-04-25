@@ -1,9 +1,9 @@
 namespace xcUIHelper {
 
     export interface PrettifyOptions {
-        inArray?: number;
+        inArray?: any;
         comparison?: boolean;
-        checkboxes: boolean;
+        checkboxes?: boolean;
         noQuotes?: boolean;
     }
 

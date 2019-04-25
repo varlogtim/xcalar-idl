@@ -1131,7 +1131,7 @@ class TblManager {
             {
                 return;
             }
-            JSONModal.show($el.closest(".jsonElement"), null);
+            JSONModal.Instance.show($el.closest(".jsonElement"), null);
         });
 
         $trs.find(".rowGrab").mousedown((event) => {
@@ -2613,7 +2613,7 @@ class TblManager {
                 if (showModal) {
                     $('.menu').hide();
                     xcMenu.removeKeyboardNavigation();
-                    JSONModal.show($td, {type: type});
+                    JSONModal.Instance.show($td, {type: type});
                 }
             } else {
                 clicks = 1;

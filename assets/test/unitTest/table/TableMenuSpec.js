@@ -1085,9 +1085,9 @@ describe('TableMenu Test', function() {
         });
 
         it('tdJsonModal', function() {
-            var cachedFunc = JSONModal.show;
+            var cachedFunc = JSONModal.Instance.show;
             var called = false;
-            JSONModal.show = function($td, options) {
+            JSONModal.Instance.show = function($td, options) {
                 expect(options.type).to.equal('integer');
                 called = true;
             };
@@ -1098,7 +1098,7 @@ describe('TableMenu Test', function() {
             $cellMenu.find('.tdJsonModal').trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
 
-            JSONModal.show = cachedFunc;
+            JSONModal.Instance.show = cachedFunc;
         });
 
         it('tdUnnest', function(done) {
