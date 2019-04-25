@@ -35,8 +35,11 @@ class LicenseService {
      * @param newLicense the string representation of a license
      * @description This function returns native promise
      */
-    public async updateLicense(newLicense: string): Promise<void> {
+    public async updateLicense(param: {
+        newLicense: string
+    }): Promise<void> {
         try {
+            const { newLicense } = param;
             const licenseValue = new ProtoTypes.License.LicenseValue();
             licenseValue.setValue(newLicense);
             const request = new ProtoTypes.License.UpdateRequest();

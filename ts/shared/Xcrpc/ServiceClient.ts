@@ -2,6 +2,7 @@ import { XceClient as ApiClient } from 'xcalar';
 import { KVStoreService } from './KVStore/KVStoreService';
 import { LicenseService } from './License/LicenseService';
 import { QueryService } from './Query/QueryService';
+import { UDFService} from './UDF/UDFService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -20,6 +21,10 @@ class ServiceClient {
 
     public getQueryService(): QueryService {
         return new QueryService(this._apiClient);
+    }
+
+    public getUDFService(): UDFService {
+        return new UDFService(this._apiClient);
     }
 }
 

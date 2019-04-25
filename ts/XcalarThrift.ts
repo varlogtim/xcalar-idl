@@ -530,7 +530,7 @@ XcalarUpdateLicense = function(
     newLicense: string
 ): XDPromise<void> {
     return PromiseHelper.convertToJQuery(Xcrpc.getClient("DEFAULT")
-                        .getLicenseService().updateLicense(newLicense));
+                        .getLicenseService().updateLicense({newLicense: newLicense}));
 };
 
 XcalarGetNodeName = function(
