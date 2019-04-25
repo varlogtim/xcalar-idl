@@ -875,6 +875,8 @@ declare namespace Repeat {
 declare namespace SupTicketModal {
     export function setup(): void;
     export function show(): void;
+    export function fetchLicenseInfo(): XDPromise<any>;
+    export function submitTicket(arg1, arg2, arg3, arg4): XDPromise<any>;
 }
 
 declare namespace MonitorGraph {
@@ -951,20 +953,9 @@ declare namespace LoginConfigModal {
     export function show(arg1, arg2, arg3): void
 }
 
-declare namespace LiveHelpModal {
-    export function setup(): void;
-    export function show(): void;
-    export function userLeft(): void;
-}
-
 declare namespace JupyterFinalizeModal {
     export function setup(): void;
     export function show(tableId: TableId, numRows: number): void;
-}
-
-declare namespace FileListModal {
-    export function setup(): void;
-    export function show(dsId: string, dsName: string, hasFileError: boolean): void;
 }
 
 declare namespace MonitorLog {

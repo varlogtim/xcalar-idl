@@ -48,7 +48,7 @@ class HelpPanel {
                 SupTicketModal.show();
                 break;
             case ("chatResource"):
-                LiveHelpModal.show();
+                LiveHelpModal.Instance.show();
                 break;
             default:
                 break;

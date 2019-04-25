@@ -359,16 +359,16 @@ describe("xcManager Test", function() {
         // });
 
         it("should mouseup .liveHelp to open about modal", function() {
-            var oldFunc = LiveHelpModal.show;
+            var oldFunc = LiveHelpModal.Instance.show;
             var test = false;
-            LiveHelpModal.show = function() { test = true; };
+            LiveHelpModal.Instance.show = function() { test = true; };
             // normal moouseup not work
             $menu.find(".liveHelp").mouseup();
             expect(test).to.be.false;
             $menu.find(".liveHelp").trigger(fakeEvent.mouseup);
             expect(test).to.be.true;
             // clear up
-            LiveHelpModal.show = oldFunc;
+            LiveHelpModal.Instance.show = oldFunc;
         });
 
         it("should mouseup logout button to sign out", function() {

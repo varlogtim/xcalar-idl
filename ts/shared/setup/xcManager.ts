@@ -393,7 +393,7 @@ namespace xcManager {
         window.onunload = function() {
             // do not call unload again, but keep auto-sending email for liveHelp
             // auto-send check is then implemented in liveHelpModal.js
-            LiveHelpModal.userLeft();
+            LiveHelpModal.Instance.userLeft();
         };
     };
 
@@ -767,7 +767,6 @@ namespace xcManager {
         SupTicketModal.setup();
         WorkbookInfoModal.setup();
         LoginConfigModal.setup();
-        LiveHelpModal.setup();
         JupyterFinalizeModal.setup();
         JupyterUDFModal.setup();
     }
@@ -842,7 +841,7 @@ namespace xcManager {
             if (event.which !== 1) {
                 return;
             }
-            LiveHelpModal.show();
+            LiveHelpModal.Instance.show();
         });
 
         $menu.on("mouseup", ".supTicket", function(event: JQueryEventObject): void {
@@ -958,7 +957,7 @@ namespace xcManager {
             }
         };
         window.onunload = function(): void {
-            LiveHelpModal.userLeft();
+            LiveHelpModal.Instance.userLeft();
         };
 
         let winResizeTimer: number;

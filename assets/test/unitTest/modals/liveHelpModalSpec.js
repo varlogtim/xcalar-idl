@@ -1,9 +1,6 @@
-describe("LiveHelp Modal Test", function() {
+describe("LiveHelpModal Test", function() {
     var userName;
-    var supportName;
-    var readyOpts;
     var $modal;
-    var $menu;
     var testMsg;
     var oldSendReqToSocket;
     var oldSendEmail;
@@ -12,16 +9,16 @@ describe("LiveHelp Modal Test", function() {
     var oldFetchLicenseInfo;
     before(function(){
         UnitTest.onMinMode();
-        oldSendReqToSocket = LiveHelpModal.__testOnly__.sendReqToSocket;
-        oldSendEmail = LiveHelpModal.__testOnly__.sendEmail;
-        oldSendMsgToSocket = LiveHelpModal.__testOnly__.sendMsgToSocket;
-        oldCloseSocket = LiveHelpModal.__testOnly__.closeSocket;
+        oldSendReqToSocket = LiveHelpModal.Instance._sendReqToSocket;
+        oldSendEmail = LiveHelpModal.Instance._sendEmail;
+        oldSendMsgToSocket = LiveHelpModal.Instance._sendMsgToSocket;
+        oldCloseSocket = LiveHelpModal.Instance._closeSocket;
         oldFetchLicenseInfo = SupTicketModal.fetchLicenseInfo;
         oldSubmitTicket = SupTicketModal.submitTicket;
-        LiveHelpModal.__testOnly__.setSendReqToSocket(function() {});
-        LiveHelpModal.__testOnly__.setSendEmail(function() {});
-        LiveHelpModal.__testOnly__.setSendMsgToSocket(function() {});
-        LiveHelpModal.__testOnly__.setCloseSocket(function() {});
+        LiveHelpModal.Instance._sendReqToSocket = function() {};
+        LiveHelpModal.Instance._sendEmail = function() {};
+        LiveHelpModal.Instance._sendMsgToSocket = function() {};
+        LiveHelpModal.Instance._closeSocket = function() {};
         SupTicketModal.fetchLicenseInfo = function() {
             return PromiseHelper.deferred().resolve({"key":"test","expiration":"test"})
                    .promise();
@@ -33,18 +30,12 @@ describe("LiveHelp Modal Test", function() {
         };
 
         $modal = $("#liveHelpModal");
-        $menu = $("#userMenu").find(".liveHelp");
-        supportName = "testSupport";
         userName = "testUser";
-        readyOpts = {
-            "supportName": "Xcalar",
-            "thread": "testThread"
-        };
         testMsg = "testing\n\n\n\n\n";
     });
     describe("Basic API Test", function() {
         it("Should show liveHelp", function() {
-            LiveHelpModal.show();
+            LiveHelpModal.Instance.show();
             assert.isTrue($modal.is(":visible"));
             assert.isFalse($modal.find(".xi-fullscreen").is(":visible"));
             assert.isTrue($modal.find(".emailInfo").is(":visible"));
@@ -76,7 +67,7 @@ describe("LiveHelp Modal Test", function() {
             assert.isTrue($modal.find(".chatBox").is(":visible"));
         });
         it("Should submit ticket", function() {
-            LiveHelpModal.__testOnly__.submitTicket();
+            LiveHelpModal.Instance._submitTicket();
             expect($modal.find(".sysMsg").last().text()).to.include(AlertTStr.CaseId);
         });
         // When type messages as input
@@ -140,7 +131,7 @@ describe("LiveHelp Modal Test", function() {
             $modal.find(".confirmClose").click();
             assert.isFalse($modal.is(":visible"));
             setTimeout(function() {
-                assert.isFalse(LiveHelpModal.__testOnly__.connected);
+                assert.isFalse(LiveHelpModal.Instance._connected);
                 done();
             }, 500);
         });
@@ -150,10 +141,10 @@ describe("LiveHelp Modal Test", function() {
         UnitTest.offMinMode();
         $modal.find(".close").click();
         $modal.find(".confirmClose").click();
-        LiveHelpModal.__testOnly__.setSendReqToSocket(oldSendReqToSocket);
-        LiveHelpModal.__testOnly__.setSendEmail(oldSendEmail);
-        LiveHelpModal.__testOnly__.setSendMsgToSocket(oldSendMsgToSocket);
-        LiveHelpModal.__testOnly__.setCloseSocket(oldCloseSocket);
+        LiveHelpModal.Instance._sendReqToSocket = oldSendReqToSocket;
+        LiveHelpModal.Instance._sendEmail = oldSendEmail;
+        LiveHelpModal.Instance._sendMsgToSocket = oldSendMsgToSocket;
+        LiveHelpModal.Instance._closeSocket = oldCloseSocket;
         SupTicketModal.submitTicket = oldSubmitTicket;
         SupTicketModal.fetchLicenseInfo = oldFetchLicenseInfo;
     });
