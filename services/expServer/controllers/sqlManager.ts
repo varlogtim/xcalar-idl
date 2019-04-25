@@ -79,13 +79,13 @@ export function connect(hostname: string, username?: string, id?: number):
     if (!id) {
         id = getUserIdUnique(username, jQuery.md5);
     }
+    const url = "https://" + hostname + "/app/service/xce";
+    Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, url);
     xcalarApi.setUserIdAndName(username, id, jQuery.md5);
     if (getTHandle() == null) {
         setupThrift(hostname);
         Admin.addNewUser(username);
     }
-    const url = "https://" + hostname + "/app/service/xce";
-    Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, url);
     return XcalarGetVersion();
 };
 

@@ -4,6 +4,7 @@ let tHandle: ThriftHandler;
 const funcFailPercentage: {[key: string]: number} = {};
 const defaultFuncFailPercentage: number = 0.0;
 let errorInjection: boolean = true;
+const mapThrifttoXcrpcScope: {[key: number]: number} = {0:2, 1:0, 2:0, 3:1};
 
 namespace TypeCheck {
     export function isNumber(value: any): value is number {
@@ -4256,38 +4257,16 @@ XcalarResumeSched = function(scheduleKey: string): XDPromise<boolean> {
 XcalarKeyLookup = function(
     key: string,
     scope: number
-): XDPromise<XcalarApiKeyLookupOutputT> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
-    const deferred: XDDeferred<XcalarApiKeyLookupOutputT> = PromiseHelper.deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-
+): XDPromise<Xcrpc.KVStore.Value> {
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
-
-    xcalarKeyLookup(tHandle, scope, key)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarKeyLookup", error);
-        // it's normal to find an unexisted key.
-        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
-            console.warn("Status", error, "Key, not found");
-            deferred.resolve(null);
-        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
-            console.warn("Status", error, "kvStore, not found");
-            deferred.resolve(null);
-        } else {
-            Log.errorLog("Key Lookup", null, null, thriftError);
-            deferred.reject(thriftError);
-        }
-    });
-
-    return (deferred.promise());
+    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    //now, use global userName and sessionName as scopeInfo
+    //might change in the future
+    const scopeInfo = {userName: userIdName, workbookName: sessionName};
+    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().lookup({keyName: key,kvScope: Xcrpc_scope, scopeInfo: scopeInfo});
+    return PromiseHelper.convertToJQuery(promise);
 };
 
 XcalarKeyList = function(
@@ -4323,17 +4302,9 @@ XcalarKeyPut = function(
     value: string,
     persist: boolean,
     scope: number
-): XDPromise<StatusT> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
+): XDPromise<void> {
     if (key == null) {
         return PromiseHelper.reject("key is not defined");
-    }
-
-    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
     }
 
     if (persist == null) {
@@ -4344,50 +4315,28 @@ XcalarKeyPut = function(
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
-    xcalarKeyAddOrReplace(tHandle, scope, key, value, persist)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarKeyPut", error);
-        Log.errorLog("Key Put", null, null, thriftError);
-        deferred.reject(thriftError);
-    });
-
-    return (deferred.promise());
+    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    //now, use global userName and sessionName as scopeInfo
+    //might change in the future
+    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().addOrReplace({key: key, value: value, kvScope: Xcrpc_scope, persis:persist, scopeInfo: scopeInfo});
+    return PromiseHelper.convertToJQuery(promise);
 };
 
 XcalarKeyDelete = function(
     key: string,
     scope: number
-): XDPromise<StatusT> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
-    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
+): XDPromise<void> {
 
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
-
-    xcalarKeyDelete(tHandle, scope, key)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarKeyDelete", error);
-        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
-            deferred.resolve();
-        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
-            console.warn(thriftError, "kvStore, not found");
-            deferred.resolve(null);
-        } else {
-            Log.errorLog("Key Delete", null, null, thriftError);
-            deferred.reject(thriftError);
-        }
-    });
-
-    return (deferred.promise());
+    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    //now, use global userName and sessionName as scopeInfo
+    //might change in the future
+    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().deleteKey({keyName: key, kvScope: Xcrpc_scope, scopeInfo: scopeInfo});
+    return PromiseHelper.convertToJQuery(promise);
 };
 
 XcalarKeySetIfEqual = function(

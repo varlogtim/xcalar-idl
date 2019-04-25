@@ -31,6 +31,9 @@ namespace xcManager {
         .then(function() {
             XVM.setup();
 
+            // xcrpc default service setup
+            Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, xcHelper.getApiUrl());
+
             setupUserArea();
             xcTooltip.setup();
             CSHelp.setup();
@@ -47,9 +50,6 @@ namespace xcManager {
             Admin.setup();
             xcSuggest.setup();
             documentReadyGeneralFunction();
-
-            // xcrpc default service setup
-            Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, xcHelper.getApiUrl());
 
             xcSocket = setupSocket();
             try {

@@ -9,6 +9,8 @@ declare module 'xcalar' {
     export class KvStoreService {
         constructor(client: XceClient);
         lookup(request: proto.xcalar.compute.localtypes.KvStore.LookupRequest): Promise<proto.xcalar.compute.localtypes.KvStore.LookupResponse>;
+        addOrReplace(request: proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest): Promise<void>;
+        deleteKey(request: proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest): Promise<void>;
     }
 
     export class LicenseService {
@@ -81,11 +83,21 @@ declare namespace proto.xcalar.compute.localtypes {
             getValue(): KeyValue;
         }
         export class KeyValue {
+            setText(value: string): void;
             getText(): string;
         }
         export class ScopedKey {
             setName(value: string): void;
             setScope(value: Workbook.WorkbookScope): void;
+        }
+        export class AddOrReplaceRequest {
+            setKey(value: ScopedKey): void;
+            setPersist(value: boolean): void;
+            setValue(value: KeyValue): void;
+        }
+
+        export class DeleteKeyRequest {
+            setKey(value: ScopedKey): void;
         }
     }
 
