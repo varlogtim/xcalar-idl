@@ -159,7 +159,9 @@ module.exports = {
         "About": "About",
         "Help": "Help",
         "HelpDocs": "Help docs",
-        "LiveHelp": "Live Chat"
+        "LiveHelp": "Live Chat",
+        "Tutorials": "Tutorials",
+        "Walkthroughs": "Walkthroughs"
     },
 
     "MenuTStr": {

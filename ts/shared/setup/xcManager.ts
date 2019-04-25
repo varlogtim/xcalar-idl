@@ -798,6 +798,20 @@ namespace xcManager {
             HelpPanel.Instance.openHelpResource("docsResource");
         });
 
+        $menu.on("mouseup", ".tutorials", function(event: JQueryEventObject): void {
+            if (event.which !== 1) {
+                return;
+            }
+            HelpPanel.Instance.openHelpResource("tutorialResource");
+        });
+
+        $menu.on("mouseup", ".walkthroughs", function(event: JQueryEventObject): void {
+            if (event.which !== 1) {
+                return;
+            }
+            HelpPanel.Instance.openHelpResource("tooltipResource");
+        });
+
         $menu.on("mouseup", ".discourse", function(event: JQueryEventObject): void {
             if (event.which !== 1) {
                 return;
