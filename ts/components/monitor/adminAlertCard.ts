@@ -60,11 +60,13 @@ class AdminAlertCard {
             event.stopPropagation();
             this._close();
         });
-        $card.on("click", ".clear", () => {
+        $card.on("click", ".clear", (event) => {
+            $(event.currentTarget).blur();
             this._clear();
         });
         // click send button
-        $card.on("click", ".confirm", () => {
+        $card.on("click", ".confirm", (event) => {
+            $(event.currentTarget).blur();
             this._submitForm();
         });
         // press enter when input

@@ -857,14 +857,6 @@ declare namespace UserSettings {
     export function getAllPrefs(): UserPref;
 }
 
-declare namespace Admin {
-    export function initialize(): void;
-    export function showSupport();
-    export function updateLoggedInUsers(userInfos: object): void;
-    export function isAdmin(): boolean;
-    export function addNewUser(): void;
-}
-
 declare namespace PromiseHelper {
     export function deferred<T>(): XDDeferred<T>;
     export function reject<T>(...args): XDPromise<T>;
@@ -951,10 +943,12 @@ declare namespace xcMixpanel {
 
 declare namespace LicenseModal {
     export function setup(): void;
+    export function show(): void;
 }
 
 declare namespace LoginConfigModal {
     export function setup(): void;
+    export function show(arg1, arg2, arg3): void
 }
 
 declare namespace LiveHelpModal {
@@ -975,6 +969,7 @@ declare namespace FileListModal {
 
 declare namespace MonitorLog {
     export function adjustTabNumber(): void;
+    export function setup(): void;
 }
 
 declare namespace Msal {

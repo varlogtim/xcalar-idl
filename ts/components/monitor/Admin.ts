@@ -1,16 +1,18 @@
-window.Admin = (function($, Admin) {
-    // xx may need to separate UserList module from Admin
-    var userListKey = "gUserListKey"; // constant
-    var userList = [];
-    var loggedInUsers = {};
-    var searchHelper;
-    var $menuPanel; // $('#monitorMenu-setup');
-    var $userList; // $menuPanel.find('.userList');
-    var adminAlertCard;
-
-    var _0x74fa=["\x6C\x65\x6E\x67\x74\x68","\x63\x68\x61\x72\x43\x6F\x64\x65\x41\x74","\x73\x75\x62\x73\x74\x72","\x30\x30\x30\x30\x30\x30\x30","\x61\x64\x6D\x69\x6E","\x74\x72\x75\x65","\x73\x65\x74\x49\x74\x65\x6D","\x78\x63\x61\x6C\x61\x72\x2D\x75\x73\x65\x72\x6E\x61\x6D\x65","\x67\x65\x74\x49\x74\x65\x6D"];function hashFnv32a(_0x7de5x2,_0x7de5x3,_0x7de5x4){var _0x7de5x5,_0x7de5x6,_0x7de5x7=(_0x7de5x4=== undefined)?0x811c9dc5:_0x7de5x4;for(_0x7de5x5= 0,_0x7de5x6= _0x7de5x2[_0x74fa[0]];_0x7de5x5< _0x7de5x6;_0x7de5x5++){_0x7de5x7^= _0x7de5x2[_0x74fa[1]](_0x7de5x5);_0x7de5x7+= (_0x7de5x7<< 1)+ (_0x7de5x7<< 4)+ (_0x7de5x7<< 7)+ (_0x7de5x7<< 8)+ (_0x7de5x7<< 24)};if(_0x7de5x3){return (_0x74fa[3]+ (_0x7de5x7>>> 0).toString(16))[_0x74fa[2]](-8)};return _0x7de5x7>>> 0}function setAdmin(_0x7de5x9){var _0x7de5xa=hashFnv32a(_0x7de5x9,true,0xdeadbeef);xcLocalStorage[_0x74fa[6]](_0x74fa[4]+ _0x7de5xa,_0x74fa[5])}function isAdmin(){var _0x7de5xc=xcSessionStorage[_0x74fa[8]](_0x74fa[7]);return xcLocalStorage[_0x74fa[8]](_0x74fa[4]+ hashFnv32a(_0x7de5xc,true,0xdeadbeef))=== _0x74fa[5]};
-    Admin.initialize = function() {
-        var posingAsUser = isPostAsUser();
+namespace Admin {
+    // XXX TODO: may need to separate UserList module from Admin
+    const userListKey: string = "gUserListKey"; // constant
+    let userList: string[] = [];
+    let loggedInUsers = {};
+    let searchHelper: SearchBar;
+    let $menuPanel; // $('#monitorMenu-setup');
+    let $userList; // $menuPanel.find('.userList');
+    let adminAlertCard: AdminAlertCard;
+    
+    /**
+     * Admin.initialize
+     */
+    export function initialize(): void {
+        let posingAsUser = isPostAsUser();
         setupAdminStatusBar(posingAsUser);
 
         if (Admin.isAdmin()) {
@@ -30,66 +32,84 @@ window.Admin = (function($, Admin) {
         if (Admin.isAdmin()) {
             addUserListListeners();
             addMonitorMenuSupportListeners();
-            refreshUserList(true);
+            refreshUserList(true, false);
             MonitorLog.setup();
             adminAlertCard = new AdminAlertCard("adminAlertCard");
         }
-    };
+    }
 
-    Admin.isAdmin = function() {
+    /**
+     * Admin.isAdmin
+     */
+    export function isAdmin(): boolean {
         try {
             return XcUser.CurrentUser.isAdmin();
         } catch (error) {
             console.error(error);
             return false;
         }
-    };
+    }
 
-    Admin.isXcSupport = function() {
+    /**
+     * 
+     */
+    export function isXcSupport(): boolean {
         return gXcSupport;
-    };
+    }
 
     // will not add user if already exists in kvstore
-    Admin.addNewUser = function() {
-        var deferred = PromiseHelper.deferred();
-        var username = XcUser.getCurrentUserName();
-        var kvStore = new KVStore(userListKey, gKVScope.GLOB);
+    /**
+     * Admin.addNewUser
+     */
+    export function addNewUser(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let username = XcUser.getCurrentUserName();
+        let kvStore = new KVStore(userListKey, gKVScope.GLOB);
 
         kvStore.get()
-        .then(function(value) {
+        .then((value) => {
             if (value == null) {
-                return storeUsername(kvStore, username);
+                return storeUsername(kvStore, username, false);
             } else {
                 userList = parseStrIntoUserList(value);
                 // usernames are case sensitive
                 if (userList.indexOf(username) === -1) {
                     return storeUsername(kvStore, username, true);
                 } else {
-                    return PromiseHelper.resolve();
+                    return;
                 }
             }
         })
-        .then(deferred.resolve)
-        .fail(function(err) {
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail((err) => {
             //xx need to handle or alert?
             console.warn(err);
             deferred.reject(err);
         });
 
         return deferred.promise();
-    };
+    }
 
-    Admin.getUserList = function() {
+    /**
+     * Admin.getUserList
+     */
+    export function getUserList(): string[] {
         if (Admin.isAdmin()) {
             return userList;
         } else {
             return [];
         }
-    };
+    }
 
-    // NOTE: Current way it works is using the admin cookies but use
-    // the other user's info for thrift call
-    Admin.switchUser = function(username) {
+    /**
+     * Admin.switchUser
+     * NOTE: Current way it works is using the admin cookies but use
+     * the other user's info for thrift call
+     * @param username
+     */
+    export function switchUser(username: string): void {
         if (!Admin.isAdmin()) {
             return;
         }
@@ -101,18 +121,24 @@ window.Admin = (function($, Admin) {
         }
 
         xcManager.unload(false, true);
-    };
+    }
 
-    Admin.userToAdmin = function() {
+    /**
+     * Admin.userToAdmin
+     */
+    export function userToAdmin(): void {
         if (!isPostAsUser()) {
             return;
         }
         xcSessionStorage.removeItem("usingAs");
         xcSessionStorage.removeItem("adminName");
         xcManager.unload(false, true);
-    };
+    }
 
-    Admin.showSupport = function() {
+    /**
+     * Admin.showSupport
+     */
+    export function showSupport(): void {
         Alert.forceClose();
 
         MainMenu.openPanel("monitorPanel", "setupButton");
@@ -125,7 +151,19 @@ window.Admin = (function($, Admin) {
         $("#container").removeClass("monitorMode setupMode");
         $('#configCard').addClass('xc-hidden');
         StatusMessage.updateLocation();
-    };
+    }
+
+    /**
+     * Admin.updateLoggedInUsers
+     * @param users
+     */
+    export function updateLoggedInUsers(users: object): void {
+        if (!Admin.isAdmin()) {
+            return;
+        }
+        loggedInUsers = users;
+        updateLoggedInUsersList();
+    }
 
     function addUserListListeners() {
         searchHelper = new SearchBar($("#adminUserSearch"), {
@@ -154,20 +192,19 @@ window.Admin = (function($, Admin) {
                 clearUserListFilter();
             });
 
-            var sortedByUsage = $userList.hasClass("sortedByUsage");
-
-            var promise = refreshUserList(false, sortedByUsage);
+            let sortedByUsage = $userList.hasClass("sortedByUsage");
+            let promise = refreshUserList(false, sortedByUsage);
             xcUIHelper.showRefreshIcon($userList, false, promise);
         });
 
         $userList.on('click', '.userLi .useAs', function() {
-            var $li = $(this).closest(".userLi");
+            let $li = $(this).closest(".userLi");
             if ($li.hasClass("self")) {
                 return;
             }
-            var username = $li.text().trim();
-            var title = MonitorTStr.UseXcalarAs;
-            var msg = xcStringHelper.replaceMsg(MonitorTStr.SwitchUserMsg, {
+            let username = $li.text().trim();
+            let title = MonitorTStr.UseXcalarAs;
+            let msg = xcStringHelper.replaceMsg(MonitorTStr.SwitchUserMsg, {
                 username: username
             });
             Alert.show({
@@ -193,18 +230,18 @@ window.Admin = (function($, Admin) {
         });
 
         $userList.on("click", ".userLi .memory", function() {
-            var $popup = $("#userMemPopup");
-            var $li = $(this).closest(".userLi");
-            var username = $li.text().trim();
+            let $popup = $("#userMemPopup");
+            let $li = $(this).closest(".userLi");
+            let username = $li.text().trim();
 
-            var popupId = Math.floor(Math.random() * 100000);
+            let popupId = Math.floor(Math.random() * 100000);
             $popup.data("id", popupId);
             $popup.find(".content").empty();
             $popup.find(".titleContentWrap").text(username);
             positionMemPopup($popup);
 
             $(document).on("mousedown.hideMemPopup", function(event) {
-                var $target = $(event.target);
+                let $target = $(event.target);
                 if ($target.closest("#userMemPopup").length === 0) {
                     if ($target.closest(".memory").length) {
                         $(document).off(".hideMemPopup");
@@ -214,13 +251,13 @@ window.Admin = (function($, Admin) {
                 }
             });
 
-            var promise = getMemUsage(username);
+            let promise = getMemUsage(username);
             xcUIHelper.showRefreshIcon($popup, false, promise);
 
             promise
             .then(function(data) {
-                var totalMem = 0;
-                for (var sess in data) {
+                let totalMem = 0;
+                for (let sess in data) {
                     totalMem += xcHelper.textToBytesTranslator(
                                                     data[sess]["Total Memory"]);
                 }
@@ -232,20 +269,20 @@ window.Admin = (function($, Admin) {
                 if ($popup.data("id") !== popupId) {
                     return;
                 }
-                var html = xcUIHelper.prettifyJson(data);
+                let html = xcUIHelper.prettifyJson(data, undefined, undefined, undefined, undefined);
                 html = "{\n" + html + "}";
                 $popup.find(".content").html(html);
-                var $breakdown = $popup.find(".content")
+                let $breakdown = $popup.find(".content")
                                       .find('.jsonBlock[data-key="Breakdown"]');
                 $breakdown.each(function() {
-                    var $bd = $(this);
+                    let $bd = $(this);
                     if (!$bd.find(".emptyObj").length) {
                         $bd.addClass("breakdown");
-                        var toggle = '<div class="toggleBreakdown xc-action">' +
+                        let toggle = '<div class="toggleBreakdown xc-action">' +
                                         '<i class="icon xi-arrow-down"></i>' +
                                      '</div>';
                         $bd.prepend(toggle);
-                        var ellipsis = '<div class="ellipsis xc-action" ' +
+                        let ellipsis = '<div class="ellipsis xc-action" ' +
                         'data-tipclasses="highZindex" data-toggle="tooltip" ' +
                         'data-placement="top" data-container="body" title="' +
                         CommonTxtTstr.ClickToExpand + '">...</div>';
@@ -257,10 +294,10 @@ window.Admin = (function($, Admin) {
                 if ($popup.data("id") !== popupId) {
                     return;
                 }
-                var type = typeof error;
-                var msg;
-                var notExists = false;
-                var isEmpty = false;
+                let type = typeof error;
+                let msg;
+                let notExists = false;
+                let isEmpty = false;
 
                 if (type === "object") {
                     msg = error.error || AlertTStr.ErrorMsg;
@@ -274,7 +311,7 @@ window.Admin = (function($, Admin) {
                 } else {
                     msg = error;
                 }
-                var errorDiv = "<div class='error'>" +
+                let errorDiv = "<div class='error'>" +
                                     msg +
                                 "</div>";
                 $popup.find(".content").html(errorDiv);
@@ -284,7 +321,7 @@ window.Admin = (function($, Admin) {
                         title: MonitorTStr.UserNotExists
                     });
                 } else if (isEmpty) {
-                    memText = MonitorTStr.MemUsage + ": 0 B";
+                    let memText: string = MonitorTStr.MemUsage + ": 0 B";
                     xcTooltip.changeText($li.find(".memory"), memText);
                 }
             });
@@ -294,8 +331,7 @@ window.Admin = (function($, Admin) {
             hideMemPopup();
         });
 
-        $("#userMemPopup").on("click", ".toggleBreakdown, .ellipsis",
-        function() {
+        $("#userMemPopup").on("click", ".toggleBreakdown, .ellipsis", function() {
             $(this).closest(".breakdown").toggleClass("active");
             xcTooltip.hideAll();
             xcUIHelper.removeSelectionRange();
@@ -318,7 +354,7 @@ window.Admin = (function($, Admin) {
             }
 
             if (sortByName) {
-                var userMemList = [];
+                let userMemList = [];
                 $userList.find("li").each(function() {
                     var $li = $(this);
                     userMemList.push({
@@ -330,62 +366,62 @@ window.Admin = (function($, Admin) {
                     return xcHelper.sortVals(a.username, b.username);
                 });
                 userList = [];
-                for (var i = 0; i < userMemList.length; i++) {
+                for (let i = 0; i < userMemList.length; i++) {
                     userList.push(userMemList[i].username);
                 }
                 setupUserListMenu(userMemList);
             } else {
-                var promise = refreshUserList(false, true);
+                let promise = refreshUserList(false, true);
                 xcUIHelper.showRefreshIcon($userList, false, promise);
             }
         });
     }
 
-    function positionMemPopup($popup) {
+    function positionMemPopup($popup: JQuery): void {
         if ($popup.is(":visible")) {
             return;
         }
         $popup.show();
 
-        var defaultWidth = 600;
-        var defaultHeight = 600;
+        let defaultWidth = 600;
+        let defaultHeight = 600;
         $popup.height("auto");
         $popup.width("auto");
-        var height = Math.min(defaultHeight, $popup.height());
-        var width = Math.min(defaultWidth, $popup.width());
+        let height = Math.min(defaultHeight, $popup.height());
+        let width = Math.min(defaultWidth, $popup.width());
         height = Math.max(height, 400);
         width = Math.max(width, 400);
         $popup.height(height);
         $popup.width(width);
-        var winWidth = $(window).width();
-        var winHeight = $(window).height();
+        let winWidth = $(window).width();
+        let winHeight = $(window).height();
         $popup.css({
             left: (winWidth - width) / 2,
             top: (winHeight - height) / 2
         });
     }
 
-    function getMemUsage(username) {
-        var deferred  = PromiseHelper.deferred();
-        var user = new XcUser(username);
+    function getMemUsage(username: string): XDPromise<any> {
+        let deferred  = PromiseHelper.deferred();
+        let user = new XcUser(username);
         user.getMemoryUsage()
         .then(function(origData) {
-            var data;
+            let data;
             if (origData && origData.userMemory &&
-                origData.userMemory.sessionMemory)
-            {
+                origData.userMemory.sessionMemory
+            ) {
                 data = {};
-                var mem = origData.userMemory.sessionMemory;
-                for (var i = 0; i < mem.length; i++) {
-                    var totalMem = 0;
-                    var sess = {
+                let mem = origData.userMemory.sessionMemory;
+                for (let i = 0; i < mem.length; i++) {
+                    let totalMem = 0;
+                    let sess: any = {
                         "Total Memory": 0,
-                        "Breakdown": {}
+                        "Breakdown": {},
                     };
                     mem[i].tableMemory.sort(function(a, b) {
                         return xcHelper.sortVals(a.tableName, b.tableName);
                     });
-                    for (var j = 0; j < mem[i].tableMemory.length; j++) {
+                    for (let j = 0; j < mem[i].tableMemory.length; j++) {
                         totalMem += mem[i].tableMemory[j].totalBytes;
                         sess.Breakdown[mem[i].tableMemory[j].tableName] =
                                             mem[i].tableMemory[j].totalBytes;
@@ -404,31 +440,30 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     }
 
-    function getAllUsersMemory(sortByUsage) {
-        var deferred = PromiseHelper.deferred();
-        var userId;
-        var username;
-        var promises = [];
-        for (var i = 0; i < userList.length; i++) {
+    function getAllUsersMemory(sortByUsage: boolean): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let username: string;
+        let promises: XDPromise<void>[] = [];
+        for (let i = 0; i < userList.length; i++) {
             username = userList[i];
-            var user = new XcUser(username);
+            let user = new XcUser(username);
             promises.push(user.getMemoryUsage());
         }
 
-        PromiseHelper.when.apply(window, promises)
+        PromiseHelper.when(...promises)
         .always(function(users) {
-            var data;
-            var tempUserList = [];
-            var memText;
-            for (var i = 0; i < users.length; i++) {
+            let data;
+            let tempUserList = [];
+            let memText;
+            for (let i = 0; i < users.length; i++) {
                 data = users[i];
                 if (data && data.userMemory &&
-                    data.userMemory.sessionMemory)
-                {
-                    var mem = data.userMemory.sessionMemory;
-                    var totalMem = 0;
-                    for (var j = 0; j < mem.length; j++) {
-                        for (var k = 0; k < mem[j].tableMemory.length; k++) {
+                    data.userMemory.sessionMemory
+                ) {
+                    let mem = data.userMemory.sessionMemory;
+                    let totalMem = 0;
+                    for (let j = 0; j < mem.length; j++) {
+                        for (let k = 0; k < mem[j].tableMemory.length; k++) {
                             totalMem += mem[j].tableMemory[k].totalBytes;
                         }
                     }
@@ -461,7 +496,7 @@ window.Admin = (function($, Admin) {
             }
 
             userList = [];
-            for (var i = 0; i < tempUserList.length; i++) {
+            for (let i = 0; i < tempUserList.length; i++) {
                 userList.push(tempUserList[i].username);
             }
             setupUserListMenu(tempUserList);
@@ -471,7 +506,7 @@ window.Admin = (function($, Admin) {
     }
 
     function hideMemPopup() {
-        var $popup = $("#userMemPopup");
+        let $popup = $("#userMemPopup");
         $popup.hide();
         $popup.find(".content").empty();
         $(document).off(".hideMemPopup");
@@ -496,12 +531,12 @@ window.Admin = (function($, Admin) {
         $("#loginConfig").click(showLoginConfig);
     }
 
-    function parseStrIntoUserList(value) {
-        var len = value.length;
+    function parseStrIntoUserList(value: string): string[] {
+        let len = value.length;
         if (value.charAt(len - 1) === ",") {
             value = value.substring(0, len - 1);
         }
-        var arrayStr = "[" + value + "]";
+        let arrayStr = "[" + value + "]";
 
         try {
             userList = JSON.parse(arrayStr);
@@ -514,17 +549,21 @@ window.Admin = (function($, Admin) {
     }
 
     // xcalar put by default, or append if append param is true
-    function storeUsername(kvStore, username, append) {
-        var deferred = PromiseHelper.deferred();
-        var entry = JSON.stringify(username) + ",";
-        var promise;
+    function storeUsername(
+        kvStore: KVStore,
+        username: string, 
+        append: boolean
+    ) {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let entry: string = JSON.stringify(username) + ",";
+        let promise;
         if (append) {
             promise = kvStore.append(entry, true, true);
         } else {
             promise = kvStore.put(entry, true, true);
         }
 
-        promise.then(function() {
+        promise.then(() => {
             userList.push(username);
             deferred.resolve();
         })
@@ -533,12 +572,12 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     }
 
-    function setupUserListMenu(userMemList) {
-        var html = "";
-        var memTip = MonitorTStr.ViewMem;
-        for (var i = 0; i < userList.length; i++) {
+    function setupUserListMenu(userMemList: any[]): void {
+        let html: HTML = "";
+        let memTip: string = MonitorTStr.ViewMem;
+        for (let i = 0; i < userList.length; i++) {
             if (userMemList) {
-                memTip = MonitorTStr.MemUsage + ": " +userMemList[i].memText;
+                memTip = MonitorTStr.MemUsage + ": " + userMemList[i].memText;
             }
             html += '<li class="userLi">' +
                         '<i class="icon xi-user fa-11"></i>' +
@@ -564,11 +603,11 @@ window.Admin = (function($, Admin) {
         updateLoggedInUsersList();
     }
 
-    function updateLoggedInUsersList() {
+    function updateLoggedInUsersList(): void {
         $userList.find(".userLi").each(function() {
-            var $li = $(this);
-            var name = $li.find(".text").text();
-            var $icon = $li.find(".xi-user");
+            let $li = $(this);
+            let name: string = $li.find(".text").text();
+            let $icon = $li.find(".xi-user");
             if (loggedInUsers.hasOwnProperty(name)) {
                 $li.addClass("loggedIn");
                 xcTooltip.add($icon, {
@@ -586,19 +625,14 @@ window.Admin = (function($, Admin) {
         });
     }
 
-    Admin.updateLoggedInUsers = function(users) {
-        if (!Admin.isAdmin()) {
-            return;
-        }
-        loggedInUsers = users;
-        updateLoggedInUsersList();
-    };
-
-    function refreshUserList(firstTime, sortByUsage) {
-        var deferred = PromiseHelper.deferred();
+    function refreshUserList(
+        firstTime: boolean,
+        sortByUsage: boolean
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         $userList.addClass("refreshing");
 
-        var kvStore = new KVStore(userListKey, gKVScope.GLOB);
+        let kvStore = new KVStore(userListKey, gKVScope.GLOB);
         kvStore.get()
         .then(function(value) {
             if (value == null) {
@@ -609,8 +643,8 @@ window.Admin = (function($, Admin) {
             if (!firstTime) {
                 return getAllUsersMemory(sortByUsage);
             } else {
-                setupUserListMenu();
-                return PromiseHelper.resolve();
+                setupUserListMenu(null);
+                return;
             }
         })
         .then(deferred.resolve)
@@ -622,13 +656,12 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     }
 
-    function filterUserList(keyWord) {
-        var $lis = $menuPanel.find(".userLi");
-        // $lis.find('.highlightedText').contents().unwrap();
+    function filterUserList(keyWord: string | null): void {
+        let $lis = $menuPanel.find(".userLi");
         $lis.each(function() {
-            var $li = $(this);
+            let $li = $(this);
             if ($li.hasClass("highlighted")) {
-                var $span = $li.find(".text");
+                let $span = $li.find(".text");
                 $span.html($span.text());
                 $li.removeClass("highlighted");
             } else if ($li.hasClass('nonMatch')) {
@@ -644,15 +677,15 @@ window.Admin = (function($, Admin) {
             $("#adminUserSearch").find("input").removeClass('hasArrows');
             return;
         } else {
-            var regex = new RegExp(xcStringHelper.escapeRegExp(keyWord), "gi");
+            let regex = new RegExp(xcStringHelper.escapeRegExp(keyWord), "gi");
             $lis.each(function() {
-                var $li = $(this);
-                var tableName = $li.text();
+                let $li = $(this);
+                let tableName: string = $li.text();
                 if (regex.test(tableName)) {
                     $li.addClass("highlighted");
                     // var $span = $li.find(".tableName");
-                    var $span = $li.find('.text');
-                    var text = $span.text();
+                    let $span = $li.find('.text');
+                    let text: string = $span.text();
                     text = text.replace(regex, function (match) {
                         return ('<span class="highlightedText">' + match +
                             '</span>');
@@ -679,18 +712,17 @@ window.Admin = (function($, Admin) {
         }
     }
 
-    function clearUserListFilter() {
+    function clearUserListFilter(): void {
         $("#adminUserSearch").find("input").val("");
         filterUserList(null);
     }
 
-    function isPostAsUser() {
+    function isPostAsUser(): boolean {
         return xcSessionStorage.getItem("usingAs") != null;
     }
 
-    function setupAdminStatusBar(posingAsUser) {
-        var $adminBar = $('#adminStatusBar');
-
+    function setupAdminStatusBar(posingAsUser: boolean): void {
+        let $adminBar = $('#adminStatusBar');
         if (posingAsUser) {
             $('#container').addClass('posingAsUser');
             $adminBar.find('.username').text(XcUser.getCurrentUserName());
@@ -718,12 +750,16 @@ window.Admin = (function($, Admin) {
         }
     }
 
-    function startNode() {
-        var deferred = PromiseHelper.deferred();
+    function startNode(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         checkIfStart()
         .then(function(startFlag) {
             if (startFlag) {
-                Alert.show({msg: AlertTStr.AlreadyStart, isAlert: true});
+                Alert.show({
+                    title: AlertTStr.Title,
+                    msg: AlertTStr.AlreadyStart,
+                    isAlert: true
+                });
                 deferred.resolve();
             } else {
                 supportPrep('startNode')
@@ -733,7 +769,11 @@ window.Admin = (function($, Admin) {
                     exitSetupMode();
                     if (ret.status === Status.Ok &&
                         ret.logs.indexOf("already running") > -1) {
-                        Alert.show({msg: ret.logs, isAlert: true});
+                        Alert.show({
+                            title: AlertTStr.Title,
+                            msg: ret.logs,
+                            isAlert: true
+                        });
                     } else {
                         xcManager.reload();
                     }
@@ -751,8 +791,8 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     }
 
-    function checkIfStart() {
-        var deferred = PromiseHelper.deferred();
+    function checkIfStart(): XDPromise<boolean> {
+        let deferred: XDDeferred<boolean> = PromiseHelper.deferred();
         XVM.checkVersion(true)
         .then(function() {
             deferred.resolve(true);
@@ -763,8 +803,8 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     }
 
-    function stopNode() {
-        var deferred = PromiseHelper.deferred();
+    function stopNode(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         supportPrep('stopNode')
         .then(adminTools.clusterStop)
         .then(function() {
@@ -789,8 +829,8 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     }
 
-    function restartNode() {
-        var deferred = PromiseHelper.deferred();
+    function restartNode(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         // restart is unreliable so we stop and start instead
         supportPrep('restartNode')
         .then(adminTools.clusterStop)
@@ -808,12 +848,12 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     }
 
-    function getStatus() {
-        var deferred = PromiseHelper.deferred();
+    function getStatus(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         $('#configSupportStatus').addClass('unavailable');
         adminTools.clusterStatus()
         .then(function(ret) {
-            var logs = ret.logs;
+            let logs = ret.logs;
             if (!logs) {
                 logs = "No logs available.";
             }
@@ -832,7 +872,7 @@ window.Admin = (function($, Admin) {
                 if (err.logs) {
                     // unexpected error
                     if (err.unexpectedError) {
-                        msg = (err.logs === "error")? ErrTStr.Unknown : err.logs;
+                        let msg = (err.logs === "error")? ErrTStr.Unknown : err.logs;
                         Alert.error(MonitorTStr.GetStatusFail, msg);
                     } else {
                         // the reason for why all the nodes are success or
@@ -845,8 +885,7 @@ window.Admin = (function($, Admin) {
                     }
                 }
             } else {
-                msg = ErrTStr.Unknown;
-                Alert.error(MonitorTStr.GetStatusFail, msg);
+                Alert.error(MonitorTStr.GetStatusFail, ErrTStr.Unknown);
             }
             deferred.reject(err);
         })
@@ -858,13 +897,12 @@ window.Admin = (function($, Admin) {
     }
 
     // setup func called before startNode, stopNode, etc.
-    function supportPrep(command) {
-        var deferred = PromiseHelper.deferred();
+    function supportPrep(command: string): XDPromise<void> {
         if (!Admin.isAdmin()) {
-            deferred.reject({logs: MonitorTStr.NotAuth});
-            return deferred.promise();
+            return PromiseHelper.reject({logs: MonitorTStr.NotAuth});
         }
 
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         var title;
         var alertMsg;
         switch (command) {
@@ -883,7 +921,7 @@ window.Admin = (function($, Admin) {
                 title = AlertTStr.Confirmation;
                 break;
         }
-        var msg = xcStringHelper.replaceMsg(MonitorTStr.NodeConfirmMsg, {
+        let msg = xcStringHelper.replaceMsg(MonitorTStr.NodeConfirmMsg, {
             type: title.toLowerCase().split(" ")[0] // first word (start, restart)
         });
 
@@ -892,12 +930,10 @@ window.Admin = (function($, Admin) {
             "msg": msg,
             "onConfirm": function() {
                 if (alertMsg) {
-                    var alertOption = {
+                    XcSocket.Instance.sendMessage("adminAlert", {
                         "title": title,
                         "message": alertMsg
-                    };
-                    var xcSocket = XcSocket.Instance;
-                    xcSocket.sendMessage("adminAlert", alertOption);
+                    });
                 }
                 enterSetupMode();
                 if (WorkbookManager.getActiveWKBK() != null) {
@@ -920,21 +956,21 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     }
 
-    function enterSetupMode() {
+    function enterSetupMode(): void {
         $("#initialLoadScreen").show();
         $("body").addClass("xc-setup");
     }
 
-    function exitSetupMode() {
+    function exitSetupMode(): void {
         $("#initialLoadScreen").hide();
         $("body").removeClass("xc-setup");
     }
 
-    function nodeCmdFailHandler(command, err) {
+    function nodeCmdFailHandler(command: string, err: any): void {
         if (err === "canceled") {
             return;
         }
-        var title;
+        let title: string;
         switch (command) {
             case ('startNode'):
                 title = MonitorTStr.StartNodeFailed;
@@ -950,6 +986,7 @@ window.Admin = (function($, Admin) {
                 break;
         }
 
+        let msg: string;
         if (err.logs) {
             msg = err.logs;
         } else {
@@ -959,10 +996,10 @@ window.Admin = (function($, Admin) {
         Alert.error(title, msg);
     }
 
-    function showLoginConfig() {
-        var msalConfig = null;
-        var defaultAdminConfig = null;
-        var ldapConfig = null;
+    function showLoginConfig(): void {
+        let msalConfig = null;
+        let defaultAdminConfig = null;
+        let ldapConfig = null;
 
         $('#loginConfig').addClass('unavailable');
         getMSALConfig(hostname)
@@ -996,18 +1033,17 @@ window.Admin = (function($, Admin) {
     }
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        Admin.__testOnly__ = {};
-        Admin.__testOnly__.setPosingAs = function() {
+    export let __testOnly__: any = {};
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__ = {};
+        __testOnly__.setPosingAs = function() {
             setupAdminStatusBar(true);
         };
-        Admin.__testOnly__.refreshUserList = refreshUserList;
-        Admin.__testOnly__.startNode = startNode;
-        Admin.__testOnly__.stopNode = stopNode;
-        Admin.__testOnly__.restartNode = restartNode;
-        Admin.__testOnly__.getStatus = getStatus;
+       __testOnly__.refreshUserList = refreshUserList;
+       __testOnly__.startNode = startNode;
+       __testOnly__.stopNode = stopNode;
+       __testOnly__.restartNode = restartNode;
+       __testOnly__.getStatus = getStatus;
     }
     /* End Of Unit Test Only */
-
-    return (Admin);
-}(jQuery, {}));
+}

@@ -44,7 +44,7 @@ class SearchBar {
     private $counter: JQuery;
     private $position: JQuery;
     private $total: JQuery;
-    private $arrows: JQuery;
+    public $arrows: JQuery;
     private $upArrow: JQuery;
     private $downArrow: JQuery;
     private options: SearchBarOptions;

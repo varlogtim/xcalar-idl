@@ -814,7 +814,7 @@ namespace StatusMessage {
      * @param force
      * @param text
      */
-    export function updateLocation(force: boolean, text: string): void {
+    export function updateLocation(force?: boolean, text?: string): void {
         statusMessage.updateLocation(force, text);
     }
 
