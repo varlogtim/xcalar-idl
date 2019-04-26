@@ -48,7 +48,7 @@ class DagNodeDFIn extends DagNodeIn {
     }
 
     public getLinkedNodeAndGraph(): {graph: DagGraph, node: DagNodeDFOut} {
-        const param: DagNodeDFInInputStruct = this.input.getInput();
+        const param: DagNodeDFInInputStruct = this.input.getInput(true);
         const dataflowId: string = param.dataflowId;
         const linkOutName: string = param.linkOutName;
         const candidateGraphs: DagGraph[] = this._findLinkedGraph(dataflowId);

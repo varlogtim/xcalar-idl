@@ -150,10 +150,32 @@ describe("DagNodeDFIn Test", function() {
                     "dataflowId": DagNodeDFIn.SELF_ID,
                     "linkOutName": "test"
                 });
-                
+
                 let res = node.getLinkedNodeAndGraph();
                 expect(res.graph).to.equal(graph);
                 expect(res.node).to.equal(linkOut);
+            });
+
+            it("should find link out node with parameterization", function() {
+                let graph = createGraph();
+                let linkOut = createLinkOutNode("test");
+                graph.addNode(linkOut);
+                let node = new DagNodeDFIn({"graph": graph});
+                node.setParam({
+                    "dataflowId": DagNodeDFIn.SELF_ID,
+                    "linkOutName": "<a>"
+                });
+
+                let oldGetParamMap = DagParamManager.Instance.getParamMap;
+                DagParamManager.Instance.getParamMap = () => {
+                    return {
+                        "a": "test"
+                    };
+                };
+                let res = node.getLinkedNodeAndGraph();
+                expect(res.graph).to.equal(graph);
+                expect(res.node).to.equal(linkOut);
+                DagParamManager.Instance.getParamMap = oldGetParamMap;
             });
         });
 
