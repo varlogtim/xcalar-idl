@@ -1299,6 +1299,31 @@ router.post("/xcsql/result", [support.checkAuth], function(req, res) {
     });
 });
 
+router.post("/xcsql/getTable", [support.checkAuth], function (req, res) {
+    var tableName = req.body.tableName;
+    var rowsToFetch = parseInt(req.body.rowsToFetch);
+    var rowPosition = parseInt(req.body.rowPosition); // 1 indexed
+    var userName = req.body.userName;
+    var userId = req.body.userId;
+    var sessionName = req.body.sessionName;
+    setupConnection(userName, userId, sessionName)
+    .then(function() {
+        return SqlUtil.getRows(tableName, rowPosition, rowsToFetch, false,
+            {userName: userName, userId: userId, sessionName: sessionName});
+    })
+    .then(function(data) {
+        var cleanedData = [];
+        for (var row of data) {
+            cleanedData.push(JSON.parse(row));
+        }
+        res.send(cleanedData);
+    })
+    .fail(function(error) {
+        xcConsole.log("getTable error: ", error);
+        res.status(500).send(error);
+    });
+});
+
 router.post("/xcsql/clean", [support.checkAuth], function(req, res) {
     var tableName = req.body.tableName;
     var resultSetId = req.body.resultSetId;

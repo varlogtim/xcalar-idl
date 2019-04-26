@@ -92,6 +92,13 @@ function hackFunction() {
     global.Log = Log = {
         errorLog: function() { xcConsole.log(arguments); }
     };
+
+    global.gKVScope = gKVScope = {
+        "GLOB": XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
+        "USER": XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
+        "WKBK": XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeSession,
+    };
+
     global.Admin = Admin = {
         addNewUser: function(username) {
             var self = this;
