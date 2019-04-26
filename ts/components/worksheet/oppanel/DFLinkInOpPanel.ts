@@ -3,6 +3,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     private _dataflows: {tab: DagTab, displayName: string}[];
     private _linkOutNodes: {node: DagNodeDFOut, displayName: string}[];
     private _schemaSection: ColSchemaSection;
+    private _source: string;
 
     public constructor() {
         super();
@@ -35,11 +36,13 @@ class DFLinkInOpPanel extends BaseOpPanel {
 
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            const param = this._validate(true) || {
+            const param: DagNodeDFInInputStruct = this._validate(true) || {
                 linkOutName: "",
                 dataflowId: "",
+                source: "",
                 schema: []
             };
+            param.dataflowId = param.dataflowId || "";
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
@@ -64,10 +67,13 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._dagNode = null;
         this._dataflows = null;
         this._linkOutNodes = null;
+        this._source = null;
         this._schemaSection.clear();
-        const $drdopwonList: JQuery = this._getPanel().find(".dropDownList");
+        let $panel = this._getPanel();
+        const $drdopwonList: JQuery = $panel.find(".dropDownList");
         $drdopwonList.find("input").val("");
         $drdopwonList.find("ul").empty();
+        $panel.removeClass("withSource");
     }
 
     private _initialize(dagNode: DagNodeDFIn): void {
@@ -116,11 +122,27 @@ class DFLinkInOpPanel extends BaseOpPanel {
         }
     }
 
+    private _setSource(source: string): void {
+        this._source = source;
+        let $panel = this._getPanel();
+        let $el = $panel.find(".dataflowName, .linkOutNodeName");
+        if (this._source) {
+            $panel.addClass("withSource");
+            xcTooltip.add($el, {
+                title: OpPanelTStr.DFLinkInSourceHint
+            });
+        } else {
+            $panel.removeClass("withSource");
+        }
+    }
+
     private _restorePanel(param: {
         linkOutName: string,
         dataflowId: string,
+        source: string,
         schema: ColSchema[]
     }): void {
+        this._setSource(param.source);
         const dataflowName: string = this._dataflowIdToName(param.dataflowId);
         this._getDFDropdownList().find("input").val(dataflowName);
         this._getLinkOutDropdownList().find("input").val(param.linkOutName);
@@ -129,9 +151,12 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     private _submitForm(): void {
-        let args: {linkOutName: string, dataflowId: string, schema: ColSchema[]};
+        let args: {linkOutName: string, dataflowId: string, source: string, schema: ColSchema[]};
         if (this._isAdvancedMode()) {
             args = this._validAdvancedMode();
+            if (args != null) {
+                this._setSource(args.source || "");
+            }
         } else {
             args = this._validate();
         }
@@ -149,6 +174,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     private _validate(ingore: boolean = false): {
         linkOutName: string,
         dataflowId: string,
+        source: string,
         schema: ColSchema[]
     } {
         const $dfInput: JQuery = this._getDFDropdownList().find("input");
@@ -158,7 +184,10 @@ class DFLinkInOpPanel extends BaseOpPanel {
         let isValid: boolean = false;
         if (ingore) {
             isValid = true;
+        } else if (this._source) {
+            isValid = true;
         } else {
+            // only check when there is no source
             isValid = xcHelper.validate([{
                 $ele: $dfInput
             }, {
@@ -180,6 +209,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
             return {
                 dataflowId: dataflowId,
                 linkOutName: linkOutName,
+                source: this._source,
                 schema: schema
             }
         } else {
@@ -294,7 +324,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
             });
             fakeLinkInNode.setParam({
                 dataflowId: dataflowId,
-                linkOutName: linkOutName
+                linkOutName: linkOutName,
+                source: ""
             });
             const dfOutNode: DagNodeDFOut = fakeLinkInNode.getLinkedNodeAndGraph().node;
             const progCols: ProgCol[] = dfOutNode.getLineage().getColumns();
@@ -311,9 +342,100 @@ class DFLinkInOpPanel extends BaseOpPanel {
         }
     }
 
+    private _autoDetectSchemaFromSource(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        try {
+            // use fake node to do parameterization replacement
+            const fakeLinkInNode: DagNodeDFIn = <DagNodeDFIn>DagNodeFactory.create({
+                type: DagNodeType.DFIn
+            });
+            fakeLinkInNode.setParam({
+                dataflowId: "",
+                linkOutName: "",
+                source: this._source
+            });
+            let source = fakeLinkInNode.getSource();
+            // since id doesn't really useful here, just make sure it's not empty
+            let id = xcHelper.getTableId(source) || source;
+            let table = new TableMeta({
+                tableName: source,
+                tableId: id
+            });
+            
+            this._getSchemaFromResultSet(table)
+            .then((schema) => {
+                this._schemaSection.setInitialSchema(schema);
+                this._schemaSection.render(schema);
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+        } catch (e) {
+            deferred.reject({error: e.message});
+        }
+
+        let promise = deferred.promise();
+        xcUIHelper.showRefreshIcon(this._getSchemaSection(), false, promise);
+        return promise;
+    }
+
+    // XXX put it into TableMeta.ts
+    private _getSchemaFromResultSet(table): XDPromise<ColSchema[]> {
+        let deferred: XDDeferred<ColSchema[]> = PromiseHelper.deferred();
+
+        table.getMetaAndResultSet()
+        .then(() => {
+            let rowManager = new RowManager(table, null);
+            rowManager.setAlert(false);
+            return rowManager.getFirstPage();
+        })
+        .then((jsons) => {
+            let schema: ColSchema[] = table.getImmediates().map((info) => {
+                let name: string = info.name;
+                let type: ColumnType = xcHelper.convertFieldTypeToColType(info.type);
+                return {
+                    name: name,
+                    type: type
+                };
+            });
+
+            let set: Set<string> = new Set();
+            jsons.forEach((json) => {
+                try {
+                    let row = JSON.parse(json);
+                    for (let colName in row) {
+                        let parsed = xcHelper.parsePrefixColName(colName);
+                        if (parsed.prefix && !set.has(colName)) {
+                            // track fat-ptr columns
+                            set.add(colName);
+                            schema.push({
+                                name: colName,
+                                type: ColumnType.unknown
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            schema.sort((schemaA, schemB) => {
+                let aName = schemaA.name;
+                let bName = schemB.name;
+                return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+            });
+            deferred.resolve(schema);
+        })
+        .fail(deferred.reject)
+        .always(() => {
+            table.freeResultset();
+        });
+
+        return deferred.promise();
+    }
+
     private _convertAdvConfigToModel(): {
         linkOutName: string,
         dataflowId: string,
+        source: string,
         schema: ColSchema[]
     } {
         const input = JSON.parse(this._editor.getValue());
@@ -384,11 +506,21 @@ class DFLinkInOpPanel extends BaseOpPanel {
         // auto detect listeners for schema section
         const $schemaSection: JQuery = this._getSchemaSection();
         $schemaSection.on("click", ".detect", (event) => {
-            const error: {error: string} = this._autoDetectSchema();
-            if (error != null) {
-                StatusBox.show(ErrTStr.DetectSchema, $(event.currentTarget), false, {
-                    detail: error.error
-                });
+            let $button = $(event.currentTarget);
+            if (this._source) {
+                this._autoDetectSchemaFromSource()
+                .fail((error) => {
+                    StatusBox.show(ErrTStr.DetectSchema, $button, false, {
+                        detail: error.error
+                    });
+                })
+            } else {
+                const error: {error: string} = this._autoDetectSchema();
+                if (error != null) {
+                    StatusBox.show(ErrTStr.DetectSchema, $button, false, {
+                        detail: error.error
+                    });
+                }
             }
         });
     }

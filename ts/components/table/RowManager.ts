@@ -1,6 +1,7 @@
 class RowManager {
     private table: TableMeta;
     private $view: JQuery;
+    private alert: boolean;
 
     /**
      * RowManager.parseRowNum
@@ -28,7 +29,12 @@ class RowManager {
     public constructor(table: TableMeta, $view: JQuery) {
         this.table = table;
         this.$view = $view;
+        this.alert = true;
     }
+
+    public setAlert(alert: boolean): void {
+        this.alert = alert;
+    } 
 
     /**
      * @return {XDPromise}
@@ -368,7 +374,9 @@ class RowManager {
                 .fail(deferred.reject);
             } else {
                 deferred.reject(error);
-                Alert.error(ErrTStr.NotDisplayRows, error);
+                if (this.alert) {
+                    Alert.error(ErrTStr.NotDisplayRows, error);
+                }
             }
         });
 
@@ -396,7 +404,9 @@ class RowManager {
                 .fail(deferred.reject);
             } else {
                 deferred.reject(error);
-                Alert.error(ErrTStr.NotDisplayRows, error);
+                if (this.alert) {
+                    Alert.error(ErrTStr.NotDisplayRows, error);
+                }
             }
         });
 

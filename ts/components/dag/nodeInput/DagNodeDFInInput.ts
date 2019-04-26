@@ -8,9 +8,9 @@ class DagNodeDFInInput extends DagNodeInput {
         "type": "object",
         "title": "The Root Schema",
         "additionalProperties": false,
-        "required": [
-          "dataflowId"
-        ],
+        // "required": [
+        //   "dataflowId"
+        // ],
         "properties": {
             "linkOutName": {
                 "$id": "#/properties/linkOutName",
@@ -18,7 +18,7 @@ class DagNodeDFInInput extends DagNodeInput {
                 "title": "The linkOutName Schema",
                 "default": "",
                 "examples": ["linkOutName"],
-                "minLength": 1,
+                "minLength": 0,
                 "pattern": "^(.*)$"
             },
             "dataflowId": {
@@ -27,8 +27,17 @@ class DagNodeDFInInput extends DagNodeInput {
                 "title": "The dataflowId Schema",
                 "default": "",
                 "examples": ["dataflowId"],
-                "minLength": 1,
+                "minLength": 0,
                 "pattern": "^(.*)$"
+            },
+            "source": {
+              "$id": "#/properties/source",
+              "type": "string",
+              "title": "The source Schema",
+              "default": "",
+              "examples": ["source"],
+              "minLength": 0,
+              "pattern": "^(.*)$"
             },
             "schema": {
                 "$id": "#/properties/schema",
@@ -86,7 +95,8 @@ class DagNodeDFInInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             dataflowId: input.dataflowId || "",
-            linkOutName: input.linkOutName || ""
+            linkOutName: input.linkOutName || "",
+            source: input.source || ""
           };
     }
 }

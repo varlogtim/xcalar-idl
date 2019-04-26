@@ -42,7 +42,8 @@ class DagNodeDFIn extends DagNodeIn {
         }
         this.input.setInput({
             dataflowId: dataflowId,
-            linkOutName: input.linkOutName
+            linkOutName: input.linkOutName,
+            source: input.source || ""
         });
         super.setParam();
     }
@@ -105,13 +106,25 @@ class DagNodeDFIn extends DagNodeIn {
         return "Link In";
     }
 
+    public getSource(): string {
+        const input: DagNodeDFInInputStruct = this.getParam(true);
+        return input.source; 
+    }
+
+    public hasSource(): boolean  {
+        const input: DagNodeDFInInputStruct = this.getParam();
+        return (input.source != "" && input.source != null);
+    }
+
     /**
      * @override
      */
     protected _genParamHint(): string {
         let hint: string = "";
         const input: DagNodeDFInInputStruct = this.getParam();
-        if (input.linkOutName) {
+        if (input.source) {
+            hint = `Link result: ${input.source}`;
+        } else if (input.linkOutName) {
             hint = `Link to: ${input.linkOutName}`;
         }
         return hint;
@@ -126,6 +139,11 @@ class DagNodeDFIn extends DagNodeIn {
         const error = super._validateConfiguration();
         if (error != null) {
             return error;
+        }
+
+        if (this.hasSource()) {
+            // skip error check when has source
+            return null;
         }
 
         try {

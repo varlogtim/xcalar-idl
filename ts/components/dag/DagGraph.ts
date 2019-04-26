@@ -767,7 +767,8 @@ class DagGraph extends Durable {
                         let clonedNode = clondeGraph.getNode(nodeId);
                         clonedNode.setParam({
                             dataflowId: dataflowId,
-                            linkOutName: param.linkOutName
+                            linkOutName: param.linkOutName,
+                            source: param.source
                         });
                     }
                 }
@@ -1220,31 +1221,33 @@ class DagGraph extends Durable {
         } else if (node.getType() == DagNodeType.DFIn) {
             const inNode: DagNodeDFIn = <DagNodeDFIn>node;
             try {
-                let inSource: {graph: DagGraph, node: DagNodeDFOut} =
+                if (!inNode.hasSource()) {
+                    let inSource: {graph: DagGraph, node: DagNodeDFOut} =
                     inNode.getLinkedNodeAndGraph();
-                if (!DagTblManager.Instance.hasTable(inSource.node.getTable())) {
-                    // The needed table doesnt exist so we need to generate it, if we can
-                    if (inSource.node.shouldLinkAfterExecuition() &&
-                        inSource.graph.getTabId() != this.getTabId()
-                    ) {
-                        error = xcStringHelper.replaceMsg(AlertTStr.DFLinkGraphError, {
-                            "inName": inNode.getParam().linkOutName,
-                            "graphName": this.getRuntime().getDagTabService().getTabById(inSource.graph.getTabId())
-                                .getName()
-                        });
-                    } else if (inSource.node.shouldLinkAfterExecuition()) {
-                        if (inSource.node.getState() == DagNodeState.Complete) {
-                            // The dfOut node's table was deleted by the auto table manager,
-                            // we're gonna need it if we can.
-                            sources.push(inSource.node);
-                        } else {
-                            error = xcStringHelper.replaceMsg(AlertTStr.DFLinkShouldLinkError, {
+                    if (!DagTblManager.Instance.hasTable(inSource.node.getTable())) {
+                        // The needed table doesnt exist so we need to generate it, if we can
+                        if (inSource.node.shouldLinkAfterExecuition() &&
+                            inSource.graph.getTabId() != this.getTabId()
+                        ) {
+                            error = xcStringHelper.replaceMsg(AlertTStr.DFLinkGraphError, {
                                 "inName": inNode.getParam().linkOutName,
+                                "graphName": this.getRuntime().getDagTabService().getTabById(inSource.graph.getTabId())
+                                    .getName()
                             });
+                        } else if (inSource.node.shouldLinkAfterExecuition()) {
+                            if (inSource.node.getState() == DagNodeState.Complete) {
+                                // The dfOut node's table was deleted by the auto table manager,
+                                // we're gonna need it if we can.
+                                sources.push(inSource.node);
+                            } else {
+                                error = xcStringHelper.replaceMsg(AlertTStr.DFLinkShouldLinkError, {
+                                    "inName": inNode.getParam().linkOutName,
+                                });
+                            }
                         }
+                        // Otherwise this is a link in using a query, so the node itself is the source
+                        inSource.node.deleteStoredQuery(this.getTabId());
                     }
-                    // Otherwise this is a link in using a query, so the node itself is the source
-                    inSource.node.deleteStoredQuery(this.getTabId());
                 }
             } catch (e) {
                 error = (e instanceof Error ? e.message : e);
@@ -1347,13 +1350,15 @@ class DagGraph extends Durable {
                 // Note: be cafure of this path for circular case
                 try {
                     const linkInNode: DagNodeDFIn = <DagNodeDFIn>node;
-                    const res: {graph: DagGraph, node: DagNodeDFOut} = linkInNode.getLinkedNodeAndGraph();
-                    const graph = res.graph;
-                    if (graph !== this) {
-                        const dsSet: Set<string> = graph.getUsedDSNames(true);
-                        dsSet.forEach((dsName) => {
-                            set.add(dsName);
-                        });
+                    if (!linkInNode.hasSource()) {
+                        const res: {graph: DagGraph, node: DagNodeDFOut} = linkInNode.getLinkedNodeAndGraph();
+                        const graph = res.graph;
+                        if (graph !== this) {
+                            const dsSet: Set<string> = graph.getUsedDSNames(true);
+                            dsSet.forEach((dsName) => {
+                                set.add(dsName);
+                            });
+                        }
                     }
                 } catch (e) {
                     console.error(e);
@@ -1827,6 +1832,10 @@ class DagGraph extends Durable {
                         break;
                     case (DagNodeType.DFIn):
                         const inNode = <DagNodeDFIn>node;
+                        if (inNode.hasSource()) {
+                            // skip link in check if have source
+                            break;
+                        }
                         let link: {graph: DagGraph, node: DagNodeDFOut};
                         try {
                             link = inNode.getLinkedNodeAndGraph();

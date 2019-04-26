@@ -3245,6 +3245,28 @@
     .dropDownList .list {
         text-transform: none;
     }
+
+    .instrText.withSource {
+        display: none;
+    }
+
+    &.withSource {
+        .row {
+            &.dataflowName, &.linkOutNodeName {
+                > div {
+                    .xc-disabled;
+                }
+            }
+        }
+
+        .instrText.withSource {
+            display: block;
+        }
+
+        .instrText:not(.withSource) {
+            display: none;
+        }
+    }
 }
 
 #dfLinkOutPanel {

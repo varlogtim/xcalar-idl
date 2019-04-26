@@ -1654,6 +1654,7 @@ OpPanelTStr = {
     "DSLoadArgChange": "Dataset LoadArgs Change",
     "DSLoadArgChangeMsg": "Changes made to the loadArgs will only affect the optimized execution.",
     "DFLinkOutNameDup": "The name has already been used by another link out node, please choose another name",
+    "DFLinkInSourceHint": "The Dataflow Name and Link Out Reference Name are not appiled when source is specified",
     "DFLinkInNoDF": "Dataflow doesn't exist",
     "DFLinkInNoOut": "Link out node doesn't exist",
     "DFLinkInNoSchema": "No columns in schema",

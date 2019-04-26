@@ -113,6 +113,10 @@ class DagGraphExecutor {
                 break;
             } else if (node.getType() === DagNodeType.DFIn) {
                 const linkInNode: DagNodeDFIn = <DagNodeDFIn>node;
+                if (linkInNode.hasSource()) {
+                    // skip check if has source
+                    break;
+                }
                 const res = this._checkLinkInResult(linkInNode);
                 if (res.hasError) {
                     errorResult = res;
@@ -420,7 +424,7 @@ class DagGraphExecutor {
             .then((_res) => {
                 let promises = [];
                 self._executeInProgress = false;
-                nodes.forEach((node, i) => {
+                nodes.forEach((node) => {
                     if (node instanceof DagNodeDFOut) {
                         let destTable;
                         if (node.getNumParent() === 1) {
@@ -432,9 +436,14 @@ class DagGraphExecutor {
                         }
                         node.beCompleteState();
                     } else if (node instanceof DagNodeDFIn) {
-                        const res = node.getLinkedNodeAndGraph();
-                        const linkOutNode: DagNodeDFOut = res.node;
-                        const destTable: string = linkOutNode.getTable();
+                        let destTable: string;
+                        if (node.hasSource()) {
+                            destTable = node.getSource();
+                        } else {
+                            const res = node.getLinkedNodeAndGraph();
+                            const linkOutNode: DagNodeDFOut = res.node;
+                            destTable = linkOutNode.getTable();
+                        }
                         if (destTable) {
                             node.setTable(destTable);
                             DagTblManager.Instance.addTable(destTable);

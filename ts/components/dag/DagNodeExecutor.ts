@@ -790,6 +790,9 @@ class DagNodeExecutor {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         try {
             const node: DagNodeDFIn = <DagNodeDFIn>this.node;
+            if (node.hasSource()) {
+                return this._linkWithSource(node, optimized);
+            }
             const res = node.getLinkedNodeAndGraph();
             const graph: DagGraph = res.graph;
             const linkOutNode: DagNodeDFOut = res.node;
@@ -806,6 +809,24 @@ class DagNodeExecutor {
         }
 
         return deferred.promise();
+    }
+
+    private _linkWithSource(
+        node: DagNodeDFIn,
+        optimized?: boolean
+    ): XDPromise<string> {
+        let param: DagNodeDFInInputStruct = node.getParam(this.replaceParam);
+        let source: string = param.source;
+        if (optimized) {
+            const desTable = this._generateTableName();
+            // get table outside from batch data flow, so sameSession must be set to false
+            return XIApi.synthesize(this.txId, [], source, desTable, false)
+        } else {
+            node.setTable(source);
+            DagTblManager.Instance.addTable(source);
+            node.beCompleteState();
+            return PromiseHelper.resolve(source);
+        }
     }
 
     private _linkWithExecution(

@@ -197,6 +197,7 @@ interface DagNodeExtensionInputStruct {
 interface DagNodeDFInInputStruct {
     linkOutName: string;
     dataflowId: string;
+    source: string;
 }
 
 interface DagNodeDFOutInputStruct {

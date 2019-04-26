@@ -7,7 +7,9 @@ class XcDagTableViewer extends XcTableViewer {
         // XXX this code should be change after refine the table meta structure
         const tableId: TableId = xcHelper.getTableId(tableName);
         let table: TableMeta = gTables[tableId];
-        if (!table) {
+        if (!table || table.getName() !== tableName) {
+            // link in node can let user randomaly specify the tableName,
+            // so same id doesn't guarantee the same table
             table = new TableMeta({
                 tableName: tableName,
                 tableId: tableId,
