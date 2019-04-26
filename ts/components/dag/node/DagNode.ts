@@ -14,12 +14,13 @@ abstract class DagNode extends Durable {
     private configured: boolean;
     private numParent: number; // non-persisent
     private hasTitleChange: boolean;
-
     protected events: {_events: object, trigger: Function}; // non-persistent;
     protected type: DagNodeType;
     protected subType: DagNodeSubType;
     protected lineage: DagLineage; // XXX persist or not TBD
     protected input: DagNodeInput; // will be overwritten by subClasses
+    protected columnDeltas: Map<string, any>; // persist
+    protected columnOrdering: string[]; // persist
     protected minParents: number; // non-persistent
     protected maxParents: number; // non-persistent
     protected maxChildren: number; // non-persistent
@@ -71,6 +72,15 @@ abstract class DagNode extends Durable {
         this.maxChildren = -1;
         this.allowAggNode = false;
         this.lineage = new DagLineage(this);
+        this.columnDeltas = new Map();
+        if (options.columnDeltas) { // turn array into map
+            options.columnDeltas.forEach((columnDelta) => {
+                let modifiedColumnDelta = $.extend({}, columnDelta);
+                delete modifiedColumnDelta.name;
+                this.columnDeltas.set(columnDelta.name, modifiedColumnDelta);
+            });
+        }
+        this.columnOrdering = options.columnOrdering || [];
         this._setupEvents();
 
         // const displayType = this.subType || this.type; // XXX temporary
@@ -1040,6 +1050,100 @@ abstract class DagNode extends Durable {
         return displayNodeType;
     }
 
+    public columnChange(type: DagColumnChangeType, columnNames: string[], info?) {
+        if (type === DagColumnChangeType.Reorder) {
+            this.columnOrdering = columnNames;
+        } else {
+            columnNames.forEach((colName, i) => {
+                let colInfo = this.columnDeltas.get(colName) || {};
+                switch (type) {
+                    case (DagColumnChangeType.Hide):
+                        if (colInfo.isPulled) {
+                            delete colInfo.isPulled;
+                        } else {
+                            colInfo.isHidden = true;
+                            colInfo.type = info[i].type;
+                            // when pulling a column, we currently don't restore
+                            // the column width, alignment, or order
+                            delete colInfo.widthChange;
+                            delete colInfo.textAlign;
+                        }
+                        let index = this.columnOrdering.indexOf(colName);
+                        if (index > -1) {
+                            this.columnOrdering.splice(index, 1);
+                        }
+                        break;
+                    case (DagColumnChangeType.Pull):
+                        let wasHidden: boolean = colInfo.isHidden;
+                        // info is used to restore colInfo when undoing a hide
+                        if (info && info[i]) {
+                            colInfo = info[i];
+                            let order = colInfo.order;
+                            delete colInfo.order;
+                            // restore order when undoing a hide
+                            if (order != null && this.columnOrdering.length &&
+                                this.columnOrdering.indexOf(colName) === -1) {
+                                this.columnOrdering.splice(order, 0, colName);
+                            }
+                        }
+                        if (wasHidden) {
+                            delete colInfo.isHidden;
+                            delete colInfo.type;
+                        } else {
+                            colInfo.isPulled = true;
+                        }
+                        break;
+                    case (DagColumnChangeType.Resize):
+                        colInfo.widthChange = info[i];
+                        break;
+                    case (DagColumnChangeType.TextAlign):
+                        colInfo.textAlign = info.alignment;
+                        break;
+                    default:
+                        break;
+                }
+                // remove colInfo if empty
+                if (Object.keys(colInfo).length) {
+                    this.columnDeltas.set(colName, colInfo);
+                } else {
+                    this.columnDeltas.delete(colName);
+                }
+            });
+        }
+
+        this.events.trigger(DagNodeEvents.LineageChange, {
+            node: this,
+            columnDeltas: this.columnDeltas,
+            columnOrdering: this.columnOrdering
+        });
+    }
+
+    public getColumnDeltas(): Map<string, any> {
+        return this.columnDeltas;
+    }
+
+    public getColumnOrdering(): string[] {
+        return this.columnOrdering;
+    }
+
+    public resetColumnDeltas(): void {
+        this.columnDeltas = new Map();
+        this.events.trigger(DagNodeEvents.LineageChange, {
+            node: this,
+            columnDeltas: this.columnDeltas,
+            columnOrdering: this.columnOrdering
+        });
+    }
+
+    public resetColumnOrdering(): void {
+        this.columnOrdering = [];
+        this.events.trigger(DagNodeEvents.LineageChange, {
+            node: this,
+            columnDeltas: this.columnDeltas,
+            columnOrdering: this.columnOrdering
+        });
+    }
+
     public static readonly schema = {
         "definitions": {},
         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -1151,6 +1255,71 @@ abstract class DagNode extends Durable {
               "type": "string",
               "pattern": "^(.*)$"
             }
+          },
+          "columnDeltas": {
+            "$id": "#/properties/columnDeltas",
+            "type": "array",
+            "items": {
+                "$id": "#/properties/columnDeltas/items",
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "additionalProperties": true,
+                "properties": {
+                    "name": {
+                      "$id": "#/properties/ColumnDeltas/items/properties/name",
+                      "type": "string"
+                    },
+                    "textAlign": {
+                        "$id": "#/properties/ColumnDeltas/items/properties/textAlign",
+                        "type": "string",
+                        "enum": Object.values(ColTextAlign)
+                    },
+                    "isHidden": {
+                        "$id": "#/properties/ColumnDeltas/items/properties/isHidden",
+                        "type": "boolean"
+                    },
+                    "isPulled": {
+                        "$id": "#/properties/ColumnDeltas/items/properties/isPulled",
+                        "type": "boolean"
+                    },
+                    "type": {
+                        "$id": "#/properties/ColumnDeltas/items/properties/type",
+                        "type": ["string", "null"],
+                        "enum": Object.values(ColumnType).concat([null])
+                    },
+                    "widthChange": {
+                        "$id": "#/properties/ColumnDeltas/items/properties/widthChange",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "width": {
+                                "$id": "#/properties/ColumnDeltas/items/properties/widthChange/properties/width",
+                                "type": "integer",
+                                "minimum": 15,
+                            },
+                            "isMinimized": {
+                                "$id": "#/properties/ColumnDeltas/items/properties/widthChange/properties/isMinimized",
+                                "type": "boolean"
+                            },
+                            "sizedTo": {
+                                "$id": "#/properties/ColumnDeltas/items/properties/widthChange/properties/sizedTo",
+                                "type": "string",
+                                "enum": Object.values(ColSizeTo)
+                            }
+                        }
+                    }
+                }
+            }
+          },
+          "columnOrdering": {
+            "$id": "#/properties/columnOrdering",
+            "type": "array",
+            "items": {
+                "$id": "#/properties/columnOrdering/items",
+                "type": "string"
+            }
           }
         }
     };
@@ -1246,7 +1415,7 @@ abstract class DagNode extends Durable {
     // Custom dagNodes will have their own serialize/deserialize for
     // Their dagGraphs
     protected _getSerializeInfo(includeStats?: boolean): DagNodeInfo {
-        const info = {
+        const info: DagNodeInfo = {
             version: this.version,
             type: this.type,
             subType: this.subType,
@@ -1271,6 +1440,16 @@ abstract class DagNode extends Durable {
             }
         } else {
             delete info.stats;
+        }
+        if (this.columnDeltas.size > 0) {
+            let columnDeltas = [];
+            this.columnDeltas.forEach((colInfo, colName) => {
+                columnDeltas.push($.extend({name: colName}, colInfo));
+            });
+            info.columnDeltas = columnDeltas;
+        }
+        if (this.columnOrdering.length) {
+            info.columnOrdering = this.columnOrdering;
         }
         return info;
     }

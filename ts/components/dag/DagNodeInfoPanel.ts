@@ -41,6 +41,7 @@ class DagNodeInfoPanel {
         this._updateDescriptionSection();
         this._updateSubGraphSection();
         this._updateLock();
+        this._updateColumnChanges();
         return true;
     }
 
@@ -99,6 +100,9 @@ class DagNodeInfoPanel {
             case ("description"):
                 this._updateDescriptionSection();
                 break;
+            case ("columnChange"):
+                this._updateColumnChanges();
+                break;
             default:
                 console.warn(attribute, "attribute not found");
                 return false;
@@ -115,14 +119,13 @@ class DagNodeInfoPanel {
         });
 
         this._$panel.on("click", ".collapsible .rowHeading", function(event) {
-            if ($(event.target).closest(".editConfig").length) {
+            if ($(event.target).closest(".actionLink").length) {
                 return;
             }
             const $row = $(this).closest(".row")
 
             if ($row.hasClass("rowStats")) {
                 const prevTop = $row.offset().top;
-                // const prevScrollTop = this._$panel.find(".nodeInfoSection").scrollTop();
                 self._$panel.find(".rowStats").toggleClass("collapsed");
                 const topDiff = $row.offset().top - prevTop;
                 const curScrollTop = self._$panel.find(".nodeInfoSection").scrollTop();
@@ -143,6 +146,14 @@ class DagNodeInfoPanel {
             DagNodeMenu.execute("configureNode", {
                 node: self._activeNode
             });
+        });
+
+        this._$panel.find(".resetColumnChanges").click(() => {
+            DagViewManager.Instance.resetColumnDeltas(this._activeNode.getId());
+        });
+
+        this._$panel.find(".resetColumnOrdering").click(() => {
+            DagViewManager.Instance.resetColumnOrdering(this._activeNode.getId());
         });
 
         this._$panel.on("click", ".restore .action", () => {
@@ -362,6 +373,36 @@ class DagNodeInfoPanel {
             this._$panel.find(".subGraphRow").addClass("xc-hidden");
         }
     }
+
+    private _updateColumnChanges(): void {
+        const columnDeltas = this._activeNode.getColumnDeltas();
+        const columnOrdering = this._activeNode.getColumnOrdering();
+        let colHTML: HTML = "";
+        if (columnDeltas.size) {
+            columnDeltas.forEach((colInfo, colName) => { // map to obj
+                colHTML += `<b>${colName}</b>\n`;
+                let colInfoHTML = JSON.stringify(colInfo, null, 4);
+                colInfoHTML = colInfoHTML.slice(2, -1); // remove { }
+                colHTML += colInfoHTML;
+            });
+            this._$panel.find(".columnChangeSection").html(colHTML);
+            this._$panel.find(".columnChangeRow").removeClass("xc-hidden");
+        } else {
+            this._$panel.find(".columnChangeRow").addClass("xc-hidden");
+        }
+        if (columnOrdering.length) {
+            colHTML = `<ol>`;
+            columnOrdering.forEach((colName) => {
+                colHTML += `<li>${colName}</li>`;
+            });
+            colHTML += `</ol>`;
+            this._$panel.find(".columnOrderingSection").html(colHTML);
+            this._$panel.find(".columnOrderingRow").removeClass("xc-hidden");
+        } else {
+            this._$panel.find(".columnOrderingRow").addClass("xc-hidden");
+        }
+    }
+
 
     private _renderRestoreButton(): void {
         if (!(this._activeNode instanceof DagNodeDataset)) {

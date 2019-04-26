@@ -19,6 +19,8 @@ interface DagNodeInfo {
     name?: string;
     hasTitleChange?: boolean;
     graph?: DagGraph;
+    columnDeltas?: any[];
+    columnOrdering?: string[];
 }
 
 /** Dag Node Interface  */

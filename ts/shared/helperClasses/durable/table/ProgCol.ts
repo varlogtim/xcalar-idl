@@ -15,7 +15,7 @@ class ProgCol extends Durable {
     public format: ColFormat;
     public textAlign: ColTextAlign;
     public sortedColAlias: string; // for prefixed column, the actual column name that is sorted and hidden
-    
+
     public isNewCol: boolean; // if is new column
     private knownType: boolean; // if the type is known or just a guess
     private isMinimized: boolean; // columns is hidden or not

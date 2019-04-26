@@ -1500,7 +1500,11 @@ class TblManager {
             oldOrder.push(numCols);
         }
 
-        // XXX TODO: possibly update the order of lineage
+        let node: DagNode = DagTable.Instance.getBindNode();
+        if (node) {
+            let colNames = table.getAllCols().map(col => col.getBackColName());
+            node.columnChange(DagColumnChangeType.Reorder, colNames);
+        }
 
         Log.add(SQLTStr.SortTableCols, {
             "operation": SQLOps.SortTableCols,
@@ -1542,7 +1546,6 @@ class TblManager {
             $th.find('.col' + (index + 1)).removeClass('col' + (index + 1))
                 .addClass('col' + (i + 1));
             thHtml += $th[0].outerHTML;
-
         }
 
         // column rows and tds
@@ -1568,8 +1571,13 @@ class TblManager {
         $table.find('thead tr').html(thHtml);
         $table.find('tbody').html(tdHtml);
 
-        // XXX TODO: possibly update the order of lineage
         TblManager._addRowListeners($table.find('tbody'));
+
+        let node: DagNode = DagTable.Instance.getBindNode();
+        if (node) {
+            let colNames = table.getAllCols().map(col => col.getBackColName());
+            node.columnChange(DagColumnChangeType.Reorder, colNames);
+        }
     }
 
     /**
@@ -1597,10 +1605,18 @@ class TblManager {
             } else {
                 colNums = columnNums;
             }
-            columns = colNums.map((colNum) => table.getCol(colNum));
+            columns = colNums.map((colNum) => {
+                let col = ColManager.newCol(table.getCol(colNum));
+                table.tableCols[colNum - 1] = col;
+                return col;
+            });
         } else {
             allCols = true;
-            columns = table.tableCols;
+            columns = table.tableCols.map((col, i) => {
+                col = ColManager.newCol(col);
+                table.tableCols[i] = col;
+                return col;
+            });
             colNums = columns.map((_col, index) => (index + 1));
         }
 
@@ -1609,9 +1625,11 @@ class TblManager {
         const newWidths: number[] = [];
         const oldSizedTo: string[] = [];
         const wasHidden: boolean[] = [];
+        const columnNames: string[] = [];
 
         for (let i = 0, numCols = columns.length; i < numCols; i++) {
             const $th: JQuery = $table.find('th.col' + colNums[i]);
+            columnNames.push(columns[i].getBackColName());
             columns[i].maximize();
             oldColumnWidths.push(<number>columns[i].width);
             oldSizedTo.push(columns[i].sizedTo);
@@ -1631,6 +1649,19 @@ class TblManager {
                 "multipleCols": true,
                 "datastore": false
             }));
+        }
+
+        let node: DagNode = DagTable.Instance.getBindNode();
+        if (node) {
+            const colInfo = columnNames.map((_colName, i) => {
+                return {
+                    width: newWidths[i],
+                    sizedTo: columns[i].sizedTo,
+                    isMinimized: columns[i].hasMinimized()
+
+                }
+            });
+            node.columnChange(DagColumnChangeType.Resize, columnNames, colInfo);
         }
 
         TblFunc.matchHeaderSizes($table);
@@ -1675,6 +1706,8 @@ class TblManager {
         const $table: JQuery = $('#xcTable-' + tableId);
         $table.find('.userHidden').removeClass('userHidden');
         const numCols: number = colNums.length;
+        const columns: ProgCol[] = [];
+        const columnNames: string[] = [];
         for (let i = 0; i < numCols; i++) {
             const colNum: number = colNums[i];
             if (!widths[i]) {
@@ -1682,7 +1715,8 @@ class TblManager {
             }
             const $th: JQuery = $table.find('th.col' + colNum);
             let width: number | string = widths[i];
-            const progCol: ProgCol = table.getCol(colNum);
+            const progCol: ProgCol = new ProgCol(table.getCol(colNum));
+            table.tableCols[colNum - 1] = progCol;
             if (wasHidden && wasHidden[i]) {
                 $th.addClass("userHidden");
                 $table.find("td.col" + colNum).addClass("userHidden");
@@ -1694,8 +1728,22 @@ class TblManager {
             $th.outerWidth(width);
             progCol.width = widths[i];
             progCol.sizedTo = sizeTo[i];
+            columns.push(progCol);
+            columnNames.push(progCol.getBackColName());
         }
         TblFunc.matchHeaderSizes($table);
+        let node: DagNode = DagTable.Instance.getBindNode();
+        if (node) {
+            const colInfo = colNums.map((_colNum, i) => {
+                return {
+                    width: columns[i].getWidth(),
+                    sizedTo: columns[i].sizedTo,
+                    isMinimized: columns[i].hasMinimized()
+                }
+            });
+            node.columnChange(DagColumnChangeType.Resize, columnNames, colInfo);
+        }
+
     }
 
     // XXX TODO: update it

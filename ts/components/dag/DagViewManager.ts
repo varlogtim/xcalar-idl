@@ -946,7 +946,13 @@ class DagViewManager {
         DagTabManager.Instance.newTab();
     }
 
-    // public editNodeTitle()
+    public resetColumnDeltas(nodeId: DagNodeId): void {
+        this.activeDagView.resetColumnDeltas(nodeId);
+    }
+
+    public resetColumnOrdering(nodeId: DagNodeId): void {
+        this.activeDagView.resetColumnOrdering(nodeId);
+    }
 
     private _addEventListeners(): void {
         let mainAreaHeight;

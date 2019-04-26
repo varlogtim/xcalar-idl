@@ -45,6 +45,13 @@ enum ColTextAlign {
     Wrap = "Wrap"
 }
 
+enum ColSizeTo {
+    All = "all",
+    Header = "header",
+    Contents = "contents",
+    Auto = "auto"
+}
+
 enum ColumnType {
     array = "array",
     boolean = "boolean",
@@ -442,6 +449,7 @@ if (typeof global !== 'undefined') {
     global.ColFormat = ColFormat;
     global.ColTextAlign = ColTextAlign;
     global.ColumnType = ColumnType;
+    global.ColSizeTo = ColSizeTo;
     global.ColumnSortType = ColumnSortType;
     global.ColumnSortOrder = ColumnSortOrder;
     global.DSObjTerm = DSObjTerm;

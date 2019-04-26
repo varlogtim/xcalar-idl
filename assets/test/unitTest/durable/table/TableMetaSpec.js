@@ -45,7 +45,7 @@ describe("Table Constructor Test", function() {
         expect(table).have.property("numPages").and
         .to.be.equal(-1);
         expect(table).have.property("colTypeCache").and
-        .to.be.an("object");
+        .to.be.a("map");
         expect(table).have.property("hiddenSortCols").and
         .to.be.an("object");
     });
@@ -339,7 +339,7 @@ describe("Table Constructor Test", function() {
         });
         table.addAllCols([progCol]);
         expect(table.tableCols.length).to.equal(1);
-        expect(Object.keys(table.colTypeCache).length).to.equal(1);
+        expect(table.colTypeCache.size).to.equal(1);
     });
 
     it("Should add and remove col", function() {

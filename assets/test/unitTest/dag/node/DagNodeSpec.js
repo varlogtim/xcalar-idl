@@ -291,4 +291,71 @@ describe("Dag Node Basic Test", () => {
         });
     });
 
+    describe("column changes", () => {
+        let node;
+        before(() => {
+            node = new DagNode({type: DagNodeType.Map});
+        });
+        it("DagNode.ColumnChange ordering should work", function() {
+            let called = false;
+            node.registerEvents(DagNodeEvents.LineageChange, (info) => {
+                called = true;
+            })
+            node.columnChange(DagColumnChangeType.Reorder, ["test1", "test2"]);
+            expect(node.getColumnOrdering()).to.deep.equal(["test1", "test2"]);
+            expect(called).to.be.true;
+        });
+        it("DagNode.ColumnChange resize should work", function() {
+            node.columnChange(DagColumnChangeType.Resize, ["test1"], [{width: 20, sizeTo: "header", isMinimized: false}]);
+            let res = node.getColumnDeltas();
+            expect(res.size).to.equal(1);
+            expect(res.has("test1")).to.be.true;
+            expect(res.get("test1")).to.deep.equal({widthChange: {width: 20, sizeTo: "header", isMinimized: false}});
+        });
+        it("DagNode.ColumnChange textAlign should work", function() {
+            node.columnChange(DagColumnChangeType.TextAlign, ["test1"], {alignment: "Right"});
+            let res = node.getColumnDeltas();
+            expect(res.size).to.equal(1);
+            expect(res.has("test1")).to.be.true;
+            expect(res.get("test1")).to.deep.equal({widthChange: {width: 20, sizeTo: "header", isMinimized: false}, textAlign: "Right"});
+        });
+
+        it("DagNode.ColumnChange hide should work", function() {
+            node.columnChange(DagColumnChangeType.Hide, ["test1"], [{type: "string"}]);
+            let res = node.getColumnDeltas();
+            expect(res.size).to.equal(1);
+            expect(res.has("test1")).to.be.true;
+            expect(res.get("test1")).to.deep.equal({isHidden: true, type: "string"});
+            expect(node.getColumnOrdering()).to.deep.equal(["test2"]);
+        });
+
+        it("DagNode.ColumnChange pull on hidden column should work", function() {
+            node.columnChange(DagColumnChangeType.Pull, ["test1"]);
+            let res = node.getColumnDeltas();
+            expect(res.size).to.equal(0);
+            expect(res.has("test1")).to.be.false;
+            expect(node.getColumnOrdering()).to.deep.equal(["test2"]);
+        });
+
+        it("DagNode.ColumnChange hide and undo should work", function() {
+            node = new DagNode({type: DagNodeType.Map});
+            node.columnChange(DagColumnChangeType.Reorder, ["test1", "test2"]);
+
+            // change text align and then hide
+            node.columnChange(DagColumnChangeType.TextAlign, ["test1"], {alignment: "Right"});
+            node.columnChange(DagColumnChangeType.Hide, ["test1"], [{type: "string"}]);
+            let res = node.getColumnDeltas();
+            expect(res.has("test1")).to.be.true;
+            expect(res.get("test1")).to.deep.equal({isHidden: true, type: "string"});
+            expect(node.getColumnOrdering()).to.deep.equal(["test2"]);
+
+            // simulate an undo of hide
+            let columnDeltas = [{textAlign: "Right", order: 0}];
+            node.columnChange(DagColumnChangeType.Pull, ["test1"], columnDeltas);
+            res = node.getColumnDeltas();
+            expect(res.has("test1")).to.be.true;
+            expect(res.get("test1")).to.deep.equal({textAlign: "Right"});
+            expect(node.getColumnOrdering()).to.deep.equal(["test1", "test2"]);
+        });
+    });
 });

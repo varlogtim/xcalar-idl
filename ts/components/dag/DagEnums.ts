@@ -96,6 +96,7 @@ enum DagNodeEvents {
     ConnectionChange = "ConnectionChange",
     DescriptionChange = "DescriptionChange",
     LineageSourceChange = "DagNodeLineageSourceChange",
+    LineageChange = "DagNodeLineageChange",
     ParamChange = "DagNodeParamChange",
     StateChange = "DagNodeStateChange",
     ResultSetChange = "DagNodeResultSetChange",
@@ -188,6 +189,14 @@ DagCategoryTooltip[DagCategoryType.Set] = "These operators apply set operations"
 DagCategoryTooltip[DagCategoryType.Aggregates] = "These operators compute results based on aggregate functions";
 DagCategoryTooltip[DagCategoryType.Extensions] = "These operators apply extensions";
 DagCategoryTooltip[DagCategoryType.Custom] = "These compound operators are user-defined";
+
+enum DagColumnChangeType {
+    Hide = "hide",
+    Pull = "pull",
+    Resize = "resize",
+    TextAlign = "textAlign",
+    Reorder = "reorder"
+}
 
 
 if (typeof exports !== 'undefined') {

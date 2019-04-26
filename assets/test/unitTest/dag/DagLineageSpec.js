@@ -106,6 +106,109 @@ describe("DagLineage Test", () => {
         expect(history[0].childId).to.equal(null);
         expect(history[0].change).to.equal(null);
         expect(history[0].id).to.equal(node.getId());
+    });
 
+    it("should get hidden columns", () => {
+        let parentNode;
+        let node;
+        let lineage;
+        parentNode = DagNodeFactory.create({
+            type: DagNodeType.Dataset
+        });
+        parentNode.setSchema([{name: "test1", type: ColumnType.integer}, {name: "test2", type: ColumnType.string}]);
+        node = DagNodeFactory.create({
+            type: DagNodeType.Map
+        });
+        node.connectToParent(parentNode);
+        node.setParam({
+            eval: [{
+                evalString: "add(test1, 1)",
+                newField: "test3"
+            }],
+            icv: false
+        });
+        lineage = new DagLineage(node);
+
+        node.getColumnDeltas = () => {
+            return new Map([["test1", {isHidden: true, type: ColumnType.integer}]])
+        };
+        let res = lineage.getHiddenColumns();
+        expect(res.size).to.equal(1);
+        expect(res.get("test1")).to.equal(ColumnType.integer);
+    });
+
+    describe("_update", () => {
+        let parentNode;
+        let node;
+        let lineage;
+        before(() => {
+            parentNode = DagNodeFactory.create({
+                type: DagNodeType.Dataset
+            });
+            parentNode.setSchema([{name: "test1", type: ColumnType.integer}, {name: "test2", type: ColumnType.string}]);
+            node = DagNodeFactory.create({
+                type: DagNodeType.Map
+            });
+            node.connectToParent(parentNode);
+            node.setParam({
+                eval: [{
+                    evalString: "add(test1, 1)",
+                    newField: "test3"
+                }],
+                icv: false
+            });
+            lineage = new DagLineage(node);
+        });
+        it("_update with hidden column should work", () => {
+            node.getColumnDeltas = () => {
+                return new Map([["test1", {isHidden: true, type: ColumnType.integer}]])
+            };
+            let res = lineage._update();
+
+            expect(res.columns.length).to.equal(2);
+            expect(res.columns[0].getBackColName()).to.equal("test2");
+            expect(res.columns[1].getBackColName()).to.equal("test3");
+            expect(res.changes.length).to.equal(1);
+            expect(res.changes[0].from).to.be.null;
+            expect(res.changes[0].to.getBackColName()).to.equal("test3");
+        });
+
+        it("_update with pulled column should work", () => {
+            parentNode.getLineage().reset();
+            parentNode.getColumnDeltas = () => {
+                return new Map([["test1", {isHidden: true, type: ColumnType.integer}]])
+            };
+            node.getColumnDeltas = () => {
+                return new Map([["test1", {isPulled: true}]])
+            };
+            let res = lineage._update();
+
+            expect(res.columns.length).to.equal(3);
+            expect(res.columns[0].getBackColName()).to.equal("test2");
+            expect(res.columns[1].getBackColName()).to.equal("test3");
+            expect(res.columns[2].getBackColName()).to.equal("test1");
+            expect(res.changes.length).to.equal(1);
+            expect(res.changes[0].from).to.be.null;
+            expect(res.changes[0].to.getBackColName()).to.equal("test3");
+        });
+        it("_update with column reordering should work", () => {
+            parentNode.getLineage().reset();
+            lineage.reset();
+            parentNode.getColumnDeltas = () => {
+                return new Map();
+            };
+            node.getColumnDeltas = () => {
+                return new Map();
+            };
+            node.getColumnOrdering = () => {
+                return ["test3", "test2", "test1"];
+            };
+            let res = lineage._update();
+
+            expect(res.columns.length).to.equal(3);
+            expect(res.columns[0].getBackColName()).to.equal("test3");
+            expect(res.columns[1].getBackColName()).to.equal("test2");
+            expect(res.columns[2].getBackColName()).to.equal("test1");
+        });
     });
 });

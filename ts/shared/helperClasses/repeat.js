@@ -76,11 +76,6 @@ window.Repeat = (function($, Repeat) {
         return ColManager.maximizeCols(colNums, tableId);
     };
 
-    repeatFuncs[SQLOps.AddNewCol] = function(options, colNums, tableId) {
-        ColManager.addNewCol(colNums[0], tableId, options.direction);
-        return PromiseHelper.resolve(null);
-    };
-
     repeatFuncs[SQLOps.HideCol] = function(options, colNums, tableId) {
         return (ColManager.hideCol(colNums, tableId));
     };

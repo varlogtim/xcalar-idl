@@ -107,6 +107,8 @@ describe('TblAnim Test', function() {
 
             expect(gMouseStatus).to.be.null;
             expect(progCol.isMinimized).to.be.false;
+            expect(progCol.width).to.equal(startWidth);
+            progCol = table.tableCols[0];
             expect(progCol.width).to.equal(startWidth + 10);
             // based on onColResize width
             expect($th.outerWidth()).to.equal(startWidth + 10);

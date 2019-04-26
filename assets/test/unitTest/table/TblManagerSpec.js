@@ -658,6 +658,8 @@ describe("TableManager Test", function() {
             // default to be true
             expect(progCol.sizedTo).to.be.equal("header");
             TblManager.resizeColumns(tableId, "contents", 1);
+            expect(progCol.sizedTo).to.equal("header");
+            progCol = table.getCol(1);
             expect(progCol.sizedTo).to.equal("contents");
         });
 
@@ -665,6 +667,7 @@ describe("TableManager Test", function() {
             var table = gTables[tableId];
             var progCol = table.getCol(1);
             TblManager.resizeColumns(tableId, "header");
+            progCol = table.getCol(1);
             expect(progCol.sizedTo).to.equal("header");
         });
 
@@ -673,6 +676,7 @@ describe("TableManager Test", function() {
             var progCol = table.getCol(1);
             progCol.sizedTo = "contents";
             TblManager.resizeColumns(tableId, "all", 1);
+            progCol = table.getCol(1);
             expect(progCol.sizedTo).to.equal("all");
         });
 
@@ -690,10 +694,12 @@ describe("TableManager Test", function() {
             var progCol = table.getCol(1);
             expect(progCol.sizedTo).to.equal("all");
             TblManager.resizeColumns(tableId, "contents", 1);
+            progCol = table.getCol(1);
             expect(progCol.sizedTo).to.equal("contents");
 
             Log.undo()
             .then(function() {
+                progCol = table.getCol(1);
                 expect(progCol.sizedTo).to.equal("all");
                 done();
             })

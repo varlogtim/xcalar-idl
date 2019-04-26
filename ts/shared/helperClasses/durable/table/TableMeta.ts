@@ -31,7 +31,7 @@ class TableMeta extends Durable {
     private numPages: number; // (integer, not persist) num of pages
     private indexTables: object; // (obj) cache column's indexed table
     private complement: string; // complement table
-    private colTypeCache: object; // (obj) cache known column type, not persist
+    private colTypeCache: Map<string, ColumnType>; // (obj) cache known column type, not persist
     private hiddenSortCols: object; // (obj) a {derivedColName: prefixColName} map of columns to be hidden from the data browser modal
 
     constructor(options: TableMetaOptions) {
@@ -75,7 +75,7 @@ class TableMeta extends Durable {
         this.complement = options.complement || "";
 
         this.backTableMeta = options.backTableMeta || null;
-        this.colTypeCache = {};
+        this.colTypeCache = new Map();
         this.hiddenSortCols = {};
     }
 
@@ -167,12 +167,20 @@ class TableMeta extends Durable {
         columns.forEach((progCol) => {
             if (!progCol.isDATACol() && !progCol.isEmptyCol()) {
                 let colName = progCol.getBackColName();
-                this.colTypeCache[colName] = progCol.getType();
+                this.colTypeCache.set(colName, progCol.getType());
             }
             progCols.push(progCol);
         });
         this.tableCols = progCols;
         return true;
+    }
+
+    public addToColTypeCache(colMap) {
+        for (let [colName, type] of colMap) {
+            if (!this.colTypeCache.get(colName)) {
+                this.colTypeCache.set(colName, type);
+            }
+        }
     }
 
     public addCol(colNum: number, progCol: ProgCol): boolean {
@@ -184,7 +192,7 @@ class TableMeta extends Durable {
         this.tableCols.splice(index, 0, progCol);
         let backColName = progCol.getBackColName();
         if (progCol.getType() == null) {
-            progCol.setType(this.colTypeCache[backColName] || null);
+            progCol.setType(this.colTypeCache.get(backColName) || null);
         }
 
         if (this.backTableMeta != null) {
@@ -400,6 +408,11 @@ class TableMeta extends Durable {
         }
 
         return tableCols[colNum - 1];
+    }
+
+    public setCol(col: ProgCol, colNum: number): void {
+        let tableCols: ProgCol[] = this.tableCols || [];
+        tableCols[colNum - 1] = col;
     }
 
     public getNumCols(): number {

@@ -119,27 +119,10 @@ window.TblAnim = (function($, TblAnim) {
         rescol.table.closest(".xcTableWrap").removeClass("resizingCol");
         $('.tooltip').remove();
         if (!isDatastore) {
-            var table = gTables[rescol.tableId];
-            var progCol = table.tableCols[rescol.index - 1];
-
-            if (rescol.newWidth === rescol.cellMinWidth) {
-                rescol.table
-                      .find('th.col' + rescol.index + ',td.col' + rescol.index)
-                      .addClass("userHidden");
-                progCol.isMinimized = true;
-            } else {
-                progCol.width = rescol.$th.outerWidth();
-            }
-            var column = gTables[rescol.tableId].tableCols[rescol.index - 1];
-
-            prevSizedTo = column.sizedTo;
-
-            if (Math.abs(rescol.newWidth - rescol.startWidth) > 1) {
-                // set autoresize to header only if column moved at least 2 pixels
-                column.sizedTo = "auto";
-            }
             if (rescol.newWidth === rescol.startWidth) {
                 wasResized = false;
+            } else {
+                TblAnim.resizeColumn(rescol.tableId, rescol.index, rescol.startWidth, rescol.newWidth);
             }
         } else {
             rescol.isDatastore = false;
@@ -151,19 +134,6 @@ window.TblAnim = (function($, TblAnim) {
 
         // for tableScrollBar
         TblFunc.moveFirstColumn();
-
-        if (!isDatastore && wasResized) {
-            Log.add(SQLTStr.ResizeCol, {
-                "operation": SQLOps.DragResizeTableCol,
-                "tableName": gTables[rescol.tableId].tableName,
-                "tableId": rescol.tableId,
-                "colNum": rescol.index,
-                "fromWidth": rescol.startWidth,
-                "toWidth": rescol.newWidth,
-                "oldSizedTo": prevSizedTo,
-                "htmlExclude": ["colNum", "fromWidth", "toWidth", "oldSizedTo"]
-            });
-        }
     }
 
     function dblClickResize($el, target, minWidth) {
@@ -194,11 +164,12 @@ window.TblAnim = (function($, TblAnim) {
             $table.removeClass('resizingCol');
 
             // check if unhiding
-            if (target !== "datastore" && $th.outerWidth() === 15) {
+            if (target !== "datastore" && $th.outerWidth() === gRescol.cellMinWidth) {
                 tableId = $table.data('id');
                 var index = ColManager.parseColNum($th);
                 $th.addClass('userHidden');
                 $table.find('td.col' + index).addClass('userHidden');
+
                 gTables[tableId].tableCols[index - 1].isMinimized = true;
                 ColManager.maximizeCols([index], tableId, true);
                 return;
@@ -233,7 +204,9 @@ window.TblAnim = (function($, TblAnim) {
             });
 
             var includeHeader = false;
-            var sizeTo = "contents";
+            var sizeTo = ColSizeTo.Contents;
+            const selectedCols = [];
+            const selectedColNames = [];
 
             if (target === "datastore") {
                 $selectedCols.find('.colGrab').each(function() {
@@ -252,10 +225,13 @@ window.TblAnim = (function($, TblAnim) {
                 var columns = gTables[tableId].tableCols;
                 var i;
                 for (i = 0; i < numSelectedCols; i++) {
-                    if (columns[indices[i]].sizedTo !== "header" &&
-                        columns[indices[i]].sizedTo !== "all") {
+                    gTables[tableId].tableCols[indices[i]] = new ProgCol(columns[indices[i]]);
+                    selectedCols.push(columns[indices[i]]);
+                    selectedColNames.push(columns[indices[i]].getBackColName());
+                    if (columns[indices[i]].sizedTo !== ColSizeTo.Header &&
+                        columns[indices[i]].sizedTo !== ColSizeTo.All) {
                         includeHeader = true;
-                        sizeTo = "header";
+                        sizeTo = ColSizeTo.Header;
                         break;
                     }
                 }
@@ -277,11 +253,23 @@ window.TblAnim = (function($, TblAnim) {
             });
 
             if (target !== "datastore") {
-                var table = gTables[tableId];
+                let node = DagTable.Instance.getBindNode();
+                if (node) {
+                    const colInfo = selectedCols.map((col, i) => {
+                        return {
+                            width: newColumnWidths[i],
+                            sizedTo: sizeTo,
+                            isMinimized: col.hasMinimized()
+                        };
+                    });
+                    node.columnChange(DagColumnChangeType.Resize, selectedColNames, colInfo);
+                }
+
+                var tableName = gTables[tableId].tableName;
 
                 Log.add(SQLTStr.ResizeCols, {
                     "operation": SQLOps.ResizeTableCols,
-                    "tableName": table.tableName,
+                    "tableName": tableName,
                     "tableId": tableId,
                     "sizeTo": sizeTo,
                     "oldSizedTo": oldSizedTo,
@@ -299,7 +287,9 @@ window.TblAnim = (function($, TblAnim) {
     TblAnim.resizeColumn = function(tableId, colNum, fromWidth, toWidth,
                                     sizeTo) {
         var $table = $('#xcTable-' + tableId);
-        var progCol = gTables[tableId].tableCols[colNum - 1];
+        var progCol = new ProgCol(gTables[tableId].tableCols[colNum - 1]);
+        gTables[tableId].tableCols[colNum - 1] = progCol;
+
         var $th = $table.find('th.col' + colNum);
         var $allCells = $table.find("th.col" + colNum + ",td.col" + colNum);
         if ($th.hasClass("userHidden")) {
@@ -308,13 +298,15 @@ window.TblAnim = (function($, TblAnim) {
             $allCells.removeClass("userHidden");
             progCol.isMinimized = false;
         }
-        if (toWidth <= 15) {
+        if (toWidth <= gRescol.cellMinWidth) {
             $allCells.addClass("userHidden");
             progCol.isMinimized = true;
         } else {
             progCol.width = toWidth;
         }
         $th.outerWidth(toWidth);
+        TblFunc.matchHeaderSizes($table);
+
         var oldSizedTo = progCol.sizedTo;
         if (sizeTo == null) {
             if (Math.abs(toWidth - fromWidth) > 1) {
@@ -325,7 +317,15 @@ window.TblAnim = (function($, TblAnim) {
         } else {
             progCol.sizedTo = sizeTo;
         }
-        TblFunc.matchHeaderSizes($table);
+
+        let node = DagTable.Instance.getBindNode();
+        if (node) {
+            node.columnChange(DagColumnChangeType.Resize, [progCol.getBackColName()], [{
+                width: toWidth,
+                sizedTo: progCol.sizedTo,
+                isMinimized: progCol.isMinimized
+            }]);
+        }
 
         Log.add(SQLTStr.ResizeCol, {
             "operation": SQLOps.DragResizeTableCol,

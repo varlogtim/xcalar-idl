@@ -157,13 +157,6 @@ namespace Redo {
         return ColManager.maximizeCols(options.colNums, options.tableId);
     };
 
-    redoFuncs[SQLOps.AddNewCol] = function(options): XDPromise<void> {
-        focusTableHelper(options);
-        ColManager.addNewCol(options.colNum, options.tableId, options.direction);
-
-        return PromiseHelper.resolve(null);
-    };
-
     redoFuncs[SQLOps.HideCol] = function(options): XDPromise<void> {
         focusTableHelper(options);
         return (ColManager.hideCol(options.colNums, options.tableId));

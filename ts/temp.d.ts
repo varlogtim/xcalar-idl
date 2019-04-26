@@ -222,7 +222,7 @@ interface JQuery {
 }
 
 interface Object {
-    values(any): Function
+    values(any): any[]
 }
 
 interface Element {

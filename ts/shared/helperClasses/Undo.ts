@@ -177,17 +177,8 @@ namespace Undo {
         return ColManager.minimizeCols(options.colNums, options.tableId);
     };
 
-    undoFuncs[SQLOps.AddNewCol] = function(options): XDPromise<void> {
-        focusTableHelper(options);
-        let colNum: number = options.colNum;
-        if (options.direction === ColDir.Right) {
-            colNum++;
-        }
-        return ColManager.hideCol([colNum], options.tableId);
-    };
-
     undoFuncs[SQLOps.HideCol] = function(options): XDPromise<void> {
-        undoDeleteHelper(options, -1);
+        undoDeleteColHelper(options);
         return PromiseHelper.resolve(null);
     };
 
@@ -299,7 +290,7 @@ namespace Undo {
     /* End of Table Operations */
 
     // for undoing deleted table columns
-    function undoDeleteHelper(options: {progCols: ProgCol[], tableId: TableId, colNums: number[]}, shift: number): void {
+    function undoDeleteColHelper(options: {progCols: ProgCol[], tableId: TableId, colNums: number[], columnDeltas: any}): void {
         focusTableHelper(options);
         let progCols: ProgCol[] = options.progCols;
         let tableId: TableId = options.tableId;
@@ -308,11 +299,13 @@ namespace Undo {
         let $table: JQuery = $('#xcTable-' + tableId);
         let dataIndex: number = ColManager.parseColNum($table.find('th.dataCol'));
         let newProgCol: ProgCol;
-        shift = shift || 0;
+        const colNames: string[] = [];
+        const shift: number = -1;
 
         for (let i = 0, len = progCols.length; i < len; i++) {
             newProgCol = ColManager.newCol(progCols[i]);
             currProgCols.splice(colNums[i] + shift, 0, newProgCol);
+            colNames.push(newProgCol.getBackColName());
         }
 
         let jsonData: string[] = [];
@@ -329,6 +322,12 @@ namespace Undo {
         TblManager.addColListeners($table, tableId);
         TblManager.updateHeaderAndListInfo(tableId);
         TblFunc.moveFirstColumn();
+
+        let node: DagNode = DagTable.Instance.getBindNode();
+        if (node) {
+            let columnDeltas = xcHelper.deepCopy(options.columnDeltas)
+            node.columnChange(DagColumnChangeType.Pull, colNames, columnDeltas);
+        }
     }
 
     function focusTableHelper(options) {

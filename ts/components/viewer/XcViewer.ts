@@ -27,7 +27,7 @@ abstract class XcViewer {
     /**
      * clear the view
      */
-    public clear(): void {
+    public clear(_isRefresh: boolean = false): void {
         this.$view.remove();
     }
 

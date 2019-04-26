@@ -178,8 +178,8 @@ abstract class DagTab extends Durable {
         this._kvStore.getAndParse()
         .then((dagInfo) => {
             try {
-                const { dagInfo: retInfo, graph } = this._loadFromJSON(dagInfo);
-                deferred.resolve({dagInfo: retInfo, graph: graph});
+                const { graph } = this._loadFromJSON(dagInfo);
+                deferred.resolve({dagInfo, graph});
             } catch(e) {
                 console.error(e);
                 deferred.reject({ error: e.message });
@@ -214,7 +214,7 @@ abstract class DagTab extends Durable {
             // return an empty graph
             console.error(e);
         }
-        return { dagInfo: dagInfo, graph: graph };
+        return { dagInfo, graph };
     }
 
     // save meta

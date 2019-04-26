@@ -478,6 +478,10 @@ class DagGraph extends Durable {
             });
             this.events.trigger(DagNodeEvents.LineageSourceChange, info);
         })
+        .registerEvents(DagNodeEvents.LineageChange, (info) => {
+            this._traverseResetLineage(info.node);
+            this.events.trigger(DagNodeEvents.LineageChange, info);
+        })
         .registerEvents(DagNodeEvents.TitleChange, (info) => {
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.TitleChange, info);

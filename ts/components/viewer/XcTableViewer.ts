@@ -23,10 +23,13 @@ class XcTableViewer extends XcViewer {
     /**
      * Clear Table Preview
      */
-    public clear(): XDPromise<void> {
+    public clear(isRefresh: boolean = false): XDPromise<void> {
         super.clear();
         this.rowInput.clear();
         this.skew.clear();
+        if (isRefresh) {
+            return PromiseHelper.resolve();
+        }
         return this.table.freeResultset();
     }
 

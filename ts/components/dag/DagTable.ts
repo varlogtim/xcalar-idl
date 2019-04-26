@@ -56,6 +56,18 @@ class DagTable {
         return this._show(viewer);
     }
 
+    public refreshTable() {
+        const currentViewer: XcDagTableViewer = <XcDagTableViewer>this._currentViewer;
+        if (!currentViewer || currentViewer instanceof XcDatasetViewer) {
+            return PromiseHelper.resolve(); // invalid case
+        }
+
+        const table: TableMeta = XcDagTableViewer.getTableFromDagNode(currentViewer.getNode());
+        const viewer = currentViewer.replace(table);
+        this._viewers.set(currentViewer.getDataflowTabId(), viewer);
+        this._show(currentViewer, true);
+    }
+
     public getTable(): string {
         return this._currentViewer ? this._currentViewer.getId() : null;
     }
@@ -113,12 +125,12 @@ class DagTable {
         }
     }
 
-    private _show(viewer: XcViewer): XDPromise<void> {
-        if (this._isSameViewer(viewer)) {
+    private _show(viewer: XcViewer, isRefresh: boolean = false): XDPromise<void> {
+        if (!isRefresh && this._isSameViewer(viewer)) {
             return PromiseHelper.resolve();
         }
 
-        this._reset();
+        this._reset(isRefresh);
         this._currentViewer = viewer;
         return this._showViewer();
     }
@@ -180,17 +192,17 @@ class DagTable {
         return $("#" + this._container);
     }
 
-    private _reset(): void {
-        this._resetViewer();
+    private _reset(isRefresh: boolean = false): void {
+        this._resetViewer(isRefresh);
         this._clearTableNameArea();
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").removeClass("error");
         $container.find(".errorSection").empty();
     }
 
-    private _resetViewer(): void {
+    private _resetViewer(isRefresh: boolean = false): void {
         if (this._currentViewer != null) {
-            this._currentViewer.clear();
+            this._currentViewer.clear(isRefresh);
             this._currentViewer = null;
         }
     }

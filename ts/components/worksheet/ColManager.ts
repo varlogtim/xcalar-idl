@@ -77,34 +77,6 @@ namespace ColManager {
         });
     };
 
-    export function addNewCol(
-        colNum: number,
-        tableId: TableId,
-        direction: number,
-        colOptions?: any
-    ): void {
-        let defaultOptions = {
-            "isNewCol": true,
-            "width": xcHelper.getDefaultColWidth(""),
-            "sizedTo": "header"
-        };
-
-        let actulColOptions = $.extend(defaultOptions, colOptions);
-        let progCol = ColManager.newCol(actulColOptions);
-        addColHelper(colNum, tableId, progCol, {
-            "direction": direction
-        });
-
-        Log.add(SQLTStr.AddNewCol, {
-            "operation": SQLOps.AddNewCol,
-            "tableName": gTables[tableId].getName(),
-            "tableId": tableId,
-            "colNum": colNum,
-            "direction": direction,
-            "options": colOptions
-        });
-    };
-
     //options
     // noAnimate: boolean, if true, no animation is applied
     export function hideCol(colNums: number[], tableId: TableId, options?): XDPromise<void> {
@@ -114,8 +86,10 @@ namespace ColManager {
         let table = gTables[tableId];
         let $table = $('#xcTable-' + tableId);
         let colNames = [];
+        const backNames = [];
         let promises = [];
         let progCols = [];
+        const types: {type: string}[] = [];
         let noAnimate = options.noAnimate || false;
         if (colNums.length > 8) {
             noAnimate = true;
@@ -131,11 +105,12 @@ namespace ColManager {
         for (let i = 0, len = colNums.length; i < len; i++) {
             let colNum = colNums[i];
             let colIndex = colNum - i;
-            let progCol = table.getCol(colIndex);
-
+            let progCol = ColManager.newCol(table.getCol(colIndex));
+            table.setCol(progCol, colIndex); // replace column
             colNames.push(progCol.getFrontColName(true));
+            backNames.push(progCol.getBackColName());
             progCols.push(progCol);
-
+            types.push({type: progCol.getType()});
             promises.push(delColHelper(colNum, tableId, true, colIndex,
                                        noAnimate));
         }
@@ -144,8 +119,8 @@ namespace ColManager {
             TblFunc.moveFirstColumn();
         }
 
-        jQuery.when.apply($, promises)
-        .done(function() {
+        PromiseHelper.when.apply($, promises)
+        .always(function() {
             let numCols = table.getNumCols();
             // adjust column numbers
             for (let j = colNums[0]; j <= numCols; j++) {
@@ -158,6 +133,25 @@ namespace ColManager {
             TblManager.updateHeaderAndListInfo(tableId);
             xcUIHelper.removeSelectionRange();
 
+            let node: DagNode = DagTable.Instance.getBindNode();
+            let columnDeltas = [];
+            if (node) {
+                let deltas = node.getColumnDeltas();
+                let ordering = node.getColumnOrdering();
+                backNames.forEach(name => {
+                    let delta = xcHelper.deepCopy(deltas.get(name));
+                    let index: number = ordering.indexOf(name);
+                    if (index > -1) {
+                        if (!delta) {
+                            delta = {};
+                        }
+                        delta.order = index;
+                    }
+                    columnDeltas.push(delta);
+                });
+                node.columnChange(DagColumnChangeType.Hide, backNames, types);
+            }
+
             Log.add(opTitle, {
                 "operation": SQLOps.HideCol,
                 "tableName": table.getName(),
@@ -165,7 +159,8 @@ namespace ColManager {
                 "colNames": colNames,
                 "colNums": colNums,
                 "progCols": progCols,
-                "htmlExclude": ["progCols"]
+                "columnDeltas": columnDeltas,
+                "htmlExclude": ["progCols", "columnDeltas"]
             });
             deferred.resolve();
         });
@@ -212,6 +207,10 @@ namespace ColManager {
             TblManager.updateHeaderAndListInfo(tableId);
             FormHelper.updateColumns(tableId);
             Log.add(SQLTStr.PullCol, sqlOptions);
+            let node: DagNode = DagTable.Instance.getBindNode();
+            if (node) {
+                node.columnChange(DagColumnChangeType.Pull, [backName]);
+            }
             deferred.resolve(newColNum);
         })
         .fail(function(error) {
@@ -458,8 +457,6 @@ namespace ColManager {
             }
         }
 
-        // XXX TODO: possibly update the order of lineage
-
         $table.find('.colNumToChange')
             .addClass('col' + newColNum)
             .removeClass('colNumToChange');
@@ -477,6 +474,11 @@ namespace ColManager {
                 $(this).find('td').eq(target)
                                   .after($(this).find('td.col' + newColNum));
             });
+        }
+        let node: DagNode = DagTable.Instance.getBindNode();
+        if (node) {
+            let colNames = table.getAllCols().map(col => col.getBackColName());
+            node.columnChange(DagColumnChangeType.Reorder, colNames);
         }
 
         Log.add(SQLTStr.ReorderCol, {
@@ -683,6 +685,8 @@ namespace ColManager {
         let promises = [];
         let animOpt = {"width": gHiddenColumnWidth};
         let noAnim = false;
+        const columns: ProgCol[] = [];
+        const backNames: string[] = [];
         if (colNums.length > 8) { // too much lag if multile columns
             noAnim = true;
         }
@@ -694,12 +698,16 @@ namespace ColManager {
             } else {
                 colNumsMinimized.push(colNum);
             }
+            progCol = ColManager.newCol(progCol);
+            table.tableCols[colNum - 1] = progCol;
 
             let $th = $table.find("th.col" + colNum);
             let columnName = progCol.getFrontColName();
-
-            progCol.minimize();
+            columns.push(progCol);
             colNames.push(columnName);
+            backNames.push(progCol.getBackColName());
+            progCol.minimize();
+
             // change tooltip to show name, and also need escape the columnName
 
             xcTooltip.changeText($th.find(".dropdownBox"), xcStringHelper.escapeHTMLSpecialChar(columnName));
@@ -735,6 +743,18 @@ namespace ColManager {
                     "colNames": colNames,
                     "colNums": colNumsMinimized
                 });
+
+                let node: DagNode = DagTable.Instance.getBindNode();
+                if (node) {
+                    const colInfo = backNames.map((_colName, i) => {
+                        return {
+                            width: columns[i].getWidth(),
+                            sizedTo: columns[i].sizedTo,
+                            isMinimized: columns[i].hasMinimized()
+                        }
+                    });
+                    node.columnChange(DagColumnChangeType.Resize, backNames, colInfo);
+                }
             }
             deferred.resolve();
         });
@@ -749,6 +769,8 @@ namespace ColManager {
         let colNames = [];
         let promises = [];
         let colNumsMaximized = [];
+        const columns: ProgCol[] = [];
+        const backNames: string[] = [];
         if (colNums.length > 8) { // too much lag if multile columns
             noAnim = true;
         }
@@ -760,10 +782,14 @@ namespace ColManager {
             } else {
                 return;
             }
+            progCol = ColManager.newCol(progCol);
+            table.tableCols[colNum - 1] = progCol;
 
             let originalColWidth = progCol.getWidth();
             progCol.maximize();
             colNames.push(progCol.getFrontColName());
+            backNames.push(progCol.getBackColName());
+            columns.push(progCol);
 
             let $th = $table.find(".th.col" + colNum);
             let $cell = $table.find("th.col" + colNum + ",td.col" + colNum);
@@ -801,6 +827,18 @@ namespace ColManager {
                     "colNames": colNames,
                     "colNums": colNums
                 });
+
+                let node: DagNode = DagTable.Instance.getBindNode();
+                if (node) {
+                    const colInfo = backNames.map((_colName, i) => {
+                        return {
+                            width: columns[i].getWidth(),
+                            sizedTo: columns[i].sizedTo,
+                            isMinimized: columns[i].hasMinimized()
+                        }
+                    });
+                    node.columnChange(DagColumnChangeType.Resize, backNames, colInfo);
+                }
             }
 
             deferred.resolve();
@@ -809,7 +847,7 @@ namespace ColManager {
         return deferred.promise();
     };
 
-    export function textAlign(colNums: number[], tableId: TableId, alignment: string): void {
+    export function textAlign(colNums: number[], tableId: TableId, alignment: ColTextAlign): void {
         let cachedAlignment = alignment;
         if (alignment.indexOf("leftAlign") > -1) {
             alignment = ColTextAlign.Left;
@@ -823,13 +861,16 @@ namespace ColManager {
         let table = gTables[tableId];
         let $table = $("#xcTable-" + tableId);
         let colNames = [];
+        let backNames = [];
         let prevAlignments = [];
 
         for (let i = 0, numCols = colNums.length; i < numCols; i++) {
             let colNum = colNums[i];
-            let progCol = table.getCol(colNum);
+            let progCol = ColManager.newCol(table.getCol(colNum));
+
             prevAlignments.push(progCol.getTextAlign());
             colNames.push(progCol.getFrontColName());
+            backNames.push(progCol.getBackColName());
             let $tds = $table.find("td.col" + colNum);
 
             for (let key in ColTextAlign) {
@@ -838,6 +879,11 @@ namespace ColManager {
 
             $tds.addClass("textAlign" + alignment);
             progCol.setTextAlign(alignment);
+            table.setCol(progCol, colNum);
+        }
+        let node: DagNode = DagTable.Instance.getBindNode();
+        if (node) {
+            node.columnChange(DagColumnChangeType.TextAlign, backNames, {alignment: alignment});
         }
 
         Log.add(SQLTStr.TextAlign, {
@@ -1019,7 +1065,7 @@ namespace ColManager {
 
     // used when pulling multiple columns from data column or from an object or array cell
     // colNames is optional, if not provided then will try to pull all cols
-    export function unnest(tableId: TableId, colNum: number, rowNum: number, colNames: string[]): void {
+    export function unnest(tableId: TableId, colNum: number, rowNum: number, colNames?: string[]): void {
         let $table = $('#xcTable-' + tableId);
         let $jsonTd = $table.find('.row' + rowNum).find('td.col' + colNum);
         let jsonTdObj = parseRowJSON($jsonTd.find('.originalData').text());
@@ -1040,6 +1086,7 @@ namespace ColManager {
                 }
             });
         }
+
         if (jsonTdObj == null) {
             return;
         }
@@ -1056,9 +1103,11 @@ namespace ColManager {
         }
 
         let ths = "";
+        let finalColNames: string[] = [];
         parsedCols.forEach(function(parsedCol, index) {
             let colName = xcHelper.parsePrefixColName(parsedCol.colName).name;
             let backColName = parsedCol.escapedColName;
+            finalColNames.push(backColName);
             let newProgCol = ColManager.newPullCol(colName, backColName, null, true);
             table.updateSortColAlias(newProgCol);
             let newColNum = isDATACol ? colNum + index : colNum + index + 1;
@@ -1079,6 +1128,10 @@ namespace ColManager {
         pullRowsBulkHelper(tableId);
         FormHelper.updateColumns(tableId);
 
+        let node: DagNode = DagTable.Instance.getBindNode();
+        if (node) {
+            node.columnChange(DagColumnChangeType.Pull, finalColNames);
+        }
         Log.add(SQLTStr.PullCols, {
             "operation": SQLOps.PullMultipleCols,
             "tableName": table.getName(),

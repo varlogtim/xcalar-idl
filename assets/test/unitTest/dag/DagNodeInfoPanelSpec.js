@@ -8,7 +8,7 @@ describe("DagNodeInfoPanel Test", function() {
     let tabId;
     let test;
 
-    before(function() {
+    before(function(done) {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
@@ -17,20 +17,28 @@ describe("DagNodeInfoPanel Test", function() {
         if (!$("#modelingDataflowTab").hasClass("active")) {
             $("#dagButton").click();
         }
+        UnitTest.testFinish(() => {
+            return DagTabManager.Instance._setup;
+        })
+        .then(() => {
+            $("#dagView .newTab").click();
+            testDagGraph = DagViewManager.Instance.getActiveDag();
+            tabId = testDagGraph.getTabId();
+            let $mapNode = test.createNode("map");
+            mapNode = testDagGraph.getNode($mapNode.data("nodeid"));
+            let $filterNode = test.createNode("filter");
+            filterNode = testDagGraph.getNode($filterNode.data("nodeid"));
 
-        $("#dagView .newTab").click();
-        testDagGraph = DagViewManager.Instance.getActiveDag();
-        tabId = testDagGraph.getTabId();
-        let $mapNode = test.createNode("map");
-        mapNode = testDagGraph.getNode($mapNode.data("nodeid"));
-        let $filterNode = test.createNode("filter");
-        filterNode = testDagGraph.getNode($filterNode.data("nodeid"));
+            let $datasetNode = test.createNode("dataset");
+            datasetNode = testDagGraph.getNode($datasetNode.data("nodeid"));
 
-        let $datasetNode = test.createNode("dataset");
-        datasetNode = testDagGraph.getNode($datasetNode.data("nodeid"));
-
-        DagNodeInfoPanel.Instance.hide();
-        $panel = $("#dagNodeInfoPanel");
+            DagNodeInfoPanel.Instance.hide();
+            $panel = $("#dagNodeInfoPanel");
+            done();
+        })
+        .fail(() => {
+            done("fail");
+        });
     });
 
     it("should not show if no node", function() {
@@ -246,6 +254,21 @@ describe("DagNodeInfoPanel Test", function() {
             DagNodeMenu.execute = cachedFn;
         });
 
+        it("should update column changes section", () => {
+            expect($panel.find(".columnChangeRow").hasClass("xc-hidden")).to.be.true;
+            mapNode.columnChange(DagColumnChangeType.TextAlign, ["someColumn"], {alignment: "Center"});
+            expect($panel.find(".columnChangeRow").hasClass("xc-hidden")).to.be.false;
+            expect($panel.find(".columnChangeSection").text()).to.equal('someColumn\n    "textAlign": "Center"\n');
+        });
+
+        it("should update column ordering section", () => {
+            expect($panel.find(".columnOrderingRow").hasClass("xc-hidden")).to.be.true;
+            mapNode.columnChange(DagColumnChangeType.Reorder, ["someColumn", "otherColumn"]);
+            expect($panel.find(".columnOrderingRow").hasClass("xc-hidden")).to.be.false;
+            expect($panel.find(".columnOrderingSection").text()).to.equal('someColumnotherColumn');
+        });
+
+
         it("update sub graph section", function() {
             expect($panel.find(".subGraphRow").hasClass("xc-hidden")).to.be.true;
             DagViewManager.Instance.wrapCustomOperator([filterNode.getId()]);
@@ -254,8 +277,6 @@ describe("DagNodeInfoPanel Test", function() {
             expect($panel.find(".subGraphRow").hasClass("xc-hidden")).to.be.false;
             expect($panel.find(".subGraphSection").text()).to.equal("Filter");
         });
-
-
     });
     describe("other tests", function() {
         it("update with invalid attr should be handled", function() {

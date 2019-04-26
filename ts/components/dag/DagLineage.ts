@@ -9,6 +9,7 @@ class DagLineage {
     private node: DagNode;
     private columns: ProgCol[];
     private columnsWithParamsReplaced: ProgCol[];
+    private hiddenColumns: Map<string, ColumnType>; // name: type
     private columnHistory;
     private columnParentMaps: {
         sourceColMap: {
@@ -26,6 +27,7 @@ class DagLineage {
         this.node = node;
         this.columns = undefined;
         this.changes = [];
+        this.hiddenColumns = undefined;
     }
 
     /**
@@ -44,6 +46,7 @@ class DagLineage {
      */
     public reset(): void {
         this.columns = undefined;
+        this.hiddenColumns = undefined;
         this.columnsWithParamsReplaced = undefined;
         this.columnParentMaps = undefined;
     }
@@ -70,6 +73,35 @@ class DagLineage {
             }
             return this.columns;
         }
+    }
+
+    public getHiddenColumns(): Map<string, ColumnType> {
+        if (this.hiddenColumns == null) {
+            const columnDeltas: Map<string, any> = this.node.getColumnDeltas();
+            let hiddenColumns: Map<string, ColumnType> = new Map();
+            let pulledColumns: Set<string> = new Set();
+            columnDeltas.forEach((colInfo, colName) => {
+                if (colInfo.isHidden) {
+                    hiddenColumns.set(colName, colInfo.type);
+                } else if (colInfo.isPulled) {
+                    pulledColumns.add(name);
+                }
+            });
+            if (!this.node.isSourceNode() && this.node.getType() !== DagNodeType.Aggregate) {
+                // aggregate has no columns. just a value
+                this.node.getParents().forEach((parentNode) => {
+                    const parentHiddenColumns = parentNode.getLineage().getHiddenColumns();
+                    pulledColumns.forEach(colName => {
+                        if (parentHiddenColumns.has(colName)) {
+                            parentHiddenColumns.delete(colName);
+                        }
+                    })
+                    hiddenColumns = new Map([...parentHiddenColumns, ...hiddenColumns]);
+                });
+            }
+            this.hiddenColumns = hiddenColumns;
+        }
+        return this.hiddenColumns;
     }
 
     /**
@@ -303,18 +335,118 @@ class DagLineage {
 
     private _update(replaceParameters?: boolean): DagLineageChange {
         let colInfo: DagLineageChange;
+        // Step 1. get columns based off of parents and node input
         if (this.node.isSourceNode()) {
             // source node
             colInfo = this._applyChanges(replaceParameters);
         } else if (this.node.getType() === DagNodeType.Aggregate) {
             colInfo = {columns:[], changes:[]}; // aggregate has no columns. just a value
         } else {
-            let columns = [];
+            let columns: ProgCol[] = [];
             this.node.getParents().forEach((parentNode) => {
                 columns = columns.concat(parentNode.getLineage().getColumns(replaceParameters));
             });
+
             colInfo = this._applyChanges(replaceParameters, columns);
         }
+
+        // Step 2. add Pulled columns
+        const columnDeltas: Map<string, any> = this.node.getColumnDeltas();
+        // check if node has "pulled columns" action and add these to
+        // colInfo.columns if they aren't already there
+        const colNames: Set<string> = new Set(colInfo.columns.map(col => col.getBackColName()));
+        columnDeltas.forEach((colInf, colName) => {
+            if (colInf.isPulled && !colNames.has(colName)) {
+                let frontName = xcHelper.parsePrefixColName(colName);
+                const hiddenCols: Map<string, ColumnType> = this.getHiddenColumns();
+                let type;
+                if (hiddenCols.has(colName)) {
+                    type = hiddenCols.get(colName);
+                }
+                colInfo.columns.push(ColManager.newCol({name: frontName.name, backName: colName, type: type}));
+            }
+        });
+
+        // Step 3. modify column deltas and remove hidden columns
+        // replace "colInfo.columns" with "updatedColumns" that contain
+        // updated widths and text alignment
+        let updatedColumns: ProgCol[] = [];
+        let updatedChanges: {from: ProgCol, to: ProgCol}[] = [];
+        colInfo.columns.forEach((column) => {
+            if (columnDeltas.has(column.getBackColName())) {
+                let columnInfo = columnDeltas.get(column.getBackColName());
+                if (!columnInfo.isHidden) {
+                    let colReplaced = false;
+                    if (columnInfo.widthChange) {
+                        // do not change original column width, create a new column
+                        // and change that width instead
+                        if (!colReplaced) {
+                            column = new ProgCol(column);
+                            colReplaced = true;
+                        }
+
+                        column.width = columnInfo.widthChange.width;
+                        column.sizedTo = columnInfo.widthChange.sizedTo;
+                        column.isMinimized = columnInfo.widthChange.isMinimized;
+                    }
+                    if (columnInfo.textAlign) {
+                        if (!colReplaced) {
+                            column = new ProgCol(column);
+                            colReplaced = true;
+                        }
+                        column.setTextAlign(columnInfo.textAlign);
+                    }
+                    updatedColumns.push(column);
+                }
+            } else {
+                updatedColumns.push(column);
+            }
+        });
+
+        // Step 4. adjust changes.from/to due to hidden columns
+        // for hidden columns, remove changes.from and changes.to
+        colInfo.changes.forEach((change) => {
+            if (change.from && columnDeltas.has(change.from.getBackColName())) {
+                let columnInfo = columnDeltas.get(change.from.getBackColName());
+                if (columnInfo.isHidden) {
+                    change.from = null
+                }
+            }
+            if (change.to && columnDeltas.has(change.to.getBackColName())) {
+                let columnInfo = columnDeltas.get(change.to.getBackColName());
+                if (columnInfo.isHidden) {
+                    change.to = null
+                }
+            }
+            if (!(change.from == null && change.to == null)) {
+                updatedChanges.push(change);
+            }
+        });
+
+        // Step 5. reorder columns if necessary
+        // if columns are reordered, create map of colName:progCol so that we
+        // can rebuild the correctly ordered array of progCols
+        let columnOrdering = this.node.getColumnOrdering();
+        if (columnOrdering.length) {
+            let reorderedCols: ProgCol[] = [];
+            let colNameMap: Map<string, ProgCol> = new Map();
+            updatedColumns.forEach(col => colNameMap.set(col.getBackColName(), col));
+
+            columnOrdering.forEach((colName) => {
+                if (colNameMap.has(colName)) {
+                    reorderedCols.push(colNameMap.get(colName));
+                    colNameMap.delete(colName);
+                }
+            });
+            // left over columns not found in columnOrdering array
+            colNameMap.forEach(col => {
+                reorderedCols.push(col);
+            });
+            updatedColumns = reorderedCols;
+        }
+
+        colInfo.columns = updatedColumns;
+        colInfo.changes = updatedChanges;
         return colInfo;
     }
 

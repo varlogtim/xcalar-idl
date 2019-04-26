@@ -10,12 +10,14 @@ class DagView {
     public static readonly nodeWidth = 103;
     public static readonly gridSpacing = 20;
     public static zoomLevels = [.25, .5, .75, 1, 1.5, 2];
-    public static iconOrder = ["descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon"];
+    public static iconOrder = ["tableIcon", "columnIcon", "descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon"];
     public static iconMap = {
         "descriptionIcon": "\ue966",
         "lockIcon": "\ue940",
         "aggregateIcon": "\ue939",
-        "paramIcon": "\uea69"
+        "paramIcon": "\uea69",
+        "tableIcon": "\uea07",
+        "columnIcon": "c"
     };
 
     private containerSelector: string = "#dagView";
@@ -216,10 +218,30 @@ class DagView {
     public static addNodeIcon($node: JQuery, iconType: string, tooltip: string) {
         let left: number;
         let top: number;
-        if (iconType === "tableIcon") {
+        if (iconType === "tableIcon" || iconType === "columnIcon") {
+            const icons = $node.data("topIcons") || [];
+            if (icons.indexOf(iconType) > -1) {
+                return;
+            } else {
+                icons.push(iconType);
+            }
+            icons.sort(function(a, b) {
+                return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
+            });
+            $node.find(".topNodeIcon").remove();
+            $node.data("topIcons", icons);
             top = 1;
             left = DagView.nodeWidth - 19;
-            drawIcon(iconType, left, top, "\uea07", tooltip, -1);
+
+            for (let i = 0; i < icons.length; i++) {
+                if (icons[i] === iconType) {
+                    drawIcon(icons[i], true, left - (i * 15 ), top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
+                    $node.data(iconType.toLowerCase(), tooltip);
+                } else {
+                    let tip: string = $node.data(icons[i].toLowerCase())
+                    drawIcon(icons[i], true, left - (i * 15 ), top, DagView.iconMap[icons[i]], tip, i);
+                }
+            }
         } else {
             const icons = $node.data("icons") || [];
             if (icons.indexOf(iconType) > -1) {
@@ -231,26 +253,27 @@ class DagView {
             icons.sort(function(a, b) {
                 return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
             });
-            $node.find(".nodeIcon:not(.tableIcon)").remove();
+            $node.find(".bottomNodeIcon").remove();
             // store the icon order
             $node.data("icons", icons);
             top = DagView.nodeHeight;
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
-                    drawIcon(icons[i], (i * 15 )+ 22, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
+                    drawIcon(icons[i], false, (i * 15 )+ 22, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
                     $node.data(iconType.toLowerCase(), tooltip);
                 } else {
                     let tip: string = $node.data(icons[i].toLowerCase())
-                    drawIcon(icons[i], (i * 15 )+ 22, top, DagView.iconMap[icons[i]], tip, i);
+                    drawIcon(icons[i], false, (i * 15 )+ 22, top, DagView.iconMap[icons[i]], tip, i);
                 }
             }
         }
 
-        function drawIcon(iconType, left, top, icon, tooltip, index) {
-            let text: string = icon;
+        function drawIcon(iconType, isTopIcon, left, top, icon, tooltip, index) {
             let fontSize: number = 7;
             let iconLeft: number = 0;
             let iconTop: number = 3;
+            let tipClasses: string = "";
+            let fontFamily: string = "icomoon";
             if (iconType === "paramIcon") {
                 iconTop = 4;
                 iconLeft = -1;
@@ -259,10 +282,15 @@ class DagView {
                 fontSize = 6;
             } else if (iconType === "tableIcon") {
                 iconLeft = -0.5;
+            } else if (iconType === "columnIcon") {
+                tipClasses = "preWrap leftAlign wide";
+                fontSize = 12;
+                fontFamily = "open sans";
             }
+            let topClass = isTopIcon ? " topNodeIcon " : " bottomNodeIcon ";
 
             const g = d3.select($node.get(0)).append("g")
-            .attr("class", iconType + " nodeIcon index" + index)
+            .attr("class", iconType + topClass + " nodeIcon index" + index)
             .attr("transform", `translate(${left}, ${top})`);
             g.append("circle")
                 .attr("cx", 3.5)
@@ -270,15 +298,16 @@ class DagView {
                 .attr("r", 6)
                 .style("fill", "#849CB0");
             g.append("text")
-                .attr("font-family", "icomoon")
+                .attr("font-family", fontFamily)
                 .attr("font-size", fontSize)
                 .attr("fill", "white")
                 .attr("x", iconLeft)
                 .attr("y", iconTop)
-                .text(function (_d) {return text});
+                .text(function (_d) {return icon});
 
             xcTooltip.add($node.find("." + iconType), {
-                title: tooltip
+                title: tooltip,
+                classes: tipClasses
             });
         }
     }
@@ -288,24 +317,36 @@ class DagView {
      * @param $node
      * @param iconType
      */
-    public static removeNodeIcon($node: JQuery, iconType: string) {
+    public static removeNodeIcon($node: JQuery, iconType: string, isTopIcon?: boolean) {
         const $icon: JQuery = $node.find("." + iconType);
         if (!$icon.length) {
             return;
         }
-        let icons = $node.data("icons");
+        let icons = isTopIcon ? $node.data("topIcons") : $node.data("icons");
         let index = icons.indexOf(iconType);
         $icon.remove();
-        $node.data("icons", icons);
+        isTopIcon ? $node.data("topIcons", icons) : $node.data("icons", icons);
         $node.removeData(iconType.toLowerCase());
 
-        // shift all following icons to the left;
-        for (let i = index + 1; i < icons.length; i++) {
-            let left = ((i - 1) * 15) + 22;
-            d3.select($node.find(`.nodeIcon.index${i}`).get(0))
-                .attr("transform", `translate(${left}, ${DagView.nodeHeight})`)
-                .attr("class", icons[i] + " nodeIcon index" + (i - 1));
+        if (isTopIcon) {
+            let offset = DagView.nodeWidth - 19;
+            // shift all following icons to the right;
+            for (let i = index + 1; i < icons.length; i++) {
+                let left = offset - ((i - 1) * 15);
+                d3.select($node.find(`.nodeIcon.index${i}`).get(0))
+                    .attr("transform", `translate(${left}, 1)`)
+                    .attr("class", icons[i] + " topNodeIcon nodeIcon index" + (i - 1));
+            }
+        } else {
+            // shift all following icons to the left;
+            for (let i = index + 1; i < icons.length; i++) {
+                let left = ((i - 1) * 15) + 22;
+                d3.select($node.find(`.nodeIcon.index${i}`).get(0))
+                    .attr("transform", `translate(${left}, ${DagView.nodeHeight})`)
+                    .attr("class", icons[i] + " bottomNodeIcon nodeIcon index" + (i - 1));
+            }
         }
+
         icons.splice(index, 1);
     }
 
@@ -2638,6 +2679,24 @@ class DagView {
         return this.dagTab;
     }
 
+    public resetColumnDeltas(nodeId: DagNodeId): void {
+        const node: DagNode = this.graph.getNode(nodeId);
+        node.resetColumnDeltas();
+        let tableViewerNode: DagNode = DagTable.Instance.getBindNode();
+        if (tableViewerNode && tableViewerNode.getId() === nodeId) {
+            DagTable.Instance.refreshTable();
+        }
+    }
+
+    public resetColumnOrdering(nodeId: DagNodeId): void {
+        const node: DagNode = this.graph.getNode(nodeId);
+        node.resetColumnOrdering();
+        let tableViewerNode: DagNode = DagTable.Instance.getBindNode();
+        if (tableViewerNode && tableViewerNode.getId() === nodeId) {
+            DagTable.Instance.refreshTable();
+        }
+    }
+
     private _getOperationTime(): string {
         const time: number = this.graph.getOperationTime();
         if (time === 0) {
@@ -3010,6 +3069,12 @@ class DagView {
             }
         });
 
+        this._registerGraphEvent(this.graph, DagNodeEvents.LineageChange, (info) => {
+            this.dagTab.save();
+            this._columnChange(info);
+            DagNodeInfoPanel.Instance.update(info.node.getId(), "columnChange");
+        });
+
         this._registerGraphEvent(this.graph, DagNodeEvents.AggregateChange, (info) => {
             this._editAggregates(info.id, info.aggregates);
             DagNodeInfoPanel.Instance.update(info.id, "aggregates");
@@ -3226,6 +3291,9 @@ class DagView {
         if (aggs.length) {
             DagView.addNodeIcon($node, "aggregateIcon", aggs.toString());
         }
+        const columnDeltas = node.getColumnDeltas();
+        const columnOrdering = node.getColumnOrdering();
+        this._columnChange({node, $node, columnDeltas, columnOrdering});
 
         if (DagTblManager.Instance.hasLock(node.getTable())) {
             this._editTableLock($node, true);
@@ -3436,6 +3504,38 @@ class DagView {
             DagView.addNodeIcon($node, "aggregateIcon", aggregates.toString());
         } else {
             $node.removeClass("hasAggregate");
+        }
+    }
+
+    private _columnChange(info: {node: DagNode, $node?: JQuery, columnDeltas: Map<string, any>, columnOrdering: string[]}): void {
+        const $node: JQuery = info.$node || this._getNode(info.node.getId());
+        DagView.removeNodeIcon($node, "columnIcon", true);
+        if (info.columnDeltas.size || info.columnOrdering.length) {
+            $node.addClass("hasColumnChange");
+            let colObj = {};
+            let colStr: string = "";
+            info.columnDeltas.forEach((colInfo, colName) => { // map to obj
+                colObj[colName] = colInfo;
+            });
+            if (info.columnDeltas.size) {
+                colStr = JSON.stringify(colObj, null, 2);
+                colStr = colStr.slice(2, -1); // remove { }
+                colStr = "Column changes: \n" + colStr;
+            }
+            if (info.columnOrdering.length) {
+                let orderStr = "";
+                if (info.columnDeltas.size) {
+                    colStr += "\n"; // space between sections
+                    orderStr = JSON.stringify(info.columnOrdering);
+                } else {
+                    orderStr = JSON.stringify(info.columnOrdering, null, 2);
+                }
+                colStr += "Column reordering: \n" + orderStr;
+            }
+
+            DagView.addNodeIcon($node, "columnIcon", colStr);
+        } else {
+            $node.removeClass("hasColumnChange");
         }
     }
 

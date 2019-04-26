@@ -1808,6 +1808,15 @@
         }
     }
 
+    ol {
+        margin: 0;
+        padding: 0;
+        padding-left: 10px;
+        li {
+            padding-left: 4px;
+        }
+    }
+
 
     .nodeInfoSection {
         padding: 0 15px;
@@ -1873,15 +1882,18 @@
         overflow: hidden;
     }
 
-    .editConfig {
+    .actionLink {
         color: @color-bg-select-blue;
         cursor: pointer;
-        margin-left: 10px;
+        margin-left: 12px;
         margin-right: 10px;
         font-weight: 600;
+        &:hover {
+            opacity: 0.8;
+        }
     }
 
-    .configSection {
+    .configSection, .columnChangeSection, .columnOrderingSection {
         white-space: pre-wrap;
         word-break: break-word;
         overflow: auto;

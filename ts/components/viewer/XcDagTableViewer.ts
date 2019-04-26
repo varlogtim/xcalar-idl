@@ -20,9 +20,13 @@ class XcDagTableViewer extends XcTableViewer {
             Profile.deleteCache(tableId);
         }
         let columns: ProgCol[] = dagNode.getLineage().getColumns(true);
+        let hiddenColumns: Map<string, ColumnType> = dagNode.getLineage().getHiddenColumns();
         if (columns != null && columns.length > 0) {
             columns = columns.concat(ColManager.newDATACol());
             table.addAllCols(columns);
+        }
+        if (hiddenColumns.size) {
+            table.addToColTypeCache(hiddenColumns);
         }
         return table;
     }
@@ -92,7 +96,7 @@ class XcDagTableViewer extends XcTableViewer {
     private _removeTableIconOnDagNode(): void {
         const $node: JQuery = this._getNodeEl();
         if ($node.length) {
-            d3.select($node.get(0)).selectAll(".tableIcon").remove();
+            DagView.removeNodeIcon($node, "tableIcon", true);
         }
     }
 }
