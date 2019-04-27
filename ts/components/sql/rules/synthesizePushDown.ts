@@ -57,17 +57,20 @@ class SynthesizePushDown {
                 case "XcalarApiExcept":
                 case "XcalarApiJoin":
                     allColumns = child.value.args.columns;
+                    for (let i = 0; i < allColumns.length; i++) {
+                        const newColList = [];
+                        for (let colStruct of allColumns[i]) {
+                            if (renameMap.hasOwnProperty(colStruct.destColumn)) {
+                                colStruct.destColumn = renameMap[colStruct.destColumn];
+                                newColList.push(colStruct);
+                            }
+                        }
+                        allColumns[i] = newColList;
+                    }
                     if (operation === "XcalarApiJoin") {
                         child.value.args.evalString = XDParser.XEvalParser
                                 .replaceColName(child.value.args.evalString,
                                                 renameMap, {}, true);
-                    }
-                    for (let colList of allColumns) {
-                        for (let colStruct of colList) {
-                            if (renameMap.hasOwnProperty(colStruct.destColumn)) {
-                                colStruct.destColumn = renameMap[colStruct.destColumn];
-                            }
-                        }
                     }
                     break;
                 default:
