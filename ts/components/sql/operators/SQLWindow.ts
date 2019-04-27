@@ -295,11 +295,14 @@ class SQLWindow {
                 multiOperations.push(aggObj);
             } else {
                 if ((opStruct.opName === "Sum" || opStruct.opName === "Max" ||
-                opStruct.opName === "Min") && opStruct.args[0].argType === "int") {
+                opStruct.opName === "Min") && (opStruct.args[0].argType === "int"
+                || opStruct.args[0].argType == null
+                && opStruct.args[0].colStruct.colType === "int")) {
                     opStruct.opName = opStruct.opName + "Integer";
                 } else if ((opStruct.opName === "Sum" || opStruct.opName === "Max"
                 || opStruct.opName === "Min" || opStruct.opName === "Average")
-                && opStruct.args[0].argType === "money") {
+                && (opStruct.args[0].argType === "money" || opStruct.args[0].argType == null
+                && opStruct.args[0].colStruct.colType === "money")) {
                     opStruct.opName = opStruct.opName + "Numeric";
                 }
                 retStruct.agg.forEach(function(aggObj) {
