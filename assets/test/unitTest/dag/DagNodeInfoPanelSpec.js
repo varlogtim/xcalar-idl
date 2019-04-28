@@ -86,9 +86,9 @@ describe("DagNodeInfoPanel Test", function() {
         it("should show correct config section", function() {
             expect($panel.find(".configRow").length).to.equal(1);
             expect($panel.find(".configRow").hasClass("xc-hidden")).to.be.false;
-            expect($panel.find(".configSection").text()).to.equal('{\n    "evalString": ""\n}');
+            expect($panel.find(".configSection").text()).to.equal('{\n    "evalString": "",\n    "result_set": "N/A"\n}');
             filterNode.setParam({"evalString": "eq(1,1)"});
-            expect($panel.find(".configSection").text()).to.equal('{\n    "evalString": "eq(1,1)"\n}');
+            expect($panel.find(".configSection").text()).to.equal('{\n    "evalString": "eq(1,1)",\n    "result_set": "N/A"\n}');
         });
 
         it("should show correct status section", function() {
