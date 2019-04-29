@@ -131,11 +131,22 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         const name: string = $input.val().trim();
         const columns = this.model.getColumnList();
         const selectedColumns = [];
+        const takenNames = {};
         for (const colInfo of columns) {
             if (colInfo.isSelected) {
+                let destName: string;
+                const parsedName = xcHelper.parsePrefixColName(colInfo.name);
+                if (parsedName.prefix) {
+                    // this is how backend converts names
+                    destName = parsedName.prefix + "--" + parsedName.name;
+                } else {
+                    destName = parsedName.name;
+                }
+                destName = xcHelper.autoName(destName, takenNames, null, "_");
+                takenNames[destName] = true;
                 selectedColumns.push({
                     sourceName: colInfo.name,
-                    destName: xcHelper.parsePrefixColName(colInfo.name).name
+                    destName: destName
                 });
             }
         }
