@@ -475,7 +475,7 @@ function sendToPlanner(sessionPrefix, requestStruct, username, wkbkName) {
                     deferred.resolve(body);
                 }
             } else {
-                if(body.exceptionName && body.exceptionMsg) {
+                if (body && body.exceptionName && body.exceptionMsg) {
                     error = {errorType: body.exceptionName, errorMsg: body.exceptionMsg};
                 }
                 deferred.reject(error);
