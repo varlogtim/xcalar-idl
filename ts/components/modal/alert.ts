@@ -524,7 +524,7 @@ namespace Alert {
         switch (type) {
             case 'log':
                 // download log button
-                html = '<button type="button" class="btn downloadLog">' +
+                html = '<button type="button" class="btn btn-secondary downloadLog">' +
                             CommonTxtTstr.DownloadLog +
                         '</button>';
                 $btn = $(html);
@@ -552,7 +552,7 @@ namespace Alert {
                 break;
             case 'support':
                 // generate bundle button
-                html = '<button type="button" class="btn genSub" ' +
+                html = '<button type="button" class="btn btn-secondary genSub" ' +
                         'data-toggle="tooltip" title="' +
                         TooltipTStr.FileTicket + '">' +
                             CommonTxtTstr.FileTicket +
@@ -566,7 +566,7 @@ namespace Alert {
                 break;
             case 'adminSupport':
                 html = '<button type="button" ' +
-                        'class="btn adminOnly adminSupport" ' +
+                        'class="btn btn-secondary adminOnly adminSupport" ' +
                         'data-toggle="tooltip" ' +
                         'title="' + "Support Tools" + '">' +
                             MonitorTStr.SupportTools +
@@ -579,7 +579,7 @@ namespace Alert {
                 break;
             default:
                 // log out button
-                html = '<button type="button" class="btn logout">' +
+                html = '<button type="button" class="btn btn-secondary logout">' +
                             CommonTxtTstr.LogOut +
                         '</button>';
                 $btn = $(html);
