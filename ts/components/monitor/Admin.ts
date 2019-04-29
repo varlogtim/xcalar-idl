@@ -521,7 +521,9 @@ namespace Admin {
 
         $("#configSupportStatus").click(getStatus);
 
-        $('#configLicense').click(LicenseModal.show);
+        $('#configLicense').click(() => {
+            LicenseModal.Instance.show();
+        });
 
         $("#adminAlert").click(function() {
             if (adminAlertCard != null) {

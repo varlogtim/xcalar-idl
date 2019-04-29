@@ -943,11 +943,6 @@ declare namespace xcMixpanel {
     export function forDev(): boolean;
 }
 
-declare namespace LicenseModal {
-    export function setup(): void;
-    export function show(): void;
-}
-
 declare namespace LoginConfigModal {
     export function setup(): void;
     export function show(arg1, arg2, arg3): void
