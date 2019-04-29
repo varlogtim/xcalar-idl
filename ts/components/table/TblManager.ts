@@ -2217,119 +2217,9 @@ class TblManager {
         });
 
         $thead.on("click", ".dropdownBox", (event: any) => {
-            if (ModalHelper.isModalOn()) {
-                // not focus when in modal
-                return;
-            }
-            if ($table.hasClass("noOperation")) {
-                return;
-            }
             const $el: JQuery = $(event.currentTarget);
-            const $th: JQuery = $el.closest("th");
             const isRightClick: boolean = event.rightClick;
-
-            const colNum: number = ColManager.parseColNum($th);
-            const table: TableMeta = gTables[tableId];
-            if (table == null) {
-                console.error("no table meta");
-                return;
-            }
-            const progCol: ProgCol = table.getCol(colNum);
-            const colType: ColumnType = progCol.getType();
-            let isNewCol: boolean = false;
-
-            xcTooltip.hideAll();
-            TblManager._resetColMenuInputs($el);
-            const options = {
-                colNum: colNum,
-                classes: $el.closest('.header').attr('class'),
-                multipleColNums: null,
-                mouseCoors: null,
-                offsetX: null
-            };
-
-            if ($th.hasClass('indexedColumn')) {
-                options.classes += " type-indexed";
-                const keys: {name: string, ordering: string}[] = table.getKeys();
-                const sortedColAlias: string = progCol.getSortedColAlias();
-                const index: {name: string, ordering: string} = keys.find((k) => {
-                    return k.name === sortedColAlias;
-                });
-                const order: string = index.ordering;
-                if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
-                    options.classes += " sortedAsc";
-                } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
-                    options.classes += " sortedDesc";
-                }
-            }
-
-            if ($th.hasClass('dataCol')) {
-                $('.selectedCell').removeClass('selectedCell');
-            }
-
-            if ($th.hasClass('newColumn') ||
-                options.classes.indexOf('type') === -1) {
-                options.classes += " type-newColumn";
-                isNewCol = true;
-                if ($el.closest('.flexWrap').siblings('.editable').length) {
-                    options.classes += " type-untitled";
-                }
-            }
-            if ($th.hasClass("userHidden")) {
-                // column is hidden
-                options.classes += " type-hidden";
-            }
-
-            if ($el.closest('.xcTable').hasClass('emptyTable')) {
-                options.classes += " type-emptyTable";
-            }
-
-            options.classes += " textAlign" + progCol.textAlign;
-            if (progCol.format) {
-                options.classes += " format-" + progCol.format;
-            }
-
-            options.classes += " sizedTo" + progCol.sizedTo;
-
-            if ($('th.selectedCell').length > 1) {
-                options.classes += " type-multiColumn";
-                options.multipleColNums = [];
-                const types: object = {};
-                let tempType: string = "type-" + colType;
-                types[tempType] = true;
-
-                let hiddenDetected: boolean = false;
-                $('th.selectedCell').each((_index, el) => {
-                    const $el: JQuery = $(el);
-                    const tempColNum: number = ColManager.parseColNum($el);
-                    options.multipleColNums.push(tempColNum);
-                    if (!hiddenDetected && $el.hasClass("userHidden")) {
-                        hiddenDetected = true;
-                        options.classes += " type-hidden";
-                    }
-
-                    tempType = "type-" + table.getCol(tempColNum).getType();
-                    if (!types.hasOwnProperty(tempType)) {
-                        types[tempType] = true;
-                        options.classes += " " + tempType;
-                    }
-                });
-            } else {
-                options.classes += " type-singleColumn";
-            }
-
-            if (isRightClick) {
-                options.mouseCoors = {
-                    "x": event.pageX,
-                    "y": $el.offset().top + 34
-                };
-            } else {
-                options.offsetX = 5;
-            }
-            const colMenu: ColMenu = TableComponent.getMenu().getColMenu();
-            colMenu.setUnavailableClassesAndTips(colType, isNewCol);
-            const $menu: JQuery = $("#colMenu");
-            MenuHelper.dropdownOpen($el, $menu, options);
+            TblManager._dropboxClickHandler($el, $table, tableId, isRightClick, event.pageX);
         });
 
         $thead.on('mousedown', '.colGrab', (event) => {
@@ -2712,6 +2602,121 @@ class TblManager {
         }
     }
 
+    private static _dropboxClickHandler($el: JQuery, $table: JQuery, tableId: TableId,
+            isRightClick: boolean, pageX?: number) {
+        if (ModalHelper.isModalOn()) {
+            // not focus when in modal
+            return;
+        }
+        if ($table.hasClass("noOperation")) {
+            return;
+        }
+        const $th: JQuery = $el.closest("th");
+
+        const colNum: number = ColManager.parseColNum($th);
+        const table: TableMeta = gTables[tableId];
+        if (table == null) {
+            console.error("no table meta");
+            return;
+        }
+        const progCol: ProgCol = table.getCol(colNum);
+        const colType: ColumnType = progCol.getType();
+        let isNewCol: boolean = false;
+
+        xcTooltip.hideAll();
+        TblManager._resetColMenuInputs($el);
+        const options = {
+            colNum: colNum,
+            classes: $el.closest('.header').attr('class'),
+            multipleColNums: null,
+            mouseCoors: null,
+            offsetX: null
+        };
+
+        if ($th.hasClass('indexedColumn')) {
+            options.classes += " type-indexed";
+            const keys: {name: string, ordering: string}[] = table.getKeys();
+            const sortedColAlias: string = progCol.getSortedColAlias();
+            const index: {name: string, ordering: string} = keys.find((k) => {
+                return k.name === sortedColAlias;
+            });
+            const order: string = index.ordering;
+            if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
+                options.classes += " sortedAsc";
+            } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
+                options.classes += " sortedDesc";
+            }
+        }
+
+        if ($th.hasClass('dataCol')) {
+            $('.selectedCell').removeClass('selectedCell');
+        }
+
+        if ($th.hasClass('newColumn') ||
+            options.classes.indexOf('type') === -1) {
+            options.classes += " type-newColumn";
+            isNewCol = true;
+            if ($el.closest('.flexWrap').siblings('.editable').length) {
+                options.classes += " type-untitled";
+            }
+        }
+        if ($th.hasClass("userHidden")) {
+            // column is hidden
+            options.classes += " type-hidden";
+        }
+
+        if ($el.closest('.xcTable').hasClass('emptyTable')) {
+            options.classes += " type-emptyTable";
+        }
+
+        options.classes += " textAlign" + progCol.textAlign;
+        if (progCol.format) {
+            options.classes += " format-" + progCol.format;
+        }
+
+        options.classes += " sizedTo" + progCol.sizedTo;
+
+        if ($('th.selectedCell').length > 1) {
+            options.classes += " type-multiColumn";
+            options.multipleColNums = [];
+            const types: object = {};
+            let tempType: string = "type-" + colType;
+            types[tempType] = true;
+
+            let hiddenDetected: boolean = false;
+            $('th.selectedCell').each((_index, el) => {
+                const $el: JQuery = $(el);
+                const tempColNum: number = ColManager.parseColNum($el);
+                options.multipleColNums.push(tempColNum);
+                if (!hiddenDetected && $el.hasClass("userHidden")) {
+                    hiddenDetected = true;
+                    options.classes += " type-hidden";
+                }
+
+                tempType = "type-" + table.getCol(tempColNum).getType();
+                if (!types.hasOwnProperty(tempType)) {
+                    types[tempType] = true;
+                    options.classes += " " + tempType;
+                }
+            });
+        } else {
+            options.classes += " type-singleColumn";
+        }
+
+        if (isRightClick) {
+            options.mouseCoors = {
+                "x": pageX,
+                "y": $el.offset().top + 34
+            };
+        } else {
+            options.offsetX = 5;
+        }
+        const colMenu: ColMenu = TableComponent.getMenu().getColMenu();
+        colMenu.setUnavailableClassesAndTips(colType, isNewCol);
+        const $menu: JQuery = $("#colMenu");
+        MenuHelper.dropdownOpen($el, $menu, options);
+    }
+
     private static _resetColMenuInputs($el: JQuery): void {
         const tableId: TableId = TblManager.parseTableId($el.closest('.xcTableWrap'));
         const $menu: JQuery = $('#colMenu-' + tableId);
@@ -2846,7 +2851,8 @@ class TblManager {
                 vefiryTableType: TblManager._verifyTableType,
                 setTablesToReplace: TblManager._setTablesToReplace,
                 tagOldTables: TblManager._tagOldTables,
-                removeOldTables: TblManager._removeOldTables
+                removeOldTables: TblManager._removeOldTables,
+                dropboxClickHandler: TblManager._dropboxClickHandler
             }
         }
     }());

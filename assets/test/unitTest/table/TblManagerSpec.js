@@ -744,24 +744,6 @@ describe("TableManager Test", function() {
                 .to.equal(0);
             });
 
-            it("Should mousedown rowGrab to start resize", function() {
-                var test = null;
-                var oldFunc = TblAnim.startRowResize;
-                TblAnim.startRowResize = function() {
-                    test = true;
-                };
-
-                var $rowGrab = $("#xcTbodyWrap-" + tableId).find(".rowGrab.last");
-                expect($rowGrab.length).to.equal(1);
-                $rowGrab.mousedown();
-                // only left mouse down works
-                expect(test).to.be.null;
-
-                $rowGrab.trigger(fakeEvent.mousedown);
-                expect(test).to.be.true;
-
-                TblAnim.startRowResize = oldFunc;
-            });
 
             it("Should Sort", function(done) {
                 var hashVersion = $xcTableWrap.attr("data-id");
@@ -786,69 +768,24 @@ describe("TableManager Test", function() {
             });
 
             it("Should open dropdown on indexed column", function() {
-
-                var $menu = $("#colMenu");
+                var oldOpen = MenuHelper.dropdownOpen;
+                var opened = false;
+                MenuHelper.dropdownOpen = function($el, $menu, options) {
+                    opened = true;
+                }
+                const $table = $("#xcTable-" + tableId);
                 var $th = $xcTableWrap.find("th.col1");
                 var $dropdown = $th.find(".dropdownBox");
-                $dropdown.click();
-
-                assert.isTrue($menu.is(":visible"));
+                var dropboxClickHandler = TblManager.__testOnly__.dropboxClickHandler;
+                dropboxClickHandler($dropdown, $table, tableId, true)
+                assert.isTrue(opened);
                 $("#dagViewTableArea").mousedown();
-                assert.isFalse($menu.is(":visible"));
+                MenuHelper.dropdownOpen = oldOpen;
+
             });
 
             after(function() {
                 xcTooltip.hideAll();
-            });
-        });
-
-        describe("Row Listener Test", function() {
-            var $tbody;
-
-            before(function() {
-                $tbody = $("#xcTable-" + tableId).find("tbody");
-            });
-
-            it("Should click rowGrab to start resize", function() {
-                var test = null;
-                var oldFunc = TblAnim.startRowResize;
-                TblAnim.startRowResize = function() {
-                    test = true;
-                };
-
-                var $rowGrab = $tbody.find(".rowGrab").eq(0);
-                expect($rowGrab.length).to.equal(1);
-                $rowGrab.mousedown();
-                // only left mouse down works
-                expect(test).to.be.null;
-
-                $rowGrab.trigger(fakeEvent.mousedown);
-                expect(test).to.be.true;
-
-                TblAnim.startRowResize = oldFunc;
-            });
-
-            it("Should click json elemet to open json modal", function() {
-                var test = null;
-                var oldFunc = JSONModal.Instance.show;
-                JSONModal.Instance.show = function() {
-                    test = true;
-                };
-
-                var $pop = $tbody.find(".jsonElement").eq(0).find(".pop");
-                expect($pop.length).to.equal(1);
-                var oldisModalOn = ModalHelper.isModalOn;
-                // case 1
-                ModalHelper.isModalOn = () => true;
-                $pop.click();
-                expect(test).to.be.null;
-                // case 2
-                ModalHelper.isModalOn = () => false;
-                $pop.click();
-                expect(test).to.be.true;
-
-                JSONModal.Instance.show = oldFunc;
-                ModalHelper.isModalOn = oldisModalOn;
             });
         });
 
@@ -885,35 +822,6 @@ describe("TableManager Test", function() {
                 expect($thead.find(".selectedCell").length).to.equal(1);
             });
 
-            it("Should trigger prefixColorMenu", function() {
-                var $menu = $("#prefixColorMenu");
-                var $dotWrap = $thead.find(".dotWrap").eq(0);
-                $dotWrap.mousedown();
-                $dotWrap.click();
-                assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea").mousedown();
-                assert.isFalse($menu.is(":visible"));
-            });
-
-            it("Should mousedown colGrab to start resize", function() {
-                var test = null;
-                var oldFunc = TblAnim.startColResize;
-                TblAnim.startColResize = function() {
-                    test = true;
-                };
-
-                var $colGrab = $thead.find(".colGrab").eq(0);
-                expect($colGrab.length).to.equal(1);
-                $colGrab.mousedown();
-                // only left mouse down works
-                expect(test).to.be.null;
-
-                $colGrab.trigger(fakeEvent.mousedown);
-                expect(test).to.be.true;
-
-                TblAnim.startColResize = oldFunc;
-            });
-
             it("Should mousedown dragArea to start drag", function() {
                 var test = null;
                 var oldFunc = TblAnim.startColDrag;
@@ -929,7 +837,6 @@ describe("TableManager Test", function() {
 
                 $dragArea.trigger(fakeEvent.mousedown);
                 expect(test).to.be.true;
-
                 TblAnim.startColDrag = oldFunc;
             });
 
@@ -948,7 +855,6 @@ describe("TableManager Test", function() {
 
                 $editableHead.trigger(fakeEvent.mousedown);
                 expect(test).to.be.true;
-
                 TblAnim.startColDrag = oldFunc;
             });
         });
@@ -1022,42 +928,23 @@ describe("TableManager Test", function() {
                 var $td = $tbody.find(".row0 td.col1");
                 var $td2 = $tbody.find(".row3 td.col1");
 
-                $td.trigger(fakeEvent.mousedown);
-
-                var e = jQuery.Event("mousedown", {
-                    "which": 1,
-                    "shiftKey": true
-                });
-                $td2.trigger(e);
+                TblManager.highlightCell($td, tableId, 0, 1);
+                TblManager.highlightCell($td2, tableId, 3, 1, {isShift: true});
                 assert.isTrue($td.hasClass("highlightedCell") && $td2.hasClass("highlightedCell"));
 
                 TblManager.rehighlightCells(tableId);
                 assert.isTrue($td.hasClass("highlightedCell") && $td2.hasClass("highlightedCell"));
-
+                TblManager.unHighlightCells();
             });
 
-            it("mousedown on td should highlight and store info", function() {
-                $("#container").mousedown(); // remove any highlighted tds
-                expect($(".highlightedCell").length).to.equal(0);
-                for (var tId in gTables) {
-                    if (gTables[tId].highlightedCells &&
-                        !$.isEmptyObject(gTables[tId].highlightedCells)) {
-                        expect("highlighted cells found").to.equal("no cells");
-                    }
-                }
-
+            it("TblManager.highlightCell should work", function() {
+                TblManager.unHighlightCells();
                 var $td = $tbody.find(".row0 td.col1");
-                $td.trigger(fakeEvent.mousedown);
+                TblManager.highlightCell($td, tableId, 0, 1);
 
-                expect($(".highlightedCell").length).to.equal(1);
                 expect($td.hasClass("highlightedCell")).to.be.true;
                 expect($td.find(".highlightBox").length).to.equal(1);
                 expect(gTables[tableId].highlightedCells[0][1]).to.be.an.object;
-
-                $("#container").mousedown(); // remove any highlighted tds
-                expect($.isEmptyObject(gTables[tableId].highlightedCells)).to.be.true;
-                expect($(".highlightedCell").length).to.equal(0);
-                expect($(".highlightBox").length).to.equal(0);
             });
         });
 
