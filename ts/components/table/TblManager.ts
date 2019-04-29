@@ -2594,7 +2594,7 @@ class TblManager {
                 clicks = 0;
                 clearTimeout(dblClickTimer);
                 const colNum: number = ColManager.parseColNum($td);
-                if (colNum === 0) {
+                if (colNum === 0 || colNum == null) {
                     return;
                 }
                 const progCol: ProgCol = gTables[tableId].getCol(colNum);

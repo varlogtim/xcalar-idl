@@ -197,7 +197,7 @@ class FormHelper {
                         return false;
                     }
                     const colNum: number = ColManager.parseColNum($header.parent());
-                    if (colNum > 0) {
+                    if (colNum != null && colNum > 0) {
                         const type: ColumnType = table.getCol(colNum).getType();
                         return (validTypes.indexOf(type) === -1);
                     } else {
