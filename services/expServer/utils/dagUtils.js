@@ -9,9 +9,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     jQuery.md5 = require('../../../3rd/jQuery-MD5-master/jquery.md5.js');
 
     global.Thrift = Thrift = require("../../../assets/js/thrift/thrift.js").Thrift;
-    global.hackFunction = require("./hackFunction.js").hackFunction;
-
-    hackFunction();
 
     require("../../../assets/lang/en/jsTStr.js");
     require("../dagHelper/enums.js");
@@ -27,6 +24,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     require("../../../assets/js/thrift/LibApisEnums_types.js");
     require("../../../assets/js/thrift/LibApisCommon_types.js");
 
+    global.hackFunction = require("./hackFunction.js").hackFunction;
+    hackFunction();
 
     global.xcalarApi = xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
 
