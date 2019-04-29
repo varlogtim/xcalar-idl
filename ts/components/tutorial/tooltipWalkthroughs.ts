@@ -13,54 +13,97 @@ namespace TooltipWalkthroughs {
             },
             [{
                 highlight_div: "#menuBar",
-                text: "The menu bar allows you to access various features within Xcalar Design.",
+                text: "The menu bar enables access to various features within Xcalar Design.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dataStoresTab",
-                text: "This tab allows you to import data, create tables, and create data targets.",
+                text: "This icon enables you to import data, create tables, and create data targets.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#sqlTab",
-                text: "The SQL workspace is where you'll be creating and executing SQL queries.",
+                text: "SQL querie statements can be created and executed within the SQL workspace.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#monitorTab",
-                text: "The monitor tab provides various tools to monitor Xcalar usage, manage your files, and change settings.",
+                text: "The monitor tab provides various tools for monitoring Xcalar, managing files, and changing settings.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dataStoresTab",
                 interact_div: "#dataStoresTab .mainTab",
-                text: "Let's get started with importing a table. Click this tab to open it.",
+                text: "Let's get started with importing a table. Click this icon to open it.",
                 type: TooltipType.Click
             },
             {
                 highlight_div: "#sourceTblButton",
                 interact_div: "#sourceTblButton",
-                text: "Clicking the Tables button lets you create a new table.",
+                text: "To create a new table, click this Tables icon.",
                 type: TooltipType.Click
             },
             {
-                highlight_div: "#dsForm-path",
-                text: "Here we can select a data target and the source path to create a table.",
+                highlight_div: "#dsForm-path .cardMain",
+                text: "This panel enables you to locate your data.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dsForm-target",
-                text: "The data target is the source from where we import data from.",
+                text: "The data target is the storage location of your data.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#filePath",
                 interact_div: "#filePath",
-                text: "The file path is where we browse and import data from, in relation to the target." +
-                    "Type in /netstore/datasets/",
+                text: "The file path is the path to your data source, in relation to the target. " +
+                    "Type in /netstore/datasets/countries.csv",
                 type: TooltipType.Value,
-                value: "/netstore/datasets/"
-            },],
+                value: "/netstore/datasets/countries.csv"
+            },
+            {
+                highlight_div: "#dsForm-path .btn-submit",
+                interact_div: "#dsForm-path .btn-submit",
+                text: "To load the dataset at the path, click this button.",
+                type: TooltipType.Click,
+            },
+            {
+                highlight_div: "#dsPreviewWrap",
+                text: "Here we can see a preview of the data we're importing.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#importDataForm",
+                interact_div: "#importDataForm .createTable",
+                text: "This screen lets you modify how the data is imported. For now, click Create Table.",
+                type: TooltipType.Click,
+            },// XXX TODO: Add a way to wait for a screen
+            {
+                highlight_div: "#pTblView .cardHeader",
+                text: "Xcalar Design is currently loading your data. Click next when you see a preview show up.",
+                type: TooltipType.Text,
+            },
+            {
+                highlight_div: "#pTblView .writeSQL",
+                interact_div: "#pTblView .writeSQL",
+                text: "Let's go back to the SQL Workspace. Click this button to go there instantly.",
+                type: TooltipType.Click,
+            },
+            {
+                highlight_div: "#sqlEditorSpace",
+                text: "The SQL Editor Space is where you can write, store, and modify SQL Query Statements.",
+                type: TooltipType.Text,
+            },
+            {
+                highlight_div: "#sqlTableListerArea",
+                text: "This area provides information on available tables and result sets.",
+                type: TooltipType.Text,
+            },
+            {
+                highlight_div: "#sqlWorkSpacePanel .historySection",
+                text: "This area displays the execution history of your SQL statements.",
+                type: TooltipType.Text,
+            }],
             0
         );
     }
