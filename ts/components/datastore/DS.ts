@@ -546,7 +546,12 @@ namespace DS {
             DSTable.showError(dsId, ErrTStr.MakrForDel, true, false, false);
             return PromiseHelper.resolve();
         } else if ($grid.hasClass("inActivated") && !isLoading) {
-            DSTable.showError(dsId, ErrTStr.InactivateDS, false, true, false);
+            let dsObj = DS.getDSObj(dsId);
+            let error = ErrTStr.InactivateDS;
+            if (dsObj) {
+                error = dsObj.getError() || error;
+            }
+            DSTable.showError(dsId, error, false, true, false);
             return PromiseHelper.resolve();
         }
 
