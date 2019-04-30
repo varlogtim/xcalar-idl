@@ -896,7 +896,9 @@ class MenuHelper {
             }
         }
 
-        const filterTypes: string[] = ["string", "float", "integer", "boolean", "timestamp", "mixed"];
+        const filterTypes: string[] = [ColumnType.string, ColumnType.float,
+                ColumnType.integer, ColumnType.boolean, ColumnType.timestamp,
+                ColumnType.money, ColumnType.mixed];
         const shouldNotFilter: boolean = options.isMultiCol ||
                                     filterTypes.indexOf(columnType) === -1 ||
                                     MenuHelper.isInvalidMixed(columnType, cells) ||
@@ -970,9 +972,9 @@ class MenuHelper {
      * @param cells
      */
     private static isInvalidMixed(columnType: string, cells: TableCell[]) {
-        const filterTypes: string[] = ["string", "float", "integer", "boolean", "timestamp",
+        const filterTypes: string[] = ["string", "float", "integer", "boolean", "timestamp", "money",
                                         "undefined", "mixed"];
-        const notAllowedCombTypes: string[] = ["string", "float", "integer", "boolean", "timestamp"];
+        const notAllowedCombTypes: string[] = ["string", "float", "integer", "boolean", "timestamp", "money"];
         let invalidFound: boolean = false;
         let typeFound: string;
         for (let i = 0; i < cells.length; i++) {

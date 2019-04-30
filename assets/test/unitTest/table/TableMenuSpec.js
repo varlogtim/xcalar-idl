@@ -1167,6 +1167,83 @@ describe('TableMenu Test', function() {
         });
     });
 
+    describe("cell menu", function() {
+        let $table;
+        let $th;
+        let table;
+        let cellMenu;
+        let filterOptionCache;
+
+        before(function() {
+            cellMenu = TableMenuManager.Instance.cellMenu;
+            table =  new TableMeta({
+                tableName: "test#testId",
+                tableId: "testId",
+                tableCols: []
+            });
+            gTables["testId"] = table;
+            table.getCol = () => {
+                return {getBackColName: () => "test"}
+            };
+
+            $table = $('<table class="table" id="xcTable-testId"></table>');
+            $("#container").append($table);
+            filterOptionCache = xcHelper.getFilterOptions;
+        });
+        it("filter integer should work", function() {
+            let called = false;
+            xcHelper.getFilterOptions = (op, colName, uniqueVals, isExist, isNull) => {
+                expect(uniqueVals[4]).to.be.true;
+                called = true;
+            };
+            $table.append($('<th class="col1"><div class="header type-integer"></div></th>'));
+            table.highlightedCells = {1: {1: {val: "4"}}};
+            cellMenu._tdFilter(1, "testId", "filter");
+            expect(called).to.be.true;
+        });
+        it("filter string should work", function() {
+            let called = false;
+            xcHelper.getFilterOptions = (op, colName, uniqueVals, isExist, isNull) => {
+                expect(uniqueVals['"4"']).to.be.true;
+                called = true;
+            };
+            $table.empty();
+            $table.append($('<th class="col1"><div class="header type-string"></div></th>'));
+            table.highlightedCells = {1: {1: {val: "4"}}};
+            cellMenu._tdFilter(1, "testId", "filter");
+            expect(called).to.be.true;
+        });
+        it("filter timestamp should work", function() {
+            let called = false;
+            xcHelper.getFilterOptions = (op, colName, uniqueVals, isExist, isNull) => {
+                expect(uniqueVals['timestamp("4")']).to.be.true;
+                called = true;
+            };
+            $table.empty();
+            $table.append($('<th class="col1"><div class="header type-timestamp"></div></th>'));
+            table.highlightedCells = {1: {1: {val: "4"}}};
+            cellMenu._tdFilter(1, "testId", "filter");
+            expect(called).to.be.true;
+        });
+        it("filter money should work", function() {
+            let called = false;
+            xcHelper.getFilterOptions = (op, colName, uniqueVals, isExist, isNull) => {
+                expect(uniqueVals['money("4.00")']).to.be.true;
+                called = true;
+            };
+            $table.empty();
+            $table.append($('<th class="col1"><div class="header type-money"></div></th>'));
+            table.highlightedCells = {1: {1: {val: "4.00"}}};
+            cellMenu._tdFilter(1, "testId", "filter");
+            expect(called).to.be.true;
+        });
+        after(() => {
+            xcHelper.getFilterOptions = filterOptionCache;
+            delete gTables["testId"];
+            $table.remove();
+        });
+    });
+
     // describe("hot keys", function() {
     //     before(function() {
     //         $table.find('th.col12 .dropdownBox').click();

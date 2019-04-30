@@ -90,29 +90,33 @@ class CellMenu extends AbstractMenu {
             }
             let colVal: any = cellInfo.val;
 
-            if ($header.hasClass("type-integer")) {
+            if ($header.hasClass("type-" + ColumnType.integer)) {
                 if (colVal == null || colVal === "") {
                     isExist = true;
                     continue; // continue to next iteration
                 }
                 colVal = parseInt(colVal);
-            } else if ($header.hasClass("type-float")) {
+            } else if ($header.hasClass("type-" + ColumnType.float)) {
                 if (colVal == null || colVal === "") {
                     isExist = true;
                     continue; // continue to next iteration
                 }
                 colVal = parseFloat(colVal);
-            } else if ($header.hasClass("type-string")) {
+            } else if ($header.hasClass("type-" + ColumnType.string)) {
                 // XXX for string, text is more reliable
                 // since data-val might be messed up
                 colVal = JSON.stringify(colVal);
-            } else if ($header.hasClass("type-boolean")) {
+            } else if ($header.hasClass("type-" + ColumnType.boolean)) {
                 if (colVal === "true") {
                     colVal = true;
                 } else {
                     colVal = false;
                 }
-            } else if ($header.hasClass("type-mixed")) {
+            } else if ($header.hasClass("type-" + ColumnType.timestamp)) {
+                colVal = ColumnType.timestamp + "(" + JSON.stringify(colVal) + ")";
+            } else if ($header.hasClass("type-" + ColumnType.money)) {
+                colVal = ColumnType.money + "(" + JSON.stringify(colVal) + ")";
+            } else if ($header.hasClass("type-" + ColumnType.mixed)) {
                 const type: ColumnType = cellInfo.type;
                 if (type === ColumnType.string) {
                     colVal = JSON.stringify(colVal);
