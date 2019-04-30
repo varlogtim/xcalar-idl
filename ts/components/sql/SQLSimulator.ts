@@ -19,6 +19,13 @@ class SQLSimulator {
         return query;
     }
 
+    static fail(txId: number): void {
+        Transaction.fail(txId, {
+            "noAlert": true,
+            "noNotification": true
+        });
+    }
+
     static addSynthesize(
         xcQueryString: string,
         tableName: string,
@@ -107,7 +114,10 @@ class SQLSimulator {
                 "cli": cli
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -133,7 +143,10 @@ class SQLSimulator {
                 "cli": cli
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -157,7 +170,10 @@ class SQLSimulator {
                 "cli": cli
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -186,7 +202,10 @@ class SQLSimulator {
                 "order": sortColsAndOrderCopy[0].ordering
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -208,7 +227,10 @@ class SQLSimulator {
                 "cli": cli
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -230,7 +252,10 @@ class SQLSimulator {
                 "cli": cli
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -282,7 +307,10 @@ class SQLSimulator {
                 "cli": cli
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -331,7 +359,10 @@ class SQLSimulator {
                 "cli": cli
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -368,7 +399,10 @@ class SQLSimulator {
                 "cli": cli
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -389,7 +423,10 @@ class SQLSimulator {
                 "cli": cli
             });
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            SQLSimulator.fail(txId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
