@@ -1287,7 +1287,11 @@ router.post("/xcsql/result", [support.checkAuth], function(req, res) {
     var userName = req.body.userName;
     var userId = req.body.userId;
     var sessionName = req.body.sessionName;
-    SqlUtil.fetchData(resultSetId, rowPosition, rowsToFetch, totalRows, [], 0, 0, userName, userId, sessionName)
+    setupConnection(userName, userId, sessionName)
+    .then(function() {
+        return SqlUtil.fetchData(resultSetId, rowPosition, rowsToFetch,
+                            totalRows, [], 0, 0, userName, userId, sessionName);
+    })
     .then(function(data) {
         var result = SqlUtil.parseRows(data, schema, renameMap);
         var endRow = rowPosition + rowsToFetch;
@@ -1331,14 +1335,15 @@ router.post("/xcsql/clean", [support.checkAuth], function(req, res) {
     var userName = req.body.userName;
     var userId = req.body.userId;
     var sessionName = req.body.sessionName;
-    var promise;
-    if (resultSetId) {
-        SqlUtil.setSessionInfo(userName, userId, sessionName);
-        promise = XcalarSetFree(resultSetId);
-    } else {
-        promise = PromiseHelper.resolve();
-    }
-    promise
+    setupConnection(userName, userId, sessionName)
+    .then(function() {
+        if (resultSetId) {
+            SqlUtil.setSessionInfo(userName, userId, sessionName);
+            return XcalarSetFree(resultSetId);
+        } else {
+            return PromiseHelper.resolve();
+        }
+    })
     .then(function() {
         SqlUtil.setSessionInfo(userName, userId, sessionName);
         var deleteCompletely = true;
@@ -1417,8 +1422,11 @@ router.post("/xcsql/cancel", [support.checkAuth], function(req, res) {
     var userName = req.body.userName;
     var userId = req.body.userId;
     var sessionName = req.body.sessionName;
-    SqlUtil.setSessionInfo(userName, userId, sessionName);
-    cancelQuery(queryName)
+    setupConnection(userName, userId, sessionName)
+    .then(function() {
+        SqlUtil.setSessionInfo(userName, userId, sessionName);
+        return cancelQuery(queryName)
+    })
     .then(function() {
         xcConsole.log("query cancelled");
         res.send({log: "query cancel issued: " + queryName});
