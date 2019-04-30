@@ -397,8 +397,17 @@ abstract class DagNode extends Durable {
      * attach table to the node
      * @param tableName the name of the table associated with the node
      */
-    public setTable(tableName: string) {
+    public setTable(tableName: string, popupEvent: boolean = false) {
+        let oldResult: string = this.table;
         this.table = tableName;
+        if (popupEvent) {
+            this.events.trigger(DagNodeEvents.ResultSetChange, {
+                nodeId: this.getId(),
+                oldResult: oldResult,
+                result: tableName,
+                node: this
+            });
+        }
     }
 
     /**
@@ -1338,12 +1347,13 @@ abstract class DagNode extends Durable {
             if (DagTblManager.Instance.hasLock(this.table)) {
                 this.setTableLock();
             }
+            let tableName: string = this.table;
+            delete this.table;
             this.events.trigger(DagNodeEvents.TableRemove, {
-                table: this.table,
+                table: tableName,
                 nodeId: this.getId(),
                 node: this
             });
-            delete this.table;
         }
     }
 

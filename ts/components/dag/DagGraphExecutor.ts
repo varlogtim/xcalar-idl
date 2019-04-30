@@ -431,7 +431,7 @@ class DagGraphExecutor {
                             destTable = node.getParents()[0].getTable();
                         }
                         if (destTable) {
-                            node.setTable(destTable);
+                            node.setTable(destTable, true);
                             DagTblManager.Instance.addTable(destTable);
                         }
                         node.beCompleteState();
@@ -445,7 +445,7 @@ class DagGraphExecutor {
                             destTable = linkOutNode.getTable();
                         }
                         if (destTable) {
-                            node.setTable(destTable);
+                            node.setTable(destTable, true);
                             DagTblManager.Instance.addTable(destTable);
                         }
                     } else if (node instanceof DagNodeAggregate) {
@@ -808,7 +808,7 @@ class DagGraphExecutor {
                     if (node.getState() === DagNodeState.Complete &&
                         this._dagIdToDestTableMap[nodeId]) {
                         let destTable: string = this._dagIdToDestTableMap[nodeId];
-                        node.setTable(destTable);
+                        node.setTable(destTable, true);
                         DagTblManager.Instance.addTable(destTable);
                         const tabId: string = this._graph.getTabId();
                         const tab: DagTab = DagServiceFactory.getDagListService().getDagTabById(tabId);
@@ -1049,7 +1049,7 @@ class DagGraphExecutor {
             });
 
             if (this._isOptimizedActiveSession) {
-                this._optimizedLinkOutNode.setTable(outputTableName);
+                this._optimizedLinkOutNode.setTable(outputTableName, true);
                 DagTblManager.Instance.addTable(outputTableName);
                 this._optimizedLinkOutNode.beCompleteState();
             } else {

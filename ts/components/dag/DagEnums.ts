@@ -98,6 +98,7 @@ enum DagNodeEvents {
     LineageSourceChange = "DagNodeLineageSourceChange",
     ParamChange = "DagNodeParamChange",
     StateChange = "DagNodeStateChange",
+    ResultSetChange = "DagNodeResultSetChange",
     ProgressChange = "DagNodeProgressChange",
     SubGraphConfigured = "SubGraphConfigured",
     SubGraphError = "SubGraphError",

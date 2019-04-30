@@ -99,6 +99,19 @@ describe("Dag Node Basic Test", () => {
         expect(node.getTable()).to.equal("testName");
     });
 
+    it("set table should pop up event", () => {
+        const node = new DagNode();
+        node.registerEvents(DagNodeEvents.ResultSetChange, (info) => {
+            expect(node.getId()).to.equal(info.nodeId);
+            expect(info.oldResult).to.be.empty;
+            expect(info.result).to.equal("testName");
+            expect(info.node).to.equal(node);
+        });
+
+        node.setTable("testName", true);
+        expect(node.getTable()).to.equal("testName");
+    });
+
     it("should remove table when running", () => {
         const node = new DagNode();
         node.setTable("testName");

@@ -847,7 +847,7 @@ class DagNodeExecutor {
             // get table outside from batch data flow, so sameSession must be set to false
             return XIApi.synthesize(this.txId, [], source, desTable, false)
         } else {
-            node.setTable(source);
+            node.setTable(source, true);
             DagTblManager.Instance.addTable(source);
             node.beCompleteState();
             return PromiseHelper.resolve(source);
@@ -883,7 +883,7 @@ class DagNodeExecutor {
             .then(() => {
                 const destTable: string = node.getTable();
                 if (destTable) {
-                    dfInNode.setTable(destTable);
+                    dfInNode.setTable(destTable, true);
                     DagTblManager.Instance.addTable(destTable);
                 }
                 dfInNode.beCompleteState();

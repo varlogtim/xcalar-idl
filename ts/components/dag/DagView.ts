@@ -3015,6 +3015,7 @@ class DagView {
             if (DagTable.Instance.getBindNodeId() === nodeId) {
                 DagTable.Instance.close();
             }
+            DagNodeInfoPanel.Instance.update(nodeId, "params");
             const node: DagNode = info.node;
             const nodeType: DagNodeType = node.getType();
             // When not link in or link out node
@@ -3056,6 +3057,11 @@ class DagView {
                         });
                     });
             }
+        });
+
+        this._registerGraphEvent(this.graph, DagNodeEvents.ResultSetChange, (info) => {
+            const nodeId: DagNodeId = info.nodeId;
+            DagNodeInfoPanel.Instance.update(nodeId, "params");
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.RetinaRemove, (info) => {

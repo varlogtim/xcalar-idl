@@ -92,6 +92,7 @@ class DagNodeInfoPanel {
                 break;
             case ("stats"):
                 this._updateStatsSection();
+                break;
             case ("aggregates"):
                 this._updateAggregatesSection();
                 break;
