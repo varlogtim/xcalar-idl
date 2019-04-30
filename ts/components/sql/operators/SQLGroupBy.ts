@@ -625,6 +625,13 @@ class SQLGroupBy {
                 cli += ret.cli;
                 gbTableColInfos[0].columns = gbTableColInfos[0].columns
                                                              .concat(rightCols);
+                for (let j = 0; j < gArrayList[index].length; j++) {
+                    gbTableColInfos[0].rename.push({orig: gArrayList[index][j].newColName,
+                                                    new: gArrayList[index][j].newColName,
+                                                    type: xcHelper.convertColTypeToFieldType(
+                                                            xcHelper.convertSQLTypeToColType(
+                                                            gArrayList[index][j].colType))});
+                }
                 if (ret.tempCols && index === gbTableNames.length - 1) {
                     for (let j = 0; j < ret.tempCols.length; j++) {
                         if (typeof ret.tempCols[j] === "string") {
