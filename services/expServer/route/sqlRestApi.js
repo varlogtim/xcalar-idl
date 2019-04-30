@@ -1409,11 +1409,25 @@ router.post("/xcsql/list", [support.checkAuth], function(req, res) {
 });
 
 function cancelQuery(queryName) {
+    var deferred = PromiseHelper.deferred();
     var sqlQueryObj = sqlQueryObjects[queryName];
     if (sqlQueryObj) {
         return sqlQueryObj.setStatus(SQLStatus.Cancelled);
     } else {
-        return PromiseHelper.reject({error: "Query doesn't exist"});
+        XcalarQueryCancel(queryName)
+        .then(function() {
+            var sqlHistoryObj = {
+                queryId: queryName,
+                status: SQLStatus.Cancelled,
+                endTime: new Date()
+            };
+            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            deferred.reject({error: error});
+        });
+        return deferred.promise();
     }
 }
 

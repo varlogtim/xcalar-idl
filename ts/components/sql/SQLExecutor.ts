@@ -31,13 +31,15 @@ class SQLExecutor {
             deferred.resolve(sqlQueryObj);
         })
         .fail(function(error) {
-            if (error === SQLErrTStr.Cancel) {
+            if ((error instanceof Object && error.error ===
+                "Error: " + SQLErrTStr.Cancel) || error === SQLErrTStr.Cancel) {
                 sqlQueryObj.setStatus(SQLStatus.Cancelled);
+                deferred.reject(SQLErrTStr.Cancel);
             } else {
                 sqlQueryObj.setStatus(SQLStatus.Failed);
                 sqlQueryObj.errorMsg = JSON.stringify(error);
+                deferred.reject(sqlQueryObj.errorMsg);
             }
-            deferred.reject(error);
         });
         return deferred.promise();
     }
