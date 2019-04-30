@@ -82,7 +82,7 @@ class KVStore {
     public static restoreUserAndGlobalInfo(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let gInfosUser: UserInfoDurable = <UserInfoDurable>{};
-        let gInfosSetting: object = {};
+        let gInfosSetting: GenSettingsDurable = <any>{};
 
         KVStore.getUserInfo()
         .then((userMeta) => {
@@ -183,7 +183,7 @@ class KVStore {
 
     private static _restoreUserAndGlobalInfoHelper(
         gInfosUser: UserInfoDurable,
-        gInfosSetting: object,
+        gInfosSetting: GenSettingsDurable,
     ): XDPromise<void> {
         const userInfos: UserInfo = new UserInfo(gInfosUser);
         return UserSettings.restore(userInfos, gInfosSetting);

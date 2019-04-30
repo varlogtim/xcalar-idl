@@ -1,4 +1,4 @@
-describe("User Setting Test", function() {
+describe("UserSettings Test", function() {
     describe("Baisc User Setting API Test", function() {
         it("UserSettings.getAllPrefs should work", function() {
             var res = UserSettings.getAllPrefs();

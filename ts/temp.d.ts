@@ -848,15 +848,6 @@ declare class XEvalParser {
 }
 
 /* ============== NAMESPACE ====================== */
-declare namespace UserSettings {
-    export function getPref(prop: string): any;
-    export function commit(showSuccess?: boolean, hasDSChange?: boolean, isPersonalChange?: boolean): XDPromise<void>;
-    export function restore(oldMeta: UserInfo, gInfosSetting: object): XDPromise<void>;
-    export function sync(): void;
-    export function setPref(name: string, val: string | number | boolean, something?: boolean): void;
-    export function getAllPrefs(): UserPref;
-}
-
 declare namespace PromiseHelper {
     export function deferred<T>(): XDDeferred<T>;
     export function reject<T>(...args): XDPromise<T>;
@@ -882,6 +873,7 @@ declare namespace SupTicketModal {
 declare namespace MonitorGraph {
     export function stop(): void;
     export function tableUsageChange(): void;
+    export function updateInterval(sec: number): void;
 }
 
 declare namespace TblAnim {

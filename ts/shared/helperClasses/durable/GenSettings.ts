@@ -5,8 +5,8 @@ class GenSettings extends Durable {
     private baseSettings: GenSettingOptionsDurable; // baseSettings
 
     constructor(
-        userConfigParms: GenSettingOptionsDurable,
-        options: GenSettingsDurable
+        userConfigParms?: GenSettingOptionsDurable,
+        options?: GenSettingsDurable
     ) {
         // XXX do ew still need userConfigParms?
         userConfigParms = userConfigParms || <GenSettingOptionsDurable>{};

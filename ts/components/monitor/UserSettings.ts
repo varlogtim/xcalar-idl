@@ -1,75 +1,93 @@
-window.UserSettings = (function($, UserSettings) {
-    var userPrefs;
-    var userInfos;
-    var cachedPrefs = {};
-    var monIntervalSlider;
-    var commitIntervalSlider;
-    var logOutIntervalSlider;
-    var genSettings;
-    var revertedToDefault = false;
+namespace UserSettings {
+    let userInfos: UserInfo;
+    let userPrefs: UserPref;
+    let genSettings: GenSettings;
+    let cachedPrefs = {};
+    let monIntervalSlider;
+    let commitIntervalSlider;
+    let logOutIntervalSlider;
+    let revertedToDefault = false;
 
     // oldUserInfos/userInfos contains settings such as if the user last had
     // list vs grid view on in the file browser, also contains general settings
     // which has the user's version of genSettings (ones editable in the
-    // settings npanel)
+    // settings panel)
     // prevSettings/genSettings has the settings that are editable in the
     // settings panel such as monitor interval time
-    UserSettings.restore = function(oldUserInfos, prevSettings) {
-        var deferred = PromiseHelper.deferred();
+    /**
+     * UserSettings.restore
+     * @param oldUserInfos
+     * @param prevSettings
+     */
+    export function restore(
+        oldUserInfos: UserInfo,
+        prevSettings: GenSettingsDurable
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         setup();
         userInfos = oldUserInfos;
         userPrefs = userInfos.getPrefInfo();
 
         saveLastPrefs();
 
-        var dsInfo = userInfos.getDSInfo();
-        genSettings = new GenSettings({}, prevSettings);
-        var atStartup = true;
-        DS.restore(dsInfo, atStartup)
-        .then(function() {
+        let dsInfo = userInfos.getDSInfo();
+        genSettings = new GenSettings(<any>{}, prevSettings);
+        DS.restore(dsInfo, true)
+        .then(() => {
             restoreSettingsPanel();
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             console.error("Restore user info failed", error);
             deferred.reject(error);
         });
 
         return deferred.promise();
-    };
+    }
 
-    // when other workbook changes settings
-    UserSettings.sync = function() {
-        var oldUserInfos;
+    /**
+     * when other workbook changes settings
+     * UserSettings.sync
+     */
+    export function sync() {
+        let oldUserInfos: UserInfo;
 
         KVStore.getUserInfo()
-        .then(function(userMeta) {
+        .then((userMeta) => {
             oldUserInfos = new UserInfo(userMeta);
             return KVStore.getSettingInfo();
         })
-        .then(function(prevSettings) {
+        .then((prevSettings) => {
             userPrefs = new UserPref();
             userInfos = oldUserInfos;
             userPrefs = userInfos.getPrefInfo();
             saveLastPrefs();
-            var dsInfo = userInfos.getDSInfo();
-            genSettings = new GenSettings({}, prevSettings);
+            genSettings = new GenSettings(<any>{}, prevSettings);
             restoreSettingsPanel();
         });
     }
 
-    UserSettings.commit = function(showSuccess, hasDSChange, isPersonalChange) {
-        var deferred = PromiseHelper.deferred();
+    /**
+     * UserSettings.commit
+     * @param showSuccess
+     * @param hasDSChange
+     * @param isPersonalChange
+     */
+    export function commit(
+        showSuccess: boolean,
+        hasDSChange: boolean = false,
+        isPersonalChange: boolean = false
+    ): XDPromise<void> {
         if (!userPrefs) {
             // UserSettings.commit may be called when no workbook is created
             // and userPrefs has not been set up.
             return PromiseHelper.resolve();
         }
 
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         userPrefs.update();
-        var userPrefHasChange = userPrefChangeCheck();
-        var shouldCommit = hasDSChange || userPrefHasChange ||
-                           revertedToDefault;
+        let userPrefHasChange = userPrefChangeCheck();
+        let shouldCommit: boolean = hasDSChange || userPrefHasChange || revertedToDefault;
         if (shouldCommit) {
             userInfos.update();
 
@@ -78,12 +96,12 @@ window.UserSettings = (function($, UserSettings) {
             // if there's a ds folder change, or we may commit genSettings
             // if there's a settings change, or both
 
-            var dsPromise;
-            var userPrefPromise;
-            var userKey = KVStore.getKey("gUserKey");
-            var userStore = new KVStore(userKey, gKVScope.USER);
-            var settingsKey = KVStore.getKey("gSettingsKey");
-            var settingsStore = new KVStore(settingsKey, gKVScope.GLOB);
+            let dsPromise: XDPromise<void>;
+            let userPrefPromise: XDPromise<void>;
+            let userKey: string = KVStore.getKey("gUserKey");
+            let userStore: KVStore = new KVStore(userKey, gKVScope.USER);
+            let settingsKey: string = KVStore.getKey("gSettingsKey");
+            let settingsStore: KVStore = new KVStore(settingsKey, gKVScope.GLOB);
 
             if (hasDSChange) {
                 dsPromise = userStore.put(JSON.stringify(userInfos), true);
@@ -110,7 +128,7 @@ window.UserSettings = (function($, UserSettings) {
                 userPrefPromise = PromiseHelper.resolve();
             }
 
-            const $userSettingsSave = $("#userSettingsSave");
+            let $userSettingsSave = $("#userSettingsSave");
             xcUIHelper.disableSubmit($userSettingsSave);
 
             dsPromise
@@ -144,50 +162,68 @@ window.UserSettings = (function($, UserSettings) {
         }
 
         return deferred.promise();
-    };
+    }
 
-    UserSettings.getAllPrefs = function() {
+    /**
+     * UserSettings.getAllPrefs
+     */
+    export function getAllPrefs(): UserPref {
         return userPrefs || new UserPref();
-    };
+    }
 
-    UserSettings.getPref = function(pref) {
+    /**
+     * UserSettings.getPref
+     * @param pref
+     */
+    export function getPref(pref: string): any {
         if (!userPrefs) {
             return null;
         }
         if (userPrefs.hasOwnProperty(pref)) {
             return userPrefs[pref];
         } else {
-            for (var i in userPrefs) {
+            for (let i in userPrefs) {
                 if (userPrefs[i] != null &&
                     typeof userPrefs[i] === "object" &&
-                    userPrefs[i].hasOwnProperty(pref)) {
+                    userPrefs[i].hasOwnProperty(pref)
+                ) {
                     return userPrefs[i][pref];
                 }
             }
         }
         // if not found in userPrefs, check general settings
         return genSettings.getPref(pref);
-    };
+    }
 
-    UserSettings.setPref = function(pref, val, isGeneral) {
+    /**
+     * UserSettings.setPref
+     */
+    export function setPref(
+        pref: string,
+        val: any,
+        isGeneral: boolean
+    ): void {
         if (isGeneral) {
             userPrefs.general[pref] = val;
         } else {
             userPrefs[pref] = val;
         }
-    };
+    }
 
-    UserSettings.revertDefault = function() {
-        var newPrefs = new UserPref();
+    /**
+     * UserSettings.revertDefault
+     */
+    export function revertDefault(): void {
+        let newPrefs: UserPref = new UserPref();
         userPrefs.general = newPrefs.general;
         if (Admin.isAdmin()) {
             genSettings = new GenSettings();
         }
         restoreSettingsPanel();
         revertedToDefault = true;
-    };
+    }
 
-    function setup() {
+    function setup(): void {
         userPrefs = new UserPref();
         addEventListeners();
         if (!Admin.isAdmin()) { // remove admin only settings
@@ -195,12 +231,12 @@ window.UserSettings = (function($, UserSettings) {
         }
     }
 
-    function saveLastPrefs() {
+    function saveLastPrefs(): void {
         cachedPrefs = xcHelper.deepCopy(userPrefs);
     }
 
-    function userPrefChangeCheck() {
-        var shouldCommit = false;
+    function userPrefChangeCheck(): boolean {
+        let shouldCommit: boolean = false;
         if (userPrefs == null) {
             // in case commit is triggered at setup time
             if (userInfos != null) {
@@ -210,7 +246,7 @@ window.UserSettings = (function($, UserSettings) {
 
             return false;
         }
-        for (var key in userPrefs) {
+        for (let key in userPrefs) {
             if (!userPrefs.hasOwnProperty(key)) {
                 continue;
             }
@@ -221,7 +257,7 @@ window.UserSettings = (function($, UserSettings) {
                 break;
             } else if (cachedPrefs[key] !== userPrefs[key]) {
                 if (typeof userPrefs[key] === "object") {
-                    for (var pref in userPrefs[key]) {
+                    for (let pref in userPrefs[key]) {
                         if (!userPrefs[key].hasOwnProperty(pref)) {
                             continue;
                         }
@@ -231,7 +267,7 @@ window.UserSettings = (function($, UserSettings) {
                         }
                     }
                     if (!shouldCommit) {
-                        for (var pref in cachedPrefs[key]) {
+                        for (let pref in cachedPrefs[key]) {
                             if (cachedPrefs[key][pref] !== userPrefs[key][pref])
                             {
                                 shouldCommit = true;
@@ -251,9 +287,9 @@ window.UserSettings = (function($, UserSettings) {
         return shouldCommit;
     }
 
-    function addEventListeners() {
+    function addEventListeners(): void {
         $("#showDataColBox").click(function() {
-            var $checkbox = $(this);
+            let $checkbox = $(this);
             $checkbox.toggleClass("checked");
             if ($checkbox.hasClass("checked")) {
                 UserSettings.setPref("hideDataCol", false, true);
@@ -263,7 +299,7 @@ window.UserSettings = (function($, UserSettings) {
         });
 
         $("#hideSysOps").click(function() {
-            var $checkbox = $(this);
+            let $checkbox = $(this);
             $checkbox.toggleClass("checked");
             if ($checkbox.hasClass("checked")) {
                 UserSettings.setPref("hideSysOps", true, true);
@@ -275,7 +311,7 @@ window.UserSettings = (function($, UserSettings) {
         });
 
         $("#disableDSShare").click(function() {
-            var $checkbox = $(this);
+            let $checkbox = $(this);
             $checkbox.toggleClass("checked");
             if ($checkbox.hasClass("checked")) {
                 UserSettings.setPref("disableDSShare", true, true);
@@ -326,13 +362,13 @@ window.UserSettings = (function($, UserSettings) {
         });
     }
 
-    function restoreSettingsPanel() {
-        var hideDataCol = UserSettings.getPref("hideDataCol");
-        var graphInterval = UserSettings.getPref("monitorGraphInterval");
-        var commitInterval = UserSettings.getPref("commitInterval");
-        var hideSysOps = UserSettings.getPref("hideSysOps");
-        var disableDSShare = UserSettings.getPref("disableDSShare");
-        var logOutInterval = UserSettings.getPref("logOutInterval");
+    function restoreSettingsPanel(): void {
+        let hideDataCol = UserSettings.getPref("hideDataCol");
+        let graphInterval = UserSettings.getPref("monitorGraphInterval");
+        let commitInterval = UserSettings.getPref("commitInterval");
+        let hideSysOps = UserSettings.getPref("hideSysOps");
+        let disableDSShare = UserSettings.getPref("disableDSShare");
+        let logOutInterval = UserSettings.getPref("logOutInterval");
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
@@ -355,9 +391,6 @@ window.UserSettings = (function($, UserSettings) {
         XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
         monIntervalSlider.setSliderValue(graphInterval);
         commitIntervalSlider.setSliderValue(commitInterval);
-        logOutIntervalSlider.setSliderValue(XcUser
-            .CurrentUser.getLogOutTimeoutVal() / (1000 * 60));
+        logOutIntervalSlider.setSliderValue(XcUser.CurrentUser.getLogOutTimeoutVal() / (1000 * 60));
     }
-
-    return (UserSettings);
-}(jQuery, {}));
+}
