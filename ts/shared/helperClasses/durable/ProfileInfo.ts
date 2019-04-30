@@ -10,7 +10,7 @@
     public groupByInfo: ProfileGroupbyDurable; // groupBy info
 
     private id: string; // uniquely identify the obj
-    private frontColName: string; // column's front name
+    public frontColName: string; // column's front name
    
     constructor(options: ProfileOptions) {
         options = options || <ProfileOptions>{};

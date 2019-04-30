@@ -899,15 +899,6 @@ declare namespace BottomMenu {
     export function isPoppedOut(): boolean;
 }
 
-declare namespace Profile {
-    export function setup(): void;
-    export function restore(oldMeat: object): void;
-    export function copy(tableId: TableId, newTableId: TableId): void;
-    export function show(tableId: TableId, colNum: number): void;
-    export function deleteCache(tableId: TableId): void;
-    export function getCache(): any;
-}
-
 declare namespace JupyterUDFModal {
     export function setup(): void;
     export function show(type: string, params?: any): void;

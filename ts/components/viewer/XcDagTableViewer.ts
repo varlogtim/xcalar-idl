@@ -16,6 +16,8 @@ class XcDagTableViewer extends XcTableViewer {
                 tableCols: [ColManager.newDATACol()]
             });
             gTables[tableId] = table;
+            // clear cached tableId that may cause errors
+            Profile.deleteCache(tableId);
         }
         let columns: ProgCol[] = dagNode.getLineage().getColumns(true);
         if (columns != null && columns.length > 0) {

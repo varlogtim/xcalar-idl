@@ -3,76 +3,78 @@
     - Cannot filter by 'Other' in piechart
     - How to handle Bucketing with 'Other'
 */
-window.Profile = (function($, Profile, d3) {
-    var $modal;        // $("#profileModal");
-    var $rangeSection; // $modal.find(".rangeSection");
-    var $rangeInput;   // $("#profile-range");
-    var $skipInput;    // $("#profile-rowInput")
+namespace Profile {
+    let $modal: JQuery;        // $("#profileModal");
+    let $rangeSection: JQuery; // $modal.find(".rangeSection");
+    let $rangeInput: JQuery;   // $("#profile-range");
+    let $skipInput: JQuery;    // $("#profile-rowInput")
 
-    var modalHelper;
+    let modalHelper: ModalHelper;
+
     // constants
-    var aggKeys = ["min", "average", "max", "count", "sum", "sd"];
-
-    var statsKeyMap = {
+    const aggKeys: string[] = ["min", "average", "max", "count", "sum", "sd"];
+    const statsKeyMap: {[key: string]: string} = {
         "zeroQuartile": "zeroQuartile",
         "lowerQuartile": "lowerQuartile",
         "median": "median",
         "upperQuartile": "upperQuartile",
         "fullQuartile": "fullQuartile"
     };
-    var sortMap = {
+    const sortMap: {[key: string]: string} = {
         "asc": "asc",
         "origin": "origin",
         "desc": "desc",
         "ztoa": "ztoa"
     };
+    const statsColName: string = "statsGroupBy";
+    const bucketColName: string = "bucketGroupBy";
+    const defaultRowsToFetch: number = 20;
+    const minRowsToFetch: number = 10;
+    const maxRowsToFetch: number = 100;
+    const decimalLimit: number = 5;
 
-    var statsColName = "statsGroupBy";
-    var bucketColName = "bucketGroupBy";
-    var defaultRowsToFetch = 20;
-    var minRowsToFetch = 10;
-    var maxRowsToFetch = 100;
-    var decimalLimit = 5;
-
-    var statsInfos = {};
-    var bucketCache = {};
+    let statsInfos = {};
+    let bucketCache = {};
 
     // data with initial value
-    var curTableId = null;
-    var curColNum = null;
-    var groupByData = [];
-    var bucketNum = 0;
-    var decimalNum = -1;
-    var order = sortMap.origin;
-    var statsCol = null;
-    var percentageLabel = false;
-    var numRowsToFetch = defaultRowsToFetch;
-    var chartType = "bar";
-    var chartBuilder;
-    var _profileEngine = null;
-    var _profileSelector = null;
+    let curTableId: TableId = null;
+    let curColNum: number = null;
+    let groupByData = [];
+    let bucketNum: number = 0;
+    let decimalNum: number = -1;
+    let order: string = sortMap.origin;
+    let statsCol: ProfileInfo = null;
+    let percentageLabel: boolean = false;
+    let numRowsToFetch: number = defaultRowsToFetch;
+    let chartType: string = "bar";
+    let chartBuilder: AbstractChartBuilder;
+    let _profileEngine: ProfileEngine = null;
+    let _profileSelector: ProfileSelector = null;
 
-    Profile.setup = function() {
+    /**
+     * Profile.setup
+     */
+    export function setup(): void {
         $modal = $("#profileModal");
         $rangeSection = $modal.find(".rangeSection");
         $rangeInput = $("#profile-range");
         $skipInput = $("#profile-rowInput");
 
-        var modalWidth;
-        var statsWidth;
+        let modalWidth: number;
+        let statsWidth: number;
         modalHelper = new ModalHelper($modal, {
             beforeResize: function() {
                 modalWidth = $modal.width();
                 statsWidth = $("#profile-stats").width();
             },
-            resizeCallback: function(event, ui) {
+            resizeCallback: function(_event, ui) {
                 if ($modal.hasClass("collapse")) {
                     resizeChart();
                     return;
                 }
 
-                var minWidth = getMinStatsPanelWidth();
-                var width = minWidth;
+                const minWidth: number = getMinStatsPanelWidth();
+                let width: number = minWidth;
                 if (statsWidth > minWidth) {
                     width = ui.size.width / modalWidth * statsWidth;
                 }
@@ -83,32 +85,44 @@ window.Profile = (function($, Profile, d3) {
             noEnter: true
         });
         addEventListeners();
-    };
+    }
 
-    Profile.restore = function(oldInfos) {
-        var oldStats = oldInfos || {};
-        var newStats = {};
-        for (var tableId in oldStats) {
+    export function restore(oldInfos): void {
+        let oldStats = oldInfos || {};
+        let newStats = {};
+        for (let tableId in oldStats) {
             newStats[tableId] = {};
-            var colInfos = oldStats[tableId] || {};
-            for (var colName in colInfos) {
-                var oldInfo = colInfos[colName];
+            let colInfos = oldStats[tableId] || {};
+            for (let colName in colInfos) {
+                let oldInfo = colInfos[colName];
                 newStats[tableId][colName] = new ProfileInfo(oldInfo);
             }
         }
 
         statsInfos = newStats;
-    };
+    }
 
-    Profile.getCache = function() {
-        return (statsInfos);
-    };
+    /**
+     * Profile.getCache
+     */
+    export function getCache() {
+        return statsInfos;
+    }
 
-    Profile.deleteCache = function(tableId) {
+    /**
+     * Profile.deleteCache
+     * @param tableId
+     */
+    export function deleteCache(tableId: TableId): void {
         delete statsInfos[tableId];
-    };
+    }
 
-    Profile.copy = function(oldTableId, newTableId) {
+    /**
+     * Profile.copy
+     * @param oldTableId
+     * @param newTableId
+     */
+    export function copy(oldTableId: TableId, newTableId: TableId): boolean {
         if (statsInfos[oldTableId] == null ||
             gTables[oldTableId] == null ||
             gTables[newTableId] == null
@@ -118,16 +132,17 @@ window.Profile = (function($, Profile, d3) {
         // because the exploadString xdf,map can also change the total row num
         // so need to do a check first
         try {
-            var oldTotalRow = gTables[newTableId].resultSetCount;
-            var newTotalRow = gTables[newTableId].resultSetCount;
+            let oldTotalRow: number = gTables[newTableId].resultSetCount;
+            let newTotalRow: number = gTables[newTableId].resultSetCount;
             if (newTotalRow == null ||
-                oldTotalRow !== newTotalRow) {
+                oldTotalRow !== newTotalRow
+            ) {
                 return false;
             }
 
             statsInfos[newTableId] = {};
-            for (var colName in statsInfos[oldTableId]) {
-                var options = statsInfos[oldTableId][colName];
+            for (let colName in statsInfos[oldTableId]) {
+                let options = statsInfos[oldTableId][colName];
                 statsInfos[newTableId][colName] = new ProfileInfo(options);
             }
             return true;
@@ -135,22 +150,26 @@ window.Profile = (function($, Profile, d3) {
             console.error(e);
             return false;
         }
-    };
+    }
 
-    Profile.show = function(tableId, colNum) {
-        var deferred = PromiseHelper.deferred();
-
-        var table = gTables[tableId];
+    // XXX TODO: change to start from a table, not tableId
+    /**
+     * Profile.show
+     * @param tableId
+     * @param colNum
+     */
+    export function show(tableId: TableId, colNum: number): XDPromise<void> {
+        let table: TableMeta = gTables[tableId];
         if (table == null) {
-            deferred.reject("No table!");
-            return (deferred.promise());
+            return PromiseHelper.reject("No table!");
         }
-        var progCol = table.tableCols[colNum - 1];
-        var colName = progCol.getBackColName();
-
+        let progCol = table.getCol(colNum);
+        if (progCol == null) {
+            return PromiseHelper.reject("No column!");
+        }
+        let colName: string = progCol.getBackColName();
         if (colName == null) {
-            deferred.reject("No backend col name!");
-            return (deferred.promise());
+            return PromiseHelper.reject("No backend col name!");
         }
 
         curTableId = tableId;
@@ -162,12 +181,17 @@ window.Profile = (function($, Profile, d3) {
         if (statsCol == null) {
             statsCol = statsInfos[tableId][colName] = new ProfileInfo({
                 "colName": colName,
-                "type": progCol.getType()
+                "type": progCol.getType(),
+                "version": undefined,
+                "id": undefined,
+                "aggInfo": undefined,
+                "frontColName": undefined,
+                "groupByInfo": undefined,
+                "statsInfo": undefined
             });
         } else if (statsCol.getId() === $modal.data("id")) {
             // when same modal open twice
-            deferred.resolve();
-            return (deferred.promise());
+            return PromiseHelper.resolve();
         }
 
         getProfileEngine();
@@ -177,30 +201,42 @@ window.Profile = (function($, Profile, d3) {
 
         showProfile();
         $modal.attr("data-state", "pending");
+
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         generateProfile(table)
-        .then(function() {
+        .then(() => {
             $modal.attr("data-state", "finished");
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             $modal.attr("data-state", "failed");
             console.error("Profile failed", error);
             deferred.resolve();
         });
 
-        return (deferred.promise());
-    };
+        return deferred.promise();
+    }
 
-    Profile.getNumRowsToFetch = function() {
+    // XXX TODO: ProfileEngine should not call it direcly
+    /**
+     * Profile.getNumRowsToFetch
+     */
+    export function getNumRowsToFetch(): number {
         return numRowsToFetch;
-    };
+    }
 
-    Profile.refreshAgg = function(profileInfo, aggkey) {
+    // XXX TODO: ProfileEngine should not call it direcly
+    /**
+     * Profile.refreshAgg
+     * @param profileInfo
+     * @param aggkey
+     */
+    export function refreshAgg(profileInfo: ProfileInfo, aggkey: string): void {
         // modal is open and is for that column
         if (isModalVisible(profileInfo)) {
-            refreshAggInfo(aggkey, profileInfo);
+            refreshAggInfo(aggkey, profileInfo, false);
         }
-    };
+    }
 
     function addEventListeners() {
         $modal.on("click", ".close", function() {
@@ -214,7 +250,7 @@ window.Profile = (function($, Profile, d3) {
         // show tootip in barArea and do not let in blink in padding
         $modal.on("mouseover", ".area", function(event) {
             event.stopPropagation();
-            var rowToHover = null;
+            let rowToHover = null;
             if (!$modal.hasClass("drawing") && isBarChart()) {
                 rowToHover = d3.select(this).attr("data-rowNum");
             }
@@ -222,11 +258,11 @@ window.Profile = (function($, Profile, d3) {
         });
 
         $modal.on("mouseout", ".pieChart .area", function() {
-            resetTooltip();
+            resetTooltip(null, null);
         });
 
         $modal.on("mouseover", function() {
-            resetTooltip();
+            resetTooltip(null, null);
         });
 
         // only trigger in padding area btw bars
@@ -235,10 +271,11 @@ window.Profile = (function($, Profile, d3) {
         });
 
         $modal.on("click", ".graphSwitch", function() {
-            if ($(this).hasClass("on")) {
-                $(this).removeClass("on");
+            let $el = $(this);
+            if ($el.hasClass("on")) {
+                $el.removeClass("on");
             } else {
-                $(this).addClass("on");
+                $el.addClass("on");
             }
 
             if (chartType === "bar") {
@@ -253,8 +290,7 @@ window.Profile = (function($, Profile, d3) {
             buildGroupGraphs(statsCol, true, false);
         });
 
-        var $groupbySection = $modal.find(".groupbyInfoSection");
-
+        let $groupbySection: JQuery = $modal.find(".groupbyInfoSection");
         $groupbySection.on("click", ".clickable", function(event) {
             if (event.which !== 1) {
                 return;
@@ -267,7 +303,7 @@ window.Profile = (function($, Profile, d3) {
             }
             percentageLabel = !percentageLabel;
             $(this).tooltip("hide");
-            buildGroupGraphs(statsCol);
+            buildGroupGraphs(statsCol, false, false);
         });
 
         $groupbySection.on("mousedown", ".arrow", function(event) {
@@ -275,7 +311,7 @@ window.Profile = (function($, Profile, d3) {
                 return;
             }
 
-            var isLeft = $(this).hasClass("left-arrow");
+            let isLeft: boolean = $(this).hasClass("left-arrow");
             clickArrowEvent(isLeft);
             return false;
         });
@@ -293,7 +329,7 @@ window.Profile = (function($, Profile, d3) {
         });
 
         // event on sort section
-        var $sortSection = $modal.find(".sortSection");
+        let $sortSection = $modal.find(".sortSection");
         xcUIHelper.optionButtonEvent($sortSection, function(option) {
             if (option === "asc") {
                 sortData(sortMap.asc, statsCol);
@@ -306,19 +342,19 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
-        var skipInputTimer;
+        let skipInputTimer;
         $skipInput.on("keypress", function(event) {
             if (event.which === keyCode.Enter) {
-                var $input = $(this);
-                var num = Number($input.val());
-                var totalRows = getTotalRowNums();
+                let $input: JQuery = $(this);
+                let num: number = Number($input.val());
+                let totalRows = getTotalRowNums();
 
                 if (!isNaN(num)) {
                     clearTimeout(skipInputTimer);
                     skipInputTimer = setTimeout(function() {
                         num = Math.min(num, totalRows);
                         num = Math.max(num, 1);
-                        positionScrollBar(null, num)
+                        positionScrollBar(null, num, false)
                         .then(function(finalRowNum) {
                             highlightBar(finalRowNum);
                         });
@@ -333,8 +369,8 @@ window.Profile = (function($, Profile, d3) {
 
         // event on displayInput
         $modal.find(".displayInput").on("click", ".action", function() {
-            var diff = 10;
-            var newRowsToFetch;
+            let diff: number = 10;
+            let newRowsToFetch: number;
 
             if ($(this).hasClass("more")) {
                 // 52 should return 60, 50 should reutrn 60
@@ -348,7 +384,7 @@ window.Profile = (function($, Profile, d3) {
         });
 
         // event on decimalInput
-        var $decimalInput = $modal.find(".decimalInput");
+        let $decimalInput = $modal.find(".decimalInput");
         $decimalInput.on("click", ".action", function() {
             if ($(this).hasClass("more")) {
                 decimalNum++;
@@ -356,19 +392,21 @@ window.Profile = (function($, Profile, d3) {
                 decimalNum--;
             }
 
-            updateDecimalInput(decimalNum);
+            updateDecimalInput(decimalNum, false);
         });
 
         $decimalInput.on("keydown", "input", function(event) {
             if (event.which === keyCode.Enter) {
-                var $input = $(this);
-                var val = $input.val();
+                let $input: JQuery = $(this);
+                let val: string = $input.val();
                 if (val === "") {
                     decimalNum = -1;
                 } else {
-                    val = Number(val);
-                    if (val < 0 || val > decimalLimit ||
-                        !Number.isInteger(val)) {
+                    let val_num: number = Number(val);
+                    if (val_num < 0 ||
+                        val_num > decimalLimit ||
+                        !Number.isInteger(val_num
+                    )) {
                         var err = xcStringHelper.replaceMsg(ErrWRepTStr.IntInRange, {
                             "lowerBound": 0,
                             "upperBound": decimalLimit
@@ -376,18 +414,19 @@ window.Profile = (function($, Profile, d3) {
                         StatusBox.show(err, $input, true);
                         return;
                     } else {
-                        decimalNum = val;
+                        decimalNum = val_num;
                     }
                 }
-                updateDecimalInput(decimalNum);
+                updateDecimalInput(decimalNum, false);
             }
         });
+
         $("#profile-filterOption").on("mousedown", ".option", function(event) {
             if (event.which !== 1) {
                 return;
             }
             event.stopPropagation();
-            var $option = $(this);
+            let $option: JQuery = $(this);
             if ($option.hasClass("filter")) {
                 filterSelectedValues(FltOp.Filter);
             } else if ($option.hasClass("exclude")) {
@@ -398,7 +437,7 @@ window.Profile = (function($, Profile, d3) {
         });
 
         $("#profile-download").click(function() {
-            var $btn = $(this);
+            let $btn: JQuery = $(this);
             xcUIHelper.disableSubmit($btn);
             downloadProfileAsPNG()
             .always(function() {
@@ -410,16 +449,16 @@ window.Profile = (function($, Profile, d3) {
         setupStatsSection();
     }
 
-    function setupRangeSection() {
+    function setupRangeSection(): void {
         //set up dropdown for worksheet list
         new MenuHelper($rangeSection.find(".dropDownList"), {
-            "onSelect": function($li) {
-                var oldRange = $rangeSection.find(".dropDownList input").val();
+            "onSelect": function($li: JQuery) {
+                let oldRange: string = $rangeSection.find(".dropDownList input").val();
                 if ($li.text() === oldRange) {
                     return;
                 }
-                var option = $li.attr("name");
-                toggleRange(option);
+                let option: string = $li.attr("name");
+                toggleRange(option, false);
             },
             "container": "#profileModal",
             "bounds": "#profileModal"
@@ -427,12 +466,12 @@ window.Profile = (function($, Profile, d3) {
 
         $rangeInput.keypress(function(event) {
             if (event.which === keyCode.Enter) {
-                var val = Number($rangeInput.val());
-                var rangeOption = getRangeOption();
+                let val: number = Number($rangeInput.val());
+                let rangeOption = getRangeOption();
                 // Note that because the input type is number,
                 // any no-numeric string in the input will get ""
                 // when do $rangeInput.val()
-                var isValid = xcHelper.validate([
+                let isValid: boolean = xcHelper.validate([
                     {
                         "$ele": $rangeInput,
                         "error": ErrTStr.OnlyPositiveNumber
@@ -457,30 +496,31 @@ window.Profile = (function($, Profile, d3) {
                 if (!isValid) {
                     return;
                 }
-                var bucketSize = (rangeOption === "range")
+                let bucketSize = (rangeOption === "range")
                                  ? val
                                  : -val;
-                bucketData(bucketSize, statsCol);
+                bucketData(bucketSize, statsCol, false);
                 cacheBucket(bucketSize);
             }
         });
     }
 
-    function restoreOldBucket() {
+    function restoreOldBucket(): void {
         if (bucketCache[curTableId] != null &&
-            bucketCache[curTableId][curColNum] != null) {
-            var oldBucket = bucketCache[curTableId][curColNum];
+            bucketCache[curTableId][curColNum] != null
+        ) {
+            let oldBucket = bucketCache[curTableId][curColNum];
             $rangeInput.val(oldBucket);
         }
     }
 
-    function cacheBucket(bucket) {
+    function cacheBucket(bucket): void {
         bucketCache[curTableId] = bucketCache[curTableId] || {};
         bucketCache[curTableId][curColNum] = bucket;
     }
 
-    function setupStatsSection() {
-        var $statsSection = $("#profile-stats");
+    function setupStatsSection(): void {
+        let $statsSection: JQuery = $("#profile-stats");
         $statsSection.on("click", ".popBar", function() {
             if ($modal.hasClass("collapse")) {
                 // when collapse
@@ -497,7 +537,7 @@ window.Profile = (function($, Profile, d3) {
 
         // do agg
         $statsSection.on("click", ".genAgg", function() {
-            var $btn = $(this);
+            let $btn: JQuery = $(this);
             $btn.addClass("xc-disabled");
             generateAggs()
             .always(function() {
@@ -512,9 +552,9 @@ window.Profile = (function($, Profile, d3) {
 
         // do correlation
         $("#profile-corr").click(function() {
-            var tableId = curTableId;
-            var colNum = curColNum;
-            var tmp = gMinModeOn;
+            let tableId: TableId = curTableId;
+            let colNum: number = curColNum;
+            let tmp: boolean = gMinModeOn;
             // use gMinMode to aviod blink in open/close modal
             gMinModeOn = true;
             closeProfileModal();
@@ -526,30 +566,30 @@ window.Profile = (function($, Profile, d3) {
             handles: "w",
             minWidth: getMinStatsPanelWidth(),
             containment: "#profileModal",
-            resize: function(event, ui) {
-                var width = Math.min(ui.size.width, getMaxStatsPanelWidth());
+            resize: function(_event, ui) {
+                let width: number = Math.min(ui.size.width, getMaxStatsPanelWidth());
                 adjustStatsPanelWidth(width);
             }
         });
     }
 
-    function getMaxStatsPanelWidth() {
+    function getMaxStatsPanelWidth(): number {
         // left part need 555px at least
         return ($modal.width() - 555);
     }
 
-    function getMinStatsPanelWidth() {
+    function getMinStatsPanelWidth(): number {
         return parseFloat($("#profile-stats").css("minWidth"));
     }
 
-    function adjustStatsPanelWidth(width) {
+    function adjustStatsPanelWidth(width: number): void {
         $("#profile-stats").width(width)
                            .css("left", "");
         $modal.find(".modalLeft").width($modal.width() - width);
         resizeChart();
     }
 
-    function closeProfileModal() {
+    function closeProfileModal(): void {
         modalHelper.clear();
         $modal.find(".groupbyChart").empty();
         clearProfileEngine();
@@ -576,37 +616,36 @@ window.Profile = (function($, Profile, d3) {
         resetDecimalInput();
     }
 
-    function generateProfile(table) {
-        var deferred = PromiseHelper.deferred();
-        var promises = [];
-        var curStatsCol = statsCol;
+    function generateProfile(table: TableMeta): XDPromise<void> {
+        let promises: XDPromise<void>[] = [];
+        let curStatsCol: ProfileInfo = statsCol;
 
         checkAgg(curStatsCol);
-        promises.push(genStats());
+        promises.push(genStats(false));
 
         // do group by
         if (curStatsCol.groupByInfo.isComplete === true) {
             // check if the groupbyTable is not deleted
             // use XcalarGetTables because XcalarSetAbsolute cannot
             // return fail if resultSetId is not free
-            var innerDeferred = PromiseHelper.deferred();
-            var groupbyTable = curStatsCol.groupByInfo.buckets[bucketNum].table;
-            var profileEngine = getProfileEngine();
+            let innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
+            let groupbyTable = curStatsCol.groupByInfo.buckets[bucketNum].table;
+            let profileEngine = getProfileEngine();
             profileEngine.checkProfileTable(groupbyTable)
-            .then(function(exist) {
+            .then((exist) => {
                 if (exist) {
-                    refreshGroupbyInfo(curStatsCol);
+                    refreshGroupbyInfo(curStatsCol, false);
                     innerDeferred.resolve();
                 } else {
                     curStatsCol.groupByInfo.isComplete = false;
-                    curStatsCol.groupByInfo.buckets[bucketNum] = {};
+                    curStatsCol.groupByInfo.buckets[bucketNum] = <any>{};
 
                     runGroupby(table, curStatsCol, bucketNum)
                     .then(innerDeferred.resolve)
                     .fail(innerDeferred.reject);
                 }
             })
-            .fail(function(error) {
+            .fail((error) => {
                 failureHandler(curStatsCol, error);
                 innerDeferred.reject(error);
             });
@@ -616,11 +655,14 @@ window.Profile = (function($, Profile, d3) {
             promises.push(runGroupby(table, curStatsCol, bucketNum));
         }
 
-        PromiseHelper.when.apply(window, promises)
-        .then(deferred.resolve)
-        .fail(function(args) {
-            var error;
-            for (var t = 0; t < args.length; t++) {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        PromiseHelper.when(...promises)
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail((args) => {
+            let error;
+            for (let t = 0; t < args.length; t++) {
                 error = error || args[t];
             }
             deferred.reject(error);
@@ -629,7 +671,7 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function showProfile() {
+    function showProfile(): void {
         $modal.removeClass("type-number")
               .removeClass("type-boolean")
               .removeClass("type-string");
@@ -652,13 +694,13 @@ window.Profile = (function($, Profile, d3) {
         refreshProfile();
         setupScrollBar();
         $("#modalBackground").on("mouseover.profileModal", function() {
-            resetTooltip();
+            resetTooltip(null, null);
         });
     }
 
     // refresh profile
-    function refreshProfile() {
-        var instr = xcStringHelper.replaceMsg(ProfileTStr.Info, {
+    function refreshProfile(): void {
+        let instr = xcStringHelper.replaceMsg(ProfileTStr.Info, {
             "col": xcStringHelper.escapeHTMLSpecialChar(statsCol.frontColName),
             "type": statsCol.type
         });
@@ -675,17 +717,17 @@ window.Profile = (function($, Profile, d3) {
         $modal.find(".modalInstruction .text").html(instr);
 
         refreshAggInfo(aggKeys, statsCol, true);
-        refreshStatsInfo(statsCol);
-        resetGroupbySection();
+        refreshStatsInfo(statsCol, false);
+        resetGroupbySection(false);
         restoreOldBucket();
     }
 
-    function resetGroupbySection(resetRefresh) {
+    function resetGroupbySection(resetRefresh: boolean): void {
         $modal.addClass("loading");
 
-        var $loadHiddens = $modal.find(".loadHidden");
-        var $loadDisables = $modal.find(".loadDisabled");
-        var $errorSection = $modal.find(".errorSection");
+        let $loadHiddens = $modal.find(".loadHidden");
+        let $loadDisables = $modal.find(".loadDisabled");
+        let $errorSection = $modal.find(".errorSection");
 
         if (resetRefresh) {
             $loadHiddens.addClass("disabled");
@@ -698,10 +740,13 @@ window.Profile = (function($, Profile, d3) {
         $errorSection.addClass("hidden").find(".text").text("");
     }
 
-    function refreshGroupbyInfo(curStatsCol, resetRefresh) {
-        var deferred = PromiseHelper.deferred();
-        var $loadHiddens = $modal.find(".loadHidden");
-        var $loadDisables = $modal.find(".loadDisabled");
+    function refreshGroupbyInfo(
+        curStatsCol: ProfileInfo,
+        resetRefresh: boolean
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let $loadHiddens = $modal.find(".loadHidden");
+        let $loadDisables = $modal.find(".loadDisabled");
 
         // This function never deferred.reject
         resetGroupbySection(resetRefresh);
@@ -715,8 +760,8 @@ window.Profile = (function($, Profile, d3) {
                 $modal.addClass("allNull");
             }
 
-            var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
-            var tableName;
+            let tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
+            let tableName: string;
 
             if (order === sortMap.asc) {
                 tableName = tableInfo.ascTable;
@@ -727,9 +772,9 @@ window.Profile = (function($, Profile, d3) {
             } else {
                 tableName = tableInfo.table;
             }
-            var profileEngine = getProfileEngine();
+            let profileEngine = getProfileEngine();
             profileEngine.setProfileTable(tableName, numRowsToFetch)
-            .then(function(data) {
+            .then((data) => {
                 $modal.removeClass("loading");
                 $loadHiddens.removeClass("hidden").removeClass("disabled");
                 $loadDisables.removeClass("disabled");
@@ -737,11 +782,11 @@ window.Profile = (function($, Profile, d3) {
                 resetGroupbyInfo();
 
                 groupByData = addNullValue(curStatsCol, data);
-                buildGroupGraphs(curStatsCol, true);
-                setArrows(1);
+                buildGroupGraphs(curStatsCol, true, false);
+                setArrows(1, false);
                 deferred.resolve();
             })
-            .fail(function(error) {
+            .fail((error) => {
                 failureHandler(curStatsCol, error);
                 // Since we have already cleaned up here, we no longer need our
                 // caller to clean up for us. So we can resolve here
@@ -755,7 +800,11 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function refreshAggInfo(aggKeysToRefesh, curStatsCol, isStartUp) {
+    function refreshAggInfo(
+        aggKeysToRefesh: string | string[],
+        curStatsCol: ProfileInfo,
+        isStartUp: boolean
+    ): void {
         // update agg info
         var $infoSection = $("#profile-stats");
         if (!(aggKeysToRefesh instanceof Array)) {
@@ -780,7 +829,7 @@ window.Profile = (function($, Profile, d3) {
         });
 
         // update the section
-        var notRunAgg = false;
+        let notRunAgg: boolean = false;
         aggKeys.forEach(function(aggkey) {
             if (aggkey !== "count" && curStatsCol.aggInfo[aggkey] == null) {
                 notRunAgg = true;
@@ -788,7 +837,7 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
-        var $section = $("#profile-stats").find(".aggInfo");
+        let $section = $("#profile-stats").find(".aggInfo");
         if (isStartUp) {
             $section.find(".genAgg").removeClass("xc-disabled");
         }
@@ -800,20 +849,23 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function refreshStatsInfo(curStatsCol, forceShow) {
+    function refreshStatsInfo(
+        curStatsCol: ProfileInfo,
+        forceShow: boolean
+    ): void {
         // update stats info
-        var $infoSection = $("#profile-stats");
-        var $statsInfo = $infoSection.find(".statsInfo");
+        let $infoSection = $("#profile-stats");
+        let $statsInfo = $infoSection.find(".statsInfo");
 
         if (curStatsCol.statsInfo.unsorted && !forceShow) {
             $statsInfo.removeClass("hasStats");
         } else {
             $statsInfo.addClass("hasStats");
 
-            for (var key in statsKeyMap) {
-                var statsKey = statsKeyMap[key];
-                var statsVal = curStatsCol.statsInfo[statsKey];
-                var $stats = $infoSection.find("." + statsKey);
+            for (let key in statsKeyMap) {
+                let statsKey = statsKeyMap[key];
+                let statsVal = curStatsCol.statsInfo[statsKey];
+                let $stats = $infoSection.find("." + statsKey);
 
                 if (statsVal == null) {
                     // when stats is still running
@@ -821,7 +873,7 @@ window.Profile = (function($, Profile, d3) {
                           .addClass("animatedEllipsis");
                     xcTooltip.changeText($stats, "...");
                 } else {
-                    var text = xcStringHelper.numToStr(statsVal);
+                    let text = xcStringHelper.numToStr(statsVal);
                     $stats.removeClass("animatedEllipsis")
                           .text(text);
                     xcTooltip.changeText($stats, text);
@@ -830,7 +882,7 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function checkAgg(curStatsCol) {
+    function checkAgg(curStatsCol: ProfileInfo): void {
         var isStr = isTypeString(curStatsCol.type);
         aggKeys.forEach(function(aggkey) {
             if (aggkey === "count") {
@@ -839,28 +891,28 @@ window.Profile = (function($, Profile, d3) {
                     gTables[curTableId].resultSetCount != null) {
                     var count = gTables[curTableId].resultSetCount;
                     curStatsCol.aggInfo[aggkey] = count;
-                    refreshAggInfo(aggkey, curStatsCol);
+                    refreshAggInfo(aggkey, curStatsCol, false);
                 }
             } else if (isStr) {
                 curStatsCol.aggInfo[aggkey] = "--";
-                refreshAggInfo(aggkey, curStatsCol);
+                refreshAggInfo(aggkey, curStatsCol, false);
             }
         });
     }
 
-    function generateAggs() {
+    function generateAggs(): XDPromise<void> {
         // show ellipsis as progressing
-        refreshAggInfo(aggKeys, statsCol);
-        var tableName = gTables[curTableId].getName();
-        var profileEngine = getProfileEngine();
+        refreshAggInfo(aggKeys, statsCol, false);
+        let tableName: string = gTables[curTableId].getName();
+        let profileEngine = getProfileEngine();
         return profileEngine.genAggs(tableName, aggKeys, statsCol);
     }
 
-    function genStats(sort) {
-        var deferred = PromiseHelper.deferred();
-        var curStatsCol = statsCol;
-        var table = gTables[curTableId];
-        var tableName = table.getName();
+    function genStats(sort: boolean): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let curStatsCol: ProfileInfo = statsCol;
+        let table: TableMeta = gTables[curTableId];
+        let tableName: string = table.getName();
 
         if (sort) {
             // when trigger from button
@@ -868,13 +920,13 @@ window.Profile = (function($, Profile, d3) {
         }
         var profileEngine = getProfileEngine();
         profileEngine.genStats(tableName, curStatsCol, sort)
-        .then(function() {
+        .then(() => {
             if (isModalVisible(curStatsCol)) {
-                refreshStatsInfo(curStatsCol);
+                refreshStatsInfo(curStatsCol, false);
             }
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             if (isModalVisible(curStatsCol)) {
                 xcUIHelper.showFail(FailTStr.ProfileStats);
             }
@@ -884,22 +936,26 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function runGroupby(table, curStatsCol, curBucketNum) {
+    function runGroupby(
+        table: TableMeta,
+        curStatsCol: ProfileInfo,
+        curBucketNum: number
+    ): XDPromise<void> {
         if (curBucketNum !== 0) {
             return PromiseHelper.reject("Invalid bucket num");
         }
 
-        var deferred = PromiseHelper.deferred();
-        var profileEngine = getProfileEngine();
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let profileEngine = getProfileEngine();
         profileEngine.genProfile(curStatsCol, table)
-        .then(function() {
+        .then(() => {
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
-                return refreshGroupbyInfo(curStatsCol);
+                return refreshGroupbyInfo(curStatsCol, false);
             }
         })
         .then(deferred.resolve)
-        .fail(function(error) {
+        .fail((error) => {
             failureHandler(curStatsCol, error);
             deferred.reject(error);
         });
@@ -907,18 +963,21 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function addNullValue(curStatsCol, data) {
+    function addNullValue(
+        curStatsCol: ProfileInfo,
+        data: any[]
+    ): any[] {
         // add col info for null value
-        var nullCount = curStatsCol.groupByInfo.nullCount || 0;
+        let nullCount: number = curStatsCol.groupByInfo.nullCount || 0;
         if (nullCount === 0) {
             return data;
         }
 
-        var nullData = {
+        let nullData = {
             "rowNum": 0,
             "type": "nullVal"
         };
-        var colName = curStatsCol.groupByInfo.buckets[bucketNum].colName;
+        let colName = curStatsCol.groupByInfo.buckets[bucketNum].colName;
         nullData[colName] = "FNF";
 
         if (bucketNum === 0) {
@@ -931,13 +990,17 @@ window.Profile = (function($, Profile, d3) {
         return data;
     }
 
-    function buildGroupGraphs(curStatsCol, initial, resize) {
+    function buildGroupGraphs(
+        curStatsCol: ProfileInfo,
+        initial: boolean,
+        resize: boolean
+    ): void {
         if (!isModalVisible(curStatsCol)) {
             return;
         }
 
-        var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
-        var resizeDelay = null;
+        let tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
+        let resizeDelay: number = null;
         if (resize) {
             resizeDelay = 60 / defaultRowsToFetch * numRowsToFetch;
         }
@@ -960,35 +1023,36 @@ window.Profile = (function($, Profile, d3) {
         chartBuilder.build();
     }
 
-    function getYName() {
-        var noBucket = (bucketNum === 0) ? 1 : 0;
+    function getYName(): string {
+        let noBucket = (bucketNum === 0) ? 1 : 0;
         return noBucket ? statsColName : bucketColName;
     }
 
-    function getChart() {
+    function getChart(): d3 {
         return d3.select("#profile-chart .groupbyChart");
     }
 
-    function resizeChart() {
+    function resizeChart(): void {
         if (statsCol.groupByInfo &&
-            statsCol.groupByInfo.isComplete === true) {
+            statsCol.groupByInfo.isComplete === true
+        ) {
             buildGroupGraphs(statsCol, null, true);
-            var $scroller = $modal.find(".scrollSection .scroller");
+            let $scroller: JQuery = $modal.find(".scrollSection .scroller");
             resizeScroller();
-            var curRowNum = Number($skipInput.val());
+            let curRowNum: number = Number($skipInput.val());
             // if not add scolling class,
             // will have a transition to cause a lag
             $scroller.addClass("scrolling");
-            positionScrollBar(null, curRowNum);
+            positionScrollBar(null, curRowNum, false);
             // without setTimout will still have lag
-            setTimeout(function() {
+            setTimeout(() => {
                 $scroller.removeClass("scrolling");
             }, 1);
         }
     }
 
-    function resetScrollBar(updateRowInfo) {
-        var totalRows = getTotalRowNums();
+    function resetScrollBar(updateRowInfo: boolean): void {
+        let totalRows = getTotalRowNums();
         if (totalRows <= numRowsToFetch) {
             $modal.addClass("noScrollBar");
         } else {
@@ -1002,30 +1066,30 @@ window.Profile = (function($, Profile, d3) {
         resizeScroller();
     }
 
-    function resizeScroller() {
-        var $section = $modal.find(".scrollSection");
-        var $scrollBar = $section.find(".scrollBar");
-        var $scroller = $scrollBar.find(".scroller");
-        var totalRows = getTotalRowNums();
+    function resizeScroller(): void {
+        let $section = $modal.find(".scrollSection");
+        let $scrollBar = $section.find(".scrollBar");
+        let $scroller = $scrollBar.find(".scroller");
+        let totalRows = getTotalRowNums();
 
         // the caculation is based on: if totalRows === numRowsToFetch,
         // then scrollerWidth == scrollBarWidth
-        var scrollBarWidth = $scrollBar.width();
-        var scrollerWidth = Math.floor(scrollBarWidth * numRowsToFetch / totalRows);
+        let scrollBarWidth: number = $scrollBar.width();
+        let scrollerWidth: number = Math.floor(scrollBarWidth * numRowsToFetch / totalRows);
         scrollerWidth = Math.min(scrollerWidth, scrollBarWidth);
         scrollerWidth = Math.min(scrollBarWidth - 10, scrollerWidth);
         scrollerWidth = Math.max(25, scrollerWidth);
         $scroller.width(scrollerWidth);
     }
 
-    function setupScrollBar() {
-        var $section = $modal.find(".scrollSection");
-        var $scrollerArea = $section.find(".rowScrollArea");
+    function setupScrollBar(): void {
+        let $section = $modal.find(".scrollSection");
+        let $scrollerArea = $section.find(".rowScrollArea");
         // move scroll bar event, setup it here since we need statsCol info
-        var $scrollerBar = $scrollerArea.find(".scrollBar");
-        var $scroller = $scrollerArea.find(".scroller");
-        var isDragging = false;
-        var xDiff = 0;
+        let $scrollerBar = $scrollerArea.find(".scrollBar");
+        let $scroller = $scrollerArea.find(".scroller");
+        let isDragging: boolean = false;
+        let xDiff: number = 0;
 
         // this use mousedown and mouseup to mimic click
         $scrollerBar.on("mousedown", function() {
@@ -1047,51 +1111,51 @@ window.Profile = (function($, Profile, d3) {
             "mouseup.profileModal": function(event) {
                 if (isDragging === true) {
                     $scroller.removeClass("scrolling");
-                    var mouseX = event.pageX - $scrollerBar.offset().left - xDiff;
-                    var rowPercent = mouseX / $scrollerBar.width();
+                    let mouseX = event.pageX - $scrollerBar.offset().left - xDiff;
+                    let rowPercent = mouseX / $scrollerBar.width();
                     // make sure rowPercent in [0, 1]
                     rowPercent = Math.min(1, Math.max(0, rowPercent));
 
                     if (xDiff !== 0) {
-                        var totalRows = getTotalRowNums();
+                        let totalRows = getTotalRowNums();
                         // when it's dragging the scroller,
                         // not clicking on scrollbar
-                        var scrollerRight = $scroller.offset().left +
+                        let scrollerRight = $scroller.offset().left +
                                             $scroller.width();
-                        var scrollBarRight = $scrollerBar.offset().left +
+                        let scrollBarRight = $scrollerBar.offset().left +
                                              $scrollerBar.width();
                         if (scrollerRight >= scrollBarRight) {
                             rowPercent = 1 - numRowsToFetch / totalRows;
                         }
                     }
 
-                    positionScrollBar(rowPercent);
+                    positionScrollBar(rowPercent, null, false);
                     $modal.removeClass("dragging");
                 }
                 isDragging = false;
             },
             "mousemove.profileModal": function(event) {
                 if (isDragging) {
-                    var mouseX = event.pageX - $scrollerBar.offset().left - xDiff;
-                    var rowPercent = mouseX / $scrollerBar.width();
+                    let mouseX = event.pageX - $scrollerBar.offset().left - xDiff;
+                    let rowPercent = mouseX / $scrollerBar.width();
                     // make sure rowPercent in [0, 1]
                     rowPercent = Math.min(1, Math.max(0, rowPercent));
-                    var left = getPosition(rowPercent);
+                    let left = getPosition(rowPercent);
                     $scroller.css("left", left);
                 }
             }
         });
     }
 
-    function getPosition(percent) {
-        precent = Math.min(99.9, Math.max(0, percent * 100));
+    function getPosition(percent: number): string {
+        percent = Math.min(99.9, Math.max(0, percent * 100));
 
-        var $section = $modal.find(".scrollSection");
-        var $scrollBar = $section.find(".scrollBar");
-        var $scroller = $scrollBar.find(".scroller");
+        let $section = $modal.find(".scrollSection");
+        let $scrollBar = $section.find(".scrollBar");
+        let $scroller = $scrollBar.find(".scroller");
 
-        var barWidth = $scrollBar.width();
-        var position = barWidth * percent;
+        let barWidth: number = $scrollBar.width();
+        let position: number = barWidth * percent;
 
         position = Math.max(0, position);
         position = Math.min(position, barWidth - $scroller.width());
@@ -1099,29 +1163,32 @@ window.Profile = (function($, Profile, d3) {
         return (position + "px");
     }
 
-    function positionScrollBar(rowPercent, rowNum, forceUpdate) {
-        var deferred = PromiseHelper.deferred();
-        var left;
-        var isFromInput = false;
-        var $section = $modal.find(".scrollSection");
-        var $scrollBar = $section.find(".scrollBar");
-        var $scroller = $scrollBar.find(".scroller");
-        var totalRows = getTotalRowNums();
+    function positionScrollBar(
+        rowPercent: number,
+        rowNum: number,
+        forceUpdate: boolean
+    ): XDPromise<number> {
+        let deferred: XDDeferred<number> = PromiseHelper.deferred();
+        let isFromInput: boolean = false;
+        let $section: JQuery = $modal.find(".scrollSection");
+        let $scrollBar: JQuery = $section.find(".scrollBar");
+        let $scroller: JQuery = $scrollBar.find(".scroller");
+        let totalRows: number = getTotalRowNums();
 
         if (rowNum != null) {
             isFromInput = true;
-            rowPercent = (totalRows === 1) ?
-                                    0 : (rowNum - 1) / (totalRows - 1);
+            rowPercent = (totalRows === 1) ? 0 : (rowNum - 1) / (totalRows - 1);
         } else {
             rowNum = Math.ceil(rowPercent * (totalRows - 1)) + 1;
         }
-        var tempRowNum = rowNum;
+
+        let tempRowNum: number = rowNum;
 
         if ($skipInput.data("rowNum") === rowNum) {
             // case of going to same row
             // put the row scoller in right place
             $skipInput.val(rowNum);
-            left = getPosition(rowPercent);
+            let left: string = getPosition(rowPercent);
             $scroller.css("left", left);
 
             if (!forceUpdate) {
@@ -1129,8 +1196,7 @@ window.Profile = (function($, Profile, d3) {
             }
         }
 
-        var rowsToFetch = totalRows - rowNum + 1;
-
+        let rowsToFetch: number = totalRows - rowNum + 1;
         if (rowsToFetch < numRowsToFetch) {
             if (numRowsToFetch < totalRows) {
                 // when can fetch numRowsToFetch
@@ -1142,12 +1208,12 @@ window.Profile = (function($, Profile, d3) {
                 rowsToFetch = totalRows;
             }
 
-            var oldLeft = getPosition(rowPercent);
+            let oldLeft: string = getPosition(rowPercent);
             if (isFromInput) {
                 rowPercent = (totalRows === 1) ?
                                             0 : (rowNum - 1) / (totalRows - 1);
 
-                left = getPosition(rowPercent);
+                let left: string = getPosition(rowPercent);
                 $scroller.addClass("scrolling")
                     .css("left", oldLeft);
 
@@ -1160,7 +1226,7 @@ window.Profile = (function($, Profile, d3) {
                 $scroller.css("left", oldLeft);
             }
         } else {
-            left = getPosition(rowPercent);
+            let left: string = getPosition(rowPercent);
             $scroller.css("left", left);
 
             rowsToFetch = numRowsToFetch;
@@ -1171,42 +1237,42 @@ window.Profile = (function($, Profile, d3) {
         // disable another fetching data event till this one done
         $section.addClass("disabled");
 
-        var loadTimer = setTimeout(function() {
+        let loadTimer = setTimeout(function() {
             // if the loading time is long, show the waiting icon
             $modal.addClass("loading");
         }, 500);
 
-        var rowPosition = rowNum - 1;
+        let rowPosition: number = rowNum - 1;
         setArrows(null, true);
 
-        var curStatsCol = statsCol;
-        var profileEngine = getProfileEngine();
+        let curStatsCol: ProfileInfo = statsCol;
+        let profileEngine = getProfileEngine();
         profileEngine.fetchProfileData(rowPosition, rowsToFetch)
-        .then(function(data) {
+        .then((data) => {
             clearProfileSelector(false);
 
             groupByData = addNullValue(curStatsCol, data);
-            buildGroupGraphs(curStatsCol, forceUpdate);
+            buildGroupGraphs(curStatsCol, forceUpdate, false);
             $modal.removeClass("loading");
             clearTimeout(loadTimer);
-            setArrows(tempRowNum);
+            setArrows(tempRowNum, false);
             deferred.resolve(tempRowNum);
         })
-        .fail(function(error) {
+        .fail((error) => {
             failureHandler(curStatsCol, error);
             deferred.reject(error);
         })
-        .always(function() {
+        .always(() => {
             $section.removeClass("disabled");
         });
 
         return deferred.promise();
     }
 
-    function setArrows(rowNum, fetchingData) {
-        var $groupbySection = $modal.find(".groupbyInfoSection");
-        var $leftArrow = $groupbySection.find(".left-arrow");
-        var $rightArrow = $groupbySection.find(".right-arrow");
+    function setArrows(rowNum: number, fetchingData: boolean): void {
+        let $groupbySection = $modal.find(".groupbyInfoSection");
+        let $leftArrow = $groupbySection.find(".left-arrow");
+        let $rightArrow = $groupbySection.find(".right-arrow");
 
         if (fetchingData) {
             $leftArrow.addClass("disabled");
@@ -1216,7 +1282,7 @@ window.Profile = (function($, Profile, d3) {
 
         $leftArrow.removeClass("disabled");
         $rightArrow.removeClass("disabled");
-        var totalRows = getTotalRowNums();
+        let totalRows = getTotalRowNums();
         if (totalRows <= numRowsToFetch) {
             $leftArrow.hide();
             $rightArrow.hide();
@@ -1232,9 +1298,9 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function clickArrowEvent(isLeft) {
-        var curRowNum = Number($skipInput.val());
-        var totalRows = getTotalRowNums();
+    function clickArrowEvent(isLeft: boolean): void {
+        let curRowNum: number = Number($skipInput.val());
+        let totalRows = getTotalRowNums();
         if (isLeft) {
             curRowNum -= numRowsToFetch;
         } else {
@@ -1244,39 +1310,40 @@ window.Profile = (function($, Profile, d3) {
         curRowNum = Math.max(1, curRowNum);
         curRowNum = Math.min(curRowNum, totalRows);
 
-        positionScrollBar(null, curRowNum);
+        positionScrollBar(null, curRowNum, false);
     }
 
-    function updateRowsToFetch(newRowsToFetch) {
+    function updateRowsToFetch(newRowsToFetch: number): void {
         newRowsToFetch = Math.max(newRowsToFetch, minRowsToFetch);
         newRowsToFetch = Math.min(newRowsToFetch, maxRowsToFetch);
 
         numRowsToFetch = newRowsToFetch;
 
-        var curRowNum = Number($skipInput.val());
+        let curRowNum: number = Number($skipInput.val());
         resetRowsInfo();
         resetScrollBar(true);
         positionScrollBar(null, curRowNum, true);
     }
 
-    function resetGroupbyInfo() {
-        resetScrollBar();
+    function resetGroupbyInfo(): void {
+        resetScrollBar(false);
         resetRowInput();
         resetSortInfo();
         clearProfileSelector(false);
         resetRowsInfo();
     }
 
-    function resetRowsInfo() {
-        var $displayInput = $modal.find(".displayInput");
-        var $activeRange = $rangeSection.find(".radioButton.active");
-        var rowsToShow;
-        var $moreBtn = $displayInput.find(".more").removeClass("xc-disabled");
-        var $lessBtn = $displayInput.find(".less").removeClass("xc-disabled");
-        var totalRows = getTotalRowNums();
+    function resetRowsInfo(): void {
+        let $displayInput: JQuery = $modal.find(".displayInput");
+        let $activeRange: JQuery = $rangeSection.find(".radioButton.active");
+        let $moreBtn: JQuery = $displayInput.find(".more").removeClass("xc-disabled");
+        let $lessBtn: JQuery = $displayInput.find(".less").removeClass("xc-disabled");
+        let totalRows: number = getTotalRowNums();
+        let rowsToShow: number;
 
         if ($activeRange.data("option") === "fitAll" ||
-            totalRows <= minRowsToFetch) {
+            totalRows <= minRowsToFetch
+        ) {
             // case that cannot show more or less results
             rowsToShow = totalRows;
             $moreBtn.addClass("xc-disabled");
@@ -1289,7 +1356,8 @@ window.Profile = (function($, Profile, d3) {
             }
 
             if (numRowsToFetch >= maxRowsToFetch ||
-                numRowsToFetch >= totalRows) {
+                numRowsToFetch >= totalRows
+            ) {
                 $moreBtn.addClass("xc-disabled");
             }
 
@@ -1299,16 +1367,16 @@ window.Profile = (function($, Profile, d3) {
         $displayInput.find(".numRows").val(rowsToShow);
     }
 
-    function resetDecimalInput() {
+    function resetDecimalInput(): void {
         decimalNum = -1;
         updateDecimalInput(decimalNum, true);
     }
 
-    function updateDecimalInput(decimal, isReset) {
-        var $decimalInput = $modal.find(".decimalInput");
-        var $moreBtn = $decimalInput.find(".more").removeClass("xc-disabled");
-        var $lessBtn = $decimalInput.find(".less").removeClass("xc-disabled");
-        var $input = $decimalInput.find("input");
+    function updateDecimalInput(decimal: number, isReset: boolean): void {
+        let $decimalInput = $modal.find(".decimalInput");
+        let $moreBtn = $decimalInput.find(".more").removeClass("xc-disabled");
+        let $lessBtn = $decimalInput.find(".less").removeClass("xc-disabled");
+        let $input = $decimalInput.find("input");
 
         if (decimal < 0) {
             $lessBtn.addClass("xc-disabled");
@@ -1321,46 +1389,46 @@ window.Profile = (function($, Profile, d3) {
         }
 
         if (!isReset) {
-            buildGroupGraphs(statsCol);
+            buildGroupGraphs(statsCol, false, false);
         }
     }
 
-    function resetRowInput() {
+    function resetRowInput(): void {
         // total row might be 0 in error case
-        var totalRows = getTotalRowNums();
-        var rowNum = (totalRows <= 0) ? 0 : 1;
+        let totalRows: number = getTotalRowNums();
+        let rowNum: number = (totalRows <= 0) ? 0 : 1;
         $skipInput.val(rowNum).data("rowNum", rowNum);
-        var $maxRange = $skipInput.siblings(".max-range");
+        let $maxRange = $skipInput.siblings(".max-range");
 
         // set width of elements
         $maxRange.text(xcStringHelper.numToStr(totalRows));
         $skipInput.width($maxRange.width() + 5); // 5 is for input padding
     }
 
-    function resetSortInfo() {
-        var $sortSection = $modal.find(".sortSection");
-        var $activeSort = $sortSection.find(".active");
+    function resetSortInfo(): void {
+        let $sortSection: JQuery = $modal.find(".sortSection");
+        let $activeSort: JQuery = $sortSection.find(".active");
         $activeSort.removeClass("active");
 
         $sortSection.find("." + order).addClass("active");
     }
 
-    function sortData(newOrder, curStatsCol) {
+    function sortData(newOrder: string, curStatsCol: ProfileInfo): void {
         if (order === newOrder) {
             return;
         }
 
         $modal.attr("data-state", "pending");
 
-        var refreshTimer = setTimeout(function() {
+        let refreshTimer = setTimeout(() => {
             // refresh if not complete
             if (curStatsCol.groupByInfo.isComplete === "running") {
                 refreshGroupbyInfo(curStatsCol, true);
             }
         }, 500);
-        var profileEngine = getProfileEngine();
+        let profileEngine = getProfileEngine();
         profileEngine.sort(newOrder, bucketNum, curStatsCol)
-        .then(function() {
+        .then(() => {
             // remove timer as first thing
             clearTimeout(refreshTimer);
             if (!isModalVisible(curStatsCol)) {
@@ -1370,26 +1438,26 @@ window.Profile = (function($, Profile, d3) {
             order = newOrder;
             return refreshGroupbyInfo(curStatsCol, true);
         })
-        .then(function() {
+        .then(() => {
             $modal.attr("data-state", "finished");
         })
-        .fail(function(error) {
+        .fail((error) => {
             clearTimeout(refreshTimer);
             failureHandler(curStatsCol, error);
         });
     }
 
-    function getRangeOption() {
-        var $rangeOption = $rangeSection.find(".dropDownList input");
-        var rangeOption = ($rangeOption.val().toLowerCase() === "range")
+    function getRangeOption(): string {
+        let $rangeOption = $rangeSection.find(".dropDownList input");
+        let rangeOption = ($rangeOption.val().toLowerCase() === "range")
                           ? "range"
                           : "rangeLog";
         return rangeOption;
     }
 
-    function toggleRange(rangeOption, reset) {
-        var $dropdown = $rangeSection.find(".dropDownList");
-        var $li = $dropdown.find('li[name="' + rangeOption + '"]');
+    function toggleRange(rangeOption: string, reset: boolean): void {
+        let $dropdown = $rangeSection.find(".dropDownList");
+        let $li = $dropdown.find('li[name="' + rangeOption + '"]');
         $dropdown.find("input").val($li.text());
         $rangeInput.addClass("xc-disabled");
 
@@ -1398,9 +1466,9 @@ window.Profile = (function($, Profile, d3) {
             return;
         }
 
-        var bucketSize;
-        var isFitAll = false;
-        var input = Number($rangeInput.val());
+        let bucketSize: number;
+        let isFitAll: boolean = false;
+        let input: number = Number($rangeInput.val());
 
         switch (rangeOption) {
             case "range":
@@ -1409,13 +1477,6 @@ window.Profile = (function($, Profile, d3) {
                 $rangeInput.removeClass("xc-disabled");
                 break;
             case "rangeLog":
-                // $rangeInput.removeClass("xc-disabled");
-                // if (!Number.isInteger(input)) {
-                //     $rangeInput.val("");
-                //     bucketSize = 0;
-                // } else {
-                //     bucketSize = -Number(input);
-                // }
                 // Note: as it's hard to explain what't range size in log
                 // now only allow size to be 1
                 $rangeInput.addClass("xc-disabled");
@@ -1448,23 +1509,27 @@ window.Profile = (function($, Profile, d3) {
     }
 
     // UDF for log scale bucketing
-    function bucketData(newBucketNum, curStatsCol, fitAll) {
+    function bucketData(
+        newBucketNum: number,
+        curStatsCol: ProfileInfo,
+        fitAll: boolean
+    ): void {
         if (newBucketNum === bucketNum) {
             return;
         }
 
         $modal.attr("data-state", "pending");
-        var refreshTimer = setTimeout(function() {
+        let refreshTimer = setTimeout(() => {
             // refresh if not complete
             if (curStatsCol.groupByInfo.isComplete === "running") {
                 refreshGroupbyInfo(curStatsCol, true);
             }
         }, 500);
 
-        var tableName = gTables[curTableId].getName();
-        var profileEngine = getProfileEngine();
+        let tableName = gTables[curTableId].getName();
+        let profileEngine = getProfileEngine();
         profileEngine.bucket(newBucketNum, tableName, curStatsCol, fitAll)
-        .then(function(bucketSize) {
+        .then((bucketSize) => {
             // remove timer as first thing
             clearTimeout(refreshTimer);
             bucketNum = bucketSize;
@@ -1476,17 +1541,16 @@ window.Profile = (function($, Profile, d3) {
             order = sortMap.origin; // reset to normal order
             return refreshGroupbyInfo(curStatsCol, true);
         })
-        .then(function() {
+        .then(() => {
             $modal.attr("data-state", "finished");
         })
-        .fail(function(error) {
+        .fail((error) => {
             clearTimeout(refreshTimer);
             failureHandler(curStatsCol, error);
         });
     }
 
-
-    function highlightBar(rowNum) {
+    function highlightBar(rowNum: number): void {
         if (rowNum == null) {
             rowNum = Number($skipInput.val());
         }
@@ -1495,10 +1559,10 @@ window.Profile = (function($, Profile, d3) {
             return;
         }
 
-        var chart = getChart();
+        let chart = getChart();
         chart.selectAll(".area")
         .each(function(d) {
-            var bar = d3.select(this);
+            let bar = d3.select(this);
             if (d.rowNum === rowNum) {
                 bar.classed("highlight", true);
             } else {
@@ -1507,11 +1571,11 @@ window.Profile = (function($, Profile, d3) {
         });
     }
 
-    function isBarChart() {
+    function isBarChart(): boolean {
         return (chartType === "bar");
     }
 
-    function resetTooltip(area, rowToHover) {
+    function resetTooltip(area, rowToHover): void {
         if (rowToHover != null) {
             rowToHover = Number(rowToHover);
         }
@@ -1535,40 +1599,37 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function filterSelectedValues(operator) {
+    function filterSelectedValues(operator: FltOp): void {
         // in case close modal clear curTableId
-        var filterTableId = curTableId;
-        var colName = statsCol.colName;
-        var profileSelector = getProfileSelector();
-        var options = profileSelector.filter(operator, statsCol);
+        let profileSelector = getProfileSelector();
+        let options = profileSelector.filter(operator, statsCol);
         if (options != null && options.filterString) {
-            var colNum = gTables[filterTableId].getColNumByBackName(colName);
             closeProfileModal();
-            var cellMenu = TableMenuManager.Instance.getCellMenu();
+            let cellMenu = TableMenuManager.Instance.getCellMenu();
             cellMenu.filter(options.filterString);
         }
     }
 
-    function isTypeNumber(type) {
+    function isTypeNumber(type: string): boolean {
         // boolean is also a num in backend
-        return (type === "integer" || type === "float");
+        return (type === ColumnType.integer || type === ColumnType.float);
     }
 
-    function isTypeBoolean(type) {
-        return (type === "boolean");
+    function isTypeBoolean(type: string): boolean {
+        return (type === ColumnType.boolean);
     }
 
-    function isTypeString(type) {
-        return (type === "string");
+    function isTypeString(type: string): boolean {
+        return (type === ColumnType.string);
     }
 
-    function isModalVisible(curStatsCol) {
+    function isModalVisible(curStatsCol: ProfileInfo): boolean {
         return ($modal.is(":visible") &&
                 curStatsCol != null &&
                 $modal.data("id") === curStatsCol.getId());
     }
 
-    function failureHandler(curStatsCol, error) {
+    function failureHandler(curStatsCol: ProfileInfo, error: any): void {
         console.error("Profile error", error);
         curStatsCol.groupByInfo.isComplete = false;
         if (isModalVisible(curStatsCol)) {
@@ -1589,9 +1650,9 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function downloadProfileAsPNG() {
-        var deferred = PromiseHelper.deferred();
-        var node = $modal.get(0);
+    function downloadProfileAsPNG(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let node = $modal.get(0);
 
         domtoimage.toPng(node, {
             "width": $modal.width(),
@@ -1602,7 +1663,7 @@ window.Profile = (function($, Profile, d3) {
             }
         })
         .then(function(dataUrl) {
-            var download = document.createElement("a");
+            let download = document.createElement("a");
             download.href = dataUrl;
             download.download = "profile.png";
             download.click();
@@ -1618,7 +1679,7 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function getProfileEngine() {
+    function getProfileEngine(): ProfileEngine {
         if (_profileEngine == null) {
             _profileEngine = new ProfileEngine({
                 "sortMap": sortMap,
@@ -1631,19 +1692,19 @@ window.Profile = (function($, Profile, d3) {
         return _profileEngine;
     }
 
-    function clearProfileEngine() {
+    function clearProfileEngine(): void {
         _profileEngine.clear();
         _profileEngine = null;
     }
 
-    function getProfileSelector() {
+    function getProfileSelector(): ProfileSelector {
         if (_profileSelector == null) {
             _profileSelector = new ProfileSelector("profileModal", "profile-chart");
         }
         return _profileSelector;
     }
 
-    function clearProfileSelector(reset) {
+    function clearProfileSelector(reset: boolean): void {
         if (_profileSelector != null) {
             _profileSelector.clear();
         }
@@ -1652,21 +1713,20 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function getTotalRowNums() {
-        var profileEngine = getProfileEngine();
+    function getTotalRowNums(): number {
+        let profileEngine = getProfileEngine();
         return profileEngine.getTableRowNum();
     }
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        Profile.__testOnly__ = {};
-        Profile.__testOnly__.getStatsCol = function() {
+    export let __testOnly__: any = {};
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__ = {};
+        __testOnly__.getStatsCol = function() {
             return statsCol;
         };
-        Profile.__testOnly__.addNullValue = addNullValue;
-        Profile.__testOnly__.profileEngine = _profileEngine
+        __testOnly__.addNullValue = addNullValue;
+        __testOnly__.profileEngine = _profileEngine
     }
     /* End Of Unit Test Only */
-
-    return (Profile);
-}(jQuery, {}, d3));
+}
