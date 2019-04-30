@@ -1461,8 +1461,12 @@ namespace DS {
             }
         })
         .then(deferred.resolve)
-        .fail((error1, error2) => {
-            deferred.reject(error1, error2, hasCreate);
+        .fail((error) => {
+            if (typeof error !== "object") {
+                error = {"error": error};
+            }
+            error.created = hasCreate;
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -1539,7 +1543,14 @@ namespace DS {
             });
             deferred.resolve(dsObj);
         })
-        .fail((error, loadError, created) => {
+        .fail((error) => {
+            let created = false;
+            let displayError = null;
+            if (typeof error === "object") {
+                created = error.created;
+                displayError = error.error;
+            }
+
             if (typeof error === "object" &&
                 error.status === StatusT.StatusCanceled)
             {
@@ -1550,8 +1561,6 @@ namespace DS {
                     focusOnForm();
                 }
             } else {
-                // show loadError if has, otherwise show error message
-                var displayError = loadError || error;
                 handleImportError(dsObj, displayError, created, true);
             }
 
@@ -3278,9 +3287,9 @@ namespace DS {
             }
             deferred.resolve();
         })
-        .fail((error, loadError) => {
+        .fail((error) => {
             try {
-                let displayError = loadError || error.log || error.error;
+                let displayError = error.error || error.log;
                 let errorMsg = xcStringHelper.replaceMsg(DSTStr.FailActivateDS, {
                     "ds": dsObj.getName(),
                     "error": displayError

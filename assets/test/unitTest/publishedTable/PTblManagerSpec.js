@@ -1310,19 +1310,6 @@ describe("PTblManager Test", function() {
             });
         });
 
-        it("should reject with load error", function(done) {
-            XIApi.loadDataset = () => PromiseHelper.reject({error: "test", loadError: "test2"});
-
-            PTblManager.Instance._createDataset(1, "test")
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("test2");
-                done();
-            });
-        });
-
         after(function() {
             XIApi.loadDataset = oldLoad;
         });

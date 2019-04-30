@@ -950,7 +950,10 @@ XcalarDatasetLoad = function(
                     }) + "\n" + loadError;
                 }
             }
-            deferred.reject({error: thriftError, loadError: loadError});
+            if (loadError) {
+                thriftError.error = loadError;
+            }
+            deferred.reject(thriftError);
         }
     });
 

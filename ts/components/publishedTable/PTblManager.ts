@@ -806,7 +806,7 @@ class PTblManager {
         .then(deferred.resolve)
         .fail((error) => {
             if (error) {
-                error = error.loadError || error.error || error;
+                error = error.error || error;
             }
             deferred.reject(error);
         });

@@ -3922,9 +3922,7 @@ namespace DSPreview {
         .then(deferred.resolve)
         .fail((error) => {
             let displayError;
-            if (error && error.loadError) {
-                displayError = error.loadError;
-            } else if (error && error.error) {
+            if (error && error.error) {
                 displayError = error.error;
             } else {
                 displayError = error;
