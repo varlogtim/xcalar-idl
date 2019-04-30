@@ -1,14 +1,10 @@
-describe('LoginConfig Modal Test', () => {
+describe('LoginConfigModal Test', () => {
     describe('Basic Function Test', () => {
-        let setupConfig;
-
         before(() => {
-            setupConfig = LoginConfigModal.__testOnly__.setupConfig;
             UnitTest.onMinMode();
         });
 
         describe('submitDefaultAdminConfig Test', () => {
-            let submitDefaultAdminConfig;
             let oldSetConfig;
             let $adminEnabled;
             let $userName;
@@ -18,7 +14,6 @@ describe('LoginConfig Modal Test', () => {
             let hasChecked;
 
             before(() => {
-                submitDefaultAdminConfig = LoginConfigModal.__testOnly__.submitDefaultAdminConfig;
                 oldSetConfig = setDefaultAdminConfig;
 
                 $adminEnabled = $("#loginConfigEnableDefaultAdmin").find(".checkbox");
@@ -37,10 +32,10 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve();
                 };
 
-                setupConfig(null);
+                LoginConfigModal.Instance._setupConfig(null);
                 $adminEnabled.removeClass("checked");
 
-                submitDefaultAdminConfig()
+                LoginConfigModal.Instance._submitDefaultAdminConfig()
                 .then(() => {
                     expect(test).to.be.false;
                     done();
@@ -51,35 +46,35 @@ describe('LoginConfig Modal Test', () => {
             });
 
             it('should reject if password not match', (done) => {
-                setupConfig(null);
+                LoginConfigModal.Instance._setupConfig(null);
                 $adminEnabled.addClass("checked");
                 $password.val("a");
                 $confimPassword.val("b");
 
-                submitDefaultAdminConfig()
+                LoginConfigModal.Instance._submitDefaultAdminConfig()
                 .then(() => {
                     done('fail');
                 })
-                .fail((error, passCheck) => {
-                    expect(error).to.equal(LoginConfigTStr.PasswordMismatch);
-                    expect(passCheck).to.be.false;
+                .fail((error) => {
+                    expect(error.error).to.equal(LoginConfigTStr.PasswordMismatch);
+                    expect(error.isFatal).to.be.false;
                     done();
                 });
             });
 
             it('should reject if has empty password', (done) => {
-                setupConfig(null, {defaultAdminEnabled: true});
+                LoginConfigModal.Instance._setupConfig(null, {defaultAdminEnabled: true});
                 $adminEnabled.addClass("checked");
                 $password.val("");
                 $confimPassword.val("");
 
-                submitDefaultAdminConfig()
+                LoginConfigModal.Instance._submitDefaultAdminConfig()
                 .then(() => {
                     done('fail');
                 })
-                .fail((error, passCheck) => {
-                    expect(error).to.equal(LoginConfigTStr.EmptyPasswordError);
-                    expect(passCheck).to.be.false;
+                .fail((error) => {
+                    expect(error.error).to.equal(LoginConfigTStr.EmptyPasswordError);
+                    expect(error.isFatal).to.be.false;
                     done();
                 });
             });
@@ -89,13 +84,13 @@ describe('LoginConfig Modal Test', () => {
                 $confimPassword.val("password");
                 $userName.val("");
 
-                submitDefaultAdminConfig()
+                LoginConfigModal.Instance._submitDefaultAdminConfig()
                 .then(() => {
                     done('fail');
                 })
-                .fail((error, passCheck) => {
-                    expect(error).to.equal(LoginConfigTStr.EmptyUsernameError);
-                    expect(passCheck).to.be.false;
+                .fail((error) => {
+                    expect(error.error).to.equal(LoginConfigTStr.EmptyUsernameError);
+                    expect(error.isFatal).to.be.false;
                     done();
                 });
             });
@@ -104,13 +99,13 @@ describe('LoginConfig Modal Test', () => {
                 $userName.val('admin');
                 $email.val('');
 
-                submitDefaultAdminConfig()
+                LoginConfigModal.Instance._submitDefaultAdminConfig()
                 .then(() => {
                     done('fail');
                 })
-                .fail((error, passCheck) => {
-                    expect(error).to.equal(LoginConfigTStr.EmptyEmailError);
-                    expect(passCheck).to.be.false;
+                .fail((error) => {
+                    expect(error.error).to.equal(LoginConfigTStr.EmptyEmailError);
+                    expect(error.isFatal).to.be.false;
                     done();
                 });
             });
@@ -122,13 +117,13 @@ describe('LoginConfig Modal Test', () => {
                 $password.val("admin");
                 $confimPassword.val("admin");
 
-                submitDefaultAdminConfig()
+                LoginConfigModal.Instance._submitDefaultAdminConfig()
                 .then(() => {
                     done('fail');
                 })
-                .fail((error, passCheck) => {
-                    expect(error).to.equal(LoginConfigTStr.duplicateUserName);
-                    expect(passCheck).to.be.false;
+                .fail((error) => {
+                    expect(error.error).to.equal(LoginConfigTStr.duplicateUserName);
+                    expect(error.isFatal).to.be.false;
                     done();
                 });
             });
@@ -139,13 +134,13 @@ describe('LoginConfig Modal Test', () => {
                 $password.val("strong");
                 $confimPassword.val("strong");
 
-                submitDefaultAdminConfig()
+                LoginConfigModal.Instance._submitDefaultAdminConfig()
                 .then(() => {
                     done('fail');
                 })
-                .fail((error, passCheck) => {
-                    expect(error).to.equal('test');
-                    expect(passCheck).to.be.true;
+                .fail((error) => {
+                    expect(error.error).to.equal('test');
+                    expect(error.isFatal).to.be.true;
                     done();
                 });
             });
@@ -157,7 +152,7 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve('test');
                 };
 
-                submitDefaultAdminConfig()
+                LoginConfigModal.Instance._submitDefaultAdminConfig()
                 .then(() => {
                     expect(test).to.be.true;
                     done();
@@ -174,7 +169,7 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve('test');
                 };
 
-                setupConfig(null, {
+                LoginConfigModal.Instance._setupConfig(null, {
                     defaultAdminEnabled: true,
                     username: 'admin',
                     email: 'admin@admin'
@@ -182,7 +177,7 @@ describe('LoginConfig Modal Test', () => {
                 $password.val("");
                 $confimPassword.val("");
 
-                submitDefaultAdminConfig()
+                LoginConfigModal.Instance._submitDefaultAdminConfig()
                 .then(() => {
                     expect(test).to.be.false;
                     done();
@@ -208,13 +203,11 @@ describe('LoginConfig Modal Test', () => {
         });
 
         describe('submitMSALConfig Test', () => {
-            let submitMSALConfig;
             let oldSetMSALConfig;
             let $msalEnabled;
             let hasChecked;
 
             before(() => {
-                submitMSALConfig = LoginConfigModal.__testOnly__.submitMSALConfig;
                 oldSetMSALConfig = setMSALConfig;
                 $msalEnabled = $("#loginConfigEnableMSAL").find(".checkbox");
                 hasChecked = $msalEnabled.hasClass('checked');
@@ -227,10 +220,10 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve();
                 };
 
-                setupConfig(null);
+                LoginConfigModal.Instance._setupConfig(null);
                 $msalEnabled.removeClass('checked');
 
-                submitMSALConfig()
+                LoginConfigModal.Instance._submitMSALConfig()
                 .then(() => {
                     expect(test).to.be.false;
                     done();
@@ -247,7 +240,7 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve();
                 };
 
-                setupConfig({
+                LoginConfigModal.Instance._setupConfig({
                     msalEnabled: true,
                     msal: {
                         clientId: "",
@@ -262,7 +255,7 @@ describe('LoginConfig Modal Test', () => {
                 });
                 $msalEnabled.addClass('checked');
 
-                submitMSALConfig()
+                LoginConfigModal.Instance._submitMSALConfig()
                 .then(() => {
                     expect(test).to.be.false;
                     done();
@@ -279,10 +272,10 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve();
                 };
 
-                setupConfig(null);
+                LoginConfigModal.Instance._setupConfig(null);
                 $msalEnabled.addClass('checked');
 
-                submitMSALConfig()
+                LoginConfigModal.Instance._submitMSALConfig()
                 .then(() => {
                     expect(test).to.be.true;
                     done();
@@ -299,7 +292,7 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve();
                 };
 
-                setupConfig({
+                LoginConfigModal.Instance._setupConfig({
                     msalEnabled: true,
                     msal: {
                         clientId: "",
@@ -314,7 +307,7 @@ describe('LoginConfig Modal Test', () => {
                 });
                 $msalEnabled.addClass('checked');
 
-                submitMSALConfig()
+                LoginConfigModal.Instance._submitMSALConfig()
                 .then(() => {
                     expect(test).to.be.true;
                     done();
@@ -331,7 +324,7 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve();
                 };
 
-                setupConfig({
+                LoginConfigModal.Instance._setupConfig({
                     msalEnabled: true,
                     msal: {
                         clientId: "test",
@@ -346,7 +339,7 @@ describe('LoginConfig Modal Test', () => {
                 });
                 $msalEnabled.addClass('checked');
 
-                submitMSALConfig()
+                LoginConfigModal.Instance._submitMSALConfig()
                 .then(() => {
                     expect(test).to.be.true;
                     done();
@@ -359,16 +352,16 @@ describe('LoginConfig Modal Test', () => {
             it('should reject error case', (done) => {
                 setMSALConfig = () => PromiseHelper.reject('test');
 
-                setupConfig(null);
+                LoginConfigModal.Instance._setupConfig(null);
                 $msalEnabled.addClass('checked');
 
-                submitMSALConfig()
+                LoginConfigModal.Instance._submitMSALConfig()
                 .then(() => {
                     done('fail');
                 })
-                .fail((error, passCheck) => {
-                    expect(error).to.equal('test');
-                    expect(passCheck).to.be.true;
+                .fail((error) => {
+                    expect(error.error).to.equal('test');
+                    expect(error.isFatal).to.be.true;
                     done();
                 });
             });
@@ -384,13 +377,11 @@ describe('LoginConfig Modal Test', () => {
         });
 
         describe('submitLdapConfig Test', () => {
-            let submitLdapConfig;
             let oldSetLdapConfig;
             let $ladpEnabled;
             let hasChecked;
 
             before(() => {
-                submitLdapConfig = LoginConfigModal.__testOnly__.submitLdapConfig;
                 oldSetLdapConfig = setLdapConfig;
                 $ladpEnabled = $("#loginConfigEnableLdapAuth").find(".checkbox");
                 hasChecked = $ladpEnabled.hasClass('checked');
@@ -403,10 +394,10 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve();
                 };
 
-                setupConfig(null, null, null);
+                LoginConfigModal.Instance._setupConfig(null, null, null);
                 $ladpEnabled.removeClass('checked');
 
-                submitLdapConfig()
+                LoginConfigModal.Instance._submitLdapConfig()
                 .then(() => {
                     expect(test).to.be.false;
                     done();
@@ -423,7 +414,7 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve();
                 };
 
-                setupConfig(null, null, {
+                LoginConfigModal.Instance._setupConfig(null, null, {
                     ldapConfigEnabled: true,
                     ldap_uri: "",
                     userDN: "",
@@ -439,7 +430,7 @@ describe('LoginConfig Modal Test', () => {
                 });
                 $ladpEnabled.addClass('checked');
 
-                submitLdapConfig()
+                LoginConfigModal.Instance._submitLdapConfig()
                 .then(() => {
                     expect(test).to.be.false;
                     done();
@@ -456,10 +447,10 @@ describe('LoginConfig Modal Test', () => {
                     return PromiseHelper.resolve();
                 };
 
-                setupConfig(null, null, null);
+                LoginConfigModal.Instance._setupConfig(null, null, null);
                 $ladpEnabled.addClass('checked');
 
-                submitLdapConfig()
+                LoginConfigModal.Instance._submitLdapConfig()
                 .then(() => {
                     expect(test).to.be.true;
                     done();
@@ -472,16 +463,16 @@ describe('LoginConfig Modal Test', () => {
             it('should reject error case', (done) => {
                 setLdapConfig = () => PromiseHelper.reject('test');
 
-                setupConfig(null, null, null);
+                LoginConfigModal.Instance._setupConfig(null, null, null);
                 $ladpEnabled.addClass('checked');
 
-                submitLdapConfig()
+                LoginConfigModal.Instance._submitLdapConfig()
                 .then(() => {
                     done('fail');
                 })
-                .fail((error, passCheck) => {
-                    expect(error).to.equal('test');
-                    expect(passCheck).to.be.true;
+                .fail((error) => {
+                    expect(error.error).to.equal('test');
+                    expect(error.isFatal).to.be.true;
                     done();
                 });
             });
@@ -497,18 +488,13 @@ describe('LoginConfig Modal Test', () => {
         });
 
         describe('getPasswordStrength Test', () => {
-            let getPasswordStrength;
             const userName = 'testUser';
-
-            before(() => {
-                getPasswordStrength = LoginConfigModal.__testOnly__.getPasswordStrength;
-            });
 
             it('shold detect invalid passwords', () => {
                 const passwords = [userName, userName.substring(0, 4),
                     userName + 'Abc'];
                 passwords.forEach((password) => {
-                    const res = getPasswordStrength(password, userName);
+                    const res = LoginConfigModal.Instance._getPasswordStrength(password, userName);
                     expect(res).to.be.an('object');
                     expect(res.strength).to.equal('invalid');
                     expect(res.hint).to.equal(LoginConfigTStr.duplicateUserName);
@@ -517,14 +503,14 @@ describe('LoginConfig Modal Test', () => {
 
             it('should detect illegal chars', () => {
                 const password = '测试';
-                const res = getPasswordStrength(password, userName);
+                const res = LoginConfigModal.Instance._getPasswordStrength(password, userName);
                 expect(res.strength).to.equal('invalid');
                 expect(res.hint).to.equal(LoginConfigTStr.illegalCharacter);
             });
 
             it('should detect very weak password', () => {
                 const password = 'a1';
-                const res = getPasswordStrength(password, userName);
+                const res = LoginConfigModal.Instance._getPasswordStrength(password, userName);
                 expect(res.strength).to.equal('veryWeak');
                 expect(res.hint).to.equal(LoginConfigTStr.veryWeak);
             });
@@ -532,7 +518,7 @@ describe('LoginConfig Modal Test', () => {
             it('should detect very weak strength', () => {
                 const passwords = ['a1A', 'aaa', 'abc'];
                 passwords.forEach((password) => {
-                    const res = getPasswordStrength(password, userName);
+                    const res = LoginConfigModal.Instance._getPasswordStrength(password, userName);
                     expect(res.strength).to.equal('veryWeak');
                     expect(res.hint).to.equal(LoginConfigTStr.veryWeak);
                 });
@@ -541,7 +527,7 @@ describe('LoginConfig Modal Test', () => {
             it('should detect weak strength', () => {
                 const passwords = ['abcABC123', 'ajkAJKDlf'];
                 passwords.forEach((password) => {
-                    const res = getPasswordStrength(password, userName);
+                    const res = LoginConfigModal.Instance._getPasswordStrength(password, userName);
                     expect(res.strength).to.equal('weak');
                     expect(res.hint).to.equal(LoginConfigTStr.weak);
                 });
@@ -550,7 +536,7 @@ describe('LoginConfig Modal Test', () => {
             it('should detect strong strength', () => {
                 const passwords = ['#AC1f#gdac'];
                 passwords.forEach((password) => {
-                    const res = getPasswordStrength(password, userName);
+                    const res = LoginConfigModal.Instance._getPasswordStrength(password, userName);
                     expect(res.strength).to.equal('strong');
                     expect(res.hint).to.equal(LoginConfigTStr.strong);
                 });
@@ -560,7 +546,7 @@ describe('LoginConfig Modal Test', () => {
             it('should detect very strong strength', () => {
                 const passwords = ['&V&e&r#y!s'];
                 passwords.forEach((password) => {
-                    const res = getPasswordStrength(password, userName);
+                    const res = LoginConfigModal.Instance._getPasswordStrength(password, userName);
                     expect(res.strength).to.equal('veryStrong');
                     expect(res.hint).to.equal(LoginConfigTStr.veryStrong);
                 });
@@ -607,7 +593,7 @@ describe('LoginConfig Modal Test', () => {
                     adSubGroupTree: true,
                     adSearchShortName: true
                 };
-                LoginConfigModal.show(msalConfig, defaultAdminConfig, ldapConfig);
+                LoginConfigModal.Instance.show(msalConfig, defaultAdminConfig, ldapConfig);
                 assert.isTrue($modal.is(':visible'));
             });
 
@@ -692,7 +678,7 @@ describe('LoginConfig Modal Test', () => {
 
             it('should submit the modal', (done) => {
                 $modal.find('.checked').removeClass('checked');
-                setupConfig(null);
+                LoginConfigModal.Instance._setupConfig(null);
 
                 let text = null;
                 xcUIHelper.showSuccess = (t) => { text = t; };
@@ -712,7 +698,7 @@ describe('LoginConfig Modal Test', () => {
         });
 
         after(() => {
-            setupConfig(null, null, null);
+            LoginConfigModal.Instance._setupConfig(null, null, null);
             UnitTest.offMinMode();
         });
     });

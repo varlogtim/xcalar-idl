@@ -1030,7 +1030,7 @@ namespace Admin {
         })
         .always(function() {
             $('#loginConfig').removeClass('unavailable');
-            LoginConfigModal.show(msalConfig, defaultAdminConfig, ldapConfig);
+            LoginConfigModal.Instance.show(msalConfig, defaultAdminConfig, ldapConfig);
         });
     }
 
