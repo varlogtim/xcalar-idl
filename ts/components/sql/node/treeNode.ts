@@ -25,6 +25,7 @@ class TreeNode {
     // For Join
     public emptyProject?: boolean;
     public xcRemoveNull?: boolean;
+    public nullSafe?: boolean;
 
     // For Expand
     public expand?: {

@@ -29,6 +29,7 @@ class SQLJoin {
                        SQLErrTStr.JoinTwoChildren + node.children.length);
         const deferred = PromiseHelper.deferred();
         let hasEmptyProject = false;
+        let eqClassName: string = "org.apache.spark.sql.catalyst.expressions.EqualTo";
 
         // Check if one of children is empty table
         if (node.children[0].emptyProject) {
@@ -87,6 +88,12 @@ class SQLJoin {
             }
         }
 
+        // Check if all equals in condition are equalNullSafe
+        if (!SQLJoin.__isExistenceJoin(node) && SQLJoin.__isNullSafeJoin(node)) {
+            node.nullSafe = true;
+            eqClassName = "org.apache.spark.sql.catalyst.expressions.EqualNullSafe";
+        }
+
         // XXX BUG check whether node.value.condition exists. if it doesn't
         // it's a condition-free cross join. EDGE CASE
         // select * from n1 cross join n2
@@ -120,8 +127,7 @@ class SQLJoin {
         if (condTree && condTree.value.class ===
             "org.apache.spark.sql.catalyst.expressions.And") {
             andSubtrees.push(condTree);
-        } else if (condTree && condTree.value.class ===
-            "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+        } else if (condTree && condTree.value.class === eqClassName) {
             eqSubtrees.push(condTree);
         } else {
             // No optimization
@@ -149,8 +155,7 @@ class SQLJoin {
                 if (andTree.children[i].value.class ===
                     "org.apache.spark.sql.catalyst.expressions.And") {
                     andSubtrees.push(andTree.children[i]);
-                } else if (andTree.children[i].value.class ===
-                    "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+                } else if (andTree.children[i].value.class === eqClassName) {
                     eqSubtrees.push(andTree.children[i]);
                 } else {
                     filterSubtrees.push(andTree.children[i]);
@@ -178,7 +183,7 @@ class SQLJoin {
         let orEqJoinOpt = false;
         if (node.value.joinType.object ===
             "org.apache.spark.sql.catalyst.plans.Inner$" && condTree
-            && SQLJoin.__isOrEqJoin(condTree, eqTreesByBranch, nonEqFilterTreesByBranch)) {
+            && SQLJoin.__isOrEqJoin(condTree, eqTreesByBranch, nonEqFilterTreesByBranch, eqClassName)) {
             retStruct.filterSubtrees = retStruct.filterSubtrees || [];
             orEqJoinOpt = true;
             for (let i = 0; i < eqTreesByBranch.length; i++) {
@@ -403,13 +408,27 @@ class SQLJoin {
         return (n.value.joinType["product-class"] ===
             "org.apache.spark.sql.catalyst.plans.ExistenceJoin");
     }
+    static __isNullSafeJoin(n: TreeNode): boolean {
+        let hasEqNullSafe: boolean = false;
+        if (n.value.condition == null) {
+            return false;;
+        }
+        for (const element of n.value.condition) {
+            if (element.class === "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+                return false;
+            } else if (element.class === "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
+                hasEqNullSafe = true;
+            }
+        }
+        return hasEqNullSafe;
+    }
     static __isNonCrossAndJoin(
         treeNode: TreeNode,
         eqTrees: TreeNode[],
-        nonEqFilterTrees: TreeNode[]
+        nonEqFilterTrees: TreeNode[],
+        eqClassName: string
     ): boolean {
-        if (treeNode.value.class ===
-            "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+        if (treeNode.value.class === eqClassName) {
             eqTrees.push(treeNode);
             return true;
         } else if (treeNode.value.class !==
@@ -420,7 +439,7 @@ class SQLJoin {
         let nonCross = false;
         for (let i = 0; i < treeNode.value["num-children"]; i++) {
             const childNode = treeNode.children[i];
-            if (SQLJoin.__isNonCrossAndJoin(childNode, eqTrees, nonEqFilterTrees)) {
+            if (SQLJoin.__isNonCrossAndJoin(childNode, eqTrees, nonEqFilterTrees, eqClassName)) {
                 nonCross = true;
             }
         }
@@ -429,7 +448,8 @@ class SQLJoin {
     static __isOrEqJoin(
         treeNode: TreeNode,
         eqTreesByBranch: TreeNode[][],
-        nonEqFilterTreesByBranch: TreeNode[][]
+        nonEqFilterTreesByBranch: TreeNode[][],
+        eqClassName: string
     ): boolean {
         if (treeNode.value.class !==
                 "org.apache.spark.sql.catalyst.expressions.Or") {
@@ -440,14 +460,14 @@ class SQLJoin {
             if (childNode.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Or") {
                 if (!SQLJoin.__isOrEqJoin(childNode, eqTreesByBranch,
-                    nonEqFilterTreesByBranch)) {
+                    nonEqFilterTreesByBranch, eqClassName)) {
                     return false;
                 }
             } else {
                 const eqTrees = [];
                 const nonEqFilterTrees = [];
                 if (SQLJoin.__isNonCrossAndJoin(childNode, eqTrees,
-                    nonEqFilterTrees)) {
+                    nonEqFilterTrees, eqClassName)) {
                     eqTreesByBranch.push(eqTrees);
                     nonEqFilterTreesByBranch.push(nonEqFilterTrees);
                 } else {
@@ -611,6 +631,9 @@ class SQLJoin {
             }
 
             const options: JoinOptions = {keepAllColumns: false};
+            if (joinNode.nullSafe) {
+                options.nullSafe = true;
+            }
             if (overwriteJoinType !== undefined) {
                 joinType = overwriteJoinType;
             } else if (globalStruct.existenceCol) {
