@@ -409,7 +409,8 @@ interface FileListerFolder{
 interface ListDSInfo {
     path: string,
     suffix: string,
-    id: string
+    id: string,
+    options?: any
 }
 
 interface FileManagerPathNode {

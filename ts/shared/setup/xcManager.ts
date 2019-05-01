@@ -1312,12 +1312,19 @@ namespace xcManager {
             // Figure out what datasets already exist
             let existingDatasets: ListDSInfo[] = DS.listDatasets(false);
             let names: Set<string> = new Set<string>();
+            let inactiveNames: Set<string> = new Set<string>();
             for(let i = 0; i < existingDatasets.length; i++) {
                 let eDs = existingDatasets[i];
-                names.add(eDs.id);
+                if (eDs.options && eDs.options.inActivated) {
+                    // need to reactivate inactive datasets
+                    inactiveNames.add(eDs.id);
+                } else {
+                    names.add(eDs.id);
+                }
             }
             // only load the needed datasets
             let loadArgs: OperationNode[] = [];
+            let reactivateIds: string[] = [];
             try {
                 for(let i = 0; i < datasets["size"]; i++) {
                     let node: OperationNode = JSON.parse(datasets[i].loadArgs)
@@ -1325,9 +1332,13 @@ namespace xcManager {
                     parsedName.randId = parsedName.randId || "";
                     node.args["dest"] = xcHelper.wrapDSName(parsedName.dsName, parsedName.randId)
                     if (!names.has(node.args["dest"])) {
-                        loadArgs.push(node);
-                        datasetSources.add(parsedName.randId + "." + parsedName.dsName);
+                        if (inactiveNames.has(node.args["dest"])) {
+                            reactivateIds.push(node.args["dest"]);
+                        } else {
+                            loadArgs.push(node);
+                        }
                     }
+                    datasetSources.add(parsedName.randId + "." + parsedName.dsName);
                     // Prepare needed published tables
                     let pubInfo = datasets[i].publish;
                     if (pubInfo != null) {
@@ -1343,6 +1354,9 @@ namespace xcManager {
             let promises = [];
             for(let i = 0; i < loadArgs.length; i++) {
                 promises.push(DS.restoreTutorialDS(loadArgs[i]));
+            }
+            if (reactivateIds.length > 0) {
+                promises.push(DS.activate(reactivateIds, true));
             }
             return PromiseHelper.when(...promises);
         })
