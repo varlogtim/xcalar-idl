@@ -655,7 +655,7 @@ namespace xcManager {
     function setupConfigParams(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        MonitorConfig.refreshParams(true)
+        MonitorPanel.refreshParams()
         .then(function(params) {
             try {
                 const paraName: string = "maxinteractivedatasize";

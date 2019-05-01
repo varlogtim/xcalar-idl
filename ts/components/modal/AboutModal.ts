@@ -60,7 +60,7 @@ class AboutModal {
         $modal.find(".numServers").text(numServers);
         $modal.find(".numUsers").text(numUsers);
         $modal.find(".keyValue").text(license);
-    };
+    }
 
     private _getModal(): JQuery {
         return $("#aboutModal");

@@ -2,13 +2,14 @@
 window.MonitorPanel = (function($, MonitorPanel) {
     var graphIsActive = false;
     var $monitorPanel;
+    var monitorConfig
 
     MonitorPanel.setup = function() {
         $monitorPanel = $("#monitor-system");
         MonitorGraph.setup();
         MonitorDonuts.setup();
         QueryManager.setup();
-        MonitorConfig.setup();
+        setupMonitorConfig();
 
         populateNodeInformation();
         setupViewToggling();
@@ -64,6 +65,31 @@ window.MonitorPanel = (function($, MonitorPanel) {
     MonitorPanel.isGraphActive = function() {
         return (graphIsActive);
     };
+
+    MonitorPanel.refreshParams = function() {
+        return monitorConfig.refreshParams(true);
+    }
+
+    function setupMonitorConfig() {
+        monitorConfig = new MonitorConfig("configCard");
+        monitorConfig
+        .on("minimize", () => {
+            $('#monitorLogCard').addClass('maximized');
+        })
+        .on("maximize", () => {
+            $('#monitorLogCard').removeClass('maximized');
+        })
+        .on("adjustScollbar", (posDiff) => {
+            let bottomBuffer = $("#statusBar").height() + 20;
+            let winHeight = $(window).height();
+            posDiff = (posDiff + bottomBuffer) - winHeight;
+            if (posDiff > 0) {
+                let $mainContent = $('#monitorPanel').children('.mainContent');
+                let top = $mainContent.scrollTop();
+                $mainContent.animate({scrollTop: top + posDiff + 20});
+            }
+        });
+    }
 
     function setupViewToggling() {
         var $monitorPanel = $("#monitorPanel");

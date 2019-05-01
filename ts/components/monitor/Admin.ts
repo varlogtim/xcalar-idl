@@ -20,7 +20,9 @@ namespace Admin {
             $("#userNameArea").html('<i class="icon xi-user-setting"></i>');
         }
         if (xcLocalStorage.getItem("xcSupport") === "true" &&
-            xcSessionStorage.getItem("usingAs") !== "true") {
+            xcSessionStorage.getItem("usingAs") !== "true" &&
+            typeof gXcSupport !== "undefined"
+        ) {
             gXcSupport = true;
             $('#container').addClass('admin xcSupport');
         }
@@ -51,10 +53,10 @@ namespace Admin {
     }
 
     /**
-     * 
+     * Admin.isXcSupport
      */
     export function isXcSupport(): boolean {
-        return gXcSupport;
+        return (typeof gXcSupport !== "undefined" && gXcSupport);
     }
 
     // will not add user if already exists in kvstore

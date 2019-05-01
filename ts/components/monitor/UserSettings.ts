@@ -110,7 +110,7 @@ namespace UserSettings {
             }
 
             if (userPrefHasChange || revertedToDefault) {
-                if (gXcSupport && !isPersonalChange) {
+                if (Admin.isXcSupport() && !isPersonalChange) {
                     genSettings.updateXcSettings(UserSettings.getPref('general'));
                     userPrefPromise = settingsStore.putWithMutex(
                         JSON.stringify(genSettings.getAdminAndXcSettings()), true);

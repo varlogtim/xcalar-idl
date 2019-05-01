@@ -448,7 +448,7 @@ class MenuHelper {
                     "position": "fixed",
                     "left": parentPos.left,
                     "top": parentPos.top + parentPos.height,
-                    "width": parentPos.width - (self.options.fixedPosition.rightMargin || 0);
+                    "width": parentPos.width - (self.options.fixedPosition.rightMargin || 0)
                 });
                 const $scrollListeningEls = self.$dropDownList.parentsUntil(self.$container.parent());
                 self.$scrollListeningEls = $scrollListeningEls;

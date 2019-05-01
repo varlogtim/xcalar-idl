@@ -910,15 +910,7 @@ declare namespace MonitorPanel {
     export function inActive(): void;
     export function active(): void;
     export function isGraphActive(): boolean;
-}
-
-declare namespace MonitorConfig {
-    export function refreshParams(firstTouch: boolean): XDPromise<{}>;
-}
-
-
-declare namespace TutorialsSetup {
-    export function setup(): void;
+    export function refreshParams(): XDPromise<any>;
 }
 
 declare namespace xcMixpanel {

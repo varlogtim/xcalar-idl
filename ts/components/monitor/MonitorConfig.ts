@@ -1,152 +1,176 @@
-window.MonitorConfig = (function(MonitorConfig, $) {
-    var $configCard;
-    var $placeholder;
-    var paramsCache = {};
-    var formHelper;
+class MonitorConfig {
+    private _id: string;
+    private _paramsCache: {[key: string]: any};
+    private _formHelper: FormHelper;
+    private _event: XcEvent;
 
-    MonitorConfig.setup = function() {
-        $configCard = $('#configCard');
-        $placeholder = $configCard.find('.placeholder');
-        setupListeners();
-        formHelper = new FormHelper($configCard, {noEsc: true,
-                                                  noTabFocus: true});
-    };
+    public constructor(id: string) {
+        this._id = id;
+        this._paramsCache = {};
+        this._formHelper = new FormHelper(this._getCard(), {
+            "noEsc": true,
+            "noTabFocus": true
+        });
+        this._event = new XcEvent();
+        this._addEventListeners();
+    }
 
-    // updateOnly will not wipe out new rows
-    MonitorConfig.refreshParams = function(firstTouch) {
-        var deferred = PromiseHelper.deferred();
+    /**
+     * updateOnly will not wipe out new rows
+     * @param firstTouch
+     */
+    public refreshParams(firstTouch: boolean): XDPromise<{[key: string]: any}> {
+        let deferred: XDDeferred<{[key: string]: any}> = PromiseHelper.deferred();
         XcalarGetConfigParams()
-        .then(function(res) {
-            var params = res.parameter;
-            for (var i = 0; i < params.length; i++) {
-                var paramName = params[i].paramName.toLowerCase();
-                paramsCache[paramName] = params[i];
-            }
+        .then((res) => {
+            try {
+                let params = res.parameter;
+                for (let i = 0; i < params.length; i++) {
+                    let paramName: string = params[i].paramName.toLowerCase();
+                    this._paramsCache[paramName] = params[i];
+                }
 
-            if (firstTouch) {
-                $("#monitor-setup").removeClass("firstTouch");
-                setupVisibleParamsList();
+                if (firstTouch) {
+                    this._setupVisibleParamsList();
+                }
+                deferred.resolve(this._paramsCache);
+            } catch (e) {
+                deferred.reject(e.message);
             }
-            deferred.resolve(paramsCache);
         })
         .fail(deferred.reject);
         return deferred.promise();
-    };
+    }
 
-    function setupListeners() {
-        $placeholder.click(function() {
-            addInputRow();
+    public on(event: string, callback: Function): MonitorConfig {
+        this._event.addEventListener(event, callback);
+        return this;
+    }
+
+    private _getCard(): JQuery {
+        return $(`#${this._id}`);
+    }
+
+    private _getPlaceHolder(): JQuery {
+        return this._getCard().find(".placeholder");
+    }
+
+    private _addEventListeners(): void {
+        this._getPlaceHolder().click(() => {
+            this._addInputRow();
         });
 
-        $configCard.find('.toggleSize').on('click', '.headerBtn', function() {
-            if ($(this).hasClass('minimize')) {
+        let $configCard = this._getCard();
+        $configCard.find('.toggleSize').on('click', '.headerBtn', (e) => {
+            let $el = $(e.currentTarget);
+            if ($el.hasClass('minimize')) {
                 $configCard.addClass('minimized');
-                $(this).parent().addClass('minimized');
-
-                $('#monitorLogCard').addClass('maximized');
+                $el.parent().addClass('minimized');
+                this._event.dispatchEvent("minimize");
             } else {
                 $configCard.removeClass('minimized');
-                $(this).parent().removeClass('minimized');
-
-                $('#monitorLogCard').removeClass('maximized');
+                $el.parent().removeClass('minimized');
+                this._event.dispatchEvent("maximize");
             }
         });
 
 
-        $configCard.on('keypress', '.paramName', function(e) {
+        $configCard.on('keypress', '.paramName', (e) => {
             if (e.which !== keyCode.Enter) {
                 return;
             }
-            submitParamName($(this));
+            this._submitParamName($(e.currentTarget), false);
         });
 
-        $configCard.on('blur', '.paramName', function() {
-            var $nameInput = $(this);
+        $configCard.on('blur', '.paramName', (e) => {
+            let $nameInput = $(e.currentTarget);
             $nameInput.val($nameInput.attr('data-value'));
         });
 
-        $configCard.on("change", ".paramName", function() {
-            submitParamName($(this), true);
+        $configCard.on("change", ".paramName", (e) => {
+            this._submitParamName($(e.currentTarget), true);
         });
 
-        $configCard.on('keydown', '.newVal', function(e) {
+        $configCard.on('keydown', '.newVal', (e) => {
             if (e.which === keyCode.Enter) {
-                $(this).blur();
+                $(e.currentTarget).blur();
             }
         });
 
-        $configCard.on('click', '.removeRow', function() {
-            $(this).closest('.formRow').remove();
+        $configCard.on('click', '.removeRow', (e) => {
+            $(e.currentTarget).closest('.formRow').remove();
         });
 
-        $configCard.on('click', '.defaultParam', function() {
-            resetDefaultParam($(this).closest('.formRow'));
+        $configCard.on('click', '.defaultParam', (e) => {
+            this._resetDefaultParam($(e.currentTarget).closest('.formRow'));
         });
 
-        $('#paramSettingsSave').on("click", function() {
-            $(this).blur();
-            submitForm();
+        $configCard.on("click", ".settingSave", (e) => {
+            $(e.currentTarget).blur();
+            this._submitForm();
         });
 
-        $configCard.on("click", ".resetAll", function() {
-            $(this).blur();
-            resetAllDefaultParams();
+        $configCard.on("click", ".resetAll", (e) => {
+            $(e.currentTarget).blur();
+            this._resetAllDefaultParams();
         });
 
 
-        $configCard.on("mouseenter", ".tooltipOverflow", function() {
-            xcTooltip.auto(this);
+        $configCard.on("mouseenter", ".tooltipOverflow", (e) => {
+            xcTooltip.auto(<any>e.currentTarget);
         });
     }
 
-    function resetAllDefaultParams() {
-        var $rows = $configCard.find(".formRow.nameIsSet:not(.uneditable)");
-        $rows.each(function() {
-            var $row = $(this);
-            var oldVal = $row.find(".curVal").val();
+    private _resetAllDefaultParams(): void {
+        let $rows = this._getCard().find(".formRow.nameIsSet:not(.uneditable)");
+        $rows.each((_index, el) => {
+            let $row = $(el);
+            let oldVal = $row.find(".curVal").val();
             $row.find(".newVal").val(oldVal);
         });
     }
 
     // fills in user's val input with default value
-    function resetDefaultParam($row) {
-        var $nameInput = $row.find('.paramName');
-        var paramObj = getParamObjFromInput($nameInput);
+    private _resetDefaultParam($row: JQuery): void {
+        let $nameInput: JQuery = $row.find('.paramName');
+        let paramObj = this._getParamObjFromInput($nameInput);
         if (!paramObj) {
             return;
         }
-        var defaultVal = paramObj.defaultValue;
+        let defaultVal: string = paramObj.defaultValue;
         if (defaultVal === "(null)") {
             defaultVal = "";
         }
         $row.find('.newVal').val(defaultVal);
     }
 
-    function getParamObjFromInput($nameInput) {
-        return paramsCache[$nameInput.val().toLowerCase().trim()];
+    private _getParamObjFromInput($nameInput: JQuery): any {
+        return this._paramsCache[$nameInput.val().toLowerCase().trim()];
     }
 
-    function hasParam(paramName) {
-        var $row = $configCard.find('input[data-value="' + paramName + '"]');
+    private _hasParam(paramName: string): boolean {
+        let $row = this._getCard().find('input[data-value="' + paramName + '"]');
         return ($row.length > 0);
     }
 
-    function submitParamName($nameInput, onChangeTriggered) {
-        var val = $nameInput.val().trim();
-
+    private _submitParamName(
+        $nameInput: JQuery,
+        onChangeTriggered: boolean
+    ): void {
+        let val: string = $nameInput.val().trim();
         if (!val.length) {
             return;
         }
 
-        var $formRow = $nameInput.closest('.formRow');
-        var $curValInput = $formRow.find('.curVal');
-        var $newValInput = $formRow.find('.newVal');
-        var paramObj = getParamObjFromInput($nameInput);
+        let $formRow = $nameInput.closest('.formRow');
+        let $curValInput = $formRow.find('.curVal');
+        let $newValInput = $formRow.find('.newVal');
+        let paramObj = this._getParamObjFromInput($nameInput);
 
         if (paramObj) {
-            if (hasParam(paramObj.paramName)) {
+            if (this._hasParam(paramObj.paramName)) {
                 if (!onChangeTriggered) {
-                    showAddParamError(ErrTStr.ConfigParamExists, $nameInput);
+                    this._showAddParamError(ErrTStr.ConfigParamExists, $nameInput);
                 }
                 return;
             }
@@ -171,20 +195,20 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 $formRow.find('.defaultParam').addClass('xc-hidden');
                 xcTooltip.enable($newValInput);
             }
-            var defValTooltip = getDefaultTooltip(paramObj);
+            let defValTooltip = this._getDefaultTooltip(paramObj);
             xcTooltip.changeText($formRow.find('.defaultParam'), defValTooltip);
         } else {
             $nameInput.attr('data-value', val);
             $curValInput.val('');
             xcTooltip.changeText($curValInput, "");
             if (!onChangeTriggered) {
-                showAddParamError(ErrTStr.ConfigParamNotFound, $nameInput);
+                this._showAddParamError(ErrTStr.ConfigParamNotFound, $nameInput);
             }
         }
     }
 
-    function getDefaultTooltip(paramObj) {
-        var defValTooltip;
+    private _getDefaultTooltip(paramObj: any): string {
+        let defValTooltip;
         if (paramObj && paramObj.hasOwnProperty('defaultValue')) {
             defValTooltip = xcStringHelper.replaceMsg(MonitorTStr.DefaultWithVal, {
                 value: paramObj.defaultValue
@@ -195,29 +219,29 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         return defValTooltip;
     }
 
-    function showAddParamError(error, $nameInput) {
+    private _showAddParamError(error: string, $nameInput: JQuery): void {
         StatusBox.show(error, $nameInput, false, {
             "offsetX": -5,
             "side": "top"
         });
     }
 
-    function submitForm() {
-        var errorFound;
-        var promises = [];
-        var rows = [];
-        var needRestart = false;
+    private _submitForm(): XDPromise<void> {
+        let errorFound: {input: JQuery, reason: string};
+        let promises: XDPromise<void>[] = [];
+        let rows: JQuery[] = [];
+        let needRestart: boolean = false;
 
-        $configCard.find('.configTable .formRow').each(function() {
-            var $row = $(this);
+        this._getCard().find('.configTable .formRow').each((_index, el) => {
+            let $row = $(el);
             if ($row.hasClass('placeholder') || $row.hasClass('uneditable')) {
                 return true;
             }
 
-            var $newValInput = $row.find('.newVal');
-            var newVal = $newValInput.val().trim();
-            var $nameInput = $row.find('.paramName');
-            var paramObj = getParamObjFromInput($nameInput);
+            let $newValInput = $row.find('.newVal');
+            let newVal: string = $newValInput.val().trim();
+            let $nameInput = $row.find('.paramName');
+            let paramObj = this._getParamObjFromInput($nameInput);
 
             if (!paramObj) {
                 errorFound = {
@@ -236,7 +260,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             }
 
             if (newVal !== paramObj.paramValue) {
-                var pName = paramObj.paramName;
+                let pName: string = paramObj.paramName;
                 needRestart = needRestart || paramObj.restartRequired;
                 rows.push($row);
                 promises.push(XcalarSetConfigParams(pName, newVal));
@@ -244,14 +268,15 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         });
 
         if (errorFound) {
-            showFormError(errorFound);
-            return;
+            this._showFormError(errorFound);
+            return PromiseHelper.reject();
         }
 
         if (promises.length) {
-            formHelper.disableSubmit();
-            PromiseHelper.when.apply(window, promises)
-            .then(function() {
+            let deferred: XDDeferred<void> = PromiseHelper.deferred();
+            this._formHelper.disableSubmit();
+            PromiseHelper.when(...promises)
+            .then(() => {
                 if (needRestart) {
                     var msg = SuccessTStr.SaveParam + " " +
                               MonitorTStr.RestartMsg;
@@ -263,31 +288,34 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 } else {
                     xcUIHelper.showSuccess(SuccessTStr.SaveParam);
                 }
+                deferred.resolve();
             })
-            .fail(function(args) {
+            .fail((args) => {
                 // XXX also need to handle partial failures better
                 // (alert restarat if necessary)
-                submitFailHandler(args, rows);
+                this._submitFailHandler(args, rows);
+                deferred.reject();
             })
-            .always(function() {
-                MonitorConfig.refreshParams()
-                .then(function() {
-                    updateParamInputs(rows);
+            .always(() => {
+                this.refreshParams(false)
+                .then(() => {
+                    this._updateParamInputs(rows);
                 })
-                .always(function() {
-                    formHelper.enableSubmit();
+                .always(() => {
+                    this._formHelper.enableSubmit();
                 });
             });
+            return deferred.promise();
         } else {
             xcUIHelper.showSuccess(SuccessTStr.SaveParam);
+            return PromiseHelper.resolve();
         }
     }
 
-    function submitFailHandler(args, rows) {
-        var errorMsg = "";
-        // var partialFail = false;
-        var $errorRow = $();
-        for (var i = 0; i < args.length; i++) {
+    private _submitFailHandler(args: any, rows: JQuery[]): void {
+        let errorMsg: string = "";
+        let $errorRow: JQuery = $();
+        for (let i = 0; i < args.length; i++) {
             if (args[i].error) {
                 if (!errorMsg) {
                     errorMsg = args[i].error;
@@ -296,8 +324,8 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             }
         }
         // xx not sure how to show all the errored rows if multiple
-        var paramName = $errorRow.find('.paramName').val();
-        var newVal = $errorRow.find('.newVal').val();
+        let paramName: string = $errorRow.find('.paramName').val();
+        let newVal: string = $errorRow.find('.newVal').val();
         errorMsg += '<br/>' + xcStringHelper.replaceMsg(
         MonitorTStr.ParamConfigFailMsg, {
             name: paramName,
@@ -308,8 +336,8 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         });
     }
 
-    function showFormError(errorObj) {
-        var msg = "";
+    private _showFormError(errorObj: {input: JQuery, reason: string}): void {
+        let msg: string = "";
         switch (errorObj.reason) {
             case ("empty"):
                 msg = ErrTStr.NoEmpty;
@@ -323,69 +351,70 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         StatusBox.show(msg, errorObj.input, null, {side: "top"});
     }
 
-    function setupVisibleParamsList() {
-        var paramObj;
-        var html = "";
-        for (var name in paramsCache) {
-            paramObj = paramsCache[name];
-            if (paramObj.visible || gXcSupport) {
-                html += getInputRowHtml(paramObj);
+    private _setupVisibleParamsList(): void {
+        let html: HTML = "";
+        for (let name in this._paramsCache) {
+            let paramObj = this._paramsCache[name];
+            if (paramObj.visible || Admin.isXcSupport()) {
+                html += this._getInputRowHtml(paramObj);
             }
         }
         if (html.length === 0) {
-            html += getInputRowHtml();
+            html += this._getInputRowHtml(null);
         }
+
+        let $placeholder = this._getPlaceHolder();
         $placeholder.siblings().remove();
         $placeholder.before(html);
     }
 
-    function updateParamInputs(rows) {
-        var $row;
-        var $nameInput;
-        var paramObj;
-        for (var i = 0; i < rows.length; i++) {
-            $row = rows[i];
-            $nameInput = $row.find('.paramName');
-            paramObj = getParamObjFromInput($nameInput);
+    private _updateParamInputs(rows: JQuery[]): void {
+        for (let i = 0; i < rows.length; i++) {
+            let $row = rows[i];
+            let $nameInput: JQuery = $row.find('.paramName');
+            let paramObj = this._getParamObjFromInput($nameInput);
             if (paramObj) {
                 $nameInput.val(paramObj.paramName);
-                var $curValInput = $row.find('.curVal');
+                let $curValInput = $row.find('.curVal');
                 $curValInput.val(paramObj.paramValue);
                 xcTooltip.changeText($curValInput, paramObj.paramValue);
             }
         }
     }
 
-    function addInputRow() {
-        var html = getInputRowHtml();
-        var $row = $(html);
+    private _addInputRow(): void {
+        let html = this._getInputRowHtml(null);
+        let $row: JQuery = $(html);
+        let $placeholder = this._getPlaceHolder();
         $placeholder.before($row);
         $row.find("input").eq(0).focus();
-        setTimeout(function() {
+        setTimeout(() => {
             $placeholder.prev().removeClass('animating');
         }, 0);
 
         // position scrollbar
-        var rowHeight = $configCard.find(".formRow").eq(0).outerHeight();
-        var winHeight = $(window).height();
-        var bottomBuffer = $("#statusBar").height() + 20;
-        var posDiff = ($placeholder.offset().top + rowHeight + bottomBuffer) -
-                       winHeight;
-        if (posDiff > 0) {
-            var $mainContent = $('#monitorPanel').children('.mainContent');
-            var top = $mainContent.scrollTop();
-            $mainContent.animate({scrollTop: top + posDiff + 20});
-        }
+        let $configCard = this._getCard();
+        let rowHeight: number = $configCard.find(".formRow").eq(0).outerHeight();
+        let posDiff: number = $placeholder.offset().top + rowHeight;
+        this._event.dispatchEvent("adjustScollbar", posDiff);
     }
 
-    function getInputRowHtml(paramObj) {
-        var paramName = "";
-        var curVal = "";
-        var newVal = "";
-        var rowClassNames = "";
-        var paramNameDisabledProp = "";
-        var uneditable = false;
-        var restartClass = "";
+    private _getInputRowHtml(
+        paramObj: {
+            paramName: string,
+            paramValue: any,
+            changeable: boolean,
+            restartRequired: boolean
+        }
+    ): HTML {
+        let paramName: string = "";
+        let curVal: string = "";
+        let newVal: string = "";
+        let rowClassNames: string = "";
+        let paramNameDisabledProp: string = "";
+        let uneditable: boolean = false;
+        let restartClass: string = "";
+
         if (paramObj) {
             paramName = paramObj.paramName;
             curVal = paramObj.paramValue;
@@ -403,7 +432,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         } else {
             rowClassNames += " animating";
         }
-        var html = '<div class="formRow ' + rowClassNames + '">' +
+        let html = '<div class="formRow ' + rowClassNames + '">' +
                     '<div class="removeRow">' +
                         '<i class="icon xi-close fa-14"></i>' +
                     '</div>' +
@@ -433,7 +462,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                     'value="' + newVal + '" spellcheck="false">';
         }
         if (!uneditable) {
-            var defValTooltip = getDefaultTooltip(paramObj);
+            let defValTooltip = this._getDefaultTooltip(paramObj);
             html +=
                 '<div class="defaultParam iconWrap xc-action" ' +
                     'data-toggle="tooltip" data-container="body" ' +
@@ -447,14 +476,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 '</label>' +
                 '</div>' +
                 '</div>';
-        return (html);
+        return html;
     }
-
-    /* Unit Test Only */
-    if (window.unitTestMode) {
-        MonitorConfig.__testOnly__ = {};
-    }
-    /* End Of Unit Test Only */
-
-    return (MonitorConfig);
-}({}, jQuery));
+}
