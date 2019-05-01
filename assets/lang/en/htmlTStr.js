@@ -701,7 +701,7 @@ module.exports = {
     },
 
     "dsForm": {
-        "PathInstr": "Select data target, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button.",
+        "PathInstr": "Select data target, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button. When importing multiple files, they must use the same schema and file format.",
         "filePath": "Data Source Path",
         "DSName": "Dataset Name",
         "fileNameTitle": "A valid name with no special characters",

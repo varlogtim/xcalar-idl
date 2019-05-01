@@ -3111,6 +3111,7 @@ namespace DSPreview {
         let isFirstTime: boolean = options.isFirstTime || false;
         let isRestore: boolean = options.isRestore || false;
         let noDetect: boolean = isRestore || options.noDetect || false;
+        let isSuggestDetect: boolean = options.isSuggestDetect || false;
         let udfModule: string = options.udfModule || null;
         let udfFunc: string = options.udfFunc || null;
         let udfQuery: any = options.udfQuery || null;
@@ -3216,7 +3217,7 @@ namespace DSPreview {
                 }
             }
 
-            if (!noDetect) {
+            if (!noDetect || isSuggestDetect) {
                 initialLoadArgStr = loadArgs.getArgStr();
             }
 
@@ -3260,23 +3261,30 @@ namespace DSPreview {
             if (clearPreview && hasUDF) {
                 clearPreviewTable(cachedTableName); // async remove the old ds
             }
-
+            xcTooltip.hideAll();
+            rawData = result;
+            if (noDetect && isSuggestDetect) {
+                let detectRes = smartDetect(rawData);
+                return suggestDetect(detectRes);
+            }
+        })
+        .then((shouldDetect) => {
             $waitSection.addClass("hidden").removeClass("hasUdf")
                         .find(".progressSection").empty();
             $previewWrap.find(".url").removeClass("xc-disabled");
-            xcTooltip.hideAll();
-            rawData = result;
+
 
             $loadHiddenSection.removeClass("hidden");
 
             let hasSmartDetect = false;
             let notGetPreviewTable = false;
-            if (!noDetect) {
+            if (!noDetect || shouldDetect) {
                 let currentLoadArgStr = loadArgs.getArgStr();
                 // when user not do any modification, then do smart detect
                 if (initialLoadArgStr === currentLoadArgStr) {
                     hasSmartDetect = true;
-                    notGetPreviewTable = smartDetect();
+                    let detectRes = smartDetect(rawData);
+                    notGetPreviewTable = applySmartDetect(detectRes);
                 }
             }
             // check
@@ -3509,7 +3517,7 @@ namespace DSPreview {
         ) {
             noDetect = false;
         }
-        refreshPreview(noDetect, true);
+        refreshPreview(noDetect, true, false, true);
     }
 
     function resetPreviewFile(): void {
@@ -3745,14 +3753,13 @@ namespace DSPreview {
             }
         })
         .then((ret) => {
-            const extraBuffer = ret.buffer;
             if (!isValidPreviewId(curPreviewId)) {
                 deferred.reject();
                 return;
             }
 
-            if (extraBuffer) {
-                buffer += extraBuffer;
+            if (ret && ret.buffer) {
+                buffer += ret.buffer;
             }
             if (!totalDataSize || totalDataSize <= previewOffset) {
                 disableShowMoreRows();
@@ -4009,10 +4016,12 @@ namespace DSPreview {
     function refreshPreview(
         noDetect: boolean,
         isPreview: boolean = false,
-        isChangeFormat: boolean = false
+        isChangeFormat: boolean = false,
+        isSuggestDetect: boolean = false
     ): XDPromise<any> {
         let formOptions = {
-            noDetect: null
+            noDetect: null,
+            isSuggestDetect: null
         };
         if (noDetect) {
             formOptions = isPreview ?
@@ -4022,6 +4031,7 @@ namespace DSPreview {
             }
         }
         formOptions.noDetect = noDetect;
+        formOptions.isSuggestDetect = isSuggestDetect;
         return previewData(formOptions, true);
     }
 
@@ -5087,17 +5097,130 @@ namespace DSPreview {
         selectUDFFunc("convertNewLineJsonToArrayJson");
     }
 
-    function smartDetect(): boolean {
+    function suggestDetect(
+        detectRes: {
+            format: string,
+            lineDelim: string,
+            fieldDelim: string,
+            hasHeader: boolean,
+        }
+    ): XDPromise<boolean> {
+        let deferred: XDDeferred<boolean> = PromiseHelper.deferred();
+        
+        let format: string = detectRes.format;
+        if (format === DSFormat.SpecialJSON) {
+            format = formatMap.UDF;
+        }
+
+        let shouldAlert = false;
+        let arg = "";
+        if (format !== loadArgs.getFormat()) {
+            shouldAlert = true
+            arg = "format";
+        } else if (detectRes.hasHeader !== loadArgs.useHeader()) {
+            shouldAlert = true;
+            arg = "header promotion";
+        } else if (format === formatMap.CSV) {
+            if (detectRes.lineDelim !== loadArgs.getLineDelim()) {
+                shouldAlert = true;
+                arg = "line delimiter";
+            } else if (detectRes.fieldDelim !== loadArgs.getFieldDelim()) {
+                shouldAlert = true;
+                arg = "field delimiter";
+            }
+        }
+
+        if (shouldAlert) {
+            let msg = xcStringHelper.replaceMsg(DSTStr.DetectWithDiffConfig, {
+                "arg": arg
+            });
+            Alert.show({
+                title: AlertTStr.Title,
+                msgTemplate: msg,
+                buttons: [{
+                    name: DSTStr.KeepConfig,
+                    className: "larger3",
+                    func: () => {
+                        deferred.resolve(false);
+                    }
+                },
+                {
+                    name: DSTStr.ApplyNewConfig,
+                    className: "larger3",
+                    func: () => {
+                        deferred.resolve(true);
+                    }
+                }],
+                noCancel: true
+            });
+        } else {
+            deferred.resolve();
+        }
+
+        return deferred.promise();
+    }
+
+    function smartDetect(data: string): {
+        format: string,
+        lineDelim: string,
+        fieldDelim: string,
+        hasHeader: boolean,
+    } {
+        let detectRes = {
+            format: undefined,
+            lineDelim: undefined,
+            fieldDelim: undefined,
+            hasHeader: undefined,
+        }
+        if (data == null) {
+            return detectRes;
+        }
+        // step 1: detect format
+        let lineDelim = loadArgs.getLineDelim();
+        detectRes.format = detectFormat(data, lineDelim);
+
+        if (detectRes.format === DSFormat.SpecialJSON) {
+            return detectRes;
+        }
+
+        // ste 2: detect line delimiter
+        if (detectRes.format === formatMap.CSV) {
+            detectRes.lineDelim = xcSuggest.detectLineDelimiter(data,
+                                                        loadArgs.getQuote());
+        }
+
+        // step 3: detect field delimiter
+        if (detectRes.format === formatMap.CSV) {
+            detectRes.fieldDelim = xcSuggest.detectFieldDelimiter(data,
+                detectRes.lineDelim, loadArgs.getQuote());
+            // step 4: detect header
+            lineDelim = loadArgs.getLineDelim(); // get the update linDelim
+            detectRes.hasHeader = detectHeader(data, lineDelim,
+                detectRes.fieldDelim);
+        } else if (detectRes.format === formatMap.EXCEL) {
+            detectRes.hasHeader = detectExcelHeader(data);
+        } else {
+            detectRes.hasHeader = false;
+        }
+        return detectRes;
+    }
+
+    function applySmartDetect(
+        detectRes: {
+            format: string,
+            lineDelim: string,
+            fieldDelim: string,
+            hasHeader: boolean,
+        }
+    ): boolean {
         if (rawData == null) {
             return false;
         }
 
-        // applyLineDelim("\n");
         applyQuote("\"");
 
         // step 1: detect format
-        let lineDelim = loadArgs.getLineDelim();
-        detectArgs.format = detectFormat(rawData, lineDelim);
+        detectArgs.format = detectRes.format;
 
         if (detectArgs.format === DSFormat.SpecialJSON) {
             detectArgs.format = formatMap.UDF;
@@ -5118,8 +5241,7 @@ namespace DSPreview {
 
         // ste 2: detect line delimiter
         if (detectArgs.format === formatMap.CSV) {
-            detectArgs.lineDelim = xcSuggest.detectLineDelimiter(rawData,
-                                                        loadArgs.getQuote());
+            detectArgs.lineDelim = detectRes.lineDelim;
             applyLineDelim(detectArgs.lineDelim);
         } else {
             applyLineDelim("\n");
@@ -5127,23 +5249,12 @@ namespace DSPreview {
 
         // step 3: detect field delimiter
         if (detectArgs.format === formatMap.CSV) {
-            detectArgs.fieldDelim = xcSuggest.detectFieldDelimiter(rawData,
-                                                          detectArgs.lineDelim,
-                                                          loadArgs.getQuote());
-
+            detectArgs.fieldDelim = detectRes.fieldDelim;
             if (detectArgs.fieldDelim !== "") {
                 applyFieldDelim(detectArgs.fieldDelim);
             }
-
-            // step 4: detect header
-            lineDelim = loadArgs.getLineDelim(); // get the update linDelim
-            detectArgs.hasHeader = detectHeader(rawData, lineDelim,
-                                                detectArgs.fieldDelim);
-        } else if (detectArgs.format === formatMap.EXCEL) {
-            detectArgs.hasHeader = detectExcelHeader(rawData);
-        } else {
-            detectArgs.hasHeader = false;
-        }
+        } 
+        detectArgs.hasHeader = detectRes.hasHeader;
 
         if (detectArgs.hasHeader) {
             toggleHeader(true);
@@ -6469,6 +6580,7 @@ namespace DSPreview {
         __testOnly__.errorHandler = errorHandler;
         __testOnly__.previewData = previewData;
         __testOnly__.importDataHelper = importDataHelper;
+        __testOnly__.suggestDetect = suggestDetect;
         __testOnly__.componentXmlFormat = () => componentXmlFormat;
         __testOnly__.get = function() {
             return {

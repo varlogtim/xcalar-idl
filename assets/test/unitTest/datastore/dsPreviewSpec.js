@@ -3090,6 +3090,143 @@ describe("Dataset-DSPreview Test", function() {
         });
     });
 
+    describe("Smart Detect Test", function() {
+        let loadArgs;
+
+        before(function() {
+            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+        });
+
+        describe("suggestDetect test", function() {
+            let suggestDetect;
+            let oldAlert;
+            let msg;
+
+            before(function() {
+                suggestDetect = DSPreview.__testOnly__.suggestDetect;
+                oldAlert = Alert.show;
+                Alert.show = (options) => {
+                    msg = options.msgTemplate;
+                    options.buttons[0].func();
+                };
+            });
+
+            beforeEach(function() {
+                msgTemplate = "";
+            });
+
+            it("should detect different format", function(done) {
+                loadArgs.setFormat("JSON");
+                suggestDetect({format: DSFormat.SpecialJSON})
+                .then(function(res) {
+                    expect(res).to.equal(false);
+                    expect(msg).to.contains("format");
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
+                });
+            });
+
+            it("should detect different header", function(done) {
+                loadArgs.setFormat("JSON");
+                loadArgs.setHeader(true);
+                suggestDetect({
+                    format: "JSON",
+                    hasHeader: false
+                })
+                .then(function(res) {
+                    expect(res).to.equal(false);
+                    expect(msg).to.contains("header promotion");
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
+                });
+            });
+
+            it("should detect line delimiter", function(done) {
+                loadArgs.setFormat("CSV");
+                loadArgs.setHeader(false);
+                loadArgs.setLineDelim("\r");
+                suggestDetect({
+                    format: "CSV",
+                    hasHeader: false,
+                    lineDelim: "\n"
+                })
+                .then(function(res) {
+                    expect(res).to.equal(false);
+                    expect(msg).to.contains("line delimiter");
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
+                });
+            });
+
+            it("should detect line delimiter", function(done) {
+                loadArgs.setFormat("CSV");
+                loadArgs.setHeader(false);
+                loadArgs.setLineDelim("\n");
+                loadArgs.setFieldDelim(",");
+                suggestDetect({
+                    format: "CSV",
+                    hasHeader: false,
+                    lineDelim: "\n",
+                    fieldDelim: "\t"
+                })
+                .then(function(res) {
+                    expect(res).to.equal(false);
+                    expect(msg).to.contains("field delimiter");
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
+                });
+            });
+
+            it("should resolve with apply new change", function(done) {
+                Alert.show = (options) => {
+                    options.buttons[1].func();
+                };
+                loadArgs.setFormat("JSON");
+                suggestDetect({
+                    format: "CSV"
+                })
+                .then(function(res) {
+                    expect(res).to.equal(true);
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
+                });
+            });
+
+            it("should resolve if no change", function(done) {
+                loadArgs.setFormat("JSON");
+                suggestDetect({
+                    format: "JSON",
+                    hasHeader: false,
+                })
+                .then(function(res) {
+                    expect(res).to.equal(undefined);
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
+                });
+            });
+
+            after(function() {
+                Alert.show = oldAlert;
+            });
+        });
+
+        after(function() {
+            loadArgs.reset();
+        });
+    });
+
     describe("Auto Header Check Test", function() {
         var loadArgs;
 

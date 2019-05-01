@@ -1206,8 +1206,11 @@ DSTStr = {
     'DSName': 'Dataset Name',
     'Sources': 'Sources',
     'NoSourcesToRestore': "No datasets need to restore.",
+    'KeepConfig': "Keep current configuration",
+    'ApplyNewConfig': "Apply new configuration",
 
     // With replace
+    'DetectWithDiffConfig': "This file uses a different <b><arg></b> from the configuration in your multiple file import. If you continue non-conformant data will be present.",
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
     'DelUneditable': 'Dataset \"<ds>\" is uneditable, cannot delete',
     'DelActivatedDS': 'Dataset \"<ds>\" is activated, please inactivate it first',
