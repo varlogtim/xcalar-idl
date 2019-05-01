@@ -5,8 +5,11 @@ class PublishIMDOpPanel extends BaseOpPanel {
     private _columns: ProgCol[];
     private _$nameInput: JQuery; // $('#publishIMDOpPanel .IMDNameInput')
     private _$primaryKeys: JQuery; // $('#publishIMDOpPanel .IMDKey')
+    private _$publishColList: JQuery; // $('#publishIMDOpPanel .publishColumnsSection .cols')
     private _$operatorInput: JQuery; // $('#publishIMDOpPanel .IMDOperatorInput')
     private _currentKeys: string[];
+    private _currentOpCode: string;
+    private _selectedCols: Set<string>;
 
     // *******************
     // Constants
@@ -22,9 +25,12 @@ class PublishIMDOpPanel extends BaseOpPanel {
         super.setup(this._$elemPanel);
         this._$nameInput = $('#publishIMDOpPanel .IMDNameInput');
         this._$primaryKeys = $('#publishIMDOpPanel .IMDKey');
+        this._$publishColList = $('#publishIMDOpPanel .publishColumnsSection .cols');
         this._$operatorInput = $('#publishIMDOpPanel .IMDOperatorInput');
         this._setupEventListener();
         this._currentKeys = [];
+        this._currentOpCode = "";
+        this._selectedCols = new Set();
     }
 
 
@@ -106,10 +112,17 @@ class PublishIMDOpPanel extends BaseOpPanel {
 
     private _getParams(): DagNodePublishIMDInputStruct {
         let keys: string[] = this._getKeyValues();
+        let columns: string[] = [];
+        let $cols = this._$publishColList.find(".col.checked");
+        for (let i = 0; i < $cols.length; i++) {
+            let col: ProgCol = this._columns[$cols.eq(i).data("colnum") - 1];
+            columns.push(col.getFrontColName());
+        }
         return {
             pubTableName: typeof(this._$nameInput.val()) === "string" ? this._$nameInput.val().toUpperCase() : this._$nameInput.val(),
             primaryKeys: keys,
-            operator: this._$operatorInput.val()
+            operator: this._$operatorInput.val(),
+            columns: columns
         }
     }
 
@@ -145,7 +158,20 @@ class PublishIMDOpPanel extends BaseOpPanel {
         let keyList: string[] = input.primaryKeys || [];
         //process
         this._restoreKeys(keyList);
+        this._selectedCols.clear();
+        input.columns.forEach((col: string) => {
+            this._selectedCols.add(col);
+        });
+
         this._$operatorInput.val(input.operator);
+        this._currentOpCode = input.operator;
+        this._renderColumns();
+        for(let i = 0; i < keyList.length; i++) {
+            this._toggleColumnKey(keyList[i].substr(1), true, true);
+        }
+        if (input.operator != "") {
+            this._toggleColumnKey(input.operator.substr(1), true, false);
+        }
     }
 
     private _replicateColumnHints(): void {
@@ -203,14 +229,17 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 let $primaryKey = $li.closest('.primaryKeyList').find('.primaryKeyInput');
                 let oldVal = $primaryKey.val();
                 if (oldVal != "") {
-                    $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                    $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
                         .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+                    self._toggleColumnKey(oldVal.substr(1), false, true);
                 }
                 $primaryKey.val("$" + $li.text());
-                $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
                     .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
-                let index = $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
+                let index = $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
                 self._currentKeys[index] = $li.data("value");
+                let colName: string = $li.text();
+                self._toggleColumnKey(colName, true, true);
             }
         });
         expList.setupListeners();
@@ -288,6 +317,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
             if (oldVal != "") {
                 $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
                     .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+                self._toggleColumnKey(oldVal.substr(1), false, true);
             }
             $key.remove();
         });
@@ -300,6 +330,21 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
                     .find("[data-value='" + oldVal + "']").removeClass("unavailable");
                 self._currentKeys[index] = $input.val();
+                if (oldVal.charAt(0) === '$') {
+                    oldVal = oldVal.substr(1);
+                }
+                self._toggleColumnKey(oldVal, false, true);
+            }
+        });
+
+        this._$elemPanel.find("#IMDOperatorList").on('blur', '.IMDOperatorInput', function() {
+            let $input = $(this);
+            let oldVal = self._currentOpCode;
+            if (oldVal != $input.val()) {
+                if (oldVal.charAt(0) === '$') {
+                    oldVal = oldVal.substr(1);
+                }
+                self._toggleColumnKey(oldVal, false, false);
             }
         });
 
@@ -319,12 +364,15 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 if (oldVal != "") {
                     $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
                         .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+                    self._toggleColumnKey(oldVal.substr(1), false, true);
                 }
                 $primaryKey.val("$" + $li.text());
                 $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
                     .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
                 let index = $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
                 self._currentKeys[index] = $li.data("value");
+                let colName: string = $li.text();
+                self._toggleColumnKey(colName, true, true);
             }
         });
         expList.setupListeners();
@@ -341,12 +389,84 @@ class PublishIMDOpPanel extends BaseOpPanel {
                     return true; // return true to keep dropdown open
                 }
 
+                let oldVal = self._$operatorInput.val();
+                if (oldVal != "") {
+                    self._toggleColumnKey(oldVal.substr(1), false, false);
+                }
+
                 self._$operatorInput.val("$" + $li.text());
+                let colName: string = $li.text();
+                self._currentOpCode = $li.data("value");
+                self._toggleColumnKey(colName, true, false);
             }
         });
         expList.setupListeners();
+
+        $('#publishIMDColumns .selectAllWrap').click(function(event) {
+            let $box: JQuery = $(this).find(".checkbox");
+            event.stopPropagation();
+            if ($box.hasClass("active")) {
+                return;
+            }
+            if ($box.hasClass("checked")) {
+                $box.removeClass("checked");
+                self._$publishColList.find('.checked').not(".active").removeClass("checked");
+            } else {
+                $box.addClass("checked");
+                self._$publishColList.find('.col').addClass("checked");
+                self._$publishColList.find('.checkbox').addClass("checked");
+            }
+        });
+
+        $('#publishIMDColumns .columnsWrap').on("click", ".col", function(event) {
+            let $box: JQuery = $(this).find(".checkbox");
+            let $col: JQuery = $(this);
+            event.stopPropagation();
+            if ($box.hasClass("active")) {
+                return;
+            }
+            if ($col.hasClass("checked")) {
+                $col.removeClass("checked");
+                $box.removeClass("checked");
+                self._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
+            } else {
+                $col.addClass("checked");
+                $box.addClass("checked");
+                if (self._$publishColList.find('.col .checked').length == self._$publishColList.find('.checkbox').length) {
+                    self._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
+                }
+            }
+        });
     }
 
+    private _toggleColumnKey(colName: string, checked: boolean, isKey: boolean) {
+        if (colName.includes("::")) {
+            colName = colName.split("::")[1];
+        }
+        let colClass: string = isKey ? " primaryKeyActive" : " opCodeActive";
+
+        let $col = $('#publishIMDOpPanel .publishColumnsSection .cols')
+            .find("[data-original-title='" + colName + "']");
+        if ($col.length == 0) {
+            return;
+        }
+        let $colDiv = $col.parent();
+        if (checked) {
+            $colDiv.addClass("checked active " + colClass);
+            $col.siblings(".checkbox").addClass("checked active" + colClass)
+            if (this._$publishColList.find('.col .checked').length == this._$publishColList.find('.checkbox').length) {
+                this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked active" + colClass);
+            }
+        } else if ($colDiv.hasClass("primaryKeyActive") && $colDiv.hasClass("opCodeActive")) {
+            $colDiv.removeClass(colClass);
+            $col.siblings(".checkbox").removeClass(colClass)
+            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass(colClass);
+        } else {
+            $colDiv.removeClass("checked active" + colClass);
+            $col.siblings(".checkbox").removeClass("checked active" + colClass)
+            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked active" + colClass);
+        }
+    }
 
     private _activateDropDown($list: JQuery, container: string) {
         let dropdownHelper: MenuHelper = new MenuHelper($list, {
@@ -371,16 +491,68 @@ class PublishIMDOpPanel extends BaseOpPanel {
     }
 
 
+    private _renderColumns(): void {
+        const columnList = this._columns;
+        if (columnList.length == 0) {
+            this._$publishColList.empty();
+            $("#publishIMDColumns .noColsHint").show();
+            $("#publishIMDColumns .selectAllWrap").hide();
+            return;
+        }
+
+        // Render column list
+        let html: string = "";
+        columnList.forEach((column, index) => {
+            const colName: string = xcStringHelper.escapeHTMLSpecialChar(
+                column.name);
+            const colNum: number = (index + 1);
+            const checked = this._selectedCols.has(colName) ? " checked" : "";
+            html += '<li class="col' + checked +
+                '" data-colnum="' + colNum + '">' +
+                '<span class="text tooltipOverflow" ' +
+                'data-original-title="' +
+                    xcStringHelper.escapeDblQuoteForHTML(
+                        xcStringHelper.escapeHTMLSpecialChar(colName)) + '" ' +
+                'data-toggle="tooltip" data-placement="top" ' +
+                'data-container="body">' +
+                    colName +
+                '</span>' +
+                '<div class="checkbox' + checked + '">' +
+                    '<i class="icon xi-ckbox-empty fa-13"></i>' +
+                    '<i class="icon xi-ckbox-selected fa-13"></i>' +
+                '</div>' +
+            '</li>';
+        });
+        this._$publishColList.html(html);
+        $("#publishIMDColumns .selectAllWrap").show();
+        $("#publishIMDColumns .noColsHint").hide();
+        if (this._$publishColList.find('.col .checked').length == this._$publishColList.find('.checkbox').length) {
+            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
+        } else {
+            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
+        }
+
+        if (columnList.length > 9) {
+            this._$publishColList.css("overflow-y", "auto");
+        } else {
+            this._$publishColList.css("overflow-y", "hidden");
+        }
+    }
+
+
     private _submitForm(dagNode: DagNodePublishIMD): void {
         let keys: string[] = [];
         let operator: string = "";
         let name: string = "";
+        let columns: string[] = [];
+
         if (this._advMode) {
             try {
                 const newModel: DagNodePublishIMDInputStruct = this._convertAdvConfigToModel();
                 keys = newModel.primaryKeys;
                 operator = newModel.operator;
                 name = typeof(newModel.pubTableName) === "string" ? newModel.pubTableName.toUpperCase() : newModel.pubTableName;
+                columns = newModel.columns;
                 this._$nameInput.val(name);
             } catch (e) {
                 StatusBox.show(e, $("#publishIMDOpPanel .advancedEditor"),
@@ -392,6 +564,14 @@ class PublishIMDOpPanel extends BaseOpPanel {
             operator = this._$operatorInput.val();
             name = typeof(this._$nameInput.val()) === "string" ? this._$nameInput.val().toUpperCase() : this._$nameInput.val();
             this._$nameInput.val(name);
+            let $cols = this._$publishColList.find(".col.checked");
+            for (let i = 0; i < $cols.length; i++) {
+                columns.push(this._columns[$cols.eq(i).data("colnum") - 1].getFrontColName());
+            }
+        }
+        if (!columns || !columns.length) {
+            StatusBox.show(ErrTStr.NoColumns, this._$publishColList);
+            return;
         }
         if (!this._checkOpArgs(keys, operator)) {
             return;
@@ -400,7 +580,8 @@ class PublishIMDOpPanel extends BaseOpPanel {
         dagNode.setParam({
             pubTableName: name,
             primaryKeys: keys,
-            operator: operator
+            operator: operator,
+            columns: columns
         });
         this.close(true);
     }

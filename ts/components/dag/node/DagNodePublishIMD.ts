@@ -42,7 +42,8 @@ class DagNodePublishIMD extends DagNode {
         this.input.setInput({
             pubTableName: input.pubTableName,
             primaryKeys: input.primaryKeys,
-            operator: input.operator
+            operator: input.operator,
+            columns: input.columns
         });
         super.setParam();
     }

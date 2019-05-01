@@ -464,7 +464,8 @@ describe("DagNodeExecutor Test", () => {
         node.setParam({
             pubTableName: "testTable",
             primaryKeys: ["pk"],
-            operator: "testCol"
+            operator: "testCol",
+            columns: ["test"]
         });
         node.connectToParent(parentNode);
 

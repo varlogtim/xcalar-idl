@@ -978,6 +978,9 @@ class DagNodeExecutor {
         let columns: ProgCol[] = node.getParents().map((parentNode) => {
             return parentNode.getLineage().getColumns();
         })[0] || [];
+        columns = columns.filter((col: ProgCol) => {
+            return params.columns.includes(col.getFrontColName());
+        });
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
         let tableName: string = params.pubTableName;
         XIApi.publishTable(this.txId, params.primaryKeys,

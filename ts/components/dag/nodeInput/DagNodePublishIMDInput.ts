@@ -52,7 +52,24 @@ class DagNodePublishIMDInput extends DagNodeInput {
             ],
             "minLength": 0,
             "pattern": "^(.*)$"
-          }
+          },
+          "columns": {
+            "$id": "#/properties/columns",
+            "type": "array",
+            "title": "Column Schema",
+            "minItems": 1,
+            "items": {
+              "$id": "#/properties/primaryKeys/primaryKey",
+              "type": "string",
+              "title": "Column Schema",
+              "default": "",
+              "examples": [
+                "colName"
+              ],
+              "minLength": 0,
+              "pattern": "^(.*)$"
+            }
+          },
         }
     };
 
@@ -61,7 +78,8 @@ class DagNodePublishIMDInput extends DagNodeInput {
         return {
             pubTableName: input.pubTableName || "",
             primaryKeys: input.primaryKeys || [],
-            operator: input.operator || ""
+            operator: input.operator || "",
+            columns: input.columns || []
         };
     }
 }

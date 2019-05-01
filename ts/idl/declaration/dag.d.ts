@@ -98,6 +98,7 @@ interface DagNodePublishIMDInputStruct {
     pubTableName: string;
     primaryKeys: string[];
     operator: string;
+    columns: string[];
 }
 
 interface DagNodeUpdateIMDInputStruct {

@@ -1937,6 +1937,51 @@
             float: right;
         }
     }
+
+    #publishIMDColumns {
+        .selectAllWrap {
+            margin-bottom: 8px;
+            margin-right: 13px;
+            float: right;
+    
+            .clearfix;
+            .text {
+                float: left;
+                cursor: pointer;
+            }
+            .checkbox {
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+        }
+        .columnsToPublish {
+            padding: 0 10px;
+            ::-webkit-scrollbar-thumb {
+                background: @color-bg-topBarGray2 !important;
+            }
+            ::-webkit-scrollbar-track {
+                background: @color-white;
+            }
+            .cols {
+                padding-top: 1px;
+                overflow-y: auto;
+                max-height: 240px;
+
+                &.minimized {
+                    max-height: 101px;
+                }
+
+                .col {
+                    border: 1px solid @color-bg-white-five;
+                    line-height: unset;
+                    .text {
+                        padding-top: 4px;
+                    }
+                }
+
+            }
+        }
+    }
 }
 
 #setOpPanel {
