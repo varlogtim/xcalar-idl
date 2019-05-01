@@ -174,7 +174,7 @@ class Concurrency {
                 }
             })
             .fail((tError) => {
-                if (tError.status === StatusT.StatusKvEntryNotEqual) {
+                if (tError.error.status === StatusT.StatusKvEntryNotEqual) {
                     // Locked state. Exp backoff until time limit, and then ask the
                     // user for force / give up
                     console.log("Retrying with timeout: " + timeout / 1000);

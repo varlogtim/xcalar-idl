@@ -4272,29 +4272,15 @@ XcalarKeyLookup = function(
 XcalarKeyList = function(
     keyRegex: string,
     scope: number
-): XDPromise<XcalarApiKeyListOutputT> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
-    const deferred: XDDeferred<XcalarApiKeyListOutputT> = PromiseHelper.deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-
+): XDPromise<Xcrpc.KVStore.keyListResponse> {
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
-    xcalarKeyList(tHandle, scope, keyRegex)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarKeyList", error);
-        Log.errorLog("Key List", null, null, thriftError);
-        deferred.reject(thriftError);
-    });
-
-    return (deferred.promise());
+    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().list({kvScope:Xcrpc_scope, scopeInfo: scopeInfo, kvKeyRegex: keyRegex})
+    return PromiseHelper.convertToJQuery(promise);
 };
 
 XcalarKeyPut = function(
@@ -4319,7 +4305,7 @@ XcalarKeyPut = function(
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
     const scopeInfo = {userName: userIdName, workbookName: sessionName}
-    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().addOrReplace({key: key, value: value, kvScope: Xcrpc_scope, persis:persist, scopeInfo: scopeInfo});
+    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().addOrReplace({key: key, value: value, kvScope: Xcrpc_scope, persist:persist, scopeInfo: scopeInfo});
     return PromiseHelper.convertToJQuery(promise);
 };
 
@@ -4345,36 +4331,15 @@ XcalarKeySetIfEqual = function(
     keyCompare: string,
     oldValue: string,
     newValue: string
-): XDPromise<{res: StatusT, noKV: boolean}> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve({res: null, noKV: false});
-    }
-    const deferred: XDDeferred<{res: StatusT, noKV: boolean}> = PromiseHelper.deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
+): XDPromise<{noKV: boolean}> {
 
-    xcalarKeySetIfEqual(tHandle, scope, persist, keyCompare, oldValue, newValue)
-    .then((res) => {
-        deferred.resolve({
-            res: res,
-            noKV: false
-        });
-    })
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarKeySetIfEqual", error);
-        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
-            deferred.resolve({res: null, noKV: true});
-        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
-            console.warn("Status", error, "kvStore, not found");
-            deferred.resolve({res: null, noKV: true});
-        } else {
-            Log.errorLog("Key Set If Equal", null, null, thriftError);
-            deferred.reject(thriftError);
-        }
-    });
+    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
+    persist: persist, kvKeyCompare:keyCompare, kvValueCompare: oldValue, kvValueReplace: newValue, countSecondaryPairs: 0,
+    kvKeySecondary: null, kvValueSecondary: null });
+    return PromiseHelper.convertToJQuery(promise);
 
-    return (deferred.promise());
 };
 
 XcalarKeySetBothIfEqual = function(
@@ -4385,32 +4350,13 @@ XcalarKeySetBothIfEqual = function(
     newValue: string,
     otherKey: string,
     otherValue: string
-): XDPromise<StatusT> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-
-    xcalarKeySetIfEqual(tHandle, scope, persist, keyCompare, oldValue, newValue,
-                        otherKey, otherValue)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarKeySetBothIfEqual", error);
-        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
-            deferred.resolve();
-        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
-            console.warn("Status", error, "kvStore, not found");
-            deferred.resolve(null);
-        } else {
-            Log.errorLog("Key Set If Both Equal", null, null, thriftError);
-            deferred.reject(thriftError);
-        }
-    });
-
-    return (deferred.promise());
+): XDPromise<{noKV: boolean}> {
+    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
+    persist: persist, kvKeyCompare:keyCompare, kvValueCompare: oldValue, kvValueReplace: newValue, countSecondaryPairs: 1,
+    kvKeySecondary: otherKey, kvValueSecondary: otherValue});
+    return PromiseHelper.convertToJQuery(promise);
 
 };
 
@@ -4419,38 +4365,16 @@ XcalarKeyAppend = function(
     stuffToAppend: string,
     persist: boolean,
     scope: number
-): XDPromise<StatusT> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-
+): XDPromise<void> {
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
-
-    xcalarKeyAppend(tHandle, scope, key, stuffToAppend)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarKeyAppend", error);
-        if (thriftError.status === StatusT.StatusKvEntryNotFound ||
-            thriftError.status === StatusT.StatusKvStoreNotFound)
-        {
-            console.info("Append fails as key or kvStore not found, put key instead");
-            // if append fails because key not found, put value instead
-            xcalarKeyAddOrReplace(tHandle, scope, key, stuffToAppend, persist)
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-        } else {
-            Log.errorLog("Key Append", null, null, thriftError);
-            deferred.reject(thriftError);
-        }
-    });
-
-    return (deferred.promise());
+    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    //for now, we use a global value for that.Then we need to figure out a way to pass these value in.
+    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().append({keyName: key, kvScope: Xcrpc_scope,
+        persist: persist, kvSuffix: stuffToAppend, scopeInfo: scopeInfo});
+    return PromiseHelper.convertToJQuery(promise);
 };
 
 XcalarGetOpStats = function(

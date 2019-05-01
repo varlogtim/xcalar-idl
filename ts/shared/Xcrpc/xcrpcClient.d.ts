@@ -11,6 +11,10 @@ declare module 'xcalar' {
         lookup(request: proto.xcalar.compute.localtypes.KvStore.LookupRequest): Promise<proto.xcalar.compute.localtypes.KvStore.LookupResponse>;
         addOrReplace(request: proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest): Promise<void>;
         deleteKey(request: proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest): Promise<void>;
+        append(request:proto.xcalar.compute.localtypes.KvStore.AppendRequest): Promise<void>;
+        setIfEqual(request:proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest): Promise<{noKV:boolean}>;
+        list(request: proto.xcalar.compute.localtypes.KvStore.ListRequest): Promise<proto.xcalar.compute.localtypes.KvStore.ListResponse>
+
     }
 
     export class LicenseService {
@@ -98,6 +102,30 @@ declare namespace proto.xcalar.compute.localtypes {
 
         export class DeleteKeyRequest {
             setKey(value: ScopedKey): void;
+        }
+        export class AppendRequest {
+            setKey(value: ScopedKey): void;
+            setSuffix(value: string):void;
+        }
+
+        export class SetIfEqualRequest {
+            setScope(value: Workbook.WorkbookScope): void;
+            setPersist(value: boolean): void;
+            setCountSecondaryPairs(value: number): void;
+            setKeyCompare(value: string): void;
+            setValueCompare(value: string); void;
+            setValueReplace(value:string): void;
+            setKeySecondary(value: string): void;
+            setValueSecondary(value: string): void;
+        }
+
+        export class ListRequest {
+            setScope(value: Workbook.WorkbookScope): void;
+            setKeyRegex(value: string):void;
+        }
+
+        export class ListResponse {
+            getKeysList(): Array<string>;
         }
     }
 

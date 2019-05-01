@@ -33,7 +33,6 @@ class KVStoreService {
             scopeKey.setScope(scope);
             request.setKey(scopeKey);
 
-
             // Step #2: Call xcrpc service
             const kvService = new ApiKVStore(this._apiClient);
             const response = await kvService.lookup(request);
@@ -53,11 +52,11 @@ class KVStoreService {
     }
 
     public async addOrReplace(param: {
-        key: string, value: string, persis: boolean, kvScope: number,
+        key: string, value: string, persist: boolean, kvScope: number,
         scopeInfo?: ScopeInfo
     }):Promise<void> {
         try {
-            const {key, value, persis, kvScope, scopeInfo} = param;
+            const {key, value, persist, kvScope, scopeInfo} = param;
 
             const scopeKey = new ProtoTypes.KvStore.ScopedKey();
             scopeKey.setName(key);
@@ -70,7 +69,7 @@ class KVStoreService {
 
             const request = new ProtoTypes.KvStore.AddOrReplaceRequest();
             request.setKey(scopeKey);
-            request.setPersist(persis);
+            request.setPersist(persist);
             request.setValue(keyValue);
 
             const kvService = new ApiKVStore(this._apiClient);
@@ -103,17 +102,119 @@ class KVStoreService {
         }
     }
 
+
+    public async append(param:{keyName: string, kvScope: number, scopeInfo?: ScopeInfo,
+        persist:boolean, kvSuffix: string}) : Promise<void>
+    {
+        try {
+            const { keyName, kvScope, scopeInfo,persist,kvSuffix} = param;
+            const scopeKey = new ProtoTypes.KvStore.ScopedKey();
+            scopeKey.setName(keyName);
+
+            const scope = this._setScopeKey({kvScope: kvScope, scopeInfo:scopeInfo});
+            const request = new ProtoTypes.KvStore.AppendRequest();
+            scopeKey.setScope(scope);
+            request.setKey(scopeKey);
+            request.setSuffix(kvSuffix);
+
+            const kvService = new ApiKVStore(this._apiClient);
+            await kvService.append(request);
+
+        } catch(e) {
+            if(this._parseError(e, "append")){
+                try {
+                    const { keyName, kvScope, scopeInfo,persist,kvSuffix} = param;
+                    await this.addOrReplace({key: keyName, value: kvSuffix, persist: persist,
+                        kvScope: kvScope, scopeInfo: scopeInfo});
+                } catch(e) {
+                    this._parseError(e, "addOrReplace")
+                }
+            }
+        }
+    }
+
+
+    public async setIfEqual (params: {kvScope: number, scopeInfo?: ScopeInfo,
+        persist:boolean, countSecondaryPairs: number, kvKeyCompare: string, kvValueCompare: string, kvValueReplace: string, kvKeySecondary: string,
+        kvValueSecondary: string}): Promise<{noKV:boolean}>{
+            try {
+                const {kvScope, scopeInfo, persist, countSecondaryPairs, kvKeyCompare, kvValueCompare, kvValueReplace, kvKeySecondary,
+                    kvValueSecondary} = params
+
+                const scope = this._setScopeKey({kvScope: kvScope, scopeInfo:scopeInfo});
+                const request = new ProtoTypes.KvStore.SetIfEqualRequest()
+                request.setScope(scope);
+                request.setPersist(persist);
+                request.setCountSecondaryPairs(countSecondaryPairs);
+                request.setKeyCompare(kvKeyCompare);
+                request.setValueCompare(kvValueCompare);
+                request.setValueReplace(kvValueReplace);
+                request.setKeySecondary(kvKeySecondary);
+                request.setValueSecondary(kvValueSecondary);
+
+                const kvService = new ApiKVStore(this._apiClient);
+                await kvService.setIfEqual(request);
+                return {noKV:false};
+            } catch (e) {
+                if(this._parseError(e, "setIfEqual")){
+                    return {noKV:true};
+                }
+
+            }
+
+    }
+
+    public async list (param:{kvScope: number, scopeInfo?: ScopeInfo,
+        kvKeyRegex: string}) : Promise<keyListResponse>
+    {
+        try {
+            const {kvScope, scopeInfo, kvKeyRegex} = param;
+            const scope = this._setScopeKey({kvScope: kvScope, scopeInfo:scopeInfo});
+
+            const request = new ProtoTypes.KvStore.ListRequest();
+            request.setScope(scope);
+            request.setKeyRegex(kvKeyRegex);
+
+            const kvService = new ApiKVStore(this._apiClient);
+            const response = await kvService.list(request);
+
+            const keys = response.getKeysList();
+            const keysList: keyListResponse = {
+                numKeys : keys.length,
+                keys: keys
+            }
+            return keysList;
+
+
+        } catch(e) {
+            if(this._parseError(e, "list")){
+                return null;
+            }
+        }
+    }
+
     private _parseError(error:any, method:string):boolean {
         switch(method) {
             case "lookup":
-            case "deleteKey": {
+            case "deleteKey":
+            case "setIfEqual": {
                 if (error.status === Status.StatusKvEntryNotFound) {
-                    console.warn("Status", error, "Key, not found");
+                    console.warn("Status", error.error, "Key, not found");
                     return true;
                 } else if (error.status === Status.StatusKvStoreNotFound) {
-                    console.warn(error, "kvStore, not found");
+                    console.warn(error.error, "kvStore, not found");
                     return true;
                 }
+                break;
+            }
+            case "append": {
+                if (error.status === Status.StatusKvEntryNotFound ||
+                    error.status === Status.StatusKvStoreNotFound)
+                {
+                    console.info("Append fails as key or kvStore not found, put key instead");
+                    return true;
+                }
+                break;
             }
         }
         const e: ServiceError = {
@@ -125,28 +226,25 @@ class KVStoreService {
     private _setScopeKey(param:{kvScope: number,
         scopeInfo?: ScopeInfo
     }): ProtoTypes.Workbook.WorkbookScope {
-            const {kvScope, scopeInfo } = param;
-            const { userName = null, workbookName = null } = scopeInfo || {};
+        const {kvScope, scopeInfo } = param;
+        const { userName = null, workbookName = null } = scopeInfo || {};
 
-            const scope = new ProtoTypes.Workbook.WorkbookScope();
-            if (kvScope === KVSCOPE.GLOBAL) {
-                scope.setGlobl(new ProtoTypes.Workbook.GlobalSpecifier());
-            } else if (kvScope === KVSCOPE.WORKBOOK) {
-                const nameInfo = new ProtoTypes.Workbook.WorkbookSpecifier.NameSpecifier();
-                nameInfo.setUsername(userName);
-                nameInfo.setWorkbookname(workbookName);
-                const workbookInfo = new ProtoTypes.Workbook.WorkbookSpecifier();
-                workbookInfo.setName(nameInfo);
-                scope.setWorkbook(workbookInfo);
-            } else {
-                throw new Error(`Invalid kvScope: ${kvScope}`);
-            }
-            return scope;
-
-
+        const scope = new ProtoTypes.Workbook.WorkbookScope();
+        if (kvScope === KVSCOPE.GLOBAL) {
+            scope.setGlobl(new ProtoTypes.Workbook.GlobalSpecifier());
+        } else if (kvScope === KVSCOPE.WORKBOOK) {
+            const nameInfo = new ProtoTypes.Workbook.WorkbookSpecifier.NameSpecifier();
+            nameInfo.setUsername(userName);
+            nameInfo.setWorkbookname(workbookName);
+            const workbookInfo = new ProtoTypes.Workbook.WorkbookSpecifier();
+            workbookInfo.setName(nameInfo);
+            scope.setWorkbook(workbookInfo);
+        } else {
+            throw new Error(`Invalid kvScope: ${kvScope}`);
+        }
+        return scope;
     }
 }
-
 
 type ScopeInfo = {
     userName: string,
@@ -171,4 +269,10 @@ enum Status {
     StatusKvStoreNotFound = 355
 }
 
-export { KVStoreService, ScopeInfo, KVSCOPE, Value};
+
+type keyListResponse = {
+    numKeys: number,
+    keys: Array<string>
+};
+
+export { KVStoreService, ScopeInfo, KVSCOPE, Value, keyListResponse};
