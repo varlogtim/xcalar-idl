@@ -2459,6 +2459,9 @@ namespace DSPreview {
             udfQuery = validateExcelArgs();
             if (udfQuery == null) {
                 return null;
+            } else {
+                // preview case always use false
+                udfQuery.withHeader = false;
             }
         } else if (format === formatMap.PARQUETFILE) {
             udfModule = parquetModule;
