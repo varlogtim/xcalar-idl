@@ -423,13 +423,13 @@ class DagList extends Durable {
      * @param $dagListItem Dataflow we want to delete.
      * @returns {XDPromise<void>}
      */
-    public deleteDataflow($dagListItem: JQuery): XDPromise<void> {
-        const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
+    public deleteDataflow(id: string): XDPromise<void> {
+        const dagTab: DagTab = this.getDagTabById(id);
         if (dagTab == null) {
             return PromiseHelper.reject();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const id: string = dagTab.getId();
+        const name: string = dagTab.getName();
         let removal: {success: boolean, error?: string} = DagTabManager.Instance.removeTab(id);
         if (!removal.success) {
             return deferred.reject({error: removal.error});
@@ -437,7 +437,7 @@ class DagList extends Durable {
 
         dagTab.delete()
         .then(() => {
-            $dagListItem.remove();
+            $('#dagListSection .dagListDetail[data-id="' +id + '"]').remove();
             this._dags.delete(id);
             this._saveDagList(dagTab);
             this._renderDagList(true, true);
@@ -447,11 +447,25 @@ class DagList extends Durable {
                     tabId: id
                 });
             }
+            Log.add(DagTStr.DeleteDataflow, {
+                "operation": SQLOps.DeleteDataflow,
+                "id": id,
+                "dataflowName": name
+            });
+
             deferred.resolve();
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    public addDataflow(dagTab: DagTab) : void{
+        this._dags.set(dagTab.getId(), dagTab);
+    }
+
+    public removeDataflow(id: string): void {
+        this._dags.delete(id);
     }
 
     /**
@@ -1041,7 +1055,7 @@ class DagList extends Durable {
                 }),
                 onConfirm: () => {
                     xcUIHelper.disableElement($dagListItem);
-                    this.deleteDataflow($dagListItem)
+                    this.deleteDataflow($dagListItem.data("id"))
                     .fail((error) => {
                         let log = error && typeof error === "object" ? error.log : null;
                         if (!log && error && error.error) {

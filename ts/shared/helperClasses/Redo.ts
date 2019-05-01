@@ -72,14 +72,12 @@ namespace Redo {
 
     redoFuncs[SQLOps.AddOperation] = function(options): XDPromise<void> {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagViewManager.Instance.addBackNodes([options.nodeId], options.dataflowId);
-        return PromiseHelper.resolve(null);
+        return DagViewManager.Instance.addBackNodes([options.nodeId], options.dataflowId);
     };
 
     redoFuncs[SQLOps.CopyOperations] = function(options): XDPromise<void> {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagViewManager.Instance.addBackNodes(options.nodeIds, options.dataflowId);
-        return PromiseHelper.resolve(null);
+        return DagViewManager.Instance.addBackNodes(options.nodeIds, options.dataflowId);
     };
 
     redoFuncs[SQLOps.MoveOperations] = function(options): XDPromise<void> {
@@ -88,16 +86,13 @@ namespace Redo {
         return PromiseHelper.resolve(null);
     };
 
-    redoFuncs[SQLOps.NewDagTab] = function(): XDPromise<void> {
-        DagTabManager.Instance.newTab();
+    redoFuncs[SQLOps.NewDagTab] = function(options): XDPromise<void> {
+        DagTabManager.Instance.unhideTab(options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DupDagTab] = function(options): XDPromise<void> {
-        const tab: DagTab = DagTabManager.Instance.getTabById(options.dataflowId);
-        if (tab != null) {
-            DagTabManager.Instance.duplicateTab(tab);
-        }
+        DagTabManager.Instance.unhideTab(options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
@@ -115,8 +110,7 @@ namespace Redo {
 
     redoFuncs[SQLOps.NewComment] = function(options): XDPromise<void> {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagViewManager.Instance.addBackNodes([options.commentId], options.dataflowId);
-        return PromiseHelper.resolve(null);
+        return DagViewManager.Instance.addBackNodes([options.commentId], options.dataflowId);
     };
 
     redoFuncs[SQLOps.EditComment] = function(options): XDPromise<void> {

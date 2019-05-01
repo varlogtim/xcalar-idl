@@ -50,8 +50,8 @@ describe('DagList Test', function() {
         it("should handle dag deletion", function(done) {
             var prevLen = DagList.Instance._dags.size;
             var selector = getSelector(dagName);
-            var $dataflow = $(selector).closest(".dagListDetail");
-            DagList.Instance.deleteDataflow($dataflow)
+            var dataflowId = $(selector).closest(".dagListDetail").data("id");
+            DagList.Instance.deleteDataflow(dataflowId)
             .then(() => {
                 expect(DagList.Instance._dags.size).to.equal(prevLen - 1);
                 done();

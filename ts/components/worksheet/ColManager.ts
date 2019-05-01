@@ -210,7 +210,7 @@ namespace ColManager {
         execCol("pull", usrStr, tableId, newColNum, {noLog: true})
         .then(function() {
             TblManager.updateHeaderAndListInfo(tableId);
-            // FormHelper.updateColumns(tableId);
+            FormHelper.updateColumns(tableId);
             Log.add(SQLTStr.PullCol, sqlOptions);
             deferred.resolve(newColNum);
         })
@@ -1077,7 +1077,7 @@ namespace ColManager {
             $colToUnnest.after(ths);
         }
         pullRowsBulkHelper(tableId);
-        // FormHelper.updateColumns(tableId);
+        FormHelper.updateColumns(tableId);
 
         Log.add(SQLTStr.PullCols, {
             "operation": SQLOps.PullMultipleCols,

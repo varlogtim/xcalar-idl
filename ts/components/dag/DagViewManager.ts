@@ -502,6 +502,9 @@ class DagViewManager {
         spliceInfo?,
         identifiers?
     ): XDPromise<void> {
+        if (!this.dagViewMap.get(tabId)) {
+            return PromiseHelper.reject("Dataflow not found");
+        }
         return this.dagViewMap.get(tabId).addBackNodes(nodeIds, spliceInfo, identifiers);
     }
 

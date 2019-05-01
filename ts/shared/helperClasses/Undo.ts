@@ -67,8 +67,7 @@ namespace Undo {
 
     undoFuncs[SQLOps.RemoveOperations] = function(options): XDPromise<void> {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagViewManager.Instance.addBackNodes(options.nodeIds, options.dataflowId, options.spliceInfo, options.identifiers);
-        return PromiseHelper.resolve(null);
+        return DagViewManager.Instance.addBackNodes(options.nodeIds, options.dataflowId, options.spliceInfo, options.identifiers);
     };
 
     undoFuncs[SQLOps.AddOperation] = function(options): XDPromise<void> {
@@ -95,12 +94,14 @@ namespace Undo {
         return PromiseHelper.resolve(null);
     };
 
-    undoFuncs[SQLOps.NewDagTab] = function(): XDPromise<void> {
-        return DagList.Instance.deleteDataflow($("#dagListSection .dagListDetail").last());
+    undoFuncs[SQLOps.NewDagTab] = function(options): XDPromise<void> {
+        DagTabManager.Instance.hideTab(options.dataflowId);
+        return PromiseHelper.resolve(null);
     };
 
-    undoFuncs[SQLOps.DupDagTab] = function(): XDPromise<void> {
-        return DagList.Instance.deleteDataflow($("#dagListSection .dagListDetail").last());
+    undoFuncs[SQLOps.DupDagTab] = function(options): XDPromise<void> {
+        DagTabManager.Instance.hideTab(options.dataflowId);
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.EditDescription] = function(options): XDPromise<void> {

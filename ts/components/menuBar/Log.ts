@@ -737,6 +737,7 @@ namespace Log {
                 // XXX test
                 console.info("Overwrite log");
                 dropUndoneTables();
+                DagTabManager.Instance.deleteHiddenTabs();
                 shouldOverWrite = false;
             })
             .fail(function(error) {
@@ -790,6 +791,7 @@ namespace Log {
 
         switch (operation) {
             case SQLOps.RemoveDagTab:
+            case SQLOps.DeleteDataflow:
                 return UndoType.Invalid;
             case SQLOps.DSImport:
             case SQLOps.TableFromDS:
@@ -1217,6 +1219,8 @@ namespace Log {
             case (SQLOps.MoveOperations):
             case (SQLOps.NewDagTab):
             case (SQLOps.RemoveDagTab):
+            case (SQLOps.DeleteDataflow):
+            case (SQLOps.DupDagTab):
             case (SQLOps.EditDescription):
             case (SQLOps.NewComment):
             case (SQLOps.EditComment):

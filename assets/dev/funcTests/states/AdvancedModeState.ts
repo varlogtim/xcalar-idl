@@ -614,7 +614,7 @@ class AdvancedModeState extends State {
         //restore
         this.mode = "random";
         this.dagTabManager.switchTab(currentTabId);
-        DagList.Instance.deleteDataflow(DagList.Instance._getListElById(newTabId));
+        DagList.Instance.deleteDataflow(newTabId);
         this.currentTab = this.dagTabManager.getTabById(currentTabId);
         this.log(`Custom node created and shared in WKBK ${this.currentWKBKId}`);
         return this;

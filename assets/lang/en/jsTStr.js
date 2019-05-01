@@ -1643,6 +1643,7 @@ DagTStr = {
     "RemoveAllOperators": "Remove All Operations",
     "RemoveAllMsg": "Are you sure you want to remove all operations?",
     "RemoveTab": "Remove a dataflow tab.",
+    "DeleteDataflow": "Delete Dataflow.",
     "AddDescription": "Add Description",
     "EditDescription": "Edit Description",
     "Reset": "Dataflow node(s) reset",

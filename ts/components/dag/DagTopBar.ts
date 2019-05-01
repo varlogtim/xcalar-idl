@@ -101,7 +101,7 @@ class DagTopBar {
         });
 
         $topBar.find(".undo").click(function() {
-            if ($(this).hasClass("disabled")) {
+            if ($(this).hasClass("disabled") || $(this).hasClass("locked")) {
                 return;
             }
             let dagTab = DagViewManager.Instance.getActiveDag();
@@ -112,7 +112,7 @@ class DagTopBar {
         });
 
         $topBar.find(".redo").click(function() {
-            if ($(this).hasClass("disabled")) {
+            if ($(this).hasClass("disabled") || $(this).hasClass("locked")) {
                 return;
             }
             let dagTab = DagViewManager.Instance.getActiveDag();

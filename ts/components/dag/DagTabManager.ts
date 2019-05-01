@@ -15,6 +15,7 @@ class DagTabManager {
     private _activeTab: DagTab;
     private _sqlPreviewTab: DagTab;
     private _setup: boolean;
+    private _hiddenDags: Map<string, DagTab> = new Map(); // used to store undone tabs
 
     private constructor() {
         this._initialize();
@@ -119,7 +120,9 @@ class DagTabManager {
         this._tabListScroller.showOrHideScrollers();
         Log.add(SQLTStr.NewTab, {
             "operation": SQLOps.NewDagTab,
-            "dataflowId": tab.getId()
+            "isSQLFunc": false,
+            "dataflowId": tab.getId(),
+            "dataflowName": name
         });
         return tab.getId();
     }
@@ -135,7 +138,9 @@ class DagTabManager {
         this._tabListScroller.showOrHideScrollers();
         Log.add(SQLTStr.NewTab, {
             "operation": SQLOps.NewDagTab,
-            "dataflowId": tab.getId()
+            "isSQLFunc": true,
+            "dataflowId": tab.getId(),
+            "dataflowName": name
         });
         return tab.getId();
     }
@@ -266,10 +271,10 @@ class DagTabManager {
         let name: string = tab.getName().replace(/\//g, "_");
         let isSQLFunc: boolean = (tab instanceof DagTabSQLFunc);
         name = DagList.Instance.getValidName(name, true, isSQLFunc);
-        this._newTab(name, graph.clone(), isSQLFunc);
+        let newTab: DagTab = this._newTab(name, graph.clone(), isSQLFunc);
         Log.add(SQLTStr.DupTab, {
             "operation": SQLOps.DupDagTab,
-            "dataflowId": tab.getId()
+            "dataflowId": newTab.getId()
         });
     }
 
@@ -420,6 +425,33 @@ class DagTabManager {
     public getPanelTabId(): string {
         let $tab = $("#dagTabSectionTabs .dagTab .after.xc-disabled").parent(".dagTab");
         return $tab.data('id');
+    }
+
+    // used to undo creating a new
+    public hideTab(tabId: string) {
+        const dagTab: DagTab = this.getTabById(tabId);
+        DagList.Instance.removeDataflow(tabId);
+        const index = this.getTabIndex(dagTab.getId());
+        this._deleteTab(index, true);
+        this._tabListScroller.showOrHideScrollers();
+    }
+
+    // used for redoing new tab
+    public unhideTab(id: string): void {
+        const tab: DagTab = this._hiddenDags.get(id);
+        DagList.Instance.addDataflow(tab);
+        this._addDagTab(tab);
+        this._hiddenDags.delete(id);
+        this._switchTabs();
+        this._save();
+        this._tabListScroller.showOrHideScrollers();
+    }
+
+    public deleteHiddenTabs(): void {
+        this._hiddenDags.forEach((tab, id) => {
+            tab.delete();
+            this._hiddenDags.delete(id);
+        });
     }
 
     private _initialize(): void {
@@ -611,7 +643,7 @@ class DagTabManager {
     }
 
     // Deletes the tab represented by $tab
-    private _deleteTab(index: number): boolean {
+    private _deleteTab(index: number, hide?: boolean): boolean {
         const dagTab: DagTab = this.getTabByIndex(index);
         if (dagTab == null || dagTab.getGraph().isLocked()) {
             return false;
@@ -646,8 +678,13 @@ class DagTabManager {
             }
         }
         this._activeUserDags.splice(index, 1);
+        if (hide) {
+            this._hiddenDags.set(tabId,  dagTab);
+        } else {
+            dagTab.setClosed();
+            this._save();
+        }
 
-        this._save();
         $tab.remove();
         this._getDataflowArea(index).remove();
         if (this.getNumTabs() === 0) {
@@ -655,7 +692,6 @@ class DagTabManager {
         }
 
         DagViewManager.Instance.cleanupClosedTab(dagTab.getGraph());
-        dagTab.setClosed();
         DagList.Instance.updateList();
         return true;
     }

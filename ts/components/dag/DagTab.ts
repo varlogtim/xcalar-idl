@@ -17,6 +17,7 @@ abstract class DagTab extends Durable {
     protected _kvStore: KVStore;
     protected _disableSaveLock: number;
     protected _isOpen: boolean;
+    protected _isHidden: boolean;
     protected _saveCheckTimer: NodeJS.Timer; // ensures save not locked for more than 60 seconds
 
     public static generateId(): string {

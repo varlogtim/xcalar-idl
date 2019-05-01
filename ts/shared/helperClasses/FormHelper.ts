@@ -83,8 +83,8 @@ class FormHelper {
     }
 
     public static updateColumns(options): void {
-        if (FormHelper.activeForm) {
-            this.activeForm.refreshColumns(options);
+        if (FormHelper.activeForm && FormHelper.activeForm.refreshColumns) {
+            FormHelper.activeForm.refreshColumns(options);
         }
     }
 
