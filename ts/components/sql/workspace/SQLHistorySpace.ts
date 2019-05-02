@@ -41,6 +41,10 @@ class SQLHistorySpace {
     public previewDataflow(queryInfo: SqlQueryHistory.QueryInfo): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
+            if (!DagPanel.hasSetup()) {
+                throw new Error(DFTStr.NotSetup);
+            }
+
             this._checkDataflowValidation(queryInfo)
             .then((dataflowId) => {
                 return this._previewDataflow(dataflowId, queryInfo.queryString);
@@ -49,13 +53,23 @@ class SQLHistorySpace {
             .fail((error) => {
                 // DagNodeSQL has the alert
                 if (error != null) {
-                    Alert.error(AlertTStr.Error, error);
+                    Alert.show({
+                        title: AlertTStr.Error,
+                        msg: SQLTStr.PreviewError,
+                        isAlert: true,
+                        detail: xcHelper.parseError(error)
+                    });
                 }
                 deferred.reject(error);
             });
         } catch (e) {
             console.error(e);
-            Alert.error(AlertTStr.Error, ErrTStr.Unknown);
+            Alert.show({
+                title: AlertTStr.Error,
+                msg: SQLTStr.PreviewError,
+                isAlert: true,
+                detail: xcHelper.parseError(e.message)
+            });
             deferred.reject(e);
         }
 
@@ -101,18 +115,20 @@ class SQLHistorySpace {
 
         dagTab.load()
         .then(() => {
-            const $container = $("#sqlDataflowArea .dataflowWrap");
-            $container.empty();
-            DagViewManager.Instance.addDataflowHTML($container, dataflowId, true, false)
-            DagViewManager.Instance.renderSQLPreviewDag(dagTab);
-            DagViewManager.Instance.autoAlign(dataflowId);
-            SQLResultSpace.Instance.showProgressDataflow(false, sql);
-            deferred.resolve();
+            try {
+                const $container = $("#sqlDataflowArea .dataflowWrap");
+                $container.empty();
+                DagViewManager.Instance.addDataflowHTML($container, dataflowId, true, false)
+                DagViewManager.Instance.renderSQLPreviewDag(dagTab);
+                DagViewManager.Instance.autoAlign(dataflowId);
+                SQLResultSpace.Instance.showProgressDataflow(false, sql);
+                deferred.resolve();
+            } catch (e) {
+                console.error(e);
+                return PromiseHelper.reject(e.message);
+            }
         })
-        .fail((err) => {
-            Alert.error(AlertTStr.Error, "The corresponding dataflow for sql has been deleted");
-            deferred.reject(err);
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

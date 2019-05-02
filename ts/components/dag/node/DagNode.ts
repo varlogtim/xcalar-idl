@@ -34,11 +34,8 @@ abstract class DagNode extends Durable {
         // we try to retain the old stats for as long as possible
     };
 
-    public static setup(): void {
-        this.uid = new XcUID("dag");
-    }
-
     public static generateId(): string {
+        this.uid = this.uid || new XcUID("dag");
         return this.uid.gen();
     }
 

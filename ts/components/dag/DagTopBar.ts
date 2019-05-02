@@ -5,10 +5,21 @@ class DagTopBar {
         return this._instance || (this._instance = new this());
     }
 
-    private $topBar: JQuery;
+    /**
+     * DagTopBar.Instance.toggleDisable
+     * @param disable
+     */
+    public toggleDisable(disable: boolean): void {
+        // Not use this.$dagView as it's called before setup
+        let $btns: JQuery = this._getTopBar().find(".topButtons");
+        if (disable) {
+            $btns.addClass("xc-disabled");
+        } else {
+            $btns.removeClass("xc-disabled");
+        }
+    }
 
     public setup(): void {
-        this.$topBar = $("#dagViewBar");
         this._addEventListeners();
     }
 
@@ -17,11 +28,11 @@ class DagTopBar {
     }
 
     public lock(): void {
-        this.$topBar.addClass("locked");
+        this._getTopBar().addClass("locked");
     }
 
     public unlock(): void {
-        this.$topBar.removeClass("locked");
+        this._getTopBar().removeClass("locked");
     }
 
     /**
@@ -29,7 +40,8 @@ class DagTopBar {
      * @param dagTab
      */
     public setState(dagTab: DagTab): void {
-        const $btns: JQuery = this.$topBar.find(".topButtons");
+        let $topBar = this._getTopBar();
+        const $btns: JQuery = $topBar.find(".topButtons");
         if (dagTab == null) {
             $btns.find(".topButton:not(.noTabRequired)").addClass("xc-disabled");
             return;
@@ -53,14 +65,18 @@ class DagTopBar {
 
         if (graph != null) {
             let scale = graph.getScale() * 100;
-            this.$topBar.find(".zoomPercentInput").val(scale);
+            $topBar.find(".zoomPercentInput").val(scale);
         }
 
         this._toggleButtonsInSQLFunc(dagTab);
     }
 
+    private _getTopBar(): JQuery {
+        return $("#dagViewBar");
+    }
+
     private _toggleButtonsInSQLFunc(dagTab: DagTab): void {
-        const $btns: JQuery = this.$topBar.find(".topButtons");
+        const $btns: JQuery = this._getTopBar().find(".topButtons");
         const $btnsToHideInSQLMode: JQuery = $btns.find(".optimizedRun");
         if (dagTab instanceof DagTabSQLFunc) {
             $btnsToHideInSQLMode.addClass("xc-hidden");
@@ -71,19 +87,20 @@ class DagTopBar {
 
     private _addEventListeners(): void {
         const self = this;
-        this.$topBar.find(".run").click(function() {
+        let $topBar = this._getTopBar();
+        $topBar.find(".run").click(function() {
             DagViewManager.Instance.run();
         });
 
-        this.$topBar.find(".optimizedRun").click(function() {
+        $topBar.find(".optimizedRun").click(function() {
             DagViewManager.Instance.run(null, true);
         });
 
-        this.$topBar.find(".stop").click(function() {
+        $topBar.find(".stop").click(function() {
             DagViewManager.Instance.cancel();
         });
 
-        this.$topBar.find(".undo").click(function() {
+        $topBar.find(".undo").click(function() {
             if ($(this).hasClass("disabled")) {
                 return;
             }
@@ -94,7 +111,7 @@ class DagTopBar {
             Log.undo();
         });
 
-        this.$topBar.find(".redo").click(function() {
+        $topBar.find(".redo").click(function() {
             if ($(this).hasClass("disabled")) {
                 return;
             }
@@ -105,21 +122,21 @@ class DagTopBar {
             Log.redo();
         });
 
-        this.$topBar.find(".zoomIn").click(function() {
+        $topBar.find(".zoomIn").click(function() {
             DagViewManager.Instance.zoom(true);
             let percent = DagViewManager.Instance.getActiveDag().getScale() * 100;
             $("#dagViewBar .zoomPercent input").val(percent);
             self._checkZoom();
         });
 
-        this.$topBar.find(".zoomOut").click(function() {
+        $topBar.find(".zoomOut").click(function() {
             DagViewManager.Instance.zoom(false);
             let percent = DagViewManager.Instance.getActiveDag().getScale() * 100;
             $("#dagViewBar .zoomPercent input").val(percent);
             self._checkZoom();
         });
 
-        this.$topBar.find(".zoomPercent").on('keyup', function(e) {
+        $topBar.find(".zoomPercent").on('keyup', function(e) {
             if (e.which == 13) {
                 e.preventDefault();
                 let percent: number = $(this).find("input").val();
@@ -134,14 +151,15 @@ class DagTopBar {
         });
 
         // settings button
-        this.$topBar.find(".setting").click(() => {
+        $topBar.find(".setting").click(() => {
             DFSettingsModal.Instance.show();
         });
     }
 
     private _checkZoom(): void {
-        const $zoomIn = this.$topBar.find(".zoomIn");
-        const $zoomOut = this.$topBar.find(".zoomOut");
+        let $topBar = this._getTopBar();
+        const $zoomIn = $topBar.find(".zoomIn");
+        const $zoomOut = $topBar.find(".zoomOut");
         $zoomIn.removeClass("disabled");
         $zoomOut.removeClass("disabled");
         const scale = DagViewManager.Instance.getActiveDag().getScale();

@@ -6,30 +6,37 @@ describe("DagView Test", () => {
     let oldPut;
     let cachedUserPref;
 
-    before(function() {
+    before(function(done) {
+        console.clear();
         console.log("DagView Test");
         UnitTest.onMinMode();
         $dagView = $("#dagView");
         $dfWrap = $dagView.find(".dataflowWrap");
         oldPut = XcalarKeyPut;
-        XcalarKeyPut = function() {
-            return PromiseHelper.resolve();
-        };
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
-        DagTabManager.Instance.newTab();
-        tabId = DagViewManager.Instance.getActiveDag().getTabId();
-        $dfArea = $dfWrap.find(".dataflowArea.active");
-        MainMenu.openPanel("dagPanel", null);
-        cachedUserPref = UserSettings.getPref;
-        UserSettings.getPref = function(val) {
-            if (val === "dfAutoExecute" || val === "dfAutoPreview") {
-                return false;
-            } else {
-                return cachedUserPref(val);
+
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            XcalarKeyPut = function() {
+                return PromiseHelper.resolve();
+            };
+            if (XVM.isSQLMode()) {
+                $("#modeArea").click();
             }
-        };
+            DagTabManager.Instance.newTab();
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            $dfArea = $dfWrap.find(".dataflowArea.active");
+            MainMenu.openPanel("dagPanel", null);
+            cachedUserPref = UserSettings.getPref;
+            UserSettings.getPref = function(val) {
+                if (val === "dfAutoExecute" || val === "dfAutoPreview") {
+                    return false;
+                } else {
+                    return cachedUserPref(val);
+                }
+            };
+
+            done();
+        });
     });
     describe("initial state", function() {
         it("initial screen should have no operators", function() {

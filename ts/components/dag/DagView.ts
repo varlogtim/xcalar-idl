@@ -2213,7 +2213,9 @@ class DagView {
             .then(() => {
                 DagTabManager.Instance.newSQLTab(dagNode, sqlPreview);
                 const newDagView: DagView = DagViewManager.Instance.getActiveDagView();
-                newDagView.autoAlign();
+                if (newDagView != null) {
+                    newDagView.autoAlign();
+                }
                 deferred.resolve();
             })
             .fail(deferred.reject);

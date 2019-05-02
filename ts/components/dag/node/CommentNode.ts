@@ -6,11 +6,8 @@ class CommentNode {
     private text: string;
     private display: {x: number, y: number, height: number, width: number};
 
-    public static setup(): void {
-        this.uid = new XcUID("comment");
-    }
-
     public static generateId(): string {
+        this.uid = this.uid || new XcUID("comment");
         return this.uid.gen();
     }
 

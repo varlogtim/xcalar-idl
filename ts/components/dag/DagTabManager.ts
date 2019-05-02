@@ -14,19 +14,43 @@ class DagTabManager {
     private _subTabs: Map<string, string> = new Map(); // subTabId => parentTabId
     private _activeTab: DagTab;
     private _sqlPreviewTab: DagTab;
+    private _setup: boolean;
 
-    public setup(): XDPromise<void> {
+    private constructor() {
         this._initialize();
+    }
 
+    /**
+     * DagTabManager.Instance.setup
+     */
+    public setup(): XDPromise<void> {
+        if (this._setup) {
+            return PromiseHelper.resolve();
+        }
+        this._setup = true;
         const $tabArea: JQuery = this._getTabArea();
         this._tabListScroller = new ListScroller($('#dagTabSectionTabs'),
         $tabArea, false, {
-            bounds: "#DagTabView",
+            bounds: "#dagTabView",
             noPositionReset: true
         });
 
         this._addEventListeners();
         return this._getManagerDataAsync();
+    }
+
+    /**
+     * DagTabManager.Instance.toggleDisable
+     * @param disable
+     */
+    public toggleDisable(disable: boolean): void {
+        // Not use this.$dagView as it's called before setup
+        let $section: JQuery = $("#dagTabView");
+        if (disable) {
+            $section.addClass("xc-hidden");
+        } else {
+            $section.removeClass("xc-hidden");
+        }
     }
 
     public getTabs(): DagTab[] {
@@ -55,7 +79,7 @@ class DagTabManager {
         });
         let dagTab = dagTabs.length > 0 ? dagTabs[0] : null;
         if (dagTab == null && XVM.isSQLMode()) {
-            dagTab = this._cachedSQLDags[tabId];
+            dagTab = <DagTab>this._cachedSQLDags[tabId];
             if (!dagTab && this._sqlPreviewTab
                 && this._sqlPreviewTab.getId() === tabId) {
                 dagTab = this._sqlPreviewTab;
@@ -163,13 +187,13 @@ class DagTabManager {
                 SQLNode: SQLNode
             });
             newTab.setGraph(newTab.getGraph());
-            this._sqlPreviewTab = newTab;
+            this._sqlPreviewTab = <DagTab>newTab;
 
             const $container = $("#sqlDataflowArea .dataflowWrap");
             $container.empty();
             DagViewManager.Instance.addDataflowHTML($container, tabId, true, false);
 
-            DagViewManager.Instance.renderSQLPreviewDag(newTab);
+            DagViewManager.Instance.renderSQLPreviewDag(<DagTab>newTab);
             return;
         }
         const activeTab: DagTab = DagViewManager.Instance.getActiveTab();
@@ -190,7 +214,7 @@ class DagTabManager {
             newTab.setGraph(newTab.getGraph());
             // Register the new tab in DagTabManager
             if (this._addSubTab(parentTabId, tabId)) {
-                this._addDagTab(newTab);
+                this._addDagTab(<DagTab>newTab);
                 // Switch to the tab(UI)
                 this._switchTabs();
             }
@@ -303,6 +327,7 @@ class DagTabManager {
     }
 
     /**
+     * DagTabManager.Instance.loadTab
      * Load a existing tab
      * @param dagTab the dagTab we want to load
      * @param validate set to true during upload so we validate dataflows coming from
@@ -449,7 +474,6 @@ class DagTabManager {
                 idSet.add(dagTab.getId());
             });
             const dagIds: string[] = managerData.dagKeys.filter((id) => idSet.has(id));
-            // _loadDagTabs is async
             return this._loadDagTabs(dagIds);
         })
         .then(() => {
@@ -473,9 +497,16 @@ class DagTabManager {
         dagTab.load()
         .then(()=> {
             this._addDagTab(dagTab, null, true);
+            if (this.getTabByIndex(0) === dagTab) {
+                // if it's the first tab
+                this._switchTabs(0);
+            }
             deferred.resolve();
         })
-        .fail(deferred.resolve);
+        .fail(() => {
+            // still resolve it
+            deferred.resolve();
+        });
         return deferred.promise();
     }
 
@@ -483,16 +514,13 @@ class DagTabManager {
     private _loadDagTabs(dagTabIds: string[]): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let promises = dagTabIds.map((id) => {
-            return this._loadDagTabHelper.bind(this, id);
+            return () => this._loadDagTabHelper(id);
         });
         //Use a chain to ensure all are run sequentially.
-        PromiseHelper.chain(promises, true)
+        PromiseHelper.chain(promises)
         .always(() => {
             DagList.Instance.updateList();
-            if (this.getNumTabs() > 0) {
-                this._switchTabs(0);
-                StatusMessage.updateLocation(false, "Restoring Dataflows");
-            } else {
+            if (this.getNumTabs() === 0) {
                 this.reset();
             }
             deferred.resolve();
@@ -546,13 +574,13 @@ class DagTabManager {
     private _newTab(name: string, graph: DagGraph, isSQLFunc: boolean): DagTab {
         let newDagTab: DagTab;
         if (isSQLFunc) {
-            newDagTab = new DagTabSQLFunc({
+            newDagTab = <DagTab>new DagTabSQLFunc({
                 name: name,
                 dagGraph: graph,
                 createdTime: xcTimeHelper.now()
             });
         } else {
-            newDagTab = new DagTabUser({
+            newDagTab = <DagTab>new DagTabUser({
                 name: name,
                 dagGraph: graph,
                 createdTime: xcTimeHelper.now()

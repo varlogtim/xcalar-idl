@@ -66,6 +66,10 @@ class SQLEditorSpace {
      * @param sqls
      */
     public execute(sqls: string): void {
+        if (!DagPanel.hasSetup()) {
+            Alert.error(AlertTStr.Error, DFTStr.NotSetup);
+            return;
+        }
         return this._executeSQL(sqls);
     }
 
@@ -310,6 +314,7 @@ class SQLEditorSpace {
                     try {
                         executor = new SQLDagExecutor(sqlStruct);
                     } catch (e) {
+                        console.error(e);
                         return PromiseHelper.reject(e);
                     }
                     executorArray.push(executor);

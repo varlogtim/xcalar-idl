@@ -1,15 +1,23 @@
 class DagAggManager {
-    private static _instance = null;
+    private static _instance: DagAggManager;
     private aggregates: {[key: string]: AggregateInfo} = {};
     private kvStore: KVStore;
-
-    constructor() {}
+    private _setup: boolean;
 
     public static get Instance() {
         return  this._instance || (this._instance = new this());
     }
 
+    private constructor() {
+        this._setup = false;
+    }
+
     public setup(): XDPromise<any> {
+        if (this._setup) {
+            return PromiseHelper.resolve();
+        }
+
+        this._setup = true;
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let key: string = KVStore.getKey("gDagAggKey");
         this.kvStore = new KVStore(key, gKVScope.WKBK);

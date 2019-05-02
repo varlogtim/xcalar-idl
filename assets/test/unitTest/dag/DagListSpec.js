@@ -1,12 +1,16 @@
 describe('DagList Test', function() {
     var oldPut;
 
-    before(function() {
+    before(function(done) {
         oldPut = XcalarKeyPut;
         XcalarKeyPut = function() {
             return PromiseHelper.resolve();
         };
         UnitTest.onMinMode();
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            done();
+        });
     });
 
     describe('Dag List Test', function() {

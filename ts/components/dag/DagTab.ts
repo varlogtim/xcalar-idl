@@ -19,11 +19,8 @@ abstract class DagTab extends Durable {
     protected _isOpen: boolean;
     protected _saveCheckTimer: NodeJS.Timer; // ensures save not locked for more than 60 seconds
 
-    public static setup(): void {
-        this.uid = new XcUID(DagTab.KEY);
-    }
-
     public static generateId(): string {
+        this.uid = this.uid || new XcUID(DagTab.KEY);
         return this.uid.gen();
     }
 
@@ -183,6 +180,7 @@ abstract class DagTab extends Durable {
                 const { dagInfo: retInfo, graph } = this._loadFromJSON(dagInfo);
                 deferred.resolve({dagInfo: retInfo, graph: graph});
             } catch(e) {
+                console.error(e);
                 deferred.reject({ error: e.message });
             }
         })

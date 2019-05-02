@@ -1,4 +1,11 @@
 describe("SQLEditorSpace Test", function() {
+    before(function(done) {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            done();
+        });
+    });
+
     it("should refresh", function() {
         let oldFunc = SQLSnippet.Instance.listSnippetsAsync;
         let called = false;
@@ -307,6 +314,7 @@ describe("SQLEditorSpace Test", function() {
 
     it("_getAutoCompleteHint should work", function() {
         let oldFunc = SQLResultSpace.Instance.getAvailableTables;
+        let oldList = DagTabSQLFunc.listFuncs;
         SQLResultSpace.Instance.getAvailableTables = () => {
             return [{
                 name: "A",
@@ -315,10 +323,12 @@ describe("SQLEditorSpace Test", function() {
                 }]
             }];
         };
+        DagTabSQLFunc.listFuncs = () => ["a", "b", "c"];
         let res = SQLEditorSpace.Instance._getAutoCompleteHint();
         expect(res).to.be.an("object");
-        expect(Object.keys(res).length).to.equal(2);
+        expect(Object.keys(res).length).to.equal(5);
         SQLResultSpace.Instance.getAvailableTables = oldFunc;
+        DagTabSQLFunc.listFuncs = oldList;
     });
 
     it("_getAutoCompleteHint should handle error casae", function() {

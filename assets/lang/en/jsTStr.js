@@ -1121,6 +1121,9 @@ DFTStr = {
     "InvalidDFUploadAsSQLFunc": "Cannot upload dataflow as SQL Function, please unselect \"Upload as SQL Function\" option.",
     "PublishedDFDeleted": "Published dataflow deleted",
     "PublishedDFDeletedMsg": "Publisshed dataflow \"<name>\" is deleted by another user, do you want to keep a local copy of it?",
+    "SetupFail": "Dataflow panel setup failure",
+    "SetupFailsMsg": "Dataflow panel is not setup correctly, please try refresh the browser or contact Xcalar for technical support",
+    "NotSetup": "Dataflow panel has not setup yet",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
@@ -1573,7 +1576,8 @@ SQLTStr = {
     "EditAdvanced": "Debug in advanced mode",
     "EditAdvancedInstr": "Debugging dataflow will possibly be based on a different one than what is displayed. Do you want to continue?",
     "NoUntitledSnippet": "Name cannot be \"Untitled \"",
-    "NoDupSnippetName": "Snippet with name the same name already exists, please use Save As to overwrite it."
+    "NoDupSnippetName": "Snippet with name the same name already exists, please use Save As to overwrite it.",
+    "PreviewError": "The corresponding dataflow for sql cannot be previewed",
 };
 
 LoginConfigTStr = {

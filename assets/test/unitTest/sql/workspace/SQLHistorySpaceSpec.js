@@ -1,4 +1,11 @@
 describe("SQLHistorySpace Test", () => {
+    before(function(done) {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            done();
+        });
+    });
+
     it("should be a singleton instance", () => {
         expect(SQLHistorySpace.Instance).to.be.instanceof(SQLHistorySpace);
     });
@@ -50,13 +57,13 @@ describe("SQLHistorySpace Test", () => {
 
     it("should alert error in preview error", (done) => {
         let oldCheck = SQLHistorySpace.Instance._checkDataflowValidation;
-        let oldAlert = Alert.error;
+        let oldAlert = Alert.show;
         let called = 0;
         SQLHistorySpace.Instance._checkDataflowValidation = () => {
             called++;
             throw "error";
         };
-        Alert.error = () => {
+        Alert.show = () => {
             called++;
         };
 
@@ -70,7 +77,7 @@ describe("SQLHistorySpace Test", () => {
         })
         .always(() => {
             SQLHistorySpace.Instance._checkDataflowValidation = oldCheck;
-            Alert.error = oldAlert;
+            Alert.show = oldAlert;
         });
     });
 

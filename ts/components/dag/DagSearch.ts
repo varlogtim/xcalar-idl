@@ -5,13 +5,20 @@ class DagSearch {
         return this._instance || (this._instance = new this());
     }
 
+    private _setup: boolean;
     private _searchHelper: SearchBar;
 
-    private constructor() {}
+    private constructor() {
+        this._setup = false;
+    }
 
     public setup(): void {
+        if (this._setup) {
+            return;
+        }
         this._setupSearchHelper();
         this._addEventListeners();
+        this._setup = true;
     }
 
     public update(): void {

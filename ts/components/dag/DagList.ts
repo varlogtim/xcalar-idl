@@ -9,7 +9,7 @@ class DagList extends Durable {
 
     private _dags: Map<string, DagTab>;
     private _fileLister: FileLister;
-    private _initialized: boolean;
+    private _setup: boolean;
     private _stateOrder = {};
 
     private constructor() {
@@ -26,10 +26,13 @@ class DagList extends Durable {
     }
 
     /**
-     * Sets up the DagList
+     * DagList.Instance.setup
      * @returns {XDPromise<void>}
      */
     public setup(): XDPromise<void> {
+        if (this._setup) {
+            return PromiseHelper.resolve();
+        }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let needReset: boolean = true;
 
@@ -53,12 +56,25 @@ class DagList extends Durable {
         .then(() => {
             this._renderDagList(false);
             this._updateSection();
-            this._initialized = true;
+            this._setup = true;
             deferred.resolve();
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    /**
+     * DagList.Instance.toggleDisable
+     * @param disable
+     */
+    public toggleDisable(disable: boolean): void {
+        let $dagList: JQuery = this._getDagListMenuEl();
+        if (disable) {
+            $dagList.addClass("xc-disabled");
+        } else {
+            $dagList.removeClass("xc-disabled");
+        }
     }
 
     /**
@@ -261,7 +277,7 @@ class DagList extends Durable {
      * @param dagTab The instance of the new dataflow
      */
     public addDag(dagTab: DagTab): boolean {
-        if (!this._initialized) {
+        if (!this._setup) {
             return false;
         }
 
@@ -510,7 +526,7 @@ class DagList extends Durable {
 
     private _initialize(): void {
         this._dags = new Map();
-        this._initialized = false;
+        this._setup = false;
     }
 
     private _getUserDagKVStore(): KVStore {
@@ -656,11 +672,11 @@ class DagList extends Durable {
             const {dagTabs, metaNotMatch} = ret;
             userDagTabs = dagTabs;
             if (this._isHideSQLFolder()) {
-                userDagTabs = userDagTabs.filter((dagTab) => !this._isForSQLFolder(dagTab));
+                userDagTabs = userDagTabs.filter((dagTab) => !this._isForSQLFolder(<DagTab>dagTab));
             }
 
             userDagTabs.forEach((dagTab) => {
-                this._dags.set(dagTab.getId(), dagTab);
+                this._dags.set(dagTab.getId(), <DagTab>dagTab);
             });
             if (metaNotMatch || needReset) {
                 // if not match, commit sycn up dag list
@@ -695,7 +711,7 @@ class DagList extends Durable {
         })
         .then((ret) => {
             const {dagTabs, metaNotMatch} = ret;
-            sqFuncDagTabs = dagTabs;
+            sqFuncDagTabs = <DagTab[]>dagTabs;
             sqFuncDagTabs.forEach((dagTab) => {
                 this._dags.set(dagTab.getId(), dagTab);
             });
@@ -728,7 +744,7 @@ class DagList extends Durable {
                     const oldDag = oldDags.get(dagTab.getId());
                     this._dags.set(oldDag.getId(), oldDag);
                 } else {
-                    this._dags.set(dagTab.getId(), dagTab);
+                    this._dags.set(dagTab.getId(), <DagTab>dagTab);
                 }
             });
             deferred.resolve();
@@ -943,11 +959,19 @@ class DagList extends Durable {
 
     private _updateSection(): void {
         let text: string = `${DFTStr.DFs} (${this._dags.size})`;
-        $("#dagList").find(".numDF").text(text);
+        this._getDagListMenuEl().find(".numDF").text(text);
+    }
+
+    private _getDagListMenuEl(): JQuery {
+        return $("#dagList");
     }
 
     private _getDagListSection(): JQuery {
         return $("#dagListSection");
+    }
+
+    private _getIconSection(): JQuery {
+        return this._getDagListMenuEl().find(".iconSection");
     }
 
     private _getListElById(id: string): JQuery {
@@ -959,7 +983,7 @@ class DagList extends Durable {
     }
 
     private _updateIconSection(path: string): void {
-        const $iconSection: JQuery = $("#dagList .iconSection");
+        const $iconSection: JQuery = this._getIconSection();
         const $btn = $iconSection.find(".clearSQLBtn");
         if (path === "SQL" && !this._isHideSQLFolder()) {
             $btn.removeClass("xc-hidden");
@@ -970,7 +994,7 @@ class DagList extends Durable {
 
     private _addEventListeners(): void {
         const $dagListSection: JQuery = this._getDagListSection();
-        const $iconSection: JQuery = $("#dagList .iconSection");
+        const $iconSection: JQuery = this._getIconSection();
         $iconSection.find(".refreshBtn").click(() => {
             this.refresh();
         });

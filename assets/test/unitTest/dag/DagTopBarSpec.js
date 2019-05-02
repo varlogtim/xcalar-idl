@@ -42,7 +42,22 @@ describe("DagTopBar Test", function() {
         expect($topBar.find(".parameters").length).to.equal(1);
         expect($topBar.find(".aggregates").length).to.equal(1);
         expect($topBar.find(".setting").length).to.equal(1);
-    })
+    });
+
+    it("toggleDisable should work", function() {
+        let $btn = $topBar.find(".topButtons").eq(0);
+        let disabled = $btn.hasClass("xc-disabled");
+
+        $btn.removeClass("xc-disabled");
+        DagTopBar.Instance.toggleDisable(true);
+        expect($btn.hasClass("xc-disabled")).to.be.true;
+        // case 2
+        DagTopBar.Instance.toggleDisable(false);
+        expect($btn.hasClass("xc-disabled")).to.be.false;
+
+        // restore
+        DagTopBar.Instance.toggleDisable(disabled);
+    });
     
     describe("zooming", function() { 
         it("Should disable zooming out button if at or below 25%", function() {

@@ -5,7 +5,7 @@ namespace xcManager {
      * xcManager.setup
      * Sets up most services for XD
      */
-    export function setup(): XDPromise<void> {
+    export function setup(loadAll: boolean = false): XDPromise<void> {
         setupStatus = SetupStatus["Setup"];
         // use promise for better unit test
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -19,6 +19,7 @@ namespace xcManager {
 
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;
+        let isTutorial: boolean = false;
 
         xcTimeHelper.setup()
         .then(() => {
@@ -44,7 +45,6 @@ namespace xcManager {
             setupModals();
             Admin.initialize();
             xcSuggest.setup();
-            DagParamPopup.setup();
             documentReadyGeneralFunction();
 
             // xcrpc default service setup
@@ -88,10 +88,6 @@ namespace xcManager {
             return XDFManager.Instance.setup();
         })
         .then(function() {
-            StatusMessage.updateLocation(false, "Loading Aggregates");
-            return DagAggManager.Instance.setup();
-        })
-        .then(function() {
             setupOpPanels();
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
@@ -105,10 +101,24 @@ namespace xcManager {
             //     }
             // });
             SQLWorkSpace.Instance.setup();
-            StatusMessage.updateLocation(false, "Restoring Dataflows");
-            return setupDagPanel();
+            return isTutorialWorkbook();
         })
-        .then(setupTutorial)
+        .then(function(res) {
+            isTutorial = res;
+            if (isTutorial || loadAll) {
+                // if it's tutorial or loadAll is true
+                // wait for DagPanel setup to finish first
+                return DagPanel.setup();
+            } else {
+                DagPanel.setup(); // async setup
+                return;
+            }
+        })
+        .then(function() {
+            if (isTutorial) {
+                return setupTutorial();
+            }
+        })
         .then(function() {
             let promise = PTblManager.Instance.getTablesAsync();
             return PromiseHelper.alwaysResolve(promise);
@@ -571,43 +581,6 @@ namespace xcManager {
             deferred.resolve();
         });
         return deferred.promise();
-    }
-
-    function setupDagPanel(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTblManager.Instance.setup()
-        .then(() => {
-            DagNode.setup();
-            CommentNode.setup();
-            DagTab.setup();
-            DagTabSQLFunc.setup();
-            DagViewManager.Instance.setup();
-            DagSearch.Instance.setup();
-            return setupDagList();
-        })
-        .then(deferred.resolve)
-        .fail((err) => {
-            console.error("DagPanel Initialize Fail", err);
-            deferred.reject(err);
-        });
-        return deferred.promise();
-    }
-
-    function setupDagList(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagList.Instance.setup()
-        .then(() => {
-            return PromiseHelper.alwaysResolve(DagTabManager.Instance.setup());
-        })
-        .then(() => {
-            deferred.resolve();
-        })
-        .fail((err) => {
-            // TODO: Display error suggesting refresh
-            console.error("DagList Initialize Fail", err);
-            deferred.reject(err);
-        });
-        return deferred;
     }
 
     function setupOpPanels(): void {
@@ -1287,25 +1260,24 @@ namespace xcManager {
         return window.devicePixelRatio > 1;
     }
 
-    function setupTutorial(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    function isTutorialWorkbook(): XDPromise<boolean> {
+        const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
         let key: string = KVStore.getKey("gTutorialKey");
-        let _kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
-        PromiseHelper.alwaysResolve(_kvStore.get())
-        .then(function(tutorialFlag) {
-            if (tutorialFlag == "true") {
-                return processTutorialHelper();
-            } else {
-                return PromiseHelper.resolve();
-            }
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        kvStore.get()
+        .then((tutorialFlag) => {
+            deferred.resolve(tutorialFlag === "true");
         })
-        .then(deferred.resolve)
         .fail((err) => {
             console.error(err);
-            return deferred.resolve();
+            return deferred.resolve(false); // still resolve it
         });
 
         return deferred.promise();
+    }
+
+    function setupTutorial(): XDPromise<void> {
+        return PromiseHelper.alwaysResolve(processTutorialHelper())
     }
 
     function processTutorialHelper(): XDPromise<any> {
@@ -1365,7 +1337,7 @@ namespace xcManager {
                 }
             } catch (e) {
                 console.error(e);
-                return deferred.reject();
+                return PromiseHelper.reject();
             }
 
             let promises = [];
@@ -1379,16 +1351,21 @@ namespace xcManager {
             if (datasetSources.size == 0) {
                 return PromiseHelper.resolve();
             }
-            let dagTabs: DagTab[] = DagTabManager.Instance.getTabs();
-            let graphs: DagGraph[] = dagTabs.map((tab: DagTab) => {
-                return tab.getGraph();
-            });
-            for (let i = 0; i < graphs.length; i++) {
-                let graph = graphs[i];
-                if (graph == null) {
-                    continue;
+            try {
+                let dagTabs: DagTab[] = DagTabManager.Instance.getTabs();
+                let graphs: DagGraph[] = dagTabs.map((tab: DagTab) => {
+                    return tab.getGraph();
+                });
+                for (let i = 0; i < graphs.length; i++) {
+                    let graph = graphs[i];
+                    if (graph == null) {
+                        continue;
+                    }
+                    graph.reConfigureDatasetNodes(datasetSources);
                 }
-                graph.reConfigureDatasetNodes(datasetSources);
+            } catch (e) {
+                console.error(e);
+                return PromiseHelper.reject();
             }
         })
         .then(() => {

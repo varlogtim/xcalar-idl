@@ -8,6 +8,7 @@ class DagViewManager {
     private isSqlPreview = false;
     private activeDagView: DagView;
     private dagViewMap: Map<string, DagView>;
+    private _setup: boolean;
 
     private static _instance: DagViewManager;
 
@@ -15,10 +16,17 @@ class DagViewManager {
         return this._instance || (this._instance = new this());
     }
 
-    constructor() {}
+    private constructor() {
+        this._setup = false;
+    }
 
     public setup(): void {
-        this.$dagView = $("#dagView");
+        if (this._setup) {
+            return;
+        }
+        this._setup = true;
+
+        this.$dagView = this._getDagViewEl();
         this.$dfWrap = this.$dagView.find(".dataflowWrap");
 
         DagView.setup();
@@ -419,6 +427,9 @@ class DagViewManager {
     }
 
     public render($dfArea?: JQuery, graph?: DagGraph, dagTab?: DagTab, noEvents?: boolean) {
+        if (!this._setup) {
+            return;
+        }
         // set activedag here
         $dfArea = $dfArea || this._getActiveArea();
         if ($dfArea.hasClass("rendered")) {
@@ -885,6 +896,9 @@ class DagViewManager {
      * #2 ...
      */
     public cleanupClosedTab(graph?: DagGraph, graphId?: string) {
+        if (!this._setup) {
+            return;
+        }
         if (!graph) {
             const dagView: DagView = this.dagViewMap.get(graphId);
             if (dagView) {
@@ -952,6 +966,10 @@ class DagViewManager {
         this.$dagView.find(".dataflowWrapBackground").on("click", ".newTab", () => {
             this.newTab();
         });
+    }
+
+    private _getDagViewEl(): JQuery {
+        return $("#dagView");
     }
 
     private _addDagViewListeners(): void {

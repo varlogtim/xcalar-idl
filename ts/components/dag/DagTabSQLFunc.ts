@@ -2,8 +2,14 @@ class DagTabSQLFunc extends DagTabUser {
     public static KEY: string = "SQLFunc";
     public static HOMEDIR: string = "SQL Functions";
 
-    public static setup(): void {
-        this.uid = new XcUID(this.KEY);
+    /**
+     * DagTabSQLFunc.generateId
+     */
+    public static generateId(): string {
+        if (this.uid == null || this.uid === DagTab.uid) {
+            this.uid = new XcUID(this.KEY);
+        }
+        return this.uid.gen();
     }
 
     /**

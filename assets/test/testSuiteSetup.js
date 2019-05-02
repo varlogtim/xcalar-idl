@@ -48,7 +48,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         if (toTest) {
             heartBeat();
         }
-        xcManager.setup()
+        xcManager.setup(true)
         .then(function() {
             if (!runTest) {
                 if (!hasUser) {

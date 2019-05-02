@@ -5,6 +5,7 @@ class ParamPopup {
     private $paramPopup: JQuery;
     private $btn: JQuery;
     private static currentInstance: ParamPopup;
+    private static _setup: boolean = false;
 
     private static paramRowLen: number = 5;
     private static paramRowTemplate: HTML = '<div class="row unfilled">' +
@@ -27,6 +28,10 @@ class ParamPopup {
     '</div>';
 
     public static setup() {
+        if (this._setup) {
+            return;
+        }
+        this._setup = true;
         ParamPopup.setupGeneralListeners();
     }
 

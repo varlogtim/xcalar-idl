@@ -27,6 +27,9 @@ class DagTblManager {
     }
 
     public setup(): XDPromise<void> {
+        if (this.configured) {
+            return PromiseHelper.resolve();
+        }
         if (!WorkbookManager.getActiveWKBK()) {
             const thriftError = thriftLog("Setup", "Invalid Session");
             Log.errorLog("Dag Table Manager", null, null, thriftError);
