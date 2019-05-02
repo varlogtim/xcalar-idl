@@ -70,6 +70,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         return monitorConfig.refreshParams(true);
     }
 
+    // XXX move to admin panel
     function setupMonitorConfig() {
         monitorConfig = new MonitorConfig("configCard");
         monitorConfig

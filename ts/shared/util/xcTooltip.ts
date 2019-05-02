@@ -166,10 +166,13 @@ namespace xcTooltip {
     export function changeText(
         $element: JQuery,
         text: string,
-        allowEmpty: boolean = false
+        allowEmpty: boolean = false,
+        noHide: boolean = false
     ): void {
-        if (text != null || allowEmpty) {
-            xcTooltip.hideAll();
+        if (text || allowEmpty) {
+            if (!noHide) {
+                xcTooltip.hideAll();
+            }
             $element.attr("title", "")
                     .attr("data-original-title", text);
         }

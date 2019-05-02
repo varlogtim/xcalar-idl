@@ -975,7 +975,7 @@ namespace xcManager {
                     ModalHelper.repositionModalOnWinResize(modalSpecs,
                                                         windowSpecs);
                 }
-                MonitorLog.adjustTabNumber();
+                Admin.onWinResize();
             }
             resizing = false;
         }

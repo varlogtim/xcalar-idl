@@ -928,11 +928,6 @@ declare namespace JupyterFinalizeModal {
     export function show(tableId: TableId, numRows: number): void;
 }
 
-declare namespace MonitorLog {
-    export function adjustTabNumber(): void;
-    export function setup(): void;
-}
-
 declare namespace Msal {
     export class UserAgentApplication {
         public constructor(clientID: string, authority: any, authCallback: Function, options: object);

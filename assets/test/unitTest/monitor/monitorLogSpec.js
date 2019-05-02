@@ -1,13 +1,19 @@
 describe("MonitorLog Test", function() {
-    var $logCard;
-    var $alertModal;
-    var retHosts;
-    var recentLog;
-    var monitorLog;
-    var unknowError;
+    let $card;
+    let monitorLogCard;
+    let retHosts;
+    let recentLog;
+    let monitorLog;
+    let unknowError;
+
     before(function() {
-        $logCard = $("#monitorLogCard");
-        $alertModal = $("#alertModal");
+        let id = xcHelper.randName("test");
+        $card = $("#monitorLogCard").clone();
+        $card.attr("id", id);
+        $("#container").append($card);
+        monitorLogCard = new MonitorLog(id);
+        monitorLogCard._clearAll();
+
         retHosts = {
             matchHosts: ["testHost1", "testHost2", "testHost3"],
             matchNodeIds: ["0", "1", "2"]
@@ -36,206 +42,449 @@ describe("MonitorLog Test", function() {
         };
         unknowError = {logs: "unknown error"};
     });
-    describe("Basic API Test", function() {
-        it("monitorLogCard should show", function() {
-            $("#setupButton").click();
-            expect($logCard.is(":visible")).to.equal(true);
-        });
-        // it("adjustTabNumber", function() {
-        //     MonitorLog.adjustTabNumber();
 
-        // })
+    it("should be the correct instance", function() {
+        expect(monitorLogCard).to.be.an.instanceof(MonitorLog);
     });
-    describe("Get recent logs Test", function() {
-        before(function() {
-            if (!Admin.isAdmin()) {
-                MonitorLog.setup();
-            }
+
+    it("adjustTabNumber should work", function() {
+        let oldFunc = monitorLogCard._tabAreaPositionCheck;
+        monitorLogCard._tabAreaPositionCheck = () => {
+            return {canLeft: false};
+        };
+
+        let $tab = $('<div class="tab"></div>');
+        $card.append($tab);
+        $card.find(".leftEnd").removeClass("xc-disabled");
+        monitorLogCard.adjustTabNumber();
+        expect($card.find(".leftEnd").hasClass("xc-disabled")).to.be.true;
+
+        monitorLogCard._tabAreaPositionCheck = oldFunc;
+        $tab.remove();
+    });
+
+    it("_addTabs should work", function() {
+        monitorLogCard._clearAll();
+        expect($card.find(".tab").length).to.equal(0);
+
+        monitorLogCard._hosts = {"test1": 1, "test0": 0}
+        monitorLogCard._addTabs();
+        expect($card.find(".tab").length).to.equal(2);
+
+        monitorLogCard._clearAll();
+    });
+
+    it("_closeTab should work", function() {
+        monitorLogCard._hosts = {"test1": 1, "test0": 0}
+        monitorLogCard._addTabs();
+
+        monitorLogCard._closeTab($card.find(".tab").eq(0));
+        expect($card.find(".tab").length).to.equal(1);
+
+        monitorLogCard._clearAll();
+    });
+
+    it("_clearLogs should work", function() {
+        monitorLogCard._logs["test"] = "test";
+        monitorLogCard._clearLogs();
+        expect(monitorLogCard._logs["test"]).to.equal("");
+    });
+
+    it("_getHost should work", function(done) {
+        let oldFunc = adminTools.getMatchHosts;
+        adminTools.getMatchHosts = function() {
+            return PromiseHelper.resolve({
+                matchHosts: ["testHost"],
+                matchNodeIds: [0]
+            });
+        };
+        monitorLogCard._getHost()
+        .then(function() {
+            expect(monitorLogCard._hosts).to.have.property("testHost");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            monitorLogCard._hosts = {};
+            adminTools.getMatchHosts = oldFunc;
+        });
+    });
+
+    it("_getHost should reject non host case", function(done) {
+        let oldFunc = adminTools.getMatchHosts;
+        adminTools.getMatchHosts = function() {
+            return PromiseHelper.resolve({
+                matchHosts: [],
+                matchNodeIds: []
+            });
+        };
+        monitorLogCard._getHost()
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(error.logs).to.equal(MonitorTStr.GetHostsFail);
+            done();
+        })
+        .always(function() {
+            monitorLogCard._hosts = {};
+            adminTools.getMatchHosts = oldFunc;
+        });
+    });
+
+    it("_getHost should handle fail case", function(done) {
+        let oldFunc = adminTools.getMatchHosts;
+        adminTools.getMatchHosts = function() {
+            return PromiseHelper.reject("test");
+        };
+        monitorLogCard._hosts = {"test": {}};
+        monitorLogCard._getHost()
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(monitorLogCard._hosts).to.be.empty;
+            expect(error).to.equal("test");
+            done();
+        })
+        .always(function() {
+            monitorLogCard._hosts = {};
+            adminTools.getMatchHosts = oldFunc;
+        });
+    });
+
+    it("_validate should work", function() {
+        let $inputSection = monitorLogCard._getInputSection();
+        let $fileName = $inputSection.find(".logName .xc-input");
+        let $lastNRow = $inputSection.find(".lastRow .xc-input");
+        // case 1
+        $fileName.val("");
+        let res = monitorLogCard._validate();
+        expect(res).to.equal(null);
+        // case 2
+        $fileName.val("test");
+        $lastNRow.val("");
+        res = monitorLogCard._validate();
+        expect(res).to.equal(null);
+        // case 3
+        $lastNRow.val("-1");
+        res = monitorLogCard._validate();
+        expect(res).to.equal(null);
+        // case 4
+        $lastNRow.val("502");
+        res = monitorLogCard._validate();
+        expect(res).to.equal(null);
+        // case 5
+        $lastNRow.val("100");
+        res = monitorLogCard._validate();
+        expect(res).to.deep.equal({
+            lastNRow: 100,
+            fileName: "test"
         });
 
-        it("getHost should work", function(done) {
-            var oldFunc = adminTools.getMatchHosts;
-            adminTools.getMatchHosts = function() {
-                var ret = {
-                    matchHosts: ["testHost"],
-                    matchNodeIds: [0]
-                };
-                return PromiseHelper.deferred().resolve(ret).promise();
-            };
-            MonitorLog.__testOnly__.getHost()
+        $fileName.val("");
+        $lastNRow.val("");
+        StatusBox.forceHide();
+    });
+
+    it("_flushLog should work", function(done) {
+        let oldFunc = XcalarLogLevelSet;
+        let called = false;
+        XcalarLogLevelSet = () => {
+            called = true;
+            return PromiseHelper.resolve();
+        };
+        monitorLogCard._flushLog()
+        .then(function() {
+            expect(called).to.equal(true);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            XcalarLogLevelSet = oldFunc;
+        });
+    });
+
+    describe("_getRecentLogs test", function() {
+        let oldFlush;
+        let oldGetHost;
+        let oldGetLogs;
+        let oldValidate;
+
+        before(function() {
+            oldFlush = monitorLogCard._flushLog;
+            oldGetHost = monitorLogCard._getHost;
+            oldValidate = monitorLogCard._validate;
+            oldGetLogs = adminTools.getRecentLogs;
+
+            monitorLogCard._flushLog =
+            monitorLogCard._getHost = () => PromiseHelper.resolve();
+            monitorLogCard._hosts = {"testHost1": 0}
+        });
+
+        it("should reject invalid case", function(done) {
+            monitorLogCard._validate = () => null;
+            monitorLogCard._getRecentLogs()
             .then(function() {
-                expect(MonitorLog.__testOnly__.getThisHosts()).to.have.property("testHost");
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.undefined;
+                done();
+            });
+        });
+
+        it("_getRecentLogs should work", function(done) {
+            monitorLogCard._validate = () => {
+                return {};
+            };
+
+            adminTools.getRecentLogs = function() {
+                return PromiseHelper.resolve(recentLog);
+            };
+
+            let oldFunc = xcUIHelper.showSuccess;
+            let called = false;
+            xcUIHelper.showSuccess = () => { called = true; };
+            monitorLogCard._getRecentLogs()
+            .then(function() {
+                expect(called).to.be.true;
+                done();
             })
             .fail(function() {
                 done("fail");
             })
             .always(function() {
-                adminTools.getMatchHosts = oldFunc;
+                xcUIHelper.showSuccess = oldFunc;
+            });
+        });
+
+        it("_getRecentLogs should fail but show logs is has", function(done) {
+            monitorLogCard._validate = () => {
+                return {};
+            };
+
+            adminTools.getRecentLogs = function() {
+                return PromiseHelper.reject({
+                    results: {}
+                });
+            };
+
+            let oldFunc = xcUIHelper.showSuccess;
+            let called = false;
+            xcUIHelper.showSuccess = () => { called = true; };
+            monitorLogCard._getRecentLogs()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(called).to.be.true;
+                done();
+            })
+            .always(function() {
+                xcUIHelper.showSuccess = oldFunc;
+            });
+        });
+
+        it("_getRecentLogs should fail in error case", function(done) {
+            monitorLogCard._validate = () => {
+                return {};
+            };
+
+            adminTools.getRecentLogs = function() {
+                return PromiseHelper.reject(unknowError);
+            };
+
+            let oldFunc = Alert.error;
+            let called = false;
+            Alert.error = () => { called = true; };
+            monitorLogCard._getRecentLogs()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(called).to.be.true;
+                done();
+            })
+            .always(function() {
+                Alert.error = oldFunc;
+            });
+        });
+
+        after(function() {
+            monitorLogCard._flushLog = oldFlush;
+            monitorLogCard._getHost = oldGetHost;
+            monitorLogCard._validate = oldValidate;
+            adminTools.getRecentLogs = oldGetLogs;
+
+            monitorLogCard._clearAll();
+        });
+    });
+
+    describe("_startMonitorLog test", function() {
+        let oldFlush;
+        let oldGetHost;
+        let oldValidate;
+        let oldMonitorLogs;
+
+        before(function() {
+            oldFlush = monitorLogCard._flushLog;
+            oldGetHost = monitorLogCard._getHost;
+            oldValidate = monitorLogCard._validateFileName;
+            oldMonitorLogs = adminTools.monitorLogs;
+
+            monitorLogCard._flushLog =
+            monitorLogCard._getHost = () => PromiseHelper.resolve();
+            monitorLogCard._hosts = {"testHost1": 0}
+        });
+
+        it("should reject invalid case", function(done) {
+            monitorLogCard._validateFileName = () => null;
+            monitorLogCard._startMonitorLog()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.undefined;
                 done();
             });
         });
 
-        it("getRecentLogs should fail when getMatchHosts rejects", function() {
-            $logCard.find(".inputSection .lastRow .xc-input").val(1);
-            var oldFunc = adminTools.getMatchHosts;
-            var oldFlush = XcalarLogLevelSet;
-            XcalarLogLevelSet = function() {
-                return PromiseHelper.resolve();
+        it("_startMonitorLog should work", function(done) {
+            monitorLogCard._validateFileName = () => {
+                return {};
             };
-            adminTools.getMatchHosts = function() {
-                return PromiseHelper.deferred().reject(unknowError).promise();
-            };
-            $logCard.find(".getRecentLogs").click();
-            expect($("#alertContent").is(":visible")).to.equal(true);
-            adminTools.getMatchHosts = oldFunc;
-            XcalarLogLevelSet = oldFlush;
+
+            let called = false;
+            adminTools.monitorLogs = () => { called = true; };
+
+            monitorLogCard._startMonitorLog()
+            .then(function() {
+                expect(called).to.be.true;
+                expect(monitorLogCard._flushIntervalId).to.be.a("number");
+                monitorLogCard._stopMonitorLog();
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
-        it("getRecentLogs should work", function() {
-            $logCard.find(".inputSection .lastRow .xc-input").val(1);
-            var oldFlush = XcalarLogLevelSet;
-            var oldFunc1 = adminTools.getMatchHosts;
-            var oldFunc2 = adminTools.getRecentLogs;
-            XcalarLogLevelSet = function() {
-                return PromiseHelper.resolve();
+        it("_startMonitorLog should fail", function(done) {
+            monitorLogCard._validate = () => {
+                return {};
             };
 
-            adminTools.getMatchHosts = function() {
-                return PromiseHelper.deferred().resolve(retHosts).promise();
-            };
-            adminTools.getRecentLogs = function() {
-                return PromiseHelper.deferred().resolve(recentLog).promise();
-            };
+            let testError = {logs: "test"};
+            monitorLogCard._flushLog = () => PromiseHelper.reject(testError);
 
-            var keyEvent = $.Event("keydown", {which: keyCode.Enter});
-            $logCard.find(".lastRow .xc-input").trigger(keyEvent);
-            expect($logCard.find(".msgRow").text()).to.include("success");
-
-            adminTools.getMatchHosts = oldFunc1;
-            adminTools.getRecentLogs = oldFunc2;
-            XcalarLogLevelSet = oldFlush;
-        });
-    });
-
-    describe("Monitor logs Test", function() {
-        it("startMonitorLog should fail when returns unknown error", function() {
-            var oldFlush = XcalarLogLevelSet;
-            var oldFunc1 = adminTools.getMatchHosts;
-            var oldFunc2 = adminTools.getRecentLogs;
-            XcalarLogLevelSet = function() {
-                return PromiseHelper.resolve();
-            };
-
-            adminTools.getMatchHosts = function() {
-                return PromiseHelper.deferred().resolve(retHosts).promise();
-            };
-            adminTools.monitorLogs = function(filePath, fileName, hosts,
-                                                errCallback) {
-                errCallback(unknowError);
-            };
-
-            $logCard.find(".startStream").click();
-            expect($logCard.find(".streamBtns").hasClass("streaming")).to.equal(false);
-
-            adminTools.getMatchHosts = oldFunc1;
-            adminTools.monitorLogs = oldFunc2;
-            XcalarLogLevelSet = oldFlush;
+            let oldFunc = Alert.error;
+            let called = false;
+            Alert.error = () => { called = true; };
+            monitorLogCard._getRecentLogs()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(err) {
+                expect(called).to.be.true;
+                expect(err).to.equal(testError);
+                expect(monitorLogCard._flushIntervalId).to.be.null;
+                done();
+            })
+            .always(function() {
+                Alert.error = oldFunc;
+            });
         });
 
-        it("startMonitorLog should fail when getMatchHosts has error", function() {
-            var oldFunc = adminTools.getMatchHosts;
-            var oldFlush = XcalarLogLevelSet;
-            XcalarLogLevelSet = function() {
-                return PromiseHelper.resolve();
-            };
-            adminTools.getMatchHosts = function() {
-                return PromiseHelper.deferred().reject(unknowError).promise();
-            };
+        after(function() {
+            monitorLogCard._flushLog = oldFlush;
+            monitorLogCard._getHost = oldGetHost;
+            monitorLogCard._validateFileName = oldValidate;
+            adminTools.monitorLogs = oldMonitorLogs;
 
-            $logCard.find(".startStream").click();
-            expect($logCard.find(".streamBtns").hasClass("streaming")).to.equal(false);
-
-            adminTools.getMatchHosts = oldFunc;
-            XcalarLogLevelSet = oldFlush;
-        });
-
-        it("startMonitorLog should work", function() {
-            for (var i = 4; i < 30; i++) {
-                var hostname = "testHost" + i;
-                monitorLog.results[hostname] = {};
-                retHosts.matchHosts.push(hostname);
-                retHosts.matchNodeIds.push(i - 1);
-            }
-            var oldFunc1 = adminTools.getMatchHosts;
-            var oldFunc2 = adminTools.monitorLogs;
-            var oldFlush = XcalarLogLevelSet;
-            XcalarLogLevelSet = function() {
-                return PromiseHelper.resolve();
-            };
-            adminTools.getMatchHosts = function() {
-                return PromiseHelper.deferred().resolve(retHosts).promise();
-            };
-            adminTools.monitorLogs = function(filePath, fileName, hosts,
-                                                errCallback, successCallback) {
-                successCallback(monitorLog);
-            };
-
-            $logCard.find(".startStream").click();
-            expect($logCard.find(".msgRow").text()).to.include("success");
-            var logs = MonitorLog.__testOnly__.getThisLogs();
-            expect(logs["testHost2"]).to.include("error");
-
-            adminTools.getMatchHosts = oldFunc1;
-            adminTools.monitorLogs = oldFunc2;
-            XcalarLogLevelSet = oldFlush;
-        });
-
-        it("appendResultToFocusTab should work", function() {
-            var resSucc = {testHost1: {status: 200, logs: "success"}};
-            var resFail = {testHost1: {status: 500, error: "error"}};
-            var resNone = {testHost1: {}};
-            MonitorLog.__testOnly__.appendResultToFocusTab(resSucc);
-            MonitorLog.__testOnly__.appendResultToFocusTab(resFail);
-            MonitorLog.__testOnly__.appendResultToFocusTab(resNone);
-            expect($logCard.find(".msgRow").text()).to.include("success");
-            expect($logCard.find(".msgRow").text()).to.include("error");
-            expect($logCard.find(".msgRow").text()).to.include(MonitorTStr.GetLogsFail);
-        });
-
-        it("stopMonitorLog should work", function() {
-            $logCard.find(".stopStream").click();
-            expect($logCard.find(".streamBtns").hasClass("streaming")).to.equal(false);
+            monitorLogCard._clearAll();
         });
     });
 
-    describe("Cleanup and other UI behaviors Test", function() {
-        it("adjustTabNumber should work", function() {
-            MonitorLog.adjustTabNumber();
-            expect($logCard.find(".rightEnd").hasClass("xc-disabled")).to.equal(false);
-        });
-        it("focuseTab should work", function() {
-            $logCard.find("#1").click();
-            expect($logCard.find("#1").hasClass("focus")).to.equal(true);
-        });
-        it("scrollToRight should work", function() {
-            $logCard.find(".rightEnd").click();
-            expect($logCard.find(".tabArea").css("left")).to.include("-");
-        });
-        it("scrollToLeft should work", function() {
-            $logCard.find(".leftEnd").click();
-            expect($logCard.find(".tabArea").css("left")).to.equal("0px");
-        });
-        it("clearLogs should work", function() {
-            $logCard.find(".msgRow").text("success");
-            $logCard.find(".clear").click();
-            expect($logCard.find(".content").html()).to.be.empty;
-        });
-        it("closeTab should work", function() {
-            $logCard.find(".tabClose .icon").click();
-            expect(MonitorLog.__testOnly__.getThisHosts()).to.be.empty;
-        });
+    it("_onMonitorError should work", function() {
+        monitorLogCard._hosts = {
+            "testHost1": 0,
+            "testHost2": 1,
+            "testHost3": 2
+        };
+        monitorLogCard._logs = {
+            "testHost1": "",
+            "testHost2": "",
+            "testHost3": ""
+        };
+        monitorLogCard._onMonitorError(monitorLog);
+        expect($card.find(".tab").length).equal(3);
+        monitorLogCard._clearAll();
     });
+
+    it("_onMonitorError should work case2", function() {
+        let oldAlert = Alert.error;
+        let called = false;
+        Alert.error = () => { called = true; };
+        monitorLogCard._onMonitorError({"logs": "test"});
+        expect(called).equal(true);
+        Alert.error = oldAlert;
+    });
+
+    it("_onMonitorSuccess should work", function() {
+        monitorLogCard._hosts = {
+            "testHost1": 0,
+            "testHost2": 1,
+            "testHost3": 2
+        };
+        monitorLogCard._logs = {
+            "testHost1": "",
+            "testHost2": "",
+            "testHost3": ""
+        };
+        monitorLogCard._onMonitorSuccess(monitorLog);
+        expect($card.find(".tab").length).equal(3);
+        monitorLogCard._clearAll();
+    });
+
+    it("_appendResultToFocusTab should work", function() {
+        monitorLogCard._hosts = {
+            "testHost1": 0
+        };
+        monitorLogCard._logs = {
+            "testHost1": ""
+        };
+
+        let $tab = $('<div class="tab focus" data-original-title="testHost1"></div>')
+        $card.append($tab);
+        monitorLogCard._appendResultToFocusTab(monitorLog.results);
+        expect($card.find(".msgRow").length).equal(1);
+        expect($card.find(".msgRow.error").length).equal(0);
+        $tab.remove();
+        monitorLogCard._clearAll();
+    });
+
+    it("_appendResultToFocusTab should work case 2", function() {
+        monitorLogCard._hosts = {
+            "testHost2": 0
+        };
+        monitorLogCard._logs = {
+            "testHost2": ""
+        };
+
+        let $tab = $('<div class="tab focus" data-original-title="testHost2"></div>')
+        $card.append($tab);
+        monitorLogCard._appendResultToFocusTab(monitorLog.results);
+        expect($card.find(".msgRow.error").length).equal(1);
+        $tab.remove();
+        monitorLogCard._clearAll();
+    });
+
     after(function() {
-        $alertModal.find(".cancel").click();
+        $card.remove();
     });
 });
