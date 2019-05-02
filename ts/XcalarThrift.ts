@@ -3285,7 +3285,7 @@ XcalarQueryList = function(namePattern) {
     return (deferred.promise());
 };
 
-XcalarQueryList = function(namePattern: string): XDPromise<Xcrpc.QueryService.QueryInfo[]> {
+XcalarQueryList = function(namePattern: string): XDPromise<Xcrpc.Query.QueryInfo[]> {
     return PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
                                               .getQueryService()
                                               .list({namePattern:namePattern}));

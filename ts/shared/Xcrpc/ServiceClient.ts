@@ -1,27 +1,26 @@
-namespace Xcrpc {
-    import ApiClient = xce.XceClient;
+import { XceClient as ApiClient } from 'xcalar';
+import { KVStoreService } from './KVStore/KVStoreService';
+import { LicenseService } from './License/LicenseService';
+import { QueryService } from './Query/QueryService';
 
-    export class ServiceClient {
-        private _apiClient: ApiClient;
+class ServiceClient {
+    private _apiClient: ApiClient;
 
-        constructor(endpoint: string) {
-            this._apiClient = new ApiClient(endpoint);
-        }
+    constructor(endpoint: string) {
+        this._apiClient = new ApiClient(endpoint);
+    }
 
-        public getKVStoreService(): KVStoreService {
-            return new Xcrpc.KVStoreService(this._apiClient);
-        }
+    public getKVStoreService(): KVStoreService {
+        return new KVStoreService(this._apiClient);
+    }
 
-        public getLicenseService(): LicenseService {
-            return new Xcrpc.LicenseService(this._apiClient);
-        }
+    public getLicenseService(): LicenseService {
+        return new LicenseService(this._apiClient);
+    }
 
-        public getQueryService(): QueryService {
-            return new Xcrpc.QueryService(this._apiClient);
-        }
+    public getQueryService(): QueryService {
+        return new QueryService(this._apiClient);
     }
 }
 
-if (typeof exports !== 'undefined') {
-    exports.ServiceClient = Xcrpc.ServiceClient;
-}
+export { ServiceClient };

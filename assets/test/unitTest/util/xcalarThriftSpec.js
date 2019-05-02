@@ -109,10 +109,10 @@ describe("XcalarThrift Test", function() {
     });
 
     it("XcalarGetLicense should handle xcalar error", function(done) {
-        var oldApiCall = xce.LicenseService.prototype.get;
+        const oldApiCall = Xcrpc.License.LicenseService.prototype.getLicense;
         var errorMsg = {"xcalarStatus": 1, "log": "1234"};
-        xce.LicenseService.prototype.get = function() {
-            return PromiseHelper.reject(errorMsg);
+        Xcrpc.License.LicenseService.prototype.getLicense = async function() {
+            throw { type: Xcrpc.ErrorType.SERVICE, error: errorMsg };
         };
         XcalarGetLicense()
         .then(function() {
@@ -123,15 +123,15 @@ describe("XcalarThrift Test", function() {
             done();
         })
         .always(function() {
-            xce.LicenseService.prototype.get = oldApiCall;
+            Xcrpc.License.LicenseService.prototype.getLicense = oldApiCall;
         });
     });
 
     it("XcalarGetLicense should handle error by proxy", function(done) {
-        var oldApiCall = xce.LicenseService.prototype.get;
+        const oldApiCall = Xcrpc.License.LicenseService.prototype.getLicense;
         var errorMsg = {"httpStatus": 500};
-        xce.LicenseService.prototype.get = function() {
-            return PromiseHelper.reject(errorMsg);
+        Xcrpc.License.LicenseService.prototype.getLicense = async function() {
+            throw { type: Xcrpc.ErrorType.SERVICE, error: errorMsg };
         };
         XcalarGetLicense()
         .then(function() {
@@ -142,7 +142,7 @@ describe("XcalarThrift Test", function() {
             done();
         })
         .always(function() {
-            xce.LicenseService.prototype.get = oldApiCall;
+            Xcrpc.License.LicenseService.prototype.getLicense = oldApiCall;
         });
     });
 
@@ -192,11 +192,11 @@ describe("XcalarThrift Test", function() {
     });
 
     it("XcalarUpdateLicense should handle xcalar error", function(done) {
-        var oldApiCall = xce.LicenseService.prototype.update;
+        const oldApiCall = Xcrpc.License.LicenseService.prototype.updateLicense;
         var errorMsg = {"xcalarStatus": 1, "log": "1234"};
-        xce.LicenseService.prototype.update = function() {
-            return PromiseHelper.reject(errorMsg);
-        };
+        Xcrpc.License.LicenseService.prototype.updateLicense = async function() {
+            throw { type: Xcrpc.ErrorType.SERVICE, error: errorMsg};
+        }
         XcalarUpdateLicense()
         .then(function() {
             done("fail");
@@ -206,16 +206,16 @@ describe("XcalarThrift Test", function() {
             done();
         })
         .always(function() {
-            xce.LicenseService.prototype.update = oldApiCall;
+            Xcrpc.License.LicenseService.prototype.updateLicense = oldApiCall;
         });
     });
 
     it("XcalarUpdateLicense should handle error by proxy", function(done) {
-        var oldApiCall = xce.LicenseService.prototype.update;
+        const oldApiCall = Xcrpc.License.LicenseService.prototype.updateLicense;
         var errorMsg = {"httpStatus": 500};
-        xce.LicenseService.prototype.update = function() {
-            return PromiseHelper.reject(errorMsg);
-        };
+        Xcrpc.License.LicenseService.prototype.updateLicense = async function() {
+            throw { type: Xcrpc.ErrorType.SERVICE, error: errorMsg};
+        }
         XcalarUpdateLicense()
         .then(function() {
             done("fail");
@@ -225,7 +225,7 @@ describe("XcalarThrift Test", function() {
             done();
         })
         .always(function() {
-            xce.LicenseService.prototype.update = oldApiCall;
+            Xcrpc.License.LicenseService.prototype.updateLicense = oldApiCall;
         });
     });
 

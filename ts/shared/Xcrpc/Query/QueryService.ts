@@ -5,68 +5,66 @@
 // 1. xcrpc JS client returns JQuery promise, which can be converted to native promise by PromiseHelper.convertToNative()
 //
 // 2. The code invoking Xcrpc may expect JQuery promise, so use PromiseHelper.convertToJQuery() as needed.
-namespace Xcrpc {
-    import ApiQuery = xce.QueryService;
-    import ApiClient = xce.XceClient;
-    import ProtoTypes = proto.xcalar.compute.localtypes;
-    import ServiceError = Xcrpc.ServiceError;
+// import ApiQuery = xce.QueryService;
+// import ApiClient = xce.XceClient;
+// import ProtoTypes = proto.xcalar.compute.localtypes;
+// import ServiceError = Xcrpc.ServiceError;
 
-    export class QueryService {
-        private _apiClient: ApiClient;
+import { QueryService as ApiQuery, XceClient as ApiClient } from 'xcalar';
+import { ServiceError, ErrorType } from '../ServiceError';
+import ProtoTypes = proto.xcalar.compute.localtypes;
 
-        constructor(apiClient: ApiClient) {
-            this._apiClient = apiClient;
-        }
+class QueryService {
+    private _apiClient: ApiClient;
 
-        /**
-         * Get an array of queryInfos which include name, timeElapsed, and state
-         * @param param
-         * @description
-         * This function returns native promise!
-         * Use PromiseHelper.
-         */
-        public async list(param: {
-            namePattern: string
-        }): Promise<QueryService.QueryInfo[]> {
-            try {
-                // Deconstruct arguments
-                const { namePattern } = param;
+    constructor(apiClient: ApiClient) {
+        this._apiClient = apiClient;
+    }
 
-                // Step #1: Construct xcrpc service input
-                const request = new ProtoTypes.Query.ListRequest();
-                request.setNamePattern(namePattern);
+    /**
+     * Get an array of queryInfos which include name, timeElapsed, and state
+     * @param param
+     * @description
+     * This function returns native promise!
+     * Use PromiseHelper.
+     */
+    public async list(param: {
+        namePattern: string
+    }): Promise<QueryInfo[]> {
+        try {
+            // Deconstruct arguments
+            const { namePattern } = param;
 
-                // Step #2: Call xcrpc service
-                const queryService = new ApiQuery(this._apiClient);
-                const response = await queryService.list(request);
+            // Step #1: Construct xcrpc service input
+            const request = new ProtoTypes.Query.ListRequest();
+            request.setNamePattern(namePattern);
 
-                // Step #3: Parse xcrpc service response
-                return response.getQueriesList().map((queryInfo) => {
-                    return {
-                        name: queryInfo.getName(),
-                        millisecondsElapsed: queryInfo.getMillisecondsElapsed(),
-                        state: queryInfo.getState()
-                    };
-                });
-            } catch (e) {
-                // XXX TODO: API error handling
-                const error: ServiceError = {
-                    type: ServiceError.ErrorType.SERVICE, error: e
+            // Step #2: Call xcrpc service
+            const queryService = new ApiQuery(this._apiClient);
+            const response = await queryService.list(request);
+
+            // Step #3: Parse xcrpc service response
+            return response.getQueriesList().map((queryInfo) => {
+                return {
+                    name: queryInfo.getName(),
+                    millisecondsElapsed: queryInfo.getMillisecondsElapsed(),
+                    state: queryInfo.getState()
                 };
-                throw error;
-            }
-        }
-    }
-
-    export namespace QueryService {
-        export type QueryInfo = {
-            name: string,
-            millisecondsElapsed: number,
-            state: string
+            });
+        } catch (e) {
+            // XXX TODO: API error handling
+            const error: ServiceError = {
+                type: ErrorType.SERVICE, error: e
+            };
+            throw error;
         }
     }
 }
 
-if (typeof exports !== 'undefined') {
-    exports.QueryService = Xcrpc.QueryService;
+type QueryInfo = {
+    name: string,
+    millisecondsElapsed: number,
+    state: string
 }
+
+export { QueryService, QueryInfo };
