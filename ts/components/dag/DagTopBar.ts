@@ -124,16 +124,12 @@ class DagTopBar {
 
         $topBar.find(".zoomIn").click(function() {
             DagViewManager.Instance.zoom(true);
-            let percent = DagViewManager.Instance.getActiveDag().getScale() * 100;
-            $("#dagViewBar .zoomPercent input").val(percent);
-            self._checkZoom();
+            self._updateZoom();
         });
 
         $topBar.find(".zoomOut").click(function() {
             DagViewManager.Instance.zoom(false);
-            let percent = DagViewManager.Instance.getActiveDag().getScale() * 100;
-            $("#dagViewBar .zoomPercent input").val(percent);
-            self._checkZoom();
+            self._updateZoom();
         });
 
         $topBar.find(".zoomPercent").on('keyup', function(e) {
@@ -156,13 +152,26 @@ class DagTopBar {
         });
     }
 
+    private _updateZoom(): void {
+        let dagTab = DagViewManager.Instance.getActiveDag();
+        if (dagTab != null) {
+            let percent = dagTab.getScale() * 100;
+            $("#dagViewBar .zoomPercent input").val(percent);
+            this._checkZoom();
+        }
+    }
+
     private _checkZoom(): void {
         let $topBar = this._getTopBar();
         const $zoomIn = $topBar.find(".zoomIn");
         const $zoomOut = $topBar.find(".zoomOut");
         $zoomIn.removeClass("disabled");
         $zoomOut.removeClass("disabled");
-        const scale = DagViewManager.Instance.getActiveDag().getScale();
+        let dagTab = DagViewManager.Instance.getActiveDag();
+        if (dagTab == null) {
+            return;
+        }
+        const scale = dagTab.getScale();
         let scaleIndex = DagView.zoomLevels.indexOf(scale);
         if (scaleIndex == -1) {
             if (scale < DagView.zoomLevels[0]) {

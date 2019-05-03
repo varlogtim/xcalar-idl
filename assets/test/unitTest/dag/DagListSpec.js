@@ -70,6 +70,45 @@ describe('DagList Test', function() {
         });
     });
 
+    it("_loadErroHandler should work", function() {
+        let oldGetList = DagList.Instance._getListElById;
+        let oldShow = StatusBox.show;
+        let $list = $('<div>' +
+                        '<div class="gridIcon"></div>' +
+                        '<div class="xc-action"></div>' +
+                    '</div>');
+        DagList.Instance._getListElById = () => $list;
+
+        let called = false;
+        StatusBox.show = () => { called = true; };
+
+        let dagTab = new DagTabUser();
+        DagList.Instance._loadErroHandler(dagTab, false);
+        expect($list.find(".xc-action").hasClass("xc-disabled")).to.be.true;
+        expect($list.find(".gridIcon").hasClass("error")).to.be.true;
+        expect(called).to.be.true;
+
+        DagList.Instance._getListElById = oldGetList;
+        StatusBox.show = oldShow;
+    });
+
+    it("_togglLoadState should work", function() {
+        let oldGetList = DagList.Instance._getListElById;
+        let $list = $('<div>' +
+                        '<div class="name"></div>' +
+                    '</div>');
+        DagList.Instance._getListElById = () => $list;
+
+        let dagTab = new DagTabUser();
+        DagList.Instance._togglLoadState(dagTab, true);
+        expect($list.find(".loadingSection").length).to.equal(1);
+
+        DagList.Instance._togglLoadState(dagTab, false);
+        expect($list.find(".loadingSection").length).to.equal(0);
+
+        DagList.Instance._getListElById = oldGetList;
+    });
+
     after(function() {
         XcalarKeyPut = oldPut;
         UnitTest.offMinMode();

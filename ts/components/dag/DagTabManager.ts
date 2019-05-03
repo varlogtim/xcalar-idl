@@ -9,16 +9,21 @@ class DagTabManager {
 
     private _activeUserDags: DagTab[];
     private _cachedSQLDags: {[key: string]: DagTabUser};
-    private _dagKVStore: KVStore;
     private _tabListScroller: ListScroller;
-    private _subTabs: Map<string, string> = new Map(); // subTabId => parentTabId
+    private _subTabs: Map<string, string>; // subTabId => parentTabId
     private _activeTab: DagTab;
     private _sqlPreviewTab: DagTab;
+    private _hiddenDags: Map<string, DagTab>; // used to store undone tabs
+    private _event: XcEvent;
     private _setup: boolean;
-    private _hiddenDags: Map<string, DagTab> = new Map(); // used to store undone tabs
 
     private constructor() {
-        this._initialize();
+        this._activeUserDags = [];
+        this._cachedSQLDags = {};
+        this._subTabs = new Map();
+        this._hiddenDags = new Map();
+        this._event = new XcEvent();
+        this._setup = false;
     }
 
     /**
@@ -38,6 +43,11 @@ class DagTabManager {
 
         this._addEventListeners();
         return this._getManagerDataAsync();
+    }
+
+    public on(event: string, callback: Function): DagTabManager {
+        this._event.addEventListener(event, callback);
+        return this;
     }
 
     /**
@@ -350,7 +360,8 @@ class DagTabManager {
         if (dagTab instanceof DagTabPublished) {
             DagSharedActionService.Instance.queueRegister(dagTab);
         }
-        dagTab.load(reset)
+
+        this._loadOneTab(dagTab, reset)
         .then(() => {
             this._addDagTab(dagTab);
             this._switchTabs();
@@ -369,7 +380,7 @@ class DagTabManager {
         if (dagTab instanceof DagTabPublished) {
             DagSharedActionService.Instance.queueRegister(dagTab);
         }
-        const promise = dagTab.load();
+        const promise = this._loadOneTab(dagTab, false);
         promise
         .then(() => {
             if (dagTab instanceof DagTabPublished) {
@@ -454,22 +465,14 @@ class DagTabManager {
         });
     }
 
-    private _initialize(): void {
+    private _getKVStore(): KVStore {
         let key: string = KVStore.getKey("gDagManagerKey");
-        this._dagKVStore = new KVStore(key, gKVScope.WKBK);
-        this._activeUserDags = [];
-        this._cachedSQLDags = {};
-        this._subTabs = new Map();
+        return new KVStore(key, gKVScope.WKBK);
     }
-
-
-    // private _clear(): void {
-    //     this._getTabArea().empty();
-    // }
 
     private _save(): XDPromise<void> {
         let jsonStr: string = JSON.stringify(this._getJSON());
-        return this._dagKVStore.put(jsonStr, true, true);
+        return this._getKVStore().put(jsonStr, true, true);
     }
 
     private _getJSON(): {dagKeys: string[]} {
@@ -493,7 +496,7 @@ class DagTabManager {
             return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._dagKVStore.getAndParse()
+        this._getKVStore().getAndParse()
         .then((managerData) => {
             if (managerData == null) {
                 this.reset();
@@ -518,6 +521,28 @@ class DagTabManager {
         return deferred.promise();
     }
 
+    private _loadOneTab(
+        dagTab: DagTab,
+        reset: boolean,
+        noAlert: boolean = false
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._event.dispatchEvent("beforeLoad", dagTab);
+        dagTab.load(reset)
+        .then(()=> {
+            deferred.resolve();
+        })
+        .fail((error) => {
+            this._event.dispatchEvent("loadFail", dagTab, noAlert);
+            deferred.reject(error);
+        })
+        .always(() => {
+            this._event.dispatchEvent("afterLoad", dagTab);
+        });
+
+        return deferred.promise();
+    }
+
     // always resolves so that chain doesn't end early
     private _loadDagTabHelper(id: string): XDPromise<void> {
         const dagTab: DagTab = DagList.Instance.getDagTabById(id);
@@ -526,19 +551,20 @@ class DagTabManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        dagTab.load()
+        this._loadOneTab(dagTab, false, true)
         .then(()=> {
             this._addDagTab(dagTab, null, true);
             if (this.getTabByIndex(0) === dagTab) {
                 // if it's the first tab
                 this._switchTabs(0);
+                this._event.dispatchEvent("afterFirstTabLoad");
             }
             deferred.resolve();
         })
         .fail(() => {
-            // still resolve it
-            deferred.resolve();
+            deferred.resolve(); // still resolve it
         });
+
         return deferred.promise();
     }
 
@@ -551,7 +577,6 @@ class DagTabManager {
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises)
         .always(() => {
-            DagList.Instance.updateList();
             if (this.getNumTabs() === 0) {
                 this.reset();
             }

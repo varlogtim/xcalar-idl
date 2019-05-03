@@ -657,12 +657,49 @@ class DagList extends Durable {
         return `<i class="${type} ${icon} icon xc-action" ${tooltip}></i>`;
     }
 
-    private _loadErroHandler($dagListItem: JQuery): void {
-        const icon: HTML = this._iconHTML("error", "gridIcon xi-critical", DFTStr.LoadErr);
-        $dagListItem.find(".xc-action:not(.deleteDataflow)").addClass("xc-disabled"); // disable all icons
-        $dagListItem.find(".gridIcon").remove();
-        $dagListItem.prepend(icon);
-        StatusBox.show(DFTStr.LoadErr, $dagListItem);
+    private _togglLoadState(dagTab: DagTab, isLoading: boolean): void {
+        try {
+            let tabId = dagTab.getId();
+            let $dagListItem = this._getListElById(tabId);
+            if (isLoading) {
+                this._addLoadingStateOnList($dagListItem);
+            } else {
+                this._removeLoadingStateOnList($dagListItem);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    private _addLoadingStateOnList($dagListItem: JQuery): void {
+        xcUIHelper.disableElement($dagListItem);
+        if ($dagListItem.find(".loadingSection").length === 0) {
+            let html: HTML = xcUIHelper.getLoadingSectionHTML("Loading", "loadingSection");
+            $dagListItem.find(".name").append(html);
+        }
+    }
+
+    private _removeLoadingStateOnList($dagListItem: JQuery): void {
+        $dagListItem.find(".loadingSection").remove();
+        xcUIHelper.enableElement($dagListItem);
+    }
+
+    private _loadErroHandler(dagTab: DagTab, noAlert: boolean): void {
+        try {
+            let tabId = dagTab.getId();
+            let $dagListItem = this._getListElById(tabId);
+            let icon: HTML = this._iconHTML("error", "gridIcon xi-critical", DFTStr.LoadErr);
+            $dagListItem.find(".xc-action:not(.deleteDataflow)").addClass("xc-disabled"); // disable all icons
+            $dagListItem.find(".gridIcon").remove();
+            let $icon = $(icon);
+            $icon.removeClass("xc-action");
+            $dagListItem.prepend($icon);
+            if (!noAlert) {
+                StatusBox.show(DFTStr.LoadErr, $dagListItem);
+            }
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     private _restoreLocalDags(needReset: boolean): XDPromise<void> {
@@ -1032,14 +1069,7 @@ class DagList extends Durable {
                 return;
             }
             const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
-            xcUIHelper.disableElement($dagListItem);
-            DagTabManager.Instance.loadTab(dagTab)
-            .fail(() => {
-                this._loadErroHandler($dagListItem);
-            })
-            .always(() => {
-                xcUIHelper.enableElement($dagListItem);
-            });
+            DagTabManager.Instance.loadTab(dagTab);
         });
 
         $dagListSection.on("click", ".deleteDataflow", (event) => {
@@ -1102,6 +1132,17 @@ class DagList extends Durable {
             }
             const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
             DFDownloadModal.Instance.show(dagTab);
+        });
+
+        DagTabManager.Instance
+        .on("beforeLoad", (dagTab: DagTab) => {
+            this._togglLoadState(dagTab, true);
+        })
+        .on("afterLoad", (dagTab: DagTab) => {
+            this._togglLoadState(dagTab, false);
+        })
+        .on("loadFail", (dagTab: DagTab, noAlert: boolean) => {
+            this._loadErroHandler(dagTab, noAlert);
         });
     }
 

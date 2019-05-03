@@ -6,6 +6,14 @@ namespace DagPanel {
      */
     export function setup(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let hasAfterLoadCalled: boolean = false;
+
+        _beforeLoad();
+        DagTabManager.Instance.on("afterFirstTabLoad", () => {
+            // when the first tab loaded, can go into afterLoad State
+            hasAfterLoadCalled = true;
+            _afterLoad();
+        });
 
         _basicSetup()
         .then(() => {
@@ -24,6 +32,9 @@ namespace DagPanel {
         })
         .always(() => {
             _setup = true;
+            if (!hasAfterLoadCalled) {
+                _afterLoad();
+            }
         });
 
         return deferred.promise();
@@ -38,14 +49,13 @@ namespace DagPanel {
 
     function _basicSetup(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        _beforeBasicSetup();
 
         DagParamPopup.setup();
-        _updateSetupStatus("Loading Aggregates");
+        _updateSetupStatus("Initializing Aggregates");
 
         DagAggManager.Instance.setup()
         .then(() => {
-            _updateSetupStatus("Restoring Dataflows");
+            _updateSetupStatus("Initializing Dataflows");
             return DagTblManager.Instance.setup();
         })
         .then(() => {
@@ -54,10 +64,7 @@ namespace DagPanel {
             return DagList.Instance.setup();
         })
         .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(() => {
-            _afterBasicSetup();
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -74,14 +81,14 @@ namespace DagPanel {
         return _getDagViewEl().find(".loadingSection");
     }
 
-    function _beforeBasicSetup(): void {
+    function _beforeLoad(): void {
         DagList.Instance.toggleDisable(true);
         DagTopBar.Instance.toggleDisable(true);
         DagTabManager.Instance.toggleDisable(true);
         _getDagViewEl().append(_generateLoadingSection());
     }
 
-    function _afterBasicSetup(): void {
+    function _afterLoad(): void {
         DagList.Instance.toggleDisable(false);
         DagTopBar.Instance.toggleDisable(false);
         DagTabManager.Instance.toggleDisable(false);
@@ -93,17 +100,7 @@ namespace DagPanel {
     }
 
     function _generateLoadingSection(): HTML {
-        let html: HTML =
-        '<div class="loadingSection">' +
-            '<div class="animatedEllipsisWrapper">' +
-                '<div class="text"></div>' +
-                '<div class="animatedEllipsis staticEllipsis">' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
-                    '<div>.</div>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
+        let html: HTML = xcUIHelper.getLoadingSectionHTML("", "loadingSection");
         return html;
     }
 

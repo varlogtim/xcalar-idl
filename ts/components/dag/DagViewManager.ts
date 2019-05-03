@@ -514,6 +514,9 @@ class DagViewManager {
      * // if no nodeIds passed in then it will execute all the nodes
      */
     public run(nodeIds?: DagNodeId[], optimized?: boolean): XDPromise<void> {
+        if (this.activeDagView == null) {
+            return PromiseHelper.reject();
+        }
         return this.activeDagView.run(nodeIds, optimized);
     }
 
@@ -739,7 +742,9 @@ class DagViewManager {
      * cancel entire run or execution
      */
     public cancel() {
-        this.activeDagView.cancel();
+        if (this.activeDagView != null) {
+            this.activeDagView.cancel();
+        }
     }
 
     public highlightLineage(nodeId: DagNodeId, childNodeId?: DagNodeId, type?: string): void {
@@ -854,14 +859,16 @@ class DagViewManager {
      * 5. adjust scrollbar
      */
     public zoom(isZoomIn: boolean, newScale?: number): void {
-        this.activeDagView.zoom(isZoomIn, newScale);
+        if (this.activeDagView != null) {
+            this.activeDagView.zoom(isZoomIn, newScale);
+        }
     }
 
     /**
      * Check if modification to graph/nodes should be disabled, Ex. it's showing the subGraph of a customNode
      */
     public isDisableActions(): boolean {
-        return this.activeDagView.isDisableActions();
+        return this.activeDagView == null || this.activeDagView.isDisableActions();
     }
 
     public isViewOnly(): boolean {

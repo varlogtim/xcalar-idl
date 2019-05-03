@@ -1089,6 +1089,29 @@ namespace xcUIHelper {
     export function sortHTML(a: string, b: string): number {
         return ($(b).text()) < ($(a).text()) ? 1 : -1;
     }
+
+    /**
+     * xcUIHelper.getLoadingSectionHTML
+     * @param text
+     */
+    export function getLoadingSectionHTML(
+        text: string,
+        sectionClass: string
+    ): HTML {
+        sectionClass = sectionClass || "";
+        let html: HTML =
+        '<div class="' + sectionClass + '">' +
+            '<div class="animatedEllipsisWrapper">' +
+                '<div class="text">' + text + '</div>' +
+                '<div class="animatedEllipsis staticEllipsis">' +
+                    '<div>.</div>' +
+                    '<div>.</div>' +
+                    '<div>.</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+        return html;
+    }
 }
 if (typeof exports !== "undefined") {
     exports.xcUIHelper = xcUIHelper;

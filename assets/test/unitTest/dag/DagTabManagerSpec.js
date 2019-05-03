@@ -1,4 +1,11 @@
 describe("DagTabManager Test", () => {
+    before(function(done) {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            done();
+        });
+    });
+
     describe("undo a new tab", () => {
         let numTabs;
         let newTabId;
@@ -63,5 +70,17 @@ describe("DagTabManager Test", () => {
                 done("fail");
             });
         });
+    });
+
+    it("should register event", function() {
+        let called = false;
+        DagTabManager.Instance.on("test", function() {
+            called = true;
+        });
+
+        expect(DagTabManager.Instance._event._events.hasOwnProperty("test")).to.be.true;
+        DagTabManager.Instance._event.dispatchEvent("test");
+        expect(called).to.be.true;
+        delete DagTabManager.Instance._event._events["test"];
     });
 });

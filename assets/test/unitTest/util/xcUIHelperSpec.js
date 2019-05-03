@@ -476,18 +476,24 @@ describe("xcUIHelper Test", function() {
     it("xcUIHelper.sortHTML should work", function() {
         var a = '<div>a</div>';
         var b = '<div>b</div>';
-        expect(xcHelper.sortHTML(a, b)).to.equal(-1);
-        expect(xcHelper.sortHTML(b, a)).to.equal(1);
+        expect(xcUIHelper.sortHTML(a, b)).to.equal(-1);
+        expect(xcUIHelper.sortHTML(b, a)).to.equal(1);
 
         // XXX case 2, it's actually weird
         a = '<div>c</div>';
         b = '<div>c</div>';
-        expect(xcHelper.sortHTML(a, b)).to.equal(-1);
+        expect(xcUIHelper.sortHTML(a, b)).to.equal(-1);
     });
 
     it("xcUIHelper.enableMenuItem should work", function() {
         var $li = $('<li class="unavailable"></li>');
         xcUIHelper.enableMenuItem($li);
         expect($li.hasClass('unavailable')).to.be.false;
+    });
+
+    it("xcUIHelper.getLoadingSectionHTML should work", function() {
+        let html = xcUIHelper.getLoadingSectionHTML("test", "test2");
+        expect(html).to.contains("test");
+        expect(html).to.contains("test2");
     });
 });
