@@ -497,7 +497,7 @@ module.exports = {
         "searchUser": "Search users",
         "logFolder": "Log Folder:",
         "logName": "Log Name:",
-        "lastNRow": "Get recent logs:",
+        "lastNRow": "Get Recent Logs:",
         "hostnamePattern": "Hostname Pattern:",
         "downloadLog": "Download Log",
         "copyLog": "Copy Log"
