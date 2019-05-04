@@ -391,8 +391,8 @@ class DragHelper {
         if (deltaX >= this.padding && deltaY >= this.padding) {
             this.dragContainerItemsPositions.forEach(pos => {
                 coors.push({
-                    x: (deltaX / this.scale) + pos.x,
-                    y: (deltaY / this.scale) + pos.y
+                    x: Math.round((deltaX / this.scale) + pos.x),
+                    y: Math.round((deltaY / this.scale) + pos.y)
                 });
             });
         }
