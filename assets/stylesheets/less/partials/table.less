@@ -492,6 +492,12 @@ html.edge {
         display: none;
     }
 
+    &.resizingCol {
+        .tableScrollBar {
+            display: none;
+        }
+    }
+
     &.checkingColDrag {
         .tableScrollBar {
             opacity: 1;
@@ -890,6 +896,8 @@ html.edge {
             pointer-events: initial;
         }
     }
+
+
 }
 
 #container.columnPicker {

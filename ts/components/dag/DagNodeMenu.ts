@@ -167,10 +167,10 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.disconnectNodes(parentNodeId, nodeId, connectorIndex, tabId);
                     break;
                 case ("copyNodes"):
-                    document.execCommand("copy");
+                    DagViewManager.Instance.triggerCopy();
                     break;
                 case ("cutNodes"):
-                    document.execCommand("cut");
+                    DagViewManager.Instance.triggerCut();
                     break;
                 case ("pasteNodes"):
                     _showPasteAlert();

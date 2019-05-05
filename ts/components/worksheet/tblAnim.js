@@ -68,6 +68,7 @@ window.TblAnim = (function($, TblAnim) {
             }
 
             $table.addClass('resizingCol');
+            $table.closest(".xcTableWrap").addClass("resizingCol");
             $('.xcTheadWrap').find('.dropdownBox')
                             .addClass('dropdownBoxHidden');
 
@@ -115,6 +116,7 @@ window.TblAnim = (function($, TblAnim) {
         rescol.table.closest('.xcTableWrap').find('.rowGrab')
                                             .width(rescol.table.width());
         rescol.table.removeClass('resizingCol');
+        rescol.table.closest(".xcTableWrap").removeClass("resizingCol");
         $('.tooltip').remove();
         if (!isDatastore) {
             var table = gTables[rescol.tableId];

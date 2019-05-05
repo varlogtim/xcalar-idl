@@ -565,6 +565,7 @@ namespace MainMenu {
             } else {
                 _checkMenuAnimFinish()
                 .then(function() {
+                    TblFunc.moveFirstColumn();
                     DagCategoryBar.Instance.showOrHideArrows();
                 });
             }
@@ -600,6 +601,7 @@ namespace MainMenu {
             } else {
                 _checkMenuAnimFinish()
                 .then(function() {
+                    TblFunc.moveFirstColumn();
                     DagCategoryBar.Instance.showOrHideArrows();
                 });
             }
