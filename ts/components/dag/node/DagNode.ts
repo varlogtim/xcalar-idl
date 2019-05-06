@@ -516,18 +516,21 @@ abstract class DagNode extends Durable {
     }
 
     /**
-     * Generate JSON representing this node(w/o ids), for use in copying a node
+     * Generate JSON representing this node, for use in copying a node
      * @param clearState used when copying table to remove table reference
      * and ensure copy does't have a running or complete state
      */
     public getNodeCopyInfo(
         clearState: boolean = false,
         includeStats: boolean = false,
-        includeTitle: boolean = true
+        includeTitle: boolean = true,
+        forCopy: boolean = false
     ): DagNodeCopyInfo {
         const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents(includeStats);
-        nodeInfo.nodeId = nodeInfo.id;
-        delete nodeInfo.id;
+        if (!forCopy) {
+            nodeInfo.nodeId = nodeInfo.id;
+            delete nodeInfo.id;
+        }
         if (clearState) {
             delete nodeInfo.table;
             if (nodeInfo.state === DagNodeState.Complete ||

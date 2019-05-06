@@ -907,13 +907,13 @@ describe("DagView Test", () => {
             expect(copy[0].type).to.equal("filter");
             expect(copy[0].display.x).to.equal(20);
             expect(copy[0].display.y).to.equal(20);
-            expect(copy[0].nodeId.length).to.be.gt(10);
+            expect(copy[0].id.length).to.be.gt(10);
             expect(copy[0].parents.length).to.equal(0);
 
             expect(copy[1].type).to.equal("dataset");
             expect(copy[1].display.x).to.equal(220);
             expect(copy[1].display.y).to.equal(240);
-            expect(copy[1].nodeId.length).to.be.gt(10);
+            expect(copy[1].id.length).to.be.gt(10);
             expect(copy[1].parents.length).to.equal(0);
         });
 
@@ -925,14 +925,14 @@ describe("DagView Test", () => {
             expect(copy[0].type).to.equal("filter");
             expect(copy[0].display.x).to.equal(20);
             expect(copy[0].display.y).to.equal(20);
-            expect(copy[0].nodeId.length).to.be.gt(10);
+            expect(copy[0].id.length).to.be.gt(10);
             expect(copy[0].parents.length).to.equal(1);
             expect(copy[0].parents[0]).to.equal(node2.getId());
 
             expect(copy[1].type).to.equal("dataset");
             expect(copy[1].display.x).to.equal(220);
             expect(copy[1].display.y).to.equal(240);
-            expect(copy[1].nodeId.length).to.be.gt(10);
+            expect(copy[1].id.length).to.be.gt(10);
             expect(copy[1].parents.length).to.equal(0);
         });
 
@@ -943,7 +943,7 @@ describe("DagView Test", () => {
             expect(copy[0].type).to.equal("filter");
             expect(copy[0].display.x).to.equal(20);
             expect(copy[0].display.y).to.equal(20);
-            expect(copy[0].nodeId.length).to.be.gt(10);
+            expect(copy[0].id.length).to.be.gt(10);
             expect(copy[0].parents.length).to.equal(0);
         });
 
@@ -957,14 +957,14 @@ describe("DagView Test", () => {
             expect(copy[0].type).to.equal("filter");
             expect(copy[0].display.x).to.equal(20);
             expect(copy[0].display.y).to.equal(20);
-            expect(copy[0].nodeId.length).to.be.gt(10);
+            expect(copy[0].id.length).to.be.gt(10);
             expect(copy[0].parents.length).to.equal(1);
             expect(copy[0].parents[0]).to.equal(node2.getId());
 
             expect(copy[1].type).to.equal("dataset");
             expect(copy[1].display.x).to.equal(220);
             expect(copy[1].display.y).to.equal(240);
-            expect(copy[1].nodeId.length).to.be.gt(10);
+            expect(copy[1].id.length).to.be.gt(10);
             expect(copy[1].parents.length).to.equal(0);
         });
 

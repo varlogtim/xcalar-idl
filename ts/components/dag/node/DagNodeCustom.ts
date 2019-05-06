@@ -628,8 +628,13 @@ class DagNodeCustom extends DagNode {
      * @override
      * Generate JSON representing this node(w/o ids), for use in copying a node
      */
-    public getNodeCopyInfo(): DagNodeCustomInfo {
-        const copyInfo = <DagNodeCustomInfo>super.getNodeCopyInfo();
+    public getNodeCopyInfo(
+        clearState: boolean = false,
+        includeStats: boolean = false,
+        includeTitle: boolean = true,
+        forCopy: boolean = false
+    ): DagNodeCustomInfo {
+        const copyInfo = <DagNodeCustomInfo>super.getNodeCopyInfo(clearState, includeStats, includeTitle, forCopy);
         copyInfo.subGraph = this._subGraph.getGraphCopyInfo();
         return copyInfo;
     }

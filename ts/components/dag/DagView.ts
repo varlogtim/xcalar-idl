@@ -1000,6 +1000,12 @@ class DagView {
         try {
             let isSQLFunc = (this.dagTab instanceof DagTabSQLFunc);
             nodeInfos.forEach((nodeInfo) => {
+                if (nodeInfo.id) {
+                    // replace id with nodeId so node doesn't get created
+                    // with that id and cause duplicates
+                    nodeInfo.nodeId = nodeInfo.id;
+                    delete nodeInfo.id;
+                }
                 nodeInfo = xcHelper.deepCopy(nodeInfo);
                 nodeInfo.display.x += xDelta;
                 nodeInfo.display.y += yDelta;
@@ -1236,7 +1242,8 @@ class DagView {
         }
         return JSON.stringify(this._createNodeInfos(nodeIds, null, {
             clearState: true,
-            includeTitle: false
+            includeTitle: false,
+            forCopy: true
         }), null, 4);
     }
 
@@ -1258,7 +1265,8 @@ class DagView {
 
         const nodesStr = JSON.stringify(this._createNodeInfos(nodeIds, null, {
             clearState: true,
-            includeTitle: false
+            includeTitle: false,
+            forCopy: true
         }), null, 4);
         this.removeNodes(nodeIds);
         return nodesStr;
@@ -3678,7 +3686,8 @@ class DagView {
         options: {
             clearState?: boolean // true if we're copying nodes
             includeStats?: boolean,
-            includeTitle?: boolean // indicates we're doing a cut/copy and paste
+            includeTitle?: boolean, // indicates we're doing a cut/copy and paste
+            forCopy?: boolean
         } = {}
     ): any[] {
         graph = graph || this.graph;
@@ -3686,6 +3695,7 @@ class DagView {
         const clearState: boolean = options.clearState || false;
         const includeStats: boolean = options.includeStats || false;
         const includeTitle: boolean = (options.includeTitle == null) ? true : options.includeTitle;
+        const forCopy: boolean = options.forCopy || false;
         let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
             if (!nodeId.startsWith("comment")) {
@@ -3718,7 +3728,7 @@ class DagView {
                     }
                 }
 
-                const nodeInfo = node.getNodeCopyInfo(clearState, includeStats, includeTitle);
+                const nodeInfo = node.getNodeCopyInfo(clearState, includeStats, includeTitle, forCopy);
                 nodeInfo.parents = parentIds;
                 nodeInfos.push(nodeInfo);
             } else if (nodeId.startsWith("comment")) {
