@@ -27,8 +27,9 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var tableUsage = 0;
     var hasTableUsageChange = true;
     var lastTableUsageTime = 0; // when greater than 10s, ok to fetch new data
+    var _monitorDonuts;
 
-    MonitorGraph.setup = function() {
+    MonitorGraph.setup = function(monitorDonuts) {
         $('#graph').on('click', '.area', function() {
             var $area = $(this);
             var $line = $(this).prev();
@@ -42,6 +43,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             // move graphs in front of others
             $('#graph .mainSvg').children().append($line, $area);
         });
+        _monitorDonuts = monitorDonuts;
     };
 
     MonitorGraph.start = function() {
@@ -174,7 +176,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             }
             var allStats = processNodeStats(apiTopResult, tableUsage, numNodes);
             updateGraph(allStats, numNodes);
-            MonitorDonuts.update(allStats);
+            _monitorDonuts.update(allStats);
             failCount = 0;
             toggleErrorScreen();
             MemoryAlert.Instance.detectUsage(apiTopResult);
@@ -264,14 +266,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
     }
 
     function processNodeStats(apiTopResult, tableUsage, numNodes) {
-        var StatsObj = function() {
-            this.used = 0;
-            this.total = 0;
-            this.nodes = [];
-            return this;
-        };
-
-
         var mem = new StatsObj();
         var swap = new StatsObj();
         var usrCpu = new StatsObj();

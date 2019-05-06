@@ -19,9 +19,9 @@ namespace xcHelper {
     }
 
     export interface SizeTranslatorOption {
-        base2: boolean;
-        base3: boolean;
-        space: boolean;
+        base2?: boolean;
+        base3?: boolean;
+        space?: boolean;
     }
 
     export interface ValidateObj {

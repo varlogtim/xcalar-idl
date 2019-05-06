@@ -2,12 +2,13 @@
 window.MonitorPanel = (function($, MonitorPanel) {
     var graphIsActive = false;
     var $monitorPanel;
-    var monitorConfig
+    var monitorConfig;
+    var monitorDonuts;
 
     MonitorPanel.setup = function() {
         $monitorPanel = $("#monitor-system");
-        MonitorGraph.setup();
-        MonitorDonuts.setup();
+        monitorDonuts = new MonitorDonuts("monitor-donuts");
+        MonitorGraph.setup(monitorDonuts);
         QueryManager.setup();
         setupMonitorConfig();
 
@@ -69,6 +70,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
     MonitorPanel.refreshParams = function() {
         return monitorConfig.refreshParams(true);
     }
+
+    MonitorPanel.getDounts = function() {
+        return monitorDonuts;
+    };
 
     // XXX move to admin panel
     function setupMonitorConfig() {
