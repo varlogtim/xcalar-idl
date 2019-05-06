@@ -52,7 +52,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     PromiseHelper.when = function() {
         var numProm = arguments.length;
         if (numProm === 0) {
-            return PromiseHelper.resolve([]);
+            return PromiseHelper.resolve(null);
         }
         var mainDeferred = jQuery.Deferred();
 
@@ -78,9 +78,9 @@ PromiseHelper = (function(PromiseHelper, $) {
                         console.log("All done!");
                     }
                     if (hasFailures) {
-                        mainDeferred.reject.call($, returns);
+                        mainDeferred.reject.apply($, returns);
                     } else {
-                        mainDeferred.resolve.call($, returns);
+                        mainDeferred.resolve.apply($, returns);
                     }
                 }
             }, function(ret) {
@@ -90,7 +90,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 hasFailures = true;
                 if (numDone === numProm) {
                     console.log("All done!");
-                    mainDeferred.reject.call($, returns);
+                    mainDeferred.reject.apply($, returns);
                 }
 
             });
@@ -2261,62 +2261,6 @@ window.Function.prototype.bind = function() {
                 test.fail(StatusTStr[status]);
             }
         });
-    }
-
-    function testAddExportTarget(test) {
-        var target = new ExExportTargetT();
-        target.hdr = new ExExportTargetHdrT();
-        target.hdr.name = "Mgmtd Export Target";
-        target.hdr.type = ExTargetTypeT.ExTargetSFType;
-        target.specificInput = new ExAddTargetSpecificInputT();
-        target.specificInput.sfInput = new ExAddTargetSFInputT();
-        target.specificInput.sfInput.url = "/tmp/mgmtdTest";
-
-        xcalarAddExportTarget(thriftHandle, target)
-        .done(function(status) {
-            printResult(status);
-            test.pass();
-        })
-        .fail(function(reason) {
-            // Don't fail if this test has been run before
-            if (reason.xcalarStatus !== StatusT.StatusExTargetAlreadyExists) {
-                test.fail(StatusTStr[reason.xcalarStatus]);
-            } else {
-                test.pass();
-            }
-        });
-    }
-
-    function testRemoveExportTarget(test) {
-        var target = new ExExportTargetT();
-        target.hdr = new ExExportTargetHdrT();
-        target.hdr.name = "Mgmtd Export Target";
-        target.hdr.type = ExTargetTypeT.ExTargetSFType;
-        target.specificInput = new ExAddTargetSpecificInputT();
-        target.specificInput.sfInput = new ExAddTargetSFInputT();
-        target.specificInput.sfInput.url = "/tmp/mgmtdTest";
-
-        // testAddExportTarget might not be run, so add manually here
-        xcalarAddExportTarget(thriftHandle, target)
-        .fail(function(reason) {
-            // Don't fail if this test has been run before
-            if (reason.xcalarStatus != StatusT.StatusExTargetAlreadyExists) {
-                test.fail(StatusTStr[reason.xcalarStatus]);
-            }
-        }).always(function() {
-            xcalarRemoveExportTarget(thriftHandle, target.hdr)
-            .then(function(result) {
-                printResult(result.xcalarStatus);
-                test.pass();
-            })
-            .fail(function(result) {
-                test.fail(StatusTStr[result.xcalarStatus]);
-            });
-        });
-    }
-
-    function testListExportTargets(test) {
-        test.trivial(xcalarListExportTargets(thriftHandle, "*", "*"));
     }
 
     function testExportCSV(test) {
@@ -4559,9 +4503,6 @@ window.Function.prototype.bind = function() {
     addTestCase(testFreeResultSetAggregate, "result set free of aggregate", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMap, "map", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testAddExportTarget, "add export target", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testRemoveExportTarget, "remove export target", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testListExportTargets, "list export targets", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testDriver, "test driver operations", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportCSV, "export csv", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportCancel, "export cancel", defaultTimeout, TestCaseDisabled, "");

@@ -646,7 +646,7 @@ StatusT = {
   'StatusUpgradeRequired' : 637,
   'StatusUdfNotSupportedInCrossJoins' : 638,
   'StatusRetinaNameInvalid' : 639,
-  'StatusNoSerDesPath' : 640,
+  'StatusNoDemandPagingPath' : 640,
   'StatusEvalInvalidToken' : 641,
   'StatusXdfInvalidArrayInput' : 642,
   'StatusBufCacheThickAllocFailed' : 643,
@@ -683,7 +683,9 @@ StatusT = {
   'StatusLegacyTargetNotFound' : 674,
   'StatusDfpError' : 675,
   'StatusCgroupInProgress' : 676,
-  'StatusConfigChangeInProgress' : 677
+  'StatusConfigChangeInProgress' : 677,
+  'StatusKvInvalidKey' : 678,
+  'StatusKvInvalidValue' : 679
 };
 StatusTStr = {
   0 : 'Success',
@@ -1363,7 +1365,9 @@ StatusTStr = {
   674 : 'Legacy target is not found',
   675 : 'Decimal floating point (DFP/Numeric) error',
   676 : 'Cgroup App already in progress',
-  677 : 'Configuration change already in progress'
+  677 : 'Configuration change already in progress',
+  678 : 'Invalid KvStore key',
+  679 : 'Invalid KvStore value'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2043,5 +2047,7 @@ StatusTFromStr = {
   'Legacy target is not found' : 674,
   'Decimal floating point (DFP/Numeric) error' : 675,
   'Cgroup App already in progress' : 676,
-  'Configuration change already in progress' : 677
+  'Configuration change already in progress' : 677,
+  'Invalid KvStore key' : 678,
+  'Invalid KvStore value' : 679
 };

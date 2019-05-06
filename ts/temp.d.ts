@@ -832,6 +832,7 @@ declare var XcalarOrderingTFromStr: any;
 declare namespace XcalarEvalArgTypeT {
     export var OptionalArg: number;
     export var VariableArg: number;
+    export var UdfArg: number;
 }
 /* ============== CLASSES ====================== */
 declare class XcStorage {
