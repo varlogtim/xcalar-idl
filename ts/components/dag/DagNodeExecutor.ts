@@ -694,7 +694,6 @@ class DagNodeExecutor {
                 let tables = destTables || [];
                 destTable = tables[tables.length - 1];
                return XIApi.query(this.txId, destTable, queryStr);
-
             })
             .then(() => {
                 deferred.resolve(destTable);
@@ -709,8 +708,12 @@ class DagNodeExecutor {
                 });
             });
         } else {
+            const txLog = Transaction.get(this.txId);
+            txLog.setParentNodeId(node.getId());
+
             node.getSubGraph().execute(null, optimized, this.txId)
             .then(() => {
+                txLog.setParentNodeId(null);
                 try {
                     // Always get the first output node, as we only support on output for now
                     deferred.resolve(node.getOutputNodes()[0].getTable());
@@ -720,9 +723,9 @@ class DagNodeExecutor {
                 }
             })
             .fail((error) => {
+                txLog.setParentNodeId(null);
                 deferred.reject(error);
             });
-
         }
 
         return deferred.promise();
@@ -983,10 +986,14 @@ class DagNodeExecutor {
         });
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
         let tableName: string = params.pubTableName;
+
+        const txLog = Transaction.get(this.txId);
+        txLog.setCurrentNodeId(node.getId());
         XIApi.publishTable(this.txId, params.primaryKeys,
             this._getParentNodeTable(0), tableName,
             colInfo, params.operator)
         .then(() => {
+            txLog.setCurrentNodeId(null);
             if (!(typeof PTblManager === "undefined")) {
                 return PTblManager.Instance.addTable(tableName);
             }
@@ -994,26 +1001,41 @@ class DagNodeExecutor {
         .then(() => {
             deferred.resolve();
         })
-        .fail(deferred.reject)
+        .fail((err) => {
+            txLog.setCurrentNodeId(null);
+            deferred.reject(err);
+        });
         return deferred.promise();
     }
 
     private _updateIMD(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeUpdateIMD = <DagNodeUpdateIMD>this.node;
         const params: DagNodeUpdateIMDInputStruct = node.getParam(this.replaceParam);
         let columns: ProgCol[] = node.getParents().map((parentNode) => {
             return parentNode.getLineage().getColumns();
         })[0] || [];
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
-        return XIApi.updatePubTable(this.txId, this._getParentNodeTable(0),
-            params.pubTableName, colInfo, params.operator);
+        const txLog = Transaction.get(this.txId);
+        txLog.setCurrentNodeId(node.getId());
+        XIApi.updatePubTable(this.txId, this._getParentNodeTable(0),
+            params.pubTableName, colInfo, params.operator)
+        .then((res) => {
+            txLog.setCurrentNodeId(null);
+            deferred.resolve(res);
+        })
+        .fail((err) => {
+            txLog.setCurrentNodeId(null);
+            deferred.reject(err);
+        });
+        return deferred.promise();
     }
 
     private _extension(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeExtension = <DagNodeExtension>this.node;
         let finalTable: string
-
+        const txLog = Transaction.get(this.txId);
         node.getQuery()
         .then((ret) => {
             const {resTable, query} = ret;
@@ -1022,12 +1044,17 @@ class DagNodeExecutor {
                 // when the extension doesn't generate query
                 return PromiseHelper.resolve();
             }
+            txLog.setCurrentNodeId(node.getId());
             return XIApi.query(this.txId, finalTable, query);
         })
         .then(() => {
+            txLog.setCurrentNodeId(null);
             deferred.resolve(finalTable);
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            txLog.setCurrentNodeId(null);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -1245,7 +1272,6 @@ class DagNodeExecutor {
 
             finalQueryStr = JSON.stringify(queryNodes);
             node.setXcQueryString(finalQueryStr);
-            // XXX end of keepAllColumns join hack
 
             node.getSubGraph().startExecution(queryNodes, null);
             // Might need to make it configurable
@@ -1261,7 +1287,7 @@ class DagNodeExecutor {
 
             return XIApi.query(self.txId, queryId, finalQueryStr, options);
         })
-        .then(function(res) {
+        .then(function(_res) {
             node.getSQLQuery().columns = node.getColumns();
             node.updateSQLQueryHistory();
             deferred.resolve(newDestTableName);

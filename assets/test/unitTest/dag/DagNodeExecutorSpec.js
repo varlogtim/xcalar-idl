@@ -1,5 +1,15 @@
 describe("DagNodeExecutor Test", () => {
     const txId = 1;
+    let cachedTransactionGet;
+    before(function(){
+        cachedTransactionGet = Transaction.get;
+        Transaction.get = () => {
+            return {
+                setCurrentNodeId: ()=>{},
+                setParentNodeId: ()=>{},
+            }
+        }
+    });
     let createNode = (type, tableName, subType) => {
         return DagNodeFactory.create({
             type: type || DagNodeType.Dataset,
@@ -936,5 +946,8 @@ describe("DagNodeExecutor Test", () => {
         .always(() => {
             XIApi.synthesize = oldSynthesize;
         });
+    });
+    after(function() {
+        Transaction.get = cachedTransactionGet;
     });
 });

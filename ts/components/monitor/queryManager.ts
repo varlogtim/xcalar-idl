@@ -1277,7 +1277,7 @@ namespace QueryManager {
         }
     }
 
-    function getQueryProgress(queryStateOutput: any): number {
+    function getQueryProgress(queryStateOutput: XcalarApiQueryStateOutputT): number {
         let progress: number = null;
         let numWorkCompleted: number = 0;
         let numWorkTotal: number = 0

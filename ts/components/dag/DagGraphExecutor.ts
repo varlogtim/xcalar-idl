@@ -15,11 +15,10 @@ class DagGraphExecutor {
     private _sqlNodes: Map<string, DagNodeSQL>;
     private _hasProgressGraph: boolean;
     private _tableNameToDagIdMap; // {destTableName: dagNodeId}
-    private _dagIdToTableNamesMap;// id to tableName map stores all the tables related to the dag node
-    // in topological order {dagNodeId: [tableName1, tableName2]}
     private _dagIdToDestTableMap;
     private _aggIdToDestTableMap;
     private _currentNode: DagNode; // current node in progress if stepExecute
+    private _finishedNodeIds: Set<DagNodeId>
 
     public static readonly stepThroughTypes = new Set([DagNodeType.PublishIMD,
         DagNodeType.IMDTable, DagNodeType.UpdateIMD, DagNodeType.Extension,
@@ -29,10 +28,10 @@ class DagGraphExecutor {
         nodes: DagNode[],
         graph: DagGraph,
         options: {
-            optimized?: boolean
-            noReplaceParam?: boolean
-            queryName?: string
-            parentTxId?: number
+            optimized?: boolean,
+            noReplaceParam?: boolean,
+            queryName?: string,
+            parentTxId?: number,
             allowNonOptimizedOut?: boolean,
             sqlNodes?: Map<string, DagNodeSQL>,
             hasProgressGraph?: boolean
@@ -49,9 +48,9 @@ class DagGraphExecutor {
         this._sqlNodes = options.sqlNodes;
         this._hasProgressGraph = this._isOptimized || options.hasProgressGraph;
         this._tableNameToDagIdMap = {};
-        this._dagIdToTableNamesMap = {};
         this._dagIdToDestTableMap = {};
         this._aggIdToDestTableMap = {};
+        this._finishedNodeIds = new Set();
     }
 
     public validateAll(): {
@@ -420,7 +419,7 @@ class DagGraphExecutor {
                 udfSessionName: udfContext.udfSessionName
             });
             this._currentTxId = txId;
-            this.getBatchQueryPromises(txId)
+            this._getAndExecuteBatchQuery(txId)
             .then((_res) => {
                 let promises = [];
                 self._executeInProgress = false;
@@ -514,64 +513,10 @@ class DagGraphExecutor {
         const promises = [];
         const udfContext = this._getUDFContext();
         // chain batchExecute calls while storing their destTable results
-        const destTables = [];
-        let allQueries = [];
+        const destTables = []; // accumulates tables
+        let allQueries = []; // accumulates queries
         for (let i = 0; i < nodes.length; i++) {
-            promises.push(() => {
-                const simulateId: number = Transaction.start({
-                    operation: "Simulate",
-                    simulate: true,
-                    udfUserName: udfContext.udfUserName,
-                    udfSessionName: udfContext.udfSessionName
-                });
-
-                let node = nodes[i];
-                const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
-                this._beforeBatchExecute(node, forExecution)
-                .then(() => {
-                    return this._batchExecute(simulateId, node, forExecution);
-                })
-                .then((destTable) => {
-                    let queryStr: string = Transaction.done(simulateId, {
-                        noNotification: true,
-                        noSql: true,
-                        noCommit: true
-                    });
-                    let queries;
-                    try {
-                        if (!queryStr.startsWith("[")) {
-                            // when query is not in the form of JSON array
-                            if (queryStr.endsWith(",")) {
-                                queryStr = queryStr.substring(0, queryStr.length - 1);
-                            }
-                            queryStr = "[" + queryStr + "]";
-                        }
-                        queries = JSON.parse(queryStr);
-                    } catch (e) {
-                        return PromiseHelper.reject(e);
-                    }
-
-                    this._dagIdToTableNamesMap[node.getId()] = [];
-                    queries.forEach((query) => {
-                        allQueries.push(query);
-                        if (query.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
-                            this._dagIdToTableNamesMap[node.getId()].push(query.args.dest);
-                            this._tableNameToDagIdMap[query.args.dest] = node.getId();
-                        }
-                    });
-                    if (destTable != null) {
-                        this._dagIdToDestTableMap[node.getId()] = destTable;
-                        if (node.getType() === DagNodeType.Aggregate) {
-                            this._aggIdToDestTableMap[node.getId()] = destTable;
-                        }
-                    }
-
-                    destTables.push(destTable);
-                    innerDeferred.resolve();
-                })
-                .fail(innerDeferred.reject);
-                return innerDeferred.promise();
-            });
+            promises.push(this._getQueryFromNode.bind(this, udfContext, nodes[i], allQueries, destTables, forExecution));
         }
 
         PromiseHelper.chain(promises)
@@ -589,15 +534,12 @@ class DagGraphExecutor {
         return deferred.promise();
     }
 
-
     /**
-     * go through each node, if query add to query
-     * if not query, execute previous query, execute step, then create new query array
+     * go through each node, if it can be executed as part of a query, add to larger query
+     * if not, execute previous built up query, execute as a step, then create new query array
      * should have [queryFn, queryFn query], op, [query , query]
-     *
      */
-
-    public getBatchQueryPromises(txId: number): XDPromise<{queryStr: string, destTables: string[]}> {
+    private _getAndExecuteBatchQuery(txId: number): XDPromise<{queryStr: string, destTables: string[]}> {
         // get rid of link out node to get the correct query and destTable
         const nodes: DagNode[] = this._nodes.filter((node) => {
             return node.getType() !== DagNodeType.DFOut;
@@ -607,39 +549,40 @@ class DagGraphExecutor {
         const udfContext = this._getUDFContext();
         // chain batchExecute calls while storing their destTable results
         let destTables = [];
-        let partialQueries = [];
-        let queries = [];
+        let partialQueries: {operation: string, args: any}[] = [];
+        let queryPromises = [];
         let partialNodes = [];
-        for (let i = 0; i < nodes.length; i++) {
-            let node = nodes[i];
+        nodes.forEach(node => {
             if (DagGraphExecutor.stepThroughTypes.has(node.getType())) {
-                if (queries.length) {
-                    promises.push(this.executeQueryChain.bind(this, txId, queries, partialNodes, destTables, partialQueries));
-                    queries = [];
+                if (queryPromises.length) {
+                    promises.push(this._executeQueryPromises.bind(this, txId, queryPromises, partialNodes, destTables, partialQueries));
+                    queryPromises = [];
                     partialQueries = [];
                     partialNodes = [];
                     destTables = [];
                 }
                 promises.push(this._stepExecute.bind(this, txId, node));
             } else {
-                partialNodes.push(nodes[i]);
-                queries.push(this._getBatchQueryPromise(udfContext, nodes[i], partialQueries, destTables));
+                partialNodes.push(node);
+                queryPromises.push(this._getQueryFromNode.bind(this, udfContext, node, partialQueries, destTables, true));
             }
-        }
-        if (queries.length) {
-            promises.push(this.executeQueryChain.bind(this, txId, queries, partialNodes, destTables, partialQueries));
+        });
+        if (queryPromises.length) {
+            promises.push(this._executeQueryPromises.bind(this, txId, queryPromises, partialNodes, destTables, partialQueries));
         }
         return PromiseHelper.chain(promises);
     }
 
-    private executeQueryChain(txId, queries, nodes, destTables, allQueries) {
+    // query promises are
+    private _executeQueryPromises(txId, queryPromises, nodes, destTables, allQueries) {
         const deferred: XDDeferred<{queryStr: string, destTables: string[]}> = PromiseHelper.deferred();
 
-        PromiseHelper.chain(queries)
+        PromiseHelper.chain(queryPromises)
         .then(() => {
             nodes.forEach((node) => {
                 node.setTable(null); // these table are only fake names
             });
+
             let queryStr = JSON.stringify(allQueries);
             if (queryStr === "[]") { // can be empty if link out node
                 return PromiseHelper.resolve();
@@ -653,62 +596,84 @@ class DagGraphExecutor {
         return deferred.promise();
     }
 
-    private _getBatchQueryPromise(udfContext, node, allQueries, destTables) {
-        return () => {
-            const simulateId: number = Transaction.start({
-                operation: "Simulate",
-                simulate: true,
-                udfUserName: udfContext.udfUserName,
-                udfSessionName: udfContext.udfSessionName
+    private _getQueryFromNode(udfContext: {
+            udfUserName: string;
+            udfSessionName: string;
+        },
+        node: DagNode,
+        allQueries: any[],
+        destTables: string[],
+        forExecution?: boolean
+    ): XDPromise<void> {
+        const simulateId: number = Transaction.start({
+            operation: "Simulate",
+            simulate: true,
+            udfUserName: udfContext.udfUserName,
+            udfSessionName: udfContext.udfSessionName
+        });
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._beforeSimulateExecute(node, forExecution)
+        .then(() => {
+            return this._simulateExecute(simulateId, node, forExecution);
+        })
+        .then((destTable) => {
+            let queryStr: string = Transaction.done(simulateId, {
+                noNotification: true,
+                noSql: true,
+                noCommit: true
             });
-
-            const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
-            this._beforeBatchExecute(node, true)
-            .then(() => {
-                return this._batchExecute(simulateId, node, true);
-            })
-            .then((destTable) => {
-                let queryStr: string = Transaction.done(simulateId, {
-                    noNotification: true,
-                    noSql: true,
-                    noCommit: true
-                });
-                let queries;
-                try {
-                    if (!queryStr.startsWith("[")) {
-                        // when query is not in the form of JSON array
-                        if (queryStr.endsWith(",")) {
-                            queryStr = queryStr.substring(0, queryStr.length - 1);
-                        }
-                        queryStr = "[" + queryStr + "]";
+            let queries: {operation: string, args: any, tag?: string}[];
+            try {
+                if (!queryStr.startsWith("[")) {
+                    // when query is not in the form of JSON array
+                    if (queryStr.endsWith(",")) {
+                        queryStr = queryStr.substring(0, queryStr.length - 1);
                     }
-                    queries = JSON.parse(queryStr);
-                } catch (e) {
-                    return PromiseHelper.reject(e);
+                    queryStr = "[" + queryStr + "]";
+                }
+                queries = JSON.parse(queryStr);
+            } catch (e) {
+                return PromiseHelper.reject(e);
+            }
+
+            let parentNodeIds = [];
+            this._getParentNodeIds(parentNodeIds, this._currentTxId);
+            queries.forEach((query) => {
+                if (query.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+                    this._tableNameToDagIdMap[query.args.dest] = node.getId();
+                    parentNodeIds.push(node.getId());
+                    query.tag = parentNodeIds.join(",");
+                    parentNodeIds.pop();
                 }
 
-                this._dagIdToTableNamesMap[node.getId()] = [];
-                queries.forEach((query) => {
-                    allQueries.push(query);
-                    if (query.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
-                        this._dagIdToTableNamesMap[node.getId()].push(query.args.dest);
-                        this._tableNameToDagIdMap[query.args.dest] = node.getId();
-                    }
-                });
-                if (destTable != null) {
-                    this._dagIdToDestTableMap[node.getId()] = destTable;
-                    if (node.getType() === DagNodeType.Aggregate) {
-                        this._aggIdToDestTableMap[node.getId()] = destTable;
-                    }
+                allQueries.push(query);
+            });
+            if (destTable != null) {
+                this._dagIdToDestTableMap[node.getId()] = destTable;
+                if (node.getType() === DagNodeType.Aggregate) {
+                    this._aggIdToDestTableMap[node.getId()] = destTable;
                 }
+            }
 
-                destTables.push(destTable);
-                innerDeferred.resolve();
-            })
-            .fail(innerDeferred.reject);
-            return innerDeferred.promise();
+            destTables.push(destTable);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    private _getParentNodeIds(parentNodeIds, txId) {
+        const txLog = Transaction.get(txId);
+        if (!txLog) return;
+        if (txLog.parentNodeId) {
+            parentNodeIds.unshift(txLog.parentNodeId);
+        }
+        if (txLog.parentTxId) {
+            this._getParentNodeIds(parentNodeIds, txLog.parentTxId);
         }
     }
+
 
     // for extensions, dfout
     private _stepExecute(
@@ -744,54 +709,40 @@ class DagGraphExecutor {
 
     public updateProgress(queryNodes: any[]) {
         const nodeIdInfos = {};
-        if (this._currentNode) {
-            // STEP EXECUTE MODE
-            let nodeId = this._currentNode.getId();
-            nodeIdInfos[nodeId] = {};
+        // GROUP THE QUERY NODES BY THEIR CORRESPONDING DAG NODE
+        queryNodes.forEach((queryNodeInfo: XcalarApiDagNodeT) => {
+            if (queryNodeInfo["operation"] === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] ||
+                queryNodeInfo.api === XcalarApisT.XcalarApiDeleteObjects) {
+                return;
+            }
+            let tableName: string = queryNodeInfo.name.name;
+            let nodeIdCandidates = queryNodeInfo.tag.split(",");
+            if (!nodeIdCandidates.length) {// could be a drop table node
+                return;
+            }
+            let nodeId: DagNodeId;
+            let nodeFound = false;
+            for (let i = 0; i < nodeIdCandidates.length; i++) {
+                nodeId = nodeIdCandidates[i];
+                if (this._graph.getNode(nodeId)) {
+                    nodeFound = true;
+                    if (this._finishedNodeIds.has(nodeId)) {
+                        return;
+                    }
+                    break;
+                }
+            }
+            if (!nodeFound) {
+                return;
+            }
+
+            if (!nodeIdInfos.hasOwnProperty(nodeId)) {
+                nodeIdInfos[nodeId] = {}
+            }
             const nodeIdInfo = nodeIdInfos[nodeId];
-            queryNodes.forEach((queryNodeInfo, i) => {
-                let tableName: string = queryNodeInfo.name.name;
-                // optimized datasets name gets prefixed with xcalarlrq and an id
-                // so we strip this to find the corresponding UI dataset name
-                if (!nodeId && queryNodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
-                    tableName.startsWith(".XcalarLRQ.") &&
-                    tableName.indexOf(gDSPrefix) > -1) {
-                    tableName = tableName.slice(tableName.indexOf(gDSPrefix));
-                }
-                if (queryNodeInfo.index == null) {
-                    queryNodeInfo.index = i;
-                }
-                nodeIdInfo[tableName] = queryNodeInfo;
-            });
-        } else {
-            // GROUP THE QUERY NODES BY THEIR CORRESPONDING DAG NODE
-            queryNodes.forEach((queryNodeInfo) => {
-                let tableName: string = queryNodeInfo.name.name;
-                let nodeId = this._tableNameToDagIdMap[tableName];
-
-                // optimized datasets name gets prefixed with xcalarlrq and an id
-                // so we strip this to find the corresponding UI dataset name
-                if (!nodeId && queryNodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
-                    tableName.startsWith(".XcalarLRQ.") &&
-                    tableName.indexOf(gDSPrefix) > -1) {
-                    tableName = tableName.slice(tableName.indexOf(gDSPrefix));
-                    nodeId = this._tableNameToDagIdMap[tableName];
-                }
-
-                if (!nodeId) {// could be a drop table node or node is finished
-                    return;
-                }
-
-                if (!nodeIdInfos.hasOwnProperty(nodeId)) {
-                    nodeIdInfos[nodeId] = {}
-                }
-                const nodeIdInfo = nodeIdInfos[nodeId];
-                nodeIdInfo[tableName] = queryNodeInfo;
-                // _dagIdToTableNamesMap has operations in the correct order
-                queryNodeInfo.index = this._dagIdToTableNamesMap[nodeId].indexOf(tableName);
-            });
-        }
-
+            nodeIdInfo[tableName] = queryNodeInfo;
+            queryNodeInfo["index"] = parseInt(queryNodeInfo.dagNodeId);
+        });
 
         for (let nodeId in nodeIdInfos) {
             let node: DagNode = this._graph.getNode(nodeId);
@@ -816,20 +767,14 @@ class DagGraphExecutor {
                             tab.save(); // save destTable to node
                         }
                     }
-                     // step execute mode does not have dagIdToTableNamesMap
-                    if (this._dagIdToTableNamesMap[nodeId]) {
-                        this._dagIdToTableNamesMap[nodeId].forEach((tableName) => {
-                            delete this._tableNameToDagIdMap[tableName];
-                        });
-                        delete this._dagIdToTableNamesMap[nodeId];
-                    }
+                    this._finishedNodeIds.add(nodeId);
                     delete this._dagIdToDestTableMap[nodeId];
                 }
             }
         }
     }
 
-    private _batchExecute(
+    private _simulateExecute(
         txId: number,
         node: DagNode,
         forExecution: boolean = false
@@ -1259,7 +1204,7 @@ class DagGraphExecutor {
         return DagRuntime.getDefaultRuntime();
     }
 
-    private _beforeBatchExecute(node: DagNode, forExecution: boolean) {
+    private _beforeSimulateExecute(node: DagNode, forExecution: boolean) {
         if (forExecution) {
             if (node instanceof DagNodeAggregate) {
                 return PromiseHelper.alwaysResolve((<DagNodeAggregate>node).resetAgg());

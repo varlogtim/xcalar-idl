@@ -2349,6 +2349,28 @@ namespace XIApi {
 
             const deferred: XDDeferred<any> = PromiseHelper.deferred();
             const txLog = Transaction.get(txId);
+            if (txLog.currentNodeId) {
+                // add nodeId and wrapper nodeIds as query tag to track
+                // relationship between query and dagNode
+                let parentNodeIds = [];
+                _getParentNodeIds(parentNodeIds, txId);
+                try {
+                    const query = JSON.parse(queryStr);
+                    query.forEach(q => {
+                        if (q.operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+                            return;
+                        }
+                        parentNodeIds.push(txLog.currentNodeId);
+                        q.tag = parentNodeIds.join(",");
+                        parentNodeIds.pop();
+                    });
+                    queryStr = JSON.stringify(query);
+                } catch (e) {
+                    // ok to fail, we just don't tag the nodes
+                    console.error(e);
+                }
+            }
+
             options = $.extend({
                 bailOnError: true,
                 udfUserName: txLog.udfUserName,
@@ -2384,6 +2406,17 @@ namespace XIApi {
             .fail(deferred.reject);
 
             return deferred.promise();
+        }
+    }
+
+    function _getParentNodeIds(parentNodeIds, txId) {
+        const txLog = Transaction.get(txId);
+        if (!txLog) return;
+        if (txLog.parentNodeId) {
+            parentNodeIds.unshift(txLog.parentNodeId);
+        }
+        if (txLog.parentTxId) {
+            _getParentNodeIds(parentNodeIds, txLog.parentTxId);
         }
     }
 

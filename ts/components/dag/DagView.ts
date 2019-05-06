@@ -130,23 +130,6 @@ class DagView {
         }
     }
 
-    public updateOperationTime(isCurrent: boolean = false): void {
-        if (!this.isFocused()) {
-            return;
-        }
-
-        const timeStr: string = this._getOperationTime();
-        let text: string = "";
-        if (timeStr != null) {
-            let title: string = CommonTxtTstr.LastOperationTime;
-            if (isCurrent || this.graph.getExecutor() != null) {
-                title = CommonTxtTstr.OperationTime;
-            }
-            text = title + ": " + timeStr;
-        }
-        StatusMessage.updateLocation(true, text); // update operation time
-    }
-
     public static newSQLFunc(numInput) {
         DagTabManager.Instance.newSQLFunc();
         // add input
@@ -223,7 +206,6 @@ class DagView {
         $node.removeClass("selected");
         $node.find(".selection").remove();
     }
-
 
     /**
      * DagView.addNodeIcon adds a small icon and reorders other icons to fit the new one in
@@ -2390,6 +2372,23 @@ class DagView {
         return this.$dfArea.hasClass("locked");
     }
 
+    public updateOperationTime(isCurrent: boolean = false): void {
+        if (!this.isFocused()) {
+            return;
+        }
+
+        const timeStr: string = this._getOperationTime();
+        let text: string = "";
+        if (timeStr != null) {
+            let title: string = CommonTxtTstr.LastOperationTime;
+            if (isCurrent || this.graph.getExecutor() != null) {
+                title = CommonTxtTstr.OperationTime;
+            }
+            text = title + ": " + timeStr;
+        }
+        StatusMessage.updateLocation(true, text); // update operation time
+    }
+
     public addProgressPct(nodeId: DagNodeId, pct?: number, step?: number): void {
         this.updateOperationTime(true);
         let g = d3.select(this.$dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
@@ -2550,7 +2549,8 @@ class DagView {
     }
 
     public updateDFProgress(queryStateOutput: XcalarApiQueryStateOutputT, nodeIds: DagNodeId[]) {
-        // should only update nodes that are currently in progress
+        // should only update nodes that are currently in progress so we
+        // store a Set of completed nodes to check against it later
         let completedNodeIds: Set<DagNodeId> = new Set();
         nodeIds.forEach((nodeId) =>{
             let node = this.graph.getNode(nodeId);

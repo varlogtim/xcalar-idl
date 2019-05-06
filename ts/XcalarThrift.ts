@@ -3073,10 +3073,8 @@ XcalarQueryCheck = function(
     function cycle() {
         setTimeout(function() {
             XcalarQueryState(queryName)
-            .then(function(queryStateOutput) {
+            .then(function(queryStateOutput: XcalarApiQueryStateOutputT) {
                 Transaction.update(txId, queryStateOutput);
-                // var nodeStatuses =
-                //         getDagNodeStatuses(queryStateOutput.queryGraph.node);
                 const state = queryStateOutput.queryState;
                 if (state === QueryStateT.qrFinished ||
                     state === QueryStateT.qrCancelled) {

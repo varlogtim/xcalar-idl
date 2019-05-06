@@ -74,6 +74,8 @@ namespace Transaction {
         parentTxId: number;
         udfUserName?: string;
         udfSessionName?: string;
+        currentNodeId?: string;
+        parentNodeId?: string;
 
         constructor(options: TXLogOptions) {
             this.msgId = options.msgId || null;
@@ -110,6 +112,14 @@ namespace Transaction {
             if (cli.slice(-1) !== ",") {
                 this.cli += ",";
             }
+        }
+
+        setCurrentNodeId(nodeId: string) {
+            this.currentNodeId = nodeId;
+        }
+
+        setParentNodeId(nodeId: string) {
+            this.parentNodeId = nodeId;
         }
     }
 
@@ -190,7 +200,7 @@ namespace Transaction {
                 try {
                     DagViewManager.Instance.updateDFProgress(txLog.tabId, queryStateOutput, txLog.nodeIds);
                     const parentTxId: number = txLog.parentTxId;
-                    if (parentTxId != null) {
+                    if (parentTxId != null) { // if this query is nested inside a custom node
                         Transaction.update(parentTxId, queryStateOutput);
                     }
                 } catch (e) {

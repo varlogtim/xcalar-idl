@@ -114,12 +114,12 @@ class DagNodeExtension extends DagNode {
             const startCols: ProgCol[] = this._getColumnsFromArg(args);
             ExtensionManager.triggerFromDF(params.moduleName, params.functName, args)
             .then((ret) => {
-                const finalTable = ret.finalTableName;
+                const resTable = ret.finalTableName;
                 const query = ret.query;
                 const cols = ret.cols;
                 let finalCols = this._getFinalCols(cols);
                 this._updateColumnsChange(startCols, finalCols);
-                deferred.resolve({resTable: finalTable, query: query});
+                deferred.resolve({resTable, query});
             })
             .fail(deferred.reject);
         } catch (e) {
