@@ -211,6 +211,8 @@ class DagGraph extends Durable {
                         nodeInfo.display.y = autoYCoor;
                         autoYCoor++;
                     }
+                    nodeInfo.display.x = Math.round(nodeInfo.display.x) || autoXCoor++;
+                    nodeInfo.display.y = Math.round(nodeInfo.display.y) || autoYCoor++;
                 }
                 let valid = dagNodeValidate(nodeInfo);
                 if (!valid) {
