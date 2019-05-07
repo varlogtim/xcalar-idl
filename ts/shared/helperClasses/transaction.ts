@@ -263,8 +263,8 @@ namespace Transaction {
                 }
             }
             // XcalarDeleteTable also triggers tableUsageChange
-            if (hasTableChange) {
-                MonitorGraph.tableUsageChange();
+            if (hasTableChange && typeof MonitorPanel !== "undefined") {
+                MonitorPanel.tableUsageChange();
             }
         }
 

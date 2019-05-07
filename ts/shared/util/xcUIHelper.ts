@@ -861,6 +861,16 @@ namespace xcUIHelper {
     }
 
     /**
+     * xcUIHelper.expandListEvent
+     * @param $section
+     */
+    export function expandListEvent($section: JQuery): void {
+        $section.on("click", ".listInfo .expand", (e) => {
+            $(e.currentTarget).closest(".listWrap").toggleClass("active");
+        });
+    }
+
+    /**
      * xcUIHelper.copyToClipboard
      * @param text
      */

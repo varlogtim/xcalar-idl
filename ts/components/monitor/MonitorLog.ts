@@ -1,5 +1,4 @@
 class MonitorLog {
-    // var $logCard;
     private _id: string;
     private _hosts;
     private _hasError;

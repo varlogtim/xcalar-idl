@@ -8,7 +8,13 @@ window.MonitorPanel = (function($, MonitorPanel) {
     MonitorPanel.setup = function() {
         $monitorPanel = $("#monitor-system");
         monitorDonuts = new MonitorDonuts("monitor-donuts");
-        MonitorGraph.setup(monitorDonuts);
+        monitorGraph = new MonitorGraph("monitor-graphCard");
+        monitorGraph
+        .on("update", function(allStats, apiTopResult) {
+            monitorDonuts.update(allStats);
+            MemoryAlert.Instance.detectUsage(apiTopResult);
+        });
+
         QueryManager.setup();
         setupMonitorConfig();
 
@@ -52,15 +58,23 @@ window.MonitorPanel = (function($, MonitorPanel) {
         });
     };
 
+    MonitorPanel.getGraph = function() {
+        return monitorGraph;
+    };
+
     MonitorPanel.active = function() {
-        MonitorGraph.start();
+        monitorGraph.start();
         QueryManager.scrollToFocused();
         graphIsActive = true;
     };
 
     MonitorPanel.inActive = function() {
-        MonitorGraph.clear();
+        monitorGraph.clear();
         graphIsActive = false;
+    };
+
+    MonitorPanel.stop = function() {
+        monitorGraph.stop();
     };
 
     MonitorPanel.isGraphActive = function() {
@@ -73,7 +87,16 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
     MonitorPanel.getDounts = function() {
         return monitorDonuts;
-    };
+    }
+
+    MonitorPanel.updateSetting = function(graphInterval) {
+        monitorGraph.updateInterval(graphInterval);
+    }
+
+    MonitorPanel.tableUsageChange = function() {
+        monitorGraph.tableUsageChange;
+    }
+
 
     // XXX move to admin panel
     function setupMonitorConfig() {

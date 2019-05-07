@@ -327,7 +327,7 @@ namespace UserSettings {
             minVal: 1,
             maxVal: 60,
             onChangeEnd: function(val) {
-                MonitorGraph.updateInterval(val * 1000);
+                MonitorPanel.updateSetting(val * 1000);
             }
         });
 

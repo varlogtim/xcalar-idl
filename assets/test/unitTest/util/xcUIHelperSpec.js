@@ -496,4 +496,22 @@ describe("xcUIHelper Test", function() {
         expect(html).to.contains("test");
         expect(html).to.contains("test2");
     });
+
+    it("xcUIHelper.expandListEvent should work", function() {
+        let $list = $('<div class="listWrap">' +
+                        '<div class="test">' +
+                            '<div class="listInfo">' +
+                                '<div class="expand"></div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>');
+        $("#container").append($list);
+        xcUIHelper.expandListEvent($list.find(".test"));
+        let $expand = $list.find(".expand");
+        $expand.click();
+        expect($list.hasClass("active")).to.be.true;
+        $expand.click();
+        expect($list.hasClass("active")).to.be.false;
+        $list.remove();
+    });
 });

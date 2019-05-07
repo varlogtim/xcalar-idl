@@ -229,9 +229,9 @@ describe("Transaction Test", function() {
                 return ["t1"];
             };
 
-            var cacheFn4 = MonitorGraph.tableUsageChange;
+            var cacheFn4 = MonitorPanel.tableUsageChange;
             var called4 = false;
-            MonitorGraph.tableUsageChange = function() {
+            MonitorPanel.tableUsageChange = function() {
                 called4 = true;
             };
 
@@ -247,7 +247,7 @@ describe("Transaction Test", function() {
             QueryManager.queryDone = cacheFn1;
             StatusMessage.success = cacheFn2;
             QueryManager.getAllDstTables = cacheFn3;
-            MonitorGraph.tableUsageChange = cacheFn4;
+            MonitorPanel.tableUsageChange = cacheFn4;
         });
     });
     describe("transaction fail", function() {

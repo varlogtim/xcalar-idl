@@ -561,7 +561,7 @@ namespace Alert {
                 $btn.click(function() {
                     SupTicketModal.show();
                     $(this).blur();
-                    MonitorGraph.stop();
+                    MonitorPanel.stop();
                 });
                 break;
             case 'adminSupport':

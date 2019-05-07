@@ -1,146 +1,144 @@
-describe("Monitor Graph Test", function() {
-    var $mainTabCache;
-    var $monitorPanel;
+describe("MonitorGraph Test", function() {
+    let monitorGraph;
+    let $monitorPanel;
 
     before(function() {
-        $mainTabCache = $(".topMenuBarTab.active");
         $monitorPanel = $("#monitor-system");
-        $("#systemButton").click();
+        monitorGraph = MonitorPanel.getGraph();
     });
 
-    describe('test graph', function() {
-        // tests data is correct and line graph is correct
-        it('graph should work', function(done) {
-            var fn = MonitorGraph.__testOnly__.updateGraph;
-            var cachedTopFn = XcalarApiTop;
-            XcalarApiTop = function() {
-                var stats = {
-                    numNodes: 1,
-                    topOutputPerNode: [{
-                        "childrenCpuUsageInPercent": 5,
-                        "cpuUsageInPercent": 10,
-                        "parentCpuUsageInPercent": 10,
+    it("should be the correct instance", function() {
+        expect(monitorGraph).to.be.an.instanceof(MonitorGraph);
+    });
 
-                        "memUsageInPercent": 60,
-                        "totalAvailableMemInBytes": 200 * GB,
+    it("should add event listeners", function() {
+        let called = false;
+        monitorGraph.on("test", function() {
+            called = true;
+        });
+        monitorGraph._event.dispatchEvent("test");
+        expect(called).to.equal(true);
+        delete monitorGraph._event._events["test"];
+    });
 
-                        "xdbUsedBytes": 40 * GB,
-                        "xdbTotalBytes": 50 * GB,
-                        "networkRecvInBytesPerSec": 0,
-                        "networkSendInBytesPerSec": 0,
+    it("clear should work", function() {
+        monitorGraph._datasets = [[0], [0]];
+        monitorGraph.clear();
+        expect(monitorGraph._datasets.length).to.equal(0);
+    });
 
-                        "datasetUsedBytes": 1 * MB,
+    it("start should work", function() {
+        let oldFunc = monitorGraph._oneCycleUpdate;
+        let called = false;
+        monitorGraph._oneCycleUpdate = () => { called = true; };
+        
+        monitorGraph.start();
+        expect(called).to.be.true;
 
-                        "sysSwapUsedInBytes": 5 * GB,
-                        "sysSwapTotalInBytes": 10 * GB
-                    }]
-                };
+        monitorGraph._oneCycleUpdate = oldFunc;
+    });
 
-                return PromiseHelper.resolve(stats);
+    it("stop should work", function() {
+        monitorGraph._graphCycle = 1;
+        monitorGraph.stop();
+        expect(monitorGraph._graphCycle).to.be.undefined;
+    });
+
+    it('_getStatsAndUpdateGraph should work', function(done) {
+        var cachedTopFn = XcalarApiTop;
+        XcalarApiTop = function() {
+            var stats = {
+                numNodes: 1,
+                topOutputPerNode: [{
+                    "childrenCpuUsageInPercent": 5,
+                    "cpuUsageInPercent": 10,
+                    "parentCpuUsageInPercent": 10,
+
+                    "memUsageInPercent": 60,
+                    "totalAvailableMemInBytes": 200 * GB,
+
+                    "xdbUsedBytes": 40 * GB,
+                    "xdbTotalBytes": 50 * GB,
+                    "networkRecvInBytesPerSec": 0,
+                    "networkSendInBytesPerSec": 0,
+
+                    "datasetUsedBytes": 1 * MB,
+
+                    "sysSwapUsedInBytes": 5 * GB,
+                    "sysSwapTotalInBytes": 10 * GB
+                }]
             };
-            var cachedGetMemUsage = XcalarGetMemoryUsage;
-            XcalarGetMemoryUsage = function() {
-                return PromiseHelper.resolve({
-                    userMemory: {
-                        numSessions: 1,
-                        sessionMemory: [{
-                            numTables: 1,
-                            tableMemory: [{
-                                totalBytes: 1000
-                            }]
+
+            return PromiseHelper.resolve(stats);
+        };
+        var cachedGetMemUsage = XcalarGetMemoryUsage;
+        XcalarGetMemoryUsage = function() {
+            return PromiseHelper.resolve({
+                userMemory: {
+                    numSessions: 1,
+                    sessionMemory: [{
+                        numTables: 1,
+                        tableMemory: [{
+                            totalBytes: 1000
                         }]
-                    }
-                });
-            };
-
-
-            var dataset = [[0],[0],[0]];
-            MonitorGraph.__testOnly__.reset(dataset);
-
-            fn()
-            .then(function() {
-                expect(dataset[0][1]).to.equal("40.0");
-                expect(dataset[1][1]).to.equal("5.00");
-                expect(dataset[2][1]).to.equal(10);
-
-                expect($monitorPanel.find(".line").length).to.equal(3);
-                expect($monitorPanel.find(".area").length).to.equal(3);
-                // console.log($monitorPanel.find(".line0").attr("d"), $monitorPanel.find(".line1").attr("d"), $monitorPanel.find(".line2").attr("d"))
-                expect($monitorPanel.find(".line0").attr("d")).to.equal("M0,210L6,168");
-                expect($monitorPanel.find(".line1").attr("d")).to.equal("M0,210L6,204.75");
-                expect($monitorPanel.find(".line2").attr("d")).to.equal("M0,210L6,189");
-
-                // labels should be 40, 80, 120, 160, 200
-                expect($monitorPanel.find(".memYAxisWrap text").text()).to.equal("4080120160200");
-                expect($monitorPanel.find(".memYAxisWrap .unit").text()).to.equal("0 (GiB)");
-
-                // order changes when clicked
-                $monitorPanel.find(".area").eq(0).click();
-                expect($monitorPanel.find(".area").last().css("opacity")).to.equal("0.4");
-                $monitorPanel.find(".area").last().click();
-                expect($monitorPanel.find(".area").last().css("opacity")).to.equal("0.8");
-
-                XcalarApiTop = cachedTopFn;
-                XcalarGetMemoryUsage = cachedGetMemUsage;
-                done();
-            })
-            .fail(function() {
-                done("fail");
+                    }]
+                }
             });
-        });
+        };
 
-        it("error screen should work", function() {
-            MonitorGraph.__testOnly__.toggleErrorScreen(true);
-            var $errorScreen = $("#monitor-graphCard").find(".statsErrorContainer");
-            expect($errorScreen.hasClass("xc-hidden")).to.be.false;
-            expect($errorScreen.text()).to.equal(MonitorTStr.StatsFailed);
 
-            MonitorGraph.__testOnly__.toggleErrorScreen(true, {error: "test"});
-            expect($errorScreen.text()).to.equal("test");
+        var dataset = [[0],[0],[0]];
+        monitorGraph._freshData = false;
+        monitorGraph._datasets = dataset;
 
-            MonitorGraph.__testOnly__.toggleErrorScreen(false);
-            expect($errorScreen.hasClass("xc-hidden")).to.be.true;
-        });
+        monitorGraph._getStatsAndUpdateGraph()
+        .then(function() {
+            expect(dataset[0][1]).to.equal("40.0");
+            expect(dataset[1][1]).to.equal("5.00");
+            expect(dataset[2][1]).to.equal(10);
+
+            expect($monitorPanel.find(".line").length).to.equal(3);
+            expect($monitorPanel.find(".area").length).to.equal(3);
+            // console.log($monitorPanel.find(".line0").attr("d"), $monitorPanel.find(".line1").attr("d"), $monitorPanel.find(".line2").attr("d"))
+            expect($monitorPanel.find(".line0").attr("d")).to.equal("M0,210L6,168");
+            expect($monitorPanel.find(".line1").attr("d")).to.equal("M0,210L6,204.75");
+            expect($monitorPanel.find(".line2").attr("d")).to.equal("M0,210L6,189");
+
+            // labels should be 40, 80, 120, 160, 200
+            // expect($monitorPanel.find(".memYAxisWrap text").text()).to.equal("4080120160200");
+            // expect($monitorPanel.find(".memYAxisWrap .unit").text()).to.equal("0 (GiB)");
+
+            // order changes when clicked
+            $monitorPanel.find(".area").eq(0).click();
+            expect($monitorPanel.find(".area").last().css("opacity")).to.equal("0.4");
+            $monitorPanel.find(".area").last().click();
+            expect($monitorPanel.find(".area").last().css("opacity")).to.equal("0.8");
+
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            XcalarApiTop = cachedTopFn;
+            XcalarGetMemoryUsage = cachedGetMemUsage;
+        })
     });
 
-    describe("MonitorGraph.clear function", function() {
-        it("clear should work", function() {
-            expect($("#memYAxis").text().length).to.be.gt(0);
-            expect($("#graph svg").length).to.be.gt(0);
-            MonitorGraph.clear();
-            expect($("#memYAxis").text().length).to.equal(0);
-            expect($("#graph svg").length).to.equal(0);
-        });
-    });
+    it("_toggleErrorScreen should work", function() {
+        monitorGraph._toggleErrorScreen(true);
+        var $errorScreen = monitorGraph._getPanel().find(".statsErrorContainer");
+        expect($errorScreen.hasClass("xc-hidden")).to.be.false;
+        expect($errorScreen.text()).to.equal(MonitorTStr.StatsFailed);
 
-    describe("MonitorGraph interval slider", function() {
-        it("slider should work", function() {
-            var $bar = $("#monitorIntervalSlider").find(".ui-resizable-e").eq(0);
-            var pageX = $bar.offset().left;
-            var pageY = $bar.offset().top;
+        monitorGraph._toggleErrorScreen(true, {error: "test"});
+        expect($errorScreen.text()).to.equal("test");
 
-            $bar.trigger("mouseover");
-            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY });
-            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX + 300, pageY: pageY});
-            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX + 300, pageY: pageY });
-
-            expect($("#monitorIntervalSlider").find(".value").val()).to.equal("60");
-
-            $bar.trigger("mouseover");
-            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX + 300, pageY: pageY});
-            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 500, pageY: pageY});
-            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX - 500, pageY: pageY});
-
-            expect($("#monitorIntervalSlider").find(".value").val()).to.equal("1");
-
-            $bar.trigger("mouseover");
-            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX - 500, pageY: pageY});
-            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY});
-            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY});
-        });
+        monitorGraph._toggleErrorScreen(false);
+        expect($errorScreen.hasClass("xc-hidden")).to.be.true;
     });
 
     after(function() {
-        $mainTabCache.click();
+        monitorGraph.clear();
     });
 });

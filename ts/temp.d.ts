@@ -362,6 +362,7 @@ declare namespace d3 {
     export function duration(): d3;
     export function append(selector: string): d3;
     export function max(data: any[], callback: Function): number;
+    export function range(start: number, end: number, steps: number)
     export var svg;
     export var layout;
     export var scale;
@@ -872,12 +873,6 @@ declare namespace SupTicketModal {
     export function submitTicket(arg1, arg2, arg3, arg4): XDPromise<any>;
 }
 
-declare namespace MonitorGraph {
-    export function stop(): void;
-    export function tableUsageChange(): void;
-    export function updateInterval(sec: number): void;
-}
-
 declare namespace TblAnim {
     export function startRowResize($el: JQuery, event: JQueryMouseEventObject): void;
     export function startColResize($el: JQuery, event: JQueryMouseEventObject, options: object): void;
@@ -907,22 +902,9 @@ declare namespace JupyterUDFModal {
     export function refreshTarget(html: HTML): void;
 }
 
-declare namespace MonitorPanel {
-    export function setup(): void;
-    export function inActive(): void;
-    export function active(): void;
-    export function isGraphActive(): boolean;
-    export function refreshParams(): XDPromise<any>;
-}
-
 declare namespace xcMixpanel {
     export function setup(): void;
     export function forDev(): boolean;
-}
-
-declare namespace LoginConfigModal {
-    export function setup(): void;
-    export function show(arg1, arg2, arg3): void
 }
 
 declare namespace JupyterFinalizeModal {

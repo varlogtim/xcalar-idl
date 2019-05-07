@@ -43,7 +43,7 @@ namespace xcManager {
             JupyterPanel.setup();
             IMDPanel.setup();
             setupModals();
-            Admin.initialize();
+            Admin.setup();
             xcSuggest.setup();
             documentReadyGeneralFunction();
 
@@ -628,7 +628,7 @@ namespace xcManager {
     function setupConfigParams(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        MonitorPanel.refreshParams()
+        Admin.refreshParams()
         .then(function(params) {
             try {
                 const paraName: string = "maxinteractivedatasize";

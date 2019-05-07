@@ -1,4 +1,4 @@
-describe("Monitor Panel Test", function() {
+describe("MonitorPanel Test", function() {
     var $mainTabCache;
     var $monitorPanel;
     var $monitorMenu;
@@ -7,7 +7,6 @@ describe("Monitor Panel Test", function() {
         $mainTabCache = $(".topMenuBarTab.active");
         $monitorPanel = $("#monitor-system");
         $monitorMenu = $("#monitorMenu-sys");
-        // $("#monitorTab").find(".mainTab");
         $("#systemButton").click();
     });
 
@@ -101,20 +100,17 @@ describe("Monitor Panel Test", function() {
         });
     });
 
-    describe("MonitorPanel.inActive function", function() {
-        it("inActive should work", function() {
-            var cache = MonitorGraph.clear;
-            var called = false;
-            MonitorGraph.clear = function() {
-                called = true;
-            };
+    it("MonitorPanel.inActive should work", function() {
+        var monitorGraph = MonitorPanel.getGraph();
+        var cache = monitorGraph.clear;
+        var called = false;
+        monitorGraph.clear = function() {
+            called = true;
+        };
 
-            MonitorPanel.inActive();
-            expect(called).to.be.true;
-            expect(MonitorPanel.isGraphActive()).to.be.false;
-
-            MonitorGraph.clear = cache;
-        }) ;
+        MonitorPanel.inActive();
+        expect(called).to.be.true;
+        monitorGraph.clear = cache;
     });
 
     after(function() {

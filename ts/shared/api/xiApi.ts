@@ -2705,8 +2705,8 @@ namespace XIApi {
             } else {
                 deferred.resolve.apply(this, results);
             }
-            if (typeof MonitorGraph !== "undefined") {
-                MonitorGraph.tableUsageChange();
+            if (typeof MonitorPanel !== "undefined") {
+                MonitorPanel.tableUsageChange();
             }
         })
         .fail(() => {

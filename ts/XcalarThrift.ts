@@ -1514,8 +1514,8 @@ XcalarDeleteTable = function(
             if (txId != null) {
                 Transaction.log(txId, query, tableName + "drop", ret.timeElapsed);
             }
-            if (typeof MonitorGraph !== "undefined") {
-                MonitorGraph.tableUsageChange();
+            if (typeof MonitorPanel !== "undefined") {
+                MonitorPanel.tableUsageChange();
             }
             deferred.resolve(ret);
         }
@@ -1577,8 +1577,8 @@ XcalarDeleteConstants = function(
                 Transaction.log(txId, query, constantPattern + "drop",
                                 ret.timeElapsed);
             }
-            if (typeof MonitorGraph !== "undefined") {
-                MonitorGraph.tableUsageChange();
+            if (typeof MonitorPanel !== "undefined") {
+                MonitorPanel.tableUsageChange();
             }
             deferred.resolve(ret);
         }

@@ -89,9 +89,7 @@ class ExtensionPanel {
             $panel.addClass("admin");
         }
 
-        $extLists.on("click", ".listInfo .expand", function() {
-            $(this).closest(".listWrap").toggleClass("active");
-        });
+        xcUIHelper.expandListEvent($extLists);
 
         $extLists.on("click", ".switch", (event) => {
             this._toggleExtension($(event.currentTarget));

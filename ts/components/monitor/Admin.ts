@@ -8,13 +8,15 @@ namespace Admin {
     let $userList; // $menuPanel.find('.userList');
     let adminAlertCard: AdminAlertCard;
     let monitorLogCard: MonitorLog;
-    
+    let monitorConfig: MonitorConfig;
+
     /**
-     * Admin.initialize
+     * Admin.setup
      */
-    export function initialize(): void {
+    export function setup(): void {
         let posingAsUser = isPostAsUser();
         setupAdminStatusBar(posingAsUser);
+        setupMonitorConfig();
 
         if (Admin.isAdmin()) {
             $('#container').addClass('admin');
@@ -146,7 +148,7 @@ namespace Admin {
 
         MainMenu.openPanel("monitorPanel", "setupButton");
         MainMenu.open(true);
-        MonitorGraph.stop();
+        MonitorPanel.stop();
         $('#container').addClass('supportOnly');
         if ($("#container").hasClass("noWorkbook")) {
             $("#container").addClass("noWorkbookMenuBar");
@@ -174,6 +176,17 @@ namespace Admin {
     export function onWinResize(): void {
         if (monitorLogCard != null) {
             monitorLogCard.adjustTabNumber();
+        }
+    }
+
+    /**
+     * Admin.refreshParams
+     */
+    export function refreshParams(): XDPromise<any> {
+        if (monitorConfig != null) {
+            return monitorConfig.refreshParams(true);
+        } else {
+            return PromiseHelper.reject();
         }
     }
 
@@ -525,6 +538,8 @@ namespace Admin {
     }
 
     function addMonitorMenuSupportListeners() {
+        xcUIHelper.expandListEvent($menuPanel);
+
         $("#configStartNode").click(startNode);
 
         $("#configStopNode").click(stopNode);
@@ -762,6 +777,27 @@ namespace Admin {
         } else {
             $("#adminStatusBar").hide();
         }
+    }
+
+    function setupMonitorConfig() {
+        monitorConfig = new MonitorConfig("configCard");
+        monitorConfig
+        .on("minimize", () => {
+            $('#monitorLogCard').addClass('maximized');
+        })
+        .on("maximize", () => {
+            $('#monitorLogCard').removeClass('maximized');
+        })
+        .on("adjustScollbar", (posDiff) => {
+            let bottomBuffer = $("#statusBar").height() + 20;
+            let winHeight = $(window).height();
+            posDiff = (posDiff + bottomBuffer) - winHeight;
+            if (posDiff > 0) {
+                let $mainContent = $('#monitorPanel').children('.mainContent');
+                let top = $mainContent.scrollTop();
+                $mainContent.animate({scrollTop: top + posDiff + 20});
+            }
+        });
     }
 
     function startNode(): XDPromise<void> {
