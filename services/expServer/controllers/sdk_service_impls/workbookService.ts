@@ -34,6 +34,10 @@ function convertKvsToQuery(convertRequest: any): Promise<any> {
         // Unable to convert to a query.  Pass back the reason.
         let errStr: string = err.node.title + " (" + err.node.type + ") - " + err.type;
         cvtKvsToQueryResponse.setResultstring(errStr);
+
+        // We don't reject if there is a xcrpc error
+        // Instead, if the error message have different field,
+        // which indicate this is a internal error. We let it fail itself
         deferred.resolve(cvtKvsToQueryResponse);
     });
     return deferred.promise();

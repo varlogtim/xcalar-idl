@@ -6,7 +6,8 @@
   "main": "expServer.js",
   "scripts": {
     "start": "node --experimental-worker expServer.js",
-    "debug": "node --experimental-worker --inspect expServer.js"
+    "debug": "node --experimental-worker --inspect expServer.js",
+    "test" : "NODE_ENV=test ../../assets/dev/unitTest/node_modules/mocha/bin/mocha ./test/$EXPSERVER_TEST.js"
   },
   "repository": {
     "type": "git",
