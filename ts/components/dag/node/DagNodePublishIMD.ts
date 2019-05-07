@@ -60,7 +60,7 @@ class DagNodePublishIMD extends DagNode {
      * @returns {string}
      */
     public getDisplayNodeType(): string {
-        return "Publish IMD";
+        return "Publish Table";
     }
 
     /**

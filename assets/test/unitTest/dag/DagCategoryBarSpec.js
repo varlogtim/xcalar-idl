@@ -6,20 +6,25 @@ describe("DagCategoryBar Test", function() {
     let dagNode;
     let tabId;
 
-    before(function() {
+    before(function(done) {
+        console.clear();
         console.log("DagCategoryBar Test");
-        if (XVM.isSQLMode()) {
-            $("#modeArea").click();
-        }
-        oldPut = XcalarKeyPut;
-        XcalarKeyPut = function() {
-            return PromiseHelper.resolve();
-        };
-        DagTabManager.Instance.newTab();
-        tabId = DagViewManager.Instance.getActiveDag().getTabId();
-
-        $categories = $("#dagView .categories").find(".category");
-        $operatorBar = $("#dagView .operatorBar");
+    
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            oldPut = XcalarKeyPut;
+            if (XVM.isSQLMode()) {
+                $("#modeArea").click();
+            }
+            $categories = $("#dagView .categories").find(".category");
+            $operatorBar = $("#dagView .operatorBar");
+            XcalarKeyPut = function() {
+                return PromiseHelper.resolve();
+            };
+            DagTabManager.Instance.newTab();
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            done();
+        });
     });
 
     it("should have correct categories", function() {
@@ -126,7 +131,7 @@ describe("DagCategoryBar Test", function() {
             expect($("#dagView .searchArea ul").is(":visible")).to.be.false;
             $("#dagView .categoryBar .searchInput").val("d").trigger(fakeEvent.input);
             expect($("#dagView .searchArea ul").is(":visible")).to.be.true;
-            expect($("#dagView .searchArea li").length).to.be.gt(5);
+            expect($("#dagView .searchArea li").length).to.be.gt(4);
             let $lis = $("#dagView .searchArea li");
 
             expect($lis.filter(function() {
@@ -137,9 +142,6 @@ describe("DagCategoryBar Test", function() {
             }).length).to.be.gt(0);
             expect($lis.filter(function() {
                 return $(this).text().indexOf("Link Out Optimized") > -1;
-            }).length).to.be.gt(0);
-            expect($lis.filter(function() {
-                return $(this).text().indexOf("Publish IMD") > -1;
             }).length).to.be.gt(0);
             expect($lis.filter(function() {
                 return $(this).text().indexOf("Round") > -1;
