@@ -577,6 +577,7 @@ class DagTabManager {
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises)
         .always(() => {
+            DagList.Instance.updateList();
             if (this.getNumTabs() === 0) {
                 this.reset();
             }
