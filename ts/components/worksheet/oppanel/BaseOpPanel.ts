@@ -458,12 +458,13 @@ class BaseOpPanel {
             if (!curWord) {
                 return;
             }
-
+            let originalWord = curWord;
             curWord = curWord.toLowerCase();
             // search columnNames
             this.allColumns.forEach(function (progCol) {
                 const colName = progCol.getBackColName();
-                if (colName.indexOf(curWord) !== -1 &&
+                const colNameLower = colName.toLowerCase();
+                if (colNameLower.indexOf(curWord) !== -1 &&
                     !seen.hasOwnProperty(colName)) {
 
                     seen[colName] = true;
@@ -490,7 +491,8 @@ class BaseOpPanel {
                 if (!this.codeMirrorNoAggs) {
                     // search aggMap
                     for (var agg in this.aggMap) {
-                        if (agg.indexOf(curWord) !== -1 &&
+                        const aggLower = agg.toLowerCase();
+                        if (aggLower.indexOf(curWord) !== -1 &&
                             !seen.hasOwnProperty(agg)) {
                             list.push({
                                 text: agg,
@@ -507,7 +509,7 @@ class BaseOpPanel {
                 return a.displayText.length - b.displayText.length;
             });
             // do not show hint if only hint is an exact match
-            if (list.length === 1 && curWord === list[0].text) {
+            if (list.length === 1 && originalWord === list[0].text) {
                 list = [];
             }
 
@@ -518,7 +520,8 @@ class BaseOpPanel {
             });
 
             function searchMapFunction(fnName, mapFuncs) {
-                if (fnName.lastIndexOf(curWord, 0) === 0 &&
+                const fnNameLower = fnName.toLowerCase();
+                if (fnNameLower.lastIndexOf(curWord, 0) === 0 &&
                     !seen.hasOwnProperty(fnName)) {
                     seen[fnName] = true;
                     var mapFunc;

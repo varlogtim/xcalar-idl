@@ -152,6 +152,7 @@ describe('Sort Op Panel Test', function() {
 
     describe('column pickers should work', function() {
         var $table;
+        var wasHidden;
         before(function(done) {
             $table = $('<div class="xcTable">' +
                             '<div class="header">' +
@@ -160,7 +161,11 @@ describe('Sort Op Panel Test', function() {
                                 '<input class="editableHead" value="average_stars">' +
                             '</div>' +
                         '</div>');
-            $("#container").append($table);
+            $("#dagViewTableArea").append($table);
+            if ($("#dagViewTableArea").hasClass("xc-hidden")) {
+                $("#dagViewTableArea").removeClass("xc-hidden");
+                wasHidden = true;
+            }
 
             node = new DagNodeSort({});
             const parentNode = new DagNodeMap({});
@@ -231,6 +236,9 @@ describe('Sort Op Panel Test', function() {
         after(function() {
             $table.remove();
             SortOpPanel.Instance.close();
+            if (wasHidden) {
+                $("#dagViewTableArea").addClass("xc-hidden");
+            }
         });
     });
 

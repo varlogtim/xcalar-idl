@@ -550,6 +550,7 @@ describe("MapOpPanel Test", function() {
 
             describe('column pickers should work', function() {
                 var $table;
+                var wasHidden;
                 before(function() {
                     $table = $('<div class="xcTable">' +
                                     '<div class="header">' +
@@ -558,7 +559,11 @@ describe("MapOpPanel Test", function() {
                                         '<input class="editableHead" value="average_stars">' +
                                     '</div>' +
                                 '</div>');
-                    $("#container").append($table);
+                    $("#dagViewTableArea").append($table);
+                    if ($("#dagViewTableArea").hasClass("xc-hidden")) {
+                        $("#dagViewTableArea").removeClass("xc-hidden");
+                        wasHidden = true;
+                    }
                 });
 
                 it ('input should fill from column header', function() {
@@ -616,6 +621,9 @@ describe("MapOpPanel Test", function() {
 
                 after(function() {
                     $table.remove();
+                    if (wasHidden) {
+                        $("#dagViewTableArea").addClass("xc-hidden");
+                    }
                 });
             });
 
