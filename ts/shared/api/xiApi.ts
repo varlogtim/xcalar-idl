@@ -2778,23 +2778,36 @@ namespace XIApi {
     ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
 
-        const roColName: string = "XcalarRankOver";
         const opCode: string = "XcalarOpCode";
 
         if (imdCol != null && imdCol[0] == "$") {
             imdCol = imdCol.substr(1);
         }
 
+        let tableToDelete: string = null;
+        let genRowNumPromise = null;
         // Assemble rankOverColumn
         if (primaryKeyList.length == 0) {
+            const roColName: string = "XcalarRankOver";
+            // when no primary key, generate row number column
             primaryKeyList = [{name: roColName, ordering: XcalarOrderingT.XcalarOrderingUnordered}]
+            let rowNumTableName: string = getNewTableName("pubTemp");
+            genRowNumPromise = XIApi.genRowNum(txId, srcTableName, roColName, rowNumTableName);
+            // for synthesize use
+            colInfo.push({
+                orig: roColName,
+                new: roColName,
+                type: DfFieldTypeT.DfInt64
+            });
+        } else {
+            genRowNumPromise = PromiseHelper.resolve(srcTableName);
         }
 
-        const rowNumTableName: string = getNewTableName("pubTemp");
-        let tableToDelete: string = null;
-        XIApi.genRowNum(txId, srcTableName, roColName, rowNumTableName)
+        genRowNumPromise
         .then((table: string) => {
-            tableToDelete = table;
+            if (table != srcTableName) {
+                tableToDelete = table;
+            }
             // Assemble opcode column
             let mapStr: string[] = [];
             if (imdCol != null && imdCol != "") {
@@ -2810,10 +2823,6 @@ namespace XIApi {
             tableToDelete = table;
             // synthesize
             colInfo.push({
-                orig: roColName,
-                new: roColName,
-                type: DfFieldTypeT.DfInt64
-            }, {
                 orig: opCode,
                 new: opCode,
                 type: DfFieldTypeT.DfInt64
