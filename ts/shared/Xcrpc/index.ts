@@ -47,3 +47,5 @@ import * as XDF from './XDF/XDFService';
 export { XDF };
 import * as Version from './Version/VersionService';
 export { Version };
+import * as ResultSet from './ResultSet/ResultSetService';
+export { ResultSet };

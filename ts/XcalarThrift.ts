@@ -354,13 +354,14 @@ function fetchDataHelper(
     rowsToFetch: number,
     totalRows: number,
     data: any[],
-    tryCnt: number
+    tryCnt: number,
+    scopeInfo?: Xcrpc.ResultSet.ScopeInfo
 ): XDPromise<any[]> {
     const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
     // row position start with 0
-    XcalarSetAbsolute(resultSetId, rowPosition)
+    XcalarSetAbsolute(resultSetId, rowPosition, scopeInfo)
     .then(function() {
-        return XcalarGetNextPage(resultSetId, rowsToFetch);
+        return XcalarGetNextPage(resultSetId, rowsToFetch, scopeInfo);
     })
     .then(function(tableOfEntries) {
         const values: any[] = tableOfEntries.values;
@@ -396,7 +397,7 @@ function fetchDataHelper(
             }
 
             return XcalarFetchData(resultSetId, newPosition, numStillNeeds,
-                                totalRows, data, tryCnt + 1);
+                                totalRows, data, tryCnt + 1, scopeInfo);
         }
     })
     .then(deferred.resolve)
@@ -1833,9 +1834,9 @@ XcalarDeleteTable = function(
     .fail(function(error) {
         const thriftError = thriftLog("XcalarDeleteTable", error);
         if (!isRetry && thriftError.status === StatusT.StatusDgNodeInUse) {
-            forceReleaseTable(error.output)
+            forceReleaseTable(error.output, scopeInfo)
             .then(function() {
-                return XcalarDeleteTable(tableName, txId, true, deleteCompletely);
+                return XcalarDeleteTable(tableName, txId, true, deleteCompletely, scopeInfo);
             })
             .then(deferred.resolve)
             .fail(function() {
@@ -1914,12 +1915,12 @@ XcalarDeleteConstants = function(
     return deferred.promise();
 };
 
-function forceReleaseTable(deleteOutput: any): XDPromise<any> {
+function forceReleaseTable(deleteOutput: any, scopeInfo?: Xcrpc.ResultSet.ScopeInfo): XDPromise<any> {
     try {
         const promises: XDPromise<StatusT>[] = [];
         deleteOutput.statuses.forEach(function(status) {
             status.refs.forEach(function(ref) {
-                promises.push(XcalarSetFree(ref.xid));
+                promises.push(XcalarSetFree(ref.xid, scopeInfo));
             });
         });
         return PromiseHelper.when.apply(this, promises);
@@ -1982,7 +1983,8 @@ XcalarFetchData = function(
     totalRows: number,
     data?: any[],
     tryCnt?: number,
-    maxNumRowsPerCall?: number
+    maxNumRowsPerCall?: number,
+    scopeInfo?: Xcrpc.ResultSet.ScopeInfo
 ): XDPromise<any[]> {
     const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
     if (tryCnt == null) {
@@ -2006,7 +2008,7 @@ XcalarFetchData = function(
         promiseArray.push(fetchDataHelper.bind({}, resultSetId,
                                             rowPosition + i * maxNumRowsPerCall,
                                                numRows, totalRows,
-                                               data, tryCnt));
+                                               data, tryCnt, scopeInfo));
     }
 
     PromiseHelper.chain(promiseArray)
@@ -2471,7 +2473,7 @@ XcalarGetTableRefCount = function(tableName: string): XDPromise<any> {
     return (deferred.promise());
 };
 
-XcalarMakeResultSetFromTable = function(
+XcalarMakeResultSetFromTableThrift = function(
     tableName: string
 ): XDPromise<XcalarApiMakeResultSetOutputT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -2494,7 +2496,98 @@ XcalarMakeResultSetFromTable = function(
     return (deferred.promise());
 };
 
-XcalarMakeResultSetFromDataset = function(
+XcalarMakeResultSetFromTable = function(
+    tableName: string,
+    scopeInfo?: Xcrpc.ResultSet.ScopeInfo
+): XDPromise<XcalarApiMakeResultSetOutputT> {
+
+    const deferred: XDDeferred<XcalarApiMakeResultSetOutputT> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Dataset.SCOPE.GLOBAL,
+            workbook: Xcrpc.Dataset.SCOPE.WORKBOOK
+        }
+    });
+    let type = Xcrpc.ResultSet.MakeType.TABLE;
+
+    PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
+                                        .getResultSetService()
+                                        .make({name:tableName,
+                                            scope: xcrpcScope.scope,
+                                            error_dataset: false,
+                                            make_type: type,
+                                            scopeInfo: xcrpcScope.scopeInfo
+    }))
+    .then((response: Xcrpc.ResultSet.MakeResponseInfo) => {
+        let resultSetOutput: XcalarApiMakeResultSetOutputT = new XcalarApiMakeResultSetOutputT();
+        resultSetOutput.resultSetId = response.id.toString();
+        resultSetOutput.numEntries = response.num_rows;
+        let metaOutput: XcalarApiGetTableMetaOutputT = new XcalarApiGetTableMetaOutputT();
+        metaOutput.numDatasets = response.tableMeta.datasets.length;
+        metaOutput.datasets = response.tableMeta.datasets;
+        metaOutput.numResultSets = response.tableMeta.result_set_ids.length;
+        metaOutput.resultSetIds = response.tableMeta.result_set_ids.map((value) => {return value.toString()});
+        metaOutput.numKeys = response.tableMeta.keyAttributes.length;
+
+        let keyAttr: DfFieldAttrHeaderT[] = response.tableMeta.keyAttributes.map((attr) => {
+            let key = new DfFieldAttrHeaderT();
+            key.name = attr.name;
+            key.type = DfFieldTypeTFromStr[attr.type];
+            key.valueArrayIndex = attr.index;
+            return key;
+        })
+
+        metaOutput.keyAttr = keyAttr;
+
+        let colAttr: DfFieldAttrHeaderT[] = response.tableMeta.columnsAttributes.map((attr) => {
+            let key = new DfFieldAttrHeaderT();
+            key.name = attr.name;
+            key.type = DfFieldTypeTFromStr[attr.type];
+            key.valueArrayIndex = attr.index;
+            return key;
+        });
+
+        metaOutput.valueAttrs = colAttr;
+
+        metaOutput.numImmediates = response.tableMeta.num_immediates;
+        metaOutput.ordering = XcalarOrderingTStr[response.tableMeta.ordering];
+        metaOutput.numMetas = response.tableMeta.tableInfo.length;
+
+        let tableMetas: XcalarApiTableMetaT[] = response.tableMeta.tableInfo.map((info) => {
+            let meta = new XcalarApiTableMetaT;
+            meta.numPages = info.num_pages;
+            meta.numPagesPerSlot = info.pages_per_slot;
+            meta.numRows = info.num_rows;
+            meta.numRowsPerSlot = info.rows_per_slot;
+            meta.numSlots = info.num_slots;
+            meta.size = info.size;
+            meta.xdbPageAllocatedInBytes = info.pages_allocated_in_bytes;
+            meta.xdbPageConsumedInBytes = info.pages_consumed_in_bytes;
+            meta.numTransPageRecv = info.pages_received;
+            meta.numTransPageSent = info.pages_sent;
+            return meta;
+        });
+
+        metaOutput.metas = tableMetas;
+
+        resultSetOutput.metaOutput = metaOutput;
+
+        deferred.resolve(resultSetOutput);
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarMakeResultSetFromTable: " + tableName, error);
+        Log.errorLog("MakeResultSetFromTable: " + tableName, null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return deferred.promise();
+};
+
+XcalarMakeResultSetFromDatasetThrift = function(
     datasetName: string,
     getErrorDataset: boolean
 ): XDPromise<XcalarApiMakeResultSetOutputT> {
@@ -2525,7 +2618,100 @@ XcalarMakeResultSetFromDataset = function(
 
 };
 
-XcalarSetAbsolute = function(
+XcalarMakeResultSetFromDataset = function(
+    datasetName: string,
+    getErrorDataset: boolean,
+    scopeInfo?: Xcrpc.ResultSet.ScopeInfo
+): XDPromise<XcalarApiMakeResultSetOutputT> {
+    const deferred: XDDeferred<XcalarApiMakeResultSetOutputT> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Dataset.SCOPE.GLOBAL,
+            workbook: Xcrpc.Dataset.SCOPE.WORKBOOK
+        }
+    });
+
+    let type = Xcrpc.ResultSet.MakeType.DATASET;
+    datasetName = parseDS(datasetName);
+    PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
+                                        .getResultSetService()
+                                        .make({name: datasetName,
+                                            scope: xcrpcScope.scope,
+                                            error_dataset: getErrorDataset,
+                                            make_type: type,
+                                            scopeInfo: xcrpcScope.scopeInfo
+    }))
+    .then((response: Xcrpc.ResultSet.MakeResponseInfo) => {
+        let resultSetOutput: XcalarApiMakeResultSetOutputT = new XcalarApiMakeResultSetOutputT();
+        resultSetOutput.resultSetId = response.id.toString();
+        resultSetOutput.numEntries = response.num_rows;
+
+        let metaOutput: XcalarApiGetTableMetaOutputT = new XcalarApiGetTableMetaOutputT();
+        metaOutput.numDatasets = response.tableMeta.datasets.length;
+        metaOutput.datasets = response.tableMeta.datasets;
+        metaOutput.numResultSets = response.tableMeta.result_set_ids.length;
+        metaOutput.resultSetIds = response.tableMeta.result_set_ids.map((value) => {return value.toString()});
+        metaOutput.numKeys = response.tableMeta.keyAttributes.length;
+
+        let keyAttr: DfFieldAttrHeaderT[] = response.tableMeta.keyAttributes.map((attr) => {
+            let key = new DfFieldAttrHeaderT();
+            key.name = attr.name;
+            key.type = DfFieldTypeTFromStr[attr.type];
+            key.valueArrayIndex = attr.index;
+            return key;
+        })
+
+        metaOutput.keyAttr = keyAttr;
+
+        let colAttr: DfFieldAttrHeaderT[] = response.tableMeta.columnsAttributes.map((attr) => {
+            let key = new DfFieldAttrHeaderT();
+            key.name = attr.name;
+            key.type = DfFieldTypeTFromStr[attr.type];
+            key.valueArrayIndex = attr.index;
+            return key;
+        });
+
+        metaOutput.valueAttrs = colAttr;
+
+        metaOutput.numImmediates = response.tableMeta.num_immediates;
+        metaOutput.ordering = XcalarOrderingTStr[response.tableMeta.ordering];
+        metaOutput.numMetas = response.tableMeta.tableInfo.length;
+
+        let tableMetas: XcalarApiTableMetaT[] = response.tableMeta.tableInfo.map((info) => {
+            let meta = new XcalarApiTableMetaT;
+            meta.numPages = info.num_pages;
+            meta.numPagesPerSlot = info.pages_per_slot;
+            meta.numRows = info.num_rows;
+            meta.numRowsPerSlot = info.rows_per_slot;
+            meta.numSlots = info.num_slots;
+            meta.size = info.size;
+            meta.xdbPageAllocatedInBytes = info.pages_allocated_in_bytes;
+            meta.xdbPageConsumedInBytes = info.pages_consumed_in_bytes;
+            meta.numTransPageRecv = info.pages_received;
+            meta.numTransPageSent = info.pages_sent;
+            return meta;
+        });
+
+        metaOutput.metas = tableMetas;
+
+        resultSetOutput.metaOutput = metaOutput;
+
+        deferred.resolve(resultSetOutput);
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarMakeResultSetFromDataset", error);
+        Log.errorLog("MakeResultSetFromDataset", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return deferred.promise();
+};
+
+XcalarSetAbsoluteThrift = function(
     resultSetId: string,
     position: number
 ): XDPromise<StatusT> {
@@ -2549,7 +2735,42 @@ XcalarSetAbsolute = function(
     return (deferred.promise());
 };
 
-XcalarGetNextPage = function(
+XcalarSetAbsolute = function(
+    resultSetId: number,
+    position: number,
+    scopeInfo?: Xcrpc.ResultSet.ScopeInfo
+): XDPromise<any> {
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Dataset.SCOPE.GLOBAL,
+            workbook: Xcrpc.Dataset.SCOPE.WORKBOOK
+        }
+    });
+    PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
+                        .getResultSetService()
+                        .seek({result_set_id: resultSetId,
+                            row_index: position,
+                            scope: xcrpcScope.scope,
+                            scopeInfo: xcrpcScope.scopeInfo
+                        }))
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarSetAbsolute", error);
+        Log.errorLog("Set Absolute", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
+XcalarGetNextPageThrift = function(
     resultSetId: string,
     numEntries: number
 ): XDPromise<any> {
@@ -2573,7 +2794,49 @@ XcalarGetNextPage = function(
     return (deferred.promise());
 };
 
-XcalarSetFree = function(
+XcalarGetNextPage = function(
+    resultSetId: number,
+    numEntries: number,
+    scopeInfo?: Xcrpc.ResultSet.ScopeInfo
+): XDPromise<XcalarApiResultSetNextOutputT > {
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Dataset.SCOPE.GLOBAL,
+            workbook: Xcrpc.Dataset.SCOPE.WORKBOOK
+        }
+    });
+
+    PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
+                        .getResultSetService()
+                        .next({result_set_id: resultSetId,
+                            num_rows: numEntries,
+                            scope: xcrpcScope.scope,
+                            scopeInfo: xcrpcScope.scopeInfo
+    }))
+    .then((response: Xcrpc.ResultSet.NextResponseInfo) => {
+        let nextOutput = {
+            numValues: response.rows.length,
+            values: response.rows
+        }
+        deferred.resolve(nextOutput)
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarGetNextPage", error);
+        Log.errorLog("Get Next Page", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarSetFreeThrift = function(
     resultSetId: string
 ): XDPromise<StatusT> {
     if (tHandle == null) {
@@ -2586,6 +2849,39 @@ XcalarSetFree = function(
     }
 
     xcalarFreeResultSet(tHandle, resultSetId)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarSetFree", error);
+        Log.errorLog("Set Free", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+};
+
+XcalarSetFree = function(
+    resultSetId: number,
+    scopeInfo?: Xcrpc.ResultSet.ScopeInfo
+): XDPromise<any> {
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Dataset.SCOPE.GLOBAL,
+            workbook: Xcrpc.Dataset.SCOPE.WORKBOOK
+        }
+    });
+    PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
+                        .getResultSetService()
+                        .release({result_set_id: resultSetId,
+                            scope: xcrpcScope.scope,
+                            scopeInfo: xcrpcScope.scopeInfo
+    }))
     .then(deferred.resolve)
     .fail(function(error) {
         const thriftError = thriftLog("XcalarSetFree", error);

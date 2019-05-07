@@ -221,8 +221,9 @@ SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging, sessi
     var resultMeta = {};
     var {userName, userId, sessionName} = sessionInfo;
 
-    SqlUtil.setSessionInfo(userName, userId, sessionName);
-    XcalarMakeResultSetFromTable(tableName)
+    const sessInfo = SqlUtil.setSessionInfo(userName, userId, sessionName);
+    XcalarMakeResultSetFromTable(tableName, { userName: sessInfo.userName,
+        workbookName: sessInfo.sessionName })
     .then(function(res) {
         resultMeta.resultSetId = res.resultSetId;
         resultMeta.totalRows = res.numEntries;
@@ -245,8 +246,9 @@ SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging, sessi
     })
     .then(function(ret) {
         if (!usePaging && resultMeta.resultSetId != null) {
-            SqlUtil.setSessionInfo(userName, userId, sessionName);
-            XcalarSetFree(resultMeta.resultSetId)
+            const sessInfo = SqlUtil.setSessionInfo(userName, userId, sessionName);
+            XcalarSetFree(resultMeta.resultSetId, { userName: sessInfo.userName,
+                workbookName: sessInfo.sessionName })
             .then(deferred.resolve(ret))
             .fail(deferred.reject);
         } else {
@@ -254,8 +256,9 @@ SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging, sessi
         }
     })
     .fail(function(ret) {
-        SqlUtil.setSessionInfo(userName, userId, sessionName);
-        XcalarSetFree(resultMeta.resultSetId)
+        const sessInfo = SqlUtil.setSessionInfo(userName, userId, sessionName);
+        XcalarSetFree(resultMeta.resultSetId, { userName: sessInfo.userName,
+            workbookName: sessInfo.sessionName })
         .always(deferred.reject(ret));
     });
 
@@ -266,8 +269,9 @@ SqlUtil.fetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows, s
     var deferred = PromiseHelper.deferred();
     var finalData = [];
     var {userName, userId, sessionName} = sessionInfo;
-    SqlUtil.setSessionInfo(userName, userId, sessionName);
-    XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, [], 0, 0)
+    const sessInfo = SqlUtil.setSessionInfo(userName, userId, sessionName);
+    XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, [], 0, 0,
+        { userName: sessInfo.userName, workbookName: sessInfo.sessionName })
     .then(function(result) {
         for (var i = 0, len = result.length; i < len; i++) {
             finalData.push(result[i]);

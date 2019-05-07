@@ -1068,8 +1068,11 @@ class SqlManager {
         this.setupConnection(userName, userId, sessionName)
         .then(() => {
             if (resultSetId) {
-                this.SqlUtil.setSessionInfo(userName, userId, sessionName);
-                return XcalarSetFree(resultSetId);
+                const sessionInfo = this.SqlUtil.setSessionInfo(userName, userId,
+                                                                sessionName);
+                return XcalarSetFree(resultSetId,
+                                    {userName: sessionInfo.userName,
+                                    workbookName: sessionInfo.sessionName});
             } else {
                 return PromiseHelper.resolve();
             }

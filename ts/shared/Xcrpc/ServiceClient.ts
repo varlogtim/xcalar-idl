@@ -13,6 +13,7 @@ import { TargetService } from './Target/TargetService';
 import { DagNodeService} from './DagNode/DagNodeService';
 import { XDFService } from './XDF/XDFService';
 import {VersionService} from './Version/VersionService';
+import { ResultSetService } from './ResultSet/ResultSetService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -75,6 +76,10 @@ class ServiceClient {
 
     public getVersionService(): VersionService {
         return new VersionService(this._apiClient);
+    }
+    
+    public getResultSetService(): ResultSetService {
+        return new ResultSetService(this._apiClient);
     }
 }
 

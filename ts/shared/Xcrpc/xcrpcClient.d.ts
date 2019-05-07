@@ -41,6 +41,10 @@ declare module 'xcalar' {
 
     export class ResultSetService {
         constructor(client: XceClient);
+        make(request: ProtoTypes.ResultSet.ResultSetMakeRequest): Promise<ProtoTypes.ResultSet.ResultSetMakeResponse>;
+        release(request: ProtoTypes.ResultSet.ResultSetReleaseRequest): Promise<void>;
+        next(request: ProtoTypes.ResultSet.ResultSetNextRequest): Promise<ProtoTypes.ResultSet.ResultSetNextResponse>;
+        seek(request: ProtoTypes.ResultSet.ResultSetSeekRequest): Promise<void>;
     }
 
     export class UserDefinedFunctionService {
@@ -1113,16 +1117,65 @@ declare namespace proto.xcalar.compute.localtypes {
             setName(value: string): void;
             setScope(value: Workbook.WorkbookScope): void;
             setErrorDataset(value: boolean): void;
+            setMakeType(value: number): void
         }
+
         export class ResultSetMakeResponse {
             getResultSetId(): number;
             getNumRows(): number;
-            getTableMeta(): TableMeta.GetTableMetaProto;
+            getGetTableMeta(): TableMeta.GetTableMetaProto;
+        }
+
+        export class ResultSetReleaseRequest {
+            setResultSetId(value: number): void;
+            setScope(value: Workbook.WorkbookScope): void;
+        }
+
+        export class ResultSetNextRequest {
+            setResultSetId(value: number): void;
+            setNumRows(value: number): void;
+            setScope(value: Workbook.WorkbookScope): void;
+        }
+
+        export class ResultSetNextResponse {
+            /// XXX: TODO: Define the types for RowMeta and ProtoRow
+            getMetasList(): {array: string}[]; // RowMeta
+            getRowsList(): any[]; // ProtoRow
+        }
+
+        export class ResultSetSeekRequest {
+            setResultSetId(value: number): void;
+            setRowIndex(value: number): void;
+            setScope(value: Workbook.WorkbookScope): void;
+        }
+
+        export const MakeType: {
+            TABLE: number, DATASET: number
         }
     }
 
     export namespace TableMeta {
+        export class TableMetaProto {
+            getStatus(): string;
+            getNumRows(): number;
+            getNumPages(): number;
+            getNumSlots(): number;
+            getSize(): number;
+            getRowsPerSlotMap(): any;
+            getPagesPerSlotMap(): any;
+            getPagesConsumedInBytes(): number;
+            getPagesAllocatedInBytes(): number;
+            getPagesSent(): number;
+            getPagesReceived(): number;
+        }
         export class GetTableMetaProto {
+            getDatasetsList(): string[];
+            getResultSetIdsList(): number[];
+            getColumnAttributesMap(): Map<string, ColumnAttribute.ColumnAttributeProto>;
+            getKeyAttributesMap(): Map<string, ColumnAttribute.KeyAttributeProto>;
+            getTableMetaMap(): Map<number, TableMeta.TableMetaProto>;
+            getNumImmediates(): number;
+            getOrdering(): string;
         }
     }
 
@@ -1263,6 +1316,11 @@ declare namespace proto.xcalar.compute.localtypes {
             getValueArrayIdx(): number;
         }
 
+        export class KeyAttributeProto {
+            getName(): string;
+            getType(): string;
+            getValueArrayIdx(): number;
+        }
     }
 
     export namespace Operator {
