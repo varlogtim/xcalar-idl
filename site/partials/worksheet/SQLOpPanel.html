@@ -46,7 +46,7 @@
                     <i class="icon xi-fullscreen"></i>
                 </div>
             </div>
-            <div class="editorWrapper">
+            <div id="sqlSnippetEditWrapper" class="editorWrapper">
                 <div class="snippetSection">
                     <div class="header">Snippet:</div>
                     <div id="sqlSnippetsList" class="snippetsList dropDownList">
@@ -57,11 +57,10 @@
                         <div id="sqlSnippetMenu" class="list autoHighlight">
                             <ul>
                                 <li>
-                                    <!-- <span><%= dicts.SQL.DefaultSnippet %></span> -->
-                                    <span>Default Snippet</span>
+                                    <span><%= dicts.SQL.DefaultSnippet %></span>
                                 </li>
                             </ul>
-                            <!-- include "../../util/menuScrollArea.html" -->
+                            include "../../util/menuScrollArea.html"
                         </div>
                     </div>
                     <div class="save">
@@ -69,10 +68,10 @@
                     </div>
                 </div>
                 <div class="saveSection xc-hidden">
-                    <button class="btn btn-rounded focusable overwriteSnippet">
+                    <button class="btn btn-secondary focusable overwriteSnippet">
                         Overwrite
                     </button>
-                    <button class="btn btn-rounded focusable newSnippet">
+                    <button class="btn btn-secondary focusable newSnippet">
                         New Snippet
                     </button>
                 </div>

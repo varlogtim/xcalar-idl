@@ -483,8 +483,8 @@ class SQLOpPanel extends BaseOpPanel {
     private _setupSnippetsList(): void {
         const menuHelper = new MenuHelper(this._$sqlSnippetDropdown, {
             "onSelect": this._selectSnippet.bind(this),
-            "container": "#sqlOpPanel",
-            "bounds": "#sqlOpPanel",
+            "container": "#sqlSnippetEditWrapper",
+            "bounds": "#sqlSnippetEditWrapper",
             "bottomPadding": 2
         });
 
