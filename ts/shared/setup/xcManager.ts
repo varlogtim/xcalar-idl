@@ -738,7 +738,6 @@ namespace xcManager {
         WorkbookPanel.setup();
         SupTicketModal.setup();
         WorkbookInfoModal.setup();
-        JupyterUDFModal.setup();
     }
 
     function setupUserArea(): void {

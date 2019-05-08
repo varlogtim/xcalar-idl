@@ -359,7 +359,7 @@ namespace JupyterPanel {
             target: target,
             filePath: filePath
         }
-        return JupyterUDFModal.show("newImport", params);
+        return JupyterUDFModal.Instance.show("newImport", params);
     }
 
     function getCols(tableName: string): string[] {

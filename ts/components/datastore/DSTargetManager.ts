@@ -118,7 +118,7 @@ namespace DSTargetManager {
                 return "<li>" + targetName + "</li>";
             }).join("");
             $("#dsForm-targetMenu ul").html(html);
-            JupyterUDFModal.refreshTarget(html);
+            JupyterUDFModal.Instance.refreshTarget(html);
 
             let $input = $("#dsForm-target input");
             let targetName = $input.val();

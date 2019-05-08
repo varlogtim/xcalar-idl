@@ -88,7 +88,7 @@ describe("JupyterUDFModal Test", function() {
 
     describe("Modal open test", function() {
         it ("map modal should show", function() {
-            JupyterUDFModal.show("map");
+            JupyterUDFModal.Instance.show("map");
             expect($modal.hasClass("type-map")).to.be.true;
             expect($modal.hasClass("type-newImport")).to.be.false;
             expect($modal.find(".mapForm .moduleName").val()).to.equal("");
@@ -96,7 +96,7 @@ describe("JupyterUDFModal Test", function() {
         });
 
         it ("import modal should show", function() {
-            JupyterUDFModal.show("newImport", {target: "someTarget", filePath: "test"});
+            JupyterUDFModal.Instance.show("newImport", {target: "someTarget", filePath: "test"});
             expect($modal.hasClass("type-map")).to.be.false;
             expect($modal.hasClass("type-newImport")).to.be.true;
             expect($modal.find(".newImportForm .target").val()).to.equal("someTarget");
@@ -107,7 +107,7 @@ describe("JupyterUDFModal Test", function() {
 
     describe("Import modal test", function() {
         before(function() {
-            JupyterUDFModal.show("newImport");
+            JupyterUDFModal.Instance.show("newImport");
         });
 
         it ("target list should work", function() {
@@ -221,7 +221,7 @@ describe("JupyterUDFModal Test", function() {
 
     describe("Map modal test", function() {
         before(function() {
-            JupyterUDFModal.show("map");
+            JupyterUDFModal.Instance.show("map");
         });
 
         it("table list should work", function() {

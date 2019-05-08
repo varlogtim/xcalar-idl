@@ -896,12 +896,6 @@ declare namespace BottomMenu {
     export function isPoppedOut(): boolean;
 }
 
-declare namespace JupyterUDFModal {
-    export function setup(): void;
-    export function show(type: string, params?: any): void;
-    export function refreshTarget(html: HTML): void;
-}
-
 declare namespace xcMixpanel {
     export function setup(): void;
     export function forDev(): boolean;

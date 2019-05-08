@@ -58,8 +58,8 @@ describe("JupyterPanel Test", function() {
 
         it("autofillImportUdf with stub should trigger udf modal", function(done) {
             var called = false;
-            var cacheFn = JupyterUDFModal.show;
-            JupyterUDFModal.show = function(type, params) {
+            var cacheFn = JupyterUDFModal.Instance.show;
+            JupyterUDFModal.Instance.show = function(type, params) {
                 expect(type).to.equal("newImport");
                 expect(params.target).to.equal("targ");
                 expect(params.filePath).to.equal("path");
@@ -70,7 +70,7 @@ describe("JupyterPanel Test", function() {
             .then(function() {
                 expect(called).to.be.true;
 
-                JupyterUDFModal.show = cacheFn;
+                JupyterUDFModal.Instance.show = cacheFn;
                 done();
             })
             .fail(function() {
@@ -302,26 +302,26 @@ describe("JupyterPanel Test", function() {
 
         it("map li should work", function() {
             var called = false;
-            var cacheFn = JupyterUDFModal.show;
-            JupyterUDFModal.show = function(type) {
+            var cacheFn = JupyterUDFModal.Instance.show;
+            JupyterUDFModal.Instance.show = function(type) {
                 expect(type).to.equal("map");
                 called = true;
             }
             $(".jupyterMenu li[data-action='basicUDF']").click();
             expect(called).to.be.true;
-            JupyterUDFModal.show = cacheFn;
+            JupyterUDFModal.Instance.show = cacheFn;
         });
 
         it("import udf li should work", function() {
             var called = false;
-            var cacheFn = JupyterUDFModal.show;
-            JupyterUDFModal.show = function(type) {
+            var cacheFn = JupyterUDFModal.Instance.show;
+            JupyterUDFModal.Instance.show = function(type) {
                 expect(type).to.equal("newImport");
                 called = true;
             }
             $(".jupyterMenu li[data-action='importUDF']").click();
             expect(called).to.be.true;
-            JupyterUDFModal.show = cacheFn;
+            JupyterUDFModal.Instance.show = cacheFn;
         });
 
 

@@ -32,9 +32,9 @@ namespace JupyterStubMenu {
             this.$jupyterPanel.on("click", ".jupyterMenu li", function() {
                 var stubName = $(this).attr("data-action");
                 if (stubName === "basicUDF") {
-                    JupyterUDFModal.show("map");
+                    JupyterUDFModal.Instance.show("map");
                 } else if (stubName === "importUDF") {
-                    JupyterUDFModal.show("newImport");
+                    JupyterUDFModal.Instance.show("newImport");
                 } else {
                     JupyterPanel.appendStub(stubName);
                 }
