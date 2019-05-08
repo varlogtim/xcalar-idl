@@ -3163,7 +3163,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.repeatedFields_ = [3,5];
+proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.repeatedFields_ = [4];
 
 
 
@@ -3196,9 +3196,8 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.toObject = function(inc
   var f, obj = {
     querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
     newtablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    tempcolsList: jspb.Message.getRepeatedField(msg, 3),
-    newkeyfieldname: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    newkeysList: jspb.Message.getRepeatedField(msg, 5)
+    newkeyfieldname: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    newkeysList: jspb.Message.getRepeatedField(msg, 4)
   };
 
   if (includeInstance) {
@@ -3245,13 +3244,9 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.deserializeBinaryFromRe
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.addTempcols(value);
-      break;
-    case 4:
-      var value = /** @type {string} */ (reader.readString());
       msg.setNewkeyfieldname(value);
       break;
-    case 5:
+    case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.addNewkeys(value);
       break;
@@ -3298,24 +3293,17 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.serializeBinaryToWriter
       f
     );
   }
-  f = message.getTempcolsList();
-  if (f.length > 0) {
-    writer.writeRepeatedString(
-      3,
-      f
-    );
-  }
   f = message.getNewkeyfieldname();
   if (f.length > 0) {
     writer.writeString(
-      4,
+      3,
       f
     );
   }
   f = message.getNewkeysList();
   if (f.length > 0) {
     writer.writeRepeatedString(
-      5,
+      4,
       f
     );
   }
@@ -3353,61 +3341,32 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setNewtablena
 
 
 /**
- * repeated string tempCols = 3;
- * @return {!Array<string>}
- */
-proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.getTempcolsList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
-};
-
-
-/** @param {!Array<string>} value */
-proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setTempcolsList = function(value) {
-  jspb.Message.setField(this, 3, value || []);
-};
-
-
-/**
- * @param {!string} value
- * @param {number=} opt_index
- */
-proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.addTempcols = function(value, opt_index) {
-  jspb.Message.addToRepeatedField(this, 3, value, opt_index);
-};
-
-
-proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.clearTempcolsList = function() {
-  this.setTempcolsList([]);
-};
-
-
-/**
- * optional string newKeyFieldName = 4;
+ * optional string newKeyFieldName = 3;
  * @return {string}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.getNewkeyfieldname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
 /** @param {string} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setNewkeyfieldname = function(value) {
-  jspb.Message.setProto3StringField(this, 4, value);
+  jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * repeated string newKeys = 5;
+ * repeated string newKeys = 4;
  * @return {!Array<string>}
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.getNewkeysList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4));
 };
 
 
 /** @param {!Array<string>} value */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setNewkeysList = function(value) {
-  jspb.Message.setField(this, 5, value || []);
+  jspb.Message.setField(this, 4, value || []);
 };
 
 
@@ -3416,7 +3375,7 @@ proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.setNewkeysLis
  * @param {number=} opt_index
  */
 proto.xcalar.compute.localtypes.Dataflow.GroupByResponse.prototype.addNewkeys = function(value, opt_index) {
-  jspb.Message.addToRepeatedField(this, 5, value, opt_index);
+  jspb.Message.addToRepeatedField(this, 4, value, opt_index);
 };
 
 
@@ -4560,7 +4519,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.repeatedFields_ = [3];
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.repeatedFields_ = [3,4];
 
 
 
@@ -4593,9 +4552,10 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.toObject = function(includ
   var f, obj = {
     querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
     newtablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    tempcolsList: jspb.Message.getRepeatedField(msg, 3),
-    lrename: (f = msg.getLrename()) && proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.toObject(includeInstance, f),
-    rrename: (f = msg.getRrename()) && proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.toObject(includeInstance, f)
+    lrenameList: jspb.Message.toObjectList(msg.getLrenameList(),
+    proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.toObject, includeInstance),
+    rrenameList: jspb.Message.toObjectList(msg.getRrenameList(),
+    proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -4641,18 +4601,14 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.deserializeBinaryFromReade
       msg.setNewtablename(value);
       break;
     case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.addTempcols(value);
+      var value = new proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.deserializeBinaryFromReader);
+      msg.addLrename(value);
       break;
     case 4:
       var value = new proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.deserializeBinaryFromReader);
-      msg.setLrename(value);
-      break;
-    case 5:
-      var value = new proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo;
-      reader.readMessage(value,proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.deserializeBinaryFromReader);
-      msg.setRrename(value);
+      msg.addRrename(value);
       break;
     default:
       reader.skipField();
@@ -4697,25 +4653,18 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.serializeBinaryToWriter = 
       f
     );
   }
-  f = message.getTempcolsList();
+  f = message.getLrenameList();
   if (f.length > 0) {
-    writer.writeRepeatedString(
+    writer.writeRepeatedMessage(
       3,
-      f
-    );
-  }
-  f = message.getLrename();
-  if (f != null) {
-    writer.writeMessage(
-      4,
       f,
       proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.serializeBinaryToWriter
     );
   }
-  f = message.getRrename();
-  if (f != null) {
-    writer.writeMessage(
-      5,
+  f = message.getRrenameList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      4,
       f,
       proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo.serializeBinaryToWriter
     );
@@ -4754,91 +4703,64 @@ proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setNewtablename 
 
 
 /**
- * repeated string tempCols = 3;
- * @return {!Array<string>}
+ * repeated ColRenameInfo lRename = 3;
+ * @return {!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>}
  */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getTempcolsList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getLrenameList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, 3));
 };
 
 
-/** @param {!Array<string>} value */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setTempcolsList = function(value) {
-  jspb.Message.setField(this, 3, value || []);
+/** @param {!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} value */
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setLrenameList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 3, value);
 };
 
 
 /**
- * @param {!string} value
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo=} opt_value
  * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
  */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.addTempcols = function(value, opt_index) {
-  jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.addLrename = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 3, opt_value, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, opt_index);
 };
 
 
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.clearTempcolsList = function() {
-  this.setTempcolsList([]);
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.clearLrenameList = function() {
+  this.setLrenameList([]);
 };
 
 
 /**
- * optional ColRenameInfo lRename = 4;
- * @return {?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
+ * repeated ColRenameInfo rRename = 4;
+ * @return {!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>}
  */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getLrename = function() {
-  return /** @type{?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} */ (
-    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, 4));
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getRrenameList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, 4));
 };
 
 
-/** @param {?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo|undefined} value */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setLrename = function(value) {
-  jspb.Message.setWrapperField(this, 4, value);
-};
-
-
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.clearLrename = function() {
-  this.setLrename(undefined);
+/** @param {!Array<!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo>} value */
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setRrenameList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 4, value);
 };
 
 
 /**
- * Returns whether this field is set.
- * @return {!boolean}
+ * @param {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
  */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.hasLrename = function() {
-  return jspb.Message.getField(this, 4) != null;
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.addRrename = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 4, opt_value, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, opt_index);
 };
 
 
-/**
- * optional ColRenameInfo rRename = 5;
- * @return {?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo}
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.getRrename = function() {
-  return /** @type{?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo} */ (
-    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo, 5));
-};
-
-
-/** @param {?proto.xcalar.compute.localtypes.Dataflow.ColRenameInfo|undefined} value */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.setRrename = function(value) {
-  jspb.Message.setWrapperField(this, 5, value);
-};
-
-
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.clearRrename = function() {
-  this.setRrename(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.hasRrename = function() {
-  return jspb.Message.getField(this, 5) != null;
+proto.xcalar.compute.localtypes.Dataflow.JoinResponse.prototype.clearRrenameList = function() {
+  this.setRrenameList([]);
 };
 
 
@@ -6212,7 +6134,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.repeatedFields_ = [4,5];
+proto.xcalar.compute.localtypes.Dataflow.IndexResponse.repeatedFields_ = [4];
 
 
 
@@ -6246,8 +6168,7 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.toObject = function(inclu
     querystr: jspb.Message.getFieldWithDefault(msg, 1, ""),
     newtablename: jspb.Message.getFieldWithDefault(msg, 2, ""),
     iscache: jspb.Message.getFieldWithDefault(msg, 3, false),
-    newkeysList: jspb.Message.getRepeatedField(msg, 4),
-    tempcolsList: jspb.Message.getRepeatedField(msg, 5)
+    newkeysList: jspb.Message.getRepeatedField(msg, 4)
   };
 
   if (includeInstance) {
@@ -6299,10 +6220,6 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.deserializeBinaryFromRead
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.addNewkeys(value);
-      break;
-    case 5:
-      var value = /** @type {string} */ (reader.readString());
-      msg.addTempcols(value);
       break;
     default:
       reader.skipField();
@@ -6358,13 +6275,6 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.serializeBinaryToWriter =
   if (f.length > 0) {
     writer.writeRepeatedString(
       4,
-      f
-    );
-  }
-  f = message.getTempcolsList();
-  if (f.length > 0) {
-    writer.writeRepeatedString(
-      5,
       f
     );
   }
@@ -6444,35 +6354,6 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.addNewkeys = fu
 
 proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.clearNewkeysList = function() {
   this.setNewkeysList([]);
-};
-
-
-/**
- * repeated string tempCols = 5;
- * @return {!Array<string>}
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.getTempcolsList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5));
-};
-
-
-/** @param {!Array<string>} value */
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setTempcolsList = function(value) {
-  jspb.Message.setField(this, 5, value || []);
-};
-
-
-/**
- * @param {!string} value
- * @param {number=} opt_index
- */
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.addTempcols = function(value, opt_index) {
-  jspb.Message.addToRepeatedField(this, 5, value, opt_index);
-};
-
-
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.clearTempcolsList = function() {
-  this.setTempcolsList([]);
 };
 
 

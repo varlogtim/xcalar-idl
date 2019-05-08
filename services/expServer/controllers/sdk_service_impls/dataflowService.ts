@@ -234,7 +234,7 @@ function unionOp(unionReq: any): Promise<any> {
     XIApi.union(txId, tableInfos, dedup, tableName, unionType)
             .then(function(ret: any): void {
                 const newTableName: string = ret.newTableName;
-                const newTableCols: {rename: string, type: ColumnType[]} =
+                const newTableCols: {rename: string, type: ColumnType[]}[] =
                     ret.newTableCols;
                 let unionRes: any = new df_pb.UnionResponse();
                 unionRes.setQuerystr(Transaction.done(txId));
@@ -279,12 +279,16 @@ function getJoinTableInfoAsDict(tableInfo: any): JoinTableInfo{
     return tableInfoDict;
 }
 
-function getColRenameMsg(colRename: any): any {
-    let colRenameMsg: any = new df_pb.ColRenameInfo();
-    colRenameMsg.setOrig(colRename['orig']);
-    colRenameMsg.setNew(colRename['new']);
-    colRenameMsg.setType(colRename['type']);
-    return colRenameMsg;
+function getColRenameMsg(colRenames: ColRenameInfo[]): any[] {
+    let ret: any[] = [];
+    colRenames.forEach((colRename) => {
+        let colRenameMsg: any = new df_pb.ColRenameInfo();
+        colRenameMsg.setOrig(colRename['orig']);
+        colRenameMsg.setNew(colRename['new']);
+        colRenameMsg.setType(colRename['type']);
+        ret.push(colRenameMsg);
+    });
+    return ret
 }
 
 function join(joinReq: any): Promise<any> {
@@ -318,15 +322,13 @@ function join(joinReq: any): Promise<any> {
     XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
             .then(function(ret: any): void {
                 const newTableName: string = ret.newTableName;
-                const tempCols: string[] = ret.tempCols;
                 const lRename: ColRenameInfo[] = ret.lRename;
                 const rRename: ColRenameInfo[] = ret.rRename;
                 let joinRes: any = new df_pb.JoinResponse();
                 joinRes.setQuerystr(Transaction.done(txId));
                 joinRes.setNewtablename(newTableName);
-                joinRes.setTempcolsList(tempCols);
-                joinRes.setLrename(getColRenameMsg(lRename));
-                joinRes.setRrename(getColRenameMsg(rRename));
+                joinRes.setLrenameList(getColRenameMsg(lRename));
+                joinRes.setRrenameList(getColRenameMsg(rRename));
                 deferred.resolve(joinRes);
             })
         .fail(function (err: any): void {
@@ -372,13 +374,11 @@ function groupBy(groupByReq: any): Promise<any> {
     XIApi.groupBy(txId, aggArgs, groupByCols, tableName, options)
             .then(function (ret: any): void {
                 const finalTable: string = ret.finalTable;
-                const tempCols: string[] = ret.tempCols;
                 const newKeyFieldName: string = ret.newKeyFieldName;
                 const newKeys: string[] = ret.newKeys;
                 let groupByRes = new df_pb.GroupByResponse();
                 groupByRes.setQuerystr(Transaction.done(txId));
                 groupByRes.setNewtablename(finalTable);
-                groupByRes.setTempcolsList(tempCols);
                 groupByRes.setNewkeyfieldname(newKeyFieldName);
                 groupByRes.setNewkeysList(newKeys);
                 deferred.resolve(groupByRes);
@@ -404,12 +404,10 @@ function index(indexReq: any): Promise<any> {
                 const newTableName: string = ret.newTableName;
                 const isCache: boolean = ret.isCache;
                 const newKeys: string[] = ret.newKeys;
-                const tempCols: string[] = ret.tempCols;
                 let indexRes = new df_pb.IndexResponse();
                 indexRes.setQuerystr(Transaction.done(txId));
                 indexRes.setNewtablename(newTableName);
                 indexRes.setIscache(isCache);
-                indexRes.setTempcolsList(tempCols);
                 indexRes.setNewkeysList(newKeys);
                 deferred.resolve(indexRes);
             })
