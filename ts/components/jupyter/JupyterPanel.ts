@@ -199,36 +199,30 @@ namespace JupyterPanel {
         sendMessageToJupyter(workbookStruct);
     };
 
+    /**
+     * JupyterPanel.publishTable
+     * @param tableName 
+     * @param numRows 
+     */
     export function publishTable(
         tableName: string,
-        numRows: number,
-        hasVerifiedNames: boolean
+        numRows: number
     ): void {
         let colNames: string[] = getCols(tableName);
-        let needsRename: boolean = false;
-        if (!hasVerifiedNames) {
-            needsRename = checkColsNeedRename(tableName);
-        }
-
-        if (needsRename) {
-            let tableId: TableId = xcHelper.getTableId(tableName);
-            JupyterFinalizeModal.show(tableId, numRows);
-        } else {
-            MainMenu.openPanel("jupyterPanel");
-            let tableStruct = {action: "publishTable",
-                          tableName: tableName,
-                          colNames: colNames,
-                          numRows: numRows};
-            // this message gets sent to either the notebook or list view
-            // (which every is currently active)
-            // if list view receives it, it will create a new notebook and
-            // redirect to it and xcalar.js will send a message back to this
-            // file with a "newUntitled" action, which prompts
-            // JupyterPanel.sendInit to send a message back to the notebook
-            // with session information
-            sendMessageToJupyter(tableStruct);
-        }
-    };
+        MainMenu.openPanel("jupyterPanel");
+        let tableStruct = {action: "publishTable",
+                        tableName: tableName,
+                        colNames: colNames,
+                        numRows: numRows};
+        // this message gets sent to either the notebook or list view
+        // (which every is currently active)
+        // if list view receives it, it will create a new notebook and
+        // redirect to it and xcalar.js will send a message back to this
+        // file with a "newUntitled" action, which prompts
+        // JupyterPanel.sendInit to send a message back to the notebook
+        // with session information
+        sendMessageToJupyter(tableStruct);
+    }
 
     export function autofillImportUdfModal(
         target: string,
@@ -376,20 +370,6 @@ namespace JupyterPanel {
             colNames.push(columns[i].backName.replace("\\",""));
         }
         return colNames;
-    }
-
-    function checkColsNeedRename(tableName: string): boolean {
-        let tableId: TableId = xcHelper.getTableId(tableName);
-        let columns: ProgCol[] = gTables[tableId].getAllCols(true);
-        for (let i = 0; i < columns.length; i++) {
-            if ((columns[i].getBackColName().indexOf(gPrefixSign) > -1 ||
-                columns[i].getBackColName().indexOf(" ") > -1) && (
-                columns[i].getType() !== ColumnType.object &&
-                columns[i].getType() !== ColumnType.array)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     function loadJupyterNotebook(): XDPromise<void> {

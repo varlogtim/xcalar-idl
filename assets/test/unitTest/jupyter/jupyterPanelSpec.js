@@ -256,20 +256,6 @@ describe("JupyterPanel Test", function() {
     });
 
     describe("Main functions", function() {
-        it("Publish table should work", function() {
-
-
-
-            var called = false;
-            var cacheFn = JupyterFinalizeModal.show;
-            JupyterFinalizeModal.show = function() {
-                called = true;
-            };
-            JupyterPanel.publishTable("fakeTable#zz999", 2, false);
-            expect(called).to.be.true;
-            JupyterFinalizeModal.show = cacheFn;
-        });
-
         it("JupyterPanel.autofillImportUdfModal should work", function() {
             var called1 = false;
             var called2 = false;

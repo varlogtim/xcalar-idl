@@ -907,11 +907,6 @@ declare namespace xcMixpanel {
     export function forDev(): boolean;
 }
 
-declare namespace JupyterFinalizeModal {
-    export function setup(): void;
-    export function show(tableId: TableId, numRows: number): void;
-}
-
 declare namespace Msal {
     export class UserAgentApplication {
         public constructor(clientID: string, authority: any, authCallback: Function, options: object);
