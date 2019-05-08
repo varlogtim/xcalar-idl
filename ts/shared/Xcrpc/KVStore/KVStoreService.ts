@@ -1,6 +1,6 @@
 import { KvStoreService as ApiKVStore, XceClient as ApiClient } from 'xcalar';
 import { ServiceError, ErrorType } from '../ServiceError';
-import ProtoTypes = proto.xcalar.compute.localtypes ;
+import ProtoTypes = proto.xcalar.compute.localtypes;
 
 class KVStoreService {
     private _apiClient: ApiClient;

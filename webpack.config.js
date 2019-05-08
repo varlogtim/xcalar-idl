@@ -52,7 +52,9 @@ module.exports = function(env, argv) {
                     'xcalar': path.resolve(env.buildroot, 'assets/js/xcrpc')
                 }
             },
-            devtool: buildSourceMap ? 'source-map' : '',
+            // eval has the best performance, and reduces the build time by ~50%;
+            // it matters especially to the watch task
+            devtool: buildSourceMap ? 'eval' : '',
             node: {
                 fs: 'empty',
                 net: 'empty',

@@ -1646,6 +1646,34 @@ module.exports = function(grunt) {
             },
         },
 
+        /**
+         * webpack plugin to browserify NodeJS code
+         * build: browserify and create bundle files
+         * watch: monitor the source code and re-create bundle files when any changes happen
+         */
+        webpack: {
+            build: () => {
+                const config = require('./webpack.config.js')({
+                    production: true,
+                    buildroot: BLDROOT,
+                    srcmap: BLDTYPE === INSTALLER
+                });
+                return config;
+            },
+            watch: () => {
+                const config = require('./webpack.config.js')({
+                    production: false, // non-optimization dramatically improves build performance
+                    buildroot: BLDROOT,
+                    srcmap: BLDTYPE !== INSTALLER
+                });
+                const watchConfig = [];
+                for (const entity of config) {
+                    watchConfig.push(Object.assign({ watch: true }, entity));
+                }
+                return watchConfig;
+            }
+        }
+
     });
 
     /**
@@ -1690,6 +1718,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-embed-fonts');
     grunt.loadNpmTasks('grunt-sed');
     grunt.loadNpmTasks('grunt-touch');
+    grunt.loadNpmTasks('grunt-webpack');
 
     /**
         WATCH WORKFLOW INITIALIZATION:
@@ -2047,10 +2076,13 @@ module.exports = function(grunt) {
             grunt.task.run("build_css");
             // XXX It won't work until antlr4 is correctly packaged
             // grunt.task.run("build_parser");
-            grunt.task.run("build_js"); // build js before html (built html will search for some js files to autogen script tags for, that only get generated here)
+            grunt.task.run("build_js"); // build js before html (built html will search for some js
+                // files to autogen script tags for, that only get generated here)
             grunt.task.run("update_exp_module"); // update expServer's node_module;
                 // relying on xcrpc jsClient and jsSDK, so keep this after js build
-            grunt.task.run("webpack"); // keep after build js because it builds from js files;
+            grunt.task.run("remove_exp_crypto"); // remove external crypto module
+                // keep right after update_exp_module, as it cleared npm cache
+            grunt.task.run("browserify_package"); // keep after build js because it builds from js files;
                 // relying on xd js files(jsSDK)
             grunt.task.run("build_html");
             grunt.task.run("constructor_files");
@@ -2074,6 +2106,18 @@ module.exports = function(grunt) {
         var replacedContents = fileContents.replace(/<% XD_PROD_NAME %>/, PROD_NAME);
         fs.writeFileSync(filepath, replacedContents);
         grunt.log.writeln("prodName set as '" + PROD_NAME + "' in " + filepath);
+    });
+
+    /**
+     * Remove expServer's crypto module
+     * Crypto is being removed to cover the upgrade case from node 7 to node 10
+     */
+    grunt.task.registerTask("remove_exp_crypto", "Remove expServer's crypto", function() {
+        var expServerBldPath = path.join(BLDROOT, 'services/expServer/');
+
+        var cmdsets = [];
+        cmdsets.push([expServerBldPath, ['npm uninstall --no-save crypto']]);
+        runCmds(cmdsets);
     });
 
     /**
@@ -2106,7 +2150,7 @@ module.exports = function(grunt) {
         );
 
         // Force the new packages to be used by explicitly uninstalling/reinstalling them
-        var pkgList = ['crypto', jsClient.pkgName, jsSDK.pkgName].join(' ');
+        var pkgList = [jsClient.pkgName, jsSDK.pkgName].join(' ');
         var cmdsets = [];
         cmdsets.push([expServerBldPath, ['rm -f package-lock.json']]);
         cmdsets.push([expServerBldPath, ['npm install --no-save']]);
@@ -2149,28 +2193,28 @@ module.exports = function(grunt) {
                 pkgName: confJSON.name
             };
         }
-
-        function runCmds(cmdsets) {
-            var startcwd = process.cwd();
-
-            for (var cmdset of cmdsets) {
-                var executefrom = cmdset[0];
-                if (!grunt.file.isPathAbsolute(executefrom)) {
-                    executefrom = BLDROOT + executefrom;
-                }
-                var cmdlist = cmdset[1];
-                grunt.file.setBase(executefrom);
-                for (var cmd of cmdlist) {
-                    grunt.log.writeln(("[" + executefrom + "] $ ").red + (cmd).green.bold);
-                    var shellOutput = runShellCmd(cmd).stdout;
-                    grunt.log.debug(("Output:: ").green + shellOutput);
-                }
-            }
-
-            // Restore working directory
-            grunt.file.setBase(startcwd);
-        }
     });
+
+    function runCmds(cmdsets) {
+        var startcwd = process.cwd();
+
+        for (var cmdset of cmdsets) {
+            var executefrom = cmdset[0];
+            if (!grunt.file.isPathAbsolute(executefrom)) {
+                executefrom = BLDROOT + executefrom;
+            }
+            var cmdlist = cmdset[1];
+            grunt.file.setBase(executefrom);
+            for (var cmd of cmdlist) {
+                grunt.log.writeln(("[" + executefrom + "] $ ").red + (cmd).green.bold);
+                var shellOutput = runShellCmd(cmd).stdout;
+                grunt.log.debug(("Output:: ").green + shellOutput);
+            }
+        }
+
+        // Restore working directory
+        grunt.file.setBase(startcwd);
+    }
 
                             // ============================= HELP CONTENTS =================================
 
@@ -3363,32 +3407,25 @@ module.exports = function(grunt) {
         }
     }
 
-    grunt.task.registerTask("webpack", function() {
-        run_webpack_binary();
-        clean_webpack(); // keep clean sep from running webpack in case
+    /**
+     * Browserify packages by calling webpack
+     */
+    grunt.task.registerTask("browserify_package", function() {
+        grunt.task.run("webpack:build");
+        if (BLDTYPE !== DEV) { // webpack watch needs those files, so don't delete them in the dev build
+            grunt.task.run("cleanup_package") // keep clean sep from running webpack in case
+        }
     });
 
-    function run_webpack_binary() {
-        var oldFatal = shelljs.config.fatal;
-        shelljs.config.fatal = true;
-        var webpackBin = SRCROOT + "node_modules/.bin/webpack";
-        // whenever js minify happends, we don't build source map in webpack
-        // otherwise, keep the source map for easy debugging
-        var envSrcmap = BLDTYPE === INSTALLER ? "" : " --env.srcmap";
-        var webpackCmd = webpackBin + envSrcmap + " --env.production --env.buildroot=" + BLDROOT;
-        shelljs.exec(webpackCmd, {cwd:SRCROOT});
-        shelljs.config.fatal = oldFatal;
-    }
-
-    function clean_webpack() {
-        var webpack_paths_to_clean = ["assets/js/parser/"];
+    grunt.task.registerTask("cleanup_package", function() {
+        var webpack_paths_to_clean = ["assets/js/parser/", "assets/js/shared/Xcrpc/"];
         for (var webpack_req of webpack_paths_to_clean) {
             var fullPath = BLDROOT + webpack_req;
             grunt.log.writeln("Delete webpack file/dir " + fullPath + " ... ");
             grunt.file.delete(fullPath);
             grunt.log.ok();
         }
-    }
+    });
 
     // Builds all the js that needs to be generated from ts
     grunt.task.registerTask("build_ts", function() {
@@ -5168,6 +5205,11 @@ module.exports = function(grunt) {
                     target + '.files'));
                 deployTargets.push(WATCH_PLUGIN + ':' + target);
             }
+        }
+        if (grunt.option(WATCH_TARGET_JS) || grunt.option(WATCH_TARGET_TYPESCRIPT)) {
+            // In case of watching JS/TS files, we launch webpack:watch to monitor the files in its interest
+            // webpack:watch will rebuild browser bundle files if any of interested files change(after TS compilation)
+            deployTargets.push("webpack:watch");
         }
         grunt.log.debug("Concurrent running on these watch targets: " +
             deployTargets);
