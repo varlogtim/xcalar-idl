@@ -194,6 +194,10 @@ class AdvancedModeState extends State {
         this.log(`Adding Map node.. in WKBK ${this.currentWKBKId}`);
         let cNode, columns;
         [cNode, columns] = this.addNode({type:DagNodeType.Map});
+        if (cNode == undefined) {
+            this.log("There is only out node in current tab. Skip add map node");
+            return this;
+        }
         let numOfEvals = Math.floor(5 * Util.random()) + 1;
         let evalObjs = [];
         while (numOfEvals > 0) {
@@ -217,6 +221,10 @@ class AdvancedModeState extends State {
         this.log(`Adding split node.. in WKBK ${this.currentWKBKId}`);
         let cNode, columns;
         [cNode, columns] = this.addNode({type:DagNodeType.Split});
+        if (cNode == undefined) {
+            this.log("There is only out node in current tab. Skip add split node");
+            return this;
+        }
         let numOfCuts = Math.floor(5 * Util.random()) + 1;
         let delim = this._getRandomString(1);
         let currCut = 1;
@@ -243,6 +251,10 @@ class AdvancedModeState extends State {
         this.log(`Adding Round node.. in WKBK ${this.currentWKBKId}`);
         let cNode, allCols;
         [cNode, allCols] = this.addNode({type:DagNodeType.Round});
+        if (cNode == undefined) {
+            this.log("There is only out node in current tab. Skip add round node");
+            return this;
+        }
         //Get all columns of type float
         let numTypeColumns = [1.2]; //adding some literals
         for (const colInfo of allCols) {
@@ -276,6 +288,10 @@ class AdvancedModeState extends State {
         this.log(`Adding Row Num node.. in WKBK ${this.currentWKBKId}`);
         let cNode;
         [cNode, ] = this.addNode({type:DagNodeType.RowNum});
+        if (cNode == undefined) {
+            this.log("There is only out node in current tab. Skip add rownum node");
+            return this;
+        }
         cNode.setParam({
             "newField": Util.randName("rownum_") + Date.now()
         });
@@ -289,6 +305,10 @@ class AdvancedModeState extends State {
         this.log(`Adding Project node.. in WKBK ${this.currentWKBKId}`);
         let cNode, allCols;
         [cNode, allCols] = this.addNode({type:DagNodeType.Project});
+        if (cNode == undefined) {
+            this.log("There is only out node in current tab. Skip add project node");
+            return this;
+        }
         let numColsToProject = Math.floor(allCols.length * 2/3);
         let colsToKeep = [];
         let addPrefix = false;
@@ -346,6 +366,10 @@ class AdvancedModeState extends State {
     private async addSQLNode() {
         this.log(`Adding SQL node.. in WKBK ${this.currentWKBKId}`);
         let graph = this.currentTab.getGraph();
+        if (this._onlyOutNode(graph)) {
+            this.log(`Only out node in the current tab. Skip add sql node`);
+            return this;
+        }
         let numParents = Math.floor(5 * Util.random()) + 1;
         let pNode;
         let cNode = this.dagViewManager.newNode({type:DagNodeType.SQL});
@@ -385,6 +409,10 @@ class AdvancedModeState extends State {
         this.log(`Adding Link Out node.. in WKBK ${this.currentWKBKId}`);
         let cNode, allCols;
         [cNode, allCols] = this.addNode({type:DagNodeType.DFOut});
+        if (cNode == undefined) {
+            this.log("There is only out node in current tab. Skip add out node");
+            return this;
+        }
         let linkOutName = Util.randName("Linkout_" + Date.now());
         cNode.setParam({
             "name": linkOutName,
@@ -500,6 +528,9 @@ class AdvancedModeState extends State {
 
     private addNode(nodeInfo: string){
         let graph = this.currentTab.getGraph();
+        if (this._onlyOutNode(graph)) {
+            return [undefined, undefined];
+        }
         let pNode;
         if (this.mode == undefined ||
                 this.mode === "random") {
@@ -700,6 +731,17 @@ class AdvancedModeState extends State {
             return true;
         }
         return false;
+    }
+
+    // Check to see if there is only "Out" node in the tab
+    // If so, we can't add more nodes other than data source to this tab
+    private _onlyOutNode(graph) {
+        graph.nodesMap.forEach((node)=>{
+            if(node.maxChildren > 0) {
+                return false;
+            }
+        })
+        return true;
     }
 
     public async takeOneAction() {
