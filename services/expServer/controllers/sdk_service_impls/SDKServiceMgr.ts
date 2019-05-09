@@ -68,3 +68,21 @@ export function handleService(protoReqMsg: Buffer): Promise<any> {
     });
     return deferred.promise();
 }
+
+// Below part is only for unit test
+function fakeServiceRegistry(fakeRegistry: any): any {
+    const oldRegistry: any = serviceRegistry;
+    serviceRegistry = fakeRegistry;
+    return oldRegistry;
+}
+
+function fakeServiceInfo(fakeInfo: any): any {
+    const oldInfo: any = serviceInfo;
+    serviceInfo = fakeInfo;
+    return oldInfo;
+}
+
+if (process.env.NODE_ENV == "test") {
+    exports.fakeServiceRegistry = fakeServiceRegistry;
+    exports.fakeServiceInfo = fakeServiceInfo;
+}

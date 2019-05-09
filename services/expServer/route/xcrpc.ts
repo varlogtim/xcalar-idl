@@ -26,3 +26,14 @@ router.post("/service/xce", function(req, res) {
         res.status(500).json({"error": err.error});
    });
 });
+
+// Below part is only for unit test
+function fakeRouteToXce(func: any): any {
+    const oldFunc = xcrpcManager.routeToXce;
+    xcrpcManager.routeToXce = func;
+    return oldFunc;
+}
+
+if (process.env.NODE_ENV == 'test') {
+    exports.fakeRouteToXce = fakeRouteToXce;
+}
