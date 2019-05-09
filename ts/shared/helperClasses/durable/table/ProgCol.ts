@@ -18,7 +18,7 @@ class ProgCol extends Durable {
 
     public isNewCol: boolean; // if is new column
     private knownType: boolean; // if the type is known or just a guess
-    private isMinimized: boolean; // columns is hidden or not
+    public isMinimized: boolean; // columns is hidden or not
 
     constructor(options: ProgColDurable) {
         options = options || <ProgColDurable>{};

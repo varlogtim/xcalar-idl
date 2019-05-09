@@ -477,6 +477,20 @@ declare var gRescol: {
     clicks: number
     delay: number
     timer: number
+    $th: JQuery
+    onResize: Function
+    isDatastore: boolean
+    tableId: TableId
+    mouseStart: number
+    startWidth: number
+    index: number
+    newWidth: number
+    table: JQuery
+    tableHead: JQuery
+    minResizeWidth: number
+    leftDragMax: number
+    pageX: number
+    timer: number
 };
 declare var gKVScope: {
     GLOB: number,
@@ -871,14 +885,6 @@ declare namespace SupTicketModal {
     export function show(): void;
     export function fetchLicenseInfo(): XDPromise<any>;
     export function submitTicket(arg1, arg2, arg3, arg4): XDPromise<any>;
-}
-
-declare namespace TblAnim {
-    export function startRowResize($el: JQuery, event: JQueryMouseEventObject): void;
-    export function startColResize($el: JQuery, event: JQueryMouseEventObject, options: object): void;
-    export function startColDrag($headCol: JQuery, event: JQueryEventObject): void;
-    export function resizeColumn(tableId: TableId, colNum: number, fromWidth: number, toWidth: number, sizeTo: string): void;
-    export function resizeRow(rowNum: number, tableId: TableId, toHeight: number, fromHeight: number): void;
 }
 
 declare namespace TPrefix {

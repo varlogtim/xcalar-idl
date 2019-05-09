@@ -1,18 +1,100 @@
-window.TblAnim = (function($, TblAnim) {
+namespace TblAnim {
     // This module consists of column resizing, row resizing,
     // column drag and dropping, and table drag and dropping
-    var dragInfo = {};
-    var rowInfo = {};
+    let dragInfo: {
+        mouseX: number,
+        $el: JQuery,
+        $tableWrap: JQuery,
+        $container: JQuery,
+        pageX: number,
+        colNum: number,
+        $table: JQuery,
+        tableId: TableId,
+        element: JQuery,
+        colIndex: number,
+        offsetTop: number,
+        grabOffset: number,
+        docHeight: number,
+        val: string,
+        inFocus: boolean,
+        selected: boolean,
+        isMinimized: boolean,
+        colWidth: number,
+        windowWidth: number,
+        mainFrameLeft: number,
+        offsetLeft: number,
+        fauxCol: JQuery
+    } = {
+        mouseX: undefined,
+        $el: undefined,
+        $tableWrap: undefined,
+        $container: undefined,
+        pageX: undefined,
+        colNum: undefined,
+        $table: undefined,
+        tableId: undefined,
+        element: undefined,
+        colIndex: undefined,
+        offsetTop: undefined,
+        grabOffset: undefined,
+        docHeight: undefined,
+        val: undefined,
+        inFocus: undefined,
+        selected: undefined,
+        isMinimized: undefined,
+        colWidth: undefined,
+        windowWidth: undefined,
+        mainFrameLeft: undefined,
+        offsetLeft: undefined,
+        fauxCol: undefined
+    };
+    let rowInfo: {
+        mouseStart: number,
+        $el: JQuery,
+        $table: JQuery
+        actualTd: JQuery,
+        $container: JQuery,
+        targetTd: JQuery,
+        startHeight: number,
+        tableId: TableId,
+        rowIndex: number
+        $divs: JQuery
+    } = {
+        mouseStart: undefined,
+        $el: undefined,
+        $table: undefined,
+        actualTd: undefined,
+        $container: undefined,
+        targetTd: undefined,
+        startHeight: undefined,
+        tableId: undefined,
+        rowIndex: undefined,
+        $divs: undefined
+    };
 
     /* START COLUMN RESIZING */
-    TblAnim.startColResize = function($el, event, options) {
-        options = options || {};
+    /**
+     * TblAnim.startColResize
+     * @param $el
+     * @param event
+     * @param options
+     */
+    export function startColResize(
+        $el: JQuery,
+        event: JQueryEventObject, 
+        options: {
+            minWidth?: number,
+            target: string,
+            onResize: Function
+        }
+    ): void {
+        options = options || {target: undefined, onResize: undefined};
 
-        var rescol = gRescol;
-        var $table = $el.closest('.dataTable');
-        var target = options.target;
-        var colNum = null;
-        var $th = $el.closest('th');
+        let rescol = gRescol;
+        let $table: JQuery = $el.closest('.dataTable');
+        let target: string = options.target;
+        let colNum: number = null;
+        let $th: JQuery = $el.closest('th');
         rescol.$th = $th;
         rescol.onResize = options.onResize;
 
@@ -47,10 +129,10 @@ window.TblAnim = (function($, TblAnim) {
         $(document).on('mouseup.endColResize', endColResize);
 
         dblClickResize($el, target, options.minWidth);
-    };
+    }
 
-    function checkColResize(event) {
-        var rescol = gRescol;
+    function checkColResize(event: JQueryEventObject): void {
+        let rescol = gRescol;
         rescol.pageX = event.pageX;
         // mouse must move at least 3 pixels horizontally to trigger draggin
         if (Math.abs(rescol.mouseStart - rescol.pageX) > 2) {
@@ -58,8 +140,8 @@ window.TblAnim = (function($, TblAnim) {
             $(document).on('mousemove.onColResize', onColResize);
             gMouseStatus = "resizingCol";
 
-            var $table = rescol.$th.closest('.dataTable');
-            var colNum = rescol.index;
+            let $table: JQuery = rescol.$th.closest('.dataTable');
+            let colNum: number = rescol.index;
             if (rescol.$th.hasClass("userHidden")) {
                 // This is a hidden column! we need to unhide it
                 $table.find("th.col" + colNum + ",td.col" + colNum)
@@ -72,15 +154,15 @@ window.TblAnim = (function($, TblAnim) {
             $('.xcTheadWrap').find('.dropdownBox')
                             .addClass('dropdownBoxHidden');
 
-            var cursorStyle = '<div id="resizeCursor"></div>';
+            let cursorStyle: string = '<div id="resizeCursor"></div>';
             $('body').addClass('tooltipOff').append(cursorStyle);
         }
     }
 
-    function onColResize(event) {
-        var rescol = gRescol;
-        var dragDist = (event.pageX - rescol.mouseStart);
-        var newWidth;
+    function onColResize(event: JQueryEventObject): void {
+        let rescol = gRescol;
+        let dragDist: number = (event.pageX - rescol.mouseStart);
+        let newWidth: number;
         if (dragDist > rescol.leftDragMax) {
             newWidth = rescol.startWidth + dragDist;
         } else {
@@ -95,21 +177,18 @@ window.TblAnim = (function($, TblAnim) {
         }
     }
 
-    function endColResize() {
+    function endColResize(): void {
         $(document).off('mousemove.onColResize');
         $(document).off('mouseup.endColResize');
-        var mouseStatus = gMouseStatus;
+        let mouseStatus = gMouseStatus;
         gMouseStatus = null;
         if (mouseStatus === "checkingResizeCol") {
             $(document).off('mousemove.checkColResize');
             return;
         }
 
-        var rescol = gRescol;
-        var isDatastore = rescol.isDatastore;
-        var wasResized = true;
-        // var widthState;
-        var prevSizedTo;
+        let rescol = gRescol;
+        let isDatastore: boolean = rescol.isDatastore;
         $('#resizeCursor').remove();
         $('body').removeClass('tooltipOff');
         $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
@@ -119,10 +198,8 @@ window.TblAnim = (function($, TblAnim) {
         rescol.table.closest(".xcTableWrap").removeClass("resizingCol");
         $('.tooltip').remove();
         if (!isDatastore) {
-            if (rescol.newWidth === rescol.startWidth) {
-                wasResized = false;
-            } else {
-                TblAnim.resizeColumn(rescol.tableId, rescol.index, rescol.startWidth, rescol.newWidth);
+            if (rescol.newWidth !== rescol.startWidth) {
+                TblAnim.resizeColumn(rescol.tableId, rescol.index, rescol.startWidth, rescol.newWidth, null);
             }
         } else {
             rescol.isDatastore = false;
@@ -136,12 +213,12 @@ window.TblAnim = (function($, TblAnim) {
         TblFunc.moveFirstColumn();
     }
 
-    function dblClickResize($el, target, minWidth) {
+    function dblClickResize($el: JQuery, target: string, minWidth: number): void {
         minWidth = minWidth || 17;
         // $el is the colGrab div inside the header
         gRescol.clicks++;  //count clicks
         if (gRescol.clicks === 1) {
-            gRescol.timer = setTimeout(function() {
+            gRescol.timer = <any>setTimeout(function() {
                 gRescol.clicks = 0; //after action performed, reset counter
             }, gRescol.delay);
         } else {
@@ -158,15 +235,15 @@ window.TblAnim = (function($, TblAnim) {
             clearTimeout(gRescol.timer);    //prevent single-click action
             gRescol.clicks = 0;      //after action performed, reset counter
 
-            var tableId;
-            var $th = $el.closest('th');
-            var $table = $th.closest('.dataTable');
+            let tableId: TableId;
+            let $th: JQuery = $el.closest('th');
+            let $table: JQuery = $th.closest('.dataTable');
             $table.removeClass('resizingCol');
 
             // check if unhiding
             if (target !== "datastore" && $th.outerWidth() === gRescol.cellMinWidth) {
                 tableId = $table.data('id');
-                var index = ColManager.parseColNum($th);
+                let index: number = ColManager.parseColNum($th);
                 $th.addClass('userHidden');
                 $table.find('td.col' + index).addClass('userHidden');
 
@@ -175,13 +252,13 @@ window.TblAnim = (function($, TblAnim) {
                 return;
             }
 
-            var oldColumnWidths = [];
-            var newColumnWidths = [];
-            var oldSizedTo = [];
+            let oldColumnWidths: number[] = [];
+            let newColumnWidths: number[] = [];
+            let oldSizedTo: string[] = [];
 
             xcTooltip.remove($table.find('.colGrab'));
 
-            var $selectedCols;
+            let $selectedCols: JQuery;
             if (target === "datastore") {
                 if ($th.hasClass('selectedCol')) {
                     $selectedCols = $table.find('th.selectedCol');
@@ -191,22 +268,22 @@ window.TblAnim = (function($, TblAnim) {
             } else {
                 $selectedCols = $table.find('th.selectedCell');
             }
-            var numSelectedCols = $selectedCols.length;
+            let numSelectedCols: number = $selectedCols.length;
             if (numSelectedCols === 0) {
                 $selectedCols = $th;
                 numSelectedCols = 1;
             }
-            var indices = [];
-            var colNums = [];
+            let indices: number[] = [];
+            let colNums: number[] = [];
             $selectedCols.each(function() {
                 indices.push($(this).index() - 1);
                 colNums.push($(this).index());
             });
 
-            var includeHeader = false;
-            var sizeTo = ColSizeTo.Contents;
-            const selectedCols = [];
-            const selectedColNames = [];
+            let includeHeader: boolean = false;
+            let sizeTo: string = ColSizeTo.Contents;
+            let selectedCols = [];
+            let selectedColNames = [];
 
             if (target === "datastore") {
                 $selectedCols.find('.colGrab').each(function() {
@@ -222,10 +299,9 @@ window.TblAnim = (function($, TblAnim) {
 
             } else {
                 tableId = $table.data('id');
-                var columns = gTables[tableId].tableCols;
-                var i;
-                for (i = 0; i < numSelectedCols; i++) {
-                    gTables[tableId].tableCols[indices[i]] = new ProgCol(columns[indices[i]]);
+                let columns: ProgCol[] = gTables[tableId].tableCols;
+                for (let i = 0; i < numSelectedCols; i++) {
+                    gTables[tableId].tableCols[indices[i]] = new ProgCol(<any>columns[indices[i]]);
                     selectedCols.push(columns[indices[i]]);
                     selectedColNames.push(columns[indices[i]].getBackColName());
                     if (columns[indices[i]].sizedTo !== ColSizeTo.Header &&
@@ -235,8 +311,8 @@ window.TblAnim = (function($, TblAnim) {
                         break;
                     }
                 }
-                for (i = 0; i < numSelectedCols; i++) {
-                    oldColumnWidths.push(columns[indices[i]].width);
+                for (let i = 0; i < numSelectedCols; i++) {
+                    oldColumnWidths.push(<any>columns[indices[i]].width);
                     oldSizedTo.push(columns[indices[i]].sizedTo);
                     columns[indices[i]].sizedTo = sizeTo;
                 }
@@ -265,7 +341,7 @@ window.TblAnim = (function($, TblAnim) {
                     node.columnChange(DagColumnChangeType.Resize, selectedColNames, colInfo);
                 }
 
-                var tableName = gTables[tableId].tableName;
+                let tableName = gTables[tableId].tableName;
 
                 Log.add(SQLTStr.ResizeCols, {
                     "operation": SQLOps.ResizeTableCols,
@@ -283,15 +359,28 @@ window.TblAnim = (function($, TblAnim) {
         }
     }
 
-    // used for replaying and redo/undo
-    TblAnim.resizeColumn = function(tableId, colNum, fromWidth, toWidth,
-                                    sizeTo) {
-        var $table = $('#xcTable-' + tableId);
-        var progCol = new ProgCol(gTables[tableId].tableCols[colNum - 1]);
+    /**
+     * TblAnim.resizeColumn
+     * used for replaying and redo/undo
+     * @param tableId
+     * @param colNum
+     * @param fromWidth
+     * @param toWidth
+     * @param sizeTo
+     */
+    export function resizeColumn(
+        tableId: TableId,
+        colNum: number,
+        fromWidth: number,
+        toWidth: number,
+        sizeTo: string
+    ) {
+        let $table: JQuery = $('#xcTable-' + tableId);
+        let progCol: ProgCol = new ProgCol(gTables[tableId].tableCols[colNum - 1]);
         gTables[tableId].tableCols[colNum - 1] = progCol;
 
-        var $th = $table.find('th.col' + colNum);
-        var $allCells = $table.find("th.col" + colNum + ",td.col" + colNum);
+        let $th = $table.find('th.col' + colNum);
+        let $allCells = $table.find("th.col" + colNum + ",td.col" + colNum);
         if ($th.hasClass("userHidden")) {
             // This is a hidden column! we need to unhide it
 
@@ -307,7 +396,7 @@ window.TblAnim = (function($, TblAnim) {
         $th.outerWidth(toWidth);
         TblFunc.matchHeaderSizes($table);
 
-        var oldSizedTo = progCol.sizedTo;
+        let oldSizedTo = progCol.sizedTo;
         if (sizeTo == null) {
             if (Math.abs(toWidth - fromWidth) > 1) {
                 // set autoresize to header only if
@@ -339,17 +428,23 @@ window.TblAnim = (function($, TblAnim) {
             "htmlExclude": ["colNum", "fromWidth", "toWidth", "oldSizedTo",
                             "sizedTo"]
         });
-    };
-
+    }
     /* END COLUMN RESIZING */
 
     /* START ROW RESIZING */
-
-    TblAnim.startRowResize = function($el, event) {
+    /**
+     * TblAnim.startRowResize
+     * @param $el
+     * @param event
+     */
+    export function startRowResize(
+        $el: JQuery,
+        event: JQueryMouseEventObject
+    ): void {
         rowInfo.mouseStart = event.pageY;
         gMouseStatus = "checkingRowMove";
         rowInfo.$el = $el;
-        var $table = $el.closest('.xcTbodyWrap');
+        let $table = $el.closest('.xcTbodyWrap');
         rowInfo.$table = $table;
         rowInfo.actualTd = $el.closest('td');
         rowInfo.$container = $table.closest(".xcTableWrap").parent();
@@ -367,16 +462,14 @@ window.TblAnim = (function($, TblAnim) {
         $(document).on('mouseup.endRowResize', endRowResize);
     };
 
-    function checkRowResize(event) {
-        var mouseDistance = event.pageY - rowInfo.mouseStart;
+    function checkRowResize(event: JQueryMouseEventObject): void {
+        let mouseDistance: number = event.pageY - rowInfo.mouseStart;
         if (mouseDistance + rowInfo.startHeight > gRescol.minCellHeight) {
             $(document).off('mousemove.checkRowResize');
             $(document).on('mousemove.onRowResize', onRowResize);
             gMouseStatus = "rowMove";
 
-            // var el = rowInfo.$el;
-            var $table = rowInfo.$table;
-
+            let $table: JQuery = rowInfo.$table;
             rowInfo.tableId = TblManager.parseTableId($table);
 
             rowInfo.rowIndex = rowInfo.targetTd.closest('tr').index();
@@ -398,10 +491,10 @@ window.TblAnim = (function($, TblAnim) {
         }
     }
 
-    function onRowResize(event) {
-        var mouseDistance = event.pageY - rowInfo.mouseStart;
-        var newHeight = rowInfo.startHeight + mouseDistance;
-        var padding = 4; // top + bottom padding in td
+    function onRowResize(event: JQueryMouseEventObject): void {
+        let mouseDistance: number = event.pageY - rowInfo.mouseStart;
+        let newHeight: number = rowInfo.startHeight + mouseDistance;
+        const padding: number = 4; // top + bottom padding in td
         if (newHeight < gRescol.minCellHeight) {
             rowInfo.targetTd.outerHeight(gRescol.minCellHeight);
             rowInfo.$divs.css('max-height', gRescol.minCellHeight - padding);
@@ -413,7 +506,7 @@ window.TblAnim = (function($, TblAnim) {
         }
     }
 
-    function endRowResize() {
+    function endRowResize(): void {
         $(document).off('mouseup.endRowResize');
 
         if (gMouseStatus === "checkingRowMove") {
@@ -425,17 +518,17 @@ window.TblAnim = (function($, TblAnim) {
         $(document).off('mousemove.onRowResize');
         gMouseStatus = null;
 
-        var newRowHeight = rowInfo.targetTd.outerHeight();
-        var rowNum = RowManager.parseRowNum(rowInfo.targetTd.parent()) + 1;
-        var rowObj = gTables[rowInfo.tableId].rowHeights;
+        let newRowHeight = rowInfo.targetTd.outerHeight();
+        let rowNum = RowManager.parseRowNum(rowInfo.targetTd.parent()) + 1;
+        let rowObj = gTables[rowInfo.tableId].rowHeights;
         // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
-        var pageNum = Math.floor((rowNum - 1) / TableMeta.NumEntriesPerPage);
+        let pageNum = Math.floor((rowNum - 1) / TableMeta.NumEntriesPerPage);
         xcUIHelper.reenableTextSelection();
         $('body').removeClass('tooltipOff');
         $('#rowResizeCursor').remove();
         rowInfo.$table.siblings(".tableScrollBar").show();
         unlockScrolling(rowInfo.$container, 'horizontal');
-        var $table = $('#xcTable-' + rowInfo.tableId);
+        let $table = $('#xcTable-' + rowInfo.tableId);
         $table.find('tr').removeClass('notDragging dragging');
 
         if (gTables[gActiveTableId] && gTables[gActiveTableId].resultSetCount !== 0) {
@@ -461,7 +554,7 @@ window.TblAnim = (function($, TblAnim) {
                                      .css('max-height', 16);
         }
 
-        var rowManger = new RowManager(gTables[rowInfo.tableId], $("#xcTableWrap-" + rowInfo.tableId));
+        let rowManger = new RowManager(gTables[rowInfo.tableId], $("#xcTableWrap-" + rowInfo.tableId));
         rowManger.setSizerHeight();
 
         Log.add(SQLTStr.ResizeRow, {
@@ -475,13 +568,25 @@ window.TblAnim = (function($, TblAnim) {
         });
     }
 
-    TblAnim.resizeRow = function(rowNum, tableId, fromHeight, toHeight) {
-        var padding = 4; // top + bottom padding in td
-        var $table = $('#xcTable-' + tableId);
-        var $targetRow = $table.find('.row' + rowNum);
-        var $targetTd = $targetRow.find('.col0');
+    /**
+     * TblAnim.resizeRow
+     * @param rowNum
+     * @param tableId
+     * @param fromHeight
+     * @param toHeight
+     */
+    export function resizeRow(
+        rowNum: number,
+        tableId: TableId,
+        fromHeight: number,
+        toHeight: number
+    ): void {
+        const padding: number = 4; // top + bottom padding in td
+        let $table: JQuery = $('#xcTable-' + tableId);
+        let $targetRow: JQuery = $table.find('.row' + rowNum);
+        let $targetTd: JQuery = $targetRow.find('.col0');
 
-        var $divs = $targetRow.find('td > div');
+        let $divs = $targetRow.find('td > div');
         if (toHeight < gRescol.minCellHeight) {
             toHeight = gRescol.minCellHeight;
         }
@@ -490,8 +595,8 @@ window.TblAnim = (function($, TblAnim) {
         $divs.css('max-height', toHeight - padding);
         $divs.eq(0).css('max-height', toHeight);
 
-        var rowObj = gTables[tableId].rowHeights;
-        var pageNum = Math.floor((rowNum) / TableMeta.NumEntriesPerPage);
+        let rowObj = gTables[tableId].rowHeights;
+        let pageNum = Math.floor((rowNum) / TableMeta.NumEntriesPerPage);
 
         if (toHeight !== gRescol.minCellHeight) {
             if (rowObj[pageNum] == null) {
@@ -522,14 +627,20 @@ window.TblAnim = (function($, TblAnim) {
             "toHeight": toHeight,
             "htmlExclude": ["rowNum", "fromHeight", "toHeight"]
         });
-    };
-
+    }
     /* END ROW RESIZING */
 
     /* START COLUMN DRAG DROP */
-
-    TblAnim.startColDrag = function($el, event) {
-        var $tableWrap = $el.closest('.xcTableWrap');
+    /**
+     * TblAnim.startColDrag
+     * @param $el
+     * @param event
+     */
+    export function startColDrag(
+        $el: JQuery,
+        event: JQueryEventObject
+    ): void {
+        let $tableWrap: JQuery = $el.closest('.xcTableWrap');
         if ($tableWrap.hasClass('undraggable')) {
             return;
         }
@@ -541,7 +652,7 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.$container = $tableWrap.parent();
 
         $el.closest("th").addClass("colDragging");
-        var cursorStyle = '<div id="moveCursor"></div>';
+        let cursorStyle: string = '<div id="moveCursor"></div>';
         $('body').addClass('tooltipOff').append(cursorStyle);
         $tableWrap.addClass("checkingColDrag");
 
@@ -549,10 +660,10 @@ window.TblAnim = (function($, TblAnim) {
 
         $(document).on('mousemove.checkColDrag', checkColDrag);
         $(document).on('mouseup.endColDrag', endColDrag);
-    };
+    }
 
     // checks if mouse has moved and will initiate the column dragging
-    function checkColDrag(event) {
+    function checkColDrag(event: JQueryEventObject): void {
         dragInfo.pageX = event.pageX;
         // mouse must move at least 2 pixels horizontally to trigger draggin
         if (Math.abs(dragInfo.mouseX - dragInfo.pageX) < 2) {
@@ -563,26 +674,26 @@ window.TblAnim = (function($, TblAnim) {
         $(document).off('mousemove.checkColDrag');
         $(document).on('mousemove.onColDrag', onColDrag);
         gMouseStatus = "dragging";
-        var el = dragInfo.$el;
-        var pageX = event.pageX;
+        let el = dragInfo.$el;
+        let pageX = event.pageX;
         dragInfo.colNum = ColManager.parseColNum(el);
-        var $tableWrap = dragInfo.$tableWrap;
+        let $tableWrap = dragInfo.$tableWrap;
 
-        var $table = el.closest('.xcTable');
-        var $tbodyWrap = $table.parent();
-        var $editableHead = el.find('.editableHead');
+        let $table = el.closest('.xcTable');
+        let $tbodyWrap = $table.parent();
+        let $editableHead = el.find('.editableHead');
         dragInfo.$table = $tableWrap;
         dragInfo.tableId = TblManager.parseTableId($table);
         dragInfo.element = el;
-        dragInfo.colIndex = parseInt(el.index());
+        dragInfo.colIndex = parseInt(<any>el.index());
         dragInfo.offsetTop = el.offset().top;
         dragInfo.grabOffset = pageX - el.offset().left;
         // dragInfo.grabOffset = distance from the left side of dragged column
         // to the point that was grabbed
         dragInfo.docHeight = $(document).height();
         dragInfo.val = $editableHead.val();
-        var shadowDivHeight = $tbodyWrap.height();
-        var shadowTop = $tableWrap.find('.header').position().top - 5;
+        let shadowDivHeight = $tbodyWrap.height();
+        let shadowTop = $tableWrap.find('.header').position().top - 5;
 
         dragInfo.inFocus = $editableHead.is(':focus');
         dragInfo.selected = el.hasClass('selectedCell');
@@ -591,7 +702,7 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.windowWidth = $(window).width();
         dragInfo.mainFrameLeft = dragInfo.$container[0].getBoundingClientRect().left;
         dragInfo.offsetLeft = dragInfo.$container.offset().left - dragInfo.$container.position().left;
-        var timer;
+        let timer;
         if (gTables[dragInfo.tableId].tableCols.length > 50) {
             timer = 100;
         } else {
@@ -602,24 +713,20 @@ window.TblAnim = (function($, TblAnim) {
         // the following code deals with hiding non visible tables and locking the
         // scrolling when we reach the left or right side of the table
 
-        var mfWidth = dragInfo.$container.width();
+        let mfWidth: number = dragInfo.$container.width();
 
-        var mfScrollLeft = dragInfo.$container.scrollLeft();
-        var tableLeft = dragInfo.$table.offset().left - MainMenu.getOffset();
+        let mfScrollLeft: number = dragInfo.$container.scrollLeft();
+        let tableLeft: number = dragInfo.$table.offset().left - MainMenu.getOffset();
         dragInfo.$container.addClass('scrollLocked');
 
-        var leftLimit = mfScrollLeft + tableLeft;
+        let leftLimit: number = mfScrollLeft + tableLeft;
         leftLimit = Math.min(leftLimit, mfScrollLeft);
-        var rightLimit = mfScrollLeft + tableLeft + $tableWrap.width() - mfWidth +
+        let rightLimit: number = mfScrollLeft + tableLeft + $tableWrap.width() - mfWidth +
                          dragInfo.grabOffset;
         rightLimit = Math.max(rightLimit, mfScrollLeft);
 
-        var hideOptions = {
-            marginLeft: mfScrollLeft - leftLimit,
-            marginRight: rightLimit - mfScrollLeft
-        };
 
-        var scrollLeft;
+        let scrollLeft: number;
         dragInfo.$container.on('scroll.draglocked', function() {
             scrollLeft = dragInfo.$container.scrollLeft();
 
@@ -633,7 +740,6 @@ window.TblAnim = (function($, TblAnim) {
         });
 
         // create a fake transparent column by cloning
-
         createTransparentDragDropCol(pageX);
 
         // create a replica shadow with same column width, height,
@@ -644,19 +750,19 @@ window.TblAnim = (function($, TblAnim) {
                         'px;height:' + (shadowDivHeight) + 'px;left:' +
                         (dragInfo.element.position().left) +
                         'px;top:' + shadowTop + 'px;"></div>');
-        createDropTargets();
+        createDropTargets(null, null);
     }
 
-    function onColDrag(event) {
-        var pageX = event.pageX;
+    function onColDrag(event: JQueryEventObject): void {
+        let pageX = event.pageX;
         dragInfo.pageX = pageX;
         dragInfo.fauxCol.css('left', pageX - dragInfo.offsetLeft);
     }
 
-    function endColDrag() {
+    function endColDrag(): void {
         $(document).off('mouseup.endColDrag');
         $('#moveCursor').remove();
-        setTimeout(function () {
+        setTimeout(function() {
             dragInfo.$el.closest("th").removeClass("colDragging");
         });
 
@@ -665,6 +771,7 @@ window.TblAnim = (function($, TblAnim) {
             $('body').removeClass('tooltipOff');
             // without timeout, tooltip will flicker on and off
         }, 0);
+
         if (gMouseStatus === "checkingMovingCol") {
             // endColDrag is called on mouseup but if there was no mouse movement
             // then just clean up and exit
@@ -675,8 +782,8 @@ window.TblAnim = (function($, TblAnim) {
         $(document).off('mousemove.onColDrag');
 
         gMouseStatus = null;
-        var $tableWrap = dragInfo.$table;
-        var $th = dragInfo.element;
+        let $tableWrap: JQuery = dragInfo.$table;
+        let $th: JQuery = dragInfo.element;
         dragInfo.$container.off('scroll.draglocked');
         dragInfo.$container.removeClass('scrollLocked');
         if (gMinModeOn) {
@@ -684,12 +791,12 @@ window.TblAnim = (function($, TblAnim) {
         } else {
             // slide column into place
             $tableWrap.addClass('undraggable');
-            var slideLeft = $th.offset().left -
+            let slideLeft: number = $th.offset().left -
                             parseInt(dragInfo.fauxCol.css('margin-left')) -
                             dragInfo.offsetLeft;
-            var currentLeft = parseInt(dragInfo.fauxCol.css('left'));
-            var slideDistance = Math.max(2, Math.abs(slideLeft - currentLeft));
-            var slideDuration = Math.log(slideDistance * 4) * 90 - 200;
+            let currentLeft: number = parseInt(dragInfo.fauxCol.css('left'));
+            let slideDistance: number = Math.max(2, Math.abs(slideLeft - currentLeft));
+            let slideDuration: number = Math.log(slideDistance * 4) * 90 - 200;
 
             // unhiding non visible tables is slow and interrupts column sliding
             // animation so we delay the animation with the timout
@@ -713,35 +820,35 @@ window.TblAnim = (function($, TblAnim) {
 
         // only pull col if column is dropped in new location
         if ((dragInfo.colIndex) !== dragInfo.colNum) {
-            var tableId  = dragInfo.tableId;
-            var oldColNum = dragInfo.colNum;
-            var newColNum = dragInfo.colIndex;
+            let tableId: TableId = dragInfo.tableId;
+            let oldColNum: number = dragInfo.colNum;
+            let newColNum: number = dragInfo.colIndex;
 
-            ColManager.reorderCol(tableId, oldColNum, newColNum);
+            ColManager.reorderCol(tableId, oldColNum, newColNum, null);
         }
     }
 
-    function cloneCellHelper(obj) {
-        var trClass = "";
-        if ($(obj).hasClass("changedHeight")) {
+    function cloneCellHelper(el: Element): HTML {
+        let trClass: string = "";
+        if ($(el).hasClass("changedHeight")) {
             trClass = "changedHeight";
         }
-        var td = $(obj).children().eq(dragInfo.colIndex);
+        let $td = $(el).children().eq(dragInfo.colIndex);
 
-        var clone = td.clone();
-        var cloneHeight = td.outerHeight();
-        var cloneColor = td.css('background-color');
-        clone.css('height', cloneHeight + 'px');
-        clone.outerWidth(dragInfo.colWidth);
-        clone.css('background-color', cloneColor);
-        var cloneHTML = clone[0].outerHTML;
+        let $clone: JQuery = $td.clone();
+        let cloneHeight: number = $td.outerHeight();
+        let cloneColor = $td.css('background-color');
+        $clone.css('height', cloneHeight + 'px');
+        $clone.outerWidth(dragInfo.colWidth);
+        $clone.css('background-color', cloneColor);
+        let cloneHTML: HTML = $clone[0].outerHTML;
         cloneHTML = '<tr class="' + trClass + '">' + cloneHTML + '</tr>';
         return cloneHTML;
     }
 
-    function createTransparentDragDropCol(pageX) {
-        var $tableWrap = dragInfo.$table;
-        var $table = $tableWrap.find('table');
+    function createTransparentDragDropCol(pageX: number): void {
+        let $tableWrap: JQuery = dragInfo.$table;
+        let $table: JQuery = $tableWrap.find('table');
         dragInfo.$container.append('<div id="fauxCol" style="left:' +
                         (pageX - dragInfo.offsetLeft) + 'px;' +
                         'width:' + (dragInfo.colWidth) + 'px;' +
@@ -752,27 +859,28 @@ window.TblAnim = (function($, TblAnim) {
                             '</table>' +
                         '</div>');
         dragInfo.fauxCol = $('#fauxCol');
-        var $fauxTable = $('#fauxTable');
+        let $fauxTable: JQuery = $('#fauxTable');
 
-        var rowHeight = gRescol.minCellHeight;
+        let rowHeight: number = gRescol.minCellHeight;
         // turn this into binary search later
-        var topPx = $table.find('.header').offset().top - rowHeight;
-        var topRowIndex = -1;
-        var topRowEl;
+        let topPx: number = $table.find('.header').offset().top - rowHeight;
+        let topRowIndex: number = -1;
+        let topRowEl: JQuery;
         $table.find('tbody tr').each(function() {
-            if ($(this).offset().top > topPx) {
-                topRowIndex = $(this).index();
-                topRowEl = $(this).find('td');
-                return (false);
+            let $el = $(this);
+            if ($el.offset().top > topPx) {
+                topRowIndex = $el.index();
+                topRowEl = $el.find('td');
+                return false;
             }
         });
 
-        var cloneHTML = "";
+        let cloneHTML = "";
         // check to see if topRowEl was found;
         if (topRowIndex === -1) {
             console.error("BUG! Cannot find first visible row??");
             // Clone entire shit and be.then.
-            $table.find('tr').each(function(i, ele) {
+            $table.find('tr').each(function(_i, ele) {
                 cloneHTML += cloneCellHelper(ele);
             });
             $fauxTable.append(cloneHTML);
@@ -781,7 +889,7 @@ window.TblAnim = (function($, TblAnim) {
 
         // Clone head
 
-        $table.find('tr:first').each(function(i, ele) {
+        $table.find('tr:first').each(function(_i, ele) {
             cloneHTML += cloneCellHelper(ele);
         });
 
@@ -792,9 +900,9 @@ window.TblAnim = (function($, TblAnim) {
             $fauxTable.addClass('userHidden');
         }
 
-        var totalRowHeight = $tableWrap.height() -
-                             $table.find('th:first').outerHeight();
-        var numRows = Math.ceil(totalRowHeight / rowHeight);
+        let totalRowHeight: number = $tableWrap.height() -
+                            $table.find('th:first').outerHeight();
+        let numRows: number = Math.ceil(totalRowHeight / rowHeight);
 
         $table.find('tr:gt(' + (topRowIndex) + ')').each(function(i, ele) {
             cloneHTML += cloneCellHelper(ele);
@@ -805,45 +913,47 @@ window.TblAnim = (function($, TblAnim) {
         $fauxTable.append(cloneHTML);
 
         // Ensure rows are offset correctly
-        var fauxTableHeight = $fauxTable.height() +
+        let fauxTableHeight: number = $fauxTable.height() +
                               $fauxTable.find('tr:first').outerHeight();
-        var tableTitleHeight = $tableWrap.find('.tableTitle').height();
+        let tableTitleHeight: number = $tableWrap.find('.tableTitle').height();
 
-        var xcTableWrapHeight = $tableWrap.height();
-        var theadHeight = dragInfo.$tableWrap.find(".xcTheadWrap").length ? 36 : 0;
-        var fauxColHeight = Math.min(fauxTableHeight, xcTableWrapHeight - theadHeight);
+        let xcTableWrapHeight: number = $tableWrap.height();
+        let theadHeight: number = dragInfo.$tableWrap.find(".xcTheadWrap").length ? 36 : 0;
+        let fauxColHeight: number = Math.min(fauxTableHeight, xcTableWrapHeight - theadHeight);
         dragInfo.fauxCol.height(fauxColHeight);
-        var firstRowOffset = $(topRowEl).offset().top - topPx - rowHeight;
+        let firstRowOffset: number = $(topRowEl).offset().top - topPx - rowHeight;
         $fauxTable.css('margin-top', firstRowOffset);
         $fauxTable.find('tr:first-child').css({'margin-top':
                                     -(firstRowOffset + tableTitleHeight)});
     }
 
-    function createDropTargets(dropTargetIndex, swappedColIndex) {
-        var dragMargin = 30;
+    function createDropTargets(
+        dropTargetIndex: number,
+        swappedColIndex: number
+    ): void {
+        let dragMargin: number = 30;
         if (dragInfo.isMinimized) {
             dragMargin = 10;
         }
-        var colLeft;
+        let colLeft: number;
         // targets extend this many pixels to left of each column
 
         if (!dropTargetIndex) {
             // create targets that will trigger swapping of columns on hover
-            var dropTargets = "";
+            let dropTargets: string = "";
             dragInfo.$table.find('tr').eq(0).find('th').each(function(i) {
                 if (i === 0 || i === dragInfo.colIndex) {
                     return true;
                 }
                 colLeft = $(this).position().left;
-                var targetWidth;
+                let targetWidth: number;
 
                 if ((dragInfo.colWidth - dragMargin) <
-                    Math.round(0.5 * $(this).width()))
-                {
+                    Math.round(0.5 * $(this).width())
+                ) {
                     targetWidth = dragInfo.colWidth;
                 } else {
-                    targetWidth = Math.round(0.5 * $(this).outerWidth()) +
-                                    dragMargin;
+                    targetWidth = Math.round(0.5 * $(this).outerWidth()) + dragMargin;
                 }
                 dropTargets += '<div id="dropTarget' + i + '" class="dropTarget"' +
                                 'style="left:' +
@@ -853,10 +963,9 @@ window.TblAnim = (function($, TblAnim) {
                                     i +
                                 '</div>';
             });
-            var scrollLeft = dragInfo.$container.scrollLeft();
+            let scrollLeft: number = dragInfo.$container.scrollLeft();
             // may have issues with table left if dragInfo.$table isn't correct
-            var tableLeft = dragInfo.$table[0].getBoundingClientRect().left +
-                scrollLeft;
+            let tableLeft: number = dragInfo.$table[0].getBoundingClientRect().left + scrollLeft;
             $('body').append('<div id="dropTargets" style="' +
                     'margin-left:' + tableLeft + 'px;' +
                     'left:' + (-scrollLeft) + 'px;">' + dropTargets + '</div>');
@@ -864,20 +973,19 @@ window.TblAnim = (function($, TblAnim) {
                 dragdropSwapColumns($(this));
             });
             dragInfo.$container.scroll(mainFrameScrollDropTargets);
-
         } else {
             // targets have already been created, so just adjust the one
             // corresponding to the column that was swapped
-            var swappedCol = dragInfo.$table.find('th:eq(' + swappedColIndex + ')');
+            let swappedCol: JQuery = dragInfo.$table.find('th:eq(' + swappedColIndex + ')');
             colLeft = swappedCol.position().left;
-            $('#dropTarget' + dropTargetIndex).attr('id',
-                                                    'dropTarget' + swappedColIndex);
-            var dropTarget = $('#dropTarget' + swappedColIndex);
-            dropTarget.css({'left': (colLeft - dragMargin + dragInfo.grabOffset) +
-                            'px'});
+            $('#dropTarget' + dropTargetIndex).attr('id', 'dropTarget' + swappedColIndex);
+            let dropTarget: JQuery = $('#dropTarget' + swappedColIndex);
+            dropTarget.css({
+                'left': (colLeft - dragMargin + dragInfo.grabOffset) + 'px'
+            });
             if (isBrowserSafari) {
                 // safari has a display issue, use this to resolve T_T
-                var $header = swappedCol.find(".header");
+                let $header: JQuery = swappedCol.find(".header");
                 $header.height($header.height() + 1);
                 setTimeout(function() {
                     $header.height($header.height() - 1);
@@ -886,16 +994,16 @@ window.TblAnim = (function($, TblAnim) {
         }
     }
 
-    function mainFrameScrollDropTargets(event) {
-        var left = -$(event.target).scrollLeft();
+    function mainFrameScrollDropTargets(event: JQueryEventObject): void {
+        let left: number = -$(event.target).scrollLeft();
         $('#dropTargets').css('left', left);
     }
 
-    function dragdropSwapColumns($el) {
-        var dropTargetId = parseInt(($el.attr('id')).substring(10));
-        var nextCol = dropTargetId - Math.abs(dropTargetId - dragInfo.colIndex);
-        var prevCol = dropTargetId + Math.abs(dropTargetId - dragInfo.colIndex);
-        var movedCol;
+    function dragdropSwapColumns($el: JQuery): void {
+        let dropTargetId: number = parseInt(($el.attr('id')).substring(10));
+        let nextCol: number = dropTargetId - Math.abs(dropTargetId - dragInfo.colIndex);
+        let prevCol: number = dropTargetId + Math.abs(dropTargetId - dragInfo.colIndex);
+        let movedCol: number;
         if (dropTargetId > dragInfo.colIndex) {
             dragInfo.$table.find('tr').each(function() {
                 $(this).children(':eq(' + dropTargetId + ')').after(
@@ -912,13 +1020,7 @@ window.TblAnim = (function($, TblAnim) {
             movedCol = prevCol;
         }
 
-        // // HACK: weird hack hide show or else .header won't reposition itself
-        // dragInfo.$table.find('.header').css('height', '35px');
-        // setTimeout(function() {
-        //     dragInfo.$table.find('.header').css('height', '36px');
-        // }, 0);
-
-        var left = dragInfo.element.position().left;
+        let left: number = dragInfo.element.position().left;
         $('#shadowDiv').css('left', left);
         dragInfo.colIndex = dropTargetId;
         createDropTargets(dropTargetId, movedCol);
@@ -932,15 +1034,13 @@ window.TblAnim = (function($, TblAnim) {
     function dragdropMoveMainFrame(dragInfo, timer) {
         // essentially moving the horizontal mainframe scrollbar if the mouse is
         // near the edge of the viewport
-        var $mainFrame = dragInfo.$container;
-        var left;
-
+        let $mainFrame = dragInfo.$container;
         if (gMouseStatus === 'dragging') {
             if (dragInfo.pageX > dragInfo.windowWidth - 30) { // scroll right
-                left = $mainFrame.scrollLeft() + 40;
+                let left: number = $mainFrame.scrollLeft() + 40;
                 $mainFrame.scrollLeft(left);
             } else if (dragInfo.pageX < dragInfo.mainFrameLeft + 30) { // scroll left;
-                left = $mainFrame.scrollLeft() - 40;
+                let left: number = $mainFrame.scrollLeft() - 40;
                 $mainFrame.scrollLeft(left);
             }
 
@@ -951,9 +1051,9 @@ window.TblAnim = (function($, TblAnim) {
     }
 
     // prevents screen from scrolling during drag or resize
-    function lockScrolling($target, direction) {
+    function lockScrolling($target: JQuery, direction: string): void {
         if (direction === "horizontal") {
-            var scrollLeft = $target.scrollLeft();
+            let scrollLeft: number = $target.scrollLeft();
             $target.addClass('scrollLocked');
             $target.on('scroll.locked', function() {
                 $target.scrollLeft(scrollLeft);
@@ -961,7 +1061,7 @@ window.TblAnim = (function($, TblAnim) {
         }
     }
 
-    function unlockScrolling($target, direction) {
+    function unlockScrolling($target: JQuery, direction: string): void {
         $target.off('scroll.locked');
         if (direction === "horizontal") {
             $target.removeClass('scrollLocked');
@@ -969,25 +1069,23 @@ window.TblAnim = (function($, TblAnim) {
     }
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        TblAnim.__testOnly__ = {};
-        TblAnim.__testOnly__.checkColResize = checkColResize;
-        TblAnim.__testOnly__.onColResize = onColResize;
-        TblAnim.__testOnly__.endColResize = endColResize;
-        TblAnim.__testOnly__.rowInfo = rowInfo;
-        TblAnim.__testOnly__.dragInfo = dragInfo;
-        TblAnim.__testOnly__.checkRowResize = checkRowResize;
-        TblAnim.__testOnly__.onRowResize = onRowResize;
-        TblAnim.__testOnly__.endRowResize = endRowResize;
-        TblAnim.__testOnly__.checkColDrag = checkColDrag;
-        TblAnim.__testOnly__.onColDrag = onColDrag;
-        TblAnim.__testOnly__.endColDrag = endColDrag;
-        TblAnim.__testOnly__.dragdropSwapColumns = dragdropSwapColumns;
-        TblAnim.__testOnly__.dblClickResize = dblClickResize;
+    export let __testOnly__: any = {};
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__ = {};
+        __testOnly__.checkColResize = checkColResize;
+        __testOnly__.onColResize = onColResize;
+        __testOnly__.endColResize = endColResize;
+        __testOnly__.rowInfo = rowInfo;
+        __testOnly__.dragInfo = dragInfo;
+        __testOnly__.checkRowResize = checkRowResize;
+        __testOnly__.onRowResize = onRowResize;
+        __testOnly__.endRowResize = endRowResize;
+        __testOnly__.checkColDrag = checkColDrag;
+        __testOnly__.onColDrag = onColDrag;
+        __testOnly__.endColDrag = endColDrag;
+        __testOnly__.dragdropSwapColumns = dragdropSwapColumns;
+        __testOnly__.dblClickResize = dblClickResize;
 
     }
     /* End Of Unit Test Only */
-
-    return (TblAnim);
-
-}(jQuery, {}));
+}
