@@ -46,3 +46,14 @@ function executeSql(sqlQueryReq: any): Promise<any> {
 }
 
 export { executeSql as ExecuteSQL }
+
+// Below part is only for unit test
+function fakeExecuteSql(func: any): any {
+    const oldFunc: any = sqlManager.executeSql;
+    sqlManager.executeSql = func;
+    return oldFunc
+}
+
+if (process.env.NODE_ENV == "test") {
+    exports.fakeExecuteSql = fakeExecuteSql;
+}
