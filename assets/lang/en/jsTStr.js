@@ -571,11 +571,6 @@ DemoTStr = {
     "minutes": "minutes"
 };
 
-NewUserTStr = {
-    "msg": "If this is your first time using " + autogenVars.prodName + ", click the \"Open Guide\" button for resources on how to get started",
-    "openGuide": "Open Guide"
-};
-
 SuccessTStr = {
     "Copy": "Copied Successfully!",
     "CopyToClipboard": "Copied to Clipboard!",

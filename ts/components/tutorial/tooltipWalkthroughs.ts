@@ -3,6 +3,27 @@ namespace TooltipWalkthroughs {
     let SQLModeName = "SQL Mode";
     let ADVModeName = "Advanced Mode";
 
+    export function newUserPopup(): void {
+        TooltipManager.start({
+                tooltipTitle: DemoTStr.title,
+                background: false,
+                startScreen: TooltipStartScreen.Workbooks,
+                isSingleTooltip: true
+            },
+            [{
+                highlight_div: "#workbookPanel .tutBox",
+                interact_div: "#workbookPanel .tutBox",
+                text: "If this is your first time using Xcalar design, the above panel contains many resources to help get you started.",
+                type: TooltipType.Click
+            }],
+            0,
+            {
+                closeOnModalClick: true,
+                includeNumbering: false
+            }
+        );
+    }
+
     // XXX TODO: add something that enters a workbook if not in one.
 
     export function SQLModeWalkthrough(): void {
@@ -104,7 +125,11 @@ namespace TooltipWalkthroughs {
                 text: "This area displays the execution history of your SQL statements.",
                 type: TooltipType.Text,
             }],
-            0
+            0,
+            {
+                closeOnModalClick: true,
+                includeNumbering: true
+            }
         );
     }
 
@@ -119,7 +144,11 @@ namespace TooltipWalkthroughs {
                 text: "Temporary placeholder Text",
                 type: TooltipType.Text
             }],
-            0
+            0,
+            {
+                closeOnModalClick: true,
+                includeNumbering: true
+            }
         );
     }
 

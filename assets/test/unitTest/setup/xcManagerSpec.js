@@ -10,18 +10,24 @@ describe("xcManager Test", function() {
         var oldAlertError;
         var title;
         var oldSocketInit;
+        var oldTooltipuser;
 
         before(function() {
             handleSetupFail = xcManager.__testOnly__.handleSetupFail;
             oldAlert = Alert.show;
             oldAlertError = Alert.error;
             oldSocketInit = XcSocket.prototype.setup;
+            oldTooltipShow = TooltipWalkthroughs.newUserPopup;
             Alert.show = function(options) {
                 title = options.title;
             };
 
             Alert.error = function(error) {
                 title = error;
+            };
+
+            TooltipWalkthroughs.newUserPopup = function() {
+                title = DemoTStr.title;
             };
 
             XcSocket.prototype.setup = function(){};
@@ -107,6 +113,7 @@ describe("xcManager Test", function() {
             Alert.show = oldAlert;
             Alert.error = oldAlertError;
             XcSocket.prototype.setup = oldSocketInit;
+            TooltipWalkthroughs.newUserPopup = oldTooltipShow;
         });
     });
 

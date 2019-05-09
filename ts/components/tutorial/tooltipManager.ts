@@ -32,7 +32,7 @@ namespace TooltipManager {
 
 
     export function start(walkthroughInfo: WalkthroughInfo, tooltips: TooltipInfo[],
-            step: number, userOptions?) {
+            step: number, userOptions?: any) {
         stepNumber = step - 1;
         currWalkthrough = tooltips;
         title = walkthroughInfo.tooltipTitle;
@@ -54,7 +54,9 @@ namespace TooltipManager {
         promise
         .then(() => {
             if (walkthroughInfo.background) {
-                createOverlay();
+                createOverlay(true);
+            } else if (options.closeOnModalClick) {
+                createOverlay(false);
             }
 
             /*if (options.video) {
@@ -66,10 +68,10 @@ namespace TooltipManager {
                 createElementLayer();
             }
             createHighlightBox();
-            createPopover();
-            createWatermark();
+            createPopover(walkthroughInfo.isSingleTooltip);
             nextStep();
             $(window).resize(winResize);
+
             // temp
             //$('#xcalarVid').attr('muted', "true");
         })
@@ -122,15 +124,28 @@ namespace TooltipManager {
                 })
                 .fail(deferred.reject);
                 break;
+            case (TooltipStartScreen.Workbooks):
+                if (!WorkbookPanel.isWBMode()) {
+                    WorkbookPanel.show(true);
+                }
+                deferred.resolve();
+                break;
             default:
                 break;
         }
         return deferred.promise();
     }
 
-    function createOverlay() {
-        let svg: string = '<svg id="intro-overlay"><g><path id="intro-path"' +
-                  ' d="' + pathTemplate + '"></path></g></svg>';
+    function createOverlay(showBackground: boolean) {
+
+        let gClass = "";
+        if (!showBackground) {
+            gClass = ' class="hiddenOverlay"';
+        }
+
+        let svg: string = '<svg id="intro-overlay"><g' + gClass + '><path id="intro-path"' +
+            ' d="' + pathTemplate + '"></path></g></svg>';
+
         let $overlay: JQuery = $(svg);
         $('body').append($overlay);
         setTimeout(function() {
@@ -149,7 +164,14 @@ namespace TooltipManager {
         $('body').append('<div id="intro-elementLayer"></div>');
     }
 
-    function createPopover() {
+    function createPopover(isSingleTooltip: boolean) {
+        let next: string = "";
+        if(!isSingleTooltip) {
+            next = '<div class="next">' +
+                        '<i class="icon xi-next"></i>' +
+                    '</div>'
+        }
+
         // UI subject to change
         let popoverHtml: string = '<div id="intro-popover" style="padding:' +
                             options.popoverVertPadding + 'px ' +
@@ -159,16 +181,14 @@ namespace TooltipManager {
                                     title +
                                 '</div>' +
                                 '<div class="close">' +
-                                    '<i class="icon xc-action xi-close cancel"></i>' + 
+                                    '<i class="icon xc-action xi-close cancel"></i>' +
                                 '</div>' +
                             '</div>' +
                             '<div class="textContainer">' +
                                 '<div class="text"></div>' +
                             '</div>' +
-                            '<div class="bottomArea">' + 
-                                '<div class="next">' +
-                                    '<i class="icon xi-next"></i>' +
-                                '</div>' +
+                            '<div class="bottomArea">' +
+                                next +
                                 '<div class="intro-number"></div>' +
                             '</div>' +
                             '<div class="intro-arrow top"></div>' +
@@ -184,7 +204,7 @@ namespace TooltipManager {
 
         if (!options.includeNumbering) {
             $popover.find('.intro-number').hide();
-        } 
+        }
 
         $popover.find('.next').click(function() {
             nextStep();
@@ -195,9 +215,7 @@ namespace TooltipManager {
         });
 
     }
-    function createWatermark() {
-        $('body').append('<p id="intro-watermark">' + introTStr.watermark +'<br/><span id="intro-watermark-sub">' + introTStr.subWatermark +'</span></p>');
-    }
+
 
     /* controls nextStep whether it be forward, backwards or skipping
     *  @param {Object} arg : options include skip: boolean, back: boolean
@@ -210,6 +228,9 @@ namespace TooltipManager {
         if (!(arg && arg.skip) && stepNumber >= currWalkthrough.length) {
             closeWalkthrough();
             return;
+        }
+        if ($currElem) {
+            $currElem.removeClass(".intro-highlightedElement");
         }
 
         /**if (options.video) {
@@ -260,13 +281,11 @@ namespace TooltipManager {
     };
 
     function highlightNextElement() {
-        // clean up previous elements
         let currentStep = currWalkthrough[stepNumber];
 
         $currElem = $(currentStep.highlight_div);
 
         $currElem.addClass('intro-highlightedElement');
-
         currElemRect = $currElem[0].getBoundingClientRect();
 
         moveElementLayer();
@@ -474,6 +493,7 @@ namespace TooltipManager {
 
     export function closeWalkthrough() {
         stepNumber = -1;
+        clearListeners();
         removeHighlightBox();
 
         $('#intro-overlay').css('opacity', 0);
@@ -484,7 +504,6 @@ namespace TooltipManager {
         $popover.css('opacity', 0).remove();
         $('#intro-highlightBox').remove();
         $('#intro-elementLayer').remove();
-        $('#intro-watermark').remove();
         $('.intro-highlightedElement').removeClass('intro-highlightedElement');
         $('intro-popover').remove();
         $(window).off('resize', winResize);
@@ -548,5 +567,6 @@ enum TooltipType {
 
 enum TooltipStartScreen {
     SQLWorkspace = "SQLWorkspace",
-    ADVModeDataflow = "Adv Mode Dataflow"
+    ADVModeDataflow = "Adv Mode Dataflow",
+    Workbooks = "Workbook Screen"
 }

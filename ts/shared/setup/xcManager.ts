@@ -214,23 +214,7 @@ namespace xcManager {
                 if (firstTimeUser && !userExists) {
                     Admin.addNewUser();
                     // when it's new user first time login
-                    Alert.show(<Alert.AlertOptions>{
-                        "title": DemoTStr.title,
-                        "msg": NewUserTStr.msg,
-                        "buttons": [{
-                            "name": AlertTStr.Close,
-                            "className": "cancel"
-                        },
-                        {
-                            "name": NewUserTStr.openGuide,
-                            "className": "confirm",
-                            "func": function() {
-                                const url: string = "https://discourse.xcalar.com/c/xcalar-training-videos";
-                                window.open(url, "_blank");
-                            }
-                        }],
-                        "noCancel": true
-                    });
+                    TooltipWalkthroughs.newUserPopup();
                 }
                 JupyterPanel.initialize(true);
             });
