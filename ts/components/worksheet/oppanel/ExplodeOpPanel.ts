@@ -61,7 +61,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
             args: this._getArgs()
         });
         this._componentFactory.getTemplateMgr().updateDOM(
-            $opSection[0], <NodeDefDOMElement[]>opSectionDom);
+            <any>$opSection[0], <NodeDefDOMElement[]>opSectionDom);
         this._registerEventListeners();
     }
 

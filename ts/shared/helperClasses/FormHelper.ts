@@ -51,7 +51,14 @@ class FormHelper {
     private options: FormHelperOptions;
     private id: string;
     private state: string;
-    private mainMenuState: object;
+    private mainMenuState: {
+        isPoppedOut: boolean,
+        isTopOpen: boolean,
+        isBottomOpen: boolean,
+        $activeTopSection: JQuery,
+        $activeBottomSection: JQuery,
+        $activeDataflowMenu: JQuery
+    };
     private openTime: number;
     private isFormOpen: boolean;
     public static activeForm: BaseOpPanel;

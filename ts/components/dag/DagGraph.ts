@@ -1399,7 +1399,7 @@ class DagGraph extends Durable {
         const stats = [];
         this.nodesMap.forEach((node: DagNode) => {
             const overallStats = node.getOverallStats(true);
-            overallStats.state = node.getState();
+            overallStats.state = <any>node.getState();
 
             const nodeStats = {
                 name: node.getTitle(),

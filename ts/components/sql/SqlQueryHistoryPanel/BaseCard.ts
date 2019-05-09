@@ -230,7 +230,7 @@ namespace SqlQueryHistoryPanel {
                 numRowsToShow: numRowToShow,
                 enableAutoRefresh: checkContainerVisible,
                 msRefreshDuration: 2000,
-                container: this.getTableContainer()[0]
+                container: <any>this.getTableContainer()[0]
             });
         }
 

@@ -640,7 +640,7 @@ class TableMeta extends Durable {
      * getColNameMap
      * @param tableId
      */
-    public getColNameMap(tableId: string): object {
+    public getColNameMap(): object {
         const colNameMap: object = {};
         const cols: ProgCol[] = this.getAllCols(true);
 
@@ -656,7 +656,7 @@ class TableMeta extends Durable {
      * getColNameList
      * @param tableId
      */
-    public getColNameList(tableId: string): string[] {
+    public getColNameList(): string[] {
         const colNameList: string[] = [];
         const cols: ProgCol[] = this.getAllCols(true);
 

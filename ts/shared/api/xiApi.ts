@@ -1367,15 +1367,15 @@ namespace XIApi {
      * @param tableName
      * @returns XDPromise<order, keys>
      */
-    export function checkOrder(tableName: string): XDPromise<{tableOrder: number, tableKeys: {name: string, ordering: XcalarOrderingT}[]}> {
+    export function checkOrder(tableName: string): XDPromise<{tableOrder: number, tableKeys: {name: string, ordering: string}[]}> {
         if (tableName == null) {
             return PromiseHelper.reject("Invalid args in checkOrder");
         }
 
-        const deferred: XDDeferred<{tableOrder: number, tableKeys: {name: string, ordering: XcalarOrderingT}[]}> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{tableOrder: number, tableKeys: {name: string, ordering: string}[]}> = PromiseHelper.deferred();
         XcalarGetTableMeta(tableName)
         .then((tableMeta) => {
-            const keys: {name: string, ordering: XcalarOrderingT}[] = xcHelper.getTableKeyInfoFromMeta(tableMeta);
+            const keys: {name: string, ordering: string}[] = xcHelper.getTableKeyInfoFromMeta(tableMeta);
             deferred.resolve({tableOrder: tableMeta.ordering, tableKeys: keys});
         })
         .fail(deferred.reject);

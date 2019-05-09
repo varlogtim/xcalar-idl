@@ -672,26 +672,6 @@ describe('TableMenu Test', function() {
         });
 
         describe('sub menu', function() {
-            it('addColumn right', function() {
-
-                var cachedFunc = ColManager.addNewCol;
-                var called = false;
-                ColManager.addNewCol = function(colNum, tId, dir) {
-                    expect(colNum).to.equal(12);
-                    expect(tId).to.equal(tableId);
-                    expect(dir).to.equal(ColDir.Right);
-                    called = true;
-                };
-
-                $colMenu.find('.addColumn').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $colMenu.find('.addColumn').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColManager.addNewCol = cachedFunc;
-            });
-
             // it('click inputAction and renameCol', function() {
             //     var cachedFunc = ColManager.renameCol;
             //     var called = false;

@@ -381,7 +381,7 @@ class DagLineage {
                         // do not change original column width, create a new column
                         // and change that width instead
                         if (!colReplaced) {
-                            column = new ProgCol(column);
+                            column = new ProgCol(<any>column);
                             colReplaced = true;
                         }
 
@@ -391,7 +391,7 @@ class DagLineage {
                     }
                     if (columnInfo.textAlign) {
                         if (!colReplaced) {
-                            column = new ProgCol(column);
+                            column = new ProgCol(<any>column);
                             colReplaced = true;
                         }
                         column.setTextAlign(columnInfo.textAlign);

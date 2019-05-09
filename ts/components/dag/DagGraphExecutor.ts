@@ -578,7 +578,7 @@ class DagGraphExecutor {
             });
         })
         .fail(deferred.reject);
-        return deferred.promise9);
+        return deferred.promise();
     }
 
     /**

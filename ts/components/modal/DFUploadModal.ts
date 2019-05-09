@@ -51,7 +51,7 @@ class DFUploadModal {
         let path: string = this._getDestPath();
 
         let shared: boolean = false;
-        let uploadTab: DagTab = new DagTabUser({
+        let uploadTab: DagTabUser = new DagTabUser({
             name: path,
             createdTime: xcTimeHelper.now()
         });
@@ -91,7 +91,7 @@ class DFUploadModal {
             return null;
         }
         return {
-            tab: uploadTab,
+            tab: <DagTab>uploadTab,
             shared: shared
         };
     }

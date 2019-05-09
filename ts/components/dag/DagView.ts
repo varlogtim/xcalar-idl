@@ -587,7 +587,7 @@ class DagView {
                 }
             });
 
-            parents.forEach((parent, index) => {
+            parents.forEach((parent) => {
                 if (parent != null && seen[parent.getId()] == null) {
                     let parentWidth;
                     let tooltipAdjusted = false;

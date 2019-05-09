@@ -689,7 +689,8 @@ class BaseOpPanel {
     protected _addValidation(elem: HTMLElement, validateFunc: () => string) {
         // XXX TODO: better not access the internal elements of a component
         this._validationList.push({
-            elem: $(elem).find('.selError')[0], validate: validateFunc
+            elem: <any>$(elem).find('.selError')[0],
+            validate: validateFunc
         });
     }
 

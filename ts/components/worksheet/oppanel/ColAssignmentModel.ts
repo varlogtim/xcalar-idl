@@ -58,7 +58,10 @@ class ColAssignmentModel {
         const colName: string = progCol.getBackColName();
         this.resultCols.push(new ProgCol({
             name: this._normalizeColName(colName),
-            type: null
+            type: null,
+            backName: undefined,
+            format: undefined,
+            func: undefined
         }));
         if (this.options.showCast && this.selectedColsList.length === 1) {
             this.resultCols[this.resultCols.length - 1].type = progCol.getType();
@@ -80,7 +83,10 @@ class ColAssignmentModel {
     public addBlankRow(): void {
         this.resultCols.push(new ProgCol({
             name: "",
-            type: null
+            type: null,
+            backName: undefined,
+            format: undefined,
+            func: undefined
         }));
         this.selectedColsList.forEach(selectedCols => {
             selectedCols.push(null);
@@ -263,7 +269,7 @@ class ColAssignmentModel {
         return null;
     }
 
-    public validateAdvancedMode(paramStr: string): {error: string} {
+    public validateAdvancedMode(_paramStr: string): {error: string} {
         try {
             // XXX TODO: check what's the status of it
             return null;
@@ -326,7 +332,10 @@ class ColAssignmentModel {
             this.resultCols = selectedColSets[largestIndex].map((col, colIndex) => {
                 return new ProgCol({
                     backName: col.destColumn,
-                    type: hasCast[colIndex] ? col.columnType : null
+                    type: hasCast[colIndex] ? col.columnType : null,
+                    name: undefined,
+                    format: undefined,
+                    func: undefined
                 });
             });
         }

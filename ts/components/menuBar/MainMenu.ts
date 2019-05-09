@@ -280,7 +280,7 @@ namespace MainMenu {
                 $menuPanel.css("max-width", panelRight - 10);
                 $mainMenu.addClass("resizing");
             },
-            "resize": function(event, ui) {
+            "resize": function(_event, ui) {
                 if (!isSmall && ui.size.width < minWidth) {
                     $mainMenu.removeClass("expanded");
                     isSmall = true;

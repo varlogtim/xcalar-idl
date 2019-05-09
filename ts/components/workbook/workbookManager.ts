@@ -210,7 +210,6 @@ namespace WorkbookManager {
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const copySrcName: string = isCopy ? copySrc.getName() : null;
-        const username: string = XcUser.getCurrentUserName();
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
@@ -219,7 +218,7 @@ namespace WorkbookManager {
             }
         })
         .then(function() {
-            return finishCreatingWKBK(wkbkName, username, isCopy, copySrc);
+            return finishCreatingWKBK(wkbkName, isCopy, copySrc);
         })
         .then(function(wkbkId) {
             deferred.resolve(wkbkId);
@@ -518,7 +517,6 @@ namespace WorkbookManager {
         let deferred: XDDeferred<string> = PromiseHelper.deferred();
 
         let jupFolderName: string;
-        const username: string = XcUser.getCurrentUserName();
         let parsedWorkbookContent: any;
         let promise;
         if (parsed) {
@@ -549,8 +547,7 @@ namespace WorkbookManager {
                                         jupyterFolderPath);
         })
         .then(function() {
-            return finishCreatingWKBK(workbookName, username, null, null,
-                                      jupFolderName);
+            return finishCreatingWKBK(workbookName, null, null, jupFolderName);
         })
         .then(function(wkbkId) {
             deferred.resolve(wkbkId);
@@ -1186,7 +1183,7 @@ namespace WorkbookManager {
     }
 
     // if upload, jupFolderName should be provided
-    function finishCreatingWKBK(wkbkName: string, username: string, isCopy: boolean, copySrc: WKBK, jupFolderName?: string): XDPromise<string> {
+    function finishCreatingWKBK(wkbkName: string, isCopy: boolean, copySrc: WKBK, jupFolderName?: string): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let wkbk: WKBK;
 

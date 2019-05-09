@@ -119,7 +119,7 @@ class SQLHistorySpace {
                 const $container = $("#sqlDataflowArea .dataflowWrap");
                 $container.empty();
                 DagViewManager.Instance.addDataflowHTML($container, dataflowId, true, false)
-                DagViewManager.Instance.renderSQLPreviewDag(dagTab);
+                DagViewManager.Instance.renderSQLPreviewDag(<DagTab>dagTab);
                 DagViewManager.Instance.autoAlign(dataflowId);
                 SQLResultSpace.Instance.showProgressDataflow(false, sql);
                 deferred.resolve();
@@ -166,7 +166,7 @@ class SQLHistorySpace {
                     return PromiseHelper.reject(e.message);
                 }
             })
-            .then((dataflowId) => {
+            .then((dataflowId: string) => {
                 let newQueryInfo = $.extend({}, queryInfo, {
                     dataflowId: dataflowId
                 });

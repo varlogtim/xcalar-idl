@@ -45,7 +45,7 @@ class DSObj extends Durable {
     private sources: DSSources[];
     private date: number; // created date timestamp
     public numErrors: number; // number of record errors
-    private activated: boolean; // if the dataset is activated or not
+    public activated: boolean; // if the dataset is activated or not
     private columns: ColSchema[];
     public cachedLoadArgs: string;
 

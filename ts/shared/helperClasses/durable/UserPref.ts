@@ -1,13 +1,13 @@
 class UserPref extends Durable {
-    private datasetListView: boolean; // ds use list/grid view
-    private browserListView: boolean; // browser use list/grid view
-    private logCollapsed: boolean;
+    public datasetListView: boolean; // ds use list/grid view
+    public browserListView: boolean; // browser use list/grid view
+    public logCollapsed: boolean;
     public general: object; // holds general settings
-    private dsSortKey: string; // ds grid view sort key
-    private dfAutoExecute: boolean; // DF 2.0 settings
-    private dfAutoPreview: boolean; // DF 2.0 settings
-    private dfProgressTips: boolean; // DF 2.0 settings
-    private dfConfigInfo: boolean; // DF 2.0 settings
+    public dsSortKey: string; // ds grid view sort key
+    public dfAutoExecute: boolean; // DF 2.0 settings
+    public dfAutoPreview: boolean; // DF 2.0 settings
+    public dfProgressTips: boolean; // DF 2.0 settings
+    public dfConfigInfo: boolean; // DF 2.0 settings
 
     public constructor (options?: UserPrefDurable) {
         options = options || <UserPrefDurable>{};

@@ -104,8 +104,8 @@ class DFPublishModal {
 
     private _submitDone(tab: DagTabPublished): void {
         this._close();
-        DagList.Instance.addDag(tab);
-        DagTabManager.Instance.loadTab(tab);
+        DagList.Instance.addDag(<DagTab>tab);
+        DagTabManager.Instance.loadTab(<DagTab>tab);
     }
 
     private _validate(): {path: string} {

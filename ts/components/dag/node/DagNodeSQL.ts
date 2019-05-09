@@ -1243,7 +1243,7 @@ class DagNodeSQL extends DagNode {
             dagNodeInfo.id = newId;
             dagNodeInfo["nodeId"] = newId;
         });
-        retStruct.dagInfoList.forEach((dagNodeInfo: DagNodeInfo, i) => {
+        retStruct.dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
             const parents: DagNodeId[] = dagNodeInfo.parents;
             parents.forEach((dagParent, i) => {
                 parents[i] = oldIdNewIdMap.get(dagParent);

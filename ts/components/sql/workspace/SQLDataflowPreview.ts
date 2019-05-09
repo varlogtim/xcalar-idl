@@ -63,7 +63,7 @@ class SQLDataflowPreview {
         })
         .then(() => {
             MainMenu.openPanel("dagPanel");
-            return DagTabManager.Instance.loadTab(dagTab);
+            return DagTabManager.Instance.loadTab(<DagTab>dagTab);
         })
         .then(() => {
             deferred.resolve();

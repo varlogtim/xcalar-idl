@@ -2,10 +2,10 @@
 class XcLog extends Durable {
     private title: string; // log's title,
     public options: any; // log's options
-    private cli: string; // (optional) cli log
-    private error: string; // (optional) error log
+    public cli: string; // (optional) cli log
+    public error: string; // (optional) error log
     private sqlType: string; // (optional) log's type
-    private timestamp: number; // time
+    public timestamp: number; // time
     public version: number;
 
     constructor(options: XcLogDurable) {

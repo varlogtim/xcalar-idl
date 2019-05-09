@@ -847,7 +847,7 @@ namespace ColManager {
         return deferred.promise();
     };
 
-    export function textAlign(colNums: number[], tableId: TableId, alignment: ColTextAlign): void {
+    export function textAlign(colNums: number[], tableId: TableId, alignment: ColTextAlign | string): void {
         let cachedAlignment = alignment;
         if (alignment.indexOf("leftAlign") > -1) {
             alignment = ColTextAlign.Left;

@@ -136,7 +136,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             }
         }
         const elemDerivedContainer = ProjectOpPanel.findXCElement(this._$elemPanel, 'derivedContainer')[0];
-        this._templateMgr.updateDOM(elemDerivedContainer, nodeList);
+        this._templateMgr.updateDOM(<any>elemDerivedContainer, nodeList);
 
         // SelectAll checkbox for derived columns
         this.toggleCheckbox(this._$elemDeriveSelectAllCheckbox, this._dataModel.isAllDerivedSelected);
@@ -207,7 +207,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
            this._$elemPanel,
            'prefixContainer'
         )[0];
-        this._templateMgr.updateDOM(elemPrefixedContainer, nodeList);
+        this._templateMgr.updateDOM(<any>elemPrefixedContainer, nodeList);
 
        // Handle empty case
        const $elemPrefixedSection = this._$elemPanel.find('.prefixedSection');

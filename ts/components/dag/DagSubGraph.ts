@@ -5,6 +5,7 @@ class DagSubGraph extends DagGraph {
     // in topological order
     private isComplete: boolean = false;
     private elapsedTime: number;
+    private state;
 
     public constructor(tableNameToDagIdMap?, dagIdToTableNamesMap?) {
         super();

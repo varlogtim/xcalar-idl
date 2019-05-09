@@ -54,7 +54,7 @@ class OpPanelDropdown {
             }
         }
         if (isForceUpdate) {
-            OpPanelTemplateManager.setElementForceUpdate(this._$elem[0]);
+            OpPanelTemplateManager.setElementForceUpdate(<any>this._$elem[0]);
         }
         this._isDelayInit = isDelayInit;
         this._boundingSelector = props.boundingSelector;
@@ -103,7 +103,7 @@ class OpPanelDropdown {
             menuList.setupListeners();
         };
         if (this._isDelayInit) {
-            OpPanelTemplateManager.setElementInitFunc(this._$elem[0], initFunc);
+            OpPanelTemplateManager.setElementInitFunc(<any>this._$elem[0], initFunc);
         } else {
             initFunc();
         }

@@ -2000,16 +2000,9 @@ namespace QueryManager {
                 focusOutputErrorHandler('output', mainQuery);
                 return;
             }
-
-            TblManager.findAndFocusTable(tableName, false)
-            .fail(function(res) {
-                if (res && typeof res === "object") {
-                    focusOutputErrorHandler('table', mainQuery, res.tableType);
-                }
-            });
         }
 
-        function focusOnDSGrid($grid: JQuery, dsId: number | string): void {
+        function focusOnDSGrid($grid: JQuery, dsId: string): void {
             // switch to correct panels
             const $datastoreTab: JQuery = $("#dataStoresTab");
             if (!$datastoreTab.hasClass("active")) {

@@ -105,7 +105,7 @@ class DagNodeAggregate extends DagNode {
             mustExecute: input.mustExecute
         });
         let tabId = this.graph ? this.graph.getTabId() : "";
-        let promise = PromiseHelper.resolve();
+        let promise: XDPromise<any> = PromiseHelper.resolve();
         let oldAggName = this.getParam().dest;
         if (oldAggName != null && oldAggName != input.dest &&
                 DagAggManager.Instance.hasAggregate(tabId, oldAggName)) {

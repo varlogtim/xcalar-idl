@@ -6,7 +6,7 @@ class JoinOpPanelStep2 {
     private _opSectionSelector = "#joinOpPanel .opSection";
     private _onDataChange = () => {};
     private _errorElements: HTMLElement[] = [];
-    private _onError = (elem: HTMLElement) => {};
+    private _onError = (_elem: HTMLElement) => {};
     private static readonly _templateIds = {
         renameRow: 'templateRenameRow',
         renameList: 'templateRenameList',
@@ -58,14 +58,14 @@ class JoinOpPanelStep2 {
         // Column Selector
         const elemColSelContainer = findXCElement(this._$elem, 'columnSelectSection')[0];
         this._templateMgr.updateDOM(
-            elemColSelContainer,
+            <any>elemColSelContainer,
             <NodeDefDOMElement[]>this._createColumnSelectSection()
         );
 
         // Column Rename
         const elemColRenameContainer = findXCElement(this._$elem, 'columnRenameSection')[0];
         this._templateMgr.updateDOM(
-            elemColRenameContainer,
+            <any>elemColRenameContainer,
             <NodeDefDOMElement[]>this._createColumnRenameSection()
         );
     }

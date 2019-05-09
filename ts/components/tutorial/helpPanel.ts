@@ -59,7 +59,7 @@ class HelpPanel {
     private _setupResources() {
         const self = this;
         // main menu
-        $('#helpSection').find('.helpResource').click(function(event) {
+        $('#helpSection').find('.helpResource').click(function() {
             var $button = $(this);
             self.openHelpResource($button.attr("id"));
         });    

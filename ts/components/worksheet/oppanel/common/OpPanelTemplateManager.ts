@@ -79,7 +79,7 @@ class OpPanelTemplateManager {
 
     private _getTemplateFromDOM(templateId: string, container: JQuery): NodeDef[] {
         if (this._nodeDefMap[templateId] == null) {
-            const templateContainer = this._getXCElement(container, templateId);
+            const templateContainer = <any>this._getXCElement(container, templateId);
             let nodes: NodeDefDOMNodeList;
             if (this._isHTMLTemplate(templateContainer)) {
                 const domNodes = templateContainer.content.childNodes;
@@ -101,7 +101,7 @@ class OpPanelTemplateManager {
         return element.nodeName && element.nodeName === 'template';
     }
 
-    private _getXCElement(container: JQuery, xcid: string): HTMLElement{
+    private _getXCElement(container: JQuery, xcid: string): HTMLElement | Element {
         return container.find(`[data-xcid="${xcid}"]`)[0];
     }
 

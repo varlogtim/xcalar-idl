@@ -10,7 +10,6 @@ class UDFFileManager extends BaseFileManager {
     private userIDWorkbookMap: Map<string, Map<string, string>>;
     private userWorkbookIDMap: Map<string, Map<string, string>>;
     private panels: FileManagerPanel[];
-    private _listXdfsObj: XcalarApiListXdfsOutputT
 
     /*
      * Pay special attention when dealing with UDF paths / names.

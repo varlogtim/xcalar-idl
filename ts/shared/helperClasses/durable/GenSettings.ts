@@ -54,7 +54,8 @@ class GenSettings extends Durable {
     public getAdminAndXcSettings(): GenSettings {
         return new GenSettings(null, {
             "adminSettings": this.adminSettings,
-            "xcSettings": this.xcSettings
+            "xcSettings": this.xcSettings,
+            "version": undefined
         });
     }
 

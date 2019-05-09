@@ -121,14 +121,14 @@ class ColMenu extends AbstractMenu {
         const $colMenu: JQuery = this._getMenu();
 
         // add new column
-        $colMenu.on('mouseup', '.addColumn', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-            const colNum: number = $colMenu.data('colNum');
-            const tableId: TableId = $colMenu.data('tableId');
-            ColManager.addNewCol(colNum, tableId, ColDir.Right);
-        });
+        // $colMenu.on('mouseup', '.addColumn', (event) => {
+        //     if (this._isInvalidTrigger(event)) {
+        //         return;
+        //     }
+        //     const colNum: number = $colMenu.data('colNum');
+        //     const tableId: TableId = $colMenu.data('tableId');
+        //     ColManager.addNewCol(colNum, tableId, ColDir.Right);
+        // });
 
         $colMenu.on('mouseup', '.hideColumn', (event) => {
             if (this._isInvalidTrigger(event)) {

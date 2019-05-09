@@ -211,12 +211,12 @@ class ProgCol extends Durable {
         return this.textAlign;
     }
 
-    public setTextAlign(alignment: ColTextAlign | null): void {
+    public setTextAlign(alignment: ColTextAlign | string | null): void {
         if (alignment == null) {
             return;
         }
 
-        this.textAlign = alignment;
+        this.textAlign = <any>alignment;
     }
 
     public isNumberCol(): boolean {

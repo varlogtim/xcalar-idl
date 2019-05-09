@@ -127,7 +127,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
                 console.error(`Invalid currentStep value(${currentStep})`);
             }
         }
-        this._templateMgr.updateDOM($navButtons[0], elemNavButtons);
+        this._templateMgr.updateDOM(<any>$navButtons[0], elemNavButtons);
 
     }
 

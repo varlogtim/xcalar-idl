@@ -313,7 +313,7 @@ class MapOpPanel extends GeneralOpPanel {
         }
         const $list = $(html);
         $list.sort(this._sortHTML.bind(this));
-        this._$panel.find(".group").eq(groupIndex).find(".categoryMenu").html($list);
+        this._$panel.find(".group").eq(groupIndex).find(".categoryMenu").html(<any>$list);
 
         function sortFn(a, b){
             return (a.displayName) > (b.displayName) ? 1 : -1;

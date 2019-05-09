@@ -1026,10 +1026,6 @@ class SQLOpPanel extends BaseOpPanel {
             }
         }
     }
-
-    private _validateMapping() {
-
-    }
 }
 
 interface derivedColStruct {

@@ -226,7 +226,7 @@ class SQLDagExecutor {
             reset: false,
             createdTime: xcTimeHelper.now()
         });
-        DagViewManager.Instance.render($(), this._tempGraph, this._tempTab, true);
+        DagViewManager.Instance.render($(), this._tempGraph, <DagTab>this._tempTab, true);
         this._tempGraph.addNode(this._sqlNode);
     }
 
@@ -286,7 +286,7 @@ class SQLDagExecutor {
             return PromiseHelper.resolve();
         }
         this._tempTab.setGraph(this._sqlNode.getSubGraph());
-        DagList.Instance.addDag(this._tempTab);
+        DagList.Instance.addDag(<DagTab>this._tempTab);
         return this._saveDataflow();
     }
 
@@ -297,11 +297,11 @@ class SQLDagExecutor {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         
         DagTabManager.Instance.addSQLTabCache(this._tempTab);
-        let promise = DagViewManager.Instance.expandSQLNodeInTab(this._sqlNode, this._tempTab, true);
+        let promise = DagViewManager.Instance.expandSQLNodeInTab(this._sqlNode, <DagTab>this._tempTab, true);
         PromiseHelper.alwaysResolve(promise)
         .then(() => {
             DagViewManager.Instance.autoAlign(this._tempTab.getId());
-            DagList.Instance.addDag(this._tempTab);
+            DagList.Instance.addDag(<DagTab>this._tempTab);
             return this._saveDataflow();
         })
         .then(() => {

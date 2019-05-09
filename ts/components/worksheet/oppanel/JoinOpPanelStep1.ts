@@ -324,7 +324,7 @@ class JoinOpPanelStep1 {
             });
         }
         const $clauseContainer = BaseOpPanel.findXCElement(this._$elem, 'clauseContainer');
-        this._templateMgr.updateDOM($clauseContainer[0], nodeList);
+        this._templateMgr.updateDOM(<any>$clauseContainer[0], nodeList);
     }
 
     private _getJoinTypeText(type: string) {

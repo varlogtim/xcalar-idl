@@ -271,95 +271,7 @@ class TblManager {
         return table;
     }
 
-    // XXX TODO: The function need to update to parse tab id and node id
-    // to find the table
     /**
-     * TblManager.findAndFocusTable
-     * searches for this table in active and temp list and brings it to the
-     * active WS if needed and focuses on it
-     * @param tableName
-     * @param noAnimate
-     */
-    public static findAndFocusTable(
-        tableName: string,
-        noAnimate: boolean = false
-    ): XDPromise<{tableFromInactive: boolean}> {
-        // do nothing now
-        return PromiseHelper.resolve();
-        // const deferred: XDDeferred<{tableFromInactive: boolean}> = PromiseHelper.deferred();
-
-        // let wsId: string;
-        // let tableType: string;
-        // const tableId: TableId = xcHelper.getTableId(tableName);
-        // const table: TableMeta = gTables[tableId];
-        // if (table != null) {
-        //     if (table.isActive()) {
-        //         MainMenu.openPanel("workspacePanel", "worksheetButton");
-        //         wsId = WSManager.getWSFromTable(tableId);
-        //         const $wsListItem: JQuery = $('#worksheetTab-' + wsId);
-        //         if ($wsListItem.hasClass("hiddenTab")) {
-        //             $wsListItem.find(".unhide").click();
-        //         } else {
-        //             $wsListItem.trigger(fakeEvent.mousedown);
-        //         }
-
-        //         if ($("#dagPanel").hasClass('full')) {
-        //             $('#dagPulloutTab').click();
-        //         }
-        //         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-        //         TblManager.centerfocusedTable($tableWrap, false)
-        //         .then(() => {
-        //             deferred.resolve({tableFromInactive: false});
-        //         })
-        //         .fail(deferred.reject);
-        //         $tableWrap.mousedown();
-        //         return deferred.promise();
-        //     } else if (WSManager.getWSFromTable(tableId) == null) {
-        //         tableType = TableType.Orphan;
-        //     } else if (table.status === TableType.Orphan) {
-        //         tableType = TableType.Orphan;
-        //     } else if (table.status === TableType.Undone) {
-        //         tableType = TableType.Undone;
-        //     } else {
-        //         tableType = TableType.Orphan;
-        //     }
-
-        //     //xx currently we won't allow focusing on undone tables
-        //     if (tableType === TableType.Undone) {
-        //         deferred.reject({tableType: tableType, notFound: true});
-        //     } else {
-        //         MainMenu.openPanel("workspacePanel", "worksheetButton");
-        //         wsId = WSManager.getActiveWS();
-        //         WSManager.moveTemporaryTable(tableId, wsId, tableType, true, noAnimate)
-        //         .then(() => {
-        //             deferred.resolve({tableFromInactive: true});
-        //         })
-        //         .fail(() => {
-        //             deferred.reject({notFound: true});
-        //         });
-        //     }
-        // } else {
-        //     XcalarGetTables(tableName)
-        //     .then((ret) => {
-        //         if (ret.numNodes > 0) {
-        //             MainMenu.openPanel("workspacePanel", "worksheetButton");
-        //             wsId = WSManager.getActiveWS();
-        //             WSManager.moveTemporaryTable(tableId, wsId, TableType.Orphan,
-        //                                         true, noAnimate)
-        //             .then(() => {
-        //                 deferred.resolve({tableFromInactive: true});
-        //             })
-        //             .fail(deferred.reject);
-        //         } else {
-        //             deferred.reject({notFound: true});
-        //         }
-        //     })
-        //     .fail(deferred.reject);
-        // }
-        // return deferred.promise();
-    }
-
-        /**
      * xcHelper.getFocusedTable
      */
     public static getFocusedTable(): TableId {
@@ -1715,7 +1627,7 @@ class TblManager {
             }
             const $th: JQuery = $table.find('th.col' + colNum);
             let width: number | string = widths[i];
-            const progCol: ProgCol = new ProgCol(table.getCol(colNum));
+            const progCol: ProgCol = new ProgCol(<any>table.getCol(colNum));
             table.tableCols[colNum - 1] = progCol;
             if (wasHidden && wasHidden[i]) {
                 $th.addClass("userHidden");
@@ -2325,7 +2237,7 @@ class TblManager {
                 const colNum: number = ColManager.parseColNum($input);
 
                 if (colName === "" ||
-                    ColManager.checkColName($input, tableId, colNum)
+                    ColManager.checkColName($input, tableId, colNum, null)
                 ) {
                     return false;
                 } else {

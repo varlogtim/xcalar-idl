@@ -83,10 +83,7 @@ class DagNodeJupyter extends DagNodeOut {
         this.checkGlobalTable(<string>xcHelper.getTableId(tableName));
 
         const params: DagNodeJupyterInputStruct = this.getParam();
-        JupyterPanel.publishTable(
-            tableName,
-            params.numExportRows,
-            true);
+        JupyterPanel.publishTable(tableName, params.numExportRows);
     }
 
     /**
