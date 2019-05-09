@@ -559,7 +559,7 @@ namespace Alert {
                         '</button>';
                 $btn = $(html);
                 $btn.click(function() {
-                    SupTicketModal.show();
+                    SupTicketModal.Instance.show();
                     $(this).blur();
                     MonitorPanel.stop();
                 });

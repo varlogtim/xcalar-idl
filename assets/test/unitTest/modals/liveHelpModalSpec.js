@@ -13,17 +13,17 @@ describe("LiveHelpModal Test", function() {
         oldSendEmail = LiveHelpModal.Instance._sendEmail;
         oldSendMsgToSocket = LiveHelpModal.Instance._sendMsgToSocket;
         oldCloseSocket = LiveHelpModal.Instance._closeSocket;
-        oldFetchLicenseInfo = SupTicketModal.fetchLicenseInfo;
-        oldSubmitTicket = SupTicketModal.submitTicket;
+        oldFetchLicenseInfo = SupTicketModal.Instance.fetchLicenseInfo;
+        oldSubmitTicket = SupTicketModal.Instance.submitTicket;
         LiveHelpModal.Instance._sendReqToSocket = function() {};
         LiveHelpModal.Instance._sendEmail = function() {};
         LiveHelpModal.Instance._sendMsgToSocket = function() {};
         LiveHelpModal.Instance._closeSocket = function() {};
-        SupTicketModal.fetchLicenseInfo = function() {
+        SupTicketModal.Instance.fetchLicenseInfo = function() {
             return PromiseHelper.deferred().resolve({"key":"test","expiration":"test"})
                    .promise();
         };
-        SupTicketModal.submitTicket = function(){
+        SupTicketModal.Instance.submitTicket = function(){
             return PromiseHelper.deferred()
                    .resolve({"logs":'{"ticketId":"test","admin":"test"}'})
                    .promise();
@@ -145,7 +145,7 @@ describe("LiveHelpModal Test", function() {
         LiveHelpModal.Instance._sendEmail = oldSendEmail;
         LiveHelpModal.Instance._sendMsgToSocket = oldSendMsgToSocket;
         LiveHelpModal.Instance._closeSocket = oldCloseSocket;
-        SupTicketModal.submitTicket = oldSubmitTicket;
-        SupTicketModal.fetchLicenseInfo = oldFetchLicenseInfo;
+        SupTicketModal.Instance.submitTicket = oldSubmitTicket;
+        SupTicketModal.Instance.fetchLicenseInfo = oldFetchLicenseInfo;
     });
 });

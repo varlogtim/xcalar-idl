@@ -12,26 +12,26 @@ describe("SupTicketModal Test", function() {
 
     describe("SupTicketModal UI Behavior Test", function() {
         it("should show the modal", function() {
-            SupTicketModal.show();
+            SupTicketModal.Instance.show();
             assert.isTrue($modal.is(":visible"));
         });
 
         it("should refresh", function() {
-            var cache = SupTicketModal.restore;
+            var cache = SupTicketModal.Instance.restore;
             var called = false;
-            SupTicketModal.restore = function() {
+            SupTicketModal.Instance.restore = function() {
                 called = true;
             }
             $modal.find(".refresh").click();
             expect(called).to.be.true;
-            SupTicketModal.restore = cache;
+            SupTicketModal.Instance.restore = cache;
         });
 
         it("should toggle dropdown list", function(){
             var $dropdown = $modal.find(".issueList");
             var $input = $dropdown.find(".text");
-            var cacheFn = SupTicketModal.restore;
-            SupTicketModal.restore = function() {
+            var cacheFn = SupTicketModal.Instance.restore;
+            SupTicketModal.Instance.restore = function() {
                 return PromiseHelper.resolve();
             };
             $($dropdown.find("li").get().reverse()).each(function() {
@@ -45,7 +45,7 @@ describe("SupTicketModal Test", function() {
             $dropdown.find("li").eq(0).trigger(fakeEvent.mouseup);
             expect($ticketIdSection.hasClass("closed")).to.be.true;
             $ticketIdSection.removeClass("closed");
-            SupTicketModal.restore = cacheFn;
+            SupTicketModal.Instance.restore = cacheFn;
         });
 
         it("should select severity", function() {
@@ -82,7 +82,7 @@ describe("SupTicketModal Test", function() {
             expect($modal.hasClass("locked")).to.be.false;
             $("#modalBackground").addClass("locked");
 
-            SupTicketModal.show();
+            SupTicketModal.Instance.show();
 
             expect($modal.hasClass("locked")).to.be.true;
             expect($("#alertModal").hasClass("xc-hidden")).to.be.true;
@@ -123,10 +123,10 @@ describe("SupTicketModal Test", function() {
         var longStr;
         before(function() {
             longStr = "blah blah ".repeat(40);
-            SupTicketModal.show();
+            SupTicketModal.Instance.show();
         });
 
-        it("SupTicketModal.Restore should work", function(done) {
+        it("SupTicketModal.Instance.restore should work", function(done) {
             var ret1 = {
                 logs: JSON.stringify({tickets: [
                     {"created_at": 12345, "updated_at": 12456, "id": 1, "comment": "abc", "subject": "testSubject"},
@@ -161,7 +161,7 @@ describe("SupTicketModal Test", function() {
                 }
             };
 
-            SupTicketModal.restore()
+            SupTicketModal.Instance.restore()
             .then(function() {
                 expect($ticketIdSection.find(".tableBody .row").length).to.equal(2);
                 expect($ticketIdSection.find(".tableBody .innerRow").length).to.equal(4);
@@ -180,7 +180,7 @@ describe("SupTicketModal Test", function() {
         });
 
         it("parseTicketList() should work", function() {
-            var fn = SupTicketModal.__testOnly__.parseTicketList;
+            var fn = SupTicketModal.Instance._parseTicketList;
             list = fn([{"created_at": 1, "updated_at": 2}, {"created_at": 1, "updated_at": 1}]);
             expect(list[0].hasUpdate).to.equal(true);
             expect(list[0].author).to.equal("user");
@@ -193,7 +193,7 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.reject();
             };
 
-            SupTicketModal.__testOnly__.getTickets()
+            SupTicketModal.Instance._getTickets()
             .then(function(ret) {
                 expect(getCalled).to.be.true;
                 expect(ret).to.deep.equal([]);
@@ -256,22 +256,21 @@ describe("SupTicketModal Test", function() {
             var tickets = {
                 0: [{id: 0}]
             };
-            SupTicketModal.__testOnly__.addUpdatedTickets(tickets);
-            SupTicketModal.__testOnly__.includeUpdatedTickets();
-            var tix = SupTicketModal.__testOnly__.get();
+            SupTicketModal.Instance._updatedTickets = tickets;
+            SupTicketModal.Instance._includeUpdatedTickets();
+            var tix = SupTicketModal.Instance._tickets;
             expect(tix.length).to.equal(3);
             tix.splice(0, 1);
         });
 
         it("reverseLogs should work", () => {
-            const reverseLogs = SupTicketModal.__testOnly__.reverseLogs;
             const logs = {a: [1, 2], b: "test"};
-            const res = reverseLogs(logs);
+            const res = SupTicketModal.Instance._reverseLogs(logs);
             expect(Object.keys(res).length).to.equal(2);
             expect(res.a).to.deep.equal([2, 1]);
             expect(res.b).to.equal("test");
             // error case
-            expect(reverseLogs(null)).to.be.null;
+            expect(SupTicketModal.Instance._reverseLogs(null)).to.be.null;
         });
     });
 
@@ -285,7 +284,7 @@ describe("SupTicketModal Test", function() {
         var successMsg;
 
         before(function() {
-            SupTicketModal.show();
+            SupTicketModal.Instance.show();
             oldSupport = XcalarSupportGenerate;
             oldGetLicense = adminTools.getLicense;
             oldApiTop = XcalarApiTop;
@@ -326,7 +325,7 @@ describe("SupTicketModal Test", function() {
                 };
             };
 
-            var logs = SupTicketModal.trimRecentLogs();
+            var logs = SupTicketModal.Instance.trimRecentLogs();
             logs = JSON.parse(logs);
             expect(logs.logs.length).to.equal(1);
             expect(logs.logs[0]).to.equal("test");
@@ -350,7 +349,7 @@ describe("SupTicketModal Test", function() {
                 test = true;
                 return PromiseHelper.reject("test");
             };
-            SupTicketModal.__testOnly__.submitBundle()
+            SupTicketModal.Instance._submitBundle()
             .then(function() {
                 done("fail");
             })
@@ -379,7 +378,7 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve({});
             };
 
-            SupTicketModal.__testOnly__.submitBundle()
+            SupTicketModal.Instance._submitBundle()
             .then(function() {
                 expect(test).to.be.true;
                 done();
@@ -408,7 +407,7 @@ describe("SupTicketModal Test", function() {
                 }
             };
 
-            SupTicketModal.submitTicket(ticketObj)
+            SupTicketModal.Instance.submitTicket(ticketObj)
             .then(function(res) {
                 expect(res).to.be.an("object");
                 expect(Object.keys(res).length).to.equal(9);
@@ -437,7 +436,7 @@ describe("SupTicketModal Test", function() {
                 res1 = arg1;
                 res2 = arg2;
             };
-            SupTicketModal.__testOnly__.downloadTicket({"test": "a"});
+            SupTicketModal.Instance._downloadTicket({"test": "a"});
             expect(res1).to.equal("xcalarTicket.txt");
             expect(res2).to.contains('"test":"a"');
         });
@@ -445,7 +444,7 @@ describe("SupTicketModal Test", function() {
         it("should submit to download", function(done) {
             xcHelper.downloadAsFile = function() {};
 
-            SupTicketModal.__testOnly__.submitForm(true)
+            SupTicketModal.Instance._submitForm(true)
             .then(function() {
                 expect(successMsg).to.equal(SuccessTStr.DownloadTicket);
                 expect($modal.hasClass("downloadSuccess")).to.be.true;
@@ -463,7 +462,7 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.reject("test");
             };
 
-            SupTicketModal.__testOnly__.submitForm()
+            SupTicketModal.Instance._submitForm()
             .then(function() {
                 done("fail");
             })
@@ -484,7 +483,7 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.reject("test");
             };
 
-            SupTicketModal.__testOnly__.submitForm()
+            SupTicketModal.Instance._submitForm()
             .then(function() {
                 done("fail");
             })
@@ -500,7 +499,7 @@ describe("SupTicketModal Test", function() {
         });
 
         it("should shandle submit error", function(done) {
-            SupTicketModal.show();
+            SupTicketModal.Instance.show();
             $modal.removeClass("bundleError");
             XcalarSupportGenerate = function() {
                 return PromiseHelper.resolve();
@@ -510,19 +509,19 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve({logs: '{"ticketId":123}'});
             };
 
-            var cache2 = SupTicketModal.fetchLicenseInfo;
-            SupTicketModal.fetchLicenseInfo = function() {
+            var cache2 = SupTicketModal.Instance.fetchLicenseInfo;
+            SupTicketModal.Instance.fetchLicenseInfo = function() {
                 return PromiseHelper.resolve({key: "key", "expiration": ""});
             };
 
-            var cache3 = SupTicketModal.submitTicket;
-            SupTicketModal.submitTicket = function() {
+            var cache3 = SupTicketModal.Instance.submitTicket;
+            SupTicketModal.Instance.submitTicket = function() {
                 return  PromiseHelper.resolve({
                     logs: JSON.stringify({error: "User does not belong"})
                 });
             };
 
-            SupTicketModal.__testOnly__.submitForm()
+            SupTicketModal.Instance._submitForm()
             .then(function() {
                 done("fail");
             })
@@ -531,12 +530,12 @@ describe("SupTicketModal Test", function() {
                 done();
             })
             .always(function() {
-                SupTicketModal.fetchLicenseInfo = cache2;
-                SupTicketModal.submitTicket = cache3;
+                SupTicketModal.Instance.fetchLicenseInfo = cache2;
+                SupTicketModal.Instance.submitTicket = cache3;
             });
         });
         it("should shandle submit error", function(done) {
-            SupTicketModal.show();
+            SupTicketModal.Instance.show();
             $modal.removeClass("bundleError");
             XcalarSupportGenerate = function() {
                 return PromiseHelper.resolve();
@@ -546,19 +545,19 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve({logs: '{"ticketId":123}'});
             };
 
-            var cache2 = SupTicketModal.fetchLicenseInfo;
-            SupTicketModal.fetchLicenseInfo = function() {
+            var cache2 = SupTicketModal.Instance.fetchLicenseInfo;
+            SupTicketModal.Instance.fetchLicenseInfo = function() {
                 return PromiseHelper.resolve({key: "key", "expiration": ""});
             };
 
-            var cache3 = SupTicketModal.submitTicket;
-            SupTicketModal.submitTicket = function() {
+            var cache3 = SupTicketModal.Instance.submitTicket;
+            SupTicketModal.Instance.submitTicket = function() {
                 return  PromiseHelper.resolve({
                     logs: JSON.stringify({error: "Ticket could not be found"})
                 });
             };
 
-            SupTicketModal.__testOnly__.submitForm()
+            SupTicketModal.Instance._submitForm()
             .then(function() {
                 done("fail");
             })
@@ -567,14 +566,14 @@ describe("SupTicketModal Test", function() {
                 done();
             })
             .always(function() {
-                SupTicketModal.fetchLicenseInfo = cache2;
-                SupTicketModal.submitTicket = cache3;
+                SupTicketModal.Instance.fetchLicenseInfo = cache2;
+                SupTicketModal.Instance.submitTicket = cache3;
             });
         });
 
 
         it("should shandle submit error", function(done) {
-            SupTicketModal.show();
+            SupTicketModal.Instance.show();
             $modal.removeClass("bundleError");
             XcalarSupportGenerate = function() {
                 return PromiseHelper.resolve();
@@ -584,8 +583,8 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve({logs: '{"ticketId":123}'});
             };
 
-            var cache2 = SupTicketModal.fetchLicenseInfo;
-            SupTicketModal.fetchLicenseInfo = function() {
+            var cache2 = SupTicketModal.Instance.fetchLicenseInfo;
+            SupTicketModal.Instance.fetchLicenseInfo = function() {
                 return PromiseHelper.resolve({key: "key", "expiration": ""});
             };
 
@@ -593,7 +592,7 @@ describe("SupTicketModal Test", function() {
             $modal.find(".radioButton").removeClass('active');
             $modal.find('.issueList .text').val(CommonTxtTstr.Existing);
 
-            SupTicketModal.__testOnly__.submitForm()
+            SupTicketModal.Instance._submitForm()
             .then(function() {
                 done("fail");
             })
@@ -602,7 +601,7 @@ describe("SupTicketModal Test", function() {
                 done();
             })
             .always(function() {
-                SupTicketModal.fetchLicenseInfo = cache2;
+                SupTicketModal.Instance.fetchLicenseInfo = cache2;
             });
         });
 
@@ -610,7 +609,7 @@ describe("SupTicketModal Test", function() {
             var cache1 = XcalarSupportGenerate;
             var cache2 = adminTools.fileTicket;
             var cache3 = adminTools.getLicense;
-            var cache5 = SupTicketModal.fetchLicenseInfo;
+            var cache5 = SupTicketModal.Instance.fetchLicenseInfo;
             var supGenCalled = false;
             XcalarSupportGenerate = function() {
                 supGenCalled = true;
@@ -622,7 +621,7 @@ describe("SupTicketModal Test", function() {
             adminTools.getLicense = function() {
                 return PromiseHelper.resolve();
             };
-            SupTicketModal.fetchLicenseInfo = function() {
+            SupTicketModal.Instance.fetchLicenseInfo = function() {
                 return PromiseHelper.resolve({key: "key", "expiration": ""});
             };
             var $dropdown = $modal.find(".issueList");
@@ -635,7 +634,7 @@ describe("SupTicketModal Test", function() {
             XcalarSupportGenerate = cache1;
             adminTools.fileTicket = cache2;
             adminTools.getLicense = cache3;
-            SupTicketModal.fetchLicenseInfo = cache5;
+            SupTicketModal.Instance.fetchLicenseInfo = cache5;
         });
 
         it("should provide error if no id selected", function() {
@@ -658,12 +657,12 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve({logs: '{"ticketId":123}'});
             };
 
-            var cache2 = SupTicketModal.fetchLicenseInfo;
-            SupTicketModal.fetchLicenseInfo = function() {
+            var cache2 = SupTicketModal.Instance.fetchLicenseInfo;
+            SupTicketModal.Instance.fetchLicenseInfo = function() {
                 return PromiseHelper.resolve({key: "key", "expiration": ""});
             };
 
-            SupTicketModal.__testOnly__.submitForm()
+            SupTicketModal.Instance._submitForm()
             .then(function() {
                 return UnitTest.testFinish(function() {
                     return $("#alertHeader").find(".text").text().trim() ===
@@ -680,7 +679,7 @@ describe("SupTicketModal Test", function() {
                 done("fail");
             })
             .always(function() {
-                SupTicketModal.fetchLicenseInfo = cache2;
+                SupTicketModal.Instance.fetchLicenseInfo = cache2;
             });
         });
 

@@ -189,7 +189,6 @@ namespace xcManager {
         $("#topMenuBarTabs").removeClass("xc-hidden");
         MainMenu.setup();
         QueryManager.setup();
-        SupTicketModal.setup();
         Alert.setup();
         StatusMessage.setup();
         StatusBox.setup();
@@ -720,7 +719,6 @@ namespace xcManager {
         Alert.setup();
         Profile.setup();
         WorkbookPanel.setup();
-        SupTicketModal.setup();
         WorkbookInfoModal.setup();
     }
 
@@ -801,7 +799,7 @@ namespace xcManager {
             if (event.which !== 1) {
                 return;
             }
-            SupTicketModal.show();
+            SupTicketModal.Instance.show();
         });
 
         $("#logout").mouseup(function(event: JQueryEventObject): void {

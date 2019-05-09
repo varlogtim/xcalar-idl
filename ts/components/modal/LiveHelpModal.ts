@@ -235,8 +235,8 @@ class LiveHelpModal {
 
             if (content) {
                 if (this._licenseInfo == null) {
-                    SupTicketModal.fetchLicenseInfo()
-                    .then((licenseObj) => {
+                    SupTicketModal.Instance.fetchLicenseInfo()
+                    .then((licenseObj: any) => {
                         this._licenseInfo = AlertTStr.LicenseKey + "\n" +
                                             licenseObj.key + "\n\n" +
                                             AlertTStr.LicenseExpire + "\n" +
@@ -359,13 +359,13 @@ class LiveHelpModal {
         let licenseKey: string;
         let expiration: string;
 
-        SupTicketModal.fetchLicenseInfo()
-        .then((licenseObj) => {
+        SupTicketModal.Instance.fetchLicenseInfo()
+        .then((licenseObj: any) => {
             licenseKey = licenseObj.key;
             expiration = licenseObj.expiration;
-            return SupTicketModal.submitTicket(ticketObj, licenseObj, true, true);
+            return SupTicketModal.Instance.submitTicket(ticketObj, licenseObj, true, true);
         })
-        .then((ret) => {
+        .then((ret: any) => {
             try {
                 let logs = JSON.parse(ret.logs);
                 if (logs.error) {
@@ -450,9 +450,9 @@ class LiveHelpModal {
                 "triggerPd": false
             };
 
-            SupTicketModal.fetchLicenseInfo()
+            SupTicketModal.Instance.fetchLicenseInfo()
             .then((licenseObj) => {
-                SupTicketModal.submitTicket(ticketObj, licenseObj, true, true);
+                SupTicketModal.Instance.submitTicket(ticketObj, licenseObj, true, true);
             });
         }
     }

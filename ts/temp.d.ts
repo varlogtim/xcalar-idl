@@ -881,13 +881,6 @@ declare namespace Repeat {
     export function run(log: XcLog): XDPromise<void>;
 }
 
-declare namespace SupTicketModal {
-    export function setup(): void;
-    export function show(): void;
-    export function fetchLicenseInfo(): XDPromise<any>;
-    export function submitTicket(arg1, arg2, arg3, arg4): XDPromise<any>;
-}
-
 declare namespace TPrefix {
     export function restore(oldMeat: object): void;
     export function setup(): void;

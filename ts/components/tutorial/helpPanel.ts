@@ -45,7 +45,7 @@ class HelpPanel {
                 window.open("https://discourse.xcalar.com/");
                 break;
             case ("ticketResource"):
-                SupTicketModal.show();
+                SupTicketModal.Instance.show();
                 break;
             case ("chatResource"):
                 LiveHelpModal.Instance.show();
