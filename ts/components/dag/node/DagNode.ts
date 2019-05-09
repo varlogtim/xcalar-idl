@@ -486,6 +486,9 @@ abstract class DagNode extends Durable {
         }
 
         this.numParent--;
+        if (this.numParent === 0) {
+            this.parents = []; // in case of join where we delete instead of splice
+        }
         return spliced;
     }
 
