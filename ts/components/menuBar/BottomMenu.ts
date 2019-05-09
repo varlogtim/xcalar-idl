@@ -1,12 +1,12 @@
-window.BottomMenu = (function($, BottomMenu) {
-    var clickable = true;
-    var $menuPanel; //$("#bottomMenu");
-    var isMenuOpen = false;
-    var isPoppedOut = false;
-    var menuAnimCheckers = [];
-    var needsMainMenuBackOpen = false;
+namespace BottomMenu {
+    let clickable: boolean = true;
+    let $menuPanel: JQuery; //$("#bottomMenu");
+    let _isMenuOpen: boolean = false;
+    let _isPoppedOut: boolean = false;
+    let menuAnimCheckers: XDDeferred<void>[] = [];
+    let needsMainMenuBackOpen: boolean = false;
 
-    BottomMenu.setup = function() {
+    export function setup(): void {
         $menuPanel = $("#bottomMenu");
         setupButtons();
         Log.setup();
@@ -15,14 +15,14 @@ window.BottomMenu = (function($, BottomMenu) {
         DocsPanel.Instance.setup();
     };
 
-    BottomMenu.initialize = function() {
+    export function initialize(): void {
         try {
             UDFFileManager.Instance.initialize();
         } catch (error) {
             console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
         }
-        $menuPanel[0].addEventListener(transitionEnd, function(event) {
+        $menuPanel[0].addEventListener(window["transitionEnd"], function(event) {
             if (!$(event.target).is("#bottomMenu")) {
                 return;
             }
@@ -33,32 +33,27 @@ window.BottomMenu = (function($, BottomMenu) {
         });
     };
 
-    // BottomMenu.clear = function() {
-    //     UDFPanel.Instance.clear();
-    //     Log.clear();
-    // };
-
-    BottomMenu.close = function(topMenuOpening) {
+    export function close(topMenuOpening: boolean = false): void {
         closeMenu(topMenuOpening);
         if (topMenuOpening) {
             resolveMenuAnim();
         }
     };
 
-    BottomMenu.isMenuOpen = function() {
-        return isMenuOpen;
+    export function isMenuOpen(): boolean {
+        return _isMenuOpen;
     };
 
-    BottomMenu.isPoppedOut = function() {
-        return isPoppedOut;
+    export function isPoppedOut(): boolean {
+        return _isPoppedOut;
     };
 
-    BottomMenu.openSection = function(sectionIndex) {
+    export function openSection(sectionIndex: number): void {
         openMenu(sectionIndex);
     };
 
     // setup buttons to open bottom menu
-    function setupButtons() {
+    function setupButtons(): void {
         $menuPanel.on("click", ".close", function() {
             BottomMenu.close(false);
         });
@@ -78,9 +73,9 @@ window.BottomMenu = (function($, BottomMenu) {
             "containment": "window"
         });
 
-        var sideDragging;
+        let sideDragging: string;
         $menuPanel.on("mousedown", ".ui-resizable-handle", function() {
-            var $handle = $(this);
+            const $handle: JQuery = $(this);
             if ($handle.hasClass("ui-resizable-w")) {
                 sideDragging = "left";
             } else if ($handle.hasClass("ui-resizable-e")) {
@@ -94,9 +89,9 @@ window.BottomMenu = (function($, BottomMenu) {
             }
         });
 
-        var poppedOut = false;
-        var menuIsSmall = false;
-        var smallWidth = 425;
+        let poppedOut: boolean = false;
+        let menuIsSmall: boolean = false;
+        const smallWidth: number = 425;
 
         $menuPanel.resizable({
             "handles": "n, e, s, w, se",
@@ -111,8 +106,8 @@ window.BottomMenu = (function($, BottomMenu) {
                 }
 
                 // set boundaries so it can't resize past window
-                var panelRight = $menuPanel[0].getBoundingClientRect().right;
-                var panelBottom = $menuPanel[0].getBoundingClientRect().bottom;
+                let panelRight: number = $menuPanel[0].getBoundingClientRect().right;
+                let panelBottom: number = $menuPanel[0].getBoundingClientRect().bottom;
 
                 if (sideDragging === "left") {
                     $menuPanel.css("max-width", panelRight - 10);
@@ -143,7 +138,7 @@ window.BottomMenu = (function($, BottomMenu) {
             },
             "stop": function() {
                 $menuPanel.css("max-width", "").css("max-height", "");
-                var width = $menuPanel.width();
+                let width: number = $menuPanel.width();
 
                 width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
 
@@ -156,7 +151,7 @@ window.BottomMenu = (function($, BottomMenu) {
                 refreshEditor();
                 $("#container").removeClass("menuResizing");
             },
-            "resize": function(event, ui) {
+            "resize": function(_event, ui) {
                 if (ui.size.width > smallWidth) {
                     if (menuIsSmall) {
                         menuIsSmall = false;
@@ -189,7 +184,7 @@ window.BottomMenu = (function($, BottomMenu) {
         });
     }
 
-    function closeMenu(topMenuOpening) {
+    function closeMenu(topMenuOpening: boolean = false): boolean {
         if (needsMainMenuBackOpen && !topMenuOpening) {
             needsMainMenuBackOpen = false;
             if ($(".topMenuBarTab.active").hasClass("mainMenuOpen")) {
@@ -199,7 +194,7 @@ window.BottomMenu = (function($, BottomMenu) {
         }
         $menuPanel.removeClass("open");
         $("#container").removeClass("bottomMenuOpen");
-        isMenuOpen = false;
+        _isMenuOpen = false;
         // recenter table titles if on workspace panel
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
         if ((topMenuOpening && !isPoppedOut) ||  $("#container").hasClass("noWorkbookMenuBar")){
@@ -214,15 +209,15 @@ window.BottomMenu = (function($, BottomMenu) {
         return !topMenuOpening;
     }
 
-    function toggleSection(sectionIndex) {
+    function toggleSection(sectionIndex: number): void {
         if (sectionIndex == null) {
             sectionIndex = 0;
         }
-        var hasAnim = true;
+        let hasAnim: boolean = true;
 
-        var $menuSections = $menuPanel.find(".menuSection");
-        // var $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
-        var $section = $menuSections.eq(sectionIndex);
+        const $menuSections: JQuery = $menuPanel.find(".menuSection");
+        // const $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
+        const $section: JQuery = $menuSections.eq(sectionIndex);
 
         if ($menuPanel.hasClass("open") && $section.hasClass("active")) {
             // section is active, close right side bar
@@ -251,19 +246,19 @@ window.BottomMenu = (function($, BottomMenu) {
         }
     }
 
-    BottomMenu.unsetMenuCache = function() {
+    export function unsetMenuCache(): void {
         needsMainMenuBackOpen = false;
     };
 
-    function openMenu(sectionIndex) {
+    function openMenu(sectionIndex: number): boolean {
         // bottom menu was closed or it was open and we"re switching to
         // this section
-        var $menuSections = $menuPanel.find(".menuSection");
-        var $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
-        var $section = $menuSections.eq(sectionIndex);
-        var hasAnim = true;
+        const $menuSections: JQuery = $menuPanel.find(".menuSection");
+        const $sliderBtns: JQuery = $("#bottomMenuBarTabs .sliderBtn");
+        const $section: JQuery = $menuSections.eq(sectionIndex);
+        let hasAnim: boolean = true;
 
-        var wasOpen = $menuPanel.hasClass("open");
+        const wasOpen: boolean = $menuPanel.hasClass("open");
         $sliderBtns.removeClass("active");
         $sliderBtns.eq(sectionIndex).addClass("active");
 
@@ -272,7 +267,7 @@ window.BottomMenu = (function($, BottomMenu) {
         $menuSections.removeClass("active");
         // mark the section and open the menu
         $section.addClass("active");
-        var isBottomMenuOpening = false;
+        let isBottomMenuOpening: boolean = false;
         if ($("#mainMenu").hasClass("open")) {
             needsMainMenuBackOpen = true;
             isBottomMenuOpening = true;
@@ -286,7 +281,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
         $menuPanel.addClass("open");
         $("#container").addClass("bottomMenuOpen");
-        isMenuOpen = true;
+        _isMenuOpen = true;
         // recenter table titles only if: on workspace panel,
         // main menu was not open && bottom menu was not open
         if (!isBottomMenuOpening && !wasOpen) {
@@ -306,7 +301,7 @@ window.BottomMenu = (function($, BottomMenu) {
             hasAnim = false;
         }
 
-        var sectionId = $section.attr("id");
+        const sectionId: string = $section.attr("id");
         if (sectionId ==="udfSection") {
             $("#udfButtonWrap").removeClass("xc-hidden");
         } else {
@@ -323,25 +318,25 @@ window.BottomMenu = (function($, BottomMenu) {
         return hasAnim;
     }
 
-    function noAnim() {
+    function noAnim(): void {
         $menuPanel.addClass("noAnim");
         setTimeout(function() {
             $menuPanel.removeClass("noAnim");
         }, 100);
     }
 
-    function checkMenuAnimFinish() {
-        var menuAnimDeferred = PromiseHelper.deferred();
+    function checkMenuAnimFinish(): XDPromise<void> {
+        const menuAnimDeferred: XDDeferred<void> = PromiseHelper.deferred();
         menuAnimCheckers.push(menuAnimDeferred);
         return menuAnimDeferred.promise();
     }
 
-    function popOutModal() {
-        isPoppedOut = true;
-        var offset = $menuPanel.offset();
+    function popOutModal(): void {
+        _isPoppedOut = true;
+        const offset: {left: number, top: number} = $menuPanel.offset();
 
         $menuPanel.addClass("poppedOut");
-        var $popOut = $menuPanel.find(".popOut");
+        const $popOut: JQuery = $menuPanel.find(".popOut");
         xcTooltip.changeText($popOut, SideBarTStr.PopBack);
         $popOut.removeClass("xi_popout").addClass("xi_popin");
         xcTooltip.hideAll();
@@ -358,19 +353,19 @@ window.BottomMenu = (function($, BottomMenu) {
         }
     }
 
-    function popInModal(adjustTables, noAnimation) {
+    function popInModal(adjustTables: boolean = false, noAnimation: boolean = false): void {
         if (noAnimation) {
             noAnim();
         }
 
         $menuPanel.removeClass("poppedOut");
         $menuPanel.attr("style", "");
-        var $popOut = $menuPanel.find(".popOut");
+        const $popOut: JQuery = $menuPanel.find(".popOut");
         xcTooltip.changeText($popOut, SideBarTStr.PopOut);
         $popOut.removeClass("xi_popin").addClass("xi_popout");
         xcTooltip.hideAll();
         $("#container").removeClass("bottomMenuOut");
-        isPoppedOut = false;
+        _isPoppedOut = false;
         refreshEditor();
 
         if (adjustTables && $("#modelingDagPanel").hasClass("active")) {
@@ -381,8 +376,8 @@ window.BottomMenu = (function($, BottomMenu) {
         }
     }
 
-    function resolveMenuAnim() {
-        for (var i = 0; i < menuAnimCheckers.length; i++) {
+    function resolveMenuAnim(): void {
+        for (let i = 0; i < menuAnimCheckers.length; i++) {
             if (menuAnimCheckers[i]) {
                 menuAnimCheckers[i].resolve();
             }
@@ -390,13 +385,11 @@ window.BottomMenu = (function($, BottomMenu) {
         menuAnimCheckers = [];
     }
 
-    function refreshEditor() {
+    function refreshEditor(): void {
         if ($("#udfSection").hasClass("active") &&
             !$("#udf-fnSection").hasClass("xc-hidden"))
         {
             UDFPanel.Instance.getEditor().refresh();
         }
     }
-
-    return (BottomMenu);
-}(jQuery, {}));
+}

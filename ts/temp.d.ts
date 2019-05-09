@@ -886,16 +886,6 @@ declare namespace TPrefix {
     export function setup(): void;
 }
 
-declare namespace BottomMenu {
-    export function setup(): void;
-    export function isMenuOpen(): boolean;
-    export function initialize(): void;
-    export function unsetMenuCache(): void;
-    export function openSection(index: number): void;
-    export function close(something?: boolean): void;
-    export function isPoppedOut(): boolean;
-}
-
 declare namespace xcMixpanel {
     export function setup(): void;
     export function forDev(): boolean;
