@@ -1,7 +1,7 @@
 class DagGraphExecutor {
     private _nodes: DagNode[];
     private _graph: DagGraph;
-    private _executeInProgress = false;
+    private _optimizedExecuteInProgress = false;
     private _isOptimized: boolean;
     private _isOptimizedActiveSession: boolean;
     private _allowNonOptimizedOut: boolean;
@@ -13,12 +13,11 @@ class DagGraphExecutor {
     private _queryName: string; // for retinas
     private _parentTxId: number;
     private _sqlNodes: Map<string, DagNodeSQL>;
-    private _hasProgressGraph: boolean;
-    private _tableNameToDagIdMap; // {destTableName: dagNodeId}
-    private _dagIdToDestTableMap;
-    private _aggIdToDestTableMap;
+    private _hasProgressGraph: boolean; // has a separate graph in different tab
+    private _dagIdToDestTableMap: Map<DagNodeId, string>;
     private _currentNode: DagNode; // current node in progress if stepExecute
-    private _finishedNodeIds: Set<DagNodeId>
+    private _finishedNodeIds: Set<DagNodeId>;
+    private _isRestoredExecution: boolean; // if restored after browser refresh
 
     public static readonly stepThroughTypes = new Set([DagNodeType.PublishIMD,
         DagNodeType.IMDTable, DagNodeType.UpdateIMD, DagNodeType.Extension,
@@ -34,7 +33,8 @@ class DagGraphExecutor {
             parentTxId?: number,
             allowNonOptimizedOut?: boolean,
             sqlNodes?: Map<string, DagNodeSQL>,
-            hasProgressGraph?: boolean
+            hasProgressGraph?: boolean,
+            isRestoredExecution?: boolean
         } = {}
     ) {
         this._nodes = nodes;
@@ -47,10 +47,9 @@ class DagGraphExecutor {
         this._parentTxId = options.parentTxId;
         this._sqlNodes = options.sqlNodes;
         this._hasProgressGraph = this._isOptimized || options.hasProgressGraph;
-        this._tableNameToDagIdMap = {};
-        this._dagIdToDestTableMap = {};
-        this._aggIdToDestTableMap = {};
+        this._dagIdToDestTableMap = new Map();
         this._finishedNodeIds = new Set();
+        this._isRestoredExecution = options.isRestoredExecution || false;
     }
 
     public validateAll(): {
@@ -421,8 +420,7 @@ class DagGraphExecutor {
             this._currentTxId = txId;
             this._getAndExecuteBatchQuery(txId)
             .then((_res) => {
-                let promises = [];
-                self._executeInProgress = false;
+                self._optimizedExecuteInProgress = false;
                 nodes.forEach((node) => {
                     if (node instanceof DagNodeDFOut) {
                         let destTable;
@@ -447,13 +445,9 @@ class DagGraphExecutor {
                             node.setTable(destTable, true);
                             DagTblManager.Instance.addTable(destTable);
                         }
-                    } else if (node instanceof DagNodeAggregate) {
-                        promises.push(this._resolveAggregates(txId, node));
                     }
                 });
-                return PromiseHelper.when(...promises);
-            })
-            .then(() => {
+
                 Transaction.done(txId, {
                     noSql: true,
                 });
@@ -534,6 +528,59 @@ class DagGraphExecutor {
         return deferred.promise();
     }
 
+    public restoreExecution(queryName): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XcalarQueryState(queryName)
+        .then((queryStateOutput: XcalarApiQueryStateOutputT) => {
+            let nodeIdsSet: Set<DagNodeId> = new Set();
+            queryStateOutput.queryGraph.node.forEach((queryNode) => {
+                let nodeIdCandidates = queryNode.tag.split(",");
+                nodeIdCandidates.forEach((nodeId) => {
+                    if (nodeId) {
+                        nodeIdsSet.add(nodeId);
+                    }
+                });
+            });
+            const nodeIds: DagNodeId[] = [...nodeIdsSet];
+            this._graph.lockGraph(nodeIds, this);
+            const txId: number = Transaction.start({
+                operation: "Dataflow execution",
+                trackDataflow: true,
+                sql: {operation: "Dataflow execution"},
+                track: true,
+                tabId: this._graph.getTabId(),
+                nodeIds: nodeIds
+            });
+            this._currentTxId = txId;
+            let queryStr = JSON.stringify(queryStateOutput.queryGraph.node);
+            Transaction.startSubQuery(txId, queryName, null, queryStr);
+            Transaction.update(txId, queryStateOutput);
+
+            XcalarQueryCheck(queryName, false, txId)
+            .then((ret) => {
+                const timeElapsed = ret.elapsed.milliseconds;
+                Transaction.log(txId, queryStr, undefined, timeElapsed, {
+                    queryName: queryName
+                });
+                Transaction.done(txId, { noSql: true});
+                MemoryAlert.Instance.check();
+                deferred.resolve();
+            })
+            .fail((err) => {
+                Transaction.fail(txId, {
+                    error: err,
+                    noAlert: true
+                });
+                deferred.reject();
+            })
+            .always(() => {
+                this._graph.unlockGraph(nodeIds);
+            });
+        })
+        .fail(deferred.reject);
+        return deferred.promise9);
+    }
+
     /**
      * go through each node, if it can be executed as part of a query, add to larger query
      * if not, execute previous built up query, execute as a step, then create new query array
@@ -570,6 +617,11 @@ class DagGraphExecutor {
         if (queryPromises.length) {
             promises.push(this._executeQueryPromises.bind(this, txId, queryPromises, partialNodes, destTables, partialQueries));
         }
+        setTimeout(() => {
+            // save node running statuses, ok if not saved at correct time
+            this._graph.save();
+        }, 1000);
+
         return PromiseHelper.chain(promises);
     }
 
@@ -587,7 +639,14 @@ class DagGraphExecutor {
             if (queryStr === "[]") { // can be empty if link out node
                 return PromiseHelper.resolve();
             } else {
-                return XIApi.query(txId, destTables[destTables.length - 1], queryStr);
+                let queryName = destTables[destTables.length - 1];
+                if (queryName.startsWith("DF2_")) {
+                    queryName = "table_" + queryName;
+                }
+                if (!queryName.includes("#t_")) {
+                    queryName += "#t_" + Date.now() + "_0";
+                }
+                return XIApi.query(txId, queryName, queryStr);
             }
         })
         .then(deferred.resolve)
@@ -608,8 +667,10 @@ class DagGraphExecutor {
         const simulateId: number = Transaction.start({
             operation: "Simulate",
             simulate: true,
+            tabId: this._graph.getTabId(),
+            parentTxId: this._parentTxId,
             udfUserName: udfContext.udfUserName,
-            udfSessionName: udfContext.udfSessionName
+            udfSessionName: udfContext.udfSessionName,
         });
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -637,23 +698,24 @@ class DagGraphExecutor {
                 return PromiseHelper.reject(e);
             }
 
-            let parentNodeIds = [];
-            this._getParentNodeIds(parentNodeIds, this._currentTxId);
+            let tagNodeIds = [];
+            this._getParentNodeIds(tagNodeIds, this._currentTxId);
             queries.forEach((query) => {
                 if (query.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
-                    this._tableNameToDagIdMap[query.args.dest] = node.getId();
-                    parentNodeIds.push(node.getId());
-                    query.tag = parentNodeIds.join(",");
-                    parentNodeIds.pop();
+                    tagNodeIds.push(node.getId());
+                    let curTags = [];
+                    if (query.tag) {
+                        curTags = query.tag.split(",");
+                    }
+                    let finalTagNodeIds = tagNodeIds.concat(curTags);
+                    query.tag = finalTagNodeIds.join(",");
+                    tagNodeIds.pop();
                 }
 
                 allQueries.push(query);
             });
             if (destTable != null) {
-                this._dagIdToDestTableMap[node.getId()] = destTable;
-                if (node.getType() === DagNodeType.Aggregate) {
-                    this._aggIdToDestTableMap[node.getId()] = destTable;
-                }
+                this._dagIdToDestTableMap.set(node.getId(), destTable);
             }
 
             destTables.push(destTable);
@@ -678,7 +740,7 @@ class DagGraphExecutor {
     // for extensions, dfout
     private _stepExecute(
         txId: number,
-        node
+        node: DagNode
     ): XDPromise<void> | void {
         if (this._isCanceled) {
             return PromiseHelper.reject(DFTStr.Cancel);
@@ -707,8 +769,8 @@ class DagGraphExecutor {
 
     }
 
-    public updateProgress(queryNodes: any[]) {
-        const nodeIdInfos = {};
+    public updateProgress(queryNodes: XcalarApiDagNodeT[]) {
+        const nodeIdInfos: Map<DagNodeId, object> = new Map();
         // GROUP THE QUERY NODES BY THEIR CORRESPONDING DAG NODE
         queryNodes.forEach((queryNodeInfo: XcalarApiDagNodeT) => {
             if (queryNodeInfo["operation"] === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] ||
@@ -717,14 +779,11 @@ class DagGraphExecutor {
             }
             let tableName: string = queryNodeInfo.name.name;
             let nodeIdCandidates = queryNodeInfo.tag.split(",");
-            if (!nodeIdCandidates.length) {// could be a drop table node
-                return;
-            }
             let nodeId: DagNodeId;
             let nodeFound = false;
             for (let i = 0; i < nodeIdCandidates.length; i++) {
                 nodeId = nodeIdCandidates[i];
-                if (this._graph.getNode(nodeId)) {
+                if (this._graph.hasNode(nodeId)) {
                     nodeFound = true;
                     if (this._finishedNodeIds.has(nodeId)) {
                         return;
@@ -735,30 +794,51 @@ class DagGraphExecutor {
             if (!nodeFound) {
                 return;
             }
-
-            if (!nodeIdInfos.hasOwnProperty(nodeId)) {
-                nodeIdInfos[nodeId] = {}
+            let nodeIdInfo = nodeIdInfos.get(nodeId);
+            if (!nodeIdInfo) {
+                nodeIdInfo = {};
+                nodeIdInfos.set(nodeId, nodeIdInfo);
             }
-            const nodeIdInfo = nodeIdInfos[nodeId];
             nodeIdInfo[tableName] = queryNodeInfo;
             queryNodeInfo["index"] = parseInt(queryNodeInfo.dagNodeId);
         });
 
-        for (let nodeId in nodeIdInfos) {
+        for (let [nodeId, queryNodesBelongingToDagNode] of nodeIdInfos) {
             let node: DagNode = this._graph.getNode(nodeId);
             if (node != null) {
                 // DO THE ACTUAL PROGRESS UPDATE HERE
-                node.updateProgress(nodeIdInfos[nodeId], this._currentNode == null, this._currentNode == null);
+                node.updateProgress(queryNodesBelongingToDagNode, this._currentNode == null, this._currentNode == null);
                 if (node instanceof DagNodeSQL) {
                     node.updateSQLQueryHistory(true);
                 }
 
-                // remove completed nodes so we no longer update them
-                if (node.getState() === DagNodeState.Complete ||
-                    node.getState() === DagNodeState.Error) {
-                    if (node.getState() === DagNodeState.Complete &&
-                        this._dagIdToDestTableMap[nodeId]) {
-                        let destTable: string = this._dagIdToDestTableMap[nodeId];
+                if (node.getState() === DagNodeState.Complete) {
+                    let destTable: string;
+                    if (this._dagIdToDestTableMap.has(nodeId)) {
+                        destTable = this._dagIdToDestTableMap.get(nodeId);
+                    } else if (this._isRestoredExecution) {
+                        let lastNode;
+                        let latestId = -1;
+                        // find the last queryNode belonging to a dagNode
+                        // that is not a deleteNode and get it's destTable
+                        for (let tableName in queryNodesBelongingToDagNode) {
+                            let queryNode = queryNodesBelongingToDagNode[tableName];
+                            let curId = parseInt(queryNode.dagNodeId);
+                            if (curId > latestId) {
+                                latestId = curId;
+                                lastNode = queryNode;
+                            }
+                        }
+                        if (lastNode) {
+                            destTable = lastNode.name.name;
+                        }
+                    }
+
+                    if (node instanceof DagNodeAggregate) {
+                        this._resolveAggregates(this._currentTxId, node, Object.keys(queryNodesBelongingToDagNode)[0]);
+                    }
+
+                    if (destTable) {
                         node.setTable(destTable, true);
                         DagTblManager.Instance.addTable(destTable);
                         const tabId: string = this._graph.getTabId();
@@ -767,8 +847,13 @@ class DagGraphExecutor {
                             tab.save(); // save destTable to node
                         }
                     }
+                }
+
+                if (node.getState() === DagNodeState.Complete ||
+                    node.getState() === DagNodeState.Error) {
+                    // log completed nodes so we no longer update them
                     this._finishedNodeIds.add(nodeId);
-                    delete this._dagIdToDestTableMap[nodeId];
+                    this._dagIdToDestTableMap.delete(nodeId);
                 }
             }
         }
@@ -976,7 +1061,7 @@ class DagGraphExecutor {
                                 this._optimizedLinkOutNode.getId() +
                                 Authentication.getHashId() : "";
 
-            this._executeInProgress = true;
+            this._optimizedExecuteInProgress = true;
             const udfContext = this._getUDFContext();
             return XcalarExecuteRetina(retinaName, [], {
                 activeSession: this._isOptimizedActiveSession,
@@ -986,7 +1071,7 @@ class DagGraphExecutor {
             }, this._currentTxId);
         })
         .then((_res) => {
-            this._executeInProgress = false;
+            this._optimizedExecuteInProgress = false;
             // get final stats on each node
             tab.endStatusCheck()
             .always(() => {
@@ -1023,8 +1108,8 @@ class DagGraphExecutor {
                 });
             }
 
-            if (this._executeInProgress) {
-                this._executeInProgress = false;
+            if (this._optimizedExecuteInProgress) {
+                this._optimizedExecuteInProgress = false;
                 tab.endStatusCheck()
                 .always(() => {
                     let msg = "";
@@ -1217,11 +1302,13 @@ class DagGraphExecutor {
         }
     }
 
-    private async _resolveAggregates(txId, node) {
+    private async _resolveAggregates(txId, node, dstAggName) {
         if (node.getState() !== DagNodeState.Complete) {
             return Promise.resolve();
         }
-        let dstAggName = this._aggIdToDestTableMap[node.getId()];
+        if (!dstAggName) {
+            return Promise.reject();
+        }
         let value;
         try {
             value = await XIApi.getAggValue(txId, dstAggName);

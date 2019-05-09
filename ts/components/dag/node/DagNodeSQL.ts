@@ -15,6 +15,8 @@ class DagNodeSQL extends DagNode {
     protected tableNewDagIdMap: {};
     protected dagIdToTableNamesMap: {}; // id to tableName map stores all the tables related to the dag node
     protected aggregatesCreated: string[];
+    private subGraphNodeIds: DagNodeId[];
+    private firstTimeSubGraph: boolean = true;
     // in topological order
 
     // non-persistent
@@ -47,6 +49,7 @@ class DagNodeSQL extends DagNode {
             queryId: xcHelper.randName(DagNodeSQL.PREFIX, 8)
         };
         this.aggregatesCreated = [];
+        this.subGraphNodeIds = options.subGraphNodeIds;
     }
 
     public static readonly specificSchema = {
@@ -162,19 +165,32 @@ class DagNodeSQL extends DagNode {
                                                                this.getState(),
                                                                this.tableSrcMap,
                                                                newTableName);
+        if (this.firstTimeSubGraph && this.subGraphNodeIds) {
+            // ensures subGraph is created with previous nodeIds
+            // need to keep subGraph nodeIds the same so that queryNodes in
+            // execution can map to the nodeIds
+            this._replaceSubGraphNodeIds(retStruct);
+            this.firstTimeSubGraph = false;
+        }
+
         this.tableNewDagIdMap = retStruct.tableNewDagIdMap;
         this.dagIdToTableNamesMap = retStruct.dagIdToTableNamesMap;
-        const dagInfoList = retStruct.dagInfoList;
+        const dagInfoList: any[] = retStruct.dagInfoList;
         const dagIdParentMap = retStruct.dagIdParentMap;
-        const outputDagId = retStruct.outputDagId;
+        let outputDagId = retStruct.outputDagId;
         for (let i = 0; i < this.identifiers.size; i++) {
             this.subInputNodes.push(null);
         }
+
+        this.subGraphNodeIds = [];
+
         dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
             const parents: DagNodeId[] = dagNodeInfo.parents;
             const node: DagNode = DagNodeFactory.create(dagNodeInfo);
             this.subGraph.addNode(node);
             const nodeId: string = node.getId();
+            this.subGraphNodeIds.push(nodeId);
+
             const dagParents = dagIdParentMap[nodeId];
             if (dagParents) {
                 dagParents.forEach((dagParent) => {
@@ -202,6 +218,7 @@ class DagNodeSQL extends DagNode {
                 this.addOutputNode(node);
             }
         });
+        this.firstTimeSubGraph = false;
         // restore edges
         this.subGraph.restoreConnections(connections);
         this.subGraph.keepAllJoinColumns();
@@ -209,7 +226,6 @@ class DagNodeSQL extends DagNode {
         this.subGraph.setDagIdToTableNamesMap(retStruct.dagIdToTableNamesMap);
         this.subGraph.initializeProgress();
     }
-
 
     public getSQLName(): string {
         return this.SQLName;
@@ -395,10 +411,13 @@ class DagNodeSQL extends DagNode {
      * @override
      * @param includeStats: boolean
      */
-    protected _getSerializeInfo(includeStats?: boolean): DagNodeSQLInfo {
+    protected _getSerializeInfo(includeStats?: boolean, forCopy?: boolean): DagNodeSQLInfo {
         const nodeInfo = super._getSerializeInfo(includeStats) as DagNodeSQLInfo;
         nodeInfo.tableSrcMap = this.tableSrcMap;
         nodeInfo.columns = this.columns;
+        if (!forCopy && this.subGraphNodeIds) {
+            nodeInfo.subGraphNodeIds = this.subGraphNodeIds;
+        }
         return nodeInfo;
     }
 
@@ -619,6 +638,14 @@ class DagNodeSQL extends DagNode {
      */
     public getOutputNodes(): DagNodeSQLSubOutput[] {
         return this.subOutputNodes;
+    }
+
+    public resetSubGraphNodeIds() {
+        this.subGraphNodeIds = null;
+    }
+
+    public getTableNewDagIdMap() {
+        return this.tableNewDagIdMap;
     }
 
     private _getDerivedColName(colName: string): string {
@@ -1199,6 +1226,47 @@ class DagNodeSQL extends DagNode {
             deferred.reject();
         }
         return deferred.promise();
+    }
+
+    // after converting a query into dag nodes, we reassign the dagNodeIds
+    // with those of this.subGraphNodeIds
+    private _replaceSubGraphNodeIds(retStruct): void {
+        if (this.subGraphNodeIds.length !== retStruct.dagInfoList.length) {
+            console.error("")
+            return;
+        }
+        let oldIdNewIdMap = new Map();
+        retStruct.dagInfoList.forEach((dagNodeInfo: DagNodeInfo, i) => {
+            let newId = this.subGraphNodeIds[i];
+            let oldId = dagNodeInfo.id;
+            oldIdNewIdMap.set(oldId, newId);
+            dagNodeInfo.id = newId;
+            dagNodeInfo["nodeId"] = newId;
+        });
+        retStruct.dagInfoList.forEach((dagNodeInfo: DagNodeInfo, i) => {
+            const parents: DagNodeId[] = dagNodeInfo.parents;
+            parents.forEach((dagParent, i) => {
+                parents[i] = oldIdNewIdMap.get(dagParent);
+            });
+        });
+        for (let oldId in retStruct.dagIdParentMap) {
+            let newId = oldIdNewIdMap.get(oldId);
+            let cache = retStruct.dagIdParentMap[oldId];
+            delete retStruct.dagIdParentMap[oldId];
+            retStruct.dagIdParentMap[newId] = cache;
+        }
+        for (let oldId in retStruct.dagIdToTableNamesMap) {
+            let newId = oldIdNewIdMap.get(oldId);
+            let cache = retStruct.dagIdToTableNamesMap[oldId];
+            delete retStruct.dagIdToTableNamesMap[oldId];
+            retStruct.dagIdToTableNamesMap[newId] = cache;
+        }
+        for (let tableName in retStruct.tableNewDagIdMap) {
+            let oldId = retStruct.tableNewDagIdMap[tableName];
+            let newId = oldIdNewIdMap.get(oldId);
+            retStruct.tableNewDagIdMap[tableName] = newId;
+        }
+        retStruct.outputDagId = oldIdNewIdMap.get(retStruct.outputDagId);
     }
 }
 

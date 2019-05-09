@@ -177,8 +177,24 @@ class DagNodeExecutor {
     }
 
     private _generateTableName(): string {
-        return DagNodeExecutor.getTableNamePrefix(this.tabId) +
+        let tabId = this.tabId;
+        if (tabId == null) {
+            tabId = this._getClosestTabId(this.txId);
+        }
+        return DagNodeExecutor.getTableNamePrefix(tabId) +
         "_" + this.node.getId() + Authentication.getHashId();
+    }
+
+    private _getClosestTabId(txId) {
+        const txLog = Transaction.get(txId);
+        if (txLog) {
+            if (txLog.tabId != null) {
+                return txLog.tabId;
+            } else if (txLog.parentTxId != null) {
+                return this._getClosestTabId(txLog.parentTxId)
+            }
+        }
+        return undefined;
     }
 
     private _loadDataset(optimized?: boolean): XDPromise<string> {
@@ -1214,7 +1230,6 @@ class DagNodeExecutor {
         } else {
             xcQueryString = node.getXcQueryString();
         }
-
         let promise: XDPromise<any> = PromiseHelper.resolve({xcQueryString: xcQueryString});
         let compiled = false;
         if (!xcQueryString) {
@@ -1269,6 +1284,11 @@ class DagNodeExecutor {
             node.updateSubGraph(replaceRetStruct.newTableMap);
             let finalQueryStr = replaceRetStruct.newQueryStr;
             const queryNodes = JSON.parse(finalQueryStr);
+            queryNodes.forEach(queryNode => {
+                if (queryNode.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+                    queryNode.tag = node.getTableNewDagIdMap()[queryNode.args.dest];
+                }
+            });
 
             finalQueryStr = JSON.stringify(queryNodes);
             node.setXcQueryString(finalQueryStr);

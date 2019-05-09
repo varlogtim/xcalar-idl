@@ -11,188 +11,192 @@ describe("DagSchemaPopup Test", function() {
     let sqlNodeId;
     let $popup;
 
-    before(function() {
+    before(function(done) {
         console.log("Dag Schema Popup Test");
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        $popup = $("#dagSchemaPopup");
-        DagTabManager.Instance.newTab();
-        tabId = DagViewManager.Instance.getActiveDag().getTabId();
-        $dagView = $("#dagView");
-        $dfWrap = $dagView.find(".dataflowWrap");
-        $dfArea = $dfWrap.find(".dataflowArea.active");
-        let dagView = DagViewManager.Instance.getActiveDagView();
-        // dataset, cast, map, group by, and filter(unconnected) node
-        let nodeInfos = [
-            {
-                "type": "dataset",
-                "subType": null,
-                "display": {
-                    "x": 120,
-                    "y": 40
-                },
-                "description": "",
-                "hasTitleChange": false,
-                "input": {
-                    "source": "rudy.19434.classes",
-                    "prefix": "classes",
-                    "synthesize": false,
-                    "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"rudy.19434.classes\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/netstore/datasets/indexJoin/classes/classes.json\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseJson\",\n                \"parserArgJson\": \"{}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": []\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
-                },
-                "state": "Configured",
-                "configured": true,
-                "aggregates": [],
-                "schema": [
-                    {
-                        "name": "class_name",
-                        "type": "string"
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            $popup = $("#dagSchemaPopup");
+            DagTabManager.Instance.newTab();
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            $dagView = $("#dagView");
+            $dfWrap = $dagView.find(".dataflowWrap");
+            $dfArea = $dfWrap.find(".dataflowArea.active");
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            // dataset, cast, map, group by, and filter(unconnected) node
+            let nodeInfos = [
+                {
+                    "type": "dataset",
+                    "subType": null,
+                    "display": {
+                        "x": 120,
+                        "y": 40
                     },
-                    {
-                        "name": "class_id",
-                        "type": "integer"
-                    }
-                ],
-                "parents": [],
-                "nodeId": "dag_5C2E5E0B0EF91A85_1551910568274_43"
-            },
-            {
-                "type": "map",
-                "subType": "cast",
-                "display": {
-                    "x": 260,
-                    "y": 40
-                },
-                "description": "",
-                "hasTitleChange": false,
-                "input": {
-                    "eval": [
+                    "description": "",
+                    "hasTitleChange": false,
+                    "input": {
+                        "source": "rudy.19434.classes",
+                        "prefix": "classes",
+                        "synthesize": false,
+                        "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"rudy.19434.classes\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/netstore/datasets/indexJoin/classes/classes.json\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseJson\",\n                \"parserArgJson\": \"{}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": []\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
+                    },
+                    "state": "Configured",
+                    "configured": true,
+                    "aggregates": [],
+                    "schema": [
                         {
-                            "evalString": "money(classes::class_id)",
-                            "newField": "class_id"
+                            "name": "class_name",
+                            "type": "string"
+                        },
+                        {
+                            "name": "class_id",
+                            "type": "integer"
                         }
                     ],
-                    "icv": false
+                    "parents": [],
+                    "nodeId": "dag_5C2E5E0B0EF91A85_1551910568274_43"
                 },
-                "state": "Configured",
-                "configured": true,
-                "aggregates": [],
-                "parents": [
-                    "dag_5C2E5E0B0EF91A85_1551910568274_43"
-                ],
-                "nodeId": "dag_5C2E5E0B0EF91A85_1552410078861_36"
-            },
-            {
-                "type": "map",
-                "subType": null,
-                "display": {
-                    "x": 400,
-                    "y": 40
-                },
-                "description": "",
-                "hasTitleChange": false,
-                "input": {
-                    "eval": [
-                        {
-                            "evalString": "eq(class_id, 2.25)",
-                            "newField": "mapCol"
-                        }
+                {
+                    "type": "map",
+                    "subType": "cast",
+                    "display": {
+                        "x": 260,
+                        "y": 40
+                    },
+                    "description": "",
+                    "hasTitleChange": false,
+                    "input": {
+                        "eval": [
+                            {
+                                "evalString": "money(classes::class_id)",
+                                "newField": "class_id"
+                            }
+                        ],
+                        "icv": false
+                    },
+                    "state": "Configured",
+                    "configured": true,
+                    "aggregates": [],
+                    "parents": [
+                        "dag_5C2E5E0B0EF91A85_1551910568274_43"
                     ],
-                    "icv": false
+                    "nodeId": "dag_5C2E5E0B0EF91A85_1552410078861_36"
                 },
-                "state": "Configured",
-                "configured": true,
-                "aggregates": [],
-                "parents": [
-                    "dag_5C2E5E0B0EF91A85_1552410078861_36"
-                ],
-                "nodeId": "dag_5C2E5E0B0EF91A85_1552410099514_37"
-            },
-            {
-                "type": "groupBy",
-                "subType": null,
-                "display": {
-                    "x": 560,
-                    "y": 40
-                },
-                "description": "",
-                "hasTitleChange": false,
-                "input": {
-                    "groupBy": [
-                        "mapCol"
+                {
+                    "type": "map",
+                    "subType": null,
+                    "display": {
+                        "x": 400,
+                        "y": 40
+                    },
+                    "description": "",
+                    "hasTitleChange": false,
+                    "input": {
+                        "eval": [
+                            {
+                                "evalString": "eq(class_id, 2.25)",
+                                "newField": "mapCol"
+                            }
+                        ],
+                        "icv": false
+                    },
+                    "state": "Configured",
+                    "configured": true,
+                    "aggregates": [],
+                    "parents": [
+                        "dag_5C2E5E0B0EF91A85_1552410078861_36"
                     ],
-                    "aggregate": [
-                        {
-                            "operator": "count",
-                            "sourceColumn": "mapCol",
-                            "destColumn": "gbCol",
-                            "distinct": false,
-                            "cast": null
-                        }
+                    "nodeId": "dag_5C2E5E0B0EF91A85_1552410099514_37"
+                },
+                {
+                    "type": "groupBy",
+                    "subType": null,
+                    "display": {
+                        "x": 560,
+                        "y": 40
+                    },
+                    "description": "",
+                    "hasTitleChange": false,
+                    "input": {
+                        "groupBy": [
+                            "mapCol"
+                        ],
+                        "aggregate": [
+                            {
+                                "operator": "count",
+                                "sourceColumn": "mapCol",
+                                "destColumn": "gbCol",
+                                "distinct": false,
+                                "cast": null
+                            }
+                        ],
+                        "includeSample": false,
+                        "joinBack": false,
+                        "icv": false,
+                        "groupAll": false,
+                        "newKeys": [],
+                        "dhtName": ""
+                    },
+                    "state": "Configured",
+                    "configured": true,
+                    "aggregates": [],
+                    "parents": [
+                        "dag_5C2E5E0B0EF91A85_1552410099514_37"
                     ],
-                    "includeSample": false,
-                    "joinBack": false,
-                    "icv": false,
-                    "groupAll": false,
-                    "newKeys": [],
-                    "dhtName": ""
+                    "nodeId": "dag_5C2E5E0B0EF91A85_1552410208227_38"
                 },
-                "state": "Configured",
-                "configured": true,
-                "aggregates": [],
-                "parents": [
-                    "dag_5C2E5E0B0EF91A85_1552410099514_37"
-                ],
-                "nodeId": "dag_5C2E5E0B0EF91A85_1552410208227_38"
-            },
-            {
-                "type": "filter",
-                "subType": null,
-                "display": {
-                    "x": 700,
-                    "y": 40
+                {
+                    "type": "filter",
+                    "subType": null,
+                    "display": {
+                        "x": 700,
+                        "y": 40
+                    },
+                    "description": "",
+                    "hasTitleChange": false,
+                    "input": {
+                        "evalString": ""
+                    },
+                    "state": "Unused",
+                    "configured": false,
+                    "aggregates": [],
+                    "parents": [],
+                    "nodeId": "dag_5C2E5E0B0EF91A85_1552416079052_36"
                 },
-                "description": "",
-                "hasTitleChange": false,
-                "input": {
-                    "evalString": ""
-                },
-                "state": "Unused",
-                "configured": false,
-                "aggregates": [],
-                "parents": [],
-                "nodeId": "dag_5C2E5E0B0EF91A85_1552416079052_36"
-            },
-            {
-                "type": "sql",
-                "subType": null,
-                "display": {
-                    "x": 260,
-                    "y": 140
-                },
-                "description": "",
-                "hasTitleChange": false,
-                "input": {
-                    "sqlQueryStr": "",
-                    "identifiers": {},
-                    "identifiersOrder": [],
-                    "dropAsYouGo": true
-                },
-                "state": "Unused",
-                "configured": false,
-                "aggregates": [],
-                "parents": ["dag_5C2E5E0B0EF91A85_1551910568274_43"],
-                "nodeId": "dag_5C38E57232629A41_1552421080646_41"
-            }
-        ];
+                {
+                    "type": "sql",
+                    "subType": null,
+                    "display": {
+                        "x": 260,
+                        "y": 140
+                    },
+                    "description": "",
+                    "hasTitleChange": false,
+                    "input": {
+                        "sqlQueryStr": "",
+                        "identifiers": {},
+                        "identifiersOrder": [],
+                        "dropAsYouGo": true
+                    },
+                    "state": "Unused",
+                    "configured": false,
+                    "aggregates": [],
+                    "parents": ["dag_5C2E5E0B0EF91A85_1551910568274_43"],
+                    "nodeId": "dag_5C38E57232629A41_1552421080646_41"
+                }
+            ];
 
-        dagView.validateAndPaste(JSON.stringify(nodeInfos));
-        groupByNodeId = $dfArea.find(".operator.groupBy").data("nodeid");
-        datasetNodeId = $dfArea.find(".operator.dataset").data("nodeid");
-        mapNodeId = $dfArea.find('.operator.map[data-subtype=""]').data("nodeid");
-        castNodeId = $dfArea.find('.operator.map[data-subtype="cast"]').data("nodeid");
-        filterNodeId = $dfArea.find('.operator.filter').data("nodeid");
-        sqlNodeId = $dfArea.find('.operator.sql').data("nodeid");
+            dagView.validateAndPaste(JSON.stringify(nodeInfos));
+            groupByNodeId = $dfArea.find(".operator.groupBy").data("nodeid");
+            datasetNodeId = $dfArea.find(".operator.dataset").data("nodeid");
+            mapNodeId = $dfArea.find('.operator.map[data-subtype=""]').data("nodeid");
+            castNodeId = $dfArea.find('.operator.map[data-subtype="cast"]').data("nodeid");
+            filterNodeId = $dfArea.find('.operator.filter').data("nodeid");
+            sqlNodeId = $dfArea.find('.operator.sql').data("nodeid");
+            done();
+        });
     });
 
     it("test state should be correct", function() {

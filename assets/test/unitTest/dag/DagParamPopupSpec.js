@@ -2,16 +2,20 @@ describe("DagParamPopup Test", function() {
     let getParamMap;
     let updateParamMapCache;
     let $tab;
-    before(function() {
+    before(function(done) {
         UnitTest.onMinMode();
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
         MainMenu.openPanel("dagPanel", null);
-        $tab = $("#dagViewBar .parameters");
-        getParamMap = DagParamManager.Instance.getParamMap;
-        updateParamMapCache = DagParamManager.Instance.updateParamMap;
-        DagParamManager.Instance.getParamMap = function() {return {}};
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            $tab = $("#dagViewBar .parameters");
+            getParamMap = DagParamManager.Instance.getParamMap;
+            updateParamMapCache = DagParamManager.Instance.updateParamMap;
+            DagParamManager.Instance.getParamMap = function() {return {}};
+            done();
+        });
     });
 
     describe("opening", function() {

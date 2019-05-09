@@ -1637,7 +1637,7 @@ describe("DagView Test", () => {
         expect(res.nodeId).to.equal("test");
         expect(res.input.source).not.to.equal("source");
 
-        // caser 3
+        // case 3
         nodeInfo = {
             type: DagNodeType.Filter,
             nodeId: "test"
@@ -1648,5 +1648,29 @@ describe("DagView Test", () => {
         // case 4
         res = dagView._convertInNodeForSQLFunc(null);
         expect(res).to.equal(null);
+    });
+
+    it("_checkLoadedTabHasQueryInProgress should work", function() {
+        let tab = new DagTabUser();
+        let graph = new DagGraph();
+        graph.setTabId(tab.getId());
+        let dagView = new DagView(null, graph, tab);
+
+        var cache1 = XcalarQueryList;
+        let called = false;
+        let called2 = false;
+        XcalarQueryList = (tId) => {
+            expect(tId).to.equal("table_" + tab.getId() + "*");
+            called = true;
+            return PromiseHelper.resolve([{name: "queryName#t_234"}]);
+        };
+        graph.restoreExecution = (name) => {
+            expect(name).to.equal("queryName#t_234");
+            called2 = true;
+        };
+        dagView._checkLoadedTabHasQueryInProgress();
+        expect(called).to.be.true;
+        expect(called2).to.be.true;
+        XcalarQueryList = cache1;
     });
 });

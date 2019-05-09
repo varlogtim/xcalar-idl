@@ -537,7 +537,7 @@ class DagNodeCustom extends DagNode {
             if (lineage != null) {
                 for (const col of lineage.getColumns()) {
                     const newCol = ColManager.newPullCol(
-                        col.getBackColName(),
+                        xcHelper.parsePrefixColName(col.getBackColName()).name,
                         col.getBackColName(),
                         col.getType()
                     );

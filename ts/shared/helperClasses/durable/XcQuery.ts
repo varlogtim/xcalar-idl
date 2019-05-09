@@ -150,7 +150,7 @@ class XcQuery extends Durable {
                     return this.outputTableName;
                 } else {
                     for (var i = subQueries.length - 1; i >= 0; i--) {
-                        if (subQueries[i].name.indexOf("drop") !== 0) {
+                        if (subQueries[i].name && subQueries[i].name.indexOf("drop") !== 0) {
                             this.outputTableName = subQueries[i]
                                                         .dstTable;
                             return this.outputTableName;
@@ -175,7 +175,7 @@ class XcQuery extends Durable {
                 if (!subQueries[i].dstTable) {
                     continue;
                 }
-                if (subQueries[i].name.indexOf("drop") !== 0) {
+                if (subQueries[i].name && subQueries[i].name.indexOf("drop") !== 0) {
                     tables.push(subQueries[i].dstTable);
                 } else {
                     droppedTables.push(subQueries[i].dstTable);

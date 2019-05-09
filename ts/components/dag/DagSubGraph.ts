@@ -200,6 +200,54 @@ class DagSubGraph extends DagGraph {
         }
     }
 
+    // /**
+    //  *
+    //  * @param queryNodes queryState info
+    // */
+    public updateSQLSubGraphProgress(queryNodes: any[]) {
+        const nodeIdInfos: Map<DagNodeId, object> = new Map();
+
+        queryNodes.forEach((queryNodeInfo: XcalarApiDagNodeT) => {
+            if (queryNodeInfo["operation"] === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] ||
+                queryNodeInfo.api === XcalarApisT.XcalarApiDeleteObjects) {
+                return;
+            }
+            let tableName: string = queryNodeInfo.name.name;
+            if (queryNodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
+                tableName.startsWith(".XcalarLRQ.") &&
+                tableName.indexOf(gDSPrefix) > -1) {
+                tableName = tableName.slice(tableName.indexOf(gDSPrefix));
+            }
+            let nodeIdCandidates = queryNodeInfo.tag.split(",");
+            let nodeId: DagNodeId;
+            let nodeFound = false;
+            for (let i = 0; i < nodeIdCandidates.length; i++) {
+                nodeId = nodeIdCandidates[i];
+                if (this.hasNode(nodeId)) {
+                    nodeFound = true;
+                    break;
+                }
+            }
+            if (!nodeFound) {
+                return;
+            }
+            let nodeIdInfo = nodeIdInfos.get(nodeId);
+            if (!nodeIdInfo) {
+                nodeIdInfo = {};
+                nodeIdInfos.set(nodeId, nodeIdInfo);
+            }
+            nodeIdInfo[tableName] = queryNodeInfo;
+            queryNodeInfo["index"] = parseInt(queryNodeInfo.dagNodeId);
+        });
+
+        for (let [nodeId, _queryNodeMap] of nodeIdInfos) {
+            let node: DagNode = this.getNode(nodeId);
+            if (node != null) {
+                node.updateProgress(nodeIdInfos.get(nodeId), true, true);
+            }
+        }
+    }
+
     public getElapsedTime(): number {
         if (this.isComplete) {
             return this.elapsedTime;

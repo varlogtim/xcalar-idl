@@ -2350,7 +2350,7 @@ namespace XIApi {
             const deferred: XDDeferred<any> = PromiseHelper.deferred();
             const txLog = Transaction.get(txId);
             if (txLog.currentNodeId) {
-                // add nodeId and wrapper nodeIds as query tag to track
+                // add nodeId and nested nodeIds as query tag to track
                 // relationship between query and dagNode
                 let parentNodeIds = [];
                 _getParentNodeIds(parentNodeIds, txId);
@@ -2361,7 +2361,12 @@ namespace XIApi {
                             return;
                         }
                         parentNodeIds.push(txLog.currentNodeId);
-                        q.tag = parentNodeIds.join(",");
+                        let curTags = [];
+                        if (q.tag) {
+                            curTags = q.tag.split(",");
+                        }
+                        let finalTagNodeIds = parentNodeIds.concat(curTags);
+                        q.tag = finalTagNodeIds.join(",");
                         parentNodeIds.pop();
                     });
                     queryStr = JSON.stringify(query);

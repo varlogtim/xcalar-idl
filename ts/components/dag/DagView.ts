@@ -792,6 +792,37 @@ class DagView {
         }
 
         this.$dfArea.addClass("rendered");
+        if (this.dagTab instanceof DagTabUser) {
+            this._checkLoadedTabHasQueryInProgress();
+        }
+    }
+
+    private _checkLoadedTabHasQueryInProgress() {
+        const queryPrefix = "table_" + this.graph.getTabId();
+        XcalarQueryList(queryPrefix + "*")
+        .then((ret) => {
+            let latestTime = 0;
+            let latestQuery;
+            ret.forEach((query) => {
+                let timeStr: string = query.name.slice(query.name.lastIndexOf("#t_") + 3);
+                timeStr = timeStr.slice(0, timeStr.indexOf("_"));
+                let time = parseInt(timeStr);
+                if (isNaN(time)) {
+                    time = 1;
+                }
+                if (time > latestTime) {
+                    latestTime = time;
+                    latestQuery = query;
+                }
+            });
+
+            if (latestQuery) {
+                this.graph.restoreExecution(latestQuery.name);
+            }
+        })
+        .fail(() => {
+            console.error("query list failed");
+        });
     }
 
     public newGraph(): void {
@@ -1047,6 +1078,7 @@ class DagView {
                     // the parentId of the original node
                     // since this is a deep copy, nodeInfos still has the parents
                     delete nodeInfo.parents;
+                    delete nodeInfo.subGraphNodeIds;
                     if (isSQLFunc) {
                         nodeInfo = this._convertInNodeForSQLFunc(nodeInfo);
                     }
@@ -2593,7 +2625,11 @@ class DagView {
         // should only update nodes that are currently in progress so we
         // store a Set of completed nodes to check against it later
         let completedNodeIds: Set<DagNodeId> = new Set();
-        nodeIds.forEach((nodeId) =>{
+
+        nodeIds.filter((nodeId) => {
+            if (!this.graph.hasNode(nodeId)) {
+                return false;
+            }
             let node = this.graph.getNode(nodeId);
             if (node.getState() === DagNodeState.Complete || node.getState() ===
                 DagNodeState.Error) {
@@ -2602,6 +2638,9 @@ class DagView {
         });
         this.graph.updateProgress(queryStateOutput.queryGraph.node);
         nodeIds.forEach((nodeId) => {
+            if (!this.graph.hasNode(nodeId)) {
+                return false;
+            }
             if (completedNodeIds.has(nodeId)) {
                 return;
             }
@@ -2631,9 +2670,12 @@ class DagView {
         }
 
         let subGraph = (<DagNodeSQL>node).getSubGraph();
+        if (!subGraph) {
+            return;
+        }
         const subTabId: string = subGraph.getTabId();
         if (node.getType() === DagNodeType.SQL) {
-            subGraph.updateSubGraphProgress(xcHelper.deepCopy(queryStateOutput.queryGraph.node));
+            subGraph.updateSQLSubGraphProgress(xcHelper.deepCopy(queryStateOutput.queryGraph.node));
         } else {
             subGraph.updateProgress(queryStateOutput.queryGraph.node);
         }
@@ -2641,7 +2683,6 @@ class DagView {
         if (subTabId) {
             subGraph.getAllNodes().forEach((node, nodeId) => {
                 this._updateSubGraphProgress(node, queryStateOutput);
-
                 const overallStats = node.getOverallStats();
                 const nodeStats = node.getIndividualStats();
                 const times: number[] = [];

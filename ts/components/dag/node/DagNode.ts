@@ -337,11 +337,13 @@ abstract class DagNode extends Durable {
     /**
      * Change node to running state
      */
-    public beRunningState(): void {
+    public beRunningState(noClear: boolean = false): void {
         this.configured = true;
         this._setState(DagNodeState.Running);
         this._removeTable();
-        this.runStats.needsClear = true;
+        if (!noClear) {
+            this.runStats.needsClear = true;
+        }
     }
 
     /**
@@ -536,7 +538,7 @@ abstract class DagNode extends Durable {
         includeTitle: boolean = true,
         forCopy: boolean = false
     ): DagNodeCopyInfo {
-        const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents(includeStats);
+        const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents(includeStats, forCopy);
         if (!forCopy) {
             nodeInfo.nodeId = nodeInfo.id;
             delete nodeInfo.id;
@@ -732,9 +734,11 @@ abstract class DagNode extends Durable {
      * don't set the node to completed if there are other operations that will occur for that node
      * @param trustIndex use the index provided
      */
-    public updateProgress(tableInfoMap,
+    public updateProgress(
+        tableInfoMap,
         includesAllTables?: boolean,
-        trustIndex?: boolean) {
+        trustIndex?: boolean
+    ): XDPromise<void> {
 
         const errorStates: DgDagStateT[] = [DgDagStateT.DgDagStateUnknown,
                              DgDagStateT.DgDagStateError,
@@ -743,10 +747,16 @@ abstract class DagNode extends Durable {
         let errorState: string = null;
         let error: string = null;
         this.runStats.hasRun = true;
+        if (this.state === DagNodeState.Configured) {
+            // when restoring dataflow, state might by configured, set to running
+            // do this before anything else
+            this.beRunningState();
+        }
         if (this.runStats.needsClear) {
             this.runStats.nodes = {};
             this.runStats.needsClear = false;
         }
+
         let tableCount: number = Object.keys(this.runStats.nodes).length;
         for (let tableName in tableInfoMap) {
             const nodeInfo = tableInfoMap[tableName];
@@ -1414,7 +1424,7 @@ abstract class DagNode extends Durable {
 
     // Custom dagNodes will have their own serialize/deserialize for
     // Their dagGraphs
-    protected _getSerializeInfo(includeStats?: boolean): DagNodeInfo {
+    protected _getSerializeInfo(includeStats?: boolean, _forCopy?: boolean): DagNodeInfo {
         const info: DagNodeInfo = {
             version: this.version,
             type: this.type,
@@ -1474,9 +1484,9 @@ abstract class DagNode extends Durable {
         return this.input.validate(input);
     }
 
-    private _getNodeInfoWithParents(includeStats?: boolean): DagNodeInfo {
+    private _getNodeInfoWithParents(includeStats?: boolean, forCopy?: boolean): DagNodeInfo {
         const parents: DagNodeId[] = this.parents.map((parent) => parent.getId());
-        const seriazliedInfo = this._getSerializeInfo(includeStats);
+        const seriazliedInfo = this._getSerializeInfo(includeStats, forCopy);
         seriazliedInfo["parents"] = parents;
         return seriazliedInfo;
     }

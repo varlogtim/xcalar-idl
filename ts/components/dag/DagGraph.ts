@@ -289,6 +289,9 @@ class DagGraph extends Durable {
                 node.setTable("");
                 node.beConfiguredState();
             }
+            if (node instanceof DagNodeSQL) {
+                node.resetSubGraphNodeIds();
+            }
         });
     }
 
@@ -730,6 +733,11 @@ class DagGraph extends Durable {
 
     public setExecutor(executor: DagGraphExecutor): void {
         this.currentExecutor = executor;
+    }
+
+    public restoreExecution(queryName: string): void {
+        const executor: DagGraphExecutor = new DagGraphExecutor([], this, {isRestoredExecution: true});
+        executor.restoreExecution(queryName);
     }
 
     /**
@@ -2325,10 +2333,11 @@ class DagGraph extends Durable {
      * @param finalTableName
      */
     public static convertQueryToDataflowGraph(
-        query,
+        query: any[],
         globalState?: DagNodeState,
         tableSrcMap?,
-        finalTableName?) {
+        finalTableName?
+    ) {
         let converter = new DagQueryConverter({query: query}, null, globalState, tableSrcMap, finalTableName);
         return converter.getResult();
     }
