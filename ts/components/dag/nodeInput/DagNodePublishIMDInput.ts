@@ -11,7 +11,8 @@ class DagNodePublishIMDInput extends DagNodeInput {
         "required": [
           "pubTableName",
           "primaryKeys",
-          "operator"
+          "operator",
+          "columns"
         ],
         "properties": {
           "pubTableName": {
@@ -31,7 +32,7 @@ class DagNodePublishIMDInput extends DagNodeInput {
             "title": "The Primarykeys Schema",
             "minItems": 0,
             "items": {
-              "$id": "#/properties/primaryKeys/primaryKey",
+              "$id": "#/properties/primaryKeys/items",
               "type": "string",
               "title": "The PrimaryKey Schema",
               "default": "",
@@ -59,7 +60,7 @@ class DagNodePublishIMDInput extends DagNodeInput {
             "title": "Column Schema",
             "minItems": 1,
             "items": {
-              "$id": "#/properties/primaryKeys/primaryKey",
+              "$id": "#/properties/columns/items",
               "type": "string",
               "title": "Column Schema",
               "default": "",
