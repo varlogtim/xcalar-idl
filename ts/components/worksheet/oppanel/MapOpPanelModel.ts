@@ -30,6 +30,9 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     }
 
     public enterFunction(value: string, opInfo, index: number): void {
+        if (!this.groups.length) {
+            this.addGroup();
+        }
         this.groups[index].operator = value;
         if (opInfo) {
             const numArgs = Math.max(Math.abs(opInfo.numArgs),
