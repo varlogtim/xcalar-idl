@@ -5,24 +5,25 @@ class MemoryAlert {
         return this._instance || (this._instance = new this());
     }
 
-    private $memoryAlert: JQuery;
     private _turnOffRedMemoryAlert: boolean;
     private _isCheckingMem: boolean;
+    private _disableRedMemoryAlert: boolean;
 
     private constructor() {
-        this.$memoryAlert = $("#memoryAlert");
         this._turnOffRedMemoryAlert = false;
         this._isCheckingMem = false;
+        this._disableRedMemoryAlert = false;
     }
 
     public setup(): void {
-        this.$memoryAlert.click(function() {
+        this._getMemoryAlertEl().click((e) => {
             if ($("#container").hasClass("noWorkbook") ||
                 $("#container").hasClass("switchingWkbk")) {
                 WorkbookPanel.goToMonitor();
                 return;
             }
-            const $el = $(this);
+            let $el = $(e.currentTarget);
+            $el.blur();
             if (!$el.hasClass("yellow") && !$el.hasClass("red")) {
                 MainMenu.openPanel("monitorPanel", "systemButton");
                 return false;
@@ -113,8 +114,12 @@ class MemoryAlert {
         return deferred.promise();
     }
 
+    private _getMemoryAlertEl(): JQuery {
+        return $("#memoryAlert");
+    }
+
     private hasMemoryWarn(): boolean {
-        const $memoryAlert: JQuery = this.$memoryAlert;
+        let $memoryAlert: JQuery = this._getMemoryAlertEl();
         return ($memoryAlert.hasClass("yellow") ||
             $memoryAlert.hasClass("red"));
     }
@@ -132,7 +137,10 @@ class MemoryAlert {
     }
 
     private redMemoryAlert(): void {
-        if (this._turnOffRedMemoryAlert || Alert.isOpen()) {
+        if (this._turnOffRedMemoryAlert ||
+            this._disableRedMemoryAlert ||
+            Alert.isOpen()
+        ) {
             return;
         }
 
@@ -148,14 +156,26 @@ class MemoryAlert {
             buttons: [{
                 name: MonitorTStr.ClearMemOption,
                 className: "clear memory",
-                func: () => {
+                func: (checked) => {
+                    this._turnOffRedMemoryAlert = checked;
                     DagTblManager.Instance.emergencyClear();
+                    this.disableAlertInPeriod();
                 }
             }],
             onCancel: (checked) => {
                 this._turnOffRedMemoryAlert = checked;
+                this.disableAlertInPeriod();
             }
         });
+    }
+
+    private disableAlertInPeriod(): void {
+        // in case user is in the memory panel and always see the alert
+        this._disableRedMemoryAlert = true;
+        let time: number = 60000; // disable for 1min
+        setTimeout(() => {
+            this._disableRedMemoryAlert = false;
+        }, time);
     }
 
     private handleMemoryUsage(
@@ -166,7 +186,7 @@ class MemoryAlert {
         const yellowThreshold: number = 0.6;
         const redThreshold: number = 0.8;
 
-        const $memoryAlert: JQuery = this.$memoryAlert;
+        let $memoryAlert: JQuery = this._getMemoryAlertEl();
         $memoryAlert.removeClass("inActive");
 
         let shouldAlert: boolean = false;
@@ -217,6 +237,14 @@ class MemoryAlert {
     }
 
     private hasNoTables(): boolean {
-        return jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0;
+        let noTable: boolean = false;
+        try {
+            noTable = jQuery.isEmptyObject(gTables) &&
+                gOrphanTables.length === 0 &&
+                !DagTblManager.Instance.hasTables();
+        } catch (e) {
+            console.error(e);
+        }
+        return noTable;
     }
 }

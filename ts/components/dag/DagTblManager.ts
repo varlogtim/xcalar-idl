@@ -216,6 +216,13 @@ class DagTblManager {
     }
 
     /**
+     * DagTblManager.Instance.hasTables
+     */
+    public hasTables(): boolean {
+        return (this.configured && this.cache && Object.keys(this.cache).length > 0);
+    }
+
+    /**
      * Returns if the table is locked
      * @param name Table name
      */

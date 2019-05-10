@@ -469,7 +469,8 @@ namespace Alert {
                     event.stopPropagation();
                     closeModal();
                     if (btnOption.func instanceof Function) {
-                        btnOption.func();
+                        let hasChecked = isCheckBoxChecked(options);
+                        btnOption.func(hasChecked);
                     }
                 });
                 if (btnOption.tooltip) {

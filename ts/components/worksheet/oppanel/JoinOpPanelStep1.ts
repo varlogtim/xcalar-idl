@@ -318,7 +318,6 @@ class JoinOpPanelStep1 {
                     isLeft: false,
                 });
             }
-
             clauseSection.forEach((elem) => {
                 nodeList.push(elem);
             });

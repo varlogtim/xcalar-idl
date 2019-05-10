@@ -180,16 +180,14 @@ describe('Memory Alert Test', () => {
 
         it('refreshTables should resolve if no tables', (done) => {
             const oldFunc = TblManager.refreshOrphanList;
-            const oldGTables = gTables;
-            const oldGOrphanTables = gOrphanTables;
+            const oldHasNoTables = MemoryAlert.Instance.hasNoTables;
 
             let test = false;
             TblManager.refreshOrphanList = () => {
                 test = true;
                 return PromiseHelper.resolve();
             };
-            gTables = {};
-            gOrphanTables = [];
+            MemoryAlert.Instance.hasNoTables = () => true;
 
             MemoryAlert.Instance.refreshTables()
                 .then(() => {
@@ -201,8 +199,7 @@ describe('Memory Alert Test', () => {
                 })
                 .always(() => {
                     TblManager.refreshOrphanList = oldFunc;
-                    gTables = oldGTables;
-                    gOrphanTables = oldGOrphanTables;
+                    MemoryAlert.Instance.hasNoTables = oldHasNoTables;
                 });
         });
 
