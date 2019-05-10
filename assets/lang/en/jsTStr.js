@@ -542,7 +542,20 @@ SQLErrTStr = {
     "XDFNotSupport": "xdf_ without type prefix is not supported",
     "NoSupport": "Not supported: ",
     "RangeWindowMultipleCol": "Window function with range frame can only have 1 order by column",
-    "UnsupportedOperator": "Unsupported opeartor found: "
+    "UnsupportedOperator": "Unsupported opeartor found: ",
+    "DateTimeOneChild": "DateTime part node should have one argument, instead find: ",
+    "UnixTimeTwoChildren": "Unix time node should have two arguments, instead find: ",
+    "TimeIntervalTwoChildren": "Time interval node should have two arguments, instead find: ",
+    "TimeIntervalType": "Time interval should be literal, instead get: ",
+    "UnsupportedIntervalType": "Invalid time interval: ",
+    "DateFormatTwoChildren": "Date format node should have two arguments, instead find: ",
+    "DateFormatNotColumn": "Date format should be literal, instead get: ",
+    "DateSubTwoChildren": "DateAdd/Sub node should have two children, instead get: ",
+    "SingleOperatorQueryMultipleSource": "Single operator query should have one source",
+    "GroupByFailure": "Group by failed with undefined return struct!",
+    "AggregateOneChild": "GroupBy node should have one child, but get: ",
+    "NoRightRowNumTableName": "Can't find right row number column name in right outer join",
+    "NoRightRowNumCol": "No right row number column in right outer join"
 };
 
 SQLInfoTStr = {

@@ -62,7 +62,8 @@ class DropAsYouGo {
                                                                     visitedMap);
         }
         if (opNode.children.length === 0 && dropSrcTables) {
-            SQLUtil.assert(opNode.sources.length === 1);
+            SQLUtil.assert(opNode.sources.length === 1,
+                           SQLErrTStr.SingleOperatorQueryMultipleSource);
             opNode.toDrop = [opNode.sources[0]];
         }
         if (opNode.children.length > 0) {

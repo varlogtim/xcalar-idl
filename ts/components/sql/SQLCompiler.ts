@@ -616,6 +616,8 @@ class SQLCompiler {
                 break;
             }
             case (SparkExpressions.DateAdd): {
+                SQLUtil.assert(node.children.length === 2,
+                        SQLErrTStr.DateSubTwoChildren + node.children.length);
                 node.value["num-children"] = 4;
                 const zeroNode = TreeNodeFactory.getLiteralNumberNode(0);
                 node.children = [node.children[0], zeroNode, zeroNode, node.children[1]];
