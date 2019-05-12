@@ -5599,4 +5599,5 @@ XcalarPublishTableChangeOwner = function(
 if (typeof exports !== "undefined") {
     exports.TypeCheck = TypeCheck;
     exports.colInfoMap = colInfoMap;
+    exports.parseDS = parseDS;
 }

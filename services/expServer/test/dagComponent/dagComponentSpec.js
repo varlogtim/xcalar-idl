@@ -60,7 +60,7 @@ describe('DagComponent Test', function() {
             workbook: 'testWB',
             userName: 'dftest',
             sessionId: 'test1',
-            dfNames: ['testOpt']
+            dfNames: ['testOpt', 'testSynDS']
         };
         let dfStrList;
         before(() => {

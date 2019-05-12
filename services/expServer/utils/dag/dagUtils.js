@@ -30,8 +30,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.xcalarApi = xcalarApi = require("../../../../assets/js/thrift/XcalarApi.js");
 
     global.PromiseHelper = PromiseHelper = require("../../../../assets/js/promiseHelper.js");
-    require("../../../../assets/js/XcalarThrift.js");
-    global.colInfoMap = require("../../../../assets/js/XcalarThrift.js").colInfoMap;
+    const xcalarThriftLib = require("../../../../assets/js/XcalarThrift.js");
+    global.colInfoMap = xcalarThriftLib.colInfoMap;
+    global.parseDS = xcalarThriftLib.parseDS;
 
     // Added for KVS to query conversion
     global.Ajv = require("../../../../3rd/AJV/ajv.js");
