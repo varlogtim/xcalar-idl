@@ -227,7 +227,7 @@ namespace DagNodeMenu {
                     DagSchemaPopup.Instance.show(dagNodeIds[0]);
                     break;
                 case ("exitOpPanel"):
-                    MainMenu.closeForms();
+                    exitOpPanel();
                     break;
                 case ("createCustom"):
                     DagViewManager.Instance.wrapCustomOperator(dagNodeIds);
@@ -242,7 +242,7 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.inspectSQLNode(dagNodeIds[0], tabId);
                     break;
                 case ("expandSQL"):
-                    DagViewManager.Instance.expandSQLNode(dagNodeIds[0]);
+                    expandSQLNode(dagNodeIds[0]);
                     break;
                 case ("expandCustom"):
                     DagViewManager.Instance.expandCustomNode(dagNodeIds[0]);
@@ -312,13 +312,59 @@ namespace DagNodeMenu {
         });
     }
 
+    function exitOpPanel(ignoreSQLChange?: boolean): void {
+        if (!ignoreSQLChange && SQLOpPanel.Instance.hasUnsavedChange()) {
+            Alert.show({
+                title: "SQL",
+                msg: SQLTStr.UnsavedSQL,
+                onConfirm: () => {
+                    exitOpPanel(true);
+                }
+            });
+        } else {
+            MainMenu.closeForms();
+        }
+    }
+
+    function expandSQLNode(
+        dagNodeId: DagNodeId,
+        ignoreSQLChange?: boolean
+    ): void {
+        if (!ignoreSQLChange && SQLOpPanel.Instance.hasUnsavedChange()) {
+            Alert.show({
+                title: "SQL",
+                msg: SQLTStr.UnsavedSQL,
+                onConfirm: () => {
+                    expandSQLNode(dagNodeId, true);
+                }
+            });
+        } else {
+            DagViewManager.Instance.expandSQLNode(dagNodeId);
+            SQLOpPanel.Instance.close();
+        }
+    }
+
     function configureNode(node: DagNode, options?: {
         node?: DagNode,
         autofillColumnNames?: string[],
         exitCallback?: Function,
         nonConfigurable?: boolean,
-        udfDisplayPathPrefix?: string
+        udfDisplayPathPrefix?: string,
+        ignoreSQLChange?: boolean
     }) {
+        if ((!options || !options.ignoreSQLChange) &&
+            SQLOpPanel.Instance.hasUnsavedChange()) {
+            Alert.show({
+                title: "SQL",
+                msg: SQLTStr.UnsavedSQL,
+                onConfirm: () => {
+                    options = options || {};
+                    options.ignoreSQLChange = true;
+                    configureNode(node, options);
+                }
+            });
+            return;
+        }
         const nodeId: string = node.getId();
         if (DagViewManager.Instance.isNodeLocked(nodeId)) {
             return;

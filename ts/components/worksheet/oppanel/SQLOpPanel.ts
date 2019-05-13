@@ -677,6 +677,31 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
+    public hasUnsavedChange(): boolean {
+        if (!this.isOpen()) return false;
+        const curSQL = this._sqlEditor.getValue().replace(/;+$/, "");
+        const curIdentifiers = this._extractIdentifiers();
+        const preSQL = this._dagNode.getParam().sqlQueryStr;
+        const preIdentifiers = this._dagNode.getIdentifiers();
+        let hasChange = false;
+        if (curSQL !== preSQL) {
+            hasChange = true;
+        } else if (curIdentifiers.size !== preIdentifiers.size) {
+            hasChange = true;
+        } else {
+            const curIterator = curIdentifiers.entries();
+            const preIterator = preIdentifiers.entries();
+            for (let i = 0; i < curIdentifiers.size; i++) {
+                let curEntry = curIterator.next().value;
+                let preEntry = preIterator.next().value;
+                if (curEntry[0] !== preEntry[0] || curEntry[1] !== preEntry[1]) {
+                    hasChange = true;
+                    break;
+                }
+            }
+        }
+        return hasChange;
+    }
     /**
      * Hide the panel
      */
@@ -760,28 +785,7 @@ class SQLOpPanel extends BaseOpPanel {
 
         // Close icon & Cancel button
         self._$elemPanel.on('click', '.close, .cancel:not(.confirm)', function() {
-            const curSQL = self._sqlEditor.getValue().replace(/;+$/, "");
-            const curIdentifiers = self._extractIdentifiers();
-            const preSQL = self._dagNode.getParam().sqlQueryStr;
-            const preIdentifiers = self._dagNode.getIdentifiers();
-            let hasChange = false;
-            if (curSQL !== preSQL) {
-                hasChange = true;
-            } else if (curIdentifiers.size !== preIdentifiers.size) {
-                hasChange = true;
-            } else {
-                const curIterator = curIdentifiers.entries();
-                const preIterator = preIdentifiers.entries();
-                for (let i = 0; i < curIdentifiers.size; i++) {
-                    let curEntry = curIterator.next().value;
-                    let preEntry = preIterator.next().value;
-                    if (curEntry[0] !== preEntry[0] || curEntry[1] !== preEntry[1]) {
-                        hasChange = true;
-                        break;
-                    }
-                }
-            }
-            if (hasChange) {
+            if (self.hasUnsavedChange()) {
                 Alert.show({
                     title: "SQL",
                     msg: SQLTStr.UnsavedSQL,

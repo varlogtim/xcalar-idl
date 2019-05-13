@@ -459,8 +459,22 @@ namespace XVM {
      * XVM.setMode
      * @param mode
      */
-    export function setMode(mode: XVM.Mode): XDPromise<void> {
+    export function setMode(
+        mode: XVM.Mode,
+        ignoreSQLChange?: boolean
+    ): XDPromise<void> {
         if (mode === _mode) {
+            return PromiseHelper.resolve();
+        }
+        if (mode === XVM.Mode.SQL && !ignoreSQLChange &&
+            SQLOpPanel.Instance.hasUnsavedChange()) {
+            Alert.show({
+                title: "SQL",
+                msg: SQLTStr.UnsavedSQL,
+                onConfirm: () => {
+                    XVM.setMode(mode, true);
+                }
+            });
             return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
