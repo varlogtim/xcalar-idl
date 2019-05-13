@@ -3,8 +3,8 @@ describe('ExpServer Upload Test', function() {
     var expect = require('chai').expect;
 
     var request = require('request');
-    var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var upload = require(__dirname + '/../../expServer/controllers/upload.js');
+    require(__dirname + '/../expServer.js');
+    var upload = require(__dirname + '/../controllers/upload.js');
     var testMin;
     var testMax;
     var testCommand;
@@ -21,13 +21,13 @@ describe('ExpServer Upload Test', function() {
         testMin = 5;
         testMax = 8;
         testCommand = "ls";
-        testFilePath = __dirname + "/../config/logs";
-        testDir = __dirname + "/../config/testDir"
+        testFilePath = __dirname + "/config/logs";
+        testDir = __dirname + "/config/testDir"
         testData = "ONLY FOR TEST";
         testName = "testExt";
         testVersion = "1.0.0";
         testS3 = "s3";
-        testExt = __dirname + "/../config/testExt";
+        testExt = __dirname + "/config/testExt";
         testReq = {
             body: {
                 name: testName,
@@ -108,7 +108,7 @@ describe('ExpServer Upload Test', function() {
             "name": "test"
         }
         var data = {
-            url: 'http://localhost:12125/extension/publish',
+            url: 'http://localhost:12224/extension/publish',
             json: testData
         }
         request.post(data, function (err, res, body){

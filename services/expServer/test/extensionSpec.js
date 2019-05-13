@@ -3,11 +3,11 @@ describe('ExpServer Extension Test', function() {
     var expect = require('chai').expect;
     var fs = require('fs');
     var request = require('request');
-    var expServer = require(__dirname + '/../../expServer/expServer.js');
+    require(__dirname + '/../expServer.js');
 
     var extensionManager = require(__dirname +
-        '/../../expServer/controllers/extensionManager.js');
-    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
+        '/../controllers/extensionManager.js');
+    var support = require(__dirname + '/../utils/expServerSupport.js');
     var testTargz;
     var testName;
     var testVersion;
@@ -54,7 +54,7 @@ describe('ExpServer Extension Test', function() {
     });
 
     it("extensionManager.writeTarGz should work", function(done) {
-        testTargz = fs.readFileSync(__dirname + "/../config/testExt-1.0.0.tar.gz", "base64");
+        testTargz = fs.readFileSync(__dirname + "/config/testExt-1.0.0.tar.gz", "base64");
         extensionManager.writeTarGz(testTargz, testName, testVersion)
         .then(function(ret) {
             expect(ret).to.equal("writeTarGz succeeds");
@@ -274,7 +274,7 @@ describe('ExpServer Extension Test', function() {
         extensionManager.fakeWriteTarGzWithCleanup(emptyPromise);
         extensionManager.fakeEnableExtension(emptyPromise);
         var data = {
-            url: 'http://localhost:12125/extension/upload',
+            url: 'http://localhost:12224/extension/upload',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -297,7 +297,7 @@ describe('ExpServer Extension Test', function() {
         extensionManager.fakeWriteTarGzWithCleanup(emptyPromise);
         extensionManager.fakeDownloadExtension(fakeDownload);
         var data = {
-            url: 'http://localhost:12125/extension/download',
+            url: 'http://localhost:12224/extension/download',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -312,7 +312,7 @@ describe('ExpServer Extension Test', function() {
         var oldRemove = extensionManager.removeExtension;
         extensionManager.fakeRemoveExtension(emptyPromise);
         var data = {
-            url: 'http://localhost:12125/extension/remove',
+            url: 'http://localhost:12224/extension/remove',
             json: testData
         }
         request.delete(data, function (err, res, body){
@@ -326,7 +326,7 @@ describe('ExpServer Extension Test', function() {
         var oldEnable = extensionManager.enableExtensionn;
         extensionManager.fakeEnableExtension(emptyPromise);
         var data = {
-            url: 'http://localhost:12125/extension/enable',
+            url: 'http://localhost:12224/extension/enable',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -340,7 +340,7 @@ describe('ExpServer Extension Test', function() {
         var oldDisable = extensionManager.disableExtension;
         extensionManager.fakeDisableExtension(emptyPromise);
         var data = {
-            url: 'http://localhost:12125/extension/disable',
+            url: 'http://localhost:12224/extension/disable',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -357,7 +357,7 @@ describe('ExpServer Extension Test', function() {
         };
         extensionManager.fakeGetExtensionFiles(fakeFunc);
         var data = {
-            url: 'http://localhost:12125/extension/getAvailable',
+            url: 'http://localhost:12224/extension/getAvailable',
             headers: {
               'Content-Type': 'application/json'
             }
@@ -371,7 +371,7 @@ describe('ExpServer Extension Test', function() {
 
     it('GetEnabled router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/extension/getEnabled'
+            url: 'http://localhost:12224/extension/getEnabled'
         }
         request.get(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(1);
@@ -386,7 +386,7 @@ describe('ExpServer Extension Test', function() {
         };
         extensionManager.fakeFetchAllExtensions(fakeFunc);
         var data = {
-            url: 'http://localhost:12125/extension/listPackage'
+            url: 'http://localhost:12224/extension/listPackage'
         }
         request.get(data, function (err, res, body){
             extensionManager.fakeFetchAllExtensions(oldFetch);
@@ -397,7 +397,7 @@ describe('ExpServer Extension Test', function() {
 
     it("GetActiveUsers Router should work", function(done) {
         var data = {
-            url: 'http://localhost:12125/extension/activeUsers'
+            url: 'http://localhost:12224/extension/activeUsers'
         }
         request.get(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(-1);

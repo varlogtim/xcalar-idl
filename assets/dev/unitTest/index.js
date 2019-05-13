@@ -30,44 +30,17 @@ async function runTest(testType, hostname) {
         } else if (testType === "expServer") {
             let exitCode = 0;
             try {
-                let mochaTest = "NODE_ENV=test node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/mocha ../../../xcalar-gui/services/test/expServerSpec/*.js --dir ../../../services/test/report";
-                // let testFile = commandLineArgs[4] || "*";
-                // exec(`export EXPSERVER_TEST=${testFile}`);
-                // let mochaTest = "npm test --prefix ../../../services/expServer";
-                exec(mochaTest);
+                let mochaTest = "npm test --prefix ../../../xcalar-gui/services/expServer";
+                const output = exec(mochaTest, {encoding: 'utf8'});
+                console.log(output)
                 console.log("Expserver test passed.");
             } catch (error) {
+                console.log(error.stderr, error.stdout);
                 console.log("Expserver test failed.");
                 exitCode = error.status;
             }
             process.exit(exitCode);
         } else if (testType === "unitTest") {
-            // Piggy back the dag component unit test
-            // XXX TODO: remove once the expServer test works
-            try {
-                const planServer = process.env.NODE_PLANSERVER;
-                const planServerEnv = planServer == null ? '' : `NODE_PLANSERVER="${planServer}"`;
-                const mochaTest = `NODE_ENV=test ${planServerEnv} node_modules/mocha/bin/mocha ../../../xcalar-gui/services/expServer/test/dagComponent/dagComponentSpec.js`;
-                const output = exec(mochaTest, { encoding: 'utf8' });
-                console.log(output);
-                console.log("Dag Component test passed.");
-            } catch (error) {
-                console.log(error.stderr, error.stdout);
-                console.log("Dag Component test failed.");
-                process.exit(error.status); // In case of error, skip the rest of the test
-            }
-
-            try {
-                const mochaTest = `NODE_ENV=test node_modules/mocha/bin/mocha ../../../xcalar-gui/services/expServer/test/wkbkServiceSpec.js`;
-                const output = exec(mochaTest, { encoding: 'utf8' });
-                console.log(output);
-                console.log("SDK Workbook Service test passed.");
-            } catch (error) {
-                console.log(error.stderr, error.stdout);
-                console.log("SDK Workbook Service test failed.");
-                process.exit(error.status); // In case of error, skip the rest of the test
-            }
-
             browser = await puppeteer.launch({
                 headless: true,
                 ignoreHTTPSErrors: true,

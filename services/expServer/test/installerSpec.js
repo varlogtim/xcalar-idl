@@ -3,10 +3,10 @@ describe('ExpServer Installer Test', function() {
     var expect = require('chai').expect;
     var path = require("path");
     var request = require('request');
-    var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var installer = require(__dirname + '/../../expServer/route/installer.js');
-    var installerManager = require(__dirname + '/../../expServer/controllers/installerManager.js');
-    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
+    var expServer = require(__dirname + '/../expServer.js');
+    var installer = require(__dirname + '/../route/installer.js');
+    var installerManager = require(__dirname + '/../controllers/installerManager.js');
+    var support = require(__dirname + '/../utils/expServerSupport.js');
     var licenseLocation;
     var hostnameLocation;
     var privHostnameLocation;
@@ -30,14 +30,14 @@ describe('ExpServer Installer Test', function() {
     this.timeout(10000);
     // Test begins
     before(function() {
-        hostnameLocation = path.join(__dirname, "../config/hosts.txt");
-        licenseLocation = path.join(__dirname, "../config/license.txt");
-        failLicenseLocation = path.join(__dirname, "../config/failLicense.txt");
-        hostnameLocation = path.join(__dirname, "../config/hosts.txt");
-        privHostnameLocation = path.join(__dirname, "../config/privHosts.txt");
-        ldapLocation = path.join(__dirname, "../config/ldapConfig.json");
-        credentialLocation = path.join(__dirname, "../config/key.txt");
-        discoveryResultLocation=path.join(__dirname, "../config/result.json");
+        hostnameLocation = path.join(__dirname, "/config/hosts.txt");
+        licenseLocation = path.join(__dirname, "/config/license.txt");
+        failLicenseLocation = path.join(__dirname, "/config/failLicense.txt");
+        hostnameLocation = path.join(__dirname, "/config/hosts.txt");
+        privHostnameLocation = path.join(__dirname, "/config/privHosts.txt");
+        ldapLocation = path.join(__dirname, "/config/ldapConfig.json");
+        credentialLocation = path.join(__dirname, "/config/key.txt");
+        discoveryResultLocation=path.join(__dirname, "/config/result.json");
 
         credentialsOption1 = {
             "password": "test"
@@ -288,7 +288,7 @@ describe('ExpServer Installer Test', function() {
         var oldFunc = installerManager.checkLicense;
         installerManager.fakeCheckLicense(succPromise);
         var data = {
-            url: 'http://localhost:12125/xdp/license/verification',
+            url: 'http://localhost:12224/xdp/license/verification',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -303,7 +303,7 @@ describe('ExpServer Installer Test', function() {
         var oldFunc = installerManager.createStatusArray;
         installerManager.fakeCreateStatusArray(succPromise);
         var data = {
-            url: 'http://localhost:12125/xdp/installation/status',
+            url: 'http://localhost:12224/xdp/installation/status',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -317,7 +317,7 @@ describe('ExpServer Installer Test', function() {
         var oldFunc = installerManager.createStatusArray;
         installerManager.fakeCreateStatusArray(succPromise);
         var data = {
-            url: 'http://localhost:12125/xdp/upgrade/status',
+            url: 'http://localhost:12224/xdp/upgrade/status',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -331,7 +331,7 @@ describe('ExpServer Installer Test', function() {
         var oldFunc = installerManager.createStatusArray;
         installerManager.fakeCreateStatusArray(succPromise);
         var data = {
-            url: 'http://localhost:12125/xdp/uninstallation/status',
+            url: 'http://localhost:12224/xdp/uninstallation/status',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -345,7 +345,7 @@ describe('ExpServer Installer Test', function() {
         var oldFunc = installerManager.discoverUtil;
         installerManager.fakeDiscoverUtil(emptyPromise);
         var data = {
-            url: 'http://localhost:12125/xdp/discover',
+            url: 'http://localhost:12224/xdp/discover',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -359,7 +359,7 @@ describe('ExpServer Installer Test', function() {
         var oldFunc = installerManager.installUpgradeUtil;
         installerManager.fakeInstallUpgradeUtil(emptyPromise);
         var data = {
-            url: 'http://localhost:12125/xdp/installation/start',
+            url: 'http://localhost:12224/xdp/installation/start',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -373,7 +373,7 @@ describe('ExpServer Installer Test', function() {
         var oldFunc = installerManager.installUpgradeUtil;
         installerManager.fakeInstallUpgradeUtil(emptyPromise);
         var data = {
-            url: 'http://localhost:12125/xdp/upgrade/start',
+            url: 'http://localhost:12224/xdp/upgrade/start',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -387,7 +387,7 @@ describe('ExpServer Installer Test', function() {
         var oldFunc = installerManager.installUpgradeUtil;
         installerManager.fakeInstallUpgradeUtil(emptyPromise);
         var data = {
-            url: 'http://localhost:12125/xdp/uninstallation/start',
+            url: 'http://localhost:12224/xdp/uninstallation/start',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -399,7 +399,7 @@ describe('ExpServer Installer Test', function() {
 
     it("Canceling router should work", function(done) {
         var data = {
-            url: 'http://localhost:12125/xdp/installation/cancel',
+            url: 'http://localhost:12224/xdp/installation/cancel',
             json: testData
         }
         request.post(data, function (err, res, body){
@@ -410,7 +410,7 @@ describe('ExpServer Installer Test', function() {
 
     it("Fetching log router should work", function(done) {
         var data = {
-            url: 'http://localhost:12125/installationLogs/slave',
+            url: 'http://localhost:12224/installationLogs/slave',
         }
         request.get(data, function (err, res, body){
             console.log("res is: " + JSON.stringify(res));

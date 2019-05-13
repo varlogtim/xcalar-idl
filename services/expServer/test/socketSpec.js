@@ -1,12 +1,12 @@
 describe("ExpServer Socket Test", function() {
-    var io = require(__dirname + '/../../expServer/node_modules/socket.io-client');
+    var io = require(__dirname + '/../node_modules/socket.io-client');
     var options = {
         transports: ['websocket'],
         'force new connection': true
     }
     var expect = require('chai').expect;
-    var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var expServerSocket = require(__dirname + '/../../expServer/controllers/socket.js');
+    require(__dirname + '/../expServer.js');
+    require(__dirname + '/../controllers/socket.js');
     this.timeout(10000);
     var client;
     var peerClient;
@@ -30,10 +30,9 @@ describe("ExpServer Socket Test", function() {
         testWkbk = "testWkbk";
         testIMD = "testIMD";
         testRefreshDagCategory = 'testRefreshDagCategory';
-        var flag1, flag2;
-        client = io('http://localhost:12125', options);
+        client = io('http://localhost:12224', options);
         client.on("connect", function() {
-            peerClient = io('http://localhost:12125', options);
+            peerClient = io('http://localhost:12224', options);
             peerClient.on("connect", function() {
                 done();
             });

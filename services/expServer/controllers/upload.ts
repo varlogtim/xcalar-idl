@@ -9,14 +9,14 @@ interface S3Param {
     Body?: any
 }
 
-export function getRandomInt(min: number, max: number): number {
+function getRandomInt(min: number, max: number): number {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
 // Promise wrappers for exec and fs.writeFile
-export function execPromise(command: string, options?: any): Promise<void> {
+function execPromise(command: string, options?: any): Promise<void> {
     let deferred: any = jQuery.Deferred();
 
     exec(command, options, function(err) {
@@ -30,7 +30,7 @@ export function execPromise(command: string, options?: any): Promise<void> {
     return deferred.promise();
 }
 
-export function writeFilePromise(filePath: fs.PathLike | number, data: any): Promise<void> {
+function writeFilePromise(filePath: fs.PathLike | number, data: any): Promise<void> {
     let deferred: any = jQuery.Deferred();
     fs.writeFile(filePath, data, function(err) {
         if (err) {
@@ -102,7 +102,7 @@ export function uploadContent(req: any, res): Promise<any> {
     return deferred.promise();
 }
 
-export function gzipAndUpload(name: string, version: string, tmpPrefix: string,
+function gzipAndUpload(name: string, version: string, tmpPrefix: string,
     s3Tmp: any): Promise<number> {
     let tmpTarGz: string = tmpPrefix+"tmp.tar.gz";
     let deferred: any = jQuery.Deferred();
@@ -137,7 +137,7 @@ function deleteFolderRecursive(path: fs.PathLike): void {
     }
 }
 
-export function create(dir: fs.PathLike): Promise<void> {
+function create(dir: fs.PathLike): Promise<void> {
     let deferred: any = jQuery.Deferred();
     fs.access(dir, function(err) {
         if (err) {
@@ -220,7 +220,7 @@ export function uploadMeta(req: any, res: any, s3Tmp: any): Promise<any> {
     }
 }
 
-export function upload(file: string, content: any, s3Tmp: any): Promise<any> {
+function upload(file: string, content: any, s3Tmp: any): Promise<any> {
     let deferred: any = jQuery.Deferred();
     let params: S3Param = {
         Bucket: 'marketplace.xcalar.com',
@@ -237,18 +237,30 @@ export function upload(file: string, content: any, s3Tmp: any): Promise<any> {
 }
 
 // Below part is only for unit test
-export function fakeUpload() {
+function fakeUpload() {
     upload = function(file: string, content: any, s3Tmp: any): Promise<void> {
         return jQuery.Deferred().resolve().promise();
     }
 }
-export function fakeUploadMeta() {
+function fakeUploadMeta() {
     uploadMeta = function(): Promise<string> {
         return jQuery.Deferred().resolve("upload success").promise();
     }
 }
-export function fakeUploadContent() {
+function fakeUploadContent() {
     uploadContent = function(req: any, res: any): Promise<string> {
         return jQuery.Deferred().resolve("success").promise();
     };
+}
+if (process.env.NODE_ENV === "test") {
+    exports.getRandomInt = getRandomInt;
+    exports.execPromise = execPromise;
+    exports.writeFilePromise = writeFilePromise;
+    exports.upload = upload;
+    exports.create = create;
+    exports.gzipAndUpload = gzipAndUpload;
+    // Fake functions
+    exports.fakeUpload = fakeUpload;
+    exports.fakeUploadMeta = fakeUploadMeta;
+    exports.fakeUploadContent = fakeUploadContent;
 }

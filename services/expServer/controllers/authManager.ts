@@ -17,7 +17,7 @@ jsdom.env("", function(err, window) {
 let b2cEnabled: boolean = false;
 const msAzureCE2Url: string = 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration';
 const msAzureB2CUrl: string = 'https://login.microsoftonline.com/fabrikamb2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=b2c_1_sign_in';
-export const msKeyCache: NodeCache = new NodeCache( { stdTTL:86400, checkperiod: 21600 } );
+const msKeyCache: NodeCache = new NodeCache( { stdTTL:86400, checkperiod: 21600 } );
 
 interface ReturnMsg {
     status: boolean,
@@ -31,7 +31,7 @@ export function enableB2C(enabled: boolean): void {
     b2cEnabled = enabled;
 }
 
-export function getUrl(url: string): Promise<ReturnMsg> {
+function getUrl(url: string): Promise<ReturnMsg> {
     let deferred: any = jQuery.Deferred();
     let retMsg: ReturnMsg = { status: false, url: url, data: null, error: null };
 
@@ -49,20 +49,20 @@ export function getUrl(url: string): Promise<ReturnMsg> {
     return deferred.promise();
 }
 
-export function getError(data: ReturnMsg): Promise<ReturnMsg> {
+function getError(data: ReturnMsg): Promise<ReturnMsg> {
     let deferred: any = jQuery.Deferred();
     xcConsole.error("Key URL not found or returned unexpected data: " + data.url);
     deferred.reject(data)
     return deferred.promise();
 }
 
-export function passData(data: ReturnMsg): Promise<ReturnMsg> {
+function passData(data: ReturnMsg): Promise<ReturnMsg> {
     let deferred: any = jQuery.Deferred();
     deferred.resolve(data)
     return deferred.promise();
 }
 
-export function getKeys(outKid: string): Promise<ReturnMsg> {
+function getKeys(outKid: string): Promise<ReturnMsg> {
     let deferred: any = jQuery.Deferred();
     let retMsg: ReturnMsg = { status: false, data: null, message: 'Failure' };
     let msAzureUrl: string = (b2cEnabled) ? msAzureB2CUrl : msAzureCE2Url;
@@ -118,7 +118,7 @@ export function getKeys(outKid: string): Promise<ReturnMsg> {
     return deferred.promise();
 }
 
-export function retrieveKey(kid: string): Promise<ReturnMsg> {
+function retrieveKey(kid: string): Promise<ReturnMsg> {
     let deferred: any = jQuery.Deferred();
     let retMsg: ReturnMsg = { status: true, data: null, message: 'Success' };
 
@@ -176,14 +176,23 @@ export function processToken(idToken: string): Promise<ReturnMsg> {
 }
 
 // Below part is only for Unit Test
-export function fakeProcessToken(func) {
+function fakeProcessToken(func) {
     processToken = func;
 }
 
-export function fakeGetUrl(func) {
+function fakeGetUrl(func) {
     getUrl = func;
 }
 
-export function fakeRetrieveKey(func) {
+function fakeRetrieveKey(func) {
     retrieveKey = func;
+}
+
+if (process.env.NODE_ENV === "test") {
+    exports.getUrl = getUrl;
+    exports.msKeyCache = msKeyCache;
+    // fake functions
+    exports.fakeProcessToken = fakeProcessToken;
+    exports.fakeGetUrl = fakeGetUrl;
+    exports.fakeRetrieveKey = fakeRetrieveKey;
 }

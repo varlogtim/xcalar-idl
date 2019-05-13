@@ -53,7 +53,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         parseInt(process.env.XCE_EXP_PORT) : 12124;
     if (process.env.NODE_ENV === "test") {
         // For expServer test
-        serverPort = 12125;
+        serverPort = 12224;
     }
     var thriftPort = process.env.XCE_THRIFT_PORT ?
         parseInt(process.env.XCE_THRIFT_PORT) : 9090;

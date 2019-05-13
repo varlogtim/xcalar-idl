@@ -126,6 +126,14 @@ function getListOfPublishedTablesFromQuery(sqlStatement: string,
 }
 
 // Below is for unit test
-export function fakeSqlSelect(func: any): any {
+function fakeSqlSelect(func: any): any {
     sqlSelect = func;
+}
+function fakeCleanAllTables(func: any): any {
+    cleanAllTables = func;
+}
+
+if (process.env.NODE_ENV === "test") {
+    exports.fakeSqlSelect = fakeSqlSelect;
+    exports.fakeCleanAllTables = fakeCleanAllTables;
 }

@@ -168,7 +168,7 @@ export function monitorLog(lastMonitor: number, filePath: string,
 }
 
 // Send delta Xcalar.log logs
-export function sinceLastMonitorLog(lastMonitor: number, filePath: string,
+function sinceLastMonitorLog(lastMonitor: number, filePath: string,
     fileName: string): Promise<any> {
     let deferredOut: any = jQuery.Deferred();
     getPath(filePath, fileName)
@@ -251,7 +251,7 @@ export function sinceLastMonitorLog(lastMonitor: number, filePath: string,
 
 
 // *************************** Common Functions ***************************** //
-export function isLogNumValid(num: any): boolean {
+function isLogNumValid(num: any): boolean {
     if (isNaN(num)) {
         return false;
     } else {
@@ -262,7 +262,7 @@ export function isLogNumValid(num: any): boolean {
     }
 }
 
-export function getFileName(fileName: string): Promise<string> {
+function getFileName(fileName: string): Promise<string> {
     let deferred: any = jQuery.Deferred();
     if (fileName === "node.*.out" || fileName === "node.*.err"
         || fileName === "node.*.log") {
@@ -291,7 +291,7 @@ export function getFileName(fileName: string): Promise<string> {
     return deferred.promise();
 }
 
-export function getPath(filePath: string, fileName: string): Promise<any> {
+function getPath(filePath: string, fileName: string): Promise<any> {
     let deferredOut: any = jQuery.Deferred();
     getFileName(fileName)
     .then(function(realName): Promise<any> {
@@ -308,7 +308,7 @@ export function getPath(filePath: string, fileName: string): Promise<any> {
     return deferredOut.promise();
 }
 
-export function getNodeId(): Promise<any> {
+function getNodeId(): Promise<any> {
     let deferredOut: any = jQuery.Deferred();
     let defaultXcalarctl: string = process.env.XLRDIR ?
     process.env.XLRDIR + "/bin/xcalarctl" : "/opt/xcalar/bin/xcalarctl";
@@ -345,7 +345,7 @@ export function getNodeId(): Promise<any> {
     return deferredOut.promise();
 }
 
-export function readFileStat(currFile: fs.PathLike): Promise<{logPath: fs.PathLike, stat: fs.Stats}> {
+function readFileStat(currFile: fs.PathLike): Promise<{logPath: fs.PathLike, stat: fs.Stats}> {
     let deferred: any = jQuery.Deferred();
     fs.stat(currFile, function(err: any, stat: fs.Stats): void {
         let retMsg: ReturnMsg;
@@ -371,7 +371,7 @@ export function readFileStat(currFile: fs.PathLike): Promise<{logPath: fs.PathLi
     return deferred.promise();
 }
 
-export function getCurrentTime(): string {
+function getCurrentTime(): string {
     function addLeading0(val: number): string | number {
         if (val < 10) {
             return "0" + val;
@@ -392,25 +392,40 @@ export function getCurrentTime(): string {
 }
 
 // Below part is only for unit test
-export function fakeGetNodeId(): void {
+function fakeGetNodeId(): void {
     getNodeId = function(): Promise<number> {
         return jQuery.Deferred().resolve(0).promise();
     }
 }
-export function fakeGetPath(): void {
+function fakeGetPath(): void {
     getPath = function(filePath, fileName): Promise<any> {
         const logPath: string = "Invalid Path";
         const stat: any = {stat:"success"};
         return jQuery.Deferred().resolve({logPath, stat}).promise();
     }
 }
-export function fakeTailLog(): void {
+function fakeTailLog(): void {
     tailLog = function(): Promise<string> {
         return jQuery.Deferred().resolve("success").promise();
     }
 }
-export function fakeSinceLastMonitorLog(): void {
+function fakeSinceLastMonitorLog(): void {
     sinceLastMonitorLog = function(): Promise<string> {
         return jQuery.Deferred().resolve("success").promise();
     }
+}
+
+if (process.env.NODE_ENV === "test") {
+    exports.isLogNumValid = isLogNumValid;
+    exports.getPath = getPath;
+    exports.readFileStat = readFileStat;
+    exports.getCurrentTime = getCurrentTime;
+    exports.sinceLastMonitorLog = sinceLastMonitorLog;
+    exports.getNodeId = getNodeId;
+    exports.getFileName = getFileName;
+    // Fake functions
+    exports.fakeGetNodeId = fakeGetNodeId;
+    exports.fakeGetPath = fakeGetPath;
+    exports.fakeTailLog = fakeTailLog;
+    exports.fakeSinceLastMonitorLog = fakeSinceLastMonitorLog;
 }

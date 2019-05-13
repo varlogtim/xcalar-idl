@@ -96,7 +96,7 @@ interface InstallerInput {
     credArray: CredArray
 }
 
-export function initStepArray(): void {
+function initStepArray(): void {
     curStep = {
         "stepString": "Step [0] Starting...",
         "nodesCompletedCurrent": [],
@@ -104,11 +104,11 @@ export function initStepArray(): void {
     };
 }
 
-export function clearErrorLog(): void {
+function clearErrorLog(): void {
     errorLog = "";
 }
 
-export function genExecString(input: InstallerInput): string {
+function genExecString(input: InstallerInput): string {
     let hasPrivHosts: boolean = input.hasPrivHosts;
     let credentialsOption: Credentials = input.credArray.credentials;
     let username: string = input.credArray.username;
@@ -201,7 +201,7 @@ export function genExecString(input: InstallerInput): string {
     return execString;
 }
 
-export function genDiscoverExecString(hostnameLocation: string,
+function genDiscoverExecString(hostnameLocation: string,
                                credentialLocation: string,
                                isPassword: boolean,
                                username: string,
@@ -221,7 +221,7 @@ export function genDiscoverExecString(hostnameLocation: string,
     return execString;
 }
 
-export function encryptPassword(password: string): string {
+function encryptPassword(password: string): string {
     let shasum: crypto.Hash = crypto.createHash('sha1');
 
     let salt: Buffer = crypto.randomBytes(4);
@@ -278,7 +278,7 @@ export function createStatusArray(credArray: CredArray): Promise<ReturnMsg> {
     return deferred.promise();
 }
 
-export function stdOutCallback(dataBlock: string): void {
+function stdOutCallback(dataBlock: string): void {
     let lines: string[] = dataBlock.split("\n");
     for (let i = 0; i<lines.length; i++) {
         let data: string = lines[i];
@@ -301,7 +301,7 @@ export function stdOutCallback(dataBlock: string): void {
     }
 }
 
-export function stdErrCallback(dataBlock: string): void {
+function stdErrCallback(dataBlock: string): void {
     errorLog += dataBlock + "\n";
 }
 
@@ -381,7 +381,7 @@ export function checkLicense(credArray: any, script?: string): Promise<ReturnMsg
     return deferredOut.promise();
 }
 
-export function copyFiles(script: string): Promise<ReturnMsg> {
+function copyFiles(script: string): Promise<ReturnMsg> {
     let deferredOut: any = jQuery.Deferred();
     let execString = scriptDir + "/deploy-shared-config.sh ";
     execString += cliArguments;
@@ -417,7 +417,7 @@ export function copyFiles(script: string): Promise<ReturnMsg> {
     return deferredOut.promise();
 }
 
-export function installUpgradeUtil(credArray: CredArray, execCommand: string,
+function installUpgradeUtil(credArray: CredArray, execCommand: string,
     script?: string): Promise<any> {
     // Write files to /config and chmod
     let deferredOut: any = jQuery.Deferred();
@@ -550,7 +550,7 @@ export function installUpgradeUtil(credArray: CredArray, execCommand: string,
     return deferredOut.promise();
 }
 
-export function discoverUtil(credArray: any, execCommand: string,
+function discoverUtil(credArray: any, execCommand: string,
     script?: string): Promise<any> {
     // Write files to /config and chmod
     let deferredOut: any = jQuery.Deferred();
@@ -674,10 +674,10 @@ export function discoverXcalar(credArray: CredArray): Promise<any> {
 }
 
 // Below part is only for Unit Test
-export function getCurStepStatus() {
+function getCurStepStatus() {
     return curStep.curStepStatus;
 }
-export function setTestVariables(opts) {
+function setTestVariables(opts) {
     if (opts.hostnameLocation) {
         hostnameLocation = opts.hostnameLocation;
     }
@@ -697,15 +697,30 @@ export function setTestVariables(opts) {
         credentialLocation = opts.credentialLocation;
     }
 }
-export function fakeCheckLicense(func) {
+function fakeCheckLicense(func) {
     checkLicense = func;
 }
-export function fakeInstallUpgradeUtil(func) {
+function fakeInstallUpgradeUtil(func) {
     installUpgradeUtil = func;
 }
-export function fakeDiscoverUtil(func) {
+function fakeDiscoverUtil(func) {
     discoverUtil = func;
 }
-export function fakeCreateStatusArray(func) {
+function fakeCreateStatusArray(func) {
     createStatusArray = func;
+}
+if (process.env.NODE_ENV === "test") {
+    exports.genExecString = genExecString;
+    exports.encryptPassword = encryptPassword;
+    exports.genDiscoverExecString = genDiscoverExecString;
+    exports.copyFiles = copyFiles;
+    exports.installUpgradeUtil = installUpgradeUtil;
+    exports.discoverUtil = discoverUtil;
+    exports.getCurStepStatus = getCurStepStatus;
+    exports.setTestVariables = setTestVariables;
+    // Fake functions
+    exports.fakeCheckLicense = fakeCheckLicense;
+    exports.fakeInstallUpgradeUtil = fakeInstallUpgradeUtil;
+    exports.fakeDiscoverUtil = fakeDiscoverUtil;
+    exports.fakeCreateStatusArray = fakeCreateStatusArray;
 }

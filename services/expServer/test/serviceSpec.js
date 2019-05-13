@@ -57,7 +57,7 @@ describe('ExpServer Service Test', function() {
 
     it('Start router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/start'
+            url: 'http://localhost:12224/service/start'
         }
         request.post(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -67,7 +67,7 @@ describe('ExpServer Service Test', function() {
 
     it('Stop router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/stop'
+            url: 'http://localhost:12224/service/stop'
         }
         request.post(data, function (err, res, body){
             expect(JSON.parse(JSON.parse(res.body).status)).to.equal(200);
@@ -77,7 +77,7 @@ describe('ExpServer Service Test', function() {
 
     it('Restart router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/restart'
+            url: 'http://localhost:12224/service/restart'
         }
         request.post(data, function (err, res, body){
             expect(JSON.parse(JSON.parse(res.body).status)).to.equal(200);
@@ -87,7 +87,7 @@ describe('ExpServer Service Test', function() {
 
     it('Status router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/status'
+            url: 'http://localhost:12224/service/status'
         }
         request.get(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -97,7 +97,7 @@ describe('ExpServer Service Test', function() {
 
     it('Start Slave router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/start/slave'
+            url: 'http://localhost:12224/service/start/slave'
         }
         request.post(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -107,7 +107,7 @@ describe('ExpServer Service Test', function() {
 
     it('Stop Slave router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/stop/slave'
+            url: 'http://localhost:12224/service/stop/slave'
         }
         request.post(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -117,7 +117,7 @@ describe('ExpServer Service Test', function() {
 
     it('Get Slave Status router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/status/slave'
+            url: 'http://localhost:12224/service/status/slave'
         }
         request.get(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -127,7 +127,7 @@ describe('ExpServer Service Test', function() {
 
     it('Remove Session Files router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/sessionFiles'
+            url: 'http://localhost:12224/service/sessionFiles'
         }
         request.delete(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -137,7 +137,7 @@ describe('ExpServer Service Test', function() {
 
     it('Remove SHM Files router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/SHMFiles'
+            url: 'http://localhost:12224/service/SHMFiles'
         }
         request.delete(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -147,7 +147,7 @@ describe('ExpServer Service Test', function() {
 
     it('Get License router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/license'
+            url: 'http://localhost:12224/service/license'
         }
         request.get(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -157,7 +157,7 @@ describe('ExpServer Service Test', function() {
 
     it('File ticket router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/ticket'
+            url: 'http://localhost:12224/service/ticket'
         }
         request.post(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -167,7 +167,7 @@ describe('ExpServer Service Test', function() {
 
     it('Get Logs router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/logs'
+            url: 'http://localhost:12224/service/logs'
         }
         request.get(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -177,7 +177,7 @@ describe('ExpServer Service Test', function() {
 
     it('Get Slave Logs router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/logs/slave'
+            url: 'http://localhost:12224/service/logs/slave'
         }
         request.get(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -187,7 +187,7 @@ describe('ExpServer Service Test', function() {
 
     it('Get Matched Host router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/matchedHosts'
+            url: 'http://localhost:12224/service/matchedHosts'
         }
         request.get(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -197,7 +197,7 @@ describe('ExpServer Service Test', function() {
 
     it('Generate Support Bundle router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/bundle'
+            url: 'http://localhost:12224/service/bundle'
         }
         request.post(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -207,7 +207,7 @@ describe('ExpServer Service Test', function() {
 
     it('Generate Slave Support Bundle router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/bundle/slave'
+            url: 'http://localhost:12224/service/bundle/slave'
         }
         request.post(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -217,7 +217,7 @@ describe('ExpServer Service Test', function() {
 
     it('Get Ticket router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/gettickets'
+            url: 'http://localhost:12224/service/gettickets'
         }
         request.post(data, function (err, res, body){
             expect(JSON.parse(res.body).status).to.equal(200);
@@ -227,7 +227,7 @@ describe('ExpServer Service Test', function() {
 
     it('Find Hot Patch router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/hotPatch'
+            url: 'http://localhost:12224/service/hotPatch'
         }
         request.get(data, function (err, res, body){
             console.log("res is:" + JSON.stringify(res));
@@ -238,7 +238,7 @@ describe('ExpServer Service Test', function() {
 
     it('Set Hot Patch router should work', function(done) {
         var data = {
-            url: 'http://localhost:12125/service/hotPatch'
+            url: 'http://localhost:12224/service/hotPatch'
         }
         request.post(data, function (err, res, body){
             console.log("res is:" + JSON.stringify(res));

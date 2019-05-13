@@ -2,10 +2,10 @@ describe('ExpServer Auth Test', function() {
     var expect = require('chai').expect;
     var path = require("path");
     // var request = require('request');
-    var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var authManager = require(__dirname + '/../../expServer/controllers/authManager.js');
-    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
-    var cfgFile = __dirname + '/../config/test.cfg';
+    var expServer = require(__dirname + '/../expServer.js');
+    var authManager = require(__dirname + '/../controllers/authManager.js');
+    var support = require(__dirname + '/../utils/expServerSupport.js');
+    var cfgFile = __dirname + '/config/test.cfg';
     var jwt = require('jsonwebtoken');
     var fs = require('fs');
     var rsaPemToJwk = require('rsa-pem-to-jwk');
@@ -25,7 +25,7 @@ describe('ExpServer Auth Test', function() {
             "type": "POST",
             "data": JSON.stringify(str),
             "contentType": "application/json",
-            "url": "http://localhost:12125" + url,
+            "url": "http://localhost:12224" + url,
             "async": true,
             success: function(data) {
                 deferred.resolve(data);
@@ -70,9 +70,9 @@ describe('ExpServer Auth Test', function() {
     */
 
     before(function() {
-        keyFile1 = path.join(__dirname, '../config/privateKey1.pem');
-        keyFile2 = path.join(__dirname, '../config/privateKey2.pem');
-        keyFile3 = path.join(__dirname, '../config/privateKey3.pem');
+        keyFile1 = path.join(__dirname, '/config/privateKey1.pem');
+        keyFile2 = path.join(__dirname, '/config/privateKey2.pem');
+        keyFile3 = path.join(__dirname, '/config/privateKey3.pem');
 
         kids = [
             "i2VgXP9RZ0",

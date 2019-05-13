@@ -1,10 +1,11 @@
 describe('ExpServer Support Test', function() {
     // Test setup
     var expect = require('chai').expect;
-    var expServer = require(__dirname + '/../../expServer/expServer.js');
+    require(__dirname + '/../expServer.js');
 
-    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
-    var cfgDir = __dirname + '/../config';
+    var support = require(__dirname + '/../utils/expServerSupport.js');
+    var path = require("path");
+    var cfgDir = __dirname + '/config';
     var testHostsFile;
     var testHosts;
     var testAction;
@@ -19,8 +20,8 @@ describe('ExpServer Support Test', function() {
 
     // Test begins
     before(function() {
-        testDir = __dirname + "/..";
-        testHostsFile = __dirname + "/../config/hosts.cfg";
+        testDir = __dirname;
+        testHostsFile = __dirname + "/config/hosts.cfg";
         testHosts = ["testHost"];
         testAction = "GET";
         testSlaveUrl = "/service/logs/slave";
@@ -40,19 +41,19 @@ describe('ExpServer Support Test', function() {
         }
         testLogOpts = {
             requireLineNum: 1,
-            filePath: __dirname + "/../config",
+            filePath: __dirname + "/config",
             fileName: "logs"
         }
-        testPath = __dirname + "/../config/logs";
-        testCfg = __dirname + "/../config/hosts.cfg";
-        testLicense = __dirname + "/../config/license.txt";
+        testPath = __dirname + "/config/logs";
+        testCfg = __dirname + "/config/hosts.cfg";
+        testLicense = __dirname + "/config/license.txt";
 
         defaultXcalarDir = process.env.XLRDIR || "/opt/xcalar";
         testStartCommand = defaultXcalarDir + "/bin/xcalarctl start";
         testStopCommand = defaultXcalarDir + "/bin/xcalarctl stop";
         testStartData = "xcmgmtd started";
         testStopData = "Stopped Xcalar";
-        support.setDefaultHostsFile(__dirname + "/../config/test.cfg");
+        support.setDefaultHostsFile(__dirname + "/config/test.cfg");
         support.checkAuthTrue(support.userTrue);
         support.checkAuthAdminTrue(support.adminTrue);
     });
@@ -92,7 +93,8 @@ describe('ExpServer Support Test', function() {
     it("readHostsFromFile should work", function(done) {
         support.readHostsFromFile(testHostsFile)
         .then(function(ret) {
-            expect(ret).to.be.an("Array");
+            expect(ret.hosts).to.be.an("Array");
+            expect(ret.nodeIds).to.be.an("Array");
             done();
         })
         .fail(function() {
@@ -177,7 +179,8 @@ describe('ExpServer Support Test', function() {
         var oldRead = support.readHostsFromFile;
         var oldSend = support.sendCommandToSlaves;
         var fakeRead = function() {
-            return jQuery.Deferred().resolve(["bellman.int.xcalar.com"], [0]).promise();
+            return jQuery.Deferred().resolve(
+                {hosts: ["bellman.int.xcalar.com"], nodeIds: [0]}).promise();
         };
         var fakeSend = function() {
             return jQuery.Deferred().resolve().promise();
@@ -231,7 +234,8 @@ describe('ExpServer Support Test', function() {
         };
         support.fakeGetXlrRoot(fakeFunc);
         // It should catch 'undefined' and handle it correctly
-        support.removeSessionFiles(undefined)
+        // support.removeSessionFiles(undefined)
+        support.removeSessionFiles('nonFile')
         .then(function(ret) {
             expect(ret.status).to.equal(200);
             done();

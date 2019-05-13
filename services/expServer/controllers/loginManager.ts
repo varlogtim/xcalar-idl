@@ -45,7 +45,7 @@ const defaultAdminSchema: any = {
         }
     },
 
-    "required": [ "username", "password", "email", "defaultAdminEnabled" ]
+    "required": ["username", "password", "email", "defaultAdminEnabled"]
 };
 const defaultAdminConfigRelPath: string = "/config/defaultAdmin.json";
 let emptyDefaultAdminConfig: any = {
@@ -111,7 +111,7 @@ const ldapConfigSchema: any = {
         }
     },
 
-    "required": [ "ldap_uri", "userDN", "useTLS", "searchFilter", "activeDir", "serverKeyFile", "ldapConfigEnabled" ]
+    "required": ["ldap_uri", "userDN", "useTLS", "searchFilter", "activeDir", "ldapConfigEnabled"]
 };
 let emptyLdapConfig: any = {
     ldap_uri: "",
@@ -119,7 +119,6 @@ let emptyLdapConfig: any = {
     useTLS: false,
     searchFilter: "",
     activeDir: false,
-    serverKeyFile: null,
     ldapConfigEnabled: false
 }
 const msalConfigSchema: any = {
@@ -142,7 +141,7 @@ const msalConfigSchema: any = {
         }
     },
 
-    "required": [ "msalEnabled", "msal" ],
+    "required": ["msalEnabled", "msal"],
 
     "definitions": {
         "msalConfigData": {
@@ -183,7 +182,7 @@ const msalConfigSchema: any = {
                     "uniqueItems": true
                 }
             },
-            "required": [ "clientId", "userScope", "adminScope", "b2cEnabled" ]
+            "required": ["clientId", "userScope", "adminScope", "b2cEnabled"]
         }
     }
 };
@@ -219,7 +218,7 @@ const vaultConfigSchema: any = {
         }
     },
 
-    "required": [ "vaultEnabled", "vault" ],
+    "required": ["vaultEnabled", "vault"],
 
     "definitions": {
         "vaultConfigData": {
@@ -237,7 +236,7 @@ const vaultConfigSchema: any = {
                     "type": "string"
                 }
             },
-            "required": [ "vault_uri", "vaultUserGroup", "vaultAdminGroup" ]
+            "required": ["vault_uri", "vaultUserGroup", "vaultAdminGroup"]
         }
     }
 };
@@ -393,32 +392,32 @@ export function getDefaultAdmin() {
     let xlrRoot: string = "";
 
     support.getXlrRoot()
-    .then(function(path) {
-        xlrRoot = path;
-        return loadConfigModule(xlrRoot, defaultAdminConfigRelPath);
-    })
-    .then(function(moduleMsg) {
-        defaultAdminConfig = jQuery.extend(true, {},
-                                           emptyDefaultAdminConfig,
-                                           moduleMsg.data);
+        .then(function(path) {
+            xlrRoot = path;
+            return loadConfigModule(xlrRoot, defaultAdminConfigRelPath);
+        })
+        .then(function(moduleMsg) {
+            defaultAdminConfig = jQuery.extend(true, {},
+                emptyDefaultAdminConfig,
+                moduleMsg.data);
 
-        return checkFilePerms(xlrRoot, defaultAdminConfigRelPath);
-    })
-    .then(function(permMsg) {
-        let valid: boolean = validate(defaultAdminConfig);
-        if (!valid) {
-            message.error = JSON.stringify(validate.errors);
+            return checkFilePerms(xlrRoot, defaultAdminConfigRelPath);
+        })
+        .then(function(permMsg) {
+            let valid: boolean = validate(defaultAdminConfig);
+            if (!valid) {
+                message.error = JSON.stringify(validate.errors);
+                deferred.reject(message);
+            } else {
+                message.data = defaultAdminConfig;
+                deferred.resolve(message);
+            }
+        })
+        .fail(function(errorMsg) {
+            message.error = (xlrRoot !== "") ?
+                errorMsg.message : errorMsg;
             deferred.reject(message);
-        } else {
-            message.data = defaultAdminConfig;
-            deferred.resolve(message);
-        }
-    })
-    .fail(function(errorMsg) {
-        message.error = (xlrRoot !== "") ?
-            errorMsg.message : errorMsg;
-        deferred.reject(message);
-    });
+        });
 
     return deferred.promise();
 }
@@ -438,8 +437,8 @@ export function setDefaultAdmin(defaultAdminConfigIn) {
     }
 
     defaultAdminConfig = jQuery.extend(true, {},
-                                       emptyDefaultAdminConfig,
-                                       defaultAdminConfigIn);
+        emptyDefaultAdminConfig,
+        defaultAdminConfigIn);
     defaultAdminConfig.password = crypto.createHmac("sha256", "xcalar-salt").update(defaultAdminConfig.password).digest("hex");
 
     let valid: boolean = validate(defaultAdminConfig);
@@ -448,19 +447,19 @@ export function setDefaultAdmin(defaultAdminConfigIn) {
         deferred.reject(message);
     } else {
         support.getXlrRoot()
-        .then(function(xlrRoot) {
-            defaultAdminConfigPath = path.join(xlrRoot, defaultAdminConfigRelPath);
+            .then(function(xlrRoot) {
+                defaultAdminConfigPath = path.join(xlrRoot, defaultAdminConfigRelPath);
 
-            return (support.writeToFile(defaultAdminConfigPath, defaultAdminConfig, {"mode": 0o600}));
-        })
-        .then(function() {
-            message.success = true;
-            deferred.resolve(message);
-        })
-        .fail(function(errorMsg) {
-            message.error = errorMsg;
-            deferred.reject(message);
-        });
+                return (support.writeToFile(defaultAdminConfigPath, defaultAdminConfig, { "mode": 0o600 }));
+            })
+            .then(function() {
+                message.success = true;
+                deferred.resolve(message);
+            })
+            .fail(function(errorMsg) {
+                message.error = errorMsg;
+                deferred.reject(message);
+            });
     }
 
     return deferred.promise()
@@ -474,32 +473,32 @@ export function getMsalConfig() {
     let xlrRoot: string = "";
 
     support.getXlrRoot()
-    .then(function(path) {
-        xlrRoot = path;
-        return loadConfigModule(xlrRoot, msalConfigRelPath);
-    })
-    .then(function(moduleMsg) {
-        msalConfig = jQuery.extend(true, {},
-                                   emptyMsalConfig,
-                                   moduleMsg.data);
+        .then(function(path) {
+            xlrRoot = path;
+            return loadConfigModule(xlrRoot, msalConfigRelPath);
+        })
+        .then(function(moduleMsg) {
+            msalConfig = jQuery.extend(true, {},
+                emptyMsalConfig,
+                moduleMsg.data);
 
-        let valid: boolean = validate(msalConfig);
-        if (!valid) {
-            message.error = JSON.stringify(validate.errors);
-            return deferred.reject(message);
-        }
+            let valid: boolean = validate(msalConfig);
+            if (!valid) {
+                message.error = JSON.stringify(validate.errors);
+                return deferred.reject(message);
+            }
 
-        message.data = msalConfig;
+            message.data = msalConfig;
 
-        enableB2C(msalConfig.msal.b2cEnabled);
+            enableB2C(msalConfig.msal.b2cEnabled);
 
-        deferred.resolve(message);
-    })
-    .fail(function(errorMsg) {
-        message.error = (xlrRoot !== "") ?
-            errorMsg.message : errorMsg;
-        deferred.reject(message);
-    });
+            deferred.resolve(message);
+        })
+        .fail(function(errorMsg) {
+            message.error = (xlrRoot !== "") ?
+                errorMsg.message : errorMsg;
+            deferred.reject(message);
+        });
 
     return deferred.promise();
 }
@@ -520,8 +519,8 @@ export function setMsalConfig(msalConfigIn) {
     }
 
     msalConfig = jQuery.extend(true, {},
-                               emptyMsalConfig,
-                               msalConfigIn);
+        emptyMsalConfig,
+        msalConfigIn);
 
     let valid: boolean = validate(msalConfig);
     if (!valid) {
@@ -529,21 +528,21 @@ export function setMsalConfig(msalConfigIn) {
         deferred.reject(message);
     } else {
         support.getXlrRoot()
-        .then(function(xlrRoot) {
-            msalConfigPath = path.join(xlrRoot, msalConfigRelPath);
+            .then(function(xlrRoot) {
+                msalConfigPath = path.join(xlrRoot, msalConfigRelPath);
 
-            enableB2C(msalConfig.msal.b2cEnabled);
+                enableB2C(msalConfig.msal.b2cEnabled);
 
-            return (support.writeToFile(msalConfigPath, msalConfig, {"mode": 0o600}));
-        })
-        .then(function() {
-            message.success = true;
-            deferred.resolve(message);
-        })
-        .fail(function(errorMsg) {
-            message.error = errorMsg;
-            deferred.reject(message);
-        });
+                return (support.writeToFile(msalConfigPath, msalConfig, { "mode": 0o600 }));
+            })
+            .then(function() {
+                message.success = true;
+                deferred.resolve(message);
+            })
+            .fail(function(errorMsg) {
+                message.error = errorMsg;
+                deferred.reject(message);
+            });
     }
 
     return deferred.promise();
@@ -557,27 +556,27 @@ export function getLdapConfig() {
     let xlrRoot: string = "";
 
     support.getXlrRoot()
-    .then(function(path) {
-        xlrRoot = path;
-        return loadConfigModule(xlrRoot, ldapConfigRelPath);
-    })
-    .then(function(moduleMsg) {
-        jQuery.extend(defaultLdapConfig, moduleMsg.data);
+        .then(function(path) {
+            xlrRoot = path;
+            return loadConfigModule(xlrRoot, ldapConfigRelPath);
+        })
+        .then(function(moduleMsg) {
+            jQuery.extend(defaultLdapConfig, moduleMsg.data);
 
-        let valid: boolean = validate(defaultLdapConfig);
-        if (!valid) {
-            message.error = JSON.stringify(validate.errors);
+            let valid: boolean = validate(defaultLdapConfig);
+            if (!valid) {
+                message.error = JSON.stringify(validate.errors);
+                deferred.reject(message);
+            } else {
+                message.data = defaultLdapConfig;
+                deferred.resolve(message);
+            }
+        })
+        .fail(function(errorMsg) {
+            message.error = (xlrRoot !== "") ?
+                errorMsg.message : errorMsg;
             deferred.reject(message);
-        } else {
-            message.data = defaultLdapConfig;
-            deferred.resolve(message);
-        }
-    })
-    .fail(function(errorMsg) {
-        message.error = (xlrRoot !== "") ?
-            errorMsg.message : errorMsg;
-        deferred.reject(message);
-    });
+        });
 
     return deferred.promise();
 }
@@ -597,8 +596,8 @@ export function setLdapConfig(ldapConfigIn) {
     }
 
     writeLdapConfig = jQuery.extend(true, {},
-                                    emptyLdapConfig,
-                                    ldapConfigIn);
+        emptyLdapConfig,
+        ldapConfigIn);
 
     let valid: boolean = validate(writeLdapConfig);
     if (!valid) {
@@ -608,27 +607,27 @@ export function setLdapConfig(ldapConfigIn) {
         ldapConfig = writeLdapConfig;
 
         support.getXlrRoot()
-        .then(function(xlrRoot) {
-            ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
-            return (support.makeFileCopy(ldapConfigPath));
-        })
-        .then(function() {
-            return (support.writeToFile(ldapConfigPath, ldapConfig, {"mode": 0o600}));
-        })
-        .then(function() {
-            message.success = true;
-            deferred.resolve(message);
-        })
-        .fail(function(errorMsg) {
-            message.error = errorMsg;
-            deferred.reject(message);
-        });
+            .then(function(xlrRoot) {
+                ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
+                return (support.makeFileCopy(ldapConfigPath));
+            })
+            .then(function() {
+                return (support.writeToFile(ldapConfigPath, ldapConfig, { "mode": 0o600 }));
+            })
+            .then(function() {
+                message.success = true;
+                deferred.resolve(message);
+            })
+            .fail(function(errorMsg) {
+                message.error = errorMsg;
+                deferred.reject(message);
+            });
     }
 
     return deferred.promise();
 }
 
-export function setupLdapConfigs(forceSetup) {
+function setupLdapConfigs(forceSetup) {
     let deferred: any = jQuery.Deferred();
     let gotLdapConfig = false;
 
@@ -636,39 +635,35 @@ export function setupLdapConfigs(forceSetup) {
         deferred.resolve();
     } else {
         getLdapConfig()
-        .then(function(ldapConfigMsg) {
-            // ldapConfig is a global
-            ldapConfig = ldapConfigMsg.data;
-            gotLdapConfig = true;
+            .then(function(ldapConfigMsg) {
+                // ldapConfig is a global
+                ldapConfig = ldapConfigMsg.data;
+                gotLdapConfig = true;
 
-            if (!ldapConfig.ldapConfigEnabled) {
-                let errMsg = "LDAP authentication is disabled";
-                xcConsole.log(errMsg);
-                return deferred.reject(errMsg);
-            }
+                if (!ldapConfig.ldapConfigEnabled) {
+                    let errMsg = "LDAP authentication is disabled";
+                    xcConsole.log(errMsg);
+                    return deferred.reject(errMsg);
+                }
 
-            if (!ldapConfig.serverKeyFile ||
-                ldapConfig.serverKeyFile === "") {
-                let errMsg = "server key file not set";
-                xcConsole.log(errMsg);
-                return deferred.reject(errMsg);
-            }
+                if (ldapConfig.serverKeyFile &&
+                    ldapConfig.serverKeyFile != "") {
+                    if (!fs.existsSync(ldapConfig.serverKeyFile)) {
+                        let errMsg = "server key file does not exist";
+                        xcConsole.log(errMsg);
+                        return deferred.reject(errMsg);
+                    }
 
-            if (!fs.existsSync(ldapConfig.serverKeyFile)) {
-                let errMsg = "server key file does not exist";
-                xcConsole.log(errMsg);
-                return deferred.reject(errMsg);
-            }
-
-            trustedCerts = [fs.readFileSync(ldapConfig.serverKeyFile)];
-            isLdapConfigSetup = true;
-            deferred.resolve('setupLdapConfigs succeeds');
-        })
-        .fail(function(message) {
-            let errMsg = (gotLdapConfig) ? message : message.error;
-            isLdapConfigSetup = false;
-            deferred.reject('setupLdapConfigs fails ' + errMsg);
-        });
+                    trustedCerts = [fs.readFileSync(ldapConfig.serverKeyFile)];
+                }
+                isLdapConfigSetup = true;
+                deferred.resolve('setupLdapConfigs succeeds');
+            })
+            .fail(function(message) {
+                let errMsg = (gotLdapConfig) ? message : message.error;
+                isLdapConfigSetup = false;
+                deferred.reject('setupLdapConfigs fails ' + errMsg);
+            });
     }
 
     return deferred.promise();
@@ -682,30 +677,30 @@ function getVaultConfig() {
     let xlrRoot: string = "";
 
     support.getXlrRoot()
-    .then(function(path) {
-        xlrRoot = path;
-        return loadConfigModule(xlrRoot, vaultConfigRelPath);
-    })
-    .then(function(moduleMsg) {
-        vaultConfig = jQuery.extend(true, {},
-                                    emptyVaultConfig,
-                                    moduleMsg.data);
-        let valid: boolean = validate(vaultConfig);
+        .then(function(path) {
+            xlrRoot = path;
+            return loadConfigModule(xlrRoot, vaultConfigRelPath);
+        })
+        .then(function(moduleMsg) {
+            vaultConfig = jQuery.extend(true, {},
+                emptyVaultConfig,
+                moduleMsg.data);
+            let valid: boolean = validate(vaultConfig);
 
-        if (!valid) {
-            message.error = JSON.stringify(validate.errors);
-            return deferred.reject(message);
-        }
+            if (!valid) {
+                message.error = JSON.stringify(validate.errors);
+                return deferred.reject(message);
+            }
 
-        message.data = vaultConfig;
+            message.data = vaultConfig;
 
-        deferred.resolve(message);
-    })
-    .fail(function(errorMsg) {
-        message.error = (xlrRoot !== "") ?
-            errorMsg.message : errorMsg;
-        deferred.reject(message);
-    });
+            deferred.resolve(message);
+        })
+        .fail(function(errorMsg) {
+            message.error = (xlrRoot !== "") ?
+                errorMsg.message : errorMsg;
+            deferred.reject(message);
+        });
 
     return deferred.promise();
 }
@@ -726,8 +721,8 @@ function setVaultConfig(vaultConfigIn) {
     }
 
     vaultConfig = jQuery.extend(true, {},
-                                emptyVaultConfig,
-                                vaultConfigIn);
+        emptyVaultConfig,
+        vaultConfigIn);
 
     let valid: boolean = validate(vaultConfig);
     if (!valid) {
@@ -735,23 +730,23 @@ function setVaultConfig(vaultConfigIn) {
         deferred.reject(message);
     } else {
         support.getXlrRoot()
-        .then(function(xlrRoot) {
-            vaultConfigPath = path.join(xlrRoot, vaultConfigRelPath);
+            .then(function(xlrRoot) {
+                vaultConfigPath = path.join(xlrRoot, vaultConfigRelPath);
 
-            return (support.writeToFile(vaultConfigPath, vaultConfig, {"mode": 0o600}));
-        })
-        .then(function() {
-            message.success = true;
-            deferred.resolve(message);
-        })
-        .fail(function(errorMsg) {
-            message.error = errorMsg;
-            deferred.reject(message);
-        });
+                return (support.writeToFile(vaultConfigPath, vaultConfig, { "mode": 0o600 }));
+            })
+            .then(function() {
+                message.success = true;
+                deferred.resolve(message);
+            })
+            .fail(function(errorMsg) {
+                message.error = errorMsg;
+                deferred.reject(message);
+            });
     }
 }
 
-export function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
+function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
     let deferred: any = jQuery.Deferred();
 
     // Save the information of current user into a HashTable
@@ -764,8 +759,8 @@ export function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
     ldapConn.password = credArray.xipassword;
 
     ldapConn.client_url = ldapConfig.ldap_uri.endsWith('/')
-                                    ? ldapConfig.ldap_uri
-                                    : ldapConfig.ldap_uri+'/';
+        ? ldapConfig.ldap_uri
+        : ldapConfig.ldap_uri + '/';
 
     ldapConn.userDN = ldapConfig.userDN;
     ldapConn.searchFilter = ldapConfig.searchFilter;
@@ -781,14 +776,14 @@ export function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
 
     if (ldapConn.activeDir) {
         ldapConn.adUserGroup = (ldapConfig.hasOwnProperty("adUserGroup") &&
-                                 ldapConfig.adUserGroup !== "")
-                                    ? ldapConfig.adUserGroup
-                                    : "Xce User";
+            ldapConfig.adUserGroup !== "")
+            ? ldapConfig.adUserGroup
+            : "Xce User";
 
         ldapConn.adAdminGroup = (ldapConfig.hasOwnProperty("adAdminGroup") &&
-                                  ldapConfig.adUserGroup !== "")
-                                    ? ldapConfig.adAdminGroup
-                                    : "Xce Admin";
+            ldapConfig.adUserGroup !== "")
+            ? ldapConfig.adAdminGroup
+            : "Xce Admin";
 
         if ((ldapConfig.hasOwnProperty("adDomain")) &&
             (ldapConn.username.indexOf("@") <= -1)) {
@@ -806,9 +801,9 @@ export function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
         }
 
         ldapConn.searchName = (ldapConfig.hasOwnProperty("adSearchShortName") &&
-                               ldapConfig.adSearchShortName === true)
-                                 ? ldapConn.shortName
-                                 : ldapConn.username;
+            ldapConfig.adSearchShortName === true)
+            ? ldapConn.shortName
+            : ldapConn.username;
     } else {
         ldapConn.userDN = ldapConn.userDN.replace('%username%', ldapConn.username);
         ldapConn.username = ldapConn.userDN;
@@ -816,10 +811,10 @@ export function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
     }
 
     let searchFilter = (ldapConn.searchFilter !== "")
-                     ? ldapConn.searchFilter.replace('%username%',ldapConn.searchName)
-                     : undefined;
+        ? ldapConn.searchFilter.replace('%username%', ldapConn.searchName)
+        : undefined;
 
-    let activeDir = ldapConn.activeDir ? ['cn','mail','memberOf'] : ['cn','mail','employeeType'];
+    let activeDir = ldapConn.activeDir ? ['cn', 'mail', 'memberOf'] : ['cn', 'mail', 'employeeType'];
 
     ldapConn.searchOpts = {
         filter: searchFilter,
@@ -851,7 +846,7 @@ export function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
 
 
 
-export function ldapAuthentication(ldapConn, loginId) {
+function ldapAuthentication(ldapConn, loginId) {
     // LDAP Authentication
     let deferred: any = jQuery.Deferred();
     ldapConn.hasBind = true;
@@ -869,8 +864,8 @@ export function ldapAuthentication(ldapConn, loginId) {
                     xcConsole.log('Searching entries.....');
                     try {
                         writeEntry(entry, loginId, ldapConn.activeDir,
-                                   ldapConn.adUserGroup, ldapConn.adAdminGroup,
-                                   ldapConn.useSubGroupTree);
+                            ldapConn.adUserGroup, ldapConn.adAdminGroup,
+                            ldapConn.useSubGroupTree);
                     } catch (error) {
                         xcConsole.log('Failure: Writing entry ' + error);
                         deferred.reject("ldapAuthentication fails");
@@ -892,7 +887,7 @@ export function ldapAuthentication(ldapConn, loginId) {
     return deferred.promise();
 }
 
-export function ldapGroupRetrieve(ldapConn, groupType, loginId) {
+function ldapGroupRetrieve(ldapConn, groupType, loginId) {
     let deferred: any = jQuery.Deferred();
 
     if (!(ldapConn.hasBind) || !(ldapConn.activeDir) ||
@@ -965,12 +960,12 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup, useGro
             // so we set membership in ldapGroupRetrieve
             if (!useGroupSubtree && entryObject.memberOf) {
                 // For normal user, memberOf is a String
-                if (typeof(entryObject.memberOf) === "string") {
+                if (typeof (entryObject.memberOf) === "string") {
                     entryObject.memberOf = [entryObject.memberOf];
                 }
                 let array = entryObject.memberOf;
                 for (let i = 0; i < array.length; i++) {
-                    let element =  array[i];
+                    let element = array[i];
                     let admin_re = new RegExp("^CN=" + adAdminGroup + ",*");
                     if (admin_re.test(element)) {
                         user.setIsADUser(true);
@@ -988,7 +983,7 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup, useGro
     }
 }
 
-export function prepareResponse(loginId, activeDir) {
+function prepareResponse(loginId, activeDir) {
     let deferred: any = jQuery.Deferred();
     let user: any = users.get(loginId);
     if (user && user.getEntryCount() >= 1) {
@@ -1031,33 +1026,33 @@ function ldapLogin(credArray) {
     let currLoginId: number;
 
     setupLdapConfigs(false)
-    .then(function() {
-        currLoginId = globalLoginId;
-        increaseLoginId();
-        return setLdapConnection(credArray, ldapConn, ldapConfig, currLoginId);
-    })
-    .then(function() {
-        return ldapAuthentication(ldapConn, currLoginId);
-    })
-    .then(function() {
-        return ldapGroupRetrieve(ldapConn, 'user', currLoginId);
-    })
-    .then(function() {
-        return ldapGroupRetrieve(ldapConn, 'admin', currLoginId);
-    })
-    .then(function(message) {
-        return prepareResponse(currLoginId, ldapConn.activeDir);
-    })
-    .then(function(message) {
-        ldapConn.client.destroy();
-        deferred.resolve(message);
-    })
-    .fail(function(errorMsg) {
-        if (ldapConn.hasBind) {
+        .then(function() {
+            currLoginId = globalLoginId;
+            increaseLoginId();
+            return setLdapConnection(credArray, ldapConn, ldapConfig, currLoginId);
+        })
+        .then(function() {
+            return ldapAuthentication(ldapConn, currLoginId);
+        })
+        .then(function() {
+            return ldapGroupRetrieve(ldapConn, 'user', currLoginId);
+        })
+        .then(function() {
+            return ldapGroupRetrieve(ldapConn, 'admin', currLoginId);
+        })
+        .then(function(message) {
+            return prepareResponse(currLoginId, ldapConn.activeDir);
+        })
+        .then(function(message) {
             ldapConn.client.destroy();
-        }
-        deferred.reject(errorMsg);
-    });
+            deferred.resolve(message);
+        })
+        .fail(function(errorMsg) {
+            if (ldapConn.hasBind) {
+                ldapConn.client.destroy();
+            }
+            deferred.reject(errorMsg);
+        });
 
     return deferred.promise();
 }
@@ -1065,66 +1060,68 @@ function ldapLogin(credArray) {
 function vaultLogin(credArray) {
     let deferred: any = jQuery.Deferred();
     let message: any = { "status": httpStatus.OK, "isValid": false };
+    let vaultConfig: any = null
 
     getVaultConfig()
-    .then(function(vaultConfigMsg) {
-        let vaultConfig = vaultConfigMsg.data;
+        .then(function(vaultConfigMsg) {
+            vaultConfig = vaultConfigMsg.data;
 
-        if (!vaultConfig.vaultEnabled) {
-            message.error = "vault is not configured";
-            return deferred.reject(message);
-        }
-
-        let options = {
-            "method": "POST",
-            "uri": vaultConfig.vault.vault_uri + "/v1/auth/ldap/login/" + credArray.xiusername,
-            "json": { "password" : credArray.xipassword }
-        }
-
-        request(options, function(error, response, body) {
-            if (response.statusCode === httpStatus.OK) {
-
-                let userInfo: any = {
-                    "firstName": response.body.auth.metadata.username,
-                    "mail": "",
-                    "isAdmin": false,
-                    "isValid": false,
-                    "isSupporter": false
-                };
-
-                if (response.body.auth.policies.includes(vaultConfig.vault.vaultAdminGroup)) {
-                    userInfo.isAdmin = true;
-                    userInfo.isValid = true;
-                } else if (response.body.auth.policies.includes(vaultConfig.vault.vaultUserGroup)) {
-                    userInfo.isAdmin = false;
-                    userInfo.isValid = true;
-                } else {
-                    let revokeOptions = {
-                        "method": "POST",
-                        "uri": vaultConfig.vault.vault_uri + "/v1/auth/token/revoke",
-                        "json": { "token" :  response.body.auth.client_token },
-                        "headers": { "X-Vault-Token" : response.body.auth.client_token }
-                    }
-
-                    request(revokeOptions, function(error, response, body) {
-                        message.error = "user " + credArray.xiusername + " does not belong to policy groups " + vaultConfig.vault.vaultAdminGroup + " and " + vaultConfig.vault.vaultUserGroup;
-                        return deferred.reject(message);
-                    });
-                }
-                userInfo.tokenType = "vault";
-                userInfo.token = response.body;
-
-                return deferred.resolve(userInfo);
-            } else {
-                message.error = error;
-                return deferred.reject(message);
+            if (!vaultConfig.vaultEnabled) {
+                message.error = "vault is not configured";
+                deferred.reject(message);
+                return;
             }
+
+            let options = {
+                "method": "POST",
+                "uri": vaultConfig.vault.vault_uri + "/v1/auth/ldap/login/" + credArray.xiusername,
+                "json": { "password": credArray.xipassword }
+            }
+
+            request(options, function(error, response, body) {
+                if (response.statusCode === httpStatus.OK) {
+
+                    let userInfo: any = {
+                        "firstName": response.body.auth.metadata.username,
+                        "mail": "",
+                        "isAdmin": false,
+                        "isValid": false,
+                        "isSupporter": false
+                    };
+
+                    if (response.body.auth.policies.includes(vaultConfig.vault.vaultAdminGroup)) {
+                        userInfo.isAdmin = true;
+                        userInfo.isValid = true;
+                    } else if (response.body.auth.policies.includes(vaultConfig.vault.vaultUserGroup)) {
+                        userInfo.isAdmin = false;
+                        userInfo.isValid = true;
+                    } else {
+                        let revokeOptions = {
+                            "method": "POST",
+                            "uri": vaultConfig.vault.vault_uri + "/v1/auth/token/revoke",
+                            "json": { "token": response.body.auth.client_token },
+                            "headers": { "X-Vault-Token": response.body.auth.client_token }
+                        }
+
+                        request(revokeOptions, function(error, response, body) {
+                            message.error = "user " + credArray.xiusername + " does not belong to policy groups " + vaultConfig.vault.vaultAdminGroup + " and " + vaultConfig.vault.vaultUserGroup;
+                            return deferred.reject(message);
+                        });
+                    }
+                    userInfo.tokenType = "vault";
+                    userInfo.token = response.body;
+
+                    return deferred.resolve(userInfo);
+                } else {
+                    message.error = error;
+                    return deferred.reject(message);
+                }
+            });
+        })
+        .fail(function(errorMsg) {
+            message.error = (vaultConfig) ? errorMsg : errorMsg.error;
+            deferred.reject(message);
         });
-    })
-    .fail(function(errorMsg) {
-        message.error = errorMsg;
-        deferred.reject(message);
-    });
 
     return deferred.promise();
 }
@@ -1138,35 +1135,35 @@ export function vaultLogout(session) {
         let token = session.credentials["vault"];
 
         getVaultConfig()
-        .then(function(vaultConfigMsg) {
-            let vaultConfig = vaultConfigMsg.data;
-            if (!vaultConfig.vaultEnabled) {
-                message.error = "vault is not configured";
-                return deferred.reject(message);
-            }
-
-            let options = {
-                "method": "POST",
-                "uri": vaultConfig.vault.vault_uri + "/v1/auth/token/revoke",
-                "json": { "token" :  token.auth.client_token },
-                "headers": { "X-Vault-Token" : token.auth.client_token }
-            }
-
-            request(options, function(error, response, body) {
-                if (response.statusCode === httpStatus.OK) {
-                    xcConsole.log("Response: " + JSON.stringify(response));
-                    message.isValid = true;
-                    return deferred.resolve(message);
-                } else {
-                    message.error = error;
+            .then(function(vaultConfigMsg) {
+                let vaultConfig = vaultConfigMsg.data;
+                if (!vaultConfig.vaultEnabled) {
+                    message.error = "vault is not configured";
                     return deferred.reject(message);
                 }
+
+                let options = {
+                    "method": "POST",
+                    "uri": vaultConfig.vault.vault_uri + "/v1/auth/token/revoke",
+                    "json": { "token": token.auth.client_token },
+                    "headers": { "X-Vault-Token": token.auth.client_token }
+                }
+
+                request(options, function(error, response, body) {
+                    if (response.statusCode === httpStatus.OK) {
+                        xcConsole.log("Response: " + JSON.stringify(response));
+                        message.isValid = true;
+                        return deferred.resolve(message);
+                    } else {
+                        message.error = error;
+                        return deferred.reject(message);
+                    }
+                });
+            })
+            .fail(function(errorMsg) {
+                message.error = errorMsg;
+                return deferred.reject(message);
             });
-        })
-        .fail(function(errorMsg) {
-            message.error = errorMsg;
-            return deferred.reject(message);
-        });
     } else {
         deferred.resolve();
     }
@@ -1186,71 +1183,71 @@ export function loginAuthentication(credArray) {
 
     // Check if defaultAdmin is turned on
     getDefaultAdmin()
-    .then(function(defaultAdminMsg) {
-        let defaultAdminConfig = defaultAdminMsg.data;
-        if (!defaultAdminConfig.defaultAdminEnabled) {
-            // Default admin not enabled. Try LDAP
-            return jQuery.Deferred().reject().promise();
-        }
+        .then(function(defaultAdminMsg) {
+            let defaultAdminConfig = defaultAdminMsg.data;
+            if (!defaultAdminConfig.defaultAdminEnabled) {
+                // Default admin not enabled. Try LDAP
+                return jQuery.Deferred().reject().promise();
+            }
 
-        let hmac = crypto.createHmac("sha256", "xcalar-salt")
-            .update(credArray.xipassword).digest("hex");
+            let hmac = crypto.createHmac("sha256", "xcalar-salt")
+                .update(credArray.xipassword).digest("hex");
 
-        if (credArray.xiusername === defaultAdminConfig.username &&
-            hmac === defaultAdminConfig.password) {
+            if (credArray.xiusername === defaultAdminConfig.username &&
+                hmac === defaultAdminConfig.password) {
 
-            // Successfully authenticated as defaultAdmin
-            let userInfo = {
-                "firstName": "Administrator",
-                "mail": defaultAdminConfig.email,
-                "isValid": true,
-                "isAdmin": true,
-                "isSupporter": false,
-            };
+                // Successfully authenticated as defaultAdmin
+                let userInfo = {
+                    "firstName": "Administrator",
+                    "mail": defaultAdminConfig.email,
+                    "isValid": true,
+                    "isAdmin": true,
+                    "isSupporter": false,
+                };
 
-            return jQuery.Deferred().resolve(userInfo).promise();
-        } else {
-            // Fall through to LDAP
-            return jQuery.Deferred().reject().promise();
-        }
+                return jQuery.Deferred().resolve(userInfo).promise();
+            } else {
+                // Fall through to LDAP
+                return jQuery.Deferred().reject().promise();
+            }
 
-    })
-    .then(
-        // Successfully authenticated as default admin. Fall through
-        function(userInfo) {
-            return jQuery.Deferred().resolve(userInfo).promise();
-        },
+        })
+        .then(
+            // Successfully authenticated as default admin. Fall through
+            function(userInfo) {
+                return jQuery.Deferred().resolve(userInfo).promise();
+            },
 
-        // Did not authenticate as default admin, either because
-        // getDefaultAdmin() failed, or credArray.defaultAdminEnabled is false
-        // or credArray.xiusername/xipassword is wrong
-        function() {
-            return ldapLogin(credArray);
-        }
-    )
-    .then(
-        // Successfully authenticated as default admin or ldap.  Fall through
-        function(userInfo) {
-            return jQuery.Deferred().resolve(userInfo).promise();
-        },
+            // Did not authenticate as default admin, either because
+            // getDefaultAdmin() failed, or credArray.defaultAdminEnabled is false
+            // or credArray.xiusername/xipassword is wrong
+            function() {
+                return ldapLogin(credArray);
+            }
+        )
+        .then(
+            // Successfully authenticated as default admin or ldap.  Fall through
+            function(userInfo) {
+                return jQuery.Deferred().resolve(userInfo).promise();
+            },
 
-        // Did not authenticate as either default admin or ldap, try vault
-        // auth
-        function() {
-            return vaultLogin(credArray);
-        }
-    )
-    .then(function(userInfo) {
-        // We've authenticated successfully with either ldap or default admin
-        userInfo.status = message.status;
-        userInfo.xiusername = credArray.xiusername;
-        xcConsole.log(userInfo.xiusername, "successfully logged in.");
-        deferred.resolve(userInfo)
-    })
-    .fail(function(errorMsg) {
-        message.error = errorMsg;
-        deferred.reject(message)
-    });
+            // Did not authenticate as either default admin or ldap, try vault
+            // auth
+            function() {
+                return vaultLogin(credArray);
+            }
+        )
+        .then(function(userInfo) {
+            // We've authenticated successfully with either ldap or default admin
+            userInfo.status = message.status;
+            userInfo.xiusername = credArray.xiusername;
+            xcConsole.log(userInfo.xiusername, "successfully logged in.");
+            deferred.resolve(userInfo)
+        })
+        .fail(function(errorMsg) {
+            message.error = (errorMsg.error) ? errorMsg.error : errorMsg;
+            deferred.reject(message)
+        });
 
     return deferred.promise();
 }
@@ -1262,12 +1259,12 @@ export function authenticationInit() {
         let subDeferred = jQuery.Deferred();
 
         getDefaultAdmin()
-        .then(function(msg) {
-            subDeferred.resolve(msg);
-        })
-        .fail(function(msg) {
-            subDeferred.resolve(msg);
-        });
+            .then(function(msg) {
+                subDeferred.resolve(msg);
+            })
+            .fail(function(msg) {
+                subDeferred.resolve(msg);
+            });
 
         return subDeferred.promise();
     }
@@ -1276,12 +1273,12 @@ export function authenticationInit() {
         let subDeferred = jQuery.Deferred();
 
         getMsalConfig()
-        .then(function(msg) {
-            subDeferred.resolve(msg);
-        })
-        .fail(function(msg) {
-            subDeferred.resolve(msg);
-        });
+            .then(function(msg) {
+                subDeferred.resolve(msg);
+            })
+            .fail(function(msg) {
+                subDeferred.resolve(msg);
+            });
 
         return subDeferred.promise();
     }
@@ -1290,12 +1287,12 @@ export function authenticationInit() {
         let subDeferred = jQuery.Deferred();
 
         getLdapConfig()
-        .then(function(msg) {
-            subDeferred.resolve(msg);
-        })
-        .fail(function(msg) {
-            subDeferred.resolve(msg);
-        });
+            .then(function(msg) {
+                subDeferred.resolve(msg);
+            })
+            .fail(function(msg) {
+                subDeferred.resolve(msg);
+            });
 
         return subDeferred.promise();
     }
@@ -1304,69 +1301,69 @@ export function authenticationInit() {
         let subDeferred = jQuery.Deferred();
 
         getVaultConfig()
-        .then(function(msg) {
-            subDeferred.resolve(msg);
-        })
-        .fail(function(msg) {
-            subDeferred.resolve(msg);
-        });
+            .then(function(msg) {
+                subDeferred.resolve(msg);
+            })
+            .fail(function(msg) {
+                subDeferred.resolve(msg);
+            });
 
         return subDeferred.promise();
     }
 
     xcConsole.log("Starting default admin load");
     getDefaultAdminOrNot()
-    .then(function(msg) {
-        if (msg.data &&
-            msg.data.defaultAdminEnabled) {
-            xcConsole.log("default admin configured");
-            authConfigured = true;
-        } else {
-            xcConsole.log("default admin not configured");
-        }
+        .then(function(msg) {
+            if (msg.data &&
+                msg.data.defaultAdminEnabled) {
+                xcConsole.log("default admin configured");
+                authConfigured = true;
+            } else {
+                xcConsole.log("default admin not configured");
+            }
 
-        xcConsole.log("Starting MSAL load");
-        return getMsalConfigOrNot();
-    })
-    .then(function(msg) {
-        if (msg.data &&
-            msg.data.msalEnabled) {
-            xcConsole.log("msal configured");
-            authConfigured = true;
-        } else {
-            xcConsole.log("msal not configured");
-        }
+            xcConsole.log("Starting MSAL load");
+            return getMsalConfigOrNot();
+        })
+        .then(function(msg) {
+            if (msg.data &&
+                msg.data.msalEnabled) {
+                xcConsole.log("msal configured");
+                authConfigured = true;
+            } else {
+                xcConsole.log("msal not configured");
+            }
 
-        xcConsole.log("Starting LDAP config load");
-        return getLdapConfigOrNot();
-    })
-    .then(function(msg) {
-        if (msg.data &&
-            msg.data.ldapConfigEnabled) {
-            xcConsole.log("ldap configured");
-            authConfigured = true;
-        } else {
-            xcConsole.log("ldap not configured");
-        }
+            xcConsole.log("Starting LDAP config load");
+            return getLdapConfigOrNot();
+        })
+        .then(function(msg) {
+            if (msg.data &&
+                msg.data.ldapConfigEnabled) {
+                xcConsole.log("ldap configured");
+                authConfigured = true;
+            } else {
+                xcConsole.log("ldap not configured");
+            }
 
-        xcConsole.log("Starting Vault config load");
-        return getVaultConfigOrNot();
-    })
-    .then(function(msg) {
-        if (msg.data &&
-            msg.data.vaultEnabled) {
-            xcConsole.log("vault configured");
-            authConfigured = true;
-        } else {
-            xcConsole.log("vault not configured");
-        }
-    })
-    .always(function() {
-        xcConsole.log((authConfigured) ?
-                      "Authentication is configured" :
-                      "Authentication is not configured");
-        deferred.resolve();
-    });
+            xcConsole.log("Starting Vault config load");
+            return getVaultConfigOrNot();
+        })
+        .then(function(msg) {
+            if (msg.data &&
+                msg.data.vaultEnabled) {
+                xcConsole.log("vault configured");
+                authConfigured = true;
+            } else {
+                xcConsole.log("vault not configured");
+            }
+        })
+        .always(function() {
+            xcConsole.log((authConfigured) ?
+                "Authentication is configured" :
+                "Authentication is not configured");
+            deferred.resolve();
+        });
 
     return deferred.promise();
 }
@@ -1379,40 +1376,53 @@ export function securitySetupAuth(req, res, next) {
     }
 
     authenticationInit()
-    .then(function() {
-        if (authConfigured) {
-            return support.checkAuthAdmin(req, res, next);
-        }
+        .then(function() {
+            if (authConfigured) {
+                return support.checkAuthAdmin(req, res, next);
+            }
 
-        next();
-    });
+            next();
+        });
 }
 
 export function setupDefaultAdmin(req, res) {
     xcConsole.log("Setting default admin");
     var credArray = req.body;
     setDefaultAdmin(credArray)
-    .always(function(message) {
-        if (message.success) {
-            authConfigured = true;
-        }
-        res.status(message.status).send(message);
-    });
+        .always(function(message) {
+            if (message.success) {
+                authConfigured = true;
+            }
+            res.status(message.status).send(message);
+        });
 }
 
 // Below part is only for Unit Test
-export function fakeGetXlrRoot(func) {
+function fakeGetXlrRoot(func) {
     support.getXlrRoot = func;
 }
-export function fakeSetupLdapConfigs(func) {
+function fakeSetupLdapConfigs(func) {
     setupLdapConfigs = func;
 }
-export function fakeSetLdapConnection(func) {
+function fakeSetLdapConnection(func) {
     setLdapConnection = func;
 }
-export function fakeLdapAuthentication(func) {
+function fakeLdapAuthentication(func) {
     ldapAuthentication = func;
 }
-export function fakePrepareResponse(func){
+function fakePrepareResponse(func) {
     prepareResponse = func;
+}
+if (process.env.NODE_ENV === "test") {
+    exports.setupLdapConfigs = setupLdapConfigs;
+    exports.setLdapConnection = setLdapConnection;
+    exports.ldapAuthentication = ldapAuthentication;
+    exports.prepareResponse = prepareResponse;
+    exports.ldapGroupRetrieve = ldapGroupRetrieve;
+    // Replace functions
+    exports.fakeSetupLdapConfigs = fakeSetupLdapConfigs;
+    exports.fakeSetLdapConnection = fakeSetLdapConnection;
+    exports.fakeLdapAuthentication = fakeLdapAuthentication;
+    exports.fakePrepareResponse = fakePrepareResponse;
+    exports.fakeGetXlrRoot = fakeGetXlrRoot;
 }

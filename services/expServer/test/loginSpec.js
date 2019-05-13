@@ -5,12 +5,12 @@ describe('ExpServer Login Test', function() {
     const fs = require('fs');
     const ldap = require('ldapjs');
     const request = require('request');
-    var expServer = require(__dirname + '/../../expServer/expServer.js');
+    require(__dirname + '/../expServer.js');
     this.timeout(5000);
 
-    var loginManager = require(__dirname + '/../../expServer/controllers/loginManager.js');
-    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
-    var expServer = require(__dirname + '/../../expServer/expServer.js');
+    var loginManager = require(__dirname + '/../controllers/loginManager.js');
+    var support = require(__dirname + '/../utils/expServerSupport.js');
+    require(__dirname + '/../expServer.js');
     var httpStatus = require(__dirname + "/../../../assets/js/httpStatus.js").httpStatus;
 
     function postRequest(action, url, str, jar) {
@@ -21,7 +21,7 @@ describe('ExpServer Login Test', function() {
         }
         var options = {
             "method": action,
-            "uri": "http://localhost:12125" + url,
+            "uri": "http://localhost:12224" + url,
             "json": str
         };
         if (jar) {
@@ -59,8 +59,8 @@ describe('ExpServer Login Test', function() {
     // Test begins
     before(function() {
         // restore ldapConfig.json to a known good copy
-        copySync(__dirname + '/../../test/config/ldapConfig.json.good',
-                 __dirname + '/../../test/config/ldapConfig.json');
+        copySync(__dirname + '/config/ldapConfig.json.good',
+                 __dirname + '/config/ldapConfig.json');
 
         testLoginId = 0;
         testLoginId2 = 0;
@@ -74,12 +74,11 @@ describe('ExpServer Login Test', function() {
             xipassword: "welcome1"
         }
         testConfig = {
-            ldap_uri: "ldap://openldap1-1.xcalar.net:389",
-            userDN: "mail=%username%,ou=People,dc=int,dc=xcalar,dc=com",
-            useTLS: false,
+            ldap_uri: "ldap://turing.int.xcalar.com:389",
+            userDN: "mail=%username%,ou=Test,dc=int,dc=xcalar,dc=com",
+            useTLS: true,
             searchFilter: "(memberof=cn=xceUsers,ou=Groups,dc=int,dc=xcalar,dc=com)",
-            activeDir: false,
-            serverKeyFile: "/etc/ssl/certs/ca-certificates.crt"
+            activeDir: false
         };
         testConfig2 = {
             "ldap_uri":"ldap://pdc1.int.xcalar.com:389",
@@ -87,7 +86,6 @@ describe('ExpServer Login Test', function() {
             "useTLS":true,
             "searchFilter":"(&(objectclass=user)(userPrincipalName=%username%))",
             "activeDir":true,
-            "serverKeyFile":"/etc/ssl/certs/ca-certificates.crt",
             "ldapConfigEnabled":true,
             "adUserGroup":"CN=GlobalXcalarUsers,CN=Users,DC=int,DC=xcalar,DC=net",
             "adAdminGroup":"CN=GlobalXcalarAdmins,CN=Users,DC=int,DC=xcalar,DC=net",
@@ -101,7 +99,6 @@ describe('ExpServer Login Test', function() {
             "useTLS":true,
             "searchFilter":"(&(objectclass=user)(userPrincipalName=%username%))",
             "activeDir":true,
-            "serverKeyFile":"/etc/ssl/certs/ca-certificates.crt",
             "ldapConfigEnabled":true,
             "adUserGroup":"XcalarUserEngineeringSubGroup",
             "adAdminGroup":"Xce Admins",
@@ -114,7 +111,7 @@ describe('ExpServer Login Test', function() {
         testLdapConn3 = {};
         oldRoot = support.getXlrRoot;
         fakeRoot = function() {
-            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
+            return jQuery.Deferred().resolve(__dirname).promise();
         };
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
@@ -194,7 +191,7 @@ describe('ExpServer Login Test', function() {
             done();
         })
         .always(function() {
-            support.fakeGetXlrRoot(oldRoot);
+            loginManager.fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -404,6 +401,9 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            loginManager.fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -441,7 +441,7 @@ describe('ExpServer Login Test', function() {
             return(postRequest("POST", "/login/ldapConfig/get", {} , cookieJar));
         })
         .then(function(ret) {
-            // if this succeeds than logout did not work
+            // if this succeeds then logout did not work
             done("fail");
         }, function(ret) {
             expect(ret.statusCode).to.equal(401);
@@ -455,6 +455,7 @@ describe('ExpServer Login Test', function() {
         .always(function() {
             support.checkAuthTrue(support.userTrue);
             support.checkAuthAdminTrue(support.adminTrue);
+            loginManager.fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -463,6 +464,8 @@ describe('ExpServer Login Test', function() {
             xiusername: "sPerson2@gmail.com",
             xipassword: "5678"
         };
+        loginManager.fakeGetXlrRoot(fakeRoot);
+
         var expectedRetMsg = {
             "status": 200,
             "firstName": "sp2_first",
@@ -492,6 +495,9 @@ describe('ExpServer Login Test', function() {
         .then(function(res) {
             expect(res.statusCode).to.equal(httpStatus.OK);
             return(postRequest("POST", "/login/test/admin", body, cookieJar));
+        }, function(err) {
+            // login/test/user should not fail
+            return jQuery.Deferred().resolve(err).promise();
         })
         .then(function(err) {
             return jQuery.Deferred().reject(err).promise();
@@ -508,14 +514,17 @@ describe('ExpServer Login Test', function() {
         .always(function() {
             support.checkAuthTrue(support.userTrue);
             support.checkAuthAdminTrue(support.adminTrue);
+            loginManager.fakeGetXlrRoot(oldRoot);
         });
     });
 
-    it("Admin authentiction should work", function(done) {
+    it("Admin authentication should work", function(done) {
         testCredArray = {
             xiusername: "sPerson1@gmail.com",
             xipassword: "Welcome1"
         };
+        loginManager.fakeGetXlrRoot(fakeRoot);
+
         var expectedRetMsg = {
             "status": 200,
             "firstName": "sp1_first",
@@ -544,9 +553,11 @@ describe('ExpServer Login Test', function() {
         })
         .then(function(res) {
             expect(res.statusCode).to.equal(httpStatus.OK);
+            console.log("test user");
             return(postRequest("POST", "/login/test/user", body, cookieJar));
         })
         .then(function(res) {
+            // expect(res.statusCode).to.equal(httpStatus.Unauthorized);
             expect(res.statusCode).to.equal(httpStatus.OK);
             done();
         })
@@ -557,6 +568,7 @@ describe('ExpServer Login Test', function() {
         .always(function() {
             support.checkAuthTrue(support.userTrue);
             support.checkAuthAdminTrue(support.adminTrue);
+            loginManager.fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -578,6 +590,7 @@ describe('ExpServer Login Test', function() {
                      three: "four" };
         var cookieJar = request.jar();
 
+        loginManager.fakeGetXlrRoot(fakeRoot);
         support.checkAuthTrue(support.checkAuthImpl);
         support.checkAuthAdminTrue(support.checkAuthAdminImpl);
         support.setTestMaxAge(3000);
@@ -607,6 +620,7 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
+            loginManager.fakeGetXlrRoot(oldRoot);
             support.checkAuthTrue(support.userTrue);
             support.checkAuthAdminTrue(support.adminTrue);
             support.fakeLoginAuth(support.loginAuthImpl);
@@ -640,36 +654,44 @@ describe('ExpServer Login Test', function() {
         };
         var cookieJar = request.jar();
 
+        loginManager.fakeGetXlrRoot(fakeRoot);
         support.checkAuthTrue(support.checkAuthImpl);
         support.checkAuthAdminTrue(support.checkAuthAdminImpl);
         postRequest("POST", "/login", testCredArray, cookieJar)
         .then(function(ret) {
+            console.log(1)
             expect(ret.body).to.deep.equal(expectedRetMsg);
             return(postRequest("POST", "/auth/setCredential", key1, cookieJar));
         })
         .then(function(ret) {
+            console.log(2)
             expect(ret.body).to.deep.equal(setCredentialTrue);
             return(postRequest("POST", "/auth/getCredential",
                                { 'key': 'setCredentialKey1' }, cookieJar));
         })
         .then(function(ret)  {
+            console.log(3)
             expect(ret.body.status).to.equal(httpStatus.OK);
             expect(ret.body.data).to.equal('setCredentialKeyData1');
             return(postRequest("POST", "/auth/setCredential", key2, cookieJar));
         })
         .then(function(ret) {
+            console.log(4)
             expect(ret.body).to.deep.equal(setCredentialTrue);
             return(postRequest("GET", "/auth/listCredentialKeys", {}, cookieJar));
         })
         .then(function(ret) {
+            console.log(5)
             expect(ret.body.data).to.deep.equal(['setCredentialKey1', 'setCredentialKey2']);
             return(postRequest("POST", "/auth/delCredential", {'key':'setCredentialKey1'}, cookieJar));
         })
         .then(function(ret) {
+            console.log(6)
             expect(ret.body.status).to.equal(httpStatus.OK);
             return(postRequest("GET", "/auth/listCredentialKeys", {}, cookieJar));
         })
         .then(function(ret) {
+            console.log(7)
             expect(ret.body.data).to.deep.equal(['setCredentialKey2']);
             testStatus = true;
         })
@@ -688,7 +710,10 @@ describe('ExpServer Login Test', function() {
             } else {
                 done('fail');
             }
-        });
+        })
+        .always(function() {
+            loginManager.fakeGetXlrRoot(oldRoot);
+        })
     });
 
     it('Router should fail with invalid endpoint', function(done) {
@@ -888,7 +913,7 @@ describe('ExpServer Login Test', function() {
     });
 
     it('Router should fail with getDefaultAdmin action with wrong permissions', function(done) {
-        configDir = path.join(__dirname, "../../test");
+        configDir = __dirname;
         configPath = path.join(configDir, "./config/defaultAdmin.json");
         try {
             fs.unlinkSync(configPath);
@@ -924,7 +949,7 @@ describe('ExpServer Login Test', function() {
     });
 
     it('Router should work with setDefaultAdmin action', function(done) {
-        configDir = path.join(__dirname, "../../test");
+        configDir = __dirname;
         configPath = path.join(configDir, "./config/defaultAdmin.json");
 
         try {
@@ -984,7 +1009,7 @@ describe('ExpServer Login Test', function() {
             var expectedRetMsg = {
                 "status": 200,
                 "isValid": false,
-                "error": "ldapAuthentication fails"
+                "error": "vault is not configured"
             };
 
             expect(ret.body).to.deep.equal(expectedRetMsg);
@@ -1008,7 +1033,7 @@ describe('ExpServer Login Test', function() {
             var expectedRetMsg = {
                 "status": 200,
                 "isValid": false,
-                "error": "ldapAuthentication fails"
+                "error": "vault is not configured"
             };
 
             expect(ret.body).to.deep.equal(expectedRetMsg);

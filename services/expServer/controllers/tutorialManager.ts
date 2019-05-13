@@ -41,7 +41,7 @@ export function downloadTutorial(tutName: string, version: string): Promise<any>
     return deferred.promise();
 }
 
-export function processItem(ret: any[], fileName: string): Promise<any> {
+function processItem(ret: any[], fileName: string): Promise<any> {
     let deferredOnProcessItem = jQuery.Deferred();
     let getTutorial = function(file: string): Promise<string> {
         let deferredOnGetFile = jQuery.Deferred();
@@ -105,17 +105,24 @@ export function fetchAllTutorials(): Promise<any> {
 }
 
 // Below part is only for Unit Test
-export const getObject = s3.getObject;
-
-export function fakeProcessItem(func) {
+function fakeProcessItem(func) {
     processItem = func;
 }
-export function fakeDownloadTutorial(func) {
+function fakeDownloadTutorial(func) {
     downloadTutorial = func;
 }
-export function fakeFetchAllTutorials(func) {
+function fakeFetchAllTutorials(func) {
     fetchAllTutorials = func;
 }
-export function fakeGetObject(func) {
+function fakeGetObject(func) {
     s3.getObject = func;
+}
+if (process.env.NODE_ENV === "test") {
+    exports.processItem = processItem;
+    exports.getObject = s3.getObject;
+    // Replace functions
+    exports.fakeDownloadTutorial = fakeDownloadTutorial;
+    exports.fakeProcessItem = fakeProcessItem;
+    exports.fakeFetchAllTutorials = fakeFetchAllTutorials;
+    exports.fakeGetObject = fakeGetObject;
 }

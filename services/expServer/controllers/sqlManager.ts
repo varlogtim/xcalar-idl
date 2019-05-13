@@ -32,7 +32,7 @@ export interface SessionInfo {
     sessionName: string
 }
 
-export interface TableInfo extends XcalarApiTableInfo {
+interface TableInfo extends XcalarApiTableInfo {
     schema?: any
 }
 
@@ -106,7 +106,7 @@ function activateWkbk(activeSessionNames: string[], wkbkName: string):
     return deferred.promise();
 }
 
-export function goToSqlWkbk(workbook?: string): JQueryPromise<any> {
+function goToSqlWkbk(workbook?: string): JQueryPromise<any> {
     let wkbkName: string = workbook || "sql-workbook";
     let deferred: any = PromiseHelper.deferred();
     let activeSessionNames: string[] = [];
@@ -147,7 +147,7 @@ export function goToSqlWkbk(workbook?: string): JQueryPromise<any> {
     return deferred.promise();
 }
 
-export function setupConnection(userIdName?: string, userIdUnique?: string,
+export function setupConnection(userIdName?: string, userIdUnique?: string | number,
     wkbkName?: string): JQueryPromise<any> {
     let deferred: any = jQuery.Deferred();
     connect("localhost", userIdName, userIdUnique)
@@ -421,7 +421,7 @@ function getInfoForXDTable(tableName: string, sessionInfo: SessionInfo):
     return deferred.promise();
 };
 
-export function selectPublishedTables(args: SQLPublishInput[], allSchemas: any,
+function selectPublishedTables(args: SQLPublishInput[], allSchemas: any,
     batchIdMap?: any): XcalarSelectQuery[] {
     let queryArray: XcalarSelectQuery[] = [];
     for (let i: number = 0; i < args.length; i++) {
@@ -902,7 +902,7 @@ function getDerivedCol(txId: number, tableName: string, schema: any,
     return deferred.promise();
 }
 
-export function convertToDerivedColAndGetSchema(txId: number, tableName: string,
+function convertToDerivedColAndGetSchema(txId: number, tableName: string,
     dstTable: string): JQueryPromise<any> {
     let deferred: any = PromiseHelper.deferred();
     SqlUtil.getSchema(tableName)
@@ -1086,12 +1086,14 @@ export function cancelQuery(queryName: string): any {
 }
 
 // Below is for unit test
-export function fakeSqlLoad(func: any): void {
+function fakeSqlLoad(func: any): void {
     sqlLoad = func;
 }
-export function fakeListPublishTables(func: any): void {
+function fakeListPublishTables(func: any): void {
     listPublishedTables = func;
 }
-export function fakeCleanAllTables(func: any): void {
-    cleanAllTables = func;
+
+if (process.env.NODE_ENV === "test") {
+    exports.fakeSqlLoad = fakeSqlLoad;
+    exports.fakeListPublishTables = fakeListPublishTables;
 }

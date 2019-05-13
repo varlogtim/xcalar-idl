@@ -285,33 +285,46 @@ router.get("/service/getTime", function(req, res) {
 
 
 // Below part is only for Unit Test
-export function fakeMasterExecuteAction(func: any) {
+function fakeMasterExecuteAction(func: any) {
     support.masterExecuteAction = func;
 }
-export function fakeSlaveExecuteAction(func: any) {
+function fakeSlaveExecuteAction(func: any) {
     support.slaveExecuteAction = func;
 }
-export function fakeRemoveSessionFiles(func: any) {
+function fakeRemoveSessionFiles(func: any) {
     support.removeSessionFiles = func;
 }
-export function fakeRemoveSHM(func: any) {
+function fakeRemoveSHM(func: any) {
     support.removeSHM = func;
 }
-export function fakeGetLicense(func: any) {
+function fakeGetLicense(func: any) {
     support.getLicense = func;
 }
-export function fakeSubmitTicket(func: any) {
+function fakeSubmitTicket(func: any) {
     support.submitTicket = func;
 }
-export function fakeGetMatchedHosts(func: any) {
+function fakeGetMatchedHosts(func: any) {
     support.getMatchedHosts = func;
 }
-export function fakeGetTickets(func: any) {
+function fakeGetTickets(func: any) {
     support.getTickets = func;
 }
-export function fakeGetHotPatch(func: any) {
+function fakeGetHotPatch(func: any) {
     support.getHotPatch = func;
 }
-export function fakeSetHotPatch(func: any) {
+function fakeSetHotPatch(func: any) {
     support.setHotPatch = func;
+}
+
+if (process.env.NODE_ENV === "test") {
+    exports.fakeMasterExecuteAction = fakeMasterExecuteAction;
+    exports.fakeSlaveExecuteAction = fakeSlaveExecuteAction;
+    exports.fakeRemoveSessionFiles = fakeRemoveSessionFiles;
+    exports.fakeRemoveSHM = fakeRemoveSHM;
+    exports.fakeGetLicense = fakeGetLicense;
+    exports.fakeSubmitTicket = fakeSubmitTicket;
+    exports.fakeGetMatchedHosts = fakeGetMatchedHosts;
+    exports.fakeGetTickets = fakeGetTickets;
+    exports.fakeGetHotPatch = fakeGetHotPatch;
+    exports.fakeSetHotPatch = fakeSetHotPatch;
 }

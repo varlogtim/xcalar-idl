@@ -2,7 +2,7 @@ describe('ExpServer Tail Test', function() {
     // Test setup
     var expect = require('chai').expect;
 
-    var tail = require(__dirname + '/../../expServer/utils/tail.js');
+    var tail = require(__dirname + '/../utils/tail.js');
     var testFilePath;
     var testFileName;
     var testLineNum;
@@ -10,7 +10,7 @@ describe('ExpServer Tail Test', function() {
     this.timeout(10000);
     // Test begins
     before(function() {
-        testFilePath = __dirname + '/../config/';
+        testFilePath = __dirname + '/config/';
         testFileName = "node.0.out";
         testLineNum = 10;
         testLastMonitor = 1;

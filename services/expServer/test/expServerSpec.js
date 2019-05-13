@@ -2,9 +2,9 @@ describe('ExpServer General Test', function() {
     // Test setup
     var expect = require('chai').expect;
 
-    var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var XcConsole = require(__dirname + '/../../expServer/utils/expServerXcConsole.js');
-    var supportStatusFile = require(__dirname + '/../../expServer/utils/supportStatusFile.js');
+    var expServer = require(__dirname + '/../expServer.js');
+    var XcConsole = require(__dirname + '/../utils/expServerXcConsole.js');
+    var supportStatusFile = require(__dirname + '/../utils/supportStatusFile.js');
     this.timeout(10000);
     // Test begins
     it("supportStatusFile.getStatus should work", function() {

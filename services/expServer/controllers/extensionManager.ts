@@ -35,7 +35,7 @@ export function s3Initialize(): boolean {
     return Boolean(s3);
 }
 
-export function writeTarGz(targz: string, name: string, version: string): Promise<string> {
+function writeTarGz(targz: string, name: string, version: string): Promise<string> {
     let deferred: any = jQuery.Deferred();
     let zipFile: Buffer = Buffer.from(targz, 'base64');
     let zipPath: string = basePath + "ext-available/" + name + "-" + version +
@@ -268,7 +268,7 @@ export function removeExtension(extName: string): Promise<string> {
     return deferred.promise();
 }
 
-export function processItem(ret: any[], fileName: string): Promise<string> {
+function processItem(ret: any[], fileName: string): Promise<string> {
     let deferredOnProcessItem: any = jQuery.Deferred();
     let getExtension: (file: string) => Promise<string> =
         function(file: string): Promise<string> {
@@ -333,35 +333,50 @@ export function fetchAllExtensions(): Promise<any[]> {
 }
 
 // Below part is only for Unit Test
-export const getObject = s3.getObject;
-
-export function fakeWriteTarGz(func) {
+function fakeWriteTarGz(func) {
     writeTarGz = func;
 }
-export function fakeWriteTarGzWithCleanup(func) {
+function fakeWriteTarGzWithCleanup(func) {
     writeTarGzWithCleanup = func;
 }
-export function fakeProcessItem(func) {
+function fakeProcessItem(func) {
     processItem = func;
 }
-export function fakeDownloadExtension(func) {
+function fakeDownloadExtension(func) {
     downloadExtension = func;
 }
-export function fakeRemoveExtension(func) {
+function fakeRemoveExtension(func) {
     removeExtension = func;
 }
-export function fakeEnableExtension(func) {
+function fakeEnableExtension(func) {
     enableExtension = func;
 }
-export function fakeDisableExtension(func) {
+function fakeDisableExtension(func) {
     disableExtension = func;
 }
-export function fakeGetExtensionFiles(func) {
+function fakeGetExtensionFiles(func) {
     getExtensionFiles = func;
 }
-export function fakeFetchAllExtensions(func) {
+function fakeFetchAllExtensions(func) {
     fetchAllExtensions = func;
 }
-export function fakeGetObject(func) {
+function fakeGetObject(func) {
     s3.getObject = func;
+}
+
+if (process.env.NODE_ENV === "test") {
+    exports.writeTarGz = writeTarGz;
+    exports.processItem = processItem;
+    exports.getObject = s3.getObject;
+    // Replace functions
+    exports.fakeWriteTarGz = fakeWriteTarGz;
+    exports.fakeWriteTarGzWithCleanup = fakeWriteTarGzWithCleanup;
+    exports.fakeDownloadExtension = fakeDownloadExtension;
+    exports.fakeRemoveExtension = fakeRemoveExtension;
+    exports.fakeEnableExtension = fakeEnableExtension;
+    exports.fakeDisableExtension = fakeDisableExtension;
+    exports.fakeProcessItem = fakeProcessItem;
+    exports.fakeGetExtensionFiles = fakeGetExtensionFiles;
+    exports.fakeFetchAllExtensions = fakeFetchAllExtensions;
+    exports.fakeGetObject = fakeGetObject;
 }

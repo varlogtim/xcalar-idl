@@ -103,6 +103,9 @@ router.get("/installationLogs/slave", function(req, res) {
 });
 
 // Below part is only for Unit Test
-export function fakeSlaveExecuteAction(func) {
+function fakeSlaveExecuteAction(func) {
     support.slaveExecuteAction = func;
+}
+if (process.env.NODE_ENV == "test") {
+    exports.fakeSlaveExecuteAction = fakeSlaveExecuteAction;
 }
