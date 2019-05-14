@@ -12,7 +12,6 @@ class CreateResultDataset extends EventEmitter {
                     "y": 300
                 },
                 "description": "exportedDataset",
-                "hasTitleChange": false,
                 "input": {
                     "source": this.api.globals.user + ".01359.testDataset",
                     "prefix": "testDataset",

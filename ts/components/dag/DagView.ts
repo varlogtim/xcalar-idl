@@ -3835,7 +3835,6 @@ class DagView {
         // check why we need it
         const clearState: boolean = options.clearState || false;
         const includeStats: boolean = options.includeStats || false;
-        const includeTitle: boolean = (options.includeTitle == null) ? true : options.includeTitle;
         const forCopy: boolean = options.forCopy || false;
         let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
@@ -3869,7 +3868,7 @@ class DagView {
                     }
                 }
 
-                const nodeInfo = node.getNodeCopyInfo(clearState, includeStats, includeTitle, forCopy);
+                const nodeInfo = node.getNodeCopyInfo(clearState, includeStats, forCopy);
                 nodeInfo.parents = parentIds;
                 nodeInfos.push(nodeInfo);
             } else if (nodeId.startsWith("comment")) {
@@ -4578,11 +4577,7 @@ class DagView {
         $origTitle.closest(".dataflowAreaWrapper").append($textArea);
         sizeInput();
         $textArea.focus()
-        if (node.checkHasTitleChange()) {
-            $textArea.caret(origVal.length);
-        } else {
-            $textArea.selectAll();
-        }
+        $textArea.selectAll();
         $origTitle.hide();
 
         $textArea.blur(() => {

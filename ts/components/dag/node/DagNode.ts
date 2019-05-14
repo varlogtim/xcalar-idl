@@ -13,7 +13,6 @@ abstract class DagNode extends Durable {
     protected error: string;
     private configured: boolean;
     private numParent: number; // non-persisent
-    private hasTitleChange: boolean;
     protected events: {_events: object, trigger: Function}; // non-persistent;
     protected type: DagNodeType;
     protected subType: DagNodeSubType;
@@ -54,7 +53,6 @@ abstract class DagNode extends Durable {
 
         this.description = options.description || "";
         this.title = options.title || "";
-        this.hasTitleChange = options.hasTitleChange || false;
         this.table = options.table;
         this.state = options.state || DagNodeState.Unused;
         if (this.state === DagNodeState.Running) {
@@ -283,17 +281,12 @@ abstract class DagNode extends Durable {
         this.title = title;
         if (isChange) { // prevents event from firing when title is set when
             // new node is created
-            this.hasTitleChange = true;
             this.events.trigger(DagNodeEvents.TitleChange, {
                 id: this.getId(),
                 node: this,
                 title: title
             });
         }
-    }
-
-    public checkHasTitleChange(): boolean {
-        return this.hasTitleChange;
     }
 
     public getTitle(): string {
@@ -537,7 +530,6 @@ abstract class DagNode extends Durable {
     public getNodeCopyInfo(
         clearState: boolean = false,
         includeStats: boolean = false,
-        includeTitle: boolean = true,
         forCopy: boolean = false
     ): DagNodeCopyInfo {
         const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents(includeStats, forCopy);
@@ -552,10 +544,6 @@ abstract class DagNode extends Durable {
             ) {
                 nodeInfo.state = DagNodeState.Configured;
             }
-        }
-        if (!this.hasTitleChange && !includeTitle) {
-            delete nodeInfo.title;
-            delete nodeInfo.hasTitleChange;
         }
         return nodeInfo;
     }
@@ -1217,10 +1205,6 @@ abstract class DagNode extends Durable {
             "$id": "#/properties/title",
             "type": "string"
           },
-          "hasTitleChange": {
-            "$id": "#/properties/hasTitleChange",
-            "type": "boolean"
-          },
           "input": {
             "$id": "#/properties/input",
             "type": "object",
@@ -1435,7 +1419,6 @@ abstract class DagNode extends Durable {
             display: xcHelper.deepCopy(this.display.coordinates),
             description: this.description,
             title: this.title,
-            hasTitleChange: this.hasTitleChange,
             input: xcHelper.deepCopy(this.input.getInput()),
             id: this.id,
             state: this.state,

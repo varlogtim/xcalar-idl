@@ -91,7 +91,6 @@ module.exports = {
                         "y": 140
                     },
                     "description": "",
-                    "hasTitleChange": false,
                     "state": "Configured",
                     "configured": true,
                     "aggregates": [],
@@ -349,7 +348,6 @@ module.exports = {
                         "y": 140
                     },
                     "description": "exportedDataset",
-                    "hasTitleChange": false,
                     "input": {
                         "source": "dftest3.01369.upgradeTest",
                         "prefix": "upgradeTest",
@@ -488,7 +486,6 @@ module.exports = {
                         "y": 140
                     },
                     "description": "",
-                    "hasTitleChange": false,
                     "input": {
                         "sqlQueryStr": "SELECT * FROM testResults EXCEPT SELECT * FROM correctResults\nUNION\nSELECT * FROM correctResults EXCEPT SELECT * FROM testResults",
                         "identifiers": {
@@ -647,7 +644,6 @@ module.exports = {
     //                     "y": 540
     //                 },
     //                 "description": "",
-    //                 "hasTitleChange": false,
     //                 "input": {
     //                     "sqlQueryStr": "SELECT * FROM testResults EXCEPT SELECT * FROM correctResults\nUNION\nSELECT * FROM correctResults EXCEPT SELECT * FROM testResults",
     //                     "identifiers": {

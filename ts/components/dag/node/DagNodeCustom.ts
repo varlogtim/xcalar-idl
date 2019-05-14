@@ -631,10 +631,9 @@ class DagNodeCustom extends DagNode {
     public getNodeCopyInfo(
         clearState: boolean = false,
         includeStats: boolean = false,
-        includeTitle: boolean = true,
         forCopy: boolean = false
     ): DagNodeCustomInfo {
-        const copyInfo = <DagNodeCustomInfo>super.getNodeCopyInfo(clearState, includeStats, includeTitle, forCopy);
+        const copyInfo = <DagNodeCustomInfo>super.getNodeCopyInfo(clearState, includeStats, forCopy);
         copyInfo.subGraph = this._subGraph.getGraphCopyInfo();
         return copyInfo;
     }

@@ -326,13 +326,6 @@ describe("DagView Test", () => {
             node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
         });
 
-        it("node title should have no change", function() {
-            expect($operator.find(".nodeTitle")).to.be.visible;
-            expect($operator.find(".nodeTitle").text()).to.equal("Node 2");
-            expect(node.hasTitleChange).to.be.false;
-            expect($dfArea.find("textarea.editableNodeTitle").length).to.equal(0);
-        });
-
         it("dbl clicking on nodeTitle should trigger text area", function() {
             $operator.find(".nodeTitle").dblclick();
             expect($operator.find(".nodeTitle")).to.not.be.visible;
@@ -354,7 +347,6 @@ describe("DagView Test", () => {
                 expect(node.getTitle()).to.equal("newTitle");
                 expect($operator.find(".nodeTitle")).to.be.visible;
                 expect($operator.find(".nodeTitle").text()).to.equal("newTitle");
-                expect(node.hasTitleChange).to.be.true;
                 done();
             })
             .fail(function() {

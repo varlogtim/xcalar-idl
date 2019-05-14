@@ -1238,7 +1238,6 @@ class DagQueryConverter {
         dagNodeInfo.subGraphNodes = node.subGraphNodes;
         dagNodeInfo.aggregates = node.aggregates;
         dagNodeInfo.table = node.name;
-        dagNodeInfo.hasTitleChange = true;
         dagNodeInfo.id = DagNode.generateId();
         dagNodeInfo["nodeId"] = dagNodeInfo.id;
         dagNodeInfo["children"] = [];

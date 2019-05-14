@@ -35,7 +35,6 @@ describe("DagSchemaPopup Test", function() {
                         "y": 40
                     },
                     "description": "",
-                    "hasTitleChange": false,
                     "input": {
                         "source": "rudy.19434.classes",
                         "prefix": "classes",
@@ -66,7 +65,6 @@ describe("DagSchemaPopup Test", function() {
                         "y": 40
                     },
                     "description": "",
-                    "hasTitleChange": false,
                     "input": {
                         "eval": [
                             {
@@ -92,7 +90,6 @@ describe("DagSchemaPopup Test", function() {
                         "y": 40
                     },
                     "description": "",
-                    "hasTitleChange": false,
                     "input": {
                         "eval": [
                             {
@@ -118,7 +115,6 @@ describe("DagSchemaPopup Test", function() {
                         "y": 40
                     },
                     "description": "",
-                    "hasTitleChange": false,
                     "input": {
                         "groupBy": [
                             "mapCol"
@@ -155,7 +151,6 @@ describe("DagSchemaPopup Test", function() {
                         "y": 40
                     },
                     "description": "",
-                    "hasTitleChange": false,
                     "input": {
                         "evalString": ""
                     },
@@ -173,7 +168,6 @@ describe("DagSchemaPopup Test", function() {
                         "y": 140
                     },
                     "description": "",
-                    "hasTitleChange": false,
                     "input": {
                         "sqlQueryStr": "",
                         "identifiers": {},
