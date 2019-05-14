@@ -1267,7 +1267,7 @@ namespace DSPreview {
         return ($li.length > 0);
     }
 
-    function resetUdfSection(): void {
+    function resetUdfSection(options?): void {
         // restet the udf lists, otherwise the if clause in
         // selectUDFModule() and selectUDFFunc() will
         // stop the reset from triggering
@@ -1285,6 +1285,13 @@ namespace DSPreview {
 
             selectUDFModule("");
             selectUDFFunc("");
+        }
+
+        let $textArea = $("#dsForm-udfExtraArgs");
+        if (options && options.udfQuery) {
+            $textArea.val(JSON.stringify(options.udfQuery));
+        } else {
+            $textArea.val("");
         }
     }
 
@@ -1396,6 +1403,7 @@ namespace DSPreview {
         componentJsonFormat.reset();
         componentParquetFileFormat.reset();
         dataSourceSchema.reset();
+        $("#dsForm-udfExtraArgs").val("");
         $form.find(".checkbox.checked").removeClass("checked");
         $form.find(".collapse").removeClass("collapse");
         $previewWrap.find(".inputWaitingBG").remove();
@@ -1448,7 +1456,7 @@ namespace DSPreview {
         var format = options.format;
         if (format === formatMap.UDF) {
             cacheUDF(options.moduleName, options.funcName);
-            resetUdfSection();
+            resetUdfSection(options);
         } else if (format === formatMap.EXCEL) {
             $("#dsForm-excelIndex").val(0);
             $("#dsForm-skipRows").val(0);
@@ -2114,7 +2122,7 @@ namespace DSPreview {
         return isValid ? format : null;
     }
 
-    function validateUDF(): [string, string] | null {
+    function validateUDF(): [string, string, string] | null {
         let $moduleInput = $udfModuleList.find("input");
         let $funcInput = $udfFuncList.find("input");
         let isValid = xcHelper.validate([
@@ -2134,8 +2142,20 @@ namespace DSPreview {
 
         let udfModule = $moduleInput.data("module");
         let udfFunc = $funcInput.val();
+        let udfQuery = null;
 
-        return [udfModule, udfFunc];
+        let $textArea = $("#dsForm-udfExtraArgs");
+        let udfQueryStr = $textArea.val();
+        if (udfQueryStr !== "") {
+            try {
+                udfQuery = JSON.parse(udfQueryStr);
+            } catch (e) {
+                StatusBox.show(DSFormTStr.UDFQueryError, $textArea);
+                return null;
+            }
+        }
+
+        return [udfModule, udfFunc, udfQuery];
     }
 
     function validateCSVArgs(isCSV: boolean): [string, string, string, number] | null {
@@ -2451,8 +2471,7 @@ namespace DSPreview {
                 // error case
                 return null;
             }
-            udfModule = udfArgs[0];
-            udfFunc = udfArgs[1];
+            [udfModule, udfFunc, udfQuery] = udfArgs;
         } else if (format === formatMap.EXCEL) {
             udfModule = excelModule;
             udfFunc = excelFunc;
@@ -2549,8 +2568,7 @@ namespace DSPreview {
                 // error case
                 return null;
             }
-            udfModule = udfArgs[0];
-            udfFunc = udfArgs[1];
+            [udfModule, udfFunc, udfQuery] = validateUDF();
         } else if (format === formatMap.TEXT || format === formatMap.CSV) {
             let isCSV = (format === formatMap.CSV);
             let csvArgs = validateCSVArgs(isCSV);

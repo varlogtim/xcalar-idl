@@ -1266,6 +1266,7 @@ DSFormTStr = {
     'ImportMultiple': 'Importing Multiple Datasets',
     'ParseError': 'Your file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
     'UDFError': 'UDF generated errors while running your file.',
+    'UDFQueryError': 'Invalid arguments to parse, the extra UDF arguments should be a valid json',
     'NoFileInFolder': 'No data source files in this directory',
     'ResucriveErr': 'No data source files in directory <path>. Please import with \"recursive\" option to include files in subdirectories.',
     'TooManyPreview': 'You are importing <num> datasets. This will take a while. Do you want to proceed?',

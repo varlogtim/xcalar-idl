@@ -765,6 +765,8 @@ module.exports = {
         "ParquetParserTooltip": "Xcalar will use the selected parser to parse parquet files",
         "AutoDetectSchema": "Use Auto Detected Schema",
         "UseSchemaWizard": "Use Schema Wizard",
+        "UDFArgs": "UDF Args",
+        "UDFArgsHint": "Specify extra UDF arguments in json"
     },
 
     "fileBrowser": {

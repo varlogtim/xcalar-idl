@@ -1514,7 +1514,17 @@ describe("Dataset-DSPreview Test", function() {
             expect(validateUDFFunc(defaultUDFPath, "openExcel")).to.be.true;
         });
 
-        it("Should reset UDF", function() {
+        it("Should reset UDF case 1", function() {
+            let udfQuery = {"test": "a"};
+            DSPreview.__testOnly__.resetUdfSection({
+                "udfQuery": udfQuery
+            });
+            expect($udfModuleList.find("input").val()).to.be.empty;
+            expect($udfFuncList.find("input").val()).to.be.empty;
+            expect($("#dsForm-udfExtraArgs").val()).to.equal(JSON.stringify(udfQuery));
+        });
+
+        it("Should reset UDF case 2", function() {
             DSPreview.__testOnly__.resetUdfSection();
             expect($udfModuleList.find("input").val()).to.be.empty;
             expect($udfFuncList.find("input").val()).to.be.empty;
