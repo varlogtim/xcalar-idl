@@ -147,6 +147,7 @@ class DagNodeSQL extends DagNode {
             this.subGraph.setTableDagIdMap(newMap);
             this.subGraph.setDagIdToTableNamesMap(dagIdToTableNamesMap);
             this.subGraph.initializeProgress();
+            this.subGraph.updateNodeDescriptions(_newTableMap);
             return;
         }
         // XXX TODO: decouple with UI code

@@ -306,6 +306,23 @@ class DagSubGraph extends DagGraph {
         });
     }
 
+    // when sql tableNames are changed, change the node description as well
+    public updateNodeDescriptions(newTableMap) {
+        this.getAllNodes().forEach((node: DagNode) => {
+            let desc = node.getDescription();
+            try {
+                let newDesc = desc;
+                for (let oldTableName in newTableMap) {
+                    let re = new RegExp(oldTableName, "g");
+                    newDesc = newDesc.replace(re, newTableMap[oldTableName]);
+                }
+                node.setDescription(newDesc, true);
+            } catch (e) {
+                // ignore
+            }
+        });
+    }
+
     private _getGraphJSON(
         isCopyInfo: boolean = false
     ): DagGraphInfo {

@@ -251,12 +251,14 @@ abstract class DagNode extends Durable {
      *
      * @param description user description for the node
      */
-    public setDescription(description: string): void {
+    public setDescription(description: string, noPopupEvent: boolean = false): void {
         this.description = description;
-        this.events.trigger(DagNodeEvents.DescriptionChange, {
-            id: this.getId(),
-            text: this.description
-        });
+        if (!noPopupEvent) {
+            this.events.trigger(DagNodeEvents.DescriptionChange, {
+                id: this.getId(),
+                text: this.description
+            });
+        }
     }
 
     /**
