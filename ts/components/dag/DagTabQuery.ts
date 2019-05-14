@@ -85,8 +85,12 @@ class DagTabQuery extends DagTabProgress {
         XcalarQueryDelete(this._queryName)
         .then(deferred.resolve)
         .fail((error) => {
-            this._isDeleted = false;
-            deferred.reject(error);
+            if (error && error.status === StatusT.StatusQrQueryNotExist) {
+                deferred.resolve();
+            } else {
+                this._isDeleted = false;
+                deferred.reject(error);
+            }
         });
 
         return deferred.promise();
