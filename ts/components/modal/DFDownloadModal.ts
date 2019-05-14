@@ -262,44 +262,9 @@ class DFDownloadModal {
                 }
             })
             .then((blob) => {
-                const lnk = document.createElement('a');
-                let e;
                 const fileName: string = `${name}.png`;
-
-                // the key here is to set the download attribute of the a tag
-                lnk.download = fileName;
-                const newImg = document.createElement('img');
-                const url = URL.createObjectURL(blob);
-                newImg.onload = () => {
-                    lnk.href = url;
-                    if (lnk.href.length < 8) {
-                        // was not able to make url because image is probably too large
-                        deferred.reject({error: ErrTStr.LargeImgText});
-                        return;
-                    } else if (document.createEvent) {
-                        e = document.createEvent("MouseEvents");
-                        e.initMouseEvent("click", true, true, window,
-                                            0, 0, 0, 0, 0, false, false, false,
-                                            false, 0, null);
-                        // dispatchEvent return value not related to success
-                        lnk.dispatchEvent(e);
-                    } else if (lnk["fireEvent"]) {
-                        // fireevent has no return value
-                        lnk["fireEvent"]("onclick");
-                    } else {
-                        // No event fired.
-                        deferred.reject({error: ErrTStr.LargeImgText});
-                        return false;
-                    }
-                    URL.revokeObjectURL(url);
-                    deferred.resolve();
-                };
-                newImg.onerror = () => {
-                    deferred.reject({error: ErrTStr.LargeImgText});
-                };
-
-                // must be set AFTER .onload and .onerror
-                newImg.src = url;
+                window["saveAs"](blob, fileName);
+                deferred.resolve();
             })
             .catch((error) => {
                 if (typeof error !== "string") {
