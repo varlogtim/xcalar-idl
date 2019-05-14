@@ -246,7 +246,11 @@ class UDFPanel {
                         "bottom"
                     )
                 ) {
-                    this._eventSave(displayPath);
+                    $save.addClass("xc-disabled");
+                    this._eventSave(displayPath)
+                    .always(() => {
+                        $save.removeClass("xc-disabled");
+                    });
                 }
             }
         });
@@ -281,16 +285,24 @@ class UDFPanel {
         );
     }
 
-    private _eventSave(displayPath: string, newModule?: boolean): void {
+    private _eventSave(displayPath: string, newModule?: boolean): XDPromise<void> {
         const entireString: string = this._validateUDFStr();
         if (entireString) {
-            UDFFileManager.Instance.add(displayPath, entireString).then(() => {
+            let deferred: XDDeferred<void> = PromiseHelper.deferred();
+            UDFFileManager.Instance.add(displayPath, entireString)
+            .then(() => {
                 if (newModule) {
                     this._selectUDF(displayPath, false);
                 } else {
                     this.editorInitValue = this.editor.getValue();
                 }
-            });
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        } else {
+            return PromiseHelper.resolve();
         }
     }
 
