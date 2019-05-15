@@ -607,7 +607,8 @@ abstract class DagNode extends Durable {
     }
 
     public setParam(_param?: any, noAutoExecute?: boolean): boolean | void {
-        if (!this.input.hasParametersChanges() && this.configured) {
+        if ((this.type !== DagNodeType.SQL || this.state !== DagNodeState.Error)
+            && !this.input.hasParametersChanges() && this.configured) {
             // when there is no change
             return false;
         }

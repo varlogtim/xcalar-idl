@@ -2267,10 +2267,8 @@ class DagView {
             if (!params.sqlQueryStr) {
                 return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
             }
-            const paramterizedSQL = xcStringHelper.replaceMsg(params.sqlQueryStr,
-                DagParamManager.Instance.getParamMap(), true);
             const queryId = xcHelper.randName("sql", 8);
-            promise = dagNode.compileSQL(paramterizedSQL, queryId);
+            promise = dagNode.compileSQL(params.sqlQueryStr, queryId);
         }
         promise
             .then(() => {
@@ -2316,10 +2314,8 @@ class DagView {
             if (!params.sqlQueryStr) {
                 return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
             }
-            const paramterizedSQL = xcStringHelper.replaceMsg(params.sqlQueryStr,
-                DagParamManager.Instance.getParamMap(), true);
             const queryId = xcHelper.randName("sql", 8);
-            promise = dagNode.compileSQL(paramterizedSQL, queryId);
+            promise = dagNode.compileSQL(params.sqlQueryStr, queryId);
         }
         promise
             .then(() => {

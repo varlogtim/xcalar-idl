@@ -1234,7 +1234,8 @@ class DagNodeExecutor {
         let compiled = false;
         if (!xcQueryString) {
             compiled = true;
-            promise = node.compileSQL(params.sqlQueryStr, queryId, {}, self.replaceParam);
+            promise = node.compileSQL(params.sqlQueryStr, queryId,
+                    {originalSQLNode: this.originalSQLNode}, self.replaceParam);
         } else if (!node.getXcQueryString()) {
             // query string exists in original node but not the clone
             node.setNewTableName(this.originalSQLNode.getNewTableName());

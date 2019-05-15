@@ -62,10 +62,8 @@ class DagSchemaPopup {
                     self._$popup.find(".content, .close").addClass("xc-disabled");
                     const params: DagNodeSQLInputStruct = self._dagNode.getParam();
                     if (params.sqlQueryStr) {
-                        const paramterizedSQL = xcStringHelper.replaceMsg(params.sqlQueryStr,
-                            DagParamManager.Instance.getParamMap(), true);
                         const queryId = xcHelper.randName("sql", 8);
-                        promise = self._dagNode.compileSQL(paramterizedSQL, queryId)
+                        promise = self._dagNode.compileSQL(params.sqlQueryStr, queryId)
                         .always(() => {
                             self._$popup.find(".content, .close").removeClass("xc-disabled");
                         });

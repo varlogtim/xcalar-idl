@@ -2,6 +2,8 @@ class DagParamManager {
     private static _instance = null;
     private parameters = {};
     private paramTab;
+    private sqlNodesParamMap: {[nodeId: string]: Set<string>} = {};
+    private sqlNodesMap: {[nodeId: string]: DagNodeSQL} = {};
 
     constructor() {}
 
@@ -40,10 +42,50 @@ class DagParamManager {
     }
 
     public updateParamMap(params: {paramName: string}): XDPromise<void> {
+        const changedParams: Set<string> = new Set();
+        for (const key in params) {
+            if (!this.parameters.hasOwnProperty(key) ||
+                this.parameters[key] !== params[key]) {
+                changedParams.add(key);
+            }
+        }
+        for (const key in this.parameters) {
+            if (!params.hasOwnProperty(key)) {
+                changedParams.add(key);
+            }
+        }
+        for (const nodeId in this.sqlNodesParamMap) {
+            if (this.sqlNodesParamMap[nodeId]) {
+                let toReset = false;
+                for (const param of this.sqlNodesParamMap[nodeId].entries()) {
+                    if (changedParams.has(param[0]) &&
+                        this.sqlNodesMap[nodeId]) {
+                        // when it's changed, reset SQL nodes that are using it
+                        toReset = true;
+                        break;
+                    }
+                }
+                if (toReset) {
+                    this.sqlNodesMap[nodeId].setXcQueryString(null);
+                    this.sqlNodesMap[nodeId].setRawXcQueryString(null);
+                }
+            }
+        }
         this.parameters = params;
         let key: string = KVStore.getKey("gDagParamKey");
         const kvstore = new KVStore(key, gKVScope.WKBK);
         return kvstore.put(JSON.stringify(this.parameters), true, true);
+    }
+
+    public updateSQLParamMap(node: DagNodeSQL, params?: string[]): void {
+        const nodeId = node.getId();
+        if (params && params.length > 0) {
+            this.sqlNodesParamMap[nodeId] = new Set(params);
+            this.sqlNodesMap[nodeId] = node;
+        } else {
+            delete this.sqlNodesParamMap[nodeId];
+            delete this.sqlNodesMap[nodeId];
+        }
     }
 
     public checkParamInUse(_paramName) {

@@ -1086,7 +1086,8 @@ class DagNodeSQL extends DagNode {
             sqlMode?: boolean,
             pubTablesInfo?: {},
             dropAsYouGo?: boolean
-            sqlFunctions?: {}
+            sqlFunctions?: {},
+            originalSQLNode?: DagNodeSQL
         } = {},
         replaceParam: boolean = true
     ): XDPromise<any> {
@@ -1103,8 +1104,11 @@ class DagNodeSQL extends DagNode {
         try {
             if (replaceParam) {
                 // paramterize SQL
+                const parameters = DagNodeInput.getParamsInVal(sqlQueryStr);
+                DagParamManager.Instance.updateSQLParamMap(
+                                   options.originalSQLNode || this, parameters);
                 sqlQueryStr = xcStringHelper.replaceMsg(sqlQueryStr,
-                    DagParamManager.Instance.getParamMap(), true);
+                                  DagParamManager.Instance.getParamMap(), true);
             }
             // set all options
             self.setIdentifiers(options.identifiers);
