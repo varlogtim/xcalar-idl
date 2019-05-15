@@ -70,7 +70,7 @@ enum DagNodeErrorType {
     Disjoint = "Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow.",
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
-    NoAccessToSource = "User has no rights to access the dataset",
+    NoAccessToSource = "Dataset does not exist or you have no rights to access it. Please change the node configuration or restore the dastaset",
     InvalidSQLFunc = "Invalid SQL Function",
 }
 
