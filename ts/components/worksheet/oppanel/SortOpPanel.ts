@@ -29,12 +29,13 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
         }
 
         this._updateColumns();
-        if (super.showPanel(null, options)) {
+        super.showPanel(null, options)
+        .then(() => {
             this._setupColumnPicker(dagNode.getType());
-        }
-        if (error) {
-            this._startInAdvancedMode(error);
-        }
+            if (error) {
+                this._startInAdvancedMode(error);
+            }
+        });
     }
 
     /**

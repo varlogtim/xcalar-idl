@@ -179,7 +179,6 @@ class BaseOpPanel {
         // implemented by inheritor
     }
 
-
     private static _instance = null;
     protected $panel: JQuery;
     private advancedMode: boolean;
@@ -196,6 +195,7 @@ class BaseOpPanel {
     protected _cachedBasicModeParam: string;
     protected codeMirrorOnlyColumns = false;
     protected codeMirrorNoAggs = false;
+    protected _formCount = 0;
     private _validationList: { elem: HTMLElement, validate: () => string }[] = [];
     private _columnPicker: {
         target: HTMLElement; // The column name input box element
@@ -258,10 +258,12 @@ class BaseOpPanel {
         this._columnPicker.setData = null;
     }
 
-    protected showPanel(formName?: string, options?: ShowPanelInfo): boolean {
+    protected showPanel(formName?: string, options?: ShowPanelInfo): XDPromise<void> {
         if (this._formHelper.isOpen()) {
-            return false;
+            return PromiseHelper.reject();
         }
+        this._formCount++;
+        let formCount = this._formCount;
         this._reset();
         this._formHelper.showView(formName, this);
         MainMenu.setFormOpen();
@@ -281,9 +283,19 @@ class BaseOpPanel {
                 this._editor.setOption("readOnly", false);
             }
         }
-        this._setupOperationsMap(options.udfDisplayPathPrefix);
-        this._setupAggMap();
-        return true;
+        this._formHelper.waitForSetup();
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        XDFManager.Instance.waitForSetup()
+        .always(() => {
+            if (formCount !== this._formCount) {
+                return deferred.reject();
+            }
+            this._formHelper.unwaitForSetup();
+            this._setupOperationsMap(options.udfDisplayPathPrefix);
+            this._setupAggMap();
+            deferred.resolve();
+        });
+        return deferred.promise();
     }
 
     protected hidePanel(isSubmit?: boolean): boolean {
@@ -291,6 +303,8 @@ class BaseOpPanel {
         if (!this._formHelper.isOpen()) {
             return false;
         }
+        this._formCount++;
+        this._formHelper.unwaitForSetup();
         this._formHelper.removeWaitingBG();
         this._formHelper.hideView();
         this._formHelper.clear();

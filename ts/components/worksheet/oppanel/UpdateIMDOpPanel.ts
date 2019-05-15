@@ -34,18 +34,18 @@ class UpdateIMDOpPanel extends BaseOpPanel {
      */
     public show(dagNode: DagNodeUpdateIMD, options?): void {
         // Show panel
-        if (!super.showPanel("IMD Table", options)) {
-            return;
-        }
-        this._dagNode = dagNode;
-        this._columns = dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        })[0] || [];
+        super.showPanel("IMD Table", options)
+        .then(() => {
+            this._dagNode = dagNode;
+            this._columns = dagNode.getParents().map((parentNode) => {
+                return parentNode.getLineage().getColumns();
+            })[0] || [];
 
-        this._tables = PTblManager.Instance.getAvailableTables();
-        this._updateTableList();
-        this._setupColumnHints();
-        this._restorePanel(this._dagNode.getParam());
+            this._tables = PTblManager.Instance.getAvailableTables();
+            this._updateTableList();
+            this._setupColumnHints();
+            this._restorePanel(this._dagNode.getParam());
+        });
     }
 
     /**

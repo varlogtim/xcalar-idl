@@ -17,18 +17,17 @@ class SQLFuncInOpPanel extends BaseOpPanel {
      * Show the panel with information from dagNode
      * @param dagNode DagNode object
      */
-    public show(dagNode: DagNodeSQLFuncIn, options?): boolean {
+    public show(dagNode: DagNodeSQLFuncIn, options?) {
         // Show panel
-        if (!super.showPanel(null, options)) {
-            return;
-        }
-        this._dagNode = dagNode;
-        this._initializeTables();
-        const model = $.extend(this._dagNode.getParam(), {
-            schema: this._dagNode.getSchema()
+        super.showPanel(null, options)
+        .then(() => {
+            this._dagNode = dagNode;
+            this._initializeTables();
+            const model = $.extend(this._dagNode.getParam(), {
+                schema: this._dagNode.getSchema()
+            });
+            this._restorePanel(model);
         });
-        this._restorePanel(model);
-        return true;
     }
 
     /**

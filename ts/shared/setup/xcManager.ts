@@ -34,6 +34,7 @@ namespace xcManager {
             setupUserArea();
             xcTooltip.setup();
             CSHelp.setup();
+
             StatusBox.setup();
             StatusMessage.setup();
             BottomMenu.setup(); // async
@@ -73,23 +74,16 @@ namespace xcManager {
         .then(setupWKBKIndependentPanels)
         .then(setupSession) // restores info from kvStore
         .then(function() {
+            UDFPanel.Instance.setup();
             return XVM.initializeMode();
         })
         .then(function() {
             $("#topMenuBarTabs").removeClass("xc-hidden");
             MainMenu.setup();
             setupModeArea();
-            // StatusMessage.updateLocation(false, "Loading Extensions");
             ExtensionManager.loadEnabledExtension(); // async load of extnesion
-        })
-        .then(function() {
-            StatusMessage.updateLocation(false, "Loading UDFs");
-
-            return XDFManager.Instance.setup();
-        })
-        .then(function() {
+            XDFManager.Instance.setup();
             setupOpPanels();
-            BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
             window["ajv"] = new Ajv(); // json schema validator
 
@@ -160,6 +154,7 @@ namespace xcManager {
             deferred.resolve();
         })
         .fail(function(error) {
+            UDFPanel.Instance.setup(); // ok to load twice, we check
             $("body").addClass("xc-setup-error");
             setupStatus = SetupStatus["Fail"];
             handleSetupFail(error, firstTimeUser);

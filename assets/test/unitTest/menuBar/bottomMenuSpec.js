@@ -6,20 +6,6 @@ describe("Bottom Menu Test", function() {
     });
 
     describe("Basic API Test", function() {
-        it("BottomMenu.initialize should handle error", function() {
-            var oldFunc = UDFFileManager.Instance.initialize;
-            UDFFileManager.Instance.initialize = function() {
-                throw "error";
-            };
-
-            UnitTest.onMinMode();
-            BottomMenu.initialize();
-            UnitTest.hasAlertWithTitle(ThriftTStr.SetupErr);
-
-            UDFFileManager.Instance.initialize = oldFunc;
-            UnitTest.offMinMode();
-        });
-
         it("BottomMenu.openSection should work", function() {
             expect(BottomMenu.isMenuOpen()).to.be.false;
             BottomMenu.openSection(0);

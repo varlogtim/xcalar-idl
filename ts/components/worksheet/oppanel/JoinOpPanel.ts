@@ -31,9 +31,6 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         dagNode: DagNodeJoin,
         options: { isNoCast?: boolean, exitCallback?: Function }
     ): void {
-        if (!super.showPanel(null, options)) {
-            return;
-        }
         this._setupColumnPicker(dagNode.getType());
         const { isNoCast = true } = (options || {});
         this._dagNode = dagNode;
@@ -49,13 +46,20 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._updateAllColumns();
 
         // Update UI according to the data model
+        let error: string;
         try {
             this._updateUI();
         } catch (e) {
+            error = e;
+        }
+        super.showPanel(null, options)
+        .then(() => {
             // handle error after we call showPanel so that the rest of the form
             // gets setup
-            this._startInAdvancedMode(e);
-        }
+            if (error) {
+                this._startInAdvancedMode(error);
+            }
+        });
     }
 
     public close(isSubmit?: boolean): void {

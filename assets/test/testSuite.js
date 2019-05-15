@@ -510,6 +510,15 @@ window.TestSuite = (function($, TestSuite) {
             return deferred.promise();
         },
 
+        wait: function(time) {
+            time = time || 0;
+            var deferred = PromiseHelper.deferred();
+            setTimeout(() => {
+                deferred.resolve();
+            }, time);
+            return deferred.promise();
+        },
+
         // elemSelectors
         /**
          * checkExists

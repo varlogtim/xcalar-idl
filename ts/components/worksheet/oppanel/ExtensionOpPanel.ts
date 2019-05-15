@@ -11,18 +11,17 @@ class ExtensionOpPanel extends BaseOpPanel {
      * Show panel
      * @param dagNode
      */
-    public show(dagNode: DagNodeExtension, options?): boolean {
-        if (!super.showPanel("Extension", options)) {
-            return false;
-        }
-        this._initialize(dagNode);
-        this._formHelper.setup({});
-        try {
-            this._restorePanel();
-        } catch (e) {
-            console.error(e);
-        }
-        return true;
+    public show(dagNode: DagNodeExtension, options?) {
+        super.showPanel("Extension", options)
+        .then(() => {
+            this._initialize(dagNode);
+            this._formHelper.setup({});
+            try {
+                this._restorePanel();
+            } catch (e) {
+                console.error(e);
+            }
+        });
     }
 
     /**

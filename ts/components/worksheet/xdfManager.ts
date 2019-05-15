@@ -3,6 +3,8 @@ class XDFManager {
     private _operatorsMap = {}; //stores all xdfs sorted by category, each
     // category is a map
     private _allUDFs = [];
+    private _isSetup: boolean = false;
+    private _setupDeferred: XDDeferred<any> = PromiseHelper.deferred();
     public constructor() {}
 
     public static get Instance(): XDFManager {
@@ -30,24 +32,40 @@ class XDFManager {
                 }
             }
             self._setupOperatorsMap(fns);
+            this._isSetup = true;
+            this._setupDeferred.resolve();
             return PromiseHelper.resolve();
         } else {
-            const deferred: XDDeferred<any> = PromiseHelper.deferred();
             XcalarListXdfs("*", "*")
             .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
                 this._allUDFs = xcHelper.deepCopy(listXdfsObj.fnDescs.filter((xdf) => {
                     return xdf.category === FunctionCategoryT.FunctionCategoryUdf;
                 }));
-                const fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+                const fns: any[] = xcHelper.filterUDFs(listXdfsObj.fnDescs);
                 self._setupOperatorsMap(fns);
-                deferred.resolve();
+
+                this._setupDeferred.resolve();
             })
             .fail(function(error) {
                 Alert.error("List XDFs failed", error.error);
-                deferred.reject(error);
+                this._setupDeferred.reject(error);
+            })
+            .always(() => {
+                this._isSetup = true;
             });
-            return deferred.promise();
+            return this._setupDeferred.promise();
         }
+    }
+
+    public isSetup(): boolean {
+        return this._isSetup;
+    }
+
+    public waitForSetup(): XDPromise<void> {
+        if (this._isSetup) {
+            return PromiseHelper.resolve();
+        }
+        return this._setupDeferred.promise();
     }
 
     // returns a map of categories including all xdfs and
@@ -79,7 +97,7 @@ class XDFManager {
         let opMap = xcHelper.deepCopy(this._operatorsMap);
         let udfs: XcalarEvalFnDescT[] = xcHelper.deepCopy(this._allUDFs);
         udfs = xcHelper.filterUDFs(udfs, udfNSPathPrefix);
-        delete opMap[FunctionCategoryT.FunctionCategoryUdf];
+        opMap[FunctionCategoryT.FunctionCategoryUdf] = {};
         if (udfs.length) {
             if (sort) {
                 udfs.sort(sortFn);
@@ -87,7 +105,6 @@ class XDFManager {
                     return (a.displayName) > (b.displayName) ? 1 : -1;
                 }
             }
-            opMap[FunctionCategoryT.FunctionCategoryUdf] = {};
             udfs.forEach((udf) => {
                 opMap[FunctionCategoryT.FunctionCategoryUdf][udf.displayName] = udf;
             });
@@ -96,8 +113,7 @@ class XDFManager {
         return opMap;
     }
 
-    private _setupOperatorsMap(opArray) {
-        this._operatorsMap = {};
+    private _setupOperatorsMap(opArray: any[]) {
         opArray.forEach((op) => {
             if (!this._operatorsMap[op.category]) {
                 this._operatorsMap[op.category] = {};

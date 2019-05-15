@@ -126,42 +126,42 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeExport, options?): void {
         // Show panel
-        if (!super.showPanel(null, options)) {
-            return;
-        }
-        this._dagNode = dagNode;
-        try {
-            this._dataModel = ExportOpPanelModel.fromDag(dagNode);
-        } catch (e) {
-            this._dataModel = new ExportOpPanelModel();
-            MainMenu.setFormOpen();
-            this._startInAdvancedMode(e);
-            return;
-        }
-
-        if (this._dataModel.loadedName == "") {
-            this._currentDriver = "";
-        }
-
-        const $waitIcon = xcUIHelper.disableScreen(this._$elemPanel.find(".opSection"));
-
-        this._dataModel.loadDrivers()
+        super.showPanel(null, options)
         .then(() => {
-            this._dataModel.driverArgs =
-                this._dataModel.constructParams(this._dataModel.currentDriver,
-                this._dagNode.getParam().driverArgs);
-            this._updateUI();
-        })
-        .fail((error) => {
-            console.error(error);
-            this._dataModel.exportDrivers = [];
-            StatusBox.show("Unable to load drivers", $("#exportOpPanel .modalTopMain .exportDriver"),
-                    false, {'side': 'right'});
-        })
-        .always(() => {
-            MainMenu.setFormOpen();
-            this.panelResize();
-            xcUIHelper.enableScreen($waitIcon);
+             this._dagNode = dagNode;
+            try {
+                this._dataModel = ExportOpPanelModel.fromDag(dagNode);
+            } catch (e) {
+                this._dataModel = new ExportOpPanelModel();
+                MainMenu.setFormOpen();
+                this._startInAdvancedMode(e);
+                return;
+            }
+
+            if (this._dataModel.loadedName == "") {
+                this._currentDriver = "";
+            }
+
+            const $waitIcon = xcUIHelper.disableScreen(this._$elemPanel.find(".opSection"));
+
+            this._dataModel.loadDrivers()
+            .then(() => {
+                this._dataModel.driverArgs =
+                    this._dataModel.constructParams(this._dataModel.currentDriver,
+                    this._dagNode.getParam().driverArgs);
+                this._updateUI();
+            })
+            .fail((error) => {
+                console.error(error);
+                this._dataModel.exportDrivers = [];
+                StatusBox.show("Unable to load drivers", $("#exportOpPanel .modalTopMain .exportDriver"),
+                        false, {'side': 'right'});
+            })
+            .always(() => {
+                MainMenu.setFormOpen();
+                this.panelResize();
+                xcUIHelper.enableScreen($waitIcon);
+            });
         });
     }
 

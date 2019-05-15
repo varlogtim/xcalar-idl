@@ -18,17 +18,17 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
      */
     public show(dagNode: DagNodeSQLFuncOut, options?): void {
         // Show panel
-        if (!super.showPanel(null, options)) {
-            return;
-        }
-        this._dagNode = dagNode;
-        const model = dagNode.getParam();
-        this._restorePanel(model);
+        super.showPanel(null, options)
+        .then(() => {
+            this._dagNode = dagNode;
+            const model = dagNode.getParam();
+            this._restorePanel(model);
 
-        if (dagNode.getState() == DagNodeState.Unused) {
-            // if not configured, auto config it
-            this._autoDetectSchema();
-        }
+            if (dagNode.getState() == DagNodeState.Unused) {
+                // if not configured, auto config it
+                this._autoDetectSchema();
+            }
+        });
     }
 
     /**

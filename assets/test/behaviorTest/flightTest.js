@@ -203,7 +203,10 @@ window.FlightTest = (function(FlightTest, $) {
         function flightTestPart5(parentNodeId) {
             console.log("start flightTestPart5", "upload python");
             $("#udfTab").click();
-            test.checkExists(".editArea:visible")
+            test.checkExists("#udf-fnSection .editArea:visible")
+            .then(() => {
+                return test.checkExists("#udf-fnSection .xc-waitingBG", null, {notExist: true});
+            })
             .then(() => {
                 var udfDisplayName = "ymd.py";
                 var selector = '#udf-fnMenu li[data-original-title="' + udfDisplayName + '"]';
@@ -234,25 +237,28 @@ window.FlightTest = (function(FlightTest, $) {
         function flightTestPart6(parentNodeId) {
             console.log("start flightTestPart6", "map on flight table with udf");
             const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.Map);
-            const $panel = $("#mapOpPanel");
-            test.assert($panel.hasClass("xc-hidden") === false);
+            test.wait(10)
+            .then(() => {
+                const $panel = $("#mapOpPanel");
+                test.assert($panel.hasClass("xc-hidden") === false);
 
-            $panel.find(".categoryMenu li[data-category='9']")
-                .trigger(fakeEvent.click);
-            $panel.find(".functionsMenu li:contains('ymd:ymd')")
-                .trigger(fakeEvent.click);
-            const year = xcHelper.getPrefixColName(flightPrefix, "Year");
-            const month = xcHelper.getPrefixColName(flightPrefix, "Month");
-            const day = xcHelper.getPrefixColName(flightPrefix, "DayofMonth");
-            let $args = $panel.find(".arg");
-            fillArgInPanel($args.eq(0), gColPrefix + year);
-            $args = $panel.find(".arg");
-            fillArgInPanel($args.eq(1), gColPrefix + month);
-            fillArgInPanel($args.eq(2), gColPrefix + day);
-            fillArgInPanel($args.eq(3), "YearMonthDay");
-            $panel.find(".submit").click();
+                $panel.find(".categoryMenu li[data-category='9']")
+                    .trigger(fakeEvent.click);
+                $panel.find(".functionsMenu li:contains('ymd:ymd')")
+                    .trigger(fakeEvent.click);
+                const year = xcHelper.getPrefixColName(flightPrefix, "Year");
+                const month = xcHelper.getPrefixColName(flightPrefix, "Month");
+                const day = xcHelper.getPrefixColName(flightPrefix, "DayofMonth");
+                let $args = $panel.find(".arg");
+                fillArgInPanel($args.eq(0), gColPrefix + year);
+                $args = $panel.find(".arg");
+                fillArgInPanel($args.eq(1), gColPrefix + month);
+                fillArgInPanel($args.eq(2), gColPrefix + day);
+                fillArgInPanel($args.eq(3), "YearMonthDay");
+                $panel.find(".submit").click();
 
-            test.hasNodeWithState(nodeId, DagNodeState.Configured)
+                return test.hasNodeWithState(nodeId, DagNodeState.Configured);
+            })
             .then(() => {
                 flightTestPart7(nodeId);
             })
@@ -388,6 +394,13 @@ window.FlightTest = (function(FlightTest, $) {
             test.nodeMenuAction($node, "executeNode");
 
             test.executeNode(finalNodeId)
+            .then(() => {
+                let d = PromiseHelper.deferred();
+                setTimeout(() => {
+                    d.resolve(); // wait for aggregate to finish fetching
+                }, 3000);
+                return d.promise();
+            })
             .then(() => {
                 test.nodeMenuAction($node, "viewResult");
                 return test.checkExists("#alertHeader:visible .text:contains(Agg)");

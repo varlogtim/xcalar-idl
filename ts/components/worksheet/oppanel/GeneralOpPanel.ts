@@ -56,23 +56,32 @@ class GeneralOpPanel extends BaseOpPanel {
         return this._udfDisplayPathPrefix;
     }
 
-    public static updateOperatorsMap() {
+    public static updateOperatorsMap(): XDPromise<void> {
         if (!this._isSetup) {
-            return;
+            return PromiseHelper.reject();
         }
-        this._operatorsMap = XDFManager.Instance.getOperatorsMapFromWorkbook(
-            UDFFileManager.Instance.displayPathToNsPath(
-                this._udfDisplayPathPrefix
-        ), true);
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._needsUDFUpdate = false;
+        XDFManager.Instance.waitForSetup()
+        .always(() => {
+            this._operatorsMap = XDFManager.Instance.getOperatorsMapFromWorkbook(
+                UDFFileManager.Instance.displayPathToNsPath(
+                    this._udfDisplayPathPrefix
+            ), true);
+            deferred.resolve();
+        });
+        return deferred.promise();
     }
 
     public static setup() {
         this._isSetup = true;
         // UDFs should not rely on this.
-        this._operatorsMap = XDFManager.Instance.getOperatorsMap();
-        this._udfDisplayPathPrefix = UDFFileManager.Instance.getCurrWorkbookDisplayPath();
-    }
+        XDFManager.Instance.waitForSetup()
+        .always(() => {
+            this._operatorsMap = XDFManager.Instance.getOperatorsMap();
+            this._udfDisplayPathPrefix = UDFFileManager.Instance.getCurrWorkbookDisplayPath();
+        });
+     }
 
     public static getOperatorsMap() {
         return this._operatorsMap;
@@ -315,6 +324,9 @@ class GeneralOpPanel extends BaseOpPanel {
                 // ignore function inputs
                 return;
             }
+            if (self._formHelper.isWaitingForSetup()) {
+                return;
+            }
 
             const $hintli = $input.siblings('.hint').find('li.highlighted');
             if ($hintli.length && $hintli.is(":visible")) {
@@ -504,37 +516,45 @@ class GeneralOpPanel extends BaseOpPanel {
         });
     }
 
-    public show(node: DagNode, options?: ShowPanelInfo): boolean {
+    public show(node: DagNode, options?: ShowPanelInfo) {
         const self = this;
         this._dagNode = node;
         if (this._formHelper.isOpen()) {
-            return false;
+            return PromiseHelper.reject();
         }
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
 
-        if (GeneralOpPanel.getUDFDisplayPathPrefix() !== options.udfDisplayPathPrefix) {
-            GeneralOpPanel.setUDFDisplayPathPrefix(options.udfDisplayPathPrefix);
-            GeneralOpPanel.updateOperatorsMap();
-        }
-        this._operatorName = this._dagNode.getType().toLowerCase().trim();
-
-        super.showPanel(this._operatorName, options);
-
-        this._resetForm();
-        this._operationsViewShowListeners();
-
-        // used for css class
-        const opNameNoSpace: string = this._operatorName.replace(/ /g, "");
-        const columnPickerOptions: ColumnPickerOptions = {
-            "state": opNameNoSpace + "State",
-            "colCallback": function($target) {
-                self.columnPickerCallback($target);
-                self.columnPickerCallbackAdvancedMode($target);
+        super.showPanel(this._operatorName, options)
+        .then(() => {
+            if (GeneralOpPanel.getUDFDisplayPathPrefix() !== options.udfDisplayPathPrefix) {
+                GeneralOpPanel.setUDFDisplayPathPrefix(options.udfDisplayPathPrefix);
+                GeneralOpPanel.updateOperatorsMap();
             }
-        };
-        this._formHelper.setup({"columnPicker": columnPickerOptions});
+            this._operatorName = this._dagNode.getType().toLowerCase().trim();
 
-        this._toggleOpPanelDisplay(false);
-        return true;
+
+
+            this._resetForm();
+            this._operationsViewShowListeners();
+
+            // used for css class
+            const opNameNoSpace: string = this._operatorName.replace(/ /g, "");
+            const columnPickerOptions: ColumnPickerOptions = {
+                "state": opNameNoSpace + "State",
+                "colCallback": function($target) {
+                    self.columnPickerCallback($target);
+                    self.columnPickerCallbackAdvancedMode($target);
+                }
+            };
+            this._formHelper.setup({"columnPicker": columnPickerOptions});
+
+            this._toggleOpPanelDisplay(false);
+            deferred.resolve();
+        })
+        .fail(() => {
+            deferred.reject();
+        });
+        return deferred.promise();
     }
 
     public close(isSubmit?: boolean): void {

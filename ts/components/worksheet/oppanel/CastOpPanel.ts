@@ -18,26 +18,28 @@ class CastOpPanel extends BaseOpPanel {
         this._registerHandlers();
     }
 
-    public show(dagNode: DagNodeMap, options: {exitCallback?: Function}): boolean {
+    public show(dagNode: DagNodeMap, options: {exitCallback?: Function}) {
         if (this._formHelper.isOpen()) {
-            return false;
+            return PromiseHelper.reject();
         }
         this._reset();
         this._formHelper.setup({});
 
         this._dagNode = dagNode;
-        super.showPanel("cast", options);
-        const curColumns = this.updateColumns();
-        const param = dagNode.getParam();
+        super.showPanel("cast", options)
+        .then(() => {
+            const curColumns = this.updateColumns();
+            const param = dagNode.getParam();
 
-        try {
-            const selectedCols = this._paramToSelectedCols(param);
-            this.dataModel = this.colRenameSection.show([curColumns], [selectedCols]);
-            this._modifyColRenameSection();
-            this._autoResizeView(false);
-        } catch (e) {
-            this._startInAdvancedMode(e);
-        }
+            try {
+                const selectedCols = this._paramToSelectedCols(param);
+                this.dataModel = this.colRenameSection.show([curColumns], [selectedCols]);
+                this._modifyColRenameSection();
+                this._autoResizeView(false);
+            } catch (e) {
+                this._startInAdvancedMode(e);
+            }
+        });
     }
 
     public close(isSubmit?: boolean): boolean {

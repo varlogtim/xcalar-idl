@@ -10,16 +10,15 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         this._setup();
     }
 
-    public show(dagNode: DagNodeDFOut, options?): boolean {
-        if (!super.showPanel("Link Out", options)) {
-            return false;
-        }
-        this.model = new DFLinkOutOpPanelModel(dagNode, () => {
-            this._renderColumns();
+    public show(dagNode: DagNodeDFOut, options?) {
+        super.showPanel("Link Out", options)
+        .then(() => {
+            this.model = new DFLinkOutOpPanelModel(dagNode, () => {
+                this._renderColumns();
+            });
+            this._initialize(dagNode);
+            this._restorePanel();
         });
-        this._initialize(dagNode);
-        this._restorePanel();
-        return true;
     }
 
     public close(isSubmit?: boolean): void {

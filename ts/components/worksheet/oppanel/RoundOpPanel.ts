@@ -27,12 +27,13 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
             // gets setup
             error = e;
         }
-        if (super.showPanel(null, options)) {
+        super.showPanel(null, options)
+        .then(() => {
             this._setupColumnPicker(dagNode.getType());
-        }
-        if (error) {
-            this._startInAdvancedMode(error);
-        }
+            if (error) {
+                this._startInAdvancedMode(error);
+            }
+        });
     }
 
     /**

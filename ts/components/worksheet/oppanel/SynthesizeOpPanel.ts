@@ -7,16 +7,15 @@ class SynthesizeOpPanel extends BaseOpPanel {
         this._addEventListeners();
     }
 
-    public show(dagNode: DagNodeSynthesize, options: {exitCallback?: Function}): boolean {
+    public show(dagNode: DagNodeSynthesize, options: {exitCallback?: Function}) {
         // Show panel
-        if (!super.showPanel(null, options)) {
-            return;
-        }
-        this._dagNode = dagNode;
-        this._updateMode(true);
-        let param = this._dagNode.getParam();
-        this._restorePanel(param);
-        return true;
+        super.showPanel(null, options)
+        .then(() => {
+            this._dagNode = dagNode;
+            this._updateMode(true);
+            let param = this._dagNode.getParam();
+            this._restorePanel(param);
+        });
     }
 
     public close(isSubmit?: boolean): boolean {

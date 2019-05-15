@@ -62,6 +62,7 @@ class FormHelper {
     private openTime: number;
     private isFormOpen: boolean;
     public static activeForm: BaseOpPanel;
+    private _isWaitingForSetup: boolean;
 
     public constructor($form: JQuery, options?: FormHelperOptions) {
         this.$form = $form;
@@ -283,7 +284,7 @@ class FormHelper {
         // this should be the last step
         if (options.open != null && options.open instanceof Function) {
             // if options.open is not a promise, make it a promise
-            jQuery.when(options.open())
+            PromiseHelper.when(options.open())
             .then(deferred.resolve)
             .fail(deferred.reject);
         } else {
@@ -416,7 +417,7 @@ class FormHelper {
         return deferred.promise();
     }
 
-    public addWaitingBG(options: FormHelperBGOptions): void {
+    public addWaitingBG(options?: FormHelperBGOptions): void {
         options = options || {};
         const heightAdjust: number = options.heightAdjust || 0;
         const transparent: boolean = options.transparent || false;
@@ -594,6 +595,20 @@ class FormHelper {
             "title": TooltipTStr.FocusColumn,
             "container": "#container",
         }, 1000);
+    }
+
+    public waitForSetup() {
+        this._isWaitingForSetup = true;
+        this.addWaitingBG({});
+    }
+
+    public unwaitForSetup() {
+        this._isWaitingForSetup = false;
+        this.removeWaitingBG();
+    }
+
+    public isWaitingForSetup() {
+        return this._isWaitingForSetup;
     }
 }
 /* End of FormHelper */

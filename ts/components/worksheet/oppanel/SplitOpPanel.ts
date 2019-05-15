@@ -20,6 +20,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
      * @param dagNode DagNode object
      */
     public show(dagNode: DagNodeSplit, options?): void {
+
         this._dagNode = dagNode;
         this._dataModel = SplitOpPanelModel.fromDag(dagNode);
         let error: string;
@@ -30,12 +31,13 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
             // gets setup
             error = e;
         }
-        if (super.showPanel(null, options)) {
+        super.showPanel(null, options)
+        .then(() => {
             this._setupColumnPicker(dagNode.getType());
-        }
-        if (error) {
-            this._startInAdvancedMode(error);
-        }
+            if (error) {
+                this._startInAdvancedMode(error);
+            }
+        });
     }
 
     /**

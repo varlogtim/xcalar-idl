@@ -670,11 +670,13 @@ class SQLOpPanel extends BaseOpPanel {
             error = e;
         }
 
-        super.showPanel(null, options);
-        this._sqlEditor.refresh();
-        if (error) {
-            this._startInAdvancedMode(error);
-        }
+        super.showPanel(null, options)
+        .then(() => {
+            this._sqlEditor.refresh();
+            if (error) {
+                this._startInAdvancedMode(error);
+            }
+        });
     }
 
     public hasUnsavedChange(): boolean {

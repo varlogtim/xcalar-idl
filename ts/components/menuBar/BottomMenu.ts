@@ -10,18 +10,12 @@ namespace BottomMenu {
         $menuPanel = $("#bottomMenu");
         setupButtons();
         Log.setup();
-        UDFPanel.Instance.setup();
         HelpPanel.Instance.setup();
         DocsPanel.Instance.setup();
+        initialize();
     };
 
-    export function initialize(): void {
-        try {
-            UDFFileManager.Instance.initialize();
-        } catch (error) {
-            console.error(error);
-            Alert.error(ThriftTStr.SetupErr, error);
-        }
+    function initialize(): void {
         $menuPanel[0].addEventListener(window["transitionEnd"], function(event) {
             if (!$(event.target).is("#bottomMenu")) {
                 return;

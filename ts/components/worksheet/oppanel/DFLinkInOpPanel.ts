@@ -11,16 +11,15 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._schemaSection = new ColSchemaSection(this._getSchemaSection());
     }
 
-    public show(dagNode: DagNodeDFIn, options?): boolean {
-        if (!super.showPanel("Link In", options)) {
-            return false;
-        }
-        this._initialize(dagNode);
-        const model = $.extend(this._dagNode.getParam(), {
-            schema: this._dagNode.getSchema()
+    public show(dagNode: DagNodeDFIn, options?) {
+        super.showPanel("Link In", options)
+        .then(() => {
+            this._initialize(dagNode);
+            const model = $.extend(this._dagNode.getParam(), {
+                schema: this._dagNode.getSchema()
+            });
+            this._restorePanel(model);
         });
-        this._restorePanel(model);
-        return true;
     }
 
     /**
@@ -354,7 +353,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 linkOutName: "",
                 source: this._source
             });
-            
+
             let source: string = fakeLinkInNode.getSource();
             let schemaFromNode: ColSchema[] = this._getSchemaFromSourceNode(source);
             let promise: XDPromise<ColSchema[]>;
@@ -397,7 +396,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
                             return {
                                 name: progCol.getBackColName(),
                                 type: progCol.getType()
-                            } 
+                            }
                         });
                     }
                 }

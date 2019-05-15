@@ -44,20 +44,20 @@ class IMDTableOpPanel extends BaseOpPanel {
      */
     public show(dagNode: DagNodeIMDTable, options?): void {
         // Show panel
-        if (!super.showPanel("IMD Table", options)) {
-            return;
-        }
-        this._dagNode = dagNode;
-        this._selectedTable = null;
-        this._primaryKeys = [];
-        this._$columns.empty();
-        this._$versionList.empty();
-        this._currentStep = 1;
-        this._gotoStep();
+        super.showPanel("IMD Table", options)
+        .then(() => {
+            this._dagNode = dagNode;
+            this._selectedTable = null;
+            this._primaryKeys = [];
+            this._$columns.empty();
+            this._$versionList.empty();
+            this._currentStep = 1;
+            this._gotoStep();
 
-        this._tables = PTblManager.Instance.getAvailableTables();
-        this._updateTableList();
-        this._restorePanel(this._dagNode.getParam());
+            this._tables = PTblManager.Instance.getAvailableTables();
+            this._updateTableList();
+            this._restorePanel(this._dagNode.getParam());
+        });
     }
 
     /**

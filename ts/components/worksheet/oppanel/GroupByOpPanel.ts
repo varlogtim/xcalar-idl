@@ -69,8 +69,9 @@ class GroupByOpPanel extends GeneralOpPanel {
      *
      * @param node
      */
-    public show(node: DagNode, options: ShowPanelInfo): boolean {
-        if (super.show(node, options)) {
+    public show(node: DagNode, options: ShowPanelInfo) {
+        super.show(node, options)
+        .then(() => {
             this.model = new GroupByOpPanelModel(this._dagNode, (all) => {
                 this._render(all);
             }, options);
@@ -79,10 +80,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             this._render(true);
             this._focusNextInput(0);
             this._checkPanelOpeningError();
-            return true;
-        }
-
-        return false;
+        });
     };
 
     // functions that get called after list udfs is called during op view show

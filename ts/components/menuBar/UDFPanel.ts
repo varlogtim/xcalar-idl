@@ -9,6 +9,7 @@ class UDFPanel {
     private editorInitValue: string;
     private udfWidgets: CodeMirror.LineWidget[] = [];
     private dropdownHint: InputDropdownHint;
+    private isSetup: boolean;
     private readonly udfDefault: string =
         "# PLEASE TAKE NOTE:\n\n" +
         "# UDFs can only support\n" +
@@ -24,6 +25,10 @@ class UDFPanel {
      * @returns void
      */
     public setup(): void {
+        if (this.isSetup) {
+            return;
+        }
+        this.isSetup = true;
         this._setupUDF();
         this._setupDropdownList();
     }
@@ -495,6 +500,7 @@ class UDFPanel {
             displayName = UDFFileManager.Instance.nsPathToDisplayPath(
                 displayName
             );
+
             const tempHTML: string =
                 '<li class="tooltipOverflow' +
                 liClass +

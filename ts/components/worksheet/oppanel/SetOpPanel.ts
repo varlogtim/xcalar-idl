@@ -13,25 +13,25 @@ class SetOpPanel extends BaseOpPanel {
      * @param dagNode {DagNodeSet} show the view based on the set type node
      */
     public show(dagNode: DagNodeSet, options?): void {
-        if (!super.showPanel(null, options)) {
-            return;
-        }
-        this._dagNode = dagNode;
-        try {
-            this._initialize(dagNode);
-            this.updateColumns();
-            if (gMinModeOn) {
-                this._autoResizeView(false);
-            } else {
-                setTimeout(() => {
+        super.showPanel(null, options)
+        .then(() => {
+            this._dagNode = dagNode;
+            try {
+                this._initialize(dagNode);
+                this.updateColumns();
+                if (gMinModeOn) {
                     this._autoResizeView(false);
-                }, 1);
+                } else {
+                    setTimeout(() => {
+                        this._autoResizeView(false);
+                    }, 1);
+                }
+            } catch (e) {
+                this._startInAdvancedMode(e);
             }
-        } catch (e) {
-            this._startInAdvancedMode(e);
-        }
 
-        this._formHelper.setup({});
+            this._formHelper.setup({});
+        });
     }
 
     /**

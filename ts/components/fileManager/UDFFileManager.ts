@@ -263,25 +263,12 @@ class UDFFileManager extends BaseFileManager {
 
         this.list()
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
-            const updateViews = (
-                listXdfsObjUpdate: XcalarApiListXdfsOutputT
-            ) => {
-                const deferredUpdate: XDDeferred<
-                void
-                > = PromiseHelper.deferred();
+            const listXdfsObjUpdate: XcalarApiListXdfsOutputT = xcHelper.deepCopy(listXdfsObj);
+            this._updateStoredUDF(listXdfsObjUpdate);
+            this.filterWorkbookUDF(listXdfsObjUpdate);
+            DSTargetManager.updateUDF(listXdfsObjUpdate);
 
-                this._updateStoredUDF(listXdfsObjUpdate);
-                this.filterWorkbookUDF(listXdfsObjUpdate);
-                DSTargetManager.updateUDF(listXdfsObjUpdate);
-
-                deferredUpdate.resolve();
-                return deferredUpdate.promise();
-            };
-
-            return PromiseHelper.when(
-                updateViews(xcHelper.deepCopy(listXdfsObj)),
-                this._getUserWorkbookMap(listXdfsObj)
-            );
+            return this._getUserWorkbookMap(listXdfsObj);
         })
         .then(() => {
             UDFPanel.Instance.updateUDF();
@@ -308,10 +295,10 @@ class UDFFileManager extends BaseFileManager {
         XcalarApiListXdfsOutputT
         > = PromiseHelper.deferred();
         prefix = prefix || "";
-
         XcalarListXdfs(prefix + "*", "User*")
         .then(deferred.resolve)
         .fail(deferred.reject);
+
         return deferred.promise();
     }
 
@@ -892,12 +879,10 @@ class UDFFileManager extends BaseFileManager {
             return this.list();
         })
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
-            const updateViews = (
-                listXdfsObjUpdate: XcalarApiListXdfsOutputT
-            ) => {
-                const deferredUpdate: XDDeferred<void> =
-                    PromiseHelper.deferred();
-
+            const listXdfsObjUpdate: XcalarApiListXdfsOutputT = xcHelper.deepCopy(listXdfsObj);
+            let def: XDDeferred<void> = PromiseHelper.deferred();
+            XDFManager.Instance.waitForSetup()
+            .always(() => {
                 XDFManager.Instance.updateAllUDFs(listXdfsObjUpdate);
                 GeneralOpPanel.updateOperationsMap();
                 this._updateStoredUDF(listXdfsObjUpdate);
@@ -908,14 +893,13 @@ class UDFFileManager extends BaseFileManager {
                 DSPreview.update(listXdfsObjUpdate);
                 DSTargetManager.updateUDF(listXdfsObjUpdate);
                 XDFManager.Instance.updateUDFs(listXdfsObjUpdate);
-                deferredUpdate.resolve();
-                return deferredUpdate.promise();
-            };
 
-            return PromiseHelper.when(
-                updateViews(xcHelper.deepCopy(listXdfsObj)),
                 this._getUserWorkbookMap(listXdfsObj)
-            );
+                .then(def.resolve)
+                .fail(def.reject);
+            });
+
+            return def.promise();
         })
         .then(() => {
             UDFPanel.Instance.updateUDF();

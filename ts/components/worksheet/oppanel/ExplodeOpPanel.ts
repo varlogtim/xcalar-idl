@@ -28,13 +28,15 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
             // gets setup
             error = e;
         }
-        if (super.showPanel(null, options)) {
-            // GeneralOpPanel has its own columnPicker, so dont move the setup function call to BaseOpPanel
-            this._setupColumnPicker(dagNode.getType());
-        }
-        if (error) {
-            this._startInAdvancedMode(error);
-        }
+
+        super.showPanel(null, options)
+        .then(() => {
+              // GeneralOpPanel has its own columnPicker, so dont move the setup function call to BaseOpPanel
+              this._setupColumnPicker(dagNode.getType());
+            if (error) {
+                this._startInAdvancedMode(error);
+            }
+        });
     }
 
     /**

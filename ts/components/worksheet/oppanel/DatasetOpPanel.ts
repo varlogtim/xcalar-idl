@@ -35,20 +35,20 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeDataset, options?): void {
         // Show panel
-        if (!super.showPanel(null, options)) {
-            return;
-        }
-        this._dagNode = dagNode;
-        this._setupDatasetList();
-        this._advMode = false;
-        this._currentStep = 1;
-        this._gotoStep();
-        this._dagGraph = DagViewManager.Instance.getActiveDag();
-        const model = $.extend(dagNode.getParam(), {
-            schema: dagNode.getSchema(true) || []
+        super.showPanel(null, options)
+        .then(() => {
+            this._dagNode = dagNode;
+            this._setupDatasetList();
+            this._advMode = false;
+            this._currentStep = 1;
+            this._gotoStep();
+            this._dagGraph = DagViewManager.Instance.getActiveDag();
+            const model = $.extend(dagNode.getParam(), {
+                schema: dagNode.getSchema(true) || []
+            });
+            this._restorePanel(model, true);
+            MainMenu.setFormOpen();
         });
-        this._restorePanel(model, true);
-        MainMenu.setFormOpen();
     }
 
     /**

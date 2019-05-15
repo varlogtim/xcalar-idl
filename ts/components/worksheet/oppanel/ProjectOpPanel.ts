@@ -66,10 +66,12 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             error = e;
         }
         this._updateColumns();
-        super.showPanel(null, options);
-        if (error) {
-            this._startInAdvancedMode(error);
-        }
+        super.showPanel(null, options)
+        .then(() => {
+            if (error) {
+                this._startInAdvancedMode(error);
+            }
+        });
     }
 
     /**

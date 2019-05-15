@@ -25,17 +25,16 @@ class FilterOpPanel extends GeneralOpPanel {
     // restore: boolean, if true, will not clear the form from it's last state
     // restoreTime: time when previous operation took place
     // triggerColNum: colNum that triggered the opmodal
-    public show(node: DagNodeFilter, options: ShowPanelInfo): boolean {
-        if (super.show(node, options)) {
+    public show(node: DagNodeFilter, options: ShowPanelInfo) {
+        super.show(node, options)
+        .then(() => {
             this.model = new FilterOpPanelModel(node, () => {
                 this._render();
             }, options);
             super._panelShowHelper(this.model);
             this._render();
             this._checkPanelOpeningError();
-            return true;
-        }
-        return false;
+        });
     }
 
     protected _render(): void {

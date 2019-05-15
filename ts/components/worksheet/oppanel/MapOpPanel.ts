@@ -30,9 +30,10 @@ class MapOpPanel extends GeneralOpPanel {
 
     // options
     // restore: boolean, if true, will not clear the form from it's last state
-    public show(node: DagNodeMap, options: ShowPanelInfo): boolean {
+    public show(node: DagNodeMap, options: ShowPanelInfo) {
         const self = this;
-        if (super.show(node, options)) {
+        super.show(node, options)
+        .then(() => {
             this._updateOpCategories();
 
             this.model = new MapOpPanelModel(this._dagNode, () => {
@@ -65,9 +66,7 @@ class MapOpPanel extends GeneralOpPanel {
             });
 
             this._checkPanelOpeningError();
-            return true;
-        }
-        return false;
+        });
     }
 
     public close(isSubmit?) {
