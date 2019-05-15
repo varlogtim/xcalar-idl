@@ -1,6 +1,7 @@
 // Warning, this class should only be used in the DagGraph.
 // To interact with DagNode, use the public API in DagGraph.
 abstract class DagNode extends Durable {
+    public static readonly KEY: string = "dag";
     private static uid: XcUID;
 
     private id: DagNodeId;
@@ -35,7 +36,7 @@ abstract class DagNode extends Durable {
     };
 
     public static generateId(): string {
-        this.uid = this.uid || new XcUID("dag");
+        this.uid = this.uid || new XcUID(DagNode.KEY);
         return this.uid.gen();
     }
 

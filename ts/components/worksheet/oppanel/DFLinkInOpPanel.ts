@@ -354,15 +354,17 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 linkOutName: "",
                 source: this._source
             });
-            let source = fakeLinkInNode.getSource();
-            // since id doesn't really useful here, just make sure it's not empty
-            let id = xcHelper.getTableId(source) || source;
-            let table = new TableMeta({
-                tableName: source,
-                tableId: id
-            });
             
-            this._getSchemaFromResultSet(table)
+            let source: string = fakeLinkInNode.getSource();
+            let schemaFromNode: ColSchema[] = this._getSchemaFromSourceNode(source);
+            let promise: XDPromise<ColSchema[]>;
+            if (schemaFromNode != null) {
+                promise = PromiseHelper.resolve(schemaFromNode);
+            } else {
+                promise = this._getSchemaFromResultSet(source);
+            }
+
+            promise
             .then((schema) => {
                 this._schemaSection.setInitialSchema(schema);
                 this._schemaSection.render(schema);
@@ -378,9 +380,44 @@ class DFLinkInOpPanel extends BaseOpPanel {
         return promise;
     }
 
+    private _getSchemaFromSourceNode(wholeName: string): ColSchema[] | null {
+        let colSchema: ColSchema[] = null;
+        try {
+            let tableName: string = xcHelper.getTableName(wholeName);
+            let nodeIndex: number = tableName.indexOf(DagNode.KEY);
+            let tabIndex: number = tableName.indexOf(DagTab.KEY);
+            if (nodeIndex >= 0 && tabIndex >= 0) {
+                let tabId: string = tableName.substring(tabIndex, nodeIndex - 1);
+                let tab: DagTab = DagTabManager.Instance.getTabById(tabId);
+                if (tab != null) {
+                    let nodeId: string = tableName.substring(nodeIndex);
+                    let node = tab.getGraph().getNode(nodeId);
+                    if (node != null) {
+                        colSchema = node.getLineage().getColumns(true).map((progCol) => {
+                            return {
+                                name: progCol.getBackColName(),
+                                type: progCol.getType()
+                            } 
+                        });
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn("cannot find node from result set", e);
+        }
+        return colSchema;
+    }
+
     // XXX put it into TableMeta.ts
-    private _getSchemaFromResultSet(table): XDPromise<ColSchema[]> {
+    private _getSchemaFromResultSet(source: string): XDPromise<ColSchema[]> {
         let deferred: XDDeferred<ColSchema[]> = PromiseHelper.deferred();
+
+        // since id doesn't really useful here, just make sure it's not empty
+        let id = xcHelper.getTableId(source) || source;
+        let table = new TableMeta({
+            tableName: source,
+            tableId: id
+        });
 
         table.getMetaAndResultSet()
         .then(() => {

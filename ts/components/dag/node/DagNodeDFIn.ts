@@ -41,7 +41,7 @@ class DagNodeDFIn extends DagNodeIn {
             dataflowId = DagNodeDFIn.SELF_ID;
         }
         this.input.setInput({
-            dataflowId: dataflowId,
+            dataflowId: dataflowId || "",
             linkOutName: input.linkOutName,
             source: input.source || ""
         });
