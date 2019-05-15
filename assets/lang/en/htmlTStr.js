@@ -766,7 +766,7 @@ module.exports = {
         "AutoDetectSchema": "Use Auto Detected Schema",
         "UseSchemaWizard": "Use Schema Wizard",
         "UDFArgs": "UDF Args",
-        "UDFArgsHint": "Specify extra UDF arguments in json"
+        "UDFArgsHint": "Specify the UDF arguments (other than fullPath and inStream) in JSON format"
     },
 
     "fileBrowser": {
