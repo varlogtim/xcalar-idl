@@ -362,6 +362,8 @@ class DagLineage {
                 let type;
                 if (hiddenCols.has(colName)) {
                     type = hiddenCols.get(colName);
+                } else {
+                    type = colInf.type;
                 }
                 colInfo.columns.push(ColManager.newCol({name: frontName.name, backName: colName, type: type}));
             }

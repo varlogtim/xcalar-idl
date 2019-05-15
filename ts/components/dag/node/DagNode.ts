@@ -1086,6 +1086,9 @@ abstract class DagNode extends Durable {
                                 this.columnOrdering.indexOf(colName) === -1) {
                                 this.columnOrdering.splice(order, 0, colName);
                             }
+                            if (info[i].type != null) {
+                                colInfo.type = info[i].type;
+                            }
                         }
                         if (wasHidden) {
                             delete colInfo.isHidden;

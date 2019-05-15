@@ -203,13 +203,17 @@ namespace ColManager {
         };
 
         execCol("pull", usrStr, tableId, newColNum, {noLog: true})
-        .then(function() {
+        .then(function(res) {
             TblManager.updateHeaderAndListInfo(tableId);
             FormHelper.updateColumns(tableId);
             Log.add(SQLTStr.PullCol, sqlOptions);
             let node: DagNode = DagTable.Instance.getBindNode();
             if (node) {
-                node.columnChange(DagColumnChangeType.Pull, [backName]);
+                let info = null;
+                if (res && res.updateType != null) {
+                    info = [{"type": res.updateType}];
+                }
+                node.columnChange(DagColumnChangeType.Pull, [backName], info);
             }
             deferred.resolve(newColNum);
         })
@@ -499,7 +503,7 @@ namespace ColManager {
         undo?: boolean,
         backName?: string,
         noLog?: boolean
-    }): XDPromise<void> {
+    }): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let table = gTables[tableId];
 
@@ -558,11 +562,14 @@ namespace ColManager {
                     };
                     Log.add(SQLTStr.PullCol, sqlOptions);
                 }
-                deferred.resolve("update");
+                let curType: ColumnType = progCol.getType();
+                deferred.resolve({
+                    updateType: (origType == curType) ? null : curType
+                });
                 break;
             case ("raw"):
                 console.log("Raw data");
-                deferred.resolve();
+                deferred.resolve(null);
                 break;
             case ("search"):
                 searchColNames(args.value, args.searchBar, args.initialTableId);
@@ -954,6 +961,7 @@ namespace ColManager {
                 '</tr>';
         } else {
             // loop through table tr and start building html
+            let knownTypes: boolean[] = tableCols.map(isKnownType);
             for (let row = 0, numRows = jsonData.length; row < numRows; row++) {
                 let tdValue = parseRowJSON(jsonData[row]);
                 let rowNum = row + startIndex;
@@ -977,7 +985,8 @@ namespace ColManager {
                     let indexed = (indexedColNums.indexOf(colNum) > -1);
                     let parseOptions = {
                         "hasIndexStyle": hasIndexStyle,
-                        "indexed": indexed
+                        "indexed": indexed,
+                        "knownType": knownTypes[colNum]
                     };
                     let res = parseTdHelper(tdValue, nested, nestedTypes,
                                             tableCols[colNum], parseOptions);
@@ -1130,7 +1139,8 @@ namespace ColManager {
 
         let node: DagNode = DagTable.Instance.getBindNode();
         if (node) {
-            node.columnChange(DagColumnChangeType.Pull, finalColNames);
+            let info: {type: ColumnType}[] = getColumnTypeChangeInfo(tableId, finalColNames);
+            node.columnChange(DagColumnChangeType.Pull, finalColNames, info);
         }
         Log.add(SQLTStr.PullCols, {
             "operation": SQLOps.PullMultipleCols,
@@ -1143,6 +1153,23 @@ namespace ColManager {
             "htmlExclude": ["colNames"]
         });
     };
+
+    function getColumnTypeChangeInfo(
+        tableId: TableId,
+        colNames: string[]
+    ): {type: ColumnType}[] {
+        let info = null;
+        try {
+            let table: TableMeta = gTables[tableId];
+            info = colNames.map((colName) => {
+                let progCol = table.getColByBackName(colName);
+                return progCol ? {"type": progCol.getType()} : null;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        return info;
+    }
 
     // used for mixed columns when we want to get the type inside a td
     export function getCellType($td: JQuery, tableId: TableId): ColumnType  {
@@ -1184,17 +1211,29 @@ namespace ColManager {
         }
     }
 
+    function isKnownType(progCol: ProgCol): boolean {
+        return progCol && progCol.getType() != null;
+    }
+
     function parseTdHelper(
         rowData,
         nested: string[],
         nestedTypes: string[],
         progCol: ProgCol,
-        options?
+        options?: {
+            hasIndexStyle: boolean,
+            indexed: boolean,
+            knownType: boolean
+        }
     ):  {
         td: string,
         tdClass: string
     } {
-        options = options || {};
+        options = options || {
+            hasIndexStyle: undefined,
+            indexed: undefined,
+            knownType: undefined
+        };
 
         let knf = false;
         let truncLimit = 1000; // the character limit for the data td
@@ -1223,11 +1262,9 @@ namespace ColManager {
             }
 
             // define type of the column
-            // XXX Disable it as now we now the type from dataset
-            // XXX Handle the self-specified type case
-            // if (!knf) {
-            //     progCol.updateType(tdValue);
-            // }
+            if (!options.knownType && !knf) {
+                progCol.updateType(tdValue);
+            }
 
             // class for textAlign
             if (progCol.textAlign === "Left") {
@@ -1426,14 +1463,15 @@ namespace ColManager {
 
         let hasIndexStyle = table.showIndexStyle();
         $table.find(".col" + colNum).removeClass("indexedColumn");
-
+        let knownType: boolean = isKnownType(progCol);
         for (let i = startingIndex; i < endingIndex; i++) {
             let $jsonTd = $table.find('.row' + i + ' .col' + dataColNum);
             let jsonStr = $jsonTd.find('.originalData').text();
             let tdValue = parseRowJSON(jsonStr) || "";
             let res = parseTdHelper(tdValue, nested, nestedTypes, progCol, {
                 "indexed": indexed,
-                "hasIndexStyle": hasIndexStyle
+                "hasIndexStyle": hasIndexStyle,
+                "knownType": knownType
             });
 
             let $td = $table.find('.row' + i + ' .col' + colNum);
