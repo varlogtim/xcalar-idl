@@ -5,7 +5,7 @@ describe("DagNodeMenu Test", function() {
     let $dfArea;
     let $dfWrap;
 
-    before(function() {
+    before(function(done) {
         $menu = $("#dagNodeMenu");
         UnitTest.onMinMode();
         if (XVM.isSQLMode()) {
@@ -14,17 +14,21 @@ describe("DagNodeMenu Test", function() {
         if (!$("#modelingDataflowTab").hasClass("active")) {
             $("#dagButton").click();
         }
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
 
-        DagTabManager.Instance.newTab();
-        tabId = DagViewManager.Instance.getActiveDag().getTabId();
-        cachedUserPref = UserSettings.getPref;
-        UserSettings.getPref = function(val) {
-            if (val === "dfAutoExecute" || val === "dfAutoPreview") {
-                return false;
-            } else {
-                return cachedUserPref(val);
-            }
-        };
+            DagTabManager.Instance.newTab();
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            cachedUserPref = UserSettings.getPref;
+            UserSettings.getPref = function(val) {
+                if (val === "dfAutoExecute" || val === "dfAutoPreview") {
+                    return false;
+                } else {
+                    return cachedUserPref(val);
+                }
+            };
+            done();
+        });
     });
 
     describe("show correct menu options depending on situation", function() {
@@ -281,14 +285,13 @@ describe("DagNodeMenu Test", function() {
             DagView.selectNode($dfArea.find(".operator.map"));
             $dfArea.find(".operator.map .main").contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(6);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(6);
+            expect($menu.find("li:visible").length).to.equal(5);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(5);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
             expect(classes).to.deep.equal([
-                "configureNode",
                 "generateResult",
                 "resetNode",
                 "viewSchema",
@@ -354,12 +357,11 @@ describe("DagNodeMenu Test", function() {
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
-
             expect(classes).to.deep.equal([
-                "configureNode",
                 "executeNode unavailable",
                 "generateResult",
                 "resetNode",
+                "copyNodes",
                 "viewSchema"
             ]);
 

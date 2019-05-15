@@ -4153,6 +4153,14 @@ class DagView {
             return;
         }
         if (this.dagTab instanceof DagTabPublished) {
+             // if no drag, treat as right click and open menu
+            if (!$opMain.hasClass("comment") && !event.shiftKey) {
+                let contextMenuEvent = $.Event("contextmenu", {
+                    pageX: event.pageX,
+                    pageY: event.pageY
+                });
+                $opMain.trigger(contextMenuEvent);
+            }
             return;
         }
 

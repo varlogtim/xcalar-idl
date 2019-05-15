@@ -1079,7 +1079,7 @@ class DagViewManager {
             if (self.activeDagTab == null || self.activeDag == null) {
                 return; // error case
             }
-            if (self.activeDagTab instanceof DagTabProgress) {
+            if (self.isDisableActions()) {
                 return; // invalid case
             }
             const $node: JQuery = $(this).closest(".operator");

@@ -72,11 +72,6 @@ namespace DagNodeMenu {
             return false; // prevent default browser's rightclick menu
         });
 
-        // XXX undecided if we want menu to open on a regular click or just rightclick
-        // $dfWrap.on("click", ".operator .main", function(event: JQueryEventObject) {
-        //     _showNodeMenu($(this), event);
-        // });
-
         $dfWrap.on("contextmenu", function(event: JQueryEventObject) {
             _showNodeMenu(event, null);
             return false;

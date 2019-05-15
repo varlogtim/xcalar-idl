@@ -1427,8 +1427,14 @@
             }
         }
         &.nonEditableSubgraph {
-            .removeNode, .copyNodes, .cutNodes, .executeNode {
+            .configureNode, .removeNode, .copyNodes, .cutNodes, .executeNode {
                 display: none;
+            }
+
+            &.customTab {
+                .configureNode {
+                    display: list-item;
+                }
             }
 
             &.multiple {
@@ -1459,6 +1465,9 @@
             .cutNodes, .description, .newComment, .autoAlign, .createCustom, .removeNode {
                 display: none;
             }
+            .copyNodes {
+                display: list-item;
+            }
             &.nonEditableSubgraph {
                 .executeNode {
                     display: list-item;
@@ -1485,12 +1494,18 @@
             }
         }
         &.viewOnly {
-            .resetNode, .resetAllNodes, .lockNodeTable, .pasteNodes, .restoreAllDataset {
+            .resetNode, .resetAllNodes, .lockNodeTable, .pasteNodes,
+            .restoreAllDataset, .download, .duplicateDf {
                 display: none;
             }
         }
         &.published {
             .newComment, .autoAlign, .removeAllNodes, .pasteNodes {
+                display: none;
+            }
+        }
+        &.customTab {
+            .download, .duplicateDf {
                 display: none;
             }
         }
