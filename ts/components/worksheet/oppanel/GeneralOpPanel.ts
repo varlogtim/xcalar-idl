@@ -25,6 +25,7 @@ class GeneralOpPanel extends BaseOpPanel {
     private static _needsUDFUpdate: boolean = false;
     private static _operatorsMap = {};
     private static _udfDisplayPathPrefix: string;
+    private static _isSetup: boolean;
 
      // shows valid cast types
     protected static readonly castMap = {
@@ -56,6 +57,9 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     public static updateOperatorsMap() {
+        if (!this._isSetup) {
+            return;
+        }
         this._operatorsMap = XDFManager.Instance.getOperatorsMapFromWorkbook(
             UDFFileManager.Instance.displayPathToNsPath(
                 this._udfDisplayPathPrefix
@@ -64,6 +68,7 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     public static setup() {
+        this._isSetup = true;
         // UDFs should not rely on this.
         this._operatorsMap = XDFManager.Instance.getOperatorsMap();
         this._udfDisplayPathPrefix = UDFFileManager.Instance.getCurrWorkbookDisplayPath();
