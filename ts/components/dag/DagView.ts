@@ -1521,6 +1521,10 @@ class DagView {
         return $nodes;
     }
 
+    public getNodeElById(nodeId: DagNodeId): JQuery {
+        return this._getNode(nodeId);
+    }
+
     public getSelectedNodes(
         includeSelecting?: boolean,
         includeComments?: boolean

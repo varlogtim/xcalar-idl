@@ -41,22 +41,12 @@ class DagSearch {
         if (keyword === "") {
             this._clearSearch();
         } else {
-            keyword = keyword.toLowerCase();
-            // search tite and hint
-            let selector: string = ".nodeTitle";
-            if (UserSettings.getPref("dfConfigInfo")) {
-                selector += ", .paramTitle";
-            }
-            const $searchableFields: JQuery = DagViewManager.Instance.getActiveArea().find(selector);
-            const matches = $searchableFields.filter((_index, el) => {
-                return $(el).text().toLowerCase().includes(keyword);
-            }).toArray();
-
+            const matches = this._getMatches(keyword);
             // find the one in view as first
             let startIndex: number = 0;
             const $container: JQuery = DagViewManager.Instance.getActiveArea();
             matches.forEach((el, index) => {
-                const $match: JQuery = $(el);
+                let $match: JQuery = $(el);
                 if (DagUtil.isInView($match, $container)) {
                     startIndex = index;
                     return false; // stop loop
@@ -75,18 +65,51 @@ class DagSearch {
         }
     }
 
+    private _getMatches(keyword: string): Element[] {
+        let matches: Element[] = [];
+        try {
+            keyword = keyword.toLowerCase();
+            let graph: DagGraph = DagViewManager.Instance.getActiveDag();
+            let dagView: DagView = DagViewManager.Instance.getActiveDagView();
+            let checkHint: boolean = UserSettings.getPref("dfConfigInfo");
+            graph.getAllNodes().forEach((node: DagNode, nodeId: DagNodeId) => {
+                let $node = dagView.getNodeElById(nodeId);
+                if (node.getTitle().toLowerCase().includes(keyword)) {
+                    // title
+                    matches.push($node.find(".nodeTitle").get(0));
+                }
+                if (checkHint &&
+                    node.getParamHint().fullHint.toLowerCase().includes(keyword)
+                ) {
+                    // hint
+                    matches.push($node.find(".paramTitle").get(0));
+                }
+                if (node.getDisplayNodeType().toLowerCase().includes(keyword)) {
+                    matches.push($node.find(".opTitle").get(0));
+                }
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        return matches;
+    }
+
     private _clearSearch(): void {
         this._clearSearhHighlightInDagView(DagViewManager.Instance.getActiveArea());
         this._searchHelper.clearSearch();
     }
 
     private _clearSearhHighlightInDagView($dfArea: JQuery): void {
-        const selector: string = ".paramTitle.highlight, .nodeTitle.highlight";
+        let selector: string = this._getHighlightSelector();
         $dfArea.find(selector).removeClass("highlight");
     }
 
     private _getSearchArea(): JQuery {
         return $("#dagSearch");
+    }
+
+    private _getHighlightSelector(): string {
+        return ".paramTitle, .nodeTitle, .opTitle";
     }
 
     private _showSearchBar(): void {
