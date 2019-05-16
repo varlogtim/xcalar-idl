@@ -23,3 +23,5 @@ import * as Query from './Query/QueryService';
 export { Query };
 import * as PublishedTable from './PublishedTable/PublishedTableService';
 export { PublishedTable };
+import * as Table from './Table/TableService';
+export { Table };

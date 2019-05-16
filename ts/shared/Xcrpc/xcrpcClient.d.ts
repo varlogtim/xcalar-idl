@@ -39,6 +39,12 @@ declare module 'xcalar' {
         select(request: proto.xcalar.compute.localtypes.PublishedTable.SelectRequest): Promise<proto.xcalar.compute.localtypes.PublishedTable.SelectResponse>;
         listTables(request: proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest): Promise<proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse>;
     }
+
+    export class TableService {
+        constructor(client: XceClient);
+        addIndex(request: proto.xcalar.compute.localtypes.Table.IndexRequest): XDPromise<proto.google.protobuf.Empty>;
+    }
+
 }
 // === Service definitions: End ===
 
@@ -229,6 +235,13 @@ declare namespace proto.xcalar.compute.localtypes {
         }
 
     }
+
+    export namespace Table {
+        export class IndexRequest {
+            setKeyName(value: string): void;
+            setTableName(value: string): void;
+        }
+    }
 }
 
 declare namespace proto.xcalar.compute.localtypes.UDF {
@@ -271,3 +284,7 @@ declare namespace proto.xcalar.compute.localtypes.UDF {
     }
 }
 // === Data structure definitions: End ===
+
+declare namespace proto.google.protobuf {
+    export class Empty {}
+}
