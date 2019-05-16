@@ -109,6 +109,8 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     optimizations.pushToSelect =
         optimizations.pushToSelect == undefined ? true : optimizations.pushToSelect;
     let params: SQLQueryInput = {
+        userName: req.body.userName,
+        sessionName: req.body.wkbkName,
         execid: req.body.execid,
         queryString: req.body.queryString,
         limit: req.body.limit,
@@ -151,6 +153,8 @@ router.post("/xcsql/getXCqueryWithPublishedTables", [support.checkAuth],
     optimizations.pushToSelect =
         optimizations.pushToSelect == undefined ? true : optimizations.pushToSelect;
     let params: SQLQueryInput = {
+        userName: req.body.userName,
+        sessionName: req.body.wkbkName,
         execid: req.body.execid,
         queryString: req.body.queryString,
         limit: req.body.limit,
