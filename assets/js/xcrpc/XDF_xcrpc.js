@@ -37,14 +37,22 @@ XDFService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.XDF.ListXdfsRequest");
         //anyWrapper.pack(listXdfsRequest.serializeBinary(), "ListXdfsRequest");
 
-        var responseData = await this.client.execute("XDF", "ListXdfs", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var listXdfsResponse =
-        //    responseData.unpack(xDF.ListXdfsResponse.deserializeBinary,
-        //                        "ListXdfsResponse");
-        var listXdfsResponse = xDF.ListXdfsResponse.deserializeBinary(specificBytes);
-        return listXdfsResponse;
+        try {
+            var responseData = await this.client.execute("XDF", "ListXdfs", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var listXdfsResponse =
+            //    responseData.unpack(xDF.ListXdfsResponse.deserializeBinary,
+            //                        "ListXdfsResponse");
+            var listXdfsResponse = xDF.ListXdfsResponse.deserializeBinary(specificBytes);
+            return listXdfsResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = xDF.ListXdfsResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
 };
 

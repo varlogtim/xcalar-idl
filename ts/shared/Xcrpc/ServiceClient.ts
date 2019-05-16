@@ -11,6 +11,7 @@ import { DatasetService } from './Dataset/DatasetService';
 import { OperatorService } from './Operator/OperatorService';
 import { TargetService } from './Target/TargetService';
 import { DagNodeService} from './DagNode/DagNodeService';
+import { XDFService } from './XDF/XDFService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -65,6 +66,10 @@ class ServiceClient {
 
     public getDagNodeService(): DagNodeService {
         return new DagNodeService(this._apiClient);
+    }
+
+    public getXDFService(): XDFService {
+        return new XDFService(this._apiClient);
     }
 }
 

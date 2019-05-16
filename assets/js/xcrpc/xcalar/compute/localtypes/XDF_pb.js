@@ -12,6 +12,9 @@ var goog = jspb;
 var global = Function('return this')();
 
 var xcalar_compute_localtypes_Workbook_pb = require('../../../xcalar/compute/localtypes/Workbook_pb.js');
+var xcalar_compute_localtypes_FunctionCategory_pb = require('../../../xcalar/compute/localtypes/FunctionCategory_pb.js');
+var xcalar_compute_localtypes_DataFormatEnums_pb = require('../../../xcalar/compute/localtypes/DataFormatEnums_pb.js');
+var xcalar_compute_localtypes_XcalarEvalEnums_pb = require('../../../xcalar/compute/localtypes/XcalarEvalEnums_pb.js');
 goog.exportSymbol('proto.xcalar.compute.localtypes.XDF.ListXdfsRequest', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.XDF.ListXdfsResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalArgDesc', null, global);
@@ -428,7 +431,7 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalArgDesc.toObject 
     argdesc: jspb.Message.getFieldWithDefault(msg, 1, ""),
     typesAccepted: jspb.Message.getFieldWithDefault(msg, 2, 0),
     isSingletonValue: jspb.Message.getFieldWithDefault(msg, 3, false),
-    argType: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    argType: jspb.Message.getFieldWithDefault(msg, 4, 0),
     minArgs: jspb.Message.getFieldWithDefault(msg, 5, 0),
     maxArgs: jspb.Message.getFieldWithDefault(msg, 6, 0)
   };
@@ -480,7 +483,7 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalArgDesc.deseriali
       msg.setIsSingletonValue(value);
       break;
     case 4:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {!proto.xcalar.compute.localtypes.XcalarEnumType.XcalarEvalArgType} */ (reader.readEnum());
       msg.setArgType(value);
       break;
     case 5:
@@ -542,8 +545,8 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalArgDesc.serialize
     );
   }
   f = message.getArgType();
-  if (f.length > 0) {
-    writer.writeString(
+  if (f !== 0.0) {
+    writer.writeEnum(
       4,
       f
     );
@@ -613,17 +616,17 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalArgDesc.prototype
 
 
 /**
- * optional string arg_type = 4;
- * @return {string}
+ * optional xcalar.compute.localtypes.XcalarEnumType.XcalarEvalArgType arg_type = 4;
+ * @return {!proto.xcalar.compute.localtypes.XcalarEnumType.XcalarEvalArgType}
  */
 proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalArgDesc.prototype.getArgType = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+  return /** @type {!proto.xcalar.compute.localtypes.XcalarEnumType.XcalarEvalArgType} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
-/** @param {string} value */
+/** @param {!proto.xcalar.compute.localtypes.XcalarEnumType.XcalarEvalArgType} value */
 proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalArgDesc.prototype.setArgType = function(value) {
-  jspb.Message.setProto3StringField(this, 4, value);
+  jspb.Message.setProto3EnumField(this, 4, value);
 };
 
 
@@ -713,12 +716,12 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.toObject =
   var f, obj = {
     fnname: jspb.Message.getFieldWithDefault(msg, 1, ""),
     fndesc: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    category: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    category: jspb.Message.getFieldWithDefault(msg, 3, 0),
     numArgs: jspb.Message.getFieldWithDefault(msg, 4, 0),
     argdescsList: jspb.Message.toObjectList(msg.getArgdescsList(),
     proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalArgDesc.toObject, includeInstance),
     isSingletonOutput: jspb.Message.getFieldWithDefault(msg, 6, false),
-    outputType: jspb.Message.getFieldWithDefault(msg, 7, "")
+    outputType: jspb.Message.getFieldWithDefault(msg, 7, 0)
   };
 
   if (includeInstance) {
@@ -764,7 +767,7 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.deserializ
       msg.setFndesc(value);
       break;
     case 3:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {!proto.xcalar.compute.localtypes.XcalarEnumType.FunctionCategory} */ (reader.readEnum());
       msg.setCategory(value);
       break;
     case 4:
@@ -781,7 +784,7 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.deserializ
       msg.setIsSingletonOutput(value);
       break;
     case 7:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {!proto.xcalar.compute.localtypes.XcalarEnumType.DfFieldType} */ (reader.readEnum());
       msg.setOutputType(value);
       break;
     default:
@@ -828,8 +831,8 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.serializeB
     );
   }
   f = message.getCategory();
-  if (f.length > 0) {
-    writer.writeString(
+  if (f !== 0.0) {
+    writer.writeEnum(
       3,
       f
     );
@@ -857,8 +860,8 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.serializeB
     );
   }
   f = message.getOutputType();
-  if (f.length > 0) {
-    writer.writeString(
+  if (f !== 0.0) {
+    writer.writeEnum(
       7,
       f
     );
@@ -897,17 +900,17 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.prototype.
 
 
 /**
- * optional string category = 3;
- * @return {string}
+ * optional xcalar.compute.localtypes.XcalarEnumType.FunctionCategory category = 3;
+ * @return {!proto.xcalar.compute.localtypes.XcalarEnumType.FunctionCategory}
  */
 proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.prototype.getCategory = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+  return /** @type {!proto.xcalar.compute.localtypes.XcalarEnumType.FunctionCategory} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
-/** @param {string} value */
+/** @param {!proto.xcalar.compute.localtypes.XcalarEnumType.FunctionCategory} value */
 proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.prototype.setCategory = function(value) {
-  jspb.Message.setProto3StringField(this, 3, value);
+  jspb.Message.setProto3EnumField(this, 3, value);
 };
 
 
@@ -975,17 +978,17 @@ proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.prototype.
 
 
 /**
- * optional string output_type = 7;
- * @return {string}
+ * optional xcalar.compute.localtypes.XcalarEnumType.DfFieldType output_type = 7;
+ * @return {!proto.xcalar.compute.localtypes.XcalarEnumType.DfFieldType}
  */
 proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.prototype.getOutputType = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+  return /** @type {!proto.xcalar.compute.localtypes.XcalarEnumType.DfFieldType} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
 };
 
 
-/** @param {string} value */
+/** @param {!proto.xcalar.compute.localtypes.XcalarEnumType.DfFieldType} value */
 proto.xcalar.compute.localtypes.XDF.ListXdfsResponse.XcalarEvalFnDesc.prototype.setOutputType = function(value) {
-  jspb.Message.setProto3StringField(this, 7, value);
+  jspb.Message.setProto3EnumField(this, 7, value);
 };
 
 

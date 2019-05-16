@@ -654,7 +654,11 @@ declare var XcalarGetOpStats: any;
 declare var XcalarApiTop: any;
 declare var XcalarGetMemoryUsage: any;
 declare var XcalarGetAllTableMemory: any;
-declare var XcalarListXdfs: any;
+declare var XcalarListXdfs: (
+    fnNamePattern: string,
+    categoryPattern: string,
+    scopeInfo?: Xcrpc.XDF.ScopeInfo
+) => XDPromise<{ numXdfs: number, fnDescs: Array<Xcrpc.XDF.EvalFnDesc> }>;
 declare var XcalarUdfGetRes: any;
 declare var XcalarUploadPythonRejectDuplicate: any;
 declare var XcalarUploadPython: any;

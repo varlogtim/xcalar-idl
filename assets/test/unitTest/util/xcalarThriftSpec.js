@@ -1,22 +1,14 @@
 describe("XcalarThrift Test", function() {
     it("remove findMinIdx when invalid", function(done) {
-        xcalarApiListXdfs(tHandle, "*findMinIdx", "*")
-        .then(function(ret) {
-            expect(ret.fnDescs.length).to.equal(1);
-            expect(ret.fnDescs[0].fnName).to.equal("findMinIdx");
-            expect(ret.fnDescs[0].numArgs).to.equal(-1);
-            expect(ret.fnDescs[0].argDescs[0].typesAccepted).to.equal(0);
-            expect(ret.fnDescs[0].argDescs[0].argDesc).to.equal("");
-
-            return XcalarListXdfs("findMinIdx", "*");
-        })
-        .then(function(ret) {
+        XcalarListXdfs("*findMinIdx", "*")
+        .then((ret) => {
+            expect(ret.numXdfs).to.equal(0);
             expect(ret.fnDescs.length).to.equal(0);
             done();
         })
-        .fail(function() {
+        .fail(() => {
             done("fail");
-        });
+        })
     });
 
     // String must be resolved for this call

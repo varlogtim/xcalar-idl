@@ -41,3 +41,5 @@ import * as Target from './Target/TargetService';
 export { Target }
 import * as DagNode from './DagNode/DagNodeService';
 export { DagNode };
+import * as XDF from './XDF/XDFService';
+export { XDF };

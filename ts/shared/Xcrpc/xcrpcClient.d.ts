@@ -2,6 +2,8 @@
 
 // === Service definitions: Begin ===
 declare module 'xcalar' {
+    import ProtoTypes = proto.xcalar.compute.localtypes;
+
     export class XceClient {
         constructor(endpoint: string);
     }
@@ -52,8 +54,13 @@ declare module 'xcalar' {
 
     export class PublishedTableService {
         constructor(client: XceClient)
-        select(request: proto.xcalar.compute.localtypes.PublishedTable.SelectRequest): Promise<proto.xcalar.compute.localtypes.PublishedTable.SelectResponse>;
-        listTables(request: proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest): Promise<proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse>;
+        select(request: ProtoTypes.PublishedTable.SelectRequest): Promise<ProtoTypes.PublishedTable.SelectResponse>;
+        listTables(request: ProtoTypes.PublishedTable.ListTablesRequest): Promise<ProtoTypes.PublishedTable.ListTablesResponse>;
+    }
+
+    export class XDFService {
+        constructor(client: XceClient);
+        listXdfs(request: ProtoTypes.XDF.ListXdfsRequest): ProtoTypes.XDF.ListXdfsResponse;
     }
 
     export class DataflowService {
@@ -141,6 +148,24 @@ declare namespace proto.xcalar.compute.localtypes {
             UNION_STANDARD,
             UNION_INTERSECT,
             UNION_EXCEPT
+        }
+
+        export enum XcalarEvalArgType {
+            OPTIONAL_ARG, REQUIRED_ARG, VARIABLE_ARG, UDF_ARG
+        }
+
+        export enum FunctionCategory {
+            FUNCTION_CATEGORY_ARITHMETIC,
+            FUNCTION_CATEGORY_BITWISE,
+            FUNCTION_CATEGORY_TRIGONOMETRY,
+            FUNCTION_CATEGORY_CONVERSION,
+            FUNCTION_CATEGORY_STRING,
+            FUNCTION_CATEGORY_MISC,
+            FUNCTION_CATEGORY_CONDITION,
+            FUNCTION_CATEGORY_AGGREGATE,
+            FUNCTION_CATEGORY_CAST,
+            FUNCTION_CATEGORY_UDF,
+            FUNCTION_CATEGORY_TIMESTAMP
         }
 
         export enum XcalarApis {
@@ -1513,6 +1538,40 @@ declare namespace proto.xcalar.compute.localtypes {
 
         export class ExecuteResponse {
             getQueryName(): string;
+        }
+    }
+
+    export namespace XDF {
+        export class ListXdfsRequest {
+            setScope(value: Workbook.WorkbookScope): void;
+            setFnnamePattern(value: string): void;
+            setCategoryPattern(value: string): void;
+        }
+
+        export class ListXdfsResponse {
+            getNumXdfs(): number;
+            getFndescsList(): Array<ListXdfsResponse.XcalarEvalFnDesc>;
+        }
+
+        export namespace ListXdfsResponse {
+            export class XcalarEvalArgDesc {
+                getArgdesc(): string;
+                getTypesAccepted(): number;
+                getIsSingletonValue(): boolean;
+                getArgType(): XcalarEnumType.XcalarEvalArgType;
+                getMinArgs(): number;
+                getMaxArgs(): number;
+            }
+
+            export class XcalarEvalFnDesc {
+                getFnname(): string;
+                getFndesc(): string;
+                getCategory(): XcalarEnumType.FunctionCategory;
+                getNumArgs(): number;
+                getArgdescsList(): Array<XcalarEvalArgDesc>;
+                getIsSingletonOutput(): boolean;
+                getOutputType(): XcalarEnumType.DfFieldType;
+            }
         }
     }
 

@@ -4889,35 +4889,43 @@ XcalarGetAllTableMemory = function(): XDPromise<number> {
 
 XcalarListXdfs = function(
     fnNamePattern: string,
-    categoryPattern: string
-): XDPromise<any> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
+    categoryPattern: string,
+    scopeInfo?: Xcrpc.XDF.ScopeInfo
+): XDPromise<{ numXdfs: number, fnDescs: Array<Xcrpc.XDF.EvalFnDesc> }> {
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
 
-    xcalarApiListXdfs(tHandle, fnNamePattern, categoryPattern)
-    .then(function(listXdfsOutput) {
-        // xx remove findMinIdx until backend fixes crashes
-        for (var i = 0; i < listXdfsOutput.fnDescs.length; i++) {
-            if (listXdfsOutput.fnDescs[i].fnName === "findMinIdx") {
-                listXdfsOutput.fnDescs.splice(i , 1);
-                listXdfsOutput.numXdfs--;
-                i--;
-            } else {
-                (listXdfsOutput.fnDescs[i] as any).displayName =
-                    listXdfsOutput.fnDescs[i].fnName.split("/").pop();
-            }
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.XDF.SCOPE.GLOBAL,
+            workbook: Xcrpc.XDF.SCOPE.WORKBOOK
         }
-        deferred.resolve(listXdfsOutput);
+    });
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getXDFService().listXdfs({
+            fnNamePattern: fnNamePattern, categoryPattern: categoryPattern,
+            scope: xcrpcScope.scope, scopeInfo: xcrpcScope.scopeInfo
+        })
+    )
+    .then((result: Array<Xcrpc.XDF.EvalFnDesc>) => {
+        // Backward compatible: Xcrpc.XDF.EvalFnDesc has the same structure as thrift result
+        deferred.resolve({
+            numXdfs: result.length,
+            fnDescs: result
+        });
     })
     .fail(function(error) {
-        const thriftError = thriftLog("XcalarListXdf", error);
-        Log.errorLog("List Xdf", null, null, thriftError);
-        deferred.reject(thriftError);
+        if (Xcrpc.Error.isXcalarError(error)) {
+            const thriftError = thriftLog("XcalarListXdf", {
+                status: error.status
+            });
+            deferred.reject(thriftError);
+        } else {
+            deferred.reject(error);
+        }
     });
     return (deferred.promise());
 };
