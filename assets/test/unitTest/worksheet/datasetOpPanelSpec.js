@@ -5,7 +5,7 @@ describe("Dataset Operator Panel Test", function() {
     var oldJSONParse;
     var oldGetDS;
 
-    before(function() {
+    before(function(done) {
         node = new DagNodeDataset({});
         oldListDS = DS.listDatasets;
         DS.listDatasets = function() {
@@ -36,6 +36,11 @@ describe("Dataset Operator Panel Test", function() {
             var deferred = PromiseHelper.deferred();
             return deferred.resolve();
         }
+
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            done();
+        });
     });
 
     describe("Basic Dataset Panel UI Tests", function() {

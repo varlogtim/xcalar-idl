@@ -208,15 +208,12 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 this._loadArgs = this._parseLoadArgs(loadArgs);
                 const json = {
                     prefix: this._getPrefix(),
-                    source: this._getSource() || "",
+                    source: this._getSource() || this._getOldSourceFromNode() || "",
                     schema: this._schemaSection.getSchema(true),
                     synthesize: this._synthesize || false,
                     loadArgs: this._loadArgs
                 };
-                const paramStr = JSON.stringify(json, null, 4);
-                this._cachedBasicModeParam = paramStr;
-                this._editor.setValue(paramStr);
-                this._advMode = true;
+                this._renderAdvancedMode(json);
             });
         } else {
             try {
@@ -232,13 +229,32 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         return null;
     }
 
-    protected _startInAdvancedMode(model) {
+    protected _startInAdvancedMode(model: {
+        prefix: string,
+        source: string,
+        synthesize: boolean,
+        loadArgs: string | object,
+        schema: ColSchema[]
+    }): void {
         this._updateMode(true);
-        const paramStr = JSON.stringify(model, null, 4);
+        const json = Object.assign({}, model, {
+            loadArgs: this._parseLoadArgs(model.loadArgs)
+        });
+        this._renderAdvancedMode(json);
+        this._gotoStep();
+    }
+
+    private _renderAdvancedMode(json: {
+        prefix: string,
+        source: string,
+        synthesize: boolean,
+        loadArgs: object,
+        schema: ColSchema[]
+    }): void {
+        const paramStr = JSON.stringify(json, null, 4);
         this._cachedBasicModeParam = paramStr;
         this._editor.setValue(paramStr);
         this._advMode = true;
-        this._gotoStep();
     }
 
     private _autoDetectSchema(userOldSchema: boolean): {error: string} {
@@ -490,6 +506,15 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         return true;
     }
 
+    private _getOldSourceFromNode(): string {
+        try {
+            return this._dagNode.getParam().source;
+        } catch (e) {
+            console.error(e);
+            return "";
+        }
+    }
+
     private _getSource(): string {
         return this._$datasetList.find("li.fileName.active").data('id');
     }
@@ -524,11 +549,13 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _fetchLoadArgs(source): XDPromise<string> {
         let oldLoadArgs = this._dagNode.getLoadArgs();
-        if (source === this._dagNode.getParam().source &&
-            oldLoadArgs
-        ) {
+        let oldSource: string = this._getOldSourceFromNode();
+        if (source === oldSource && oldLoadArgs) {
             // when source not change, use the cached one
             return PromiseHelper.resolve(oldLoadArgs);
+        } else if (source == null && oldSource != null) {
+            // when it's a oldSource not exist case
+            return PromiseHelper.resolve(oldLoadArgs); 
         }
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const $panel: JQuery = this._getPanel();
