@@ -1393,7 +1393,22 @@ class DagQueryConverter {
                 // or if createTableInput exists, then index parent belongs to dataset
                 continue;
             }
+            // ignore if sort node found
+            let hasSort: boolean = false;
+            if (parent.rawNode && parent.rawNode.args && parent.rawNode.args.key &&
+                typeof parent.rawNode.args.key === "object") {
+                for (let j = 0; j < parent.rawNode.args.key.length; j++) {
+                    let key = parent.rawNode.args.key[j];
+                    if (key.ordering !== XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingUnordered]) {
+                        hasSort = true;
+                        break;
+                    }
+                }
+            }
 
+            if (hasSort) {
+                continue;
+            }
             // parent is an index
             if (!parent.parents.length ||
                 parent.parents[0].api === XcalarApisT.XcalarApiBulkLoad) {
@@ -1424,7 +1439,6 @@ class DagQueryConverter {
                     } else {
                         parent.subGraphNodes = [];
                     }
-
                 }
                 continue;
             }
