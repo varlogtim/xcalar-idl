@@ -197,11 +197,12 @@ namespace BottomMenu {
         _isMenuOpen = false;
         // recenter table titles if on workspace panel
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
-        if ((topMenuOpening && !isPoppedOut) ||  $("#container").hasClass("noWorkbookMenuBar")){
+        if ((topMenuOpening && !_isPoppedOut) ||  $("#container").hasClass("noWorkbookMenuBar")){
             noAnim();
-        } else if (!isPoppedOut && $("#modelingDagPanel").hasClass("active")) {
+        } else if (!_isPoppedOut && $("#modelingDagPanel").hasClass("active")) {
             checkMenuAnimFinish()
             .then(function() {
+                TblFunc.moveFirstColumn();
                 DagCategoryBar.Instance.showOrHideArrows();
             });
         }
@@ -288,6 +289,7 @@ namespace BottomMenu {
             if ($("#modelingDagPanel").hasClass("active")) {
                 checkMenuAnimFinish()
                 .then(function() {
+                    TblFunc.moveFirstColumn();
                     DagCategoryBar.Instance.showOrHideArrows();
                 });
             }
@@ -297,6 +299,7 @@ namespace BottomMenu {
             setTimeout(function() {
                 $("#container").removeClass("noMenuAnim");
             }, 0);
+            TblFunc.moveFirstColumn();
             DagCategoryBar.Instance.showOrHideArrows();
             hasAnim = false;
         }
@@ -348,6 +351,7 @@ namespace BottomMenu {
         if ($("#modelingDagPanel").hasClass("active")) {
             checkMenuAnimFinish()
             .then(function() {
+                TblFunc.moveFirstColumn();
                 DagCategoryBar.Instance.showOrHideArrows();
             });
         }
@@ -371,6 +375,7 @@ namespace BottomMenu {
         if (adjustTables && $("#modelingDagPanel").hasClass("active")) {
             checkMenuAnimFinish()
             .then(function() {
+                TblFunc.moveFirstColumn();
                 DagCategoryBar.Instance.showOrHideArrows();
             });
         }
