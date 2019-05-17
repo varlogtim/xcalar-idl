@@ -62,11 +62,22 @@ function generateTablePrefix(userName: string, wkbkName: string): string {
     return userName + "_wkbk_" + wkbkName + "_" + Date.now() + "_" + curNum;
 }
 
+function getUserIdUnique(name: string, hashFunc: any) {
+    // XXX This should be removed when we don't need userIdUnique after xcrpc migration
+    const hash = hashFunc(name);
+    const len = 5;
+    const id = parseInt("0x" + hash.substring(0, len)) + 4000000;
+    return id;
+}
+
 export function connect(hostname: string, username?: string, id?: number):
     JQueryPromise<XcalarApiGetVersionOutput> {
     if (!username) {
         username = "xcalar-internal-sql";
         id = 4193719;
+    }
+    if (!id) {
+        id = getUserIdUnique(username, jQuery.md5);
     }
     xcalarApi.setUserIdAndName(username, id, jQuery.md5);
     if (getTHandle() == null) {
@@ -80,11 +91,19 @@ export function connect(hostname: string, username?: string, id?: number):
 
 function activateWkbk(activeSessionNames: string[], wkbkName: string):
     JQueryPromise<any> {
+    const deferred = PromiseHelper.deferred();
     if (activeSessionNames.indexOf(wkbkName) < 0) {
-        return XcalarActivateWorkbook(wkbkName);
+        XcalarActivateWorkbook(wkbkName)
+        .then(() => {
+            deferred.resolve("newly activated");
+        })
+        .fail(() => {
+            deferred.reject("activation failed");
+        });
     } else {
-        return PromiseHelper.resolve("already activated");
+        deferred.resolve("already activated");
     }
+    return deferred.promise();
 }
 
 export function goToSqlWkbk(workbook?: string): JQueryPromise<any> {
@@ -117,7 +136,7 @@ export function goToSqlWkbk(workbook?: string): JQueryPromise<any> {
         }
     })
     .then(function(ret: any): void {
-        xcConsole.log("Activated workbook: ", ret);
+        xcConsole.log("Activated workbook " + wkbkName + ": ", ret);
         setSessionName(wkbkName);
         deferred.resolve(ret);
     })
