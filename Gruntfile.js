@@ -4610,8 +4610,10 @@ module.exports = function(grunt) {
      */
     grunt.task.registerTask("sync_with_thrift", "Sync trunk with thrift so backend and front end can communicate", function() {
 
+        var BUILD_DIR = process.env[BUILD_DIR] || (process.env[XLRDIR] + "/buildOut");
+	var buildout_dir_rel = BUILD_DIR.substr(process.env[XLRDIR].length+1)
         // backend dirs (rel BACKENDBLDROOT) of js scripts to copy in to xcalar-gui bld
-        var backend_js_src_dirs_rel = ['bin/jsPackage/', 'buildOut/src/bin/jsClient/'];
+        var backend_js_src_dirs_rel = ['bin/jsPackage/', buildout_dir_rel + '/src/bin/jsClient/'];
         // dir (rel BLDROOT) where the backend files should be copied to in xcalar-gui bld
         var thrift_dest = 'assets/js/thrift/';
         // xcalar-gui bld files to keep when syncing with backend
