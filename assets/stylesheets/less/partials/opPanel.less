@@ -1,3 +1,22 @@
+#mainMenu {
+    @title-height: 40px;
+    .opPanel {
+        display: flex;
+        flex-direction: column;
+        > header {
+            flex: 1 0 auto;
+            min-height: @title-height;
+            height: auto;
+
+            .row {
+                &:first-child {
+                    height: @title-height;
+                }
+            }
+        }
+    }
+}
+
 .opPanel {
     height: 100%;
     background-color: @color-white;
@@ -11,6 +30,7 @@
     @commonMargin: 10px; // margin left used on text and input padding
     @checkbox-color: @color-bg-cardHeader;
     @functionsListZindex: 10;
+
 
     section {
         color: @color-font-form-gray;
@@ -69,7 +89,7 @@
             }
         }
 
-        > .close {
+        .close {
             line-height: @title-height;
             margin-right: 10px;
             float: right;
@@ -80,6 +100,16 @@
             &:hover {
                 opacity: @opacity-hover;
             }
+        }
+
+        .subTitle {
+            font-weight: normal;
+            font-size: 12px;
+            line-height: 16px;
+            padding-bottom: 10px;
+            .textOverflowOneLine;
+            margin-left: 10px;
+            margin-right: 15px;
         }
     }
 
@@ -1943,7 +1973,7 @@
             margin-bottom: 8px;
             margin-right: 13px;
             float: right;
-    
+
             .clearfix;
             .text {
                 float: left;
@@ -2580,333 +2610,335 @@
         }
     }
 
-    .row {
-        .size(@height: 100%);
-        .flex-container();
-        .flex-flow(nowrap);
-        .align-items(center);
-        position: relative;
+    .mainContent {
+        .row {
+            .size(@height: 100%);
+            .flex-container();
+            .flex-flow(nowrap);
+            .align-items(center);
+            position: relative;
 
-        &.option {
-            margin-top: 6px;
+            &.option {
+                margin-top: 6px;
+            }
         }
-    }
 
-    .col {
-        .flex(1);
-        .size(@height: 100%);
-        .flex-container();
-        .align-items(center);
-        white-space: nowrap;
-    }
-
-    .gen-columns(@n; @i:1) when (@i <= @n) {
-        .col-@{i} {
-            .flex(@i);
-        }
-        .gen-columns(@n; (@i + 1));
-    }
-    .gen-columns(12);
-
-    .col-left, .col-right {
-        .col-6();
-        .size(@width: ~"calc(50% - @{middleIconWidth})");
-    }
-
-    .col-fixed {
-        flex-grow: 0;
-        flex-shrink: 0;
-    }
-
-    .col-checkbox {
-        padding-right: 8px;
-        .col-fixed();
-    }
-
-    .col-qmark {
-        padding-left: 3px;
-    }
-
-    .row-subheading {
         .col {
-            font-weight: 700;
+            .flex(1);
+            .size(@height: 100%);
+            .flex-container();
+            .align-items(center);
+            white-space: nowrap;
         }
-    }
 
-    .row-rename {
-        margin-top: -1px;
-    }
-
-    .dropDownList {
-        .list.hint {
-            .size(@width: 100%);
+        .gen-columns(@n; @i:1) when (@i <= @n) {
+            .col-@{i} {
+                .flex(@i);
+            }
+            .gen-columns(@n; (@i + 1));
         }
-        .colNameMenuIcon {
-            position: absolute;
-            right: 0px;
-            font-size: 8px;
-            .size(@height: 100%, @width: 20px);
-            line-height: @listHeight;
-            text-align: center;
-            color: @color-bg-cardHeader;
-            cursor: pointer;
+        .gen-columns(12);
+
+        .col-left, .col-right {
+            .col-6();
+            .size(@width: ~"calc(50% - @{middleIconWidth})");
         }
-    }
 
-    .dropdownList-join, .dropdownList-cast {
-        float: none;
-        .size(@height: @listHeight + 2px);
-        line-height: @listHeight;
-        border: 1px solid @color-border-softGray;
+        .col-fixed {
+            flex-grow: 0;
+            flex-shrink: 0;
+        }
 
-        .list {
-            .size(@width: 100%);
-            li {
-                border-top: 1px solid @color-border-softGray;
+        .col-checkbox {
+            padding-right: 8px;
+            .col-fixed();
+        }
+
+        .col-qmark {
+            padding-left: 3px;
+        }
+
+        .row-subheading {
+            .col {
+                font-weight: 700;
             }
         }
-        .text {
-            border: none;
-        }
-        .iconWrapper {
-            background-color: transparent;
-            border: none;
-        }
-    }
 
-    .dropdownList-cast {
-        border-bottom: none;
-    }
-
-    .col-middle {
-        .size(@width: @middleIconWidth, @height: @listHeight);
-    }
-
-    .col-middle-wrapper {
-        .size(14px, 14px);
-        .center-align;
-        border-radius: 100%;
-        background-color: @color-white;
-        top: @listHeight/2;
-    }
-
-    .removeIcon, .renameIcon {
-        .col-middle();
-        cursor: pointer;
-
-        .iconWrapper {
-            .col-middle-wrapper();
-        }
-
-        .icon {
-            color: @color-font-dropdown-gray;
-        }
-    }
-
-    .removeIcon {
-        &:hover .icon {
-            .transform(rotate(45deg));
-            &::before {
-                    content: "\e9b2"; // plus circle
-            }
-        }
-    }
-
-    .removeIcon-nodel {
-        pointer-events: none;
-        &:hover .icon {
-            .transform(rotate(0deg));
-            &::before {
-                content: "\e9b0"; // equal circle
-            }
-        }
-    }
-
-    .joinClause {
-        padding-bottom: 2px;
-
-        .dropDownList li {
-            padding-left: 2px;
-        }
-    }
-
-    .addClause {
-        padding-top: 15px;
-        .flex-display;
-        .flex-wrap(wrap);
-        .justify-content(center);
-
-        .btn {
-            width: 200px;
-        }
-    }
-
-    .castErr {
-        position: relative;
-        padding-left: 10px;
-        padding-right: 10px;
-        margin-bottom: 2px;
-
-        .tooltip-inner {
-            border: 1px solid @color-error-border-light;
-            background-color: white;
-            max-width: 100%;
-            color: @color-font-form-gray;
-            box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
-        }
-
-        .icon {
-            .position(absolute, @left: ~"calc(50% - 4px)");
-            color: @color-error-border-light;
-            background-color: transparent;
-            opacity: 0.9;
+        .row-rename {
             margin-top: -1px;
         }
-    }
 
-    .dropdown-detach, .text-detach {
-        border-color: @color-error-border-light;
-    }
-
-    .strPreview {
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    .bulkIcon {
-        .col-middle();
-        cursor: pointer;
-        .optionWrap {
-            .col-middle-wrapper();
-
-            .option {
-                .size(100%, 100%);
-                background-color: @color-font-dropdown-gray;
-                .rounded(50%);
+        .dropDownList {
+            .list.hint {
+                .size(@width: 100%);
+            }
+            .colNameMenuIcon {
+                position: absolute;
+                right: 0px;
+                font-size: 8px;
+                .size(@height: 100%, @width: 20px);
+                line-height: @listHeight;
                 text-align: center;
-                .font(@line-height: 7px, @color: @color-white);
+                color: @color-bg-cardHeader;
                 cursor: pointer;
             }
-
-            .menu {
-                .position(absolute);
-                .size(@width: 130px, @height: 70px);
-
-                li {
-                    .size(@height: 20px);
-                    line-height: 20px;
-                    padding: 2px 8px;
-
-                    &.copyAppend {
-                        .size(@height: 50px);
-                    }
-                }
-
-                span, input {
-                    .size(@width: 100%, @height: 20px);
-                    display: block;
-                }
-
-                input {
-                    text-align: left;
-                }
-            }
         }
-    }
 
-    .tableHeader {
-        margin-top: 6px;
-        padding-top: 4px;
-        padding-bottom: 4px;
-        .title {
-            .size(@width: 100%);
-            font-weight: 700;
-        }
-    }
-
-    .clickable {
-        cursor: pointer;
-    }
-
-    .checkboxWrap {
-        float: none;
-        .clickable();
-        .checkbox {
-            margin-right: 5px;
-            margin-left: 0;
-        }
-    }
-
-    .columnList {
-        .size(@width: 50%);
-        margin-right: -1px;
-
-        .column {
-            .flexContainer();
-            .size(@height: @listHeight, @width: 100%);
-            line-height: @listHeight - 2;
+        .dropdownList-join, .dropdownList-cast {
+            float: none;
+            .size(@height: @listHeight + 2px);
+            line-height: @listHeight;
             border: 1px solid @color-border-softGray;
-            margin-top: -1px;
-        }
 
-        .column-clickable {
-            .clickable();
-        }
-
-        .column-title {
-            border: none;
-            font-weight: 700;
-            .title-text {
-                .col();
-            }
-            .title-icon {
-                padding-left: 10px;
-                .col();
-                .col-6();
-                .action-icon {
-                    cursor: pointer;
-                    opacity: @opacity-unhover;
-                    &:hover {
-                        opacity: @opacity-hover;
-                    }
-                }
-            }
-        }
-
-        .actionWrap {
-            padding-left: 5px;
-            padding-right: 5px;
-            .size(@width: 18px);
-            color: @color-font-warm-grey-two;
-        }
-
-        .colNameWrap {
-            .size(@width: 100%);
-        }
-    }
-
-    .columnList-full {
-        .size(@width: 100%);
-    }
-
-    .advancedSection {
-        .advancedIcon {
-            margin: 0;
-            left: 0;
-        }
-        .optionsSection {
-            padding-left: 26px;
-
-            .checkboxSection {
-                cursor: auto;
-                > div {
-                    float: none;
-                    margin: 0;
+            .list {
+                .size(@width: 100%);
+                li {
+                    border-top: 1px solid @color-border-softGray;
                 }
             }
             .text {
-                font-size: 11px;
+                border: none;
+            }
+            .iconWrapper {
+                background-color: transparent;
+                border: none;
+            }
+        }
+
+        .dropdownList-cast {
+            border-bottom: none;
+        }
+
+        .col-middle {
+            .size(@width: @middleIconWidth, @height: @listHeight);
+        }
+
+        .col-middle-wrapper {
+            .size(14px, 14px);
+            .center-align;
+            border-radius: 100%;
+            background-color: @color-white;
+            top: @listHeight/2;
+        }
+
+        .removeIcon, .renameIcon {
+            .col-middle();
+            cursor: pointer;
+
+            .iconWrapper {
+                .col-middle-wrapper();
+            }
+
+            .icon {
                 color: @color-font-dropdown-gray;
+            }
+        }
+
+        .removeIcon {
+            &:hover .icon {
+                .transform(rotate(45deg));
+                &::before {
+                        content: "\e9b2"; // plus circle
+                }
+            }
+        }
+
+        .removeIcon-nodel {
+            pointer-events: none;
+            &:hover .icon {
+                .transform(rotate(0deg));
+                &::before {
+                    content: "\e9b0"; // equal circle
+                }
+            }
+        }
+
+        .joinClause {
+            padding-bottom: 2px;
+
+            .dropDownList li {
+                padding-left: 2px;
+            }
+        }
+
+        .addClause {
+            padding-top: 15px;
+            .flex-display;
+            .flex-wrap(wrap);
+            .justify-content(center);
+
+            .btn {
+                width: 200px;
+            }
+        }
+
+        .castErr {
+            position: relative;
+            padding-left: 10px;
+            padding-right: 10px;
+            margin-bottom: 2px;
+
+            .tooltip-inner {
+                border: 1px solid @color-error-border-light;
+                background-color: white;
+                max-width: 100%;
+                color: @color-font-form-gray;
+                box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
+            }
+
+            .icon {
+                .position(absolute, @left: ~"calc(50% - 4px)");
+                color: @color-error-border-light;
+                background-color: transparent;
+                opacity: 0.9;
+                margin-top: -1px;
+            }
+        }
+
+        .dropdown-detach, .text-detach {
+            border-color: @color-error-border-light;
+        }
+
+        .strPreview {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .bulkIcon {
+            .col-middle();
+            cursor: pointer;
+            .optionWrap {
+                .col-middle-wrapper();
+
+                .option {
+                    .size(100%, 100%);
+                    background-color: @color-font-dropdown-gray;
+                    .rounded(50%);
+                    text-align: center;
+                    .font(@line-height: 7px, @color: @color-white);
+                    cursor: pointer;
+                }
+
+                .menu {
+                    .position(absolute);
+                    .size(@width: 130px, @height: 70px);
+
+                    li {
+                        .size(@height: 20px);
+                        line-height: 20px;
+                        padding: 2px 8px;
+
+                        &.copyAppend {
+                            .size(@height: 50px);
+                        }
+                    }
+
+                    span, input {
+                        .size(@width: 100%, @height: 20px);
+                        display: block;
+                    }
+
+                    input {
+                        text-align: left;
+                    }
+                }
+            }
+        }
+
+        .tableHeader {
+            margin-top: 6px;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            .title {
+                .size(@width: 100%);
+                font-weight: 700;
+            }
+        }
+
+        .clickable {
+            cursor: pointer;
+        }
+
+        .checkboxWrap {
+            float: none;
+            .clickable();
+            .checkbox {
+                margin-right: 5px;
+                margin-left: 0;
+            }
+        }
+
+        .columnList {
+            .size(@width: 50%);
+            margin-right: -1px;
+
+            .column {
+                .flexContainer();
+                .size(@height: @listHeight, @width: 100%);
+                line-height: @listHeight - 2;
+                border: 1px solid @color-border-softGray;
+                margin-top: -1px;
+            }
+
+            .column-clickable {
+                .clickable();
+            }
+
+            .column-title {
+                border: none;
+                font-weight: 700;
+                .title-text {
+                    .col();
+                }
+                .title-icon {
+                    padding-left: 10px;
+                    .col();
+                    .col-6();
+                    .action-icon {
+                        cursor: pointer;
+                        opacity: @opacity-unhover;
+                        &:hover {
+                            opacity: @opacity-hover;
+                        }
+                    }
+                }
+            }
+
+            .actionWrap {
+                padding-left: 5px;
+                padding-right: 5px;
+                .size(@width: 18px);
+                color: @color-font-warm-grey-two;
+            }
+
+            .colNameWrap {
+                .size(@width: 100%);
+            }
+        }
+
+        .columnList-full {
+            .size(@width: 100%);
+        }
+
+        .advancedSection {
+            .advancedIcon {
+                margin: 0;
+                left: 0;
+            }
+            .optionsSection {
+                padding-left: 26px;
+
+                .checkboxSection {
+                    cursor: auto;
+                    > div {
+                        float: none;
+                        margin: 0;
+                    }
+                }
+                .text {
+                    font-size: 11px;
+                    color: @color-font-dropdown-gray;
+                }
             }
         }
     }
@@ -3296,10 +3328,12 @@
     }
 
     &.withSource {
-        .row {
-            &.dataflowName, &.linkOutNodeName {
-                > div {
-                    .xc-disabled;
+        .opSection {
+            .row {
+                &.dataflowName, &.linkOutNodeName {
+                    > div {
+                        .xc-disabled;
+                    }
                 }
             }
         }

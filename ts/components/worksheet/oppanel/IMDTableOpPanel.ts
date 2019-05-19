@@ -43,10 +43,10 @@ class IMDTableOpPanel extends BaseOpPanel {
      * @param options
      */
     public show(dagNode: DagNodeIMDTable, options?): void {
+        this._dagNode = dagNode;
         // Show panel
         super.showPanel("IMD Table", options)
         .then(() => {
-            this._dagNode = dagNode;
             this._selectedTable = null;
             this._primaryKeys = [];
             this._$columns.empty();

@@ -54,6 +54,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         $header.empty();
         $header.append(this._componentFactory.createHeader({
             text: this._dataModel.getTitle(),
+            nodeTitle: this._dagNode.getTitle(),
             onClose: () => this.close()
         }));
 

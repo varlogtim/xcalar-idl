@@ -17,10 +17,10 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
      * @param dagNode DagNode object
      */
     public show(dagNode: DagNodeSQLFuncOut, options?): void {
+        this._dagNode = dagNode;
         // Show panel
         super.showPanel(null, options)
         .then(() => {
-            this._dagNode = dagNode;
             const model = dagNode.getParam();
             this._restorePanel(model);
 

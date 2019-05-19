@@ -8,7 +8,7 @@ describe('SplitOpPanel Test', () => {
             getLineage: () => ({
                 getColumns: () => inputColumns
             })
-        };    
+        };
 
         splitNode = {
             getParents: () => ([parentNode]),
@@ -20,7 +20,8 @@ describe('SplitOpPanel Test', () => {
                     { evalString: 'cut(col#1,3,",")', newField: 'col#1-split-3' },
                 ],
                 icv: false
-            })
+            }),
+            getTitle: () => "Node 1"
         };
 
         MainMenu.openPanel("dagPanel");
@@ -32,22 +33,22 @@ describe('SplitOpPanel Test', () => {
     describe('_getArgs() should work', () => {
         it('test return value', () => {
             const args = opPanel._getArgs();
-    
+
             // 7 sections
             expect(args.length).to.equal(7);
-    
+
             // section#1: column to split
             const sourceDropdownProps = args[0];
             expect(sourceDropdownProps.type).to.equal('column');
             expect(sourceDropdownProps.inputVal).to.equal('col#1');
             expect(sourceDropdownProps.menuList.length).to.equal(4);
-    
+
             // section#2: delimiter
             const delimiterProps = args[1];
             expect(delimiterProps.type).to.equal('string');
             expect(delimiterProps.inputVal).to.equal(',');
             expect(delimiterProps.valueCheck).to.deep.equal({checkType: 'stringNoTrimNoEmptyValue', args: []});
-    
+
             // section#3: dest column count
             const destCountProps = args[2];
             expect(destCountProps.type).to.equal('number');
@@ -60,9 +61,9 @@ describe('SplitOpPanel Test', () => {
                 expect(destColProps.type).to.equal('string');
                 expect(destColProps.inputVal).to.equal(`col#1-split-${i}`);
                 expect(destColProps.valueCheck.checkType).to.equal('stringColumnNameNoEmptyValue');
-                expect(destColProps.valueCheck.args()[0].size).to.gt(0);    
+                expect(destColProps.valueCheck.args()[0].size).to.gt(0);
             }
-    
+
             // section#4: icv
             const icvProps = args[6];
             expect(icvProps.type).to.equal('boolean');
@@ -91,7 +92,7 @@ describe('SplitOpPanel Test', () => {
                 expect(closeCalled).to.equal(true);
                 setParamCalled = false; // restore
                 closeCalled = false; // restore
-                return PromiseHelper.resolve();    
+                return PromiseHelper.resolve();
             });
 
             // Case: invalid parameters

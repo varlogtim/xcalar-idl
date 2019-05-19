@@ -8,7 +8,7 @@ describe('RoundOpPanel Test', () => {
             getLineage: () => ({
                 getColumns: () => inputColumns
             })
-        };    
+        };
 
         roundNode = {
             getParents: () => ([parentNode]),
@@ -19,7 +19,8 @@ describe('RoundOpPanel Test', () => {
                     newField: 'newCol'
                 }],
                 icv: false
-            })
+            }),
+            getTitle: () => "Node 1"
         };
 
         MainMenu.openPanel("dagPanel");
@@ -94,7 +95,7 @@ describe('RoundOpPanel Test', () => {
                 opPanel.close = oldClose;
                 opPanel._dataModel.setNumDecimals(1);
                 opPanel._updateUI();
-                done();    
+                done();
             }, 0);
         });
 

@@ -12,6 +12,7 @@ class ExtensionOpPanel extends BaseOpPanel {
      * @param dagNode
      */
     public show(dagNode: DagNodeExtension, options?) {
+        this._dagNode = dagNode;
         super.showPanel("Extension", options)
         .then(() => {
             this._initialize(dagNode);

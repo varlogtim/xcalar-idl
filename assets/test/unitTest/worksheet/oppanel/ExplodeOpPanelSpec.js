@@ -8,7 +8,7 @@ describe('ExplodeOpPanel Test', () => {
             getLineage: () => ({
                 getColumns: () => inputColumns
             })
-        };    
+        };
 
         explodeNode = {
             getParents: () => ([parentNode]),
@@ -18,7 +18,8 @@ describe('ExplodeOpPanel Test', () => {
                     { evalString: 'explodeString(col#1,",")', newField: 'col#1-explode-1' },
                 ],
                 icv: false
-            })
+            }),
+            getTitle: () => "Node 1"
         };
 
         MainMenu.openPanel("dagPanel");
@@ -30,28 +31,28 @@ describe('ExplodeOpPanel Test', () => {
     describe('_getArgs() should work', () => {
         it('test return value', () => {
             const args = opPanel._getArgs();
-    
+
             // 4 sections
             expect(args.length).to.equal(4);
-    
+
             // section#1: column to explode
             const sourceDropdownProps = args[0];
             expect(sourceDropdownProps.type).to.equal('column');
             expect(sourceDropdownProps.inputVal).to.equal('col#1');
             expect(sourceDropdownProps.menuList.length).to.equal(4);
-    
+
             // section#2: delimiter
             const delimiterProps = args[1];
             expect(delimiterProps.type).to.equal('string');
             expect(delimiterProps.inputVal).to.equal(',');
             expect(delimiterProps.valueCheck).to.deep.equal({checkType: 'stringNoEmptyValue', args: []});
-    
+
             // section#3: dest column
             const destColProps = args[2];
             expect(destColProps.type).to.equal('string');
             expect(destColProps.inputVal).to.equal('col#1-explode-1');
             expect(destColProps.valueCheck.checkType).to.equal('stringColumnNameNoEmptyPrefixValue');
-            expect(destColProps.valueCheck.args()[0].size).to.gt(0);    
+            expect(destColProps.valueCheck.args()[0].size).to.gt(0);
 
             // section#4: icv
             const icvProps = args[3];
@@ -81,7 +82,7 @@ describe('ExplodeOpPanel Test', () => {
                 expect(closeCalled).to.equal(true);
                 setParamCalled = false; // restore
                 closeCalled = false; // restore
-                return PromiseHelper.resolve();    
+                return PromiseHelper.resolve();
             });
 
             // Case: invalid parameters

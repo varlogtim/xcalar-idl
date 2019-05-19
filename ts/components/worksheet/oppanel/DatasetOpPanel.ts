@@ -34,10 +34,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
      * @param dagNode DagNode object
      */
     public show(dagNode: DagNodeDataset, options?): void {
+        this._dagNode = dagNode;
         // Show panel
         super.showPanel(null, options)
         .then(() => {
-            this._dagNode = dagNode;
             this._setupDatasetList();
             this._advMode = false;
             this._currentStep = 1;
@@ -555,7 +555,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             return PromiseHelper.resolve(oldLoadArgs);
         } else if (source == null && oldSource != null) {
             // when it's a oldSource not exist case
-            return PromiseHelper.resolve(oldLoadArgs); 
+            return PromiseHelper.resolve(oldLoadArgs);
         }
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const $panel: JQuery = this._getPanel();

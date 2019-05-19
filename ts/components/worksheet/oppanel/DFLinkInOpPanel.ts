@@ -12,6 +12,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     public show(dagNode: DagNodeDFIn, options?) {
+        this._dagNode = dagNode;
         super.showPanel("Link In", options)
         .then(() => {
             this._initialize(dagNode);

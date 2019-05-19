@@ -20,7 +20,6 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
      * @param dagNode DagNode object
      */
     public show(dagNode: DagNodeSplit, options?): void {
-
         this._dagNode = dagNode;
         this._dataModel = SplitOpPanelModel.fromDag(dagNode);
         let error: string;
@@ -55,6 +54,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         $header.empty();
         $header.append(this._componentFactory.createHeader({
             text: this._dataModel.getTitle(),
+            nodeTitle: this._dagNode.getTitle(),
             onClose: () => this.close()
         }));
 

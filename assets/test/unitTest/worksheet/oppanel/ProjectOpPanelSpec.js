@@ -10,11 +10,12 @@ describe('ProjectOpPanel Test', () => {
             getLineage: () => ({
                 getColumns: () => inputColumns
             })
-        };    
+        };
 
         projectNode = {
             getParents: () => ([parentNode]),
-            getParam: () => ({ columns: ['myPrefix::col#1', 'col#1'] })
+            getParam: () => ({ columns: ['myPrefix::col#1', 'col#1'] }),
+            getTitle: () => "Node 1"
         };
 
         MainMenu.openPanel("dagPanel");

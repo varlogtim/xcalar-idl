@@ -293,6 +293,7 @@ class BaseOpPanel {
             this._formHelper.unwaitForSetup();
             this._setupOperationsMap(options.udfDisplayPathPrefix);
             this._setupAggMap();
+            this.$panel.find(".subTitle").text(this._dagNode.getTitle());
             deferred.resolve();
         });
         return deferred.promise();

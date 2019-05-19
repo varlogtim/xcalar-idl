@@ -6,8 +6,13 @@ class OpPanelComponentFactory {
     // templateId => template string
     private _templates = {
         header:
-            `<div class="title selTitle">{{title}}</div>
-            <i class="close icon xi-close" (click)="onClose"></i>`,
+            `<div class="row clearfix">
+                <div class="title selTitle">{{title}}</div>
+                <i class="close icon xi-close" (click)="onClose"></i>
+            </div>
+            <div class="row">
+                <div class="subTitle">{{subTitle}}</div>
+            </div>`,
 
         opSection:
             `<APP-INSTR></APP-INSTR><APP-ARGS></APP-ARGS>`,
@@ -326,7 +331,7 @@ class OpPanelComponentFactory {
      * Component: Panel header section; templateId = header
      * @param props
      */
-    public createHeader(props: { text: string, onClose: () => void }): HTMLElement[] {
+    public createHeader(props: { text: string, nodeTitle: string, onClose: () => void }): HTMLElement[] {
         if (props == null) {
             return null;
         }
@@ -334,7 +339,7 @@ class OpPanelComponentFactory {
         this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
         return this._templateMgr.createElements(templateId, {
-            title: props.text, onClose: props.onClose
+            title: props.text, subTitle: props.nodeTitle, onClose: props.onClose
         });
     }
 

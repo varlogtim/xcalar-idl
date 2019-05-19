@@ -33,10 +33,10 @@ class UpdateIMDOpPanel extends BaseOpPanel {
      * @param options
      */
     public show(dagNode: DagNodeUpdateIMD, options?): void {
+        this._dagNode = dagNode;
         // Show panel
         super.showPanel("IMD Table", options)
         .then(() => {
-            this._dagNode = dagNode;
             this._columns = dagNode.getParents().map((parentNode) => {
                 return parentNode.getLineage().getColumns();
             })[0] || [];

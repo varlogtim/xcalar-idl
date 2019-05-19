@@ -11,6 +11,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
     }
 
     public show(dagNode: DagNodeDFOut, options?) {
+        this._dagNode = dagNode;
         super.showPanel("Link Out", options)
         .then(() => {
             this.model = new DFLinkOutOpPanelModel(dagNode, () => {

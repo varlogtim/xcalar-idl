@@ -8,12 +8,13 @@ describe('RowNumOpPanel Test', () => {
             getLineage: () => ({
                 getColumns: () => inputColumns
             })
-        };    
+        };
 
         rowNumNode = {
             getParents: () => ([parentNode]),
             getType: () => (DagNodeType.RowNum),
-            getParam: () => ({ newField: 'rowNumColumn' })
+            getParam: () => ({ newField: 'rowNumColumn' }),
+            getTitle: () => "Node 1"
         };
 
         MainMenu.openPanel("dagPanel");
@@ -25,16 +26,16 @@ describe('RowNumOpPanel Test', () => {
     describe('_getArgs() should work', () => {
         it('test return value', () => {
             const args = opPanel._getArgs();
-    
+
             // 1 section
             expect(args.length).to.equal(1);
-    
+
             // section#1: dest column
             const destColProps = args[0];
             expect(destColProps.type).to.equal('string');
             expect(destColProps.inputVal).to.equal('rowNumColumn');
             expect(destColProps.valueCheck.checkType).to.equal('stringColumnNameNoEmptyValue');
-            expect(destColProps.valueCheck.args()[0].size).to.gt(0);    
+            expect(destColProps.valueCheck.args()[0].size).to.gt(0);
         });
     });
 
@@ -59,7 +60,7 @@ describe('RowNumOpPanel Test', () => {
                 expect(closeCalled).to.equal(true);
                 setParamCalled = false; // restore
                 closeCalled = false; // restore
-                return PromiseHelper.resolve();    
+                return PromiseHelper.resolve();
             });
 
             // Case: invalid parameters

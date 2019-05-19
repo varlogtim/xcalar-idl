@@ -5,37 +5,44 @@ describe('PublishIMDOpPanel Test', () => {
     let node;
     let editor;
 
-    before(() => {
-        const inputColumns = genProgCols('myPrefix::coll', 5).concat(genProgCols('col', 4));
-        const parentNode = {
-            getLineage: () => ({
-                getColumns: () => inputColumns
-            })
-        };    
+    before((done) => {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            const inputColumns = genProgCols('myPrefix::coll', 5).concat(genProgCols('col', 4));
+            const parentNode = {
+                getLineage: () => ({
+                    getColumns: () => inputColumns
+                })
+            };
 
-        var publishNode = {
-            getParents: () => ([parentNode]),
-            getParam: () => ({
-                "pubTableName": "testName",
-                "primaryKeys": ["col#1", "col#2"],
-                "operator": "",
-                "columns": [
-                    "col#1","col#2"
-                ],
-            })
-        };
+            var publishNode = {
+                getParents: () => ([parentNode]),
+                getParam: () => ({
+                    "pubTableName": "testName",
+                    "primaryKeys": ["col#1", "col#2"],
+                    "operator": "",
+                    "columns": [
+                        "col#1","col#2"
+                    ],
+                }),
+                getTitle: () => "Node 1"
+            };
 
-        node = new DagNodePublishIMD({})
-        node.getParents = function() {
-            return [parentNode];
-        };
+            node = new DagNodePublishIMD({})
+            node.getParents = function() {
+                return [parentNode];
+            };
 
-        MainMenu.openPanel("dagPanel");
-        PublishIMDOpPanel.Instance.show(publishNode, {});
-        $panel = $("#publishIMDOpPanel");
-        $columns = $("#publishIMDColumns");
-        opPanel = PublishIMDOpPanel.Instance;
-        editor = opPanel.getEditor();
+            MainMenu.openPanel("dagPanel");
+            PublishIMDOpPanel.Instance.show(publishNode, {})
+            .then(() => {
+                $panel = $("#publishIMDOpPanel");
+                $columns = $("#publishIMDColumns");
+                opPanel = PublishIMDOpPanel.Instance;
+                editor = opPanel.getEditor();
+                done();
+            });
+        });
     });
 
     describe('Basic UI Tests', () => {

@@ -18,10 +18,10 @@ class SQLFuncInOpPanel extends BaseOpPanel {
      * @param dagNode DagNode object
      */
     public show(dagNode: DagNodeSQLFuncIn, options?) {
+        this._dagNode = dagNode;
         // Show panel
         super.showPanel(null, options)
         .then(() => {
-            this._dagNode = dagNode;
             this._initializeTables();
             const model = $.extend(this._dagNode.getParam(), {
                 schema: this._dagNode.getSchema()

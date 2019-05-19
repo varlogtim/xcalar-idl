@@ -38,18 +38,22 @@ class PublishIMDOpPanel extends BaseOpPanel {
      * Show the panel with information from dagNode
      * @param dagNode DagNode object
      */
-    public show(dagNode: DagNodePublishIMD, options?): void {
+    public show(dagNode: DagNodePublishIMD, options?): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._dagNode = dagNode;
         // Show panel
         super.showPanel("Publish Table", options)
         .then(() => {
             this._advMode = false;
-            this._dagNode = dagNode;
             this._columns = dagNode.getParents().map((parentNode) => {
                 return parentNode.getLineage().getColumns();
             })[0] || [];
             this._setupColumnHints();
             this._restorePanel(dagNode.getParam());
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     /**
