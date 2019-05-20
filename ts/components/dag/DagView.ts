@@ -1396,13 +1396,14 @@ class DagView {
     }
 
 
-    public autoAlign(): void {
+    public autoAlign(options?: { isNoLog: boolean }): void {
         const nodePositionInfo = DagView.getAutoAlignPositions(this.graph);
 
+        const { isNoLog = false } = options || {};
         this.moveNodes(nodePositionInfo.nodeInfos, {
             x: nodePositionInfo.maxX + DagView.horzPadding,
             y: nodePositionInfo.maxY + DagView.vertPadding
-        });
+        }, { isNoLog: isNoLog });
     }
 
 
@@ -2279,7 +2280,7 @@ class DagView {
                 DagTabManager.Instance.newSQLTab(dagNode, sqlPreview);
                 const newDagView: DagView = DagViewManager.Instance.getActiveDagView();
                 if (newDagView != null) {
-                    newDagView.autoAlign();
+                    newDagView.autoAlign({ isNoLog: true });
                 }
                 deferred.resolve();
             })
@@ -4004,16 +4005,21 @@ class DagView {
      * @param dagId
      * @param nodeInfos
      * @param graphDimensions
+     * @param options
      */
     public moveNodes(
         nodeInfos: NodeMoveInfo[],
-        graphDimensions?: Coordinate
+        graphDimensions?: Coordinate,
+        options?: {
+            isNoLog?: boolean
+        }
     ): XDPromise<void> {
         if (this.dagTab instanceof DagTabPublished) {
             return;
         }
+        const { isNoLog = false } = options || {};
         this.dagTab.turnOffSave();
-        this._moveNodesNoPersist(nodeInfos, graphDimensions);
+        this._moveNodesNoPersist(nodeInfos, graphDimensions, { isNoLog: isNoLog });
         this.dagTab.turnOnSave();
         return this.dagTab.save();
     }
