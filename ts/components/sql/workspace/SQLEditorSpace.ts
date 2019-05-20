@@ -89,6 +89,13 @@ class SQLEditorSpace {
         });
     }
 
+    public setSnippet(name: string): void {
+        this._setFileName(name);
+        let snippet = SQLSnippet.Instance.getSnippet(name);
+        this._sqlEditor.setValue(snippet);
+        this._sqlEditor.refresh();
+    }
+
     private _setupSQLEditor(): void {
         const self = this;
         const callbacks = {
@@ -151,7 +158,7 @@ class SQLEditorSpace {
         let timer = this._onLoadMode(deferred.promise());
         SQLSnippet.Instance.listSnippetsAsync()
         .then(() => {
-            this._setSnippet(this._currentFile || CommonTxtTstr.Untitled);
+            this.setSnippet(this._currentFile || CommonTxtTstr.Untitled);
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -497,17 +504,10 @@ class SQLEditorSpace {
         }
     }
 
-    private _setSnippet(name: string): void {
-        this._setFileName(name);
-        let snippet = SQLSnippet.Instance.getSnippet(name);
-        this._sqlEditor.setValue(snippet);
-        this._sqlEditor.refresh();
-    }
-
     private _newSnippet(): void {
         this._renameWarning()
         .then(() => {
-            this._setSnippet(CommonTxtTstr.Untitled);
+            this.setSnippet(CommonTxtTstr.Untitled);
         })
         .fail(() => {
             // We decided not to discard the change
@@ -526,7 +526,7 @@ class SQLEditorSpace {
                 return this._saveSnippet()
             })
             .then(() => {
-                this._setSnippet(name)
+                this.setSnippet(name)
             })
             .fail(() => {
                 // We decided not to discard the change
@@ -563,7 +563,7 @@ class SQLEditorSpace {
             msg: msg,
             onConfirm: () => {
                 SQLSnippet.Instance.deleteSnippet(name);
-                this._setSnippet(CommonTxtTstr.Untitled);
+                this.setSnippet(CommonTxtTstr.Untitled);
                 xcUIHelper.showSuccess(SuccessTStr.Saved);
             }
         });

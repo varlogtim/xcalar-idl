@@ -480,12 +480,12 @@ describe("SQLEditorSpace Test", function() {
             SQLEditorSpace.Instance._fileOption("test");
         });
 
-        it("_setSnippet should work", function() {
+        it("setSnippet should work", function() {
             let oldFile = SQLEditorSpace.Instance._getFileName();
             let oldFunc = SQLSnippet.Instance.getSnippet;
             SQLSnippet.Instance.getSnippet = () => "test";
 
-            SQLEditorSpace.Instance._setSnippet("testFile");
+            SQLEditorSpace.Instance.setSnippet("testFile");
             expect(SQLEditorSpace.Instance._getFileName()).to.equal("testFile");
             expect(SQLEditorSpace.Instance._sqlEditor.getValue()).to.equal("test");
 

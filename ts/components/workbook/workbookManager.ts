@@ -937,6 +937,7 @@ namespace WorkbookManager {
         const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
         const gTutorialKey: string = generateKey("gTutorialKey", version);
         const gStoredDatasetsKey: string = generateKey("gStoredDatasetsKey", version);
+        const gStartingSnippetKey: string = generateKey("gStartingSnippetKey", version);
 
         return {
             "gModeKey": gModeKey,
@@ -959,6 +960,7 @@ namespace WorkbookManager {
             "gSQLSnippetQuery": gSQLSnippetQueryKey,
             "gTutorialKey": gTutorialKey,
             "gStoredDatasetsKey": gStoredDatasetsKey,
+            "gStartingSnippetKey": gStartingSnippetKey,
         };
     }
 
@@ -1491,6 +1493,17 @@ namespace WorkbookManager {
         let key: string = KVStore.getKey("gTutorialKey");
         let _kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
         _kvStore.put(flag.toString(), true);
+    }
+
+    /**
+     * This function allows you to set a tutorial workbook to open
+     * a specific sql snippet when launched
+     * @param snippetName
+     */
+    export function setTutorialDefaultSnippet(snippetName: string) {
+        let snipKey: string = KVStore.getKey("gStartingSnippetKey");
+        let _snipKVStore: KVStore = new KVStore(snipKey, gKVScope.WKBK);
+        return _snipKVStore.put(snippetName, true);
     }
 
     /**

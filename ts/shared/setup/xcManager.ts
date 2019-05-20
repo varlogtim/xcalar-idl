@@ -1261,6 +1261,8 @@ namespace xcManager {
         let datasetSources: Set<string> = new Set<string>();
         let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
         let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
+        let snipKey: string = KVStore.getKey("gStartingSnippetKey");
+        let _snipKVStore: KVStore = new KVStore(snipKey, gKVScope.WKBK);
         let pubTables: StoredPubInfo[] = [];
         let promise: XDPromise<void>;
         // First, set up the tutorial data target if it doesnt exist
@@ -1390,6 +1392,16 @@ namespace xcManager {
         })
         .then(() => {
             return PromiseHelper.alwaysResolve(DS.refresh())
+        })
+        .then(() => {
+            // Then, load the stored snippet key, if it exists
+            return PromiseHelper.alwaysResolve(_snipKVStore.get())
+        })
+        .then((snippetName: string) => {
+            if (snippetName) {
+                SQLEditorSpace.Instance.setSnippet(snippetName);
+            }
+            return PromiseHelper.resolve();
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
