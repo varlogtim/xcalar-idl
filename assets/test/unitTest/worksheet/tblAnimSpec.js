@@ -415,7 +415,7 @@ describe('TblAnim Test', function() {
             TblAnim.__testOnly__.onColDrag(e);
 
             expect(dragInfo.pageX).to.equal(newX);
-            expect(dragInfo.fauxCol.css('left')).to.equal((-MainMenu.getOffset() + 5) + "px");
+            expect(dragInfo.fauxCol.css('left')).to.equal((-MainMenu.getOffset() + 4) + "px");
         });
 
         it('faux column should be correctly positioned', function() {

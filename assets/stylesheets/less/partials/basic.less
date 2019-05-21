@@ -595,8 +595,9 @@ body {
 
 .mainPanel {
     display: none;
-    .size(@width: @width-mainPanel, @height: @height-mainPanel);
+    .size(@width: 100%, @height: @height-mainPanel);
     float: left;
+    padding-left: @width-homeBtn;
 
     &.active {
         display: block;
@@ -609,27 +610,31 @@ body {
 
 // subpanel width changes when bottommenu open
 .mainContainer {
+    &.bottomMenuOpen:not(.bottomMenuOut) {
+        @menuWidth: @width-bottomMenu;
+        .mainPanel > .mainContent {
+            margin-left: @menuWidth !important;
+        }
+        // #statusBar
+        #worksheetInfo {
+            margin-left: @width-topMenu !important;
+        }
+    }
     &.bottomMenuOpen:not(.bottomMenuOut), &.mainMenuOpen {
         @menuWidth: @width-bottomMenu;
         .mainPanel > .mainContent {
             margin-left: @menuWidth;
         }
-
-        #statusBar {
-            margin-left: @width-fullMenu;
-            width: ~"calc(100% - @{width-fullMenu})";
-        }
         #watermark {
             left: @menuWidth + 75px;
         }
-
         #insight {
             left: @menuWidth + 298px;
         }
     }
 
     &.noMenuAnim {
-        #statusBar {
+        #worksheetInfo {
             .transition(0s all);
         }
         .mainPanel {
@@ -806,12 +811,13 @@ body {
 
 #statusBar {
     .position(absolute, @bottom: 0);
-    .size(@width: @width-mainPanel, @height: @height-bottomBar);
-    margin-left:  @width-homeBtn;
+    .size(@width: 100%, @height: @height-bottomBar);
+    margin-left:  0;
+    padding-left: @width-homeBtn;
     background-color: @color-bg-topBarGray2;
     .noSelection;
     z-index: @z-index-statusBar;
-    .transition(@time-menuAnim all); // for main menu animation
+    display: flex;
 
     .workspaceArea {
         .size(@height: 15px);
@@ -905,6 +911,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     .flex-display;
+    .transition(@time-menuAnim all); // for main menu animation
 }
 
 /* For Both worksheet menu bar and status bar */

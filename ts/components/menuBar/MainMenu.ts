@@ -15,6 +15,9 @@ namespace MainMenu {
     let clickable: boolean = true;
     let hasSetUp: boolean = false;
     const formPanels: BaseOpPanel[] = [];
+    let $resizableRightPanels: JQuery = $();
+    let $statusBar: JQuery = $();
+    let rightPanelMargin: number = defaultWidth;
 
     export function setup() {
         if (hasSetUp) {
@@ -27,6 +30,29 @@ namespace MainMenu {
         setupBtns();
         setupResizable();
         MainMenu.switchMode();
+        $resizableRightPanels = $("#workbookPanel, #monitorPanel, #datastorePanel, #modelingDagPanel")
+                .find("> .mainContent");
+        $statusBar = $("#worksheetInfo");
+        let winResizeTimer: number;
+        $(window).on("resize.mainMenu", () => {
+            clearTimeout(winResizeTimer);
+            winResizeTimer = <any>setTimeout(winResizeStop, 100);
+        });
+        function winResizeStop() {
+            let winWidth = $(window).width();
+            let halfWinWidth = Math.floor(winWidth / 2);
+            if (rightPanelMargin > halfWinWidth) {
+                // $mainMenu.width(halfWinWidth);
+                rightPanelMargin = Math.max(defaultWidth, halfWinWidth);
+                if (_isMenuOpen) {
+                    $("#container").addClass("noMenuAnim");
+                    sizeRightPanel();
+                    setTimeout(() => {
+                        $("#container").removeClass("noMenuAnim");
+                    }, 0);
+                }
+            }
+        }
     };
 
     export function registerPanels(panel): void {
@@ -148,6 +174,7 @@ namespace MainMenu {
                     $subTab.click();
                 }
             }
+            sizeRightPanel();
         }
     };
 
@@ -263,40 +290,49 @@ namespace MainMenu {
         }
     };
 
+    function sizeRightPanel() {
+        $resizableRightPanels.css("margin-left", rightPanelMargin);
+        $statusBar.css("margin-left", rightPanelMargin);
+    }
+
     function setupResizable(): void {
-        const $menuPanel: JQuery = $mainMenu;
         const minWidth: number = defaultWidth + 3;
+        let maxWidth: number;
         let isSmall: boolean = true;
+        let $ghost: JQuery;
         $mainMenu.resizable({
             "handles": "e",
-            "minWidth": 295,
+            "minWidth": defaultWidth,
             "distance": 2,
-            "start": function() {
-                // set boundaries so it can"t resize past window
-                let panelRight: number = $menuPanel[0].getBoundingClientRect().right;
+            "ghost": true,
+            "start": () => {
+                let winWidth =  $(window).width();
+                maxWidth = Math.max(Math.floor(winWidth / 2), minWidth);
+                let panelRight: number = $mainMenu[0].getBoundingClientRect().right;
 
-                panelRight = $(window).width() - panelRight +
-                             $menuPanel.width();
-                $menuPanel.css("max-width", panelRight - 10);
+                panelRight = winWidth - panelRight + $mainMenu.width();
+                $mainMenu.css("max-width", panelRight - 10);
                 $mainMenu.addClass("resizing");
+                $ghost = $("#mainMenu.ui-resizable-ghost");
+                $ghost.css("max-width", panelRight - 10);
+                $("#container").addClass("noMenuAnim");
             },
-            "resize": function(_event, ui) {
-                if (!isSmall && ui.size.width < minWidth) {
+            "resize": (_event, ui) => {
+                let width = ui.size.width;
+                if (!isSmall && width < minWidth) {
                     $mainMenu.removeClass("expanded");
                     isSmall = true;
-                } else if (isSmall && ui.size.width >= minWidth) {
+                } else if (isSmall && width >= minWidth) {
                     $mainMenu.addClass("expanded");
                     isSmall = false;
                 }
                 DS.resize();
             },
-            "stop": function() {
-                $menuPanel.css("max-width", "").css("max-height", "");
-                let width: number = $menuPanel.width();
-
+            "stop": () => {
+                $mainMenu.css("max-width", "").css("max-height", "");
+                let width: number = $mainMenu.width();
                 width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
-
-                $menuPanel.width(width);
+                $mainMenu.width(width);
                 $mainMenu.removeClass("resizing");
                 const newWidth: number = $mainMenu.width();
                 if (newWidth < minWidth) {
@@ -308,6 +344,16 @@ namespace MainMenu {
                     isSmall = false;
                 }
                 currWidth = newWidth;
+                rightPanelMargin = currWidth;
+                if (currWidth > maxWidth) {
+                    rightPanelMargin = maxWidth;
+                }
+                rightPanelMargin = Math.max(defaultWidth, rightPanelMargin);
+
+                sizeRightPanel();
+                let widthCSS: string = $mainMenu.css("width");
+                $mainMenu.attr("style", ""); // remove styling added by ghost
+                $mainMenu.css("width", widthCSS);
                 // let codemirror know it's area was resized
                 formPanels.forEach(function(panel) {
                     if (panel.isOpen()) {
@@ -322,7 +368,11 @@ namespace MainMenu {
                         }
                     }
                 });
-            },
+                setTimeout(() => {
+                    $("#container").removeClass("noMenuAnim");
+                    // remove animation for a split second so there's no anim
+                }, 0);
+            }
         });
     }
 
@@ -544,6 +594,7 @@ namespace MainMenu {
         checkAnim(noAnim);
         resolveMenuAnim();
 
+        $mainMenu.css("left", 60);
         $mainMenu.addClass("open").removeClass("closed");
         $mainMenu.width(currWidth);
 
@@ -570,14 +621,16 @@ namespace MainMenu {
                 });
             }
         }
+        sizeRightPanel();
         return !noAnim;
     }
 
     // makeInactive is used in "noWorkbook" mode
     function closeMenu($curTab: JQuery, noAnim?: boolean, makeInactive?: boolean): void {
         checkAnim(noAnim);
+        $mainMenu.css("left", -currWidth + 59);
         $mainMenu.removeClass("open");
-        $mainMenu.width(defaultWidth);
+        // $mainMenu.width(defaultWidth);
         $mainMenu.find(".commonSection").removeClass("active");
 
         $("#container").removeClass("mainMenuOpen");
@@ -606,6 +659,8 @@ namespace MainMenu {
                 });
             }
         }
+        $resizableRightPanels.css("margin-left", 0);
+        $statusBar.css("margin-left", 0);
     }
 
     // turns off animation during open or close
