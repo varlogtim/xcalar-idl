@@ -28,9 +28,9 @@ declare module 'xcalar' {
         constructor(client: XceClient);
     }
 
-    export class UDFService {
+    export class UserDefinedFunctionService {
         constructor(client: XceClient);
-        getResolution(request: proto.xcalar.compute.localtypes.UDF.GetResRequest): XDPromise<proto.xcalar.compute.localtypes.UDF.GetResResponse>;
+        getResolution(request: proto.xcalar.compute.localtypes.UDF.GetResolutionRequest): XDPromise<proto.xcalar.compute.localtypes.UDF.GetResolutionResponse>;
         get(request: proto.xcalar.compute.localtypes.UDF.GetRequest): XDPromise<proto.xcalar.compute.localtypes.UDF.GetResponse>;
         add(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): XDPromise<void>;
         update(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): XDPromise<void>;
@@ -254,47 +254,48 @@ declare namespace proto.xcalar.compute.localtypes {
             setTableName(value: string): void;
         }
     }
+
+    export namespace UDF {
+        export class UdfModule {
+            setScope(scope: proto.xcalar.compute.localtypes.Workbook.WorkbookScope): void;
+            setName(name: string): void;
+            setType(type: UdfTypeT): void;
+            setSourceCode(source: string): void;
+        }
+        export class UdfModuleSrc {
+            getType(): string;
+            getIsBuiltin(): boolean;
+            getModuleName(): string;
+            getModulePath(): string;
+            getSourceSize(): number;
+            getSource(): string;
+        }
+        export class FQname {
+            getText(): string;
+        }
+        export class GetResolutionRequest {
+            setUdfModule(value: UdfModule): void;
+        }
+        export class GetResolutionResponse {
+            getFqModName(): FQname;
+        }
+        export class GetRequest {
+            setUdfModule(value: UdfModule): void;
+        }
+        export class GetResponse {
+            getUdfModuleSrc(): UdfModuleSrc;
+        }
+        export class AddUpdateRequest {
+            setUdfModule(value: UdfModule): void;
+            setType(value: string): void;
+            setSource(value: string): void;
+        }
+        export class DeleteRequest {
+            setUdfModule(value: UdfModule): void;
+        }
+    }
 }
 
-declare namespace proto.xcalar.compute.localtypes.UDF {
-    export class UdfModule {
-        setScope(scope: proto.xcalar.compute.localtypes.Workbook.WorkbookScope): void;
-        setName(name: string): void;
-        setType(type: UdfTypeT): void;
-        setSourceCode(source: string): void;
-    }
-    export class UdfModuleSrc {
-        getType(): string;
-        getIsBuiltin(): boolean;
-        getModuleName(): string;
-        getModulePath(): string;
-        getSourceSize(): number;
-        getSource(): string;
-    }
-    export class FQname {
-        getText(): string;
-    }
-    export class GetResRequest {
-        setUdfModule(value: UdfModule): void;
-    }
-    export class GetResResponse {
-        getFqModName(): FQname;
-    }
-    export class GetRequest {
-        setUdfModule(value: UdfModule): void;
-    }
-    export class GetResponse {
-        getUdfModuleSrc(): UdfModuleSrc;
-    }
-    export class AddUpdateRequest {
-        setUdfModule(value: UdfModule): void;
-        setType(value: string): void;
-        setSource(value: string): void;
-    }
-    export class DeleteRequest {
-        setUdfModule(value: UdfModule): void;
-    }
-}
 // === Data structure definitions: End ===
 
 declare namespace proto.google.protobuf {

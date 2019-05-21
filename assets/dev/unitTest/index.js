@@ -40,6 +40,21 @@ async function runTest(testType, hostname) {
                 exitCode = error.status;
             }
             process.exit(exitCode);
+
+        } else if(testType === "xcrpcTest") {
+            let exitCode = 0;
+            try {
+                let mochaTest = "npm test --prefix ../../../xcalar-gui/assets/test/integrationTest/xcrpc/";
+                const output = exec(mochaTest, {encoding: 'utf8'});
+                console.log(output)
+                console.log("xcrpc test passed.");
+            } catch (error) {
+                console.log(error.stderr, error.stdout);
+                console.log("xcrpc test failed.");
+                exitCode = error.status;
+            }
+            process.exit(exitCode);
+
         } else if (testType === "unitTest") {
             browser = await puppeteer.launch({
                 headless: true,

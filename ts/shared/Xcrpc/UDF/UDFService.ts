@@ -1,5 +1,5 @@
 
-import { UDFService as ApiUDF, XceClient as ApiClient } from 'xcalar';
+import { UserDefinedFunctionService as ApiUDF, XceClient as ApiClient } from 'xcalar';
 import { ServiceError, ErrorType } from '../ServiceError';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
@@ -21,17 +21,17 @@ class UDFService {
      * @description This function returns native promise
      */
     public async getRes(param: {
-        udfScope: XcalarApiWorkbookScopeT,
+        udfScope: number,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<string> {
         try {
             const udfModule = this.__createUdfModule(param);
 
-            const request = new ProtoTypes.UDF.GetResRequest();
+            const request = new ProtoTypes.UDF.GetResolutionRequest();
             request.setUdfModule(udfModule);
             const udfService = new ApiUDF(this._apiClient);
-            const response = await PromiseHelper.convertToNative(udfService.getResolution(request));
+            const response = await udfService.getResolution(request);
 
             return response.getFqModName().getText();
         } catch (e) {
@@ -48,7 +48,7 @@ class UDFService {
      * @description This function returns native promise
      */
     public async get(param: {
-        udfScope: XcalarApiWorkbookScopeT,
+        udfScope: number,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<string> {
@@ -57,7 +57,7 @@ class UDFService {
             const request = new ProtoTypes.UDF.GetRequest();
             request.setUdfModule(udfModule);
             const udfService = new ApiUDF(this._apiClient);
-            const response = await PromiseHelper.convertToNative(udfService.get(request));
+            const response = await udfService.get(request);
 
             return response.getUdfModuleSrc().getSource();
         } catch (e) {
@@ -75,7 +75,7 @@ class UDFService {
      * @description This function returns native promise
      */
     public async add(param: {
-        udfScope: XcalarApiWorkbookScopeT,
+        udfScope: number,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<void> {
@@ -84,7 +84,7 @@ class UDFService {
             const request = new ProtoTypes.UDF.AddUpdateRequest();
             request.setUdfModule(udfModule);
             const udfService = new ApiUDF(this._apiClient);
-            const response = await PromiseHelper.convertToNative(udfService.add(request));
+            const response = await udfService.add(request);
 
             return response;
         } catch (e) {
@@ -102,7 +102,7 @@ class UDFService {
      * @description This function returns native promise
      */
     public async update(param: {
-        udfScope: XcalarApiWorkbookScopeT,
+        udfScope: number,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<void> {
@@ -111,7 +111,7 @@ class UDFService {
             const request = new ProtoTypes.UDF.AddUpdateRequest();
             request.setUdfModule(udfModule);
             const udfService = new ApiUDF(this._apiClient);
-            const response = await PromiseHelper.convertToNative(udfService.update(request));
+            const response = await udfService.update(request);
 
             return response;
         } catch (e) {
@@ -129,7 +129,7 @@ class UDFService {
      * @description This function returns native promise
      */
     public async delete(param: {
-        udfScope: XcalarApiWorkbookScopeT,
+        udfScope: number,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<void> {
@@ -138,7 +138,7 @@ class UDFService {
             const request = new ProtoTypes.UDF.DeleteRequest();
             request.setUdfModule(udfModule);
             const udfService = new ApiUDF(this._apiClient);
-            const response = await PromiseHelper.convertToNative(udfService.delete(request));
+            const response = await udfService.delete(request);
 
             return response;
         } catch (e) {
@@ -151,7 +151,7 @@ class UDFService {
     }
 
     private __createUdfModule(param: {
-        udfScope: XcalarApiWorkbookScopeT,
+        udfScope: number,
         type?: UdfTypeT,
         moduleName: string,
         sourceCode?: string,

@@ -1,0 +1,18 @@
+{
+  "name": "xcrpctest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "../../../../../node_modules/mocha/bin/_mocha './xcrpcTestManager.js' "
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.85.0",
+    "require.async": "^0.1.1",
+    "xcalar": "file:xcalar-0.0.1.tgz",
+    "xcalarsdk": "file:xcalarsdk-0.0.1.tgz"
+  }
+}

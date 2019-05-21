@@ -855,7 +855,8 @@ DONT_RSYNC_RC = DONT_RSYNC.concat("assets/extensions/ext-unused");
 // files and folders (rel BLDROOT) to remove from installer builds.
 // done end-of-build
 var REMOVE_FROM_INSTALLER_BUILDS = ["assets/dev"];
-
+var jsClient;
+var jsSDK;
 module.exports = function(grunt) {
     if (grunt.option('help')) {
         displayHelpMenu();
@@ -2079,6 +2080,7 @@ module.exports = function(grunt) {
             grunt.task.run("build_js"); // build js before html (built html will search for some js
                 // files to autogen script tags for, that only get generated here)
             grunt.task.run("update_exp_module"); // update expServer's node_module;
+            grunt.task.run("update_integration_test_xcrpc_module"); // update integration test xcrpc's node_module
                 // relying on xcrpc jsClient and jsSDK, so keep this after js build
             grunt.task.run("remove_exp_crypto"); // remove external crypto module
                 // keep right after update_exp_module, as it cleared npm cache
@@ -2129,7 +2131,7 @@ module.exports = function(grunt) {
         var expServerBldPath = path.join(BLDROOT, 'services/expServer/');
 
         // Build xcrpc jsClient package and copy to expServer bld folder
-        var jsClient = buildPackage(
+        jsClient = buildPackage(
             path.join(SRCROOT, 'assets/js/xcrpc/'),
             path.join(BLDROOT, 'assets/js/xcrpc/')
         );
@@ -2139,7 +2141,7 @@ module.exports = function(grunt) {
         );
 
         // Build xcrpc jsSDK package and copy to expServer bld folder
-        var jsSDK = buildPackage(
+        jsSDK = buildPackage(
             path.join(SRCROOT, 'ts/shared/Xcrpc/'),
             path.join(BLDROOT, 'assets/js/shared/Xcrpc/'),
             true // Manually copy package.json to bld folder, as it was ignored in TS compiling
@@ -2193,6 +2195,31 @@ module.exports = function(grunt) {
                 pkgName: confJSON.name
             };
         }
+    });
+
+    grunt.task.registerTask("update_integration_test_xcrpc_module", "Update integration test xcrpc's dependencies", function() {
+        var xcrpcBldPath = path.join(BLDROOT,'assets/test/integrationTest/xcrpc');
+
+        // Build xcrpc jsClient package and copy to integrationTest xcrpc bld folder
+        grunt.file.copy(
+            jsClient.pkgFilePath,
+            path.join(xcrpcBldPath, jsClient.pkgFileName)
+        );
+
+        // Build xcrpc jsSDK package and copy to integrationTest xcrpc bld folder
+        grunt.file.copy(
+            jsSDK.pkgFilePath,
+            path.join(xcrpcBldPath, jsSDK.pkgFileName)
+        );
+
+        // Force the new packages to be used by explicitly uninstalling/reinstalling them
+        var pkgList = [jsClient.pkgName, jsSDK.pkgName].join(' ');
+        var cmdsets = [];
+        cmdsets.push([xcrpcBldPath, ['rm -f package-lock.json']]);
+        cmdsets.push([xcrpcBldPath, ['npm install --no-save']]);
+        cmdsets.push([xcrpcBldPath, ['npm uninstall --no-save ' + pkgList]]);
+        cmdsets.push([xcrpcBldPath, ['npm upgrade --no-save']]);
+        runCmds(cmdsets);
     });
 
     function runCmds(cmdsets) {
