@@ -87,10 +87,15 @@ class JupyterUDFModal {
         let isValid: boolean;
         let $modal: JQuery = this._getModal();
         let $args: JQuery = $modal.find(".arg:visible");
+
         $args.each(function() {
             let $input = $(this);
             isValid = xcHelper.validate({
-                "$ele": $input
+                "$ele": $input,
+                "error": ErrTStr.NoEmpty,
+                "check": () => {
+                    return $input.val().trim().length === 0 && $input.attr("placeholder") !== "No columns found";
+                }
             });
             if (!isValid) {
                 return false;
@@ -119,12 +124,16 @@ class JupyterUDFModal {
             columns = columns.map((colName) => colName.trim());
             let tableName = $modal.find(".tableName:visible").data("tablename");
             let table = gTables[xcHelper.getTableId(tableName)];
+            let allColumns = [];
+            if (table) {
+                allColumns = table.getColNameList();
+            }
             JupyterPanel.appendStub("basicUDF", {
                 moduleName: $modal.find(".moduleName:visible").val(),
                 fnName: fnName,
                 tableName: tableName,
                 columns: columns,
-                allCols: table.getColNameList(),
+                allCols: allColumns,
                 includeStub: true
             });
         } else if ($modal.hasClass("type-newImport")) {
@@ -175,7 +184,26 @@ class JupyterUDFModal {
                 $modal.find(".columnsList .arg").val("");
                 $modal.find(".columnsList li.selecting").removeClass("selecting");
                 this._cols = [];
-                let table = gTables[xcHelper.getTableId(tableName)];
+                let tableId: TableId = xcHelper.getTableId(tableName);
+                let table = gTables[tableId];
+                if (!table) {
+                    let tabId: string = $li.data("tabid");
+                    let dagTab = DagTabManager.Instance.getTabById(tabId);
+                    if (dagTab) {
+                        let graph = dagTab.getGraph();
+                        if (graph && $li.data("nodeid")) {
+                            let dagNode = graph.getNode($li.data("nodeid"));
+                            table = XcDagTableViewer.getTableFromDagNode(dagNode);
+                        }
+                    }
+                }
+                if (!table) {
+                    $modal.find(".columns").attr("placeholder", "No columns found");
+                    $modal.find(".columnsList ul").html("")
+                    return;
+                } else {
+                    $modal.find(".columns").attr("placeholder", "Columns to test");
+                }
                 let progCols = table.getAllCols(true);
                 let html = "";
                 for (let i = 0; i < progCols.length; i++) {
@@ -233,32 +261,33 @@ class JupyterUDFModal {
         let sqlTablePrefix: string = "table_SQLFunc_" + workbook.sessionId + "_";
         let tableInfos = [];
 
-        for (let tableId in gTables) {
-            let table = gTables[tableId];
-            let tableName = table.getName();
+
+        DagTblManager.Instance.getAllTables().forEach((tableName) => {
+            let tableId = xcHelper.getTableId(tableName);
             let isSql = false;
             if (!tableName.startsWith(dfTablePrefix)) {
                 if (tableName.startsWith(sqlTablePrefix)) {
                     isSql = true;
                 } else {
-                    continue;
+                    return;
                 }
             }
             let displayName = tableName;
             let displayNameHtml = displayName;
             let tableNamePart;
             if (isSql) {
-                tableNamePart = tableName.slice(tableName.indexOf("SQLFunc_"));
+                tableNamePart = tableName.slice(tableName.indexOf(DagTabSQLFunc + "_"));
             } else {
-                tableNamePart = tableName.slice(tableName.indexOf("DF2_"));
+                tableNamePart = tableName.slice(tableName.indexOf(DagTab.KEY + "_"));
             }
             let dagPartIndex = tableNamePart.indexOf("_dag_");
             if (dagPartIndex === -1) {
-                continue;
+                return;
             }
             let tabId = tableNamePart.slice(0, dagPartIndex);
 
             let dagListTab = DagList.Instance.getDagTabById(tabId);
+            let nodeId: DagNodeId = null;
             if (dagListTab) {
                 displayNameHtml = dagListTab.getName();
                 displayName = displayNameHtml;
@@ -268,7 +297,7 @@ class JupyterUDFModal {
                     let hashIndex = nodePart.indexOf("#");
                     let graph = dagTab.getGraph();
                     if (graph && hashIndex > -1) {
-                        let nodeId = nodePart.slice(0, hashIndex);
+                        nodeId = nodePart.slice(0, hashIndex);
                         let node = graph.getNode(nodeId);
                         if (node) {
                             displayNameHtml += " (" + node.getDisplayNodeType() + ")";
@@ -283,18 +312,21 @@ class JupyterUDFModal {
                     displayNameHtml += '<span class="inactiveDF"> (inactive dataflow) </span>' + tableName;
                     displayName += " (inactive dataflow) " + tableName;
                 }
-
             } else {
-                continue;
+                return;
             }
             tableInfos.push({
                 displayName: displayName,
                 displayNameHtml: displayNameHtml,
                 displayNameLower: displayName.toLowerCase(),
                 tableId: tableId,
-                tableName: tableName
+                tableName: tableName,
+                tabId: tabId,
+                nodeId: nodeId
             });
-        }
+
+        });
+
         tableInfos.sort((a, b) => {
             return (a.displayNameLower < b.displayNameLower) ? -1 : (a.displayNameLower !== b.displayNameLower ? 1 : 0);
         });
@@ -304,7 +336,10 @@ class JupyterUDFModal {
             ' data-original-title="' + tableInfo.displayName + '"' +
             ' data-toggle="tooltip"' +
             ' data-container="body" ' +
-            ' data-id="' + tableInfo.tableId + '" data-tablename="' + tableInfo.tableName + '">' +
+            ' data-tabid="' + tableInfo.tabId + '" ' +
+            ' data-nodeid="' + tableInfo.nodeId + '" ' +
+            ' data-id="' + tableInfo.tableId + '" ' +
+            ' data-tablename="' + tableInfo.tableName + '">' +
                 tableInfo.displayNameHtml +
             '</li>';
         });

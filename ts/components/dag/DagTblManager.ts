@@ -207,6 +207,17 @@ class DagTblManager {
         }
     }
 
+    // returns list of table names
+    public getAllTables(): string[] {
+        let tableNames: string[] = [];
+        for (let name in this.cache) {
+            if (!this.cache[name].markedForDelete) {
+                tableNames.push(name);
+            }
+        }
+        return tableNames;
+    }
+
     /**
      * Returns if the table still exists
      * @param name Table name

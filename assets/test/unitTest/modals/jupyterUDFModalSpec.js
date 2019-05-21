@@ -10,7 +10,7 @@ describe("JupyterUDFModal Test", function() {
     var cachedDetDagTabById;
     let oldgTables;
 
-    before(function() {
+    before(function(done) {
         oldgTables = gTables;
         gTables = [];
         $modal = $("#jupyterUDFTemplateModal");
@@ -19,71 +19,80 @@ describe("JupyterUDFModal Test", function() {
         workbook = WorkbookManager.getWorkbook(activeWKBNK);
         dfTablePrefix = "table_DF2_" + workbook.sessionId + "_";
         cachedDetDagTabById = DagList.Instance.getDagTabById;
-        DagList.Instance.getDagTabById = function() {
-            return {
-                getName: () => "test dataflow",
+
+        DagTblManager.Instance.setup()
+        .always(() => {
+            DagList.Instance.getDagTabById = function() {
+                return {
+                    getName: () => "test dataflow",
+                }
             }
-        }
 
-        // create some fake tables and fake columns
-        var progCol1 = new ProgCol({
-            "name": "testCol",
-            "backName": "testCol",
-            "isNewCol": false,
-            "func": {
-                "name": "pull"
-            }
+            // create some fake tables and fake columns
+            var progCol1 = new ProgCol({
+                "name": "testCol",
+                "backName": "testCol",
+                "isNewCol": false,
+                "func": {
+                    "name": "pull"
+                }
+            });
+
+            var progCol2 = new ProgCol({
+                "name": "testCol2",
+                "backName": "prefix::testCol2",
+                "isNewCol": false,
+                "func": {
+                    "name": "pull"
+                }
+            });
+
+            var progCol3 = new ProgCol({
+                "name": "testCol3",
+                "backName": "prefix::testCol3",
+                "type": "array",
+                "isNewCol": false,
+                "func": {
+                    "name": "pull"
+                }
+            });
+
+            var progCol4 = new ProgCol({
+                "name": "DATA",
+                "backName": "DATA",
+                "isNewCol": false,
+                "func": {
+                    "name": "raw"
+                }
+            });
+
+            tableName = "fakeTable#zz999";
+            tableId = "zz999";
+            var table = new TableMeta({
+                "tableId": tableId,
+                "tableName": tableName,
+                "status": TableType.Active,
+                "tableCols": [progCol1, progCol2, progCol3, progCol4]
+            });
+            gTables[tableId] = table;
+            oldTableCache = DagTblManager.Instance.cache;
+            DagTblManager.Instance.cache = {};
+            DagTblManager.Instance.addTable(tableName);
+
+            tableName2 = dfTablePrefix + "1_0_dag_5C2E5E0B0EF91A85_1_36#t_1_3";
+            tableId2 = "t_1_3";
+            table = new TableMeta({
+                "tableId": tableId2,
+                "tableName": tableName2,
+                "status": TableType.Active,
+                "tableCols": [progCol1, progCol2, progCol3, progCol4]
+            });
+            gTables[tableId2] = table;
+            DagTblManager.Instance.addTable(tableName2);
+            $("#jupyterTab .mainTab").click();
+
+            done();
         });
-
-        var progCol2 = new ProgCol({
-            "name": "testCol2",
-            "backName": "prefix::testCol2",
-            "isNewCol": false,
-            "func": {
-                "name": "pull"
-            }
-        });
-
-        var progCol3 = new ProgCol({
-            "name": "testCol3",
-            "backName": "prefix::testCol3",
-            "type": "array",
-            "isNewCol": false,
-            "func": {
-                "name": "pull"
-            }
-        });
-
-        var progCol4 = new ProgCol({
-            "name": "DATA",
-            "backName": "DATA",
-            "isNewCol": false,
-            "func": {
-                "name": "raw"
-            }
-        });
-
-        tableName = "fakeTable#zz999";
-        tableId = "zz999";
-        var table = new TableMeta({
-            "tableId": tableId,
-            "tableName": tableName,
-            "status": TableType.Active,
-            "tableCols": [progCol1, progCol2, progCol3, progCol4]
-        });
-        gTables[tableId] = table;
-
-
-        tableName2 = dfTablePrefix + "1_0_dag_5C2E5E0B0EF91A85_1_36#t_1_3";
-        tableId2 = "t_1_3";
-        table = new TableMeta({
-            "tableId": tableId2,
-            "tableName": tableName2,
-            "status": TableType.Active,
-            "tableCols": [progCol1, progCol2, progCol3, progCol4]
-        });
-        gTables[tableId2] = table;
-        $("#jupyterTab .mainTab").click();
     });
 
     describe("Modal open test", function() {
@@ -288,13 +297,14 @@ describe("JupyterUDFModal Test", function() {
         });
     });
 
-
-
     after(function() {
         $modal.find(".close").click();
         UnitTest.offMinMode();
         delete gTables[tableId];
         delete gTables[tableId2];
+        delete oldTableCache[tableName];
+        delete oldTableCache[tableName2];
+        DagTblManager.Instance.cache = oldTableCache;
         gTables = oldgTables;
         DagList.Instance.getDagTabById = cachedDetDagTabById;
     });
