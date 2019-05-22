@@ -18,6 +18,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _defaultSnippet: string;
     private _curSnippet : string;
     private _dropdownHint: InputDropdownHint;
+    private _isLoading: boolean;
 
     /**
      * Initialization, should be called only once by xcManager
@@ -51,35 +52,54 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     private _loadSnippets(): void {
+        this._isLoading = true;
         SQLSnippet.Instance.listSnippetsAsync()
-        .then((snippets: {name: string, snippet: string}[]) => {
-            try {
-                // only populate dropdown
-                const $ul = this._$sqlSnippetDropdown.find("ul");
-                snippets.forEach((snippetInfo) => {
-                    const html =
-                        '<li data-name="' + snippetInfo.name +
-                        '" data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="top">' + snippetInfo.name +
-                            '<i class="icon xi-trash"></i>' +
-                        '</li>';
-                    $(html).appendTo($ul);
-                });
-            } catch(e) {
-                Alert.show({
-                    title: "SQLEditor Error",
-                    msg: SQLErrTStr.InvalidSnippetMeta,
-                    isAlert: true
-                });
-            }
+        .then(() => {
+            this._isLoading = false;
+            this._refreshSnippet();
         })
         .fail(() => {
+            this._isLoading = false;
             Alert.show({
                 title: "SQLEditor Error",
                 msg: "Failed to get SQL snippets",
                 isAlert: true
             });
         });
+    }
+
+    private _refreshSnippet(): void {
+        if (this._isLoading) {
+            return;
+        }
+
+        let snippets: {name: string, snippet: string}[] = SQLSnippet.Instance.listSnippets();
+        try {
+            // only populate dropdown
+            const $ul = this._$sqlSnippetDropdown.find("ul");
+            let list: HTML = snippets.map((snippet) => {
+                let html =
+                    '<li data-name="' + snippet.name +
+                    '" data-toggle="tooltip" data-container="body"' +
+                    ' data-placement="top">' + snippet.name +
+                        '<i class="icon xi-trash"></i>' +
+                    '</li>';
+                return html
+            }).join("");
+            list = '<li>' +
+                        '<span>' +
+                            SQLTStr.DefaultSnippet +
+                        '</span>' +
+                    '</li>' +
+                    list;
+            $ul.html(list);
+        } catch(e) {
+            Alert.show({
+                title: "SQLEditor Error",
+                msg: SQLErrTStr.InvalidSnippetMeta,
+                isAlert: true
+            });
+        }
     }
 
     // SQLEditor.setCurId = function(txId) {
@@ -712,6 +732,7 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     private _updateUI() {
+        this._refreshSnippet();
         this._renderSqlQueryString();
         this._renderIdentifiers();
         this._renderDropAsYouGo();

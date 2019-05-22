@@ -1587,6 +1587,7 @@ SQLTStr = {
     "NoUntitledSnippet": "Name cannot be \"Untitled \"",
     "NoDupSnippetName": "Snippet with name the same name already exists, please use Save As to overwrite it.",
     "PreviewError": "The corresponding dataflow for sql cannot be previewed",
+    "DefaultSnippet": "Default Snippet",
 };
 
 LoginConfigTStr = {

@@ -454,7 +454,6 @@ module.exports = {
         "SchemaInst": "Select and click a table to view columns.",
         "ColumnInst": "Select and click a table in order to view and select columns.",
         "AddNew": "New Snippet",
-        "DefaultSnippet": "Default Snippet",
         "queryHistMenuTitle": "SQL",
         "queryHistCardTitle": "Query History",
         "queryHistColStatus": "Status",
