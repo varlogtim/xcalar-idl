@@ -41,6 +41,11 @@ class DagHelper {
             // Convert dataflow JSON to Xcalar queries
             var graph = dagRuntime.accessible(new DagGraph());
             graph.create(targetDag);
+            // Preprocess the linkIn nodes, it will
+            // 1. Detect missing dataflows(python SDK will handle the error and make another call with comprehensive
+            // dataflows)
+            // 2. Apply linkOut's resultant table to linkIn's source, to avoid real query execution
+            graph.processLinkedNodes();
             if (optimized) {
                 return graph.getRetinaArgs();
             } else {

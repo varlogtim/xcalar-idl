@@ -108,7 +108,13 @@ class DagNodeDFIn extends DagNodeIn {
 
     public getSource(): string {
         const input: DagNodeDFInInputStruct = this.getParam(true);
-        return input.source; 
+        return input.source;
+    }
+
+    public setSource(source: string): void {
+        const input: DagNodeDFInInputStruct = this.getParam();
+        input.source = source;
+        this.setParam(input);
     }
 
     public hasSource(): boolean  {

@@ -880,6 +880,45 @@ class DagGraph extends Durable {
     }
 
     /**
+     * Recursively replace linkIn's source with corresponding linkOut's resultant table,
+     * to avoid executing a dataflow when converting dataflows to xcalar query.
+     * This is called in expServer(SDK)
+     */
+    // XXX TODO: Split the linkIn-linkOut chain into multiple phases, to support executing DF from file
+    public processLinkedNodes() {
+        const graphList: DagGraph[] = [this]; // DFS task stack
+        const visited: DagGraph[] = [];
+
+        while (graphList.length > 0) {
+            const graph = graphList.pop();
+            if (visited.indexOf(graph) >= 0) {
+                continue;
+            }
+
+            // Go through every linkIn nodes in the current graph
+            const linkInNodes = <DagNodeDFIn[]>graph.getNodesByType(DagNodeType.DFIn);
+            for (const linkInNode of linkInNodes) {
+                // Skip any linkIn nodes already have a source
+                if (linkInNode.hasSource()) {
+                    continue;
+                }
+                // Get the corresponding linkOut node and the graph it's in
+                const { graph: linkGraph, node: linkOutNode } = linkInNode.getLinkedNodeAndGraph();
+                const sourceTable = linkOutNode.getTable();
+                if (linkOutNode.shouldLinkAfterExecuition() && sourceTable != null) {
+                    // Replace the source with linkOut's table
+                    linkInNode.setSource(sourceTable);
+                } else {
+                    // Keep exploring graphs
+                    graphList.push(linkGraph);
+                }
+            }
+
+            visited.push(graph);
+        }
+    }
+
+    /**
      *
      * @param nodeIds
      */
