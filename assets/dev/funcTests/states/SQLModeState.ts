@@ -113,7 +113,7 @@ class SQLModeState extends State {
         let snippetName = this.getUniqueName();
         this.log(`Creating snippet ${snippetName} in WKBK ${this.currentWKBKId}`);
         try {
-            this.sqlEditor._setSnippet(snippetName);
+            this.sqlEditor.setSnippet(snippetName);
             this.sqlEditor.clearSQL();
             let sql = await this.generateSQL();
             this.sqlEditor.newSQL(sql);
@@ -165,7 +165,7 @@ class SQLModeState extends State {
     private async executeSnippet(): XDPromise<SQLModeState> {
         let randomSnippet = this.getRandomSnippet();
         this.log(`Executing snippet ${randomSnippet} in WKBK ${this.currentWKBKId}`);
-        this.sqlEditor._setSnippet(randomSnippet);
+        this.sqlEditor.setSnippet(randomSnippet);
         let snippet = this.sqlSnippet.getSnippet(randomSnippet);
 
         if (!snippet) { // empty snippet
