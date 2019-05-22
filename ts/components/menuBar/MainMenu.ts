@@ -304,7 +304,7 @@ namespace MainMenu {
             "handles": "e",
             "minWidth": defaultWidth,
             "distance": 2,
-            "ghost": true,
+            "helper": "mainMenuGhost",
             "start": () => {
                 let winWidth =  $(window).width();
                 maxWidth = Math.max(Math.floor(winWidth / 2), minWidth);
@@ -313,7 +313,7 @@ namespace MainMenu {
                 panelRight = winWidth - panelRight + $mainMenu.width();
                 $mainMenu.css("max-width", panelRight - 10);
                 $mainMenu.addClass("resizing");
-                $ghost = $("#mainMenu.ui-resizable-ghost");
+                $ghost = $(".mainMenuGhost");
                 $ghost.css("max-width", panelRight - 10);
                 $("#container").addClass("noMenuAnim");
             },
