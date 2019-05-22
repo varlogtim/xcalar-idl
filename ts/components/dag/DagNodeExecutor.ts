@@ -221,7 +221,7 @@ class DagNodeExecutor {
                     Transaction.log(this.txId, loadArg, null, 0);
                 } catch (e) {
                     return PromiseHelper.reject({
-                        error: "Prase load args error",
+                        error: "Parse load args error",
                         defail: e.message
                     });
                 }
@@ -249,7 +249,9 @@ class DagNodeExecutor {
         node: DagNodeDataset,
         dsName: string
     ): string {
-        let loadArg = JSON.parse(node.getLoadArgs());
+        let loadArgStr: string = node.getLoadArgs();
+        loadArgStr = DagNodeInput.replaceParameters(loadArgStr, DagParamManager.Instance.getParamMap());
+        let loadArg = JSON.parse(loadArgStr);
         loadArg.args.dest = dsName;
         return JSON.stringify(loadArg);
     }

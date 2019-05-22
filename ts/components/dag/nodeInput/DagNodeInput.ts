@@ -140,7 +140,7 @@ class DagNodeInput {
     public getInput(replaceParameters?: boolean) {
         let input;
         if (replaceParameters) {
-            input = this.replaceParameters(this.input, DagParamManager.Instance.getParamMap());
+            input = DagNodeInput.replaceParameters(this.input, DagParamManager.Instance.getParamMap());
         } else {
             input = this.input;
         }
@@ -177,7 +177,7 @@ class DagNodeInput {
         if (validation.error) {
             return validation.error
         } else {
-            return this.replaceParameters(this.input, paramMap);
+            return DagNodeInput.replaceParameters(this.input, paramMap);
         }
     }
 
@@ -228,19 +228,19 @@ class DagNodeInput {
         return msg;
     }
 
-    private replaceParameters(input, paramMap) {
+    public static replaceParameters(input, paramMap) {
         // can provide custom input but if not, use the instance's input
         if (!input) {
             return input;
         }
         paramMap = paramMap || {};
-        const swappedInput = xcHelper.deepCopy(input);
+        let swappedInput = xcHelper.deepCopy(input);
         paramMap = Object.keys(paramMap).reduce((res, key) => {
             res[`<${key}>`] = paramMap[key];
             return res;
         }, {});
 
-        replace(swappedInput);
+        swappedInput = replace(swappedInput) || swappedInput;
         return swappedInput;
 
         function replace(value) {
