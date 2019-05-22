@@ -154,10 +154,10 @@ namespace xcManager {
             deferred.resolve();
         })
         .fail(function(error) {
+            handleSetupFail(error, firstTimeUser);
             UDFPanel.Instance.setup(); // ok to load twice, we check
             $("body").addClass("xc-setup-error");
             setupStatus = SetupStatus["Fail"];
-            handleSetupFail(error, firstTimeUser);
             deferred.reject(error);
         })
         .always(function() {
