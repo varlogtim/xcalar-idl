@@ -513,7 +513,7 @@ SQLErrTStr = {
     "InvalidSnippetMeta": "Invalid SQL snippet metadata from persisted store",
     "FinalizingFailed": "Finalizing failed",
     "FailToConnectPlanner": "Failed to connect to SQL Planner",
-    "InvalidColTypeForFinalize": "Column with unsupported type found: ",
+    "InvalidColTypeForFinalize": "Can't refer to the column due to unsupported type in SQL: ",
     "SnippetNameExists": "Snippet name already exists.",
     "IdentifierExists": "Table identifier already exists.",
     "NoSnippet": "Could not find the snippet",
@@ -555,7 +555,9 @@ SQLErrTStr = {
     "GroupByFailure": "Group by failed with undefined return struct!",
     "AggregateOneChild": "GroupBy node should have one child, but get: ",
     "NoRightRowNumTableName": "Can't find right row number column name in right outer join",
-    "NoRightRowNumCol": "No right row number column in right outer join"
+    "NoRightRowNumCol": "No right row number column in right outer join",
+    "Warning": "SQL Warning",
+    "MultiQueries": "Multi-queries not supported in advanced mode."
 };
 
 SQLInfoTStr = {
