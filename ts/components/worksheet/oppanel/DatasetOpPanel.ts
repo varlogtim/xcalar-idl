@@ -572,6 +572,15 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         return deferred.promise();
     }
 
+    private _deepEqaul(str1: string, str2: string): boolean {
+        try {
+            return JSON.stringify(JSON.parse(str1)) === JSON.stringify(JSON.parse(str2));
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    }
+
     private _submitForm(): void {
         const dagNode: DagNodeDataset = this._dagNode;
         let prefix: string;
@@ -615,7 +624,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const dagGraph: DagGraph = this._dagGraph;
         dagNode.setSchema(schema);
         const isSameSource: boolean = (oldParam.source === id);
-        const hasLoadArgsChange: boolean = (oldLoadArgs !== loadArgs);
+        const hasLoadArgsChange: boolean = !this._deepEqaul(oldLoadArgs, loadArgs);
         const getLoadgArgs: XDPromise<string> = this._advMode ?
         PromiseHelper.resolve(loadArgs) : this._fetchLoadArgs(id);
 
