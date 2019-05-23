@@ -130,22 +130,6 @@ class SetOpPanel extends BaseOpPanel {
         this._getPanel().find(".modeList").text(typeMap[subType]);
     }
 
-    // XXX TODO: generalize it
-    private _autoResizeView(reset: boolean) {
-        const $mainMenu: JQuery = $("#mainMenu");
-        const $panel: JQuery = this._getPanel();
-        const sectionW: number = parseFloat($panel.find(".lists").eq(0).css("min-width")) + 5;
-        const minWidth: number = parseFloat($mainMenu.css("min-width"));
-        if (reset) {
-            $mainMenu.width(minWidth);
-        } else {
-            const numList: number = this.setOpData.getNumList();
-            let width: number = minWidth + Math.max(0, numList - 1) * sectionW;
-            width = Math.min(width, $("#modelingDagPanel").width() * 0.5);
-            $mainMenu.width(width);
-        }
-    }
-
     private _showCast(colIndex: number) {
         const $panel: JQuery = this._getPanel();
         $panel.find('.resultCol[data-index="' + colIndex + '"]').addClass("cast");
@@ -250,5 +234,19 @@ class SetOpPanel extends BaseOpPanel {
 
     protected _restoreBasicModeParams() {
         return this.setOpData.restoreBasicModeParams(this._editor);
+    }
+
+    protected _autoResizeView(reset: boolean) {
+        const $panel: JQuery = this._getPanel();
+        const sectionW: number = parseFloat($panel.find(".lists").eq(0).css("min-width")) + 5;
+        const minWidth: number = MainMenu.defaultWidth;
+        if (reset) {
+            MainMenu.resize(0);
+        } else {
+            const numList: number = this.setOpData.getNumList();
+            let width: number = minWidth + Math.max(0, numList - 1) * sectionW;
+            width = Math.min(width, $("#modelingDagPanel").width() * 0.5);
+            MainMenu.resize(width);
+        }
     }
 }

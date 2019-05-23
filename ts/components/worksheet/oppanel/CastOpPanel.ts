@@ -236,21 +236,6 @@ class CastOpPanel extends BaseOpPanel {
                   .text(OpFormTStr.NotCasted + ":");
     }
 
-    // XXX TODO: generalize it
-    private _autoResizeView(reset: boolean) {
-        const $mainMenu: JQuery = $("#mainMenu");
-        const $panel: JQuery = this._getPanel();
-        const sectionW: number = parseFloat($panel.find(".lists").eq(0).css("min-width")) + 5;
-        const minWidth: number = parseFloat($mainMenu.css("min-width"));
-        if (reset) {
-            $mainMenu.width(minWidth);
-        } else {
-            let width: number = minWidth + sectionW;
-            width = Math.min(width, $("#modelingDagPanel").width() * 0.5);
-            $mainMenu.width(width);
-        }
-    }
-
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
             const param = this.colRenameSection.getParam();

@@ -6,7 +6,7 @@ namespace MainMenu {
     const closedOffset: number = 65; // in pixels, how much the panels are horizonally
     // offset when a menu is closed (includes 5px padding in .mainContent)
     const openOffset: number = 350; // when the menu is open
-    const defaultWidth: number = 295;
+    export const defaultWidth: number = 295;
     let currWidth: number = defaultWidth;
     let _isFormOpen: boolean = false; // if export, join, map etc is open
     let ignoreRestoreState: boolean = false; // boolean flag - if closing of a form is
@@ -290,6 +290,52 @@ namespace MainMenu {
         }
     };
 
+    export function resize(width: number): void {
+        width = Math.max(width, defaultWidth);
+        $("#container").addClass("noMenuAnim");
+        const winWidth: number =  $(window).width();
+        const minWidth: number = defaultWidth + 3;
+        const maxWidth = Math.max(Math.floor(winWidth / 2), minWidth);
+        $mainMenu.width(width);
+        $mainMenu.removeClass("resizing");
+        const newWidth: number = $mainMenu.width();
+        if (newWidth < minWidth) {
+            $mainMenu.width(defaultWidth);
+            $mainMenu.removeClass("expanded");
+        } else {
+            $mainMenu.addClass("expanded");
+        }
+        currWidth = newWidth;
+        rightPanelMargin = currWidth;
+        if (currWidth > maxWidth) {
+            rightPanelMargin = maxWidth;
+        }
+        rightPanelMargin = Math.max(defaultWidth, rightPanelMargin);
+
+        sizeRightPanel();
+        let widthCSS: string = $mainMenu.css("width");
+        $mainMenu.attr("style", ""); // remove styling added by ghost
+        $mainMenu.css("width", widthCSS);
+        // let codemirror know it's area was resized
+        formPanels.forEach(function(panel) {
+            if (panel.isOpen()) {
+                if (panel.getEditor && panel.getEditor()) {
+                    panel.getEditor().refresh();
+                }
+                if (panel["getSQLEditor"] && panel["getSQLEditor"]()) {
+                    panel["getSQLEditor"]().refresh();
+                }
+                if (panel.panelResize) {
+                    panel.panelResize();
+                }
+            }
+        });
+        setTimeout(() => {
+            $("#container").removeClass("noMenuAnim");
+            // remove animation for a split second so there's no anim
+        }, 0);
+    }
+
     function sizeRightPanel() {
         $resizableRightPanels.css("margin-left", rightPanelMargin);
         $statusBar.css("margin-left", rightPanelMargin);
@@ -297,7 +343,6 @@ namespace MainMenu {
 
     function setupResizable(): void {
         const minWidth: number = defaultWidth + 3;
-        let maxWidth: number;
         let isSmall: boolean = true;
         let $ghost: JQuery;
         $mainMenu.resizable({
@@ -307,7 +352,6 @@ namespace MainMenu {
             "helper": "mainMenuGhost",
             "start": () => {
                 let winWidth =  $(window).width();
-                maxWidth = Math.max(Math.floor(winWidth / 2), minWidth);
                 let panelRight: number = $mainMenu[0].getBoundingClientRect().right;
 
                 panelRight = winWidth - panelRight + $mainMenu.width();
@@ -332,46 +376,7 @@ namespace MainMenu {
                 $mainMenu.css("max-width", "").css("max-height", "");
                 let width: number = $mainMenu.width();
                 width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
-                $mainMenu.width(width);
-                $mainMenu.removeClass("resizing");
-                const newWidth: number = $mainMenu.width();
-                if (newWidth < minWidth) {
-                    $mainMenu.width(defaultWidth);
-                    $mainMenu.removeClass("expanded");
-                    isSmall = true;
-                } else {
-                    $mainMenu.addClass("expanded");
-                    isSmall = false;
-                }
-                currWidth = newWidth;
-                rightPanelMargin = currWidth;
-                if (currWidth > maxWidth) {
-                    rightPanelMargin = maxWidth;
-                }
-                rightPanelMargin = Math.max(defaultWidth, rightPanelMargin);
-
-                sizeRightPanel();
-                let widthCSS: string = $mainMenu.css("width");
-                $mainMenu.attr("style", ""); // remove styling added by ghost
-                $mainMenu.css("width", widthCSS);
-                // let codemirror know it's area was resized
-                formPanels.forEach(function(panel) {
-                    if (panel.isOpen()) {
-                        if (panel.getEditor && panel.getEditor()) {
-                            panel.getEditor().refresh();
-                        }
-                        if (panel["getSQLEditor"] && panel["getSQLEditor"]()) {
-                            panel["getSQLEditor"]().refresh();
-                        }
-                        if (panel.panelResize) {
-                            panel.panelResize();
-                        }
-                    }
-                });
-                setTimeout(() => {
-                    $("#container").removeClass("noMenuAnim");
-                    // remove animation for a split second so there's no anim
-                }, 0);
+                resize(width);
             }
         });
     }
