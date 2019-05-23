@@ -924,7 +924,8 @@ class DagView {
                     const node: DagNode = this.graph.getNode(nodeIds[0]);
                     if (node != null &&
                         !node.isOutNode() &&
-                        node.getState() === DagNodeState.Complete
+                        node.getState() === DagNodeState.Complete &&
+                        !(node.getType() === DagNodeType.Extension && node.getTable() == null)
                     ) {
                         DagViewManager.Instance.viewResult(node, this.tabId);
                     }
