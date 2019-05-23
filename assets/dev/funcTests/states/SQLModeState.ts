@@ -184,7 +184,12 @@ class SQLModeState extends State {
         // we just issued
         let checkFunc = async function() {
             console.info(`checking sql execution ${snippet}`);
-            await SqlQueryHistory.getInstance().readStore(true);
+            try {
+                await SqlQueryHistory.getInstance().readStore(true);
+            } catch (err) {
+                this.log(`Error retrieve the sql query history: ${err}`);
+                return false;
+            }
             let historyMap = SqlQueryHistory.getInstance().getQueryMap();
             let qInfo = null;
             for (let idx in historyMap) {
