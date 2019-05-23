@@ -208,8 +208,8 @@ describe('ExpServer Login Test', function() {
     });
 
     it('loginManager.loginAuthentication should fail when error', function(done) {
-        testCredArray = {};
-        loginManager.loginAuthentication(testCredArray)
+        var emptyTestCredArray = {};
+        loginManager.loginAuthentication(emptyTestCredArray)
         .then(function() {
             done("fail");
         })
@@ -255,7 +255,7 @@ describe('ExpServer Login Test', function() {
     });
 
     it('loginManager.prepareResponse should work', function(done) {
-        loginManager.prepareResponse(testLoginId, testLdapConn.activeDir)
+        loginManager.prepareResponse(testLoginId, testLdapConn.activeDir, testCredArray)
         .then(function(ret) {
             expect(ret.isValid).to.be.true;
             done();
@@ -392,7 +392,7 @@ describe('ExpServer Login Test', function() {
             "isSupporter": false,
             "isValid": true,
             "mail": "sPerson1@gmail.com",
-            "xiusername": "sPerson1@gmail.com"
+            "xiusername": testCredArray.xiusername.toLowerCase()
         };
         postRequest("POST", "/login", testCredArray)
         .then(function(ret) {
@@ -421,11 +421,11 @@ describe('ExpServer Login Test', function() {
             "isSupporter": false,
             "isValid": true,
             "mail": "sPerson1@gmail.com",
-            "xiusername": "sPerson1@gmail.com"
+            "xiusername": testCredArray.xiusername.toLowerCase()
         };
         var expectedRetMsg2 = {
             'status': 200,
-            'message': 'User ' + expectedRetMsg.mail + ' is logged out'
+            'message': 'User ' + expectedRetMsg.mail.toLowerCase() + ' is logged out'
         }
         var cookieJar = request.jar();
 
@@ -473,7 +473,7 @@ describe('ExpServer Login Test', function() {
             "isSupporter": false,
             "isValid": true,
             "mail": "sPerson2@gmail.com",
-            "xiusername": "sPerson2@gmail.com"
+            "xiusername": testCredArray.xiusername.toLowerCase()
         };
         var body = { one: "two",
                      three: "four" };
@@ -532,7 +532,7 @@ describe('ExpServer Login Test', function() {
             "isSupporter": false,
             "isValid": true,
             "mail": "sPerson1@gmail.com",
-            "xiusername": "sPerson1@gmail.com"
+            "xiusername": testCredArray.xiusername.toLowerCase()
         };
         var body = { one: "two",
                      three: "four" };
@@ -584,7 +584,7 @@ describe('ExpServer Login Test', function() {
             "isSupporter": false,
             "isValid": true,
             "mail": "sPerson2@gmail.com",
-            "xiusername": "sPerson2@gmail.com"
+            "xiusername": testCredArray.xiusername.toLowerCase()
         };
         var body = { one: "two",
                      three: "four" };
@@ -650,7 +650,7 @@ describe('ExpServer Login Test', function() {
             "isSupporter": false,
             "isValid": true,
             "mail": "sPerson2@gmail.com",
-            "xiusername": "sPerson2@gmail.com"
+            "xiusername": testCredArray.xiusername.toLowerCase()
         };
         var cookieJar = request.jar();
 

@@ -64,7 +64,6 @@ $(document).ready(function() {
 
     var lastUsername = xcLocalStorage.getItem("lastUsername");
     if (lastUsername && lastUsername.length) {
-        lastUsername = lastUsername.toLowerCase();
         $("#loginNameBox").val(lastUsername);
     }
 
@@ -98,7 +97,7 @@ $(document).ready(function() {
             // submit was already triggered
             return;
         }
-        var username = $("#loginNameBox").val().trim().toLowerCase();
+        var username = $("#loginNameBox").val().trim();
         if (username === "") {
             return;
         }

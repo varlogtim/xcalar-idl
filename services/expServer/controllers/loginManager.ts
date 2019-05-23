@@ -983,7 +983,7 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup, useGro
     }
 }
 
-function prepareResponse(loginId, activeDir) {
+function prepareResponse(loginId, activeDir, credArray) {
     let deferred: any = jQuery.Deferred();
     let user: any = users.get(loginId);
     if (user && user.getEntryCount() >= 1) {
@@ -1000,6 +1000,7 @@ function prepareResponse(loginId, activeDir) {
             let isAdmin = user.isAdmin();
             let isSupporter = user.isSupporter();
             let userInfo = {
+                "xiusername": credArray.xiusername.toLowerCase(),
                 "firstName": user.firstName,
                 "mail": user.mail,
                 "isValid": true,
@@ -1041,7 +1042,7 @@ function ldapLogin(credArray) {
             return ldapGroupRetrieve(ldapConn, 'admin', currLoginId);
         })
         .then(function(message) {
-            return prepareResponse(currLoginId, ldapConn.activeDir);
+            return prepareResponse(currLoginId, ldapConn.activeDir, credArray);
         })
         .then(function(message) {
             ldapConn.client.destroy();
@@ -1082,6 +1083,7 @@ function vaultLogin(credArray) {
                 if (response.statusCode === httpStatus.OK) {
 
                     let userInfo: any = {
+                        "xiusername": credArray.xiusername.toLowerCase(),
                         "firstName": response.body.auth.metadata.username,
                         "mail": "",
                         "isAdmin": false,
@@ -1198,6 +1200,7 @@ export function loginAuthentication(credArray) {
 
                 // Successfully authenticated as defaultAdmin
                 let userInfo = {
+                    "xiusername": defaultAdminConfig.username,
                     "firstName": "Administrator",
                     "mail": defaultAdminConfig.email,
                     "isValid": true,
@@ -1240,7 +1243,6 @@ export function loginAuthentication(credArray) {
         .then(function(userInfo) {
             // We've authenticated successfully with either ldap or default admin
             userInfo.status = message.status;
-            userInfo.xiusername = credArray.xiusername;
             xcConsole.log(userInfo.xiusername, "successfully logged in.");
             deferred.resolve(userInfo)
         })
