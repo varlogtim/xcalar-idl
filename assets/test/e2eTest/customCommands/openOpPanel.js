@@ -10,6 +10,7 @@ class OpenOpPanel extends EventEmitter {
             .waitForElementVisible("#dagNodeMenu", 1000)
             .moveToElement("#dagNodeMenu li.configureNode", 10, 1)
             .mouseButtonClick('left')
+            .waitForElementNotPresent("#formWaitingBG")
         this.emit('complete');
 
         return this;
