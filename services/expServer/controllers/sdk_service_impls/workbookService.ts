@@ -32,9 +32,12 @@ function convertKvsToQuery(convertRequest: any): Promise<any> {
     })
     .fail(function(err) {
         // Unable to convert to a query.  Pass back the reason.
-        const errStr: string = err.node != null
+        let errStr: string = err;
+        if (err != null) {
+            errStr = err.node != null
             ? err.node.title + " (" + err.node.type + ") - " + err.type
             : (err.message || err);
+        }
         cvtKvsToQueryResponse.setResultstring(errStr);
 
         // We don't reject if there is a xcrpc error
