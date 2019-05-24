@@ -594,7 +594,6 @@ namespace xcManager {
             return JupyterPanel.initialize();
         })
         .then(() => {
-            Authentication.setup();
             return KVStore.restoreWKBKInfo();
         }) // restores table info, dataset info, settings etc
         .then(deferred.resolve)
