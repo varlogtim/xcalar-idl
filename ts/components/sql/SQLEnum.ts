@@ -377,6 +377,7 @@ enum SparkExprToXdf {
     "InitCap" = "initCap", // Different behavior
     "StringRepeat" = "repeat",
     "StringReverse" = "stringReverse",
+    "Reverse" = "stringReverse",
     // "StringSpace" = null, // TODO
     "Substring" = "substring", // XXX 1-based index
     "XcSubstring" = "substring", // Xcalar generated
