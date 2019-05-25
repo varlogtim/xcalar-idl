@@ -281,6 +281,7 @@ namespace DS {
         let deferred: XDDeferred<DSObj> = PromiseHelper.deferred();
         try {
             let loadArgs = JSON.parse(loadArgsStr).args.loadArgs;
+            loadArgs = normalizeLoadArgs(loadArgs);
             let parsedName = xcHelper.parseDSName(fullDSName);
             let dsArgs = {
                 name: parsedName.dsName,
@@ -299,6 +300,29 @@ namespace DS {
         }
 
         return deferred.promise();
+    }
+
+    function normalizeLoadArgs(loadArgs: any): any {
+        try {
+            let udfPath: string = loadArgs.parseArgs.parserFnName;
+            if (udfPath &&
+                udfPath.length > 0 &&
+                !udfPath.startsWith("default") &&
+                !udfPath.includes("/")
+            ) {
+                // when it's a relative path
+                udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + udfPath;
+                let udfModule = udfPath.split(":")[0];
+                if (UDFFileManager.Instance.getUDFs().has(udfModule)) {
+                    // when has the UDF, use the absolute path
+                    loadArgs.parseArgs.parserFnName = udfPath;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        return loadArgs;
     }
 
     function getNewDSName(oldDSName: string): string {
