@@ -187,7 +187,7 @@ class SQLModeState extends State {
             try {
                 await SqlQueryHistory.getInstance().readStore(true);
             } catch (err) {
-                this.log(`Error retrieve the sql query history: ${err}`);
+                console.log(`Error retrieve the sql query history: ${err}`);
                 return false;
             }
             let historyMap = SqlQueryHistory.getInstance().getQueryMap();
