@@ -74,12 +74,6 @@ class AggOpPanel extends GeneralOpPanel {
         }
 
         this._$panel.find(".colNameSection .arg").val(model.dest);
-        const $checkbox: JQuery = this._getOptionCheckbox().find(".checkbox");
-        if (model.mustExecute) {
-            $checkbox.addClass("checked");
-        } else {
-            $checkbox.removeClass("checked");
-        }
         this._formHelper.refreshTabbing();
         self._checkIfStringReplaceNeeded(true);
     }
@@ -111,12 +105,6 @@ class AggOpPanel extends GeneralOpPanel {
                             .showOrHideScrollers();
 
             }
-        });
-
-        const $checkboxSection: JQuery = this._getOptionCheckbox();
-        $checkboxSection.on("click", ".checkbox, .text", () => {
-            this._getOptionCheckbox().find(".checkbox").toggleClass("checked");
-            this.model.updateMustExecute(this._getOptionCheckbox().find(".checkbox").hasClass("checked"));
         });
 
         this._$panel.on("keydown", ".functionsInput", function(event) {

@@ -82,6 +82,42 @@ describe("Dag Graph Test", () => {
         expect(node2.getParam().name).to.equal("a_1");
     });
 
+    it("resolveAggConflict should work", function() {
+        let graph = new DagGraph();
+        let oldGetAgg = graph.getRuntime().getDagAggService().getAgg;
+        let oldHasAgg = graph.getRuntime().getDagAggService().hasAggregate;
+
+        // Assume "constantName" already exists
+        
+
+        graph.getRuntime().getDagAggService().hasAggregate = function(myAggName) {
+            return (myAggName == "constantName");
+        }
+
+        let node2 = DagNodeFactory.create({
+            type: DagNodeType.Aggregate
+        });
+        let node3 = DagNodeFactory.create({
+            type: DagNodeType.Aggregate
+        });
+        graph.getRuntime().getDagAggService().getAgg = function(myAggName) {
+            return {
+                node: node3.getId()
+            };
+        }
+        node2.setParam({evalString: "count(column)",
+            dest: "constantName"});
+        node3.setParam({evalString: "count(column)",
+            dest: "constantName2"});
+
+        let res = graph.resolveAggConflict([node2, node3]);
+        expect(res.length).to.equal(1);
+        expect(res[0]).to.equal(node2);
+        expect(node2.getParam().dest).to.equal("constantName_1");
+        graph.getRuntime().getDagAggService().hasAggregate = oldHasAgg;
+        graph.getRuntime().getDagAggService().getAgg = oldGetAgg;
+    });
+
     describe ("getSortedNodes Test", () => {
         var graph;
         var n1, n2, n3, n4, n5, n6, n7;

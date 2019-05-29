@@ -752,10 +752,9 @@ AggTStr = {
                 '\r\n The aggregate operation is "<op>".',
     'AggName': '\r\n The resultant aggregate name is <aggName>.',
     'AggMsg': '{"Value": <val>}',
-    'AggGraphError': "Aggregate '<aggName>' must be created in this graph.",
     'AggNotExistError': "The Aggregate '<aggName>' does not exist.",
     'AggNodeNotExistError': "The Aggregate '<aggName>' is created by a node that does not exist.",
-    'AggNodeMustExecuteError': "The Aggregate node for '<aggName>' must be manually " +
+    'AggNodeMustExecuteError': "The Aggregate node for '<aggName>' must be " +
         "executed before the aggregate can be used.",
 };
 

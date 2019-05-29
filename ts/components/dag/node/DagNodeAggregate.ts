@@ -2,7 +2,6 @@ class DagNodeAggregate extends DagNode {
     protected input: DagNodeAggregateInput;
     private aggVal: string | number; // non-persistent
     private graph: DagGraph; // non-persistent
-    private aggBackName: string; // non-persistent
 
     public constructor(options: DagNodeAggregateInfo, runtime?: DagRuntime) {
         super(options, runtime);
@@ -15,18 +14,20 @@ class DagNodeAggregate extends DagNode {
         this.display.icon = "&#xe939;";
         this.input = new DagNodeAggregateInput(options.input);
         let dest: string = this.input.getInput().dest;
+        let backname: string = dest;
+        if (dest.startsWith(gAggVarPrefix)) {
+            backname = dest.substring(1);
+        }
         let tabId: string = this.graph ? this.graph.getTabId() : "";
         if (tabId == null) {tabId = ""};
-        let backName = this.getRuntime().getDagAggService().wrapAggName(tabId, dest)
-        this.aggBackName = backName;
         if (dest != "" &&
-                !this.getRuntime().getDagAggService().hasAggregate(tabId, dest) &&
+                !this.getRuntime().getDagAggService().hasAggregate(dest) &&
                 tabId != "" && !DagTabUser.idIsForSQLFolder(tabId) ) {
             // If we upload a dataflow we need to add the relevant aggregates to the agg manager
             // But we dont add sql aggregates
-            this.getRuntime().getDagAggService().addAgg(backName, {
+            this.getRuntime().getDagAggService().addAgg(dest, {
                 value: null,
-                dagName: backName,
+                dagName: backname,
                 aggName: dest,
                 tableId: null,
                 backColName: null,
@@ -101,19 +102,19 @@ class DagNodeAggregate extends DagNode {
     public setParam(input: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>{}): boolean | void {
         this.input.setInput({
             evalString: input.evalString,
-            dest: input.dest,
-            mustExecute: input.mustExecute
+            dest: input.dest
         });
         let tabId = this.graph ? this.graph.getTabId() : "";
         let promise: XDPromise<any> = PromiseHelper.resolve();
         let oldAggName = this.getParam().dest;
         if (oldAggName != null && oldAggName != input.dest &&
-                DagAggManager.Instance.hasAggregate(tabId, oldAggName)) {
-            let oldAgg = DagAggManager.Instance.getAgg(tabId, oldAggName);
+                DagAggManager.Instance.hasAggregate(oldAggName)) {
+            let oldAgg = DagAggManager.Instance.getAgg(oldAggName);
             promise = DagAggManager.Instance.removeAgg(oldAgg.dagName);
+
         } else if (oldAggName != null && oldAggName == input.dest &&
-                DagAggManager.Instance.hasAggregate(tabId, oldAggName)) {
-            let oldAgg = DagAggManager.Instance.getAgg(tabId, oldAggName);
+                DagAggManager.Instance.hasAggregate(oldAggName)) {
+            let oldAgg = DagAggManager.Instance.getAgg(oldAggName);
             if (oldAgg.value != null) {
                 // We're replacing the value so we need to delete it
                 promise = DagAggManager.Instance.removeAgg(oldAgg.dagName, true);
@@ -122,11 +123,13 @@ class DagNodeAggregate extends DagNode {
         PromiseHelper.alwaysResolve(promise)
         .then(() => {
             let tabId = this.graph ? this.graph.getTabId() : null;
-            let backName = DagAggManager.Instance.wrapAggName(tabId, input.dest)
-            this.aggBackName = backName;
-            return DagAggManager.Instance.addAgg(backName, {
+            let aggName = input.dest;
+            if (aggName.startsWith(gAggVarPrefix)) {
+                aggName = aggName.substring(1);
+            }
+            return DagAggManager.Instance.addAgg(input.dest, {
                 value: null,
-                dagName: backName,
+                dagName: aggName,
                 aggName: input.dest,
                 tableId: null,
                 backColName: null,
@@ -141,11 +144,16 @@ class DagNodeAggregate extends DagNode {
 
     public resetAgg(): XDPromise<void> {
         try {
-            let aggName = this.getAggBackName();
+            let aggName = this.getAggName();
             if (!aggName) {
                 return PromiseHelper.resolve();
             } else if (typeof DagAggManager !== "undefined") {
-                return DagAggManager.Instance.removeValue(aggName);
+                let agg = DagAggManager.Instance.getAgg(aggName);
+                if (agg && this.graph && agg.graph == this.graph.getTabId()) {
+                    return DagAggManager.Instance.removeValue(aggName);
+                } else {
+                    return PromiseHelper.resolve();
+                }
             } else {
                 return DagNodeAggregate.deleteAgg([aggName]);
             }
@@ -170,8 +178,8 @@ class DagNodeAggregate extends DagNode {
         return this.aggVal;
     }
 
-    public getAggBackName(): string {
-        return this.aggBackName;
+    public getAggName(): string {
+        return this.input.getInput().dest;
     }
 
     public lineageChange(_columns: ProgCol[]): DagLineageChange {
@@ -197,6 +205,27 @@ class DagNodeAggregate extends DagNode {
      */
     public getDisplayNodeType(): string {
         return "Single Value";
+    }
+
+
+    /* @override */
+    protected _validateConfiguration(): {error: string} {
+        const error = super._validateConfiguration();
+        if (error != null) {
+            return error;
+        }
+
+        if (this.getRuntime().getDagAggService().hasAggregate(this.getParam().dest)) {
+            let agg = this.getRuntime().getDagAggService().getAgg(this.getParam().dest);
+            if (!this.graph || agg.graph != this.graph.getTabId()) {
+                return {
+                    error: xcStringHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                        name: this.getParam().dest,
+                        aggPrefix: ""
+                    })
+                };
+            }
+        }
     }
 
     protected _clearConnectionMeta(): void {

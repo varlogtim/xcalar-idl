@@ -323,8 +323,7 @@ module.exports = {
 
         let config = {
             "evalString": "count(lat)",
-            "dest": aggName,
-            "mustExecute": false
+            "dest": aggName
         };
 
         browser

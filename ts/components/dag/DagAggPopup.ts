@@ -235,7 +235,7 @@ class DagAggPopup {
         const nodeId = $row.data("nodeid");
         const graphId = $row.data("dataflowid");
         this.$aggManagerPopup.find(".aggDelete").addClass("xc-disabled");
-        const backName = DagAggManager.Instance.wrapAggName(graphId, aggName);
+        const backName = aggName;
 
         DagAggManager.Instance.removeAgg([backName])
         .then(() => {

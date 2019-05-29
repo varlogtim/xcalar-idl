@@ -220,7 +220,7 @@ abstract class GeneralOpPanelModel {
         if (arg[0] != "\^") {
             return false;
         }
-        return DagAggManager.Instance.hasAggregate(DagTabManager.Instance.getPanelTabId(), arg);
+        return DagAggManager.Instance.hasAggregate(arg);
     }
 
     protected _validateArg(arg: OpPanelArg) {

@@ -60,7 +60,7 @@ enum DagNodeErrorType {
     Invalid = "Invalid Configuration",
     NoGraph = "Cannot find linked graph",
     NoNode = "Invalid node that is not in the graph specified",
-    NoAggNode = "Corresponding aggregate node either doesnt exist or must be executed manually",
+    NoAggNode = "Corresponding aggregate node either does not exist or has not been executed",
     AggNotExecute = "Must execute the aggregate manually before using it",
     CycleInLink = "Cycle In Link",
     LinkOutNotExecute = "The linked node only allow linking after execution",

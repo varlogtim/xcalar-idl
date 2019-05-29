@@ -18,6 +18,7 @@ class DagGraphExecutor {
     private _currentNode: DagNode; // current node in progress if stepExecute
     private _finishedNodeIds: Set<DagNodeId>;
     private _isRestoredExecution: boolean; // if restored after browser refresh
+    private _internalAggNames: Set<string>; // aggs created in this graph.
 
     public static readonly stepThroughTypes = new Set([DagNodeType.PublishIMD,
         DagNodeType.IMDTable, DagNodeType.UpdateIMD, DagNodeType.Extension,
@@ -50,6 +51,7 @@ class DagGraphExecutor {
         this._dagIdToDestTableMap = new Map();
         this._finishedNodeIds = new Set();
         this._isRestoredExecution = options.isRestoredExecution || false;
+        this._internalAggNames = new Set();
     }
 
     public validateAll(): {
@@ -181,15 +183,12 @@ class DagGraphExecutor {
             let aggNode: DagNodeAggregate =
                 <DagNodeAggregate>this._nodes.find((node) => {return node.getParam().dest == agg})
             if (aggNode == null) {
-                let aggInfo = DagAggManager.Instance.getAgg(this._graph.getTabId(), agg);
+                let aggInfo = DagAggManager.Instance.getAgg(agg);
                 if (aggInfo && aggInfo.value != null) {
                     // It has a value, we're alright.
                     continue
                 }
                 return DagNodeErrorType.NoAggNode;
-            } else if  (aggNode.getParam().mustExecute) {
-                // Case where we must execute the aggregate manually
-                return DagNodeErrorType.AggNotExecute;
             }
         }
         return null;
@@ -753,9 +752,12 @@ class DagGraphExecutor {
             // send copy and original sql node to executor because we
             // may need to modify the original
             sqlNode = this._sqlNodes.get(node.getId());
+        } else if (node instanceof DagNodeAggregate) {
+            // It was created in this graph so we note it.
+            this._internalAggNames.add(node.getParam().dest);
         }
 
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId, false, sqlNode);
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId, false, sqlNode, false, this._internalAggNames);
         this._currentNode = node;
         dagNodeExecutor.run()
         .then((_destTable) => {
@@ -886,9 +888,12 @@ class DagGraphExecutor {
             // send copy and original sql node to executor because we
             // may need to modify the original
             sqlNode = this._sqlNodes.get(node.getId());
+        } else if (node instanceof DagNodeAggregate) {
+            // It was created in this graph so we note it.
+            this._internalAggNames.add(node.getParam().dest);
         }
         const dagNodeExecutor: DagNodeExecutor = this.getRuntime().accessible(
-            new DagNodeExecutor(node, txId, this._graph.getTabId(), this._isNoReplaceParam, sqlNode, forExecution)
+            new DagNodeExecutor(node, txId, this._graph.getTabId(), this._isNoReplaceParam, sqlNode, forExecution, this._internalAggNames)
         );
         return dagNodeExecutor.run(this._isOptimized);
     }
@@ -1347,7 +1352,7 @@ class DagGraphExecutor {
                 graph: this._graph.getTabId()
             };
             try {
-                await this.getRuntime().getDagAggService().addAgg(dstAggName, aggRes);
+                await this.getRuntime().getDagAggService().addAgg(unwrappedName, aggRes);
             } catch (e) {
                 return Promise.resolve();
             }

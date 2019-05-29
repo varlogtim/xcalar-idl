@@ -1269,35 +1269,32 @@ class DagGraph extends Durable {
                 if (aggMap != null && aggMap.has(agg)) {
                     // Within aggMap
                     let aggNode = aggMap.get(agg);
-                    if (aggNode.getParam().mustExecute) {
-                        error = xcStringHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
-                            "aggName": agg
-                        });
-                    }
                     sources.push(aggNode);
                 } else {
                     // If we don't have the aggMap, we have to look at the manager
-                    let aggInfo: AggregateInfo = this.getRuntime().getDagAggService().getAgg(this.getTabId(), agg);
+                    let aggInfo: AggregateInfo = this.getRuntime().getDagAggService().getAgg(agg);
+
                     if (aggInfo == null) {
                         error = xcStringHelper.replaceMsg(AggTStr.AggNotExistError, {
                             "aggName": agg
                         });
                         break;
-                    }
-                    else if (aggInfo.graph == null) {
+                    } else if (aggInfo.value) {
+                        // If it already has a value, that's fine and we can reuse it.
+                        continue;
+                    } else if (aggInfo.graph == null) {
                         // Doesnt have a graph, this aggregate can't be found.
                         error = xcStringHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
                             "aggName": agg
                         });
-                    } else if (aggInfo.graph != this.getTabId()) {
-                        // Aggregate must be created in this graph
-                        error = xcStringHelper.replaceMsg(AggTStr.AggGraphError, {
-                            "aggName": agg,
-                            "graphName": name
-                        });
-                    } else if (aggInfo.node == null || this.hasNode(aggInfo.node)) {
+                    } else if (aggInfo.node == null) {
                         // Node either doesnt exist or is not in this graph
                         error = xcStringHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
+                            "aggName": agg
+                        });
+                    } else if (aggInfo.graph != this.getTabId() || !this.hasNode(aggInfo.node)) {
+                        // Created in a different graph and not executed
+                        error = xcStringHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
                             "aggName": agg
                         });
                     } else {
@@ -1611,6 +1608,34 @@ class DagGraph extends Durable {
                 "type": error.error
             };
         }
+    }
+
+    /**
+     * Given aggregate nodes within this graph, checks if their current aggregates belongs to them
+     * If not, renames them.
+     * @param aggregateNodes 
+     */
+    public resolveAggConflict(aggregateNodes: DagNodeAggregate[]): DagNodeAggregate[] {
+        let changedNodes = [];
+        aggregateNodes.forEach((newNode) => {
+            let validFunc = (name) => {
+                return !this.getRuntime().getDagAggService().hasAggregate(name);
+            };
+            let param = newNode.getParam();
+            let agg = this.getRuntime().getDagAggService().getAgg(param.dest);
+            if (!agg) {
+                // This aggregate has been removed for some reason, so we'll ignore it.
+                return;
+            }
+            if (agg.node != newNode.getId()) {
+                // A different node than this one created this agg, so we need to rename it.
+                param.dest = xcHelper.uniqueName(param.dest, validFunc, null);
+                newNode.setParam(param);
+                changedNodes.push(newNode);
+            }
+        });
+
+        return changedNodes;
     }
 
     public resolveNodeConflict(linkOutNodes: DagNodeDFOut[]): DagNodeDFOut[] {

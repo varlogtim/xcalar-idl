@@ -9,31 +9,34 @@ describe("AggOpPanel Test", function() {
     var prefix = "prefix";
     var openOptions;
 
-    before(function() {
-        MainMenu.openPanel("dagPanel");
-        node = new DagNodeAggregate({});
-        const parentNode = new DagNodeAggregate({});
-        parentNode.getLineage = function() {
-            return {getColumns: function() {
-                return [new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
-                    type: "number"
-                })]
-            }}
-        };
-        node.getParents = function() {
-            return [parentNode];
-        }
-        openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
+    before(function(done) {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            MainMenu.openPanel("dagPanel");
+            node = new DagNodeAggregate({});
+            const parentNode = new DagNodeAggregate({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
+                        type: "number"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            }
+            openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
 
-        oldJSONParse = JSON.parse;
-        aggOpPanel = AggOpPanel.Instance;
-        editor = aggOpPanel.getEditor();
-        $aggOpPanel = $('#aggOpPanel');
-        $functionsInput = $aggOpPanel.find('.functionsInput');
-        $functionsList = $functionsInput.siblings('.list');
-        $argSection = $aggOpPanel.find('.argsSection').eq(0);
-
+            oldJSONParse = JSON.parse;
+            aggOpPanel = AggOpPanel.Instance;
+            editor = aggOpPanel.getEditor();
+            $aggOpPanel = $('#aggOpPanel');
+            $functionsInput = $aggOpPanel.find('.functionsInput');
+            $functionsList = $functionsInput.siblings('.list');
+            $argSection = $aggOpPanel.find('.argsSection').eq(0);
+            done()
+        });
     });
 
     describe("Basic Aggregate Panel UI Tests", function() {
@@ -338,13 +341,13 @@ describe("AggOpPanel Test", function() {
     describe("Final output", function() {
         it ("final node should have correct input", function() {
             aggOpPanel.show(node, openOptions);
-            expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"","dest":"","mustExecute":false}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"","dest":""}');
             let aggName = "^a" + Date.now();
             $functionsInput.val('count').trigger(fakeEvent.enterKeydown);
             $argSection.find('.arg').eq(0).val("$col").trigger("change");
             $argSection.find('.arg').eq(1).val(aggName).trigger("change");
             $aggOpPanel.find(".submit").click();
-            expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"count(col)","dest":"' + aggName + '","mustExecute":false}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"count(col)","dest":"' + aggName + '"}');
         });
     });
 

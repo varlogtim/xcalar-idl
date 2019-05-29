@@ -35,16 +35,14 @@ describe("Aggregate Dag Node Test", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
             evalString: "",
-            dest: "",
-            mustExecute: false
+            dest: ""
         });
     });
 
     it("should set parameter", () => {
         const testParam = {
             evalString: "count(column)",
-            dest: "constantName",
-            mustExecute: false
+            dest: "constantName"
         };
         node.setParam(testParam);
         const param = node.getParam();
@@ -63,19 +61,17 @@ describe("Aggregate Dag Node Test", () => {
     it("Should be able to get backName", () => {
         const testParam = {
             evalString: "count(column)",
-            dest: "constantName",
-            mustExecute: false
+            dest: "constantName"
         };
         node.setParam(testParam);
-        const name = node.getAggBackName();
+        const name = node.getAggName();
         expect(name).to.equal(testParam.dest);
     });
 
     it("Should be able to accept a column remapping", () => {
         const testParam = {
             evalString: "count(column1)",
-            dest: "constantName",
-            mustExecute: false
+            dest: "constantName"
         };
         node.setParam(testParam);
 
@@ -94,8 +90,7 @@ describe("Aggregate Dag Node Test", () => {
                 const nodeInfo = {
                     input: {
                         evalString: "count(column)",
-                        dest: "constantName",
-                        mustExecute: false
+                        dest: "constantName"
                     }
                 }
                 DagAggManager.Instance.addAgg = (name, info) => {
@@ -117,8 +112,7 @@ describe("Aggregate Dag Node Test", () => {
                 const nodeInfo = {
                     input: {
                         evalString: "count(column)",
-                        dest: "constantName",
-                        mustExecute: false
+                        dest: "constantName"
                     },
                     graph: graph
                 }
@@ -142,8 +136,7 @@ describe("Aggregate Dag Node Test", () => {
             const nodeInfo = {
                 input: {
                     evalString: "count(column)",
-                    dest: "constantName",
-                    mustExecute: false
+                    dest: "constantName"
                 },
                 graph: graph
             }
@@ -164,8 +157,7 @@ describe("Aggregate Dag Node Test", () => {
             let removeAggCalled = false;
             const testParam = {
                 evalString: "count(column)",
-                dest: "constantName",
-                mustExecute: false
+                dest: "constantName"
             };
             DagAggManager.Instance.addAgg = (name, info) => {
                 addAggCalled = true;
@@ -198,13 +190,12 @@ describe("Aggregate Dag Node Test", () => {
             const nodeInfo = {
                 input: {
                     evalString: "count(column)",
-                    dest: "constantNameBack",
-                    mustExecute: false
+                    dest: "constantNameBack"
                 }
             }
 
             let testNode = new DagNodeAggregate(nodeInfo);
-            expect(testNode.getAggBackName()).to.equal("constantNameBack");
+            expect(testNode.getAggName()).to.equal("constantNameBack");
         });
     })
 

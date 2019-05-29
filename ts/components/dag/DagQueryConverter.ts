@@ -883,8 +883,7 @@ class DagQueryConverter {
                     type: DagNodeType.Aggregate,
                     input: <DagNodeAggregateInputStruct>{
                         evalString: node.args.eval[0].evalString,
-                        dest: node.name,
-                        mustExecute: false
+                        dest: node.name
                     }
                 };
                 break;

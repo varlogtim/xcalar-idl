@@ -4,24 +4,28 @@ describe("AggOpPanelModel Test", function() {
     var prefix = "prefix";
     var openOptions;
 
-    before(function() {
-        node = new DagNodeAggregate({});
-        const parentNode = new DagNodeAggregate({});
-        parentNode.getLineage = function() {
-            return {getColumns: function() {
-                return [new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
-                    type: "number"
-                })]
-            }}
-        };
-        node.getParents = function() {
-            return [parentNode];
-        }
+    before(function(done) {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            node = new DagNodeAggregate({});
+            const parentNode = new DagNodeAggregate({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
+                        type: "number"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            }
 
-        openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
-        oldJSONParse = JSON.parse;
-        aggOpPanel = AggOpPanel.Instance;
+            openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
+            oldJSONParse = JSON.parse;
+            aggOpPanel = AggOpPanel.Instance;
+            done();
+        });
     });
 
     describe("Aggregate Panel Model Tests", function() {
@@ -39,8 +43,7 @@ describe("AggOpPanelModel Test", function() {
             it("_initialize with args should work", function() {
                 model._initialize({
                     "evalString":"count(prefix::average_stars)",
-                    "dest":"^agg",
-                    "mustExecute":false
+                    "dest":"^agg"
                 });
                 expect(model.groups.length).to.equal(1);
                 expect(model.groups[0].operator).to.equal("count");
@@ -52,16 +55,14 @@ describe("AggOpPanelModel Test", function() {
             it("_initialize with invalid func should produce error", function() {
                 expect(model._initialize.bind(model, {
                     "evalString":" add(prefix::average_stars)",
-                    "dest":"^agg",
-                    "mustExecute":false
+                    "dest":"^agg"
                 })).to.throw({error: "\"add\" is not a valid aggregate function."});
             });
 
             it("_initialize with too many args should produce error", function() {
                 expect(model._initialize.bind(model, {
                     "evalString":"count(prefix::average_stars, 3)",
-                    "dest":"^agg",
-                    "mustExecute":false
+                    "dest":"^agg"
                 })).to.throw({error: "\"eq\" only accepts 1 argument."});
             });
         });
@@ -70,24 +71,21 @@ describe("AggOpPanelModel Test", function() {
             it("invalid config should be caught", function() {
                 let ret = model.validateAdvancedMode(JSON.stringify({
                     "evalString":"blah(prefix::average_stars)",
-                    "dest":"^agg",
-                    "mustExecute":false
+                    "dest":"^agg"
                 }));
                 expect(ret.error).to.equal('Error: "blah" is not a valid aggregate function.');
             });
             it("param in fn name should be ok", function() {
                 let ret = model.validateAdvancedMode(JSON.stringify({
                     "evalString":"b<la>h(prefix::average_stars)",
-                    "dest":"^agg",
-                    "mustExecute":false
+                    "dest":"^agg"
                 }), true);
                 expect(ret).to.equal(null);
             });
             it("param in fn name should error when not saving", function() {
                 let ret = model.validateAdvancedMode(JSON.stringify({
                     "evalString":"b<la>h(prefix::average_stars)",
-                    "dest":"^agg",
-                    "mustExecute":false
+                    "dest":"^agg"
                 }));
                 expect(ret.error).to.equal('Error: "b<la>h" is not a valid aggregate function.');
             });
@@ -97,8 +95,7 @@ describe("AggOpPanelModel Test", function() {
             it("does not have prefix", function() {
                 model._initialize({
                     "evalString":"count(prefix::average_stars)",
-                    "dest":"agg",
-                    "mustExecute":false
+                    "dest":"agg"
                 });
                 const res = model.validateAggName();
                 expect(res).to.deep.equal({
@@ -111,8 +108,7 @@ describe("AggOpPanelModel Test", function() {
             it("does not have valid characters", function() {
                 model._initialize({
                     "evalString":"count(prefix::average_stars)",
-                    "dest":"^ag#g",
-                    "mustExecute":false
+                    "dest":"^ag#g"
                 });
                 const res = model.validateAggName();
                 expect(res).to.deep.equal({
@@ -125,8 +121,7 @@ describe("AggOpPanelModel Test", function() {
             it("does not have valid length", function() {
                 model._initialize({
                     "evalString":"count(prefix::average_stars)",
-                    "dest":"^",
-                    "mustExecute":false
+                    "dest":"^"
                 });
                 const res = model.validateAggName();
 
@@ -149,8 +144,7 @@ describe("AggOpPanelModel Test", function() {
 
                 model._initialize({
                     "evalString":"count(prefix::average_stars)",
-                    "dest":"^a",
-                    "mustExecute":false
+                    "dest":"^a"
                 });
                 const res = model.validateAggName();
 
@@ -166,8 +160,7 @@ describe("AggOpPanelModel Test", function() {
             it("valid name", function() {
                 model._initialize({
                     "evalString":"count(prefix::average_stars)",
-                    "dest":"^a" + Date.now(),
-                    "mustExecute":false
+                    "dest":"^a" + Date.now()
                 });
                 const res = model.validateAggName();
 

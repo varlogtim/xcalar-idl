@@ -1,11 +1,11 @@
 class DagAggService {
     private _aggregates: Map<string, AggregateInfo> = new Map();
 
-    public getAgg(dagNodeId: string, aggName: string): AggregateInfo {
+    public getAgg(aggName: string): AggregateInfo {
         if (this._hasManager()) {
-            return DagAggManager.Instance.getAgg(dagNodeId, aggName);
+            return DagAggManager.Instance.getAgg(aggName);
         } else {
-            return this._aggregates.get(this.wrapAggName(dagNodeId, aggName));
+            return this._aggregates.get(aggName);
         }
     }
 
@@ -27,12 +27,11 @@ class DagAggService {
      * Returns if aggName exists yet
      * @param aggName
      */
-    public hasAggregate(dagNodeId: string, aggName: string): boolean {
+    public hasAggregate(aggName: string): boolean {
         if (this._hasManager()) {
-            return DagAggManager.Instance.hasAggregate(dagNodeId, aggName);
+            return DagAggManager.Instance.hasAggregate(aggName);
         } else {
-            const name = this.wrapAggName(dagNodeId, aggName);
-            return (this._aggregates.has(name));
+            return (this._aggregates.has(aggName));
         }
     }
 
@@ -49,24 +48,39 @@ class DagAggService {
         }
     }
 
-    /**
-     * Creates the backend name for the aggregate based off the dag_id and aggname
-     * @param dag_id
-     * @param aggName
-     */
-    public wrapAggName(dag_id: string, aggName: string): string {
-        let frontName = (aggName[0] == "^" ? aggName.substr(1) : aggName);
-        if (dag_id == null || dag_id == "") {
-            return frontName;
+    /** Finds the source node of an aggregate.
+     * Throws an error if it cant find it.
+     * @param fullAggName: string
+    */
+    public findAggSource(fullAggName: string): DagNodeAggregate {
+        if (!this.hasAggregate(fullAggName)) {
+            return null;
         }
-        if (dag_id.endsWith('.sql')) {
-            dag_id = dag_id.replace(".sql", "sql");
+        let agg: AggregateInfo = this.getAgg(fullAggName);
+        if (agg.node == '' || agg.graph == '') {
+            throw new Error(DagNodeErrorType.NoGraph);
         }
-        return dag_id + "-agg_" + frontName;
+
+        const dagTab: DagTab = this.getRuntime().getDagTabService().getTabById(agg.graph);
+        if (dagTab == null) {
+            throw new Error(DagNodeErrorType.NoGraph);
+        }
+        const graph: DagGraph = dagTab.getGraph();
+        if (graph == null) {
+            throw new Error(DagNodeErrorType.NoGraph);
+        }
+        const node: DagNodeAggregate = <DagNodeAggregate>graph.getNode(agg.node);
+        if (node == null) {
+            throw new Error(DagNodeErrorType.NoAggNode);
+        }
+        return node;
     }
 
     private _hasManager(): boolean {
         return typeof DagAggManager !== 'undefined';
+    }
+    protected getRuntime(): DagRuntime {
+        return DagRuntime.getDefaultRuntime();
     }
 }
 

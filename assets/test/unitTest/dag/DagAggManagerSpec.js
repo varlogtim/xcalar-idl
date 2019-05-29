@@ -29,16 +29,9 @@ describe("Dag Agg Manager Test", () => {
         DagAggManager.Instance.setup();
     });
 
-    it("Should wrap agg names correctly", () => {
-        expect(DagAggManager.Instance.wrapAggName("test", "agg1")).to.equal("test-agg_agg1");
-        expect(DagAggManager.Instance.wrapAggName("test", "^agg2")).to.equal("test-agg_agg2");
-        expect(DagAggManager.Instance.wrapAggName("", "agg3")).to.equal("agg3");
-        expect(DagAggManager.Instance.wrapAggName(null, "agg4")).to.equal("agg4");
-        expect(DagAggManager.Instance.wrapAggName("test.sql", "agg5")).to.equal("testsql-agg_agg5");
-    });
 
     it ("Should get and add an aggregate correctly", () => {
-        expect(DagAggManager.Instance.getAgg("test", "agg1")).to.be.undefined;
+        expect(DagAggManager.Instance.getAgg("test-agg_agg1")).to.be.undefined;
         let aggInfo = {
             value: 4,
             dagName: "test-agg_agg1",
@@ -50,7 +43,7 @@ describe("Dag Agg Manager Test", () => {
             graph: "test"
         }
         DagAggManager.Instance.addAgg("test-agg_agg1", aggInfo);
-        expect(DagAggManager.Instance.getAgg("test", "agg1")).to.deep.equal(aggInfo);
+        expect(DagAggManager.Instance.getAgg("test-agg_agg1")).to.deep.equal(aggInfo);
     });
 
     it ("Should replace an old agg correctly", () => {
@@ -65,19 +58,19 @@ describe("Dag Agg Manager Test", () => {
             graph: "test"
         }
         DagAggManager.Instance.addAgg("test-agg_agg1", aggInfo);
-        expect(DagAggManager.Instance.getAgg("test", "agg1")).to.deep.equal(aggInfo);
+        expect(DagAggManager.Instance.getAgg("test-agg_agg1")).to.deep.equal(aggInfo);
         aggInfo.value = 5;
         DagAggManager.Instance.addAgg("test-agg_agg1", aggInfo);
-        expect(DagAggManager.Instance.getAgg("test", "agg1")).to.deep.equal(aggInfo);
+        expect(DagAggManager.Instance.getAgg("test-agg_agg1")).to.deep.equal(aggInfo);
     })
 
     it ("Should bulk add aggregates correctly", () => {
-        expect(DagAggManager.Instance.getAgg("test", "agg2")).to.be.undefined;
-        expect(DagAggManager.Instance.getAgg("test", "agg3")).to.be.undefined;
+        expect(DagAggManager.Instance.getAgg("test-agg_agg2")).to.be.undefined;
+        expect(DagAggManager.Instance.getAgg("test-agg_agg3")).to.be.undefined;
         let aggInfos = [{
             value: 4,
             dagName: "test-agg_agg2",
-            aggName: "agg2",
+            aggName: "test-agg_agg2",
             tableId: "tableId",
             backColName: "test-agg_agg2",
             op: 5,
@@ -87,7 +80,7 @@ describe("Dag Agg Manager Test", () => {
         {
             value: 4,
             dagName: "test-agg_agg3",
-            aggName: "agg3",
+            aggName: "test-agg_agg3",
             tableId: "tableId",
             backColName: "test-agg_agg3",
             op: 5,
@@ -95,8 +88,8 @@ describe("Dag Agg Manager Test", () => {
             graph: "test"
         }];
         DagAggManager.Instance.bulkAdd(aggInfos);
-        expect(DagAggManager.Instance.getAgg("test", "agg2")).to.deep.equal(aggInfos[0]);
-        expect(DagAggManager.Instance.getAgg("test", "agg3")).to.deep.equal(aggInfos[1]);
+        expect(DagAggManager.Instance.getAgg("test-agg_agg2")).to.deep.equal(aggInfos[0]);
+        expect(DagAggManager.Instance.getAgg("test-agg_agg3")).to.deep.equal(aggInfos[1]);
     });
 
     it ("Should get the aggmap correctly", () => {
@@ -112,12 +105,11 @@ describe("Dag Agg Manager Test", () => {
         }
         DagAggManager.Instance.addAgg("test-agg_agg5", aggInfo);
         let map = DagAggManager.Instance.getAggMap();
-        console.log(map);
         expect(map["test-agg_agg5"]).to.deep.equal(aggInfo);
     });
 
     it ("Should check if an aggregate exists correctly", () => {
-        expect(DagAggManager.Instance.hasAggregate("test", "agg6")).to.be.false;
+        expect(DagAggManager.Instance.hasAggregate("test-agg_agg6")).to.be.false;
         let aggInfo = {
             value: 4,
             dagName: "test-agg_agg6",
@@ -129,10 +121,11 @@ describe("Dag Agg Manager Test", () => {
             graph: "test"
         }
         DagAggManager.Instance.addAgg("test-agg_agg6", aggInfo);
-        expect(DagAggManager.Instance.hasAggregate("test", "agg6")).to.be.true;
+        expect(DagAggManager.Instance.hasAggregate("test-agg_agg6")).to.be.true;
     });
 
-    describe("Find Aggregate Sources tests", () => {
+    // XXX TODO To be moved to the aggservice test, when it is made
+    /*describe("Find Aggregate Sources tests", () => {
         it ("Should not find a source for a non existing aggregate", () => {
             expect(DagAggManager.Instance.findAggSource("nonexistagg")).to.be.null;
         });
@@ -271,7 +264,7 @@ describe("Dag Agg Manager Test", () => {
             expect(DagAggManager.Instance.findAggSource("test-agg_source").getId()).to.equal(node.getId());
 
         });
-    });
+    });*/
 
     describe("Removing Aggregate Tests", () => {
 
@@ -294,7 +287,7 @@ describe("Dag Agg Manager Test", () => {
                 graph: "test"
             }
             DagAggManager.Instance.addAgg("remove-agg_agg1", aggInfo);
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg1")).to.be.true;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg1")).to.be.true;
             let aggInfo2 = {
                 value: 4,
                 dagName: "remove-agg_agg2",
@@ -306,10 +299,10 @@ describe("Dag Agg Manager Test", () => {
                 graph: "test"
             }
             DagAggManager.Instance.addAgg("remove-agg_agg2", aggInfo2);
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg2")).to.be.true;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg2")).to.be.true;
             DagAggManager.Instance.removeAgg(["remove-agg_agg1","remove-agg_agg2"]);
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg1")).to.be.false;
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg2")).to.be.false;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg1")).to.be.false;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg2")).to.be.false;
             expect(calledDelete).to.be.true;
         });
 
@@ -333,7 +326,7 @@ describe("Dag Agg Manager Test", () => {
             }
             DagAggManager.Instance.addAgg("remove-agg_agg3", aggInfo);
             DagAggManager.Instance.removeAgg(["remove-agg_agg3"], true);
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg3")).to.be.false;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg3")).to.be.false;
             expect(calledDelete).to.be.true;
         });
 
@@ -357,7 +350,7 @@ describe("Dag Agg Manager Test", () => {
             }
             DagAggManager.Instance.addAgg("remove-agg_agg4", aggInfo);
             DagAggManager.Instance.removeAgg(["remove-agg_agg4"], false);
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg4")).to.be.false;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg4")).to.be.false;
             expect(calledDelete).to.be.false;
         });
 
@@ -381,8 +374,8 @@ describe("Dag Agg Manager Test", () => {
             }
             DagAggManager.Instance.addAgg("remove-agg_agg5", aggInfo);
             DagAggManager.Instance.removeValue(["remove-agg_agg5"]);
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg5")).to.be.true;
-            expect(DagAggManager.Instance.getAgg("remove", "agg5").value).to.be.null;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg5")).to.be.true;
+            expect(DagAggManager.Instance.getAgg("remove-agg_agg5").value).to.be.null;
             expect(calledDelete).to.be.true;
         });
 
@@ -406,8 +399,8 @@ describe("Dag Agg Manager Test", () => {
             }
             DagAggManager.Instance.addAgg("remove-agg_agg6", aggInfo);
             DagAggManager.Instance.removeValue(["remove-agg_agg6"]);
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg6")).to.be.true;
-            expect(DagAggManager.Instance.getAgg("remove", "agg6").value).to.be.null;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg6")).to.be.true;
+            expect(DagAggManager.Instance.getAgg("remove-agg_agg6").value).to.be.null;
             expect(calledDelete).to.be.false;
         });
 
@@ -431,8 +424,8 @@ describe("Dag Agg Manager Test", () => {
             }
             DagAggManager.Instance.addAgg("remove-agg_agg7", aggInfo);
             DagAggManager.Instance.removeValue(["remove-agg_agg7"], true);
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg7")).to.be.true;
-            expect(DagAggManager.Instance.getAgg("remove", "agg7").value).to.be.null;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg7")).to.be.true;
+            expect(DagAggManager.Instance.getAgg("remove-agg_agg7").value).to.be.null;
             expect(calledDelete).to.be.true;
         });
 
@@ -478,9 +471,9 @@ describe("Dag Agg Manager Test", () => {
             }
             DagAggManager.Instance.addAgg("ignore-agg_agg10", aggInfo3);
             DagAggManager.Instance.graphRemoval("remove-graph-test");
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg8")).to.be.false;
-            expect(DagAggManager.Instance.hasAggregate("remove", "agg9")).to.be.false;
-            expect(DagAggManager.Instance.hasAggregate("ignore", "agg10")).to.be.true;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg8")).to.be.false;
+            expect(DagAggManager.Instance.hasAggregate("remove-agg_agg9")).to.be.false;
+            expect(DagAggManager.Instance.hasAggregate("ignore-agg_agg10")).to.be.true;
             expect(calledDelete).to.be.true;
         });
     });
@@ -509,9 +502,9 @@ describe("Dag Agg Manager Test", () => {
         }
         DagAggManager.Instance.addAgg("node-agg_agg2", aggInfo2);
         DagAggManager.Instance.bulkNodeRemoval(["node-agg_agg1", "node-agg_agg2"]);
-        expect(DagAggManager.Instance.hasAggregate("node", "agg1")).to.be.false;
-        expect(DagAggManager.Instance.hasAggregate("node", "agg2")).to.be.true;
-        expect(DagAggManager.Instance.getAgg("node", "agg2").node).to.equal("");
+        expect(DagAggManager.Instance.hasAggregate("node-agg_agg1")).to.be.false;
+        expect(DagAggManager.Instance.hasAggregate("node-agg_agg2")).to.be.true;
+        expect(DagAggManager.Instance.getAgg("node-agg_agg2").node).to.equal("");
     });
 
     it ("Should update nodes correctly", () => {
@@ -529,7 +522,7 @@ describe("Dag Agg Manager Test", () => {
         let nodemap = new Map();
         nodemap.set("node-agg_agg3", "node2");
         DagAggManager.Instance.updateNodeIds(nodemap);
-        expect(DagAggManager.Instance.getAgg("node", "agg3").node).to.equal("node2");
+        expect(DagAggManager.Instance.getAgg("node-agg_agg3").node).to.equal("node2");
     });
 
 

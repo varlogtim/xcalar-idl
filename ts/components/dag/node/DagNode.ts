@@ -108,8 +108,7 @@ abstract class DagNode extends Durable {
             const self = this;
             let errorAggs = [];
             this.aggregates.forEach((aggregateName: string) => {
-                let wrappedName: string = this.getRuntime().getDagAggService().wrapAggName(options.graph.getTabId(), aggregateName);
-                if (!namedAggs[wrappedName]) {
+                if (!namedAggs[aggregateName]) {
                     errorAggs.push(aggregateName);
                 }
             });

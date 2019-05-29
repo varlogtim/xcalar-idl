@@ -36,11 +36,12 @@ class DagAggManager {
             let constMap: {[key: string]: boolean} = {};
             for (let i = 0; i < res.length; i++) {
                 agg = res[i];
-                if (this.aggregates[agg.name] == null) {
+                let constName = gAggVarPrefix + agg.name;
+                if (this.aggregates[constName] == null) {
                     // Aggregate doesn't exist anymore, we delete it.
                     toDelete.push(agg.name);
                 } else {
-                    constMap[agg.name] = true;
+                    constMap[constName] = true;
                 }
             }
             let keys = Object.keys(this.aggregates);
@@ -68,41 +69,15 @@ class DagAggManager {
 
     /**
      * Returns the AggregateInfo for a particular agg
-     * @param dagNodeId
      * @param aggName
      */
-    public getAgg(dagNodeId: string, aggName: string): AggregateInfo {
-        return this.aggregates[this.wrapAggName(dagNodeId, aggName)];
+    public getAgg(aggName: string): AggregateInfo {
+        return this.aggregates[aggName];
     }
 
     /** Returns the map of aggregates */
     public getAggMap(): {[key: string]: AggregateInfo} {
         return this.aggregates;
-    }
-
-
-    public findAggSource(fullAggName: string): DagNodeAggregate {
-        if (this.aggregates[fullAggName] == null) {
-            return null;
-        }
-        let agg: AggregateInfo = this.aggregates[fullAggName];
-        if (agg.node == '' || agg.graph == '') {
-            throw new Error(DagNodeErrorType.NoGraph);
-        }
-
-        const dagTab: DagTab = DagTabManager.Instance.getTabById(agg.graph);
-        if (dagTab == null) {
-            throw new Error(DagNodeErrorType.NoGraph);
-        }
-        const graph: DagGraph = dagTab.getGraph();
-        if (graph == null) {
-            throw new Error(DagNodeErrorType.NoGraph);
-        }
-        const node: DagNodeAggregate = <DagNodeAggregate>graph.getNode(agg.node);
-        if (node == null) {
-            throw new Error(DagNodeErrorType.NoAggNode);
-        }
-        return node;
     }
 
     /**
@@ -122,7 +97,7 @@ class DagAggManager {
         for(let i = 0; i < aggs.length; i++) {
             let agg: AggregateInfo = aggs[i];
             if (!DagTabUser.idIsForSQLFolder(agg.graph)) {
-                this.aggregates[agg.dagName] = agg;
+                this.aggregates[agg.aggName] = agg;
             }
         }
         return this._saveAggMap();
@@ -151,7 +126,7 @@ class DagAggManager {
 
             delete this.aggregates[aggName];
             if (agg.value != null || force) {
-                toDelete.push(aggName);
+                toDelete.push(agg.dagName);
             }
         }
         this._deleteAgg(toDelete)
@@ -185,7 +160,7 @@ class DagAggManager {
 
             if (agg.value != null || force) {
                 this.aggregates[aggName].value = null;
-                toDelete.push(aggName)
+                toDelete.push(agg.dagName)
             }
         }
         this._deleteAgg(toDelete)
@@ -202,9 +177,8 @@ class DagAggManager {
      * Returns if aggName exists yet
      * @param aggName
      */
-    public hasAggregate(dagNodeId: string, aggName: string): boolean {
-        let name = this.wrapAggName(dagNodeId, aggName);
-        return (this.aggregates[name] != null)
+    public hasAggregate(aggName: string): boolean {
+        return (this.aggregates[aggName] != null)
     }
 
     public bulkNodeRemoval(aggregates: string[]): XDPromise<void> {
@@ -245,21 +219,7 @@ class DagAggManager {
         return this.removeAgg(toDelete);
     }
 
-    /**
-     * Creates the backend name for the aggregate based off the dag_id and aggname
-     * @param dag_id
-     * @param aggName
-     */
-    public wrapAggName(dag_id: string, aggName: string): string {
-        let frontName = (aggName[0] == "^" ? aggName.substr(1) : aggName);
-        if (dag_id == null || dag_id == "") {
-            return frontName;
-        }
-        if (dag_id.endsWith('.sql')) {
-            dag_id = dag_id.replace(".sql", "sql");
-        }
-        return dag_id + "-agg_" + frontName;
-    }
+
 
     private _saveAggMap(): XDPromise<void> {
         return this.kvStore.put(JSON.stringify(this.aggregates), true, true);

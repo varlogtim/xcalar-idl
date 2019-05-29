@@ -20,6 +20,8 @@ class DagNodeExecutor {
     private replaceParam: boolean;
     private originalSQLNode: DagNodeSQL;
     private isBatchExecution: boolean;
+    private isOptimized: boolean;
+    private aggNames: Set<string>;
 
     public constructor(
         node: DagNode,
@@ -27,7 +29,8 @@ class DagNodeExecutor {
         tabId: string,
         noReplaceParam: boolean = false,
         originalSQLNode: DagNodeSQL,
-        isBatchExecution: boolean = false
+        isBatchExecution: boolean = false,
+        aggNames?: Set<string>
     ) {
         this.node = node;
         this.txId = txId;
@@ -35,6 +38,7 @@ class DagNodeExecutor {
         this.replaceParam = !noReplaceParam;
         this.originalSQLNode = originalSQLNode;
         this.isBatchExecution = isBatchExecution;
+        this.aggNames = aggNames;
     }
 
     /**
@@ -45,6 +49,7 @@ class DagNodeExecutor {
         const node: DagNode = this.node;
         const isSimulate: boolean = Transaction.isSimulate(this.txId);
         let isStepThrough: boolean = (!isSimulate && !optimized);
+        this.isOptimized = optimized;
 
         node.getParents().forEach((parent) => {
             const parentTableName = parent.getTable();
@@ -334,15 +339,19 @@ class DagNodeExecutor {
         const evalStr: string = this._mapEvalStrAggs(params.evalString, usedAggs);
         const tableName: string = this._getParentNodeTable(0);
         let dstAggName: string = params.dest;
+
         let unwrappedName = dstAggName;
         // Create the correct aggregate name
         if (dstAggName.startsWith(gAggVarPrefix)) {
             dstAggName = dstAggName.substring(1);
         }
-        dstAggName = this.getRuntime().getDagAggService().wrapAggName(this.tabId, dstAggName);
+
+        if (optimized) {
+            dstAggName = "batch_" + this.tabId + "_" + dstAggName;
+            unwrappedName = gAggVarPrefix + dstAggName;
+        }
 
         //Update eval string with correct aggregates
-
         XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
         .then((ret) => {
             const {value , aggName} = ret;
@@ -359,7 +368,7 @@ class DagNodeExecutor {
                     node: node.getId(),
                     graph: this.tabId
                 };
-                return this.getRuntime().getDagAggService().addAgg(aggName, aggRes);
+                return this.getRuntime().getDagAggService().addAgg(dstAggName, aggRes);
             }
             return PromiseHelper.resolve();
         })
@@ -1459,17 +1468,19 @@ class DagNodeExecutor {
     }
 
     private _mapEvalStrAggs(evalString: string, aggs: string[]): string {
-        if (aggs.length == 0) {
+        if (aggs.length == 0 || !this.isOptimized) {
             return evalString;
         }
         for (let i = 0; i < aggs.length; i++) {
             let frontName = aggs[i];
-            let modifiedFront = frontName;
-            if (frontName.startsWith(gAggVarPrefix)) {
-                modifiedFront = frontName.substring(1);
+            if (this.aggNames.has(frontName)) {
+                let modifiedFront = frontName;
+                if (frontName.startsWith(gAggVarPrefix)) {
+                    modifiedFront = frontName.substring(1);
+                }
+                let backName = gAggVarPrefix + "batch_" + this.tabId + "_" + modifiedFront;
+                evalString = evalString.replace(frontName, backName);
             }
-            let backName = gAggVarPrefix + this.getRuntime().getDagAggService().wrapAggName(this.tabId, modifiedFront);
-            evalString = evalString.replace(frontName, backName);
         }
         return evalString;
     }

@@ -5,7 +5,6 @@ class AggOpPanelModel extends GeneralOpPanelModel {
     protected event: Function;
     protected groups: OpPanelFunctionGroup[];
     protected dest: string;
-    protected mustExecute: boolean;
 
     /**
      * Return the whole model info
@@ -13,12 +12,10 @@ class AggOpPanelModel extends GeneralOpPanelModel {
     public getModel(): {
         groups: OpPanelFunctionGroup[],
         dest: string,
-        mustExecute: boolean
     } {
         return {
             groups: this.groups,
             dest: this.dest,
-            mustExecute: this.mustExecute
         }
     }
 
@@ -50,14 +47,10 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         this.dest = newAggName;
     }
 
-    public updateMustExecute(mustExecute: boolean) {
-        this.mustExecute = mustExecute;
-    }
 
     protected _initialize(paramsRaw, strictCheck?: boolean, isSubmit?: boolean) {
         const self = this;
         this.dest = paramsRaw.dest;
-        this.mustExecute = paramsRaw.mustExecute;
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryAggregate];
         }
@@ -137,8 +130,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         const evalString = GeneralOpPanel.formulateEvalString(this.groups);
         return {
             evalString: evalString,
-            dest: this.dest,
-            mustExecute: this.mustExecute
+            dest: this.dest
         }
     }
 
@@ -174,7 +166,6 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         const aggName = this.dest;
         let errorText;
         let invalid = false;
-        let tabId = DagTabManager.Instance.getPanelTabId();
         if (aggName.charAt(0) !== gAggVarPrefix) {
             errorText = xcStringHelper.replaceMsg(ErrWRepTStr.InvalidAggName, {
                 "aggPrefix": gAggVarPrefix
@@ -189,8 +180,8 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             // test the value after gAggVarPrefix
             errorText = ErrTStr.InvalidAggName;
             invalid = true;
-        } else if (DagAggManager.Instance.hasAggregate(tabId, aggName)) {
-            let oldAgg: AggregateInfo = DagAggManager.Instance.getAgg(tabId, aggName);
+        } else if (DagAggManager.Instance.hasAggregate(aggName)) {
+            let oldAgg: AggregateInfo = DagAggManager.Instance.getAgg(aggName);
             if (oldAgg && oldAgg.node != this.dagNode.getId()) {
                 errorText = xcStringHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                     name: aggName,
