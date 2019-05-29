@@ -39,6 +39,10 @@ function hackFunction() {
     };
 
     global.ColManager = {
+        newCol: function(options) {
+            return new ProgCol(options);
+        },
+
         newPullCol: function(colName, backColName, type) {
             if (backColName == null) {
                 backColName = colName;
@@ -238,6 +242,9 @@ function hackFunction() {
             return this.type == null ? ColumnType.unknown : this.type;
         }
     };
+    if (global.ProgCol == null) {
+        global.ProgCol = ProgCol;
+    }
 }
 
 exports.hackFunction = hackFunction;

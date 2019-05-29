@@ -84,7 +84,7 @@ class DagLineage {
                 if (colInfo.isHidden) {
                     hiddenColumns.set(colName, colInfo.type);
                 } else if (colInfo.isPulled) {
-                    pulledColumns.add(name);
+                    pulledColumns.add(colName);
                 }
             });
             if (!this.node.isSourceNode() && this.node.getType() !== DagNodeType.Aggregate) {
