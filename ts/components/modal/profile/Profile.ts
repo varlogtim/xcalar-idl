@@ -1641,7 +1641,7 @@ namespace Profile {
             $modal.removeClass("loading");
             $modal.find(".loadHidden").removeClass("hidden")
                                     .removeClass("disabled");
-            $modal.find(".loadDisabled").removeClass("disabled");
+            // keep $modal.find(".loadDisabled") disabled
             $modal.find(".groupbyInfoSection").addClass("hidden");
             $modal.find(".errorSection").removeClass("hidden")
                 .find(".text").text(error);
