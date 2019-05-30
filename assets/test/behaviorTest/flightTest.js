@@ -284,40 +284,43 @@ window.FlightTest = (function(FlightTest, $) {
                 const parents = [parentNodeId, parentNodeId2];
                 nodeId = test.createNodeAndOpenPanel(parents, DagNodeType.Join);
                 test.assert($panel.hasClass("xc-hidden") === false);
-                return dealyPromise(0);
+                return dealyPromise(10);
+            })
+            .then(() => {
+                return test.checkExists("#joinOpPanel #formWaitingBG", null, {notExist: true});
             })
             .then(() => {
                 const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown');
                 // Open the dropdown, so that all LIs are filled
                 $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
 
-                return dealyPromise(0);
+                return dealyPromise(10);
             })
             .then(() => {
                 const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown');
                 // Click a certain LI
                 $dropdown.find("li:contains(Dest)").trigger(fakeEvent.mouseup);
 
-                return dealyPromise(0);
+                return dealyPromise(10);
             })
             .then(() => {
                 const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown');
                 // Open the dropdown, so that all LIs are filled
                 $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
 
-                return dealyPromise(0);
+                return dealyPromise(10);
             })
             .then(() => {
                 const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown');
                 // Click a certain LI
                 $dropdown.find("li:contains(iata)").trigger(fakeEvent.mouseup);
 
-                return dealyPromise(0);
+                return dealyPromise(10);
             })
             .then(() => {
                 $panel.find(".bottomSection .btn:contains(Next)").click();
                 $panel.find(".bottomSection .btn:contains(Save)").click();
-                return dealyPromise(0);
+                return dealyPromise(10);
             })
             .then(() => {
                 return test.hasNodeWithState(nodeId, DagNodeState.Configured);
