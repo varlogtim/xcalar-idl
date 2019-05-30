@@ -19,6 +19,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _curSnippet : string;
     private _dropdownHint: InputDropdownHint;
     private _isLoading: boolean;
+    private _alertOff: boolean = false;
 
     /**
      * Initialization, should be called only once by xcManager
@@ -616,6 +617,14 @@ class SQLOpPanel extends BaseOpPanel {
         } else {
             xcTooltip.remove($text);
         }
+    }
+
+    public getAlertOff(): boolean {
+        return this._alertOff;
+    }
+
+    public setAlertOff(alertOff: boolean = false): void {
+        this._alertOff = alertOff;
     }
 
     public configureSQL(

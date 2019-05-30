@@ -333,6 +333,17 @@ namespace DagNodeMenu {
                     expandSQLNode(dagNodeId, true);
                 }
             });
+        } else if (!SQLOpPanel.Instance.getAlertOff()) {
+            Alert.show({
+                title: "SQL",
+                msg: SQLTStr.ExpandSQL,
+                onConfirm: (checked) => {
+                    SQLOpPanel.Instance.setAlertOff(checked);
+                    DagViewManager.Instance.expandSQLNode(dagNodeId);
+                    SQLOpPanel.Instance.close();
+                },
+                isCheckBox: true
+            })
         } else {
             DagViewManager.Instance.expandSQLNode(dagNodeId);
             SQLOpPanel.Instance.close();

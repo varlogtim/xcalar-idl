@@ -1590,6 +1590,7 @@ SQLTStr = {
     "NoDupSnippetName": "Snippet with name the same name already exists, please use Save As to overwrite it.",
     "PreviewError": "The corresponding dataflow for sql cannot be previewed",
     "DefaultSnippet": "Default Snippet",
+    "ExpandSQL": "Expanding SQL will delete the SQL node while inspecting will not. Do you want to conitnue?",
 };
 
 LoginConfigTStr = {

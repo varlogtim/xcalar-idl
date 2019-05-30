@@ -1501,6 +1501,7 @@ describe("DagNodeMenu Test", function() {
 
             $dfArea.find(".operator .main").contextmenu();
             $menu.find(".expandSQL").trigger(fakeEvent.mouseup);
+            $("#alertModal").find(".confirm").click();
             expect(called).to.be.true;
             DagViewManager.Instance.expandSQLNode = cachedFn;
         });
