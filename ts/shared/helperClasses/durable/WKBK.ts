@@ -91,6 +91,10 @@ class WKBK extends Durable {
         return null;
     }
 
+    public setJupyterFolder(folderName: string): void {
+        this.jupyterFolder = folderName;
+    }
+
     // not used
     protected _getDurable() {
         return null;

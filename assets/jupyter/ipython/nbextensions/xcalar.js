@@ -763,6 +763,7 @@ define(['base/js/utils'], function(utils) {
                     // user is in his proper folder, check that the session stubs in this
                     // notebook matches the current session
                     validateSessionCells();
+                    parent.postMessage(JSON.stringify({action: "toggleMenu", allow: true}), "*");
                 } else if (Jupyter.notebook.notebook_path !== Jupyter.notebook.notebook_name &&
                     Jupyter.notebook.notebook_path.indexOf(wkbkFolderName + "/") !== 0) {
                     Jupyter.notebook.writable = false;

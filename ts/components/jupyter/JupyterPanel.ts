@@ -201,8 +201,8 @@ namespace JupyterPanel {
 
     /**
      * JupyterPanel.publishTable
-     * @param tableName 
-     * @param numRows 
+     * @param tableName
+     * @param numRows
      */
     export function publishTable(
         tableName: string,
@@ -443,28 +443,35 @@ namespace JupyterPanel {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         let wkbk: WKBK = WorkbookManager.getWorkbook(WorkbookManager.getActiveWKBK());
+        let promise: XDPromise<void> = PromiseHelper.resolve();
         let folderName: string = wkbk.jupyterFolder;
+        if (!folderName) {
+            folderName = XcUser.getCurrentUserName() + "-" + wkbk.getName();
+            wkbk.setJupyterFolder(folderName);
+            promise = WorkbookManager.commit();
+        }
+        promise.always(() => {
+            let key: string = KVStore.getKey("gNotebookKey");
+            let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+            kvStore.get()
+            .then(function(jupMeta) {
+                let lastNotebook = null;
 
-        let key: string = KVStore.getKey("gNotebookKey");
-        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
-        kvStore.get()
-        .then(function(jupMeta) {
-            let lastNotebook = null;
-
-            if (jupMeta) {
-                try {
-                    lastNotebook = $.parseJSON(jupMeta);
-                } catch (err) {
-                    console.error(err);
+                if (jupMeta) {
+                    try {
+                        lastNotebook = $.parseJSON(jupMeta);
+                    } catch (err) {
+                        console.error(err);
+                    }
                 }
-            }
 
-            jupyterMeta = new JupyterMeta(lastNotebook, folderName);
-            deferred.resolve();
-        })
-        .fail(function() {
-            jupyterMeta = new JupyterMeta(null, folderName);
-            deferred.reject.apply(null, arguments);
+                jupyterMeta = new JupyterMeta(lastNotebook, folderName);
+                deferred.resolve();
+            })
+            .fail(function() {
+                jupyterMeta = new JupyterMeta(null, folderName);
+                deferred.reject.apply(null, arguments);
+            });
         });
 
         return deferred.promise();
