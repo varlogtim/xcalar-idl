@@ -1,6 +1,7 @@
 class DagNodeIMDTable extends DagNodeIn {
     protected input: DagNodeIMDTableInput;
     protected columns: ProgCol[];
+    private elapsedTime: number;
 
     public constructor(options: DagNodeInInfo) {
         super(options);
@@ -115,6 +116,55 @@ class DagNodeIMDTable extends DagNodeIn {
      */
     public getDisplayNodeType(): string {
         return "Table";
+    }
+
+
+    /**
+     * executing an IMDTable node involves doing a XcalarRestoreTable and XcalarRefreshTable
+     * which do not go through XcalarQuery so we get stats via XcalarGetTableMeta
+     * instead of XcalarQueryState
+     * @param meta
+     */
+    public updateStepThroughProgress(metas: XcalarApiTableMetaT[]): void {
+        this.runStats.hasRun = true;
+        this.runStats.nodes = {};
+        this.runStats.needsClear = false;
+
+        let tableName = this.getTable();
+        let numRows = 0;
+        let inputSize = 0;
+        let rows: number[] = [];
+        metas.forEach((meta) => {
+            numRows += meta.numRows;
+            inputSize += meta.size;
+            rows.push(meta.numRows);
+        });
+
+        let tableRunStats: TableRunStats = {
+            startTime: Date.now(),
+            pct: 100,
+            state: DgDagStateT.DgDagStateReady,
+            numRowsTotal: numRows,
+            numWorkCompleted: numRows,
+            numWorkTotal: numRows,
+            skewValue: this._getSkewValue(rows),
+            elapsedTime: this.elapsedTime,
+            size: inputSize,
+            rows: rows,
+            index: 0,
+            hasStats: true,
+            name: tableName,
+            type: XcalarApisT.XcalarApiSelect
+        };
+        this.runStats.nodes[tableName] = tableRunStats;
+
+        this.events.trigger(DagNodeEvents.ProgressChange, {
+            node: this
+        });
+    }
+
+    public setElapsedTime(elapsedTime) {
+        this.elapsedTime = elapsedTime;
     }
 
     /**

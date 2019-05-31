@@ -5412,6 +5412,7 @@ XcalarUpdateTable = function(
 };
 
 /**
+ * Also knowns as SELECT
  * limitRows: set the return of row for each node
  */
 XcalarRefreshTable = function(

@@ -1386,7 +1386,7 @@ abstract class DagNode extends Durable {
         return cummulativeTime;
     }
 
-    private _getSkewValue(rows) {
+    protected _getSkewValue(rows) {
         let skewness = null;
         const len = rows.length;
         const even = 1 / len;

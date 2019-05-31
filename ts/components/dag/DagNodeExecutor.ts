@@ -1114,7 +1114,8 @@ class DagNodeExecutor {
                 -1, params.version, self.txId, params.filterString,
                 cols, limitedRows);
         })
-        .then(() => {
+        .then((res) => {
+            node.setElapsedTime(res.timeElapsed);
             deferred.resolve(newTableName);
         })
         .fail(deferred.reject);

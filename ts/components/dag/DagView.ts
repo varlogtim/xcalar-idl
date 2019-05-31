@@ -3317,6 +3317,11 @@ class DagView {
             this._toggleCompileLock(false);
         });
 
+        this._registerGraphEvent(this.graph, DagNodeEvents.ProgressChange, (info) => {
+            this._addProgressTooltipForNode(info.node);
+            DagNodeInfoPanel.Instance.update(info.node.getId(), "stats");
+        });
+
     }
 
     private _registerGraphEvent(

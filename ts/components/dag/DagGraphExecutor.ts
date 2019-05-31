@@ -760,6 +760,13 @@ class DagGraphExecutor {
         dagNodeExecutor.run()
         .then((_destTable) => {
             this._currentNode = null;
+            if (node.getType() === DagNodeType.IMDTable) {
+                return this._updateIMDProgress(node);
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(() => {
             return MemoryAlert.Instance.check();
         })
         .then(deferred.resolve)
@@ -767,6 +774,16 @@ class DagGraphExecutor {
 
         return deferred.promise();
 
+    }
+
+    private _updateIMDProgress(node) {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XcalarGetTableMeta(node.getTable())
+        .then((res: XcalarApiGetTableMetaOutputT) => {
+            node.updateStepThroughProgress(res.metas);
+        })
+        .always(deferred.resolve);
+        return deferred.promise();
     }
 
     public updateProgress(queryNodes: XcalarApiDagNodeT[]) {

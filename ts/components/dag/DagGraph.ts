@@ -457,6 +457,9 @@ class DagGraph extends Durable {
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.ParamChange, info);
         })
+        .registerEvents(DagNodeEvents.ProgressChange, (info) => {
+            this.events.trigger(DagNodeEvents.ProgressChange, info);
+        })
         .registerEvents(DagNodeEvents.TableRemove, (info) => {
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.TableRemove, info);

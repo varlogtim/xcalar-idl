@@ -607,11 +607,17 @@ describe("DagNodeExecutor Test", () => {
         const executor = new DagNodeExecutor(node, txId);
         const oldRestore = XcalarRestoreTable;
         const oldRefresh = XcalarRefreshTable;
+        const oldGetMeta = XcalarGetTableMeta;
+
+        XcalarGetTableMeta = () => {
+            return PromiseHelper.resolve({metas: []});
+        }
 
         XcalarRestoreTable = (source) => {
             expect(source).to.equal("testTable");
             return PromiseHelper.resolve();
         };
+
 
         XcalarRefreshTable = (source, newTableName, minBatch, maxBatch, txId, filterString, columnInfo) => {
             expect(source).to.equal("testTable");
@@ -626,7 +632,7 @@ describe("DagNodeExecutor Test", () => {
                 destColumn: "testCol",
                 columnType: "DfInt64"
             });
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({});
         };
 
         executor.run()
@@ -640,6 +646,7 @@ describe("DagNodeExecutor Test", () => {
         .always(() => {
             XcalarRestoreTable = oldRestore;
             XcalarRefreshTable = oldRefresh;
+            XcalarGetTableMeta = oldGetMeta;
         });
     });
 
