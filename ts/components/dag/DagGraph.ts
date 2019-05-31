@@ -705,6 +705,20 @@ class DagGraph extends Durable {
         parentTxId?: number
     ): XDPromise<void> {
         this.resetOperationTime();
+        // If optimized and nodeIds not specified, then look for 1 optimized node.
+        // If more than 1 optimized node is found, we fail,
+        // If exactly 1 is found, we assign it to nodeIds so we can
+        // back traverse the nodes and get all the nodes we need rather than
+        // every node in the dataflow, where some unneeded nodes may be disjoint
+        // and cause the validation precheck test to fail
+        if (!nodeIds && optimized && parentTxId == null) {
+            let ret = <any>this._getExecutingOptimizedNodeIds();
+            if (ret && ret.hasError) {
+                return PromiseHelper.reject(ret);
+            } else if (ret && ret.length) {
+                nodeIds = ret;
+            }
+        }
         if (nodeIds == null) {
             return this._executeGraph(null, optimized, null, parentTxId);
         } else {
@@ -799,6 +813,20 @@ class DagGraph extends Durable {
     public getRetinaArgs(nodeIds?: DagNodeId[]): XDPromise<void> {
         let nodesMap: Map<DagNodeId, DagNode>;
         let startingNodes: DagNodeId[];
+        // If optimized and nodeIds not specified, then look for 1 optimized node.
+        // If more than 1 optimized node is found, we fail,
+        // If exactly 1 is found, we assign it to nodeIds so we can
+        // back traverse the nodes and get all the nodes we need rather than
+        // every node in the dataflow, where some unneeded nodes may be disjoint
+        // and cause the validation precheck test to fail
+        if (nodeIds == null) {
+            let ret = <any>this._getExecutingOptimizedNodeIds();
+            if (ret && ret.hasError) {
+                return PromiseHelper.reject(ret);
+            } else if (ret && ret.length) {
+                nodeIds = ret;
+            }
+        }
         if (nodeIds != null) {
             // get subGraph from nodes and execute
             // we want to stop at the next node with a table unless we're
@@ -1744,6 +1772,7 @@ class DagGraph extends Durable {
         if (this.currentExecutor != null) {
             return PromiseHelper.reject(ErrTStr.DFInExecution);
         }
+
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let orderedNodes: DagNode[] = [];
         try {
@@ -2411,6 +2440,47 @@ class DagGraph extends Durable {
             this._stateSwitchSet.add(node);
             return false;
         }
+    }
+
+    private _getExecutingOptimizedNodeIds() {
+        let optimizedNodeIds = [];
+        let hasLinkOutOptimized = false;
+        let hasExportOptimized = false;
+        for (let [_nodeId, node] of this.nodesMap) {
+            if (node.getType() === DagNodeType.DFOut &&
+                node.getSubType() === DagNodeSubType.DFOutOptimized) {
+                if (hasLinkOutOptimized) {
+                    return {
+                        "status": "Error",
+                        "hasError": true,
+                        "node": node,
+                        "type": DagNodeErrorType.InvalidOptimizedLinkOutOptimizedCount
+                    };
+                } else if (hasExportOptimized) {
+                    return {
+                        "status": "Error",
+                        "hasError": true,
+                        "node": node,
+                        "type": DagNodeErrorType.InvalidOptimizedOutNodeCombo
+                    };
+                }
+                hasLinkOutOptimized = true;
+                optimizedNodeIds.push(node.getId());
+            } else if (node.getType() === DagNodeType.Export &&
+                node.getSubType() === DagNodeSubType.ExportOptimized) {
+                    if (hasLinkOutOptimized) {
+                        return {
+                            "status": "Error",
+                            "hasError": true,
+                            "node": node,
+                            "type": DagNodeErrorType.InvalidOptimizedOutNodeCombo
+                        };
+                    }
+                    hasExportOptimized = true;
+                    optimizedNodeIds.push(node.getId());
+            }
+        }
+        return optimizedNodeIds;
     }
 }
 
