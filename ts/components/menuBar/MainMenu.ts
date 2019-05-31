@@ -330,6 +330,7 @@ namespace MainMenu {
                 }
             }
         });
+        TblFunc.moveFirstColumn();
         setTimeout(() => {
             $("#container").removeClass("noMenuAnim");
             // remove animation for a split second so there's no anim
