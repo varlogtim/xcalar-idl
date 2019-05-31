@@ -179,6 +179,10 @@ class DagSubGraph extends DagGraph {
                 tableName.indexOf(gDSPrefix) > -1) {
                 tableName = tableName.slice(tableName.indexOf(gDSPrefix));
                 nodeId = this._tableNameToDagIdMap[tableName];
+            } else if (nodeInfo.api === XcalarApisT.XcalarApiAggregate &&
+                !tableName.startsWith(gAggVarPrefix)) {
+                tableName = gAggVarPrefix + tableName;
+                nodeId = this._tableNameToDagIdMap[tableName];
             }
 
             if (!nodeId) {// could be a drop table node
