@@ -2182,6 +2182,11 @@ class DagGraph extends Durable {
             ) {
                 return false;
             }
+            if (node instanceof DagNodeSQL) {
+                // clear compiled result
+                node.setXcQueryString(null);
+                node.setRawXcQueryString(null);
+            }
             if (!this._isBulkStateSwitch) {
                 node.switchState();
             }
