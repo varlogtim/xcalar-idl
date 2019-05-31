@@ -123,3 +123,22 @@ interface SQLPublishReturnMsg {
     xcTableName: string,
     schema: any
 }
+
+interface SessionInfo {
+    userName: string,
+    userId: number,
+    sessionName: string
+}
+
+interface XDTableInfo {
+    pubTableName: string,
+    tableName: string,
+    isIMD: boolean,
+    query?: XcalarSelectQuery,
+    schema?: any,
+    found?: boolean
+}
+
+interface TableInfo extends XcalarApiTableInfo {
+    schema?: any
+}

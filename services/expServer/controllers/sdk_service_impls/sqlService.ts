@@ -1,5 +1,6 @@
-import * as xcalar from "xcalar"
-import * as sqlManager from "../sqlManager"
+import * as xcalar from "xcalar";
+import SqlManager from "../sqlManager";
+const sqlManager = SqlManager.getInstance;
 // sql.proto / sql_pb.js
 const sql_pb: any = proto.xcalar.compute.localtypes.Sql;
 

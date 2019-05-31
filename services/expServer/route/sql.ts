@@ -1,8 +1,10 @@
 import { Router } from "express"
 export const router = Router()
 
-import * as sqlManager from "../controllers/sqlManager"
-import * as sqlManagerDeprecated from "../controllers/sqlManagerDeprecated"
+import SqlManager from "../controllers/sqlManager"
+const sqlManager = SqlManager.getInstance;
+import SqlManagerDeprecated from "../controllers/sqlManagerDeprecated"
+const sqlManagerDeprecated = SqlManagerDeprecated.getInstance;
 import * as support from "../utils/expServerSupport"
 import { SqlUtil } from "../utils/sqlUtils"
 
@@ -182,7 +184,7 @@ router.post("/xcsql/result", [support.checkAuth], function(req, res) {
     let totalRows: number = parseInt(req.body.totalRows);
     let schema: any = JSON.parse(req.body.schema);
     let renameMap: SQLColumn = JSON.parse(req.body.renameMap);
-    let sessionInfo: sqlManager.SessionInfo = {
+    let sessionInfo: SessionInfo = {
         userName: req.body.userName,
         userId: req.body.userId,
         sessionName: req.body.sessionName

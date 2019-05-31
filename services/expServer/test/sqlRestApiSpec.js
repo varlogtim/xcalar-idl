@@ -2,8 +2,8 @@ describe("sqlRestApi Test", function() {
     const { expect, assert } = require('chai');
     const request = require('request');
     require(__dirname + '/../expServer.js');
-    const sqlManager = require(__dirname + '/../controllers/sqlManager.js');
-    const sqlManagerDeprecated = require(__dirname + '/../controllers/sqlManagerDeprecated.js');
+    const sqlManager = require(__dirname + '/../controllers/sqlManager.js').default.getInstance;
+    const sqlManagerDeprecated = require(__dirname + '/../controllers/sqlManagerDeprecated.js').default.getInstance;
     const sqlUser = "xcalar-internal-sql";
     const sqlId = 4193719;
     const sqlWkbk = "xcalar_test_wkbk";
@@ -32,6 +32,12 @@ describe("sqlRestApi Test", function() {
         fakeFunc = function() {
             return PromiseHelper.resolve([]);
         };
+        fakeSqlLoad = function(func) {
+            sqlManager.sqlLoad = func;
+        }
+        fakeSqlSelect = function(func) {
+            sqlManagerDeprecated.sqlSelect = func;
+        }
         tablePrefix = "XC_TABLENAME_";
         testSession = "testSession_";
     });
@@ -47,14 +53,14 @@ describe("sqlRestApi Test", function() {
     describe("Restful API Test", function() {
         it("Should support /xcedf/load", function(done) {
             var oldLoad = sqlManager.sqlLoad;
-            sqlManager.fakeSqlLoad(fakeFunc);
+            fakeSqlLoad(fakeFunc);
             var req = {"path": "test"};
             var data = {
                 url: 'http://localhost:12224/xcedf/load',
                 json: req
             }
             request.post(data, function (err, res, body){
-                sqlManager.fakeSqlLoad(oldLoad);
+                fakeSqlLoad(oldLoad);
                 expect(res.statusCode).to.equal(200);
                 done();
             });
@@ -62,7 +68,7 @@ describe("sqlRestApi Test", function() {
 
         it("Should support /deprecated/select", function(done) {
             var oldSelect = sqlManagerDeprecated.sqlSelect;
-            sqlManagerDeprecated.fakeSqlSelect(fakeFunc);
+            fakeSqlSelect(fakeFunc);
             var req = {"names": '["test"]',
                        "sessionId": "testSession",
                        "cleanup": "true",
@@ -72,7 +78,7 @@ describe("sqlRestApi Test", function() {
                 json: req
             }
             request.post(data, function (err, res, body){
-                sqlManagerDeprecated.fakeSqlSelect(oldSelect);
+                fakeSqlSelect(oldSelect);
                 expect(res.statusCode).to.equal(200);
                 done();
             });
