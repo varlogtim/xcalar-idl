@@ -840,13 +840,21 @@ class DagView {
         }
 
         this.$dfArea.addClass("rendered");
-        if (this.dagTab instanceof DagTabUser) {
+        if (this.dagTab instanceof DagTabUser ||
+            this.dagTab instanceof DagTabPublished) {
             this._checkLoadedTabHasQueryInProgress();
         }
     }
 
+    // resume progress checking
     private _checkLoadedTabHasQueryInProgress() {
-        const queryPrefix = "table_" + this.graph.getTabId();
+        let queryPrefix: string;
+        if (this.dagTab instanceof DagTabPublished) {
+            queryPrefix = "table_published_" + xcHelper.checkNamePattern(null, PatternAction.Fix, this.dagTab.getName(), "_");
+        } else {
+            queryPrefix = "table_" + this.graph.getTabId();
+        }
+
         XcalarQueryList(queryPrefix + "*")
         .then((ret) => {
             let latestTime = 0;

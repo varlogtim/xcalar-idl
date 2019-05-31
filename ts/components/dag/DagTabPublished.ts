@@ -249,7 +249,7 @@ class DagTabPublished extends DagTab {
     }
 
     public upload(content: string): XDPromise<{tabUploaded: DagTab, alertOption?: Alert.AlertOptions}> {
-        const deferred: XDDeferred<{tabUploaded: DagTab, alertOption: Alert.AlertOptions}> = PromiseHelper.deferred();
+        const deferred: XDDeferred<{tabUploaded: DagTab, alertOption?: Alert.AlertOptions}> = PromiseHelper.deferred();
         DagTabPublished._switchSession(null);
         XcalarUploadWorkbook(this._getWKBKName(), content, "")
         .then((sessionId) => {

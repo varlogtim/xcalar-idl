@@ -866,7 +866,10 @@ class DagList extends Durable {
             const oldQueries: Map<string, DagTabQuery> = oldQueryDags || new Map();
             queries.forEach((query) => {
                 let displayName: string;
-                if (query.name.startsWith(sdkPrefix)) {
+                if (query.name.startsWith("table_published_")) {
+                    displayName = query.name.slice("table_".length);
+                    displayName = displayName.slice(0, displayName.lastIndexOf("_dag"));
+                } else if (query.name.startsWith(sdkPrefix)) {
                     displayName = query.name.slice(sdkPrefix.length);
                 } else if (query.name.startsWith(abandonedQueryPrefix)) {
                     // strip the query name to find the tabId of the original dataflow

@@ -4,6 +4,13 @@ class DagNodeExecutor {
      * @param tabId
      */
     public static getTableNamePrefix(tabId: string): string {
+        if (tabId && tabId.length < 20) {
+            //XXX hacky way to detect if tab is published table tab
+            if (DagTabManager && DagTabManager.Instance.getTabById(tabId)) {
+                let tabName = DagTabManager.Instance.getTabById(tabId).getName();
+                tabId = "published_" + <string>xcHelper.checkNamePattern(null, PatternAction.Fix, tabName, "_");
+            }
+        }
         return "table_" + tabId;
     }
 
@@ -181,6 +188,7 @@ class DagNodeExecutor {
         if (tabId == null) {
             tabId = this._getClosestTabId(this.txId);
         }
+
         return DagNodeExecutor.getTableNamePrefix(tabId) +
         "_" + this.node.getId() + Authentication.getHashId();
     }
