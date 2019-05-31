@@ -137,8 +137,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
                 let destName: string;
                 const parsedName = xcHelper.parsePrefixColName(colInfo.name);
                 if (parsedName.prefix) {
-                    // this is how backend converts names
-                    destName = parsedName.prefix + "--" + parsedName.name;
+                    destName = parsedName.prefix + "_" + parsedName.name;
                 } else {
                     destName = parsedName.name;
                 }

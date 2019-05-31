@@ -17,7 +17,7 @@ describe("DFLinkOutOpPanel Test", function() {
                     type: "string"
                 }),
                 new ProgCol({
-                    backName: "prefix--name",
+                    backName: "prefix_name",
                     type: "string"
                 }),new ProgCol({
                     backName: "name",
@@ -79,11 +79,11 @@ describe("DFLinkOutOpPanel Test", function() {
                 "columns": [
                     {
                         "sourceName": "prefix::name",
-                        "destName": "prefix--name"
+                        "destName": "prefix_name"
                     },
                     {
-                        "sourceName": "prefix--name",
-                        "destName": "prefix--name_1"
+                        "sourceName": "prefix_name",
+                        "destName": "prefix_name_1"
                     },
                     {
                         "sourceName": "name",
