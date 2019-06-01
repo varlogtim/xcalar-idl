@@ -1338,7 +1338,7 @@ window.FlightTest = (function(FlightTest, $) {
 
         // select column
         let $lists = $panel.find(".resultSection .lists");
-        const $li = $panel.find(".candidateSection .lists").eq(0).find(".inputCol").filter(function() {
+        const $li = $panel.find(".candidateSection .listSection .lists").eq(0).find(".inputCol").filter(function() {
             return $(this).find(".colName").text() === colName;
         });
 

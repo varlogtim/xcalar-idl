@@ -1201,7 +1201,7 @@
                 }
             }
 
-            .listSection {
+            .listSection, .actionSection {
                 .flex-display;
                 .size(@width: ~"calc(100% - 5px)");
 
@@ -1233,6 +1233,40 @@
                         }
                     }
                 }
+            }
+
+            .actionSection {
+                height: 24px;
+                margin-top: 6px;
+                .lists {
+                    >div {
+                        height: 100%;
+                        line-height: normal;
+                    }
+                    &.newTable {
+                        opacity: 1;
+                    }
+                    .text {
+                        font-weight: 700;
+                    }
+                }
+                .action-icon .icon {
+                    line-height: normal;
+                }
+            }
+
+            .action-icon {
+                // .flex-display(inline-flex);
+                .size(@width: auto, @height: auto);
+                cursor: pointer;
+                .icon {
+                    line-height: 28px;
+                }
+            }
+
+            .action-label {
+                padding-left: 10px;
+                width: 100%;
             }
         }
 
@@ -1380,6 +1414,7 @@
                 border: 1px solid @color-table-hoverBg-gray;
                 &.placeholder {
                     border-color: transparent;
+                    width: 100%;
                     &::after {
                         content: "New Name";
                         padding-left: 10px;
@@ -1391,6 +1426,10 @@
                 .icon {
                     .position(absolute, @top: 7px, @right: 5px);
                 }
+            }
+
+            .action-icon {
+                padding-right: 5px;
             }
         }
 
@@ -2116,6 +2155,13 @@
 
                 .checkbox {
                     height: 100%;
+                }
+            }
+
+            .listSection {
+                width: 100%;
+                .lists.newTable {
+                    padding-left: 10px;
                 }
             }
         }
@@ -3011,6 +3057,9 @@
             display: block;
             width: 33%;
             float: left;
+            > div {
+                line-height: normal;
+            }
         }
         .listSection {
             display: block;

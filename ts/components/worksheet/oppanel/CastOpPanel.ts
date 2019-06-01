@@ -13,7 +13,8 @@ class CastOpPanel extends BaseOpPanel {
                     labels: ["Current Name", "New Name", "Cast"],
                     resultColPosition: -1,
                     showCast: true,
-                    candidateText: "Columns in this section will not be casted."
+                    candidateText: "Columns in this section will not be casted.",
+                    candidateTitle: `${OpFormTStr.NotCasted}:`
                 });
         this._registerHandlers();
     }
@@ -232,8 +233,6 @@ class CastOpPanel extends BaseOpPanel {
     private _modifyColRenameSection() {
         this.$panel.find(".tableSection .header .text")
                   .text(OpFormTStr.SelectColRename);
-        this.$panel.find(".candidateSection .subHeading .text")
-                  .text(OpFormTStr.NotCasted + ":");
     }
 
     protected _switchMode(toAdvancedMode: boolean): {error: string} {

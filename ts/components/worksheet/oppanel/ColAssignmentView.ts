@@ -75,6 +75,21 @@ class ColAssignmentView {
         $view.find(".highlight").removeClass("highlight");
     }
 
+    private _addEventAddAll(): void {
+        if (!this.options.showActions) {
+            return;
+        }
+        const $section = this._getView();
+        $section.on("click.candidateSection", ".candidateSection .actionSection .action-icon", (event) => {
+            const $iconObj = $(event.target).closest(".action-icon");
+            const listIndex: number = this._getListIndex($iconObj);
+            const autoDetect: boolean = this.options.autoDetect &&
+                this._getView().find(".tableSection .detect .checkbox").hasClass("checked");
+            this.modelData.addAllColumns(listIndex, autoDetect);
+            xcTooltip.hideAll();
+        });
+    }
+
     private _addEventListeners(): void {
         const $section = this._getView();
 
@@ -87,6 +102,24 @@ class ColAssignmentView {
             this.modelData.addColumn(listIndex, colIndex, autoDetect);
             xcTooltip.hideAll();
         });
+
+        this._addEventAddAll();
+
+        if (this.options.showActions) {
+            $section.on('click', '.tableSection .action-icon.remove', (event) => {
+                const $iconObj = $(event.target).closest(".action-icon");
+                const listIndex: number = this._getListIndex($iconObj);
+                this.modelData.removeAllColumnsInList(listIndex);
+                xcTooltip.hideAll();
+            });
+        }
+        // Keep it, in case we enable removeAll for resultant columns in the future
+        // if (this.options.showActions) {
+        //     $section.on("click", ".resultSection .lists.newTable  .action-icon", (event) => {
+        //         this.modelData.removeAllColumns();
+        //         xcTooltip.hideAll();
+        //     });
+        // }
 
         $section.on("click", ".removeColInRow", (event) => {
             const $col: JQuery = $(event.target).closest(".resultCol");
@@ -127,6 +160,7 @@ class ColAssignmentView {
                 this.modelData.addColumn(listIndex, colIndex);
                 xcTooltip.hideAll();
             });
+            this._addEventAddAll();
             $section.removeClass("candidateAddDisabled");
         } else {
             $section.addClass("candidateAddDisabled");
@@ -147,7 +181,9 @@ class ColAssignmentView {
         const $nodeList: JQuery = $view.find(".tableSection .listSection");
         const $result: JQuery = $view.find(".resultSection .listSection");
         const $candidate: JQuery = $view.find(".candidateSection .listSection");
+        const $candidateAction: JQuery = $view.find(".candidateSection .actionSection");
         const candidateHint = this.instanceOptions.candidateText || UnionTStr.CandidateHint;
+        const candidateTitle = this.instanceOptions.candidateTitle;
         const model = this.modelData.getModel();
         let result = model.result;
         let selected = model.selected;
@@ -156,7 +192,14 @@ class ColAssignmentView {
         let nodeListHTML: string = "";
         let resultHTML: string = "";
         let candidateHTML: string = "";
+        const candidateActionProp = {
+            title: candidateTitle,
+            actionList: []
+        };
         let nodeListHeader: string = '<div class="lists newTable"></div>';
+        const nodeListActionProp = {
+            actionList: []
+        };
         let resultCol: string = this._getResultList(result, selected);
         let candidateTextCol: string = '<div class="lists newTable">' +
                                             candidateHint +
@@ -164,10 +207,25 @@ class ColAssignmentView {
 
         // model.selected.forEach((selectedCols, index) => {
         selected.forEach((selectedCols, index) => {
-            nodeListHTML += this._getNodeList(index);
+            // nodeListHTML += this._getNodeList(index);
             resultHTML += this._getSelectedList(selectedCols, index);
-            candidateHTML += this._getCandidateList(candidates[index], index);
+            const candidateCols = candidates[index] || [];
+            candidateHTML += this._getCandidateList(candidateCols, index);
+            if (this.options.showActions) {
+                candidateActionProp.actionList.push({
+                    isAdd: true,
+                    isDisabled: candidateCols.length === 0,
+                    isShowIcon: true
+                });
+            }
+            nodeListActionProp.actionList.push({
+                isAdd: false,
+                isDisabled: selectedCols.filter((col) => (col != null)).length === 0,
+                isShowIcon: this.options.showActions,
+                label: this._getNodeLabel(index)
+            });
         });
+        nodeListHTML += this._getActionSection(nodeListActionProp);
 
         if (this.instanceOptions.resultColPosition === -1) {
             nodeListHTML += nodeListHeader;
@@ -189,6 +247,7 @@ class ColAssignmentView {
         $nodeList.html(nodeListHTML);
         $result.html(resultHTML);
         $candidate.html(candidateHTML);
+        $candidateAction.html(this._getActionSection(candidateActionProp));
 
         this._setupDropdownList();
 
@@ -199,16 +258,14 @@ class ColAssignmentView {
         });
     }
 
-    private _getNodeList(index: number): string {
+    private _getNodeLabel(index: number): string {
         let label;
         if (this.instanceOptions.labels && this.instanceOptions.labels[index] != null) {
             label = this.instanceOptions.labels[index];
         } else {
             label = "#" + (index + 1);
         }
-        return ('<div class="lists">' +
-                    label +
-                '</div>');
+        return label;
     }
 
     private _getResultList(resultCols: ProgCol[], selectedCols): string {
@@ -259,10 +316,33 @@ class ColAssignmentView {
                 '</div>';
         });
 
+        // const actionProp = this.options.showActions
+        //     ? { isActionDisabled: resultCols.length === 0 }
+        //     : null;
+        const actionProp = null; // Keep it here, in case we enable the remove all for result columns in the future
+        const titleHTML = this._getResultTitle(actionProp);
+
         return '<div class="lists newTable">' +
-                    '<div class="searchArea placeholder"></div>' +
+                    titleHTML +
                     resultColHTML +
                 '</div>';
+    }
+
+    private _getResultTitle(actionProp: {
+        isActionDisabled?: boolean,
+        actionTooltip?: string
+    }): string {
+        const { isActionDisabled = false, actionTooltip = UnionTStr.RemoveAllTooltip } = actionProp || {};
+        const cssActionDisabled = isActionDisabled ?  'xc-disabled' : '';
+
+        const actionHTML = actionProp == null
+            ? ''
+            : `<div class="action-icon ${cssActionDisabled}" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="${actionTooltip}">
+                <i class="icon xi-select-none fa-14"></i>
+                </div>`;
+        return `<div class="flexContainer">
+            <div class="searchArea placeholder"></div>${actionHTML}
+            </div>`;
     }
 
     private _getSelectedList(selectedCols: ProgCol[], index: number): string {
@@ -330,6 +410,40 @@ class ColAssignmentView {
         return ('<div class="lists" data-index="' + index + '">' +
                     lists +
                 '</div>');
+    }
+
+    private _getActionSection(actionProp: {
+        title?: string,
+        actionList?: {
+            isAdd: boolean,
+            isDisabled: boolean,
+            isShowIcon?: boolean,
+            label?: string,
+        } []
+    }): string {
+        const { title, actionList = [] } = actionProp;
+        const titleHTML = title != null
+            ? `<div class="lists newTable">
+                <span class="text">${title}</span>
+                </div>`
+            : '';
+        const actionHTML = actionList.map((prop, index) => {
+            const { isAdd = false, isDisabled = true, label = '', isShowIcon = false } = prop || {};
+            const cssActionIcon = isAdd ? 'xi-select-all' : 'xi-select-none';
+            const cssActionDisabled = isDisabled ?  'xc-disabled' : '';
+            const tooltip = isAdd ? UnionTStr.AddAllTooltip : UnionTStr.RemoveAllTooltip;
+            const cssActionType = isAdd ? 'add' : 'remove';
+            const iconHTML = isShowIcon
+                ? `<div class="action-icon ${cssActionDisabled} ${cssActionType}" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="${tooltip}">
+                    <i class="icon ${cssActionIcon} fa-14"></i>
+                    </div>`
+                : '';
+            return `<div class="lists" data-index="${index}"><div class="flexContainer">
+                ${iconHTML}<div class="action-label">${label}</div>
+                </div></div>`;
+        }).join('');
+
+        return titleHTML + actionHTML;
     }
 
     private _setupDropdownList(): void {

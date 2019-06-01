@@ -52,7 +52,8 @@ class ColAssignmentModel {
     public addColumn(
         listIndex: number,
         colIndex: number,
-        autoDetect: boolean = false
+        autoDetect: boolean = false,
+        isUpdate: boolean = true
     ): void {
         const progCol: ProgCol = this.candidateColsList[listIndex][colIndex];
         const colName: string = progCol.getBackColName();
@@ -77,6 +78,15 @@ class ColAssignmentModel {
                 selectedCols.push(otherColsToSelect[index] || null);
             }
         });
+        if (isUpdate) {
+            this.update();
+        }
+    }
+
+    public addAllColumns(listIndex: number, autoDetect: boolean = false): void {
+        for (let colIndex = 0; colIndex < this.candidateColsList[listIndex].length; colIndex ++) {
+            this.addColumn(listIndex, colIndex, autoDetect, false);
+        }
         this.update();
     }
 
@@ -98,29 +108,60 @@ class ColAssignmentModel {
      * Remove a column in all nodes
      * @param colIndex {number} the index of the column
      */
-    public removeColumnForAll(colIndex: number): void {
+    public removeColumnForAll(colIndex: number, isUpdate: boolean = true): void {
         this.resultCols.splice(colIndex, 1);
         this.selectedColsList.forEach((selectedCols) => {
             selectedCols.splice(colIndex, 1);
         });
-        this.update();
+        if (isUpdate) {
+            this.update();
+        }
     }
 
     /**
      * Remove a column
      * @param listIndex {number} index of the node list
      * @param colIndex {number} index of the column
+     * @param isUpdate {boolean} update UI?
      */
-    public removeColumn(listIndex: number, colIndex: number): void {
+    public removeColumn(listIndex: number, colIndex: number, isUpdate: boolean = true): void {
         this.selectedColsList[listIndex][colIndex] = null;
         let allNullCol: boolean = this.selectedColsList.filter((selectedCols) => {
             return selectedCols[colIndex] != null;
         }).length === 0;
 
         if (allNullCol && !this.options.preventAutoRemoveCol) {
-            this.removeColumnForAll(colIndex);
+            this.removeColumnForAll(colIndex, false);
         } else {
             this.resultCols[colIndex].type = null; // reset result type
+        }
+        if (isUpdate) {
+            this.update();
+        }
+    }
+
+    /**
+     * Remove all columns of a node
+     * @param listIndex {number} index of the node list
+     */
+    public removeAllColumnsInList(listIndex: number): void {
+        if (listIndex < 0 || listIndex >= this.selectedColsList.length) {
+            return;
+        }
+        for (let colIndex = this.selectedColsList[listIndex].length - 1; colIndex >= 0; colIndex --) {
+            this.removeColumn(listIndex, colIndex, false);
+        }
+        this.update();
+    }
+
+    /**
+     * Remove all resultant columns
+     */
+    public removeAllColumns(): void {
+        for (let listIndex = 0; listIndex < this.selectedColsList.length; listIndex ++) {
+            for (let colIndex = this.selectedColsList[listIndex].length - 1; colIndex >= 0; colIndex --) {
+                this.removeColumn(listIndex, colIndex, false);
+            }
         }
         this.update();
     }

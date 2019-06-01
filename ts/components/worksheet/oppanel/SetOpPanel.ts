@@ -78,7 +78,9 @@ class SetOpPanel extends BaseOpPanel {
         this._addEventListeners();
         const selector: string = "#setOpPanel .columnAssignmentSection";
         this.colAssignmentSection = new ColAssignmentView(selector, {
-            autoDetect: true
+            autoDetect: true,
+            showActions: true,
+            candidateTitle: UnionTStr.CandidateTitle
         });
     }
 

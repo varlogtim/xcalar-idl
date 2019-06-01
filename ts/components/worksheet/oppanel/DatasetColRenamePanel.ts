@@ -22,7 +22,8 @@ class DatasetColRenamePanel {
                 preventAutoRemoveCol: true,
                 resultColPosition: -1,
                 candidateText: "Columns in this section will not be reassigned to a new name." +
-                " To match them with a new name, select the column from the list above."
+                " To match them with a new name, select the column from the list above.",
+                candidateTitle: `${OpFormTStr.NotRenamed}:`
             });
         this._modifyColRenameSection();
         this._registerHandlers();
@@ -94,8 +95,6 @@ class DatasetColRenamePanel {
         this.colRenameView.toggleCandidateSectionAdd(allowCandidateAdd);
         this.$view.find(".tableSection .header .text")
                   .text(OpFormTStr.SelectColRename);
-        this.$view.find(".candidateSection .subHeading .text")
-                  .text(OpFormTStr.NotRenamed + ":");
     }
 
     private _registerHandlers(): void {

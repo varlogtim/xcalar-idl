@@ -827,7 +827,10 @@ UnionTStr = {
     "header": "SET OPERATION", // sync with htmlTStr
     "UsedFor": "Used for <col>",
     "FillDestCol": "Destination column name must not be empty",
-    "MixType": "Cast mixed columns to a data type first."
+    "MixType": "Cast mixed columns to a data type first.",
+    "AddAllTooltip": "Add All Columns",
+    "RemoveAllTooltip": "Remove All Columns",
+    "CandidateTitle": "Columns To Drop"
 };
 
 ExportTStr = {
