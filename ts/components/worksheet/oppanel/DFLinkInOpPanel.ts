@@ -20,6 +20,10 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 schema: this._dagNode.getSchema()
             });
             this._restorePanel(model);
+            if (model.schema != null && model.schema.length !== 0) {
+                // Already linked to a source, so we update the panel to pick up any possible lineage change
+                this._autoDetectSchema(false);
+            }
         });
     }
 
@@ -307,7 +311,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         return this._getPanel().find(".colSchemaSection");
     }
 
-    private _autoDetectSchema(): {error: string} {
+    private _autoDetectSchema(isOverwriteConfig: boolean = true): {error: string} {
         try {
             const $dfInput: JQuery = this._getDFDropdownList().find("input");
             const $linkOutInput: JQuery = this._getLinkOutDropdownList().find("input");
@@ -336,7 +340,9 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 }
             });
             this._schemaSection.setInitialSchema(schema);
-            this._schemaSection.render(schema);
+            if (isOverwriteConfig) {
+                this._schemaSection.render(schema);
+            }
         } catch (e) {
             return {error: e};
         }
