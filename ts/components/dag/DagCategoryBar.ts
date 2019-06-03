@@ -28,6 +28,7 @@ class DagCategoryBar {
         this._setupActionBar();
         // Activate the favorites category by default
         this._focusOnCategory(DagCategoryType.In);
+        this.showOrHideArrows();
     }
 
     public updateCategories(dagTab: DagTab): void {
