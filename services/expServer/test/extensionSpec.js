@@ -6,7 +6,7 @@ describe('ExpServer Extension Test', function() {
     require(__dirname + '/../expServer.js');
 
     var extensionManager = require(__dirname +
-        '/../controllers/extensionManager.js');
+        '/../controllers/extensionManager.js').default.getInstance;
     var support = require(__dirname + '/../utils/expServerSupport.js');
     var testTargz;
     var testName;
@@ -16,6 +16,37 @@ describe('ExpServer Extension Test', function() {
     var oldGetObject;
     var emptyPromise;
     this.timeout(10000);
+
+    function fakeWriteTarGz(func) {
+        extensionManager.writeTarGz = func;
+    }
+    function fakeWriteTarGzWithCleanup(func) {
+        extensionManager.writeTarGzWithCleanup = func;
+    }
+    function fakeGetObject(func) {
+        extensionManager._s3.getObject = func;
+    }
+    function fakeProcessItem(func) {
+        extensionManager.processItem = func;
+    }
+    function fakeDownloadExtension(func) {
+        extensionManager.downloadExtension = func;
+    }
+    function fakeRemoveExtension(func) {
+        extensionManager.removeExtension = func;
+    }
+    function fakeEnableExtension(func) {
+        extensionManager.enableExtension = func;
+    }
+    function fakeDisableExtension(func) {
+        extensionManager.disableExtension = func;
+    }
+    function fakeGetExtensionFiles(func) {
+        extensionManager.getExtensionFiles = func;
+    }
+    function fakeFetchAllExtensions(func) {
+        extensionManager.fetchAllExtensions = func;
+    }
 
     // Test begins
     before(function() {
@@ -29,7 +60,7 @@ describe('ExpServer Extension Test', function() {
         testType = "test";
         testDownloadName = "test";
         testFileName = "extensionManagers/distinct/1.0.0/distinct-1.0.0.tar.gz";
-        oldGetObject = extensionManager.getObject;
+        oldGetObject = extensionManager._s3.getObject;
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
         }
@@ -80,7 +111,7 @@ describe('ExpServer Extension Test', function() {
 
     it("extensionManager.writeTarGzWithCleanup should work", function(done) {
         var oldFunc = extensionManager.writeTarGz;
-        extensionManager.fakeWriteTarGz(emptyPromise);
+        fakeWriteTarGz(emptyPromise);
         extensionManager.writeTarGzWithCleanup(testTargz, testName, testVersion)
         .then(function(ret) {
             expect(ret).to.equal("writeTarGzWithCleanup succeeds");
@@ -90,7 +121,7 @@ describe('ExpServer Extension Test', function() {
             done("fail");
         })
         .always(function() {
-            extensionManager.fakeWriteTarGz(oldFunc);
+            fakeWriteTarGz(oldFunc);
         });
     });
 
@@ -98,7 +129,7 @@ describe('ExpServer Extension Test', function() {
         var fakeFunc = function(data, callback) {
             callback("fail");
         }
-        extensionManager.fakeGetObject(fakeFunc);
+        fakeGetObject(fakeFunc);
         extensionManager.downloadExtension(testDownloadName, testVersion)
         .then(function() {
             done("fail");
@@ -108,7 +139,7 @@ describe('ExpServer Extension Test', function() {
             done();
         })
         .always(function() {
-            extensionManager.fakeGetObject(oldGetObject);
+            fakeGetObject(oldGetObject);
         });
     });
 
@@ -254,7 +285,7 @@ describe('ExpServer Extension Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().reject("processItem fails").promise();
         }
-        extensionManager.fakeProcessItem(fakeFunc);
+        fakeProcessItem(fakeFunc);
         extensionManager.fetchAllExtensions()
         .then(function() {
             done("fail");
@@ -264,23 +295,23 @@ describe('ExpServer Extension Test', function() {
             done();
         })
         .always(function() {
-            extensionManager.fakeProcessItem(oldFunc);
+            fakeProcessItem(oldFunc);
         });
     });
 
     it('Upload router should work', function(done) {
         var oldWrite = extensionManager.writeTarGzWithCleanup;
-        var oldEnable = extensionManager.enableExtensionn;
-        extensionManager.fakeWriteTarGzWithCleanup(emptyPromise);
-        extensionManager.fakeEnableExtension(emptyPromise);
+        var oldEnable = extensionManager.enableExtension;
+        fakeWriteTarGzWithCleanup(emptyPromise);
+        fakeEnableExtension(emptyPromise);
         var data = {
             url: 'http://localhost:12224/extension/upload',
             json: testData
         }
         request.post(data, function (err, res, body){
             console.log("res is:" + JSON.stringify(err));
-            extensionManager.fakeWriteTarGzWithCleanup(oldWrite);
-            extensionManager.fakeEnableExtension(oldEnable);
+            fakeWriteTarGzWithCleanup(oldWrite);
+            fakeEnableExtension(oldEnable);
             expect(res.body.status).to.equal(1);
             done();
         });
@@ -294,15 +325,15 @@ describe('ExpServer Extension Test', function() {
                                               name: "test",
                                               version: "test"}).promise();
         }
-        extensionManager.fakeWriteTarGzWithCleanup(emptyPromise);
-        extensionManager.fakeDownloadExtension(fakeDownload);
+        fakeWriteTarGzWithCleanup(emptyPromise);
+        fakeDownloadExtension(fakeDownload);
         var data = {
             url: 'http://localhost:12224/extension/download',
             json: testData
         }
         request.post(data, function (err, res, body){
-            extensionManager.fakeWriteTarGzWithCleanup(oldWrite);
-            extensionManager.fakeDownloadExtension(oldDownload);
+            fakeWriteTarGzWithCleanup(oldWrite);
+            fakeDownloadExtension(oldDownload);
             expect(res.body.status).to.equal(1);
             done();
         });
@@ -310,27 +341,27 @@ describe('ExpServer Extension Test', function() {
 
     it('Remove router should work', function(done) {
         var oldRemove = extensionManager.removeExtension;
-        extensionManager.fakeRemoveExtension(emptyPromise);
+        fakeRemoveExtension(emptyPromise);
         var data = {
             url: 'http://localhost:12224/extension/remove',
             json: testData
         }
         request.delete(data, function (err, res, body){
-            extensionManager.fakeRemoveExtension(oldRemove);
+            fakeRemoveExtension(oldRemove);
             expect(res.body.status).to.equal(1);
             done();
         });
     });
 
     it('Enable router should work', function(done) {
-        var oldEnable = extensionManager.enableExtensionn;
-        extensionManager.fakeEnableExtension(emptyPromise);
+        var oldEnable = extensionManager.enableExtension;
+        fakeEnableExtension(emptyPromise);
         var data = {
             url: 'http://localhost:12224/extension/enable',
             json: testData
         }
         request.post(data, function (err, res, body){
-            extensionManager.fakeEnableExtension(oldEnable);
+            fakeEnableExtension(oldEnable);
             expect(res.body.status).to.equal(1);
             done();
         });
@@ -338,13 +369,13 @@ describe('ExpServer Extension Test', function() {
 
     it('Disable router should work', function(done) {
         var oldDisable = extensionManager.disableExtension;
-        extensionManager.fakeDisableExtension(emptyPromise);
+        fakeDisableExtension(emptyPromise);
         var data = {
             url: 'http://localhost:12224/extension/disable',
             json: testData
         }
         request.post(data, function (err, res, body){
-            extensionManager.fakeDisableExtension(oldDisable);
+            fakeDisableExtension(oldDisable);
             expect(res.body.status).to.equal(1);
             done();
         });
@@ -355,7 +386,7 @@ describe('ExpServer Extension Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve([]).promise();
         };
-        extensionManager.fakeGetExtensionFiles(fakeFunc);
+        fakeGetExtensionFiles(fakeFunc);
         var data = {
             url: 'http://localhost:12224/extension/getAvailable',
             headers: {
@@ -363,7 +394,7 @@ describe('ExpServer Extension Test', function() {
             }
         }
         request.get(data, function (err, res, body){
-            extensionManager.fakeGetExtensionFiles(oldGetExt);
+            fakeGetExtensionFiles(oldGetExt);
             expect(JSON.parse(res.body).status).to.equal(1);
             done();
         });
@@ -380,16 +411,16 @@ describe('ExpServer Extension Test', function() {
     });
 
     it('ListPackage router should work', function(done) {
-        var oldFetch = extensionManager.fakeFetchAllExtensions;
+        var oldFetch = extensionManager.fetchAllExtensions;
         var fakeFunc = function() {
             return jQuery.Deferred().resolve({"status": 1}).promise();
         };
-        extensionManager.fakeFetchAllExtensions(fakeFunc);
+        fakeFetchAllExtensions(fakeFunc);
         var data = {
             url: 'http://localhost:12224/extension/listPackage'
         }
         request.get(data, function (err, res, body){
-            extensionManager.fakeFetchAllExtensions(oldFetch);
+            fakeFetchAllExtensions(oldFetch);
             expect(JSON.parse(res.body).status).to.equal(1);
             done();
         });
@@ -403,9 +434,5 @@ describe('ExpServer Extension Test', function() {
             expect(JSON.parse(res.body).status).to.equal(-1);
             done();
         });
-    });
-
-    after(function() {
-
     });
 });
