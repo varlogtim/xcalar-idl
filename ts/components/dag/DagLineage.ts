@@ -75,7 +75,7 @@ class DagLineage {
         }
     }
 
-    public getHiddenColumns(): Map<string, ColumnType> {
+    public getHiddenColumns(includeNewlyPulled = false): Map<string, ColumnType> {
         if (this.hiddenColumns == null) {
             const columnDeltas: Map<string, any> = this.node.getColumnDeltas();
             let hiddenColumns: Map<string, ColumnType> = new Map();
@@ -91,11 +91,14 @@ class DagLineage {
                 // aggregate has no columns. just a value
                 this.node.getParents().forEach((parentNode) => {
                     const parentHiddenColumns = parentNode.getLineage().getHiddenColumns();
-                    pulledColumns.forEach(colName => {
-                        if (parentHiddenColumns.has(colName)) {
-                            parentHiddenColumns.delete(colName);
-                        }
-                    })
+                    if (!includeNewlyPulled) {
+                        pulledColumns.forEach(colName => {
+                            if (parentHiddenColumns.has(colName)) {
+                                parentHiddenColumns.delete(colName);
+                            }
+                        });
+                    }
+
                     hiddenColumns = new Map([...parentHiddenColumns, ...hiddenColumns]);
                 });
             }
@@ -358,7 +361,7 @@ class DagLineage {
         columnDeltas.forEach((colInf, colName) => {
             if (colInf.isPulled && !colNames.has(colName)) {
                 let frontName = xcHelper.parsePrefixColName(colName);
-                const hiddenCols: Map<string, ColumnType> = this.getHiddenColumns();
+                const hiddenCols: Map<string, ColumnType> = this.getHiddenColumns(true);
                 let type;
                 if (hiddenCols.has(colName)) {
                     type = hiddenCols.get(colName);
