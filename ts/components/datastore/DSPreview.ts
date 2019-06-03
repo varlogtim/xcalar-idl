@@ -5589,21 +5589,26 @@ namespace DSPreview {
         sourceIndex: number,
         typedColumns: {colName: string, colType: string}[]
     ): void {
-        typedColumns = typedColumns || [];
+        try {
+            typedColumns = typedColumns || [];
 
-        let originalTypedColumns = loadArgs.getOriginalHeaders(sourceIndex);
-        let len = Math.max(originalTypedColumns.length, typedColumns.length);
-        let types = [];
-        let colNames = [];
+            let originalTypedColumns = loadArgs.getOriginalHeaders(sourceIndex);
+            let len = Math.max(originalTypedColumns.length, typedColumns.length);
+            let types = [];
+            let colNames = [];
 
-        for (let i = 0; i < len; i++) {
-            let colInfo = typedColumns[i] || <any>{};
-            let colType = colInfo.colType || originalTypedColumns[i].colType;
-            let colName = colInfo.colName || autoHeaderName(i); // not use original col name
-            types.push(colType);
-            colNames.push(colName);
+            for (let i = 0; i < len; i++) {
+                let colInfo = typedColumns[i] || <any>{};
+                let originalColInfo = originalTypedColumns[i] || <any>{};
+                let colType = colInfo.colType || originalColInfo.colType || ColumnType.unknown;
+                let colName = colInfo.colName || autoHeaderName(i); // not use original col name
+                types.push(colType);
+                colNames.push(colName);
+            }
+            changeColumnHeaders(types, colNames);
+        } catch (e) {
+            console.error(e);
         }
-        changeColumnHeaders(types, colNames);
     }
 
     function changeColumnHeaders(types: ColumnType[], colNames: string[]): void {
