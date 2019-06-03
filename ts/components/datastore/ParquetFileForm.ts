@@ -7,6 +7,9 @@ class ParquetFileForm {
 
     // first parser will be the default value
     private readonly parsers: {name: string, text: string}[] = [{
+        name: "native",
+        text: "Native"
+    }, {
         name: "pyArrow",
         text: "PyArrow"
     }, {

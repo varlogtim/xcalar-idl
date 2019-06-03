@@ -2130,7 +2130,7 @@ describe("Dataset-DSPreview Test", function() {
             expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("parseParquet");
             expect(res.udfQuery).to.deep.equal({
-                parquetParser: "pyArrow"
+                parquetParser: "native"
             });
         });
 
