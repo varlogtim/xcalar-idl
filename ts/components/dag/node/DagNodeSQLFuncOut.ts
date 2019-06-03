@@ -61,7 +61,7 @@ class DagNodeSQLFuncOut extends DagNodeOut {
             return proglCol;
         });
 
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         _columns.forEach((progCol) => {
             let name: string = progCol.getBackColName();
             if (colNameCache.hasOwnProperty(name)) {

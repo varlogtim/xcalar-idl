@@ -1706,7 +1706,11 @@ class DagView {
         this.graph.cancelExecute();
     }
 
-    public highlightLineage(nodeId: DagNodeId, childNodeId?: DagNodeId, type?: string): void {
+    public highlightLineage(
+        nodeId: DagNodeId,
+        childNodeId?: DagNodeId,
+        type?: "add" | "rename" | "remove" | "hide" | "pull"
+    ): void {
         const $node = this._getNode(nodeId);
         const node = this.graph.getNode(nodeId);
         if (node == null) {
@@ -1729,6 +1733,10 @@ class DagView {
             tipText = CommonTxtTstr.Created;
         } else if (type === "remove") {
             tipText = CommonTxtTstr.Removed;
+        } else if (type === "pull") {
+            tipText = "Pulled";
+        } else if (type === "hide") {
+            tipText = "Hidden";
         }
         if (tipText) {
             const scale = this.graph.getScale();
@@ -1737,6 +1745,7 @@ class DagView {
             const y = Math.max(1, scale * pos.y - 25);
             let tip: HTML = DagView._dagLineageTipTemplate(x, y, tipText);
             this.$dfArea.append(tip);
+            $("#dagView").addClass("hideProgressTips");
         }
     }
 

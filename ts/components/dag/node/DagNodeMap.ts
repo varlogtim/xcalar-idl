@@ -55,7 +55,7 @@ class DagNodeMap extends DagNode {
         columns: ProgCol[],
         replaceParameters?: boolean
     ): DagLineageChange {
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         const params = this.input.getInput(replaceParameters);
         const colMap: Map<string, number> = new Map();
         columns.forEach((col, i) => {

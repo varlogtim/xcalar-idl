@@ -107,8 +107,8 @@ class DagSchemaPopup {
         let removes = {html: ""};
         let replaces = {html: ""};
         let changeIcon;
-        let seenColumns = {};
-
+        let seenColumns: Set<string> = new Set();
+        // list changes first
         for (let i = 0; i < changes.length; i++) {
             const change = changes[i];
             let changeType;
@@ -117,23 +117,28 @@ class DagSchemaPopup {
             let otherProgCol;
             let htmlType;
             if (change.to) {
-                seenColumns[change.to.getBackColName()] = true;
+                progCol = change.to;
+                seenColumns.add(progCol.getBackColName());
+
                 if (change.from) {
-                    progCol = change.to;
                     otherProgCol = change.from;
                     changeType = "replace";
                     htmlType = replaces;
                     changeIcon = "+";
                 } else {
-                    progCol = change.to;
                     changeType = "add";
                     htmlType = adds;
                     changeIcon = "+";
                 }
             } else if (change.from) {
                 progCol = change.from;
+                seenColumns.add(progCol.getBackColName());
+
                 destCol = change.from;
                 changeType = "remove";
+                if (change.hidden) {
+                    changeType += " hidden";
+                }
                 htmlType = removes;
                 changeIcon = "-";
             }
@@ -162,14 +167,23 @@ class DagSchemaPopup {
 
         let noChange = (html === "<ul>");
 
+        // list columns that have no change (have not been seen)
         for (let i = 0; i < this._tableColumns.length; i++) {
             const progCol = this._tableColumns[i];
-            if (seenColumns[progCol.getBackColName()]) {
+            if (seenColumns.has(progCol.getBackColName())) {
                 continue;
             }
-
+            seenColumns.add(progCol.getBackColName());
             html += this._liTemplate(progCol, "", "");
         }
+        // TODO: uncomment hiddenCols when design is ready
+        // let hiddenColumns = lineage.getHiddenColumns();
+        // hiddenColumns.forEach((progCol, colName) => {
+        //     if (seenColumns.has(colName)) {
+        //         return;
+        //     }
+        //     html += this._liTemplate(progCol, "", "hidden");
+        // });
 
         if (!numCols) {
             html += '<span class="noFields">' + DFTStr.NoFields + '</span>';
@@ -268,5 +282,6 @@ class DagSchemaPopup {
     private _clearLineage() {
         $("#dagView").find(".lineageSelected").removeClass("lineageSelected");
         $("#dagView").find(".lineageTip").remove();
+        $("#dagView").removeClass("hideProgressTips");
     }
 }

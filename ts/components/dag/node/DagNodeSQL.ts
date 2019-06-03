@@ -384,7 +384,7 @@ class DagNodeSQL extends DagNode {
         }
         columnMap = columnMapList[0];
 
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         const parents: DagNode[] = this.getParents();
         parents.forEach((parent) => {
             parent.getLineage().getColumns(replaceParameters).forEach((parentCol) => {

@@ -57,7 +57,7 @@ class DagNodeSet extends DagNode {
         _columns: ProgCol[],
         replaceParameters?: boolean
     ): DagLineageChange {
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         let finalCols: ProgCol[] = [];
         const input = this.input.getInput(replaceParameters);
         if (input.columns && input.columns.length > 0) {

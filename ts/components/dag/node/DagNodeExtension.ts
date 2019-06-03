@@ -148,7 +148,7 @@ class DagNodeExtension extends DagNode {
     // XXX TODO: This is a hack now, should check if all the extension
     // we have can apply this, otherwise need to change
     public lineageChange(columns: ProgCol[]): DagLineageChange {
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         const set: Set<string> = new Set();
         this.droppedColumns.forEach((name) => {
             set.add(name);

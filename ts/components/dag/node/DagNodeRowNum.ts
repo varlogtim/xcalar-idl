@@ -46,7 +46,7 @@ class DagNodeRowNum extends DagNode {
     }
 
     public lineageChange(): DagLineageChange {
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         const finalCols: ProgCol[] = [];
         const parents: DagNode[] = this.getParents();
         parents.forEach((parent) => {

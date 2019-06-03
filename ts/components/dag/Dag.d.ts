@@ -13,7 +13,14 @@ interface DagNodeCopyInfo extends DagNodeInfo {
 
 interface DagLineageChange {
     columns: ProgCol[];
-    changes: {from: ProgCol, to: ProgCol, parentIndex?: number}[]
+    changes: DagColumnChange[]
+}
+
+interface DagColumnChange {
+    from: ProgCol,
+    to: ProgCol,
+    parentIndex?: number,
+    hidden?: boolean
 }
 
 interface BackTraceInfo {

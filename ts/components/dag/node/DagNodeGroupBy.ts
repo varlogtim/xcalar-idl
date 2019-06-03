@@ -63,7 +63,7 @@ class DagNodeGroupBy extends DagNode {
         columns: ProgCol[],
         replaceParameters?: boolean
     ): DagLineageChange {
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         const aggCols: ProgCol[] = [];
         let finalCols: ProgCol[] = [];
         const input = this.input.getInput(replaceParameters);

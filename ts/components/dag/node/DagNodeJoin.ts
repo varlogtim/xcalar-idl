@@ -270,7 +270,7 @@ class DagNodeJoin extends DagNode {
         isKeepAllColumns: boolean,
         parentIndex: number
     ): DagLineageChange {
-        const changes: {from: ProgCol, to: ProgCol, parentIndex: number}[] = [];
+        const changes: DagColumnChange[] = [];
 
         const colMap: Map<string, ProgCol> = new Map();
         allColumns.forEach((progCol) => {

@@ -49,7 +49,7 @@ class DagNodeSort extends DagNode {
         columns: ProgCol[],
         replaceParameters?: boolean
     ): DagLineageChange {
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         const input = this.input.getInput(replaceParameters);
         const allCols: ProgCol[] = [];
         const newKeys: string[] = this.updateNewKeys(input.newKeys);

@@ -41,7 +41,7 @@ class DagNodeSynthesize extends DagNode {
         replaceParameters?: boolean
     ): DagLineageChange {
         const columns: ProgCol[] = [];
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         // there should be only one parent
         const parents: DagNode[] = this.getParents();
         const parentColMap = {};
@@ -55,7 +55,7 @@ class DagNodeSynthesize extends DagNode {
             const origColName = colInfo.sourceColumn;
             renamedColNames.push(origColName);
             const newColName = colInfo.destColumn;
-            const colType = colInfo.columnType ? 
+            const colType = colInfo.columnType ?
                             xcHelper.convertFieldTypeToColType(
                                     DfFieldTypeTFromStr[colInfo.columnType]) ||
                             parentColMap[origColName] &&

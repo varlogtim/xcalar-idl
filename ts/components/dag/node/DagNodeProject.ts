@@ -48,7 +48,7 @@ class DagNodeProject extends DagNode {
         columns: ProgCol[],
         replaceParameters?: boolean
     ): DagLineageChange {
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: DagColumnChange[] = [];
         const finalCols: ProgCol[] = [];
         const prefixSet: Set<string> = new Set();
         const derivedSet: Set<string> = new Set();
@@ -62,6 +62,7 @@ class DagNodeProject extends DagNode {
             }
         });
 
+
         if (columns != null) {
             columns.forEach((progCol) => {
                 const colName: string = progCol.getBackColName();
@@ -74,6 +75,24 @@ class DagNodeProject extends DagNode {
                     changes.push({
                         from: progCol,
                         to: null
+                    });
+                }
+            });
+        }
+        // TODO: uncomment hiddenCols when design is ready
+        // let hiddenColumns = this.lineage.getHiddenColumns();
+        let hiddenColumns = null;
+        if (hiddenColumns != null) {
+            hiddenColumns.forEach((progCol, colName) => {
+                const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
+                const keep: boolean = parsed.prefix && prefixSet.has(parsed.prefix);
+
+                if (!keep) {
+                    hiddenColumns.delete(colName);
+                    changes.push({
+                        from: progCol,
+                        to: null,
+                        hidden: true
                     });
                 }
             });

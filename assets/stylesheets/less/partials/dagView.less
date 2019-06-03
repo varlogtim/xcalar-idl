@@ -164,6 +164,12 @@
         }
     }
 
+    &.hideProgressTips {
+        .dagTableTip.runStats {
+            display: none;
+        }
+    }
+
     &:not(.showConfigInfo) {
         .paramTitle {
             display: none;
@@ -2083,6 +2089,7 @@
         > div:first-child, .icon {
             color: @color-error-border;
         }
+
     }
     .changeType-replace {
         color:  @color-bg-apple-green;
@@ -2096,6 +2103,7 @@
             }
         }
     }
+
     li > div:first-child {
         width: 82px;
     }
