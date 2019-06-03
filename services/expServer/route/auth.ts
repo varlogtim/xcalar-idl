@@ -5,7 +5,7 @@ import * as support from "../utils/expServerSupport";
 import * as cookieParser from "cookie-parser";
 import { Router } from "express"
 export const router = Router();
-import * as authManager from "../controllers/authManager";
+import authManager from "../controllers/authManager";
 
 router.post('/auth/azureIdToken', function(req, res) {
     xcConsole.log("Authenticaking Azure Id Token");

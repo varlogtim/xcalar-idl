@@ -3,7 +3,7 @@ describe('ExpServer Auth Test', function() {
     var path = require("path");
     // var request = require('request');
     var expServer = require(__dirname + '/../expServer.js');
-    var authManager = require(__dirname + '/../controllers/authManager.js');
+    var authManager = require(__dirname + '/../controllers/authManager.js').default;
     var support = require(__dirname + '/../utils/expServerSupport.js');
     var cfgFile = __dirname + '/config/test.cfg';
     var jwt = require('jsonwebtoken');
@@ -58,6 +58,10 @@ describe('ExpServer Auth Test', function() {
 
     function dummyBootstrapXlrRoot() {
         expServer.xlrRoot = '/tmp';
+    }
+
+    function fakeGetUrl(func) {
+        authManager.getUrl = func;
     }
 
     /* key gen commands:
@@ -157,7 +161,7 @@ describe('ExpServer Auth Test', function() {
 
         certArray = certArray1;
         urlRefCount = 0;
-        authManager.fakeGetUrl(dummyGetUrl);
+        fakeGetUrl(dummyGetUrl);
 
         var body = { token: token1,
                      user: "true",
@@ -165,8 +169,8 @@ describe('ExpServer Auth Test', function() {
 
         postRequest("/auth/azureIdToken", body)
         .then(function(ret) {
-            authManager.fakeGetUrl(oldGetUrl);
-            authManager.msKeyCache.flushAll();
+            fakeGetUrl(oldGetUrl);
+            authManager._msKeyCache.flushAll();
             expect(ret.status).to.equal(200);
             expect(ret.message).to.equal('Success');
             done();
@@ -181,7 +185,7 @@ describe('ExpServer Auth Test', function() {
 
         certArray = certArray2;
         urlRefCount = 0;
-        authManager.fakeGetUrl(dummyGetUrl);
+        fakeGetUrl(dummyGetUrl);
 
         var body = { token: token1,
                      user: "true",
@@ -192,8 +196,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            authManager.fakeGetUrl(oldGetUrl);
-            authManager.msKeyCache.flushAll();
+            fakeGetUrl(oldGetUrl);
+            authManager._msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(401);
             expect(ret.responseJSON.message).to.equal("Keys not found in retrieved for url: " + jwks_url);
             done();
@@ -205,7 +209,7 @@ describe('ExpServer Auth Test', function() {
 
         certArray = certArray3;
         urlRefCount = 0;
-        authManager.fakeGetUrl(dummyGetUrl);
+        fakeGetUrl(dummyGetUrl);
 
         var body = { token: token1,
                      user: "true",
@@ -216,8 +220,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            authManager.fakeGetUrl(oldGetUrl);
-            authManager.msKeyCache.flushAll();
+            fakeGetUrl(oldGetUrl);
+            authManager._msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(401);
             expect(ret.responseJSON.message).to.equal("Key retrieval error for url: " + jwks_url);
             done();
@@ -229,7 +233,7 @@ describe('ExpServer Auth Test', function() {
 
         certArray = certArray1;
         urlRefCount = 0;
-        authManager.fakeGetUrl(dummyGetUrl);
+        fakeGetUrl(dummyGetUrl);
 
         var body = { token: token3,
                      user: "true",
@@ -240,8 +244,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            authManager.fakeGetUrl(oldGetUrl);
-            authManager.msKeyCache.flushAll();
+            fakeGetUrl(oldGetUrl);
+            authManager._msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(401);
             expect(ret.responseJSON.message).to.equal("Key not present in returned keys");
             done();
@@ -253,7 +257,7 @@ describe('ExpServer Auth Test', function() {
 
         certArray = certArray1;
         urlRefCount = 0;
-        authManager.fakeGetUrl(dummyGetUrl);
+        fakeGetUrl(dummyGetUrl);
 
         var body = { token: token4,
                      user: "true",
@@ -264,8 +268,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            authManager.fakeGetUrl(oldGetUrl);
-            authManager.msKeyCache.flushAll();
+            fakeGetUrl(oldGetUrl);
+            authManager._msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(500);
             expect(ret.responseJSON.message).to.equal("Token header does not contain a key id");
             done();
@@ -277,7 +281,7 @@ describe('ExpServer Auth Test', function() {
 
         certArray = certArray1;
         urlRefCount = 0;
-        authManager.fakeGetUrl(dummyGetUrl);
+        fakeGetUrl(dummyGetUrl);
 
         var body = { token: token5,
                      user: "true",
@@ -288,8 +292,8 @@ describe('ExpServer Auth Test', function() {
             done("fail");
         })
         .fail(function(ret) {
-            authManager.fakeGetUrl(oldGetUrl);
-            authManager.msKeyCache.flushAll();
+            fakeGetUrl(oldGetUrl);
+            authManager._msKeyCache.flushAll();
             expect(ret.responseJSON.status).to.equal(401);
             expect(ret.responseJSON.message).to.equal("Error during web token verification: invalid signature");
             done();

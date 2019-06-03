@@ -8,7 +8,7 @@ const httpStatus = HttpStatus.httpStatus;
 import * as support from "../utils/expServerSupport";
 import Ajv = require('ajv');
 const ajv: Ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
-import { enableB2C } from "./authManager"
+import authManager from "./authManager"
 import request = require("request")
 
 require("require.async")(require);
@@ -490,7 +490,7 @@ export function getMsalConfig() {
 
             message.data = msalConfig;
 
-            enableB2C(msalConfig.msal.b2cEnabled);
+            authManager.enableB2C(msalConfig.msal.b2cEnabled);
 
             deferred.resolve(message);
         })
@@ -531,7 +531,7 @@ export function setMsalConfig(msalConfigIn) {
             .then(function(xlrRoot) {
                 msalConfigPath = path.join(xlrRoot, msalConfigRelPath);
 
-                enableB2C(msalConfig.msal.b2cEnabled);
+                authManager.enableB2C(msalConfig.msal.b2cEnabled);
 
                 return (support.writeToFile(msalConfigPath, msalConfig, { "mode": 0o600 }));
             })
