@@ -6,7 +6,6 @@ describe("ExpServer Socket Test", function() {
     }
     var expect = require('chai').expect;
     require(__dirname + '/../expServer.js');
-    require(__dirname + '/../controllers/socket.js');
     this.timeout(10000);
     var client;
     var peerClient;

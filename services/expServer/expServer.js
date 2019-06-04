@@ -48,7 +48,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var exec = require("child_process").exec;
     var proxy = require('express-http-proxy');
     var url = require('url')
-    var socket = require('./controllers/socket.js').socketIoServer;
+    var socket = require('./controllers/socket.js').default.socketIoServer;
     var serverPort = process.env.XCE_EXP_PORT ?
         parseInt(process.env.XCE_EXP_PORT) : 12124;
     if (process.env.NODE_ENV === "test") {

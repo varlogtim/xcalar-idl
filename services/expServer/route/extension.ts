@@ -7,7 +7,7 @@ import * as support from "../utils/expServerSupport";
 import upload from "../controllers/upload";
 import ExtensionManager from "../controllers/extensionManager";
 const extensionManager = ExtensionManager.getInstance;
-import * as socketUtils from "../controllers/socket";
+import socket from "../controllers/socket";
 import { Status } from "../utils/supportStatusFile";
 
 // Start of marketplace calls
@@ -220,7 +220,7 @@ router.get('/extension/activeUsers',
     let msg;
     let activeUserList = {};
     try {
-        activeUserInfos = socketUtils.getUserInfos();
+        activeUserInfos = socket.getUserInfos();
         msg = Status.Ok;
         if ("no registered users" in activeUserInfos) {
             activeUserList = ["no registered users"];
