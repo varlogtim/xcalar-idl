@@ -277,7 +277,8 @@ namespace Alert {
 
     function hasOtherModalOpen(): boolean {
         return $(".modalContainer:visible:not(#alertModal):" +
-        "not(.noBackground)").length > 0;
+        "not(.noBackground)").length > 0 && 
+        $(".modalBackground").length === 0; // XXX a hack to exclude react modal
     }
 
     // set modal id

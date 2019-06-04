@@ -380,17 +380,27 @@ window.UnitTest = (function(UnitTest, $) {
 
     UnitTest.deleteAllTables = function() {
         var deferred = PromiseHelper.deferred();
-
-        DeleteTableModal.Instance.show(true)
+        $("#monitor-delete").click();
+        UnitTest.testFinish(() => $('#deleteTableModal').is(":visible"))
+        .then(function() {
+            return UnitTest.testFinish(() => !$('#deleteTableModal').hasClass("load"))
+        })
         .then(function() {
             $('#deleteTableModal').find('.listSection .checkbox')
                                   .addClass('checked');
-            return PromiseHelper.alwaysResolve(DeleteTableModal.Instance._submitForm());
+            $('#deleteTableModal .confirm').click();
+            return UnitTest.testFinish(() => $("#alertModal").is(":visible"));
         })
         .then(function() {
-            return DeleteTableModal.Instance._close();
+            $("#alertModal .confirm").click();
+            $('#deleteTableModal .close').click();
+            return UnitTest.testFinish(() => !$('#deleteTableModal').is(":visible"))
         })
-        .then(deferred.resolve);
+        .then(deferred.resolve)
+        .fail(function(e) {
+            console.error(e);
+            deferred.resolve(); // still resolve it
+        });
 
         return deferred.promise();
     };

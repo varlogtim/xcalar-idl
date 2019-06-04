@@ -132,6 +132,7 @@ var TRUNK = "trunk";
 var INSTALLER = "installer";
 var DEV = "dev";
 var DEBUG = "debug";
+var BUILD_REACT = "build_react";
 
 // Other Tasks
 var WATCH_PLUGIN = 'customWatch';
@@ -146,6 +147,7 @@ var WATCH_TARGET_TYPESCRIPT = "ts";
 var WATCH_TARGET_JS = "js";
 var WATCH_FLAG_INITIAL_BUILD_CSS = "buildcss";
 var WATCH_OP_LIVE_RELOAD = "livereload";
+var WATCH_TARGET_REACT = "react";
 
 // Global booleans to track which task. Can be both
 var IS_BLD_TASK = false;
@@ -158,6 +160,7 @@ var WATCH_FILETYPES = {
     [WATCH_TARGET_TYPESCRIPT]: "",
     [WATCH_TARGET_JS]: '',
     [WATCH_TARGET_CTOR]: '',
+    [WATCH_TARGET_REACT]: '',
 };
 
 var USE_TS_WATCH_STAGING=false; // way to limit tsc build during watch task runs
@@ -218,6 +221,9 @@ var expServerTSMapping = {
     exclude: {},
     remove: [],
     required: ['services/expServer']};
+var reactMapping = {
+        src:  'src/',
+};
 
 // help content src in the actual src tree, for each product type
 var helpContentRootByProduct = {
@@ -389,6 +395,8 @@ var VALID_OPTIONS = {
     //[WATCH_TARGET_JS_BLD]: {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in },
     [WATCH_TARGET_CTOR]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in " + CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD + " and re-gen constructor file(s) as result"},
+    [WATCH_TARGET_REACT]:
+        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in the project souce @ " + reactMapping.src + " as a result of any changes"},
     [WATCH_FLAG_INITIAL_BUILD_CSS]:
         { [FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Build CSS portion of build before you start watch task" },
 
@@ -588,6 +596,11 @@ var VALID_TASKS = {
                 + "\n\t\tA live-reload functionality is available to reload the "
                 + "\n\t\tbrowser upon completion, via option --"
                 + WATCH_OP_LIVE_RELOAD},
+        [BUILD_REACT]: {
+            [BLD_TASK_KEY]: true,
+            [DESC_KEY]:
+                "Build react"
+        },
         ["init"]: {
             [BLD_TASK_KEY]:false,
             [DESC_KEY]:
@@ -1674,9 +1687,17 @@ module.exports = function(grunt) {
                     watchConfig.push(Object.assign({ watch: true }, entity));
                 }
                 return watchConfig;
+            },
+            react: () => {
+                const configs = require('./webpack.config.js')({
+                    production: false,
+                    buildroot: BLDROOT,
+                    srcmap: BLDTYPE !== INSTALLER
+                });
+                let reactConfig = configs.filter((config) => config && config.output && config.output.filename === "react.js");
+                return reactConfig; // use react  config
             }
         }
-
     });
 
     /**
@@ -3470,8 +3491,18 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.task.registerTask("build_react_watch", function() {
+        runShellCmd("rsync -r " + SRCROOT + "src " + BLDROOT + " " + "--exclude xcalar")
+    });
+
+    grunt.task.registerTask("build_react", function() {
+        grunt.log.writeln("test, test")
+        runShellCmd("rsync -r " + SRCROOT + "src " + BLDROOT + " " + "--exclude xcalar")
+        grunt.task.run("webpack:react");
+    });
+
     grunt.task.registerTask("cleanup_package", function() {
-        var webpack_paths_to_clean = ["assets/js/parser/", "assets/js/shared/Xcrpc/"];
+        var webpack_paths_to_clean = ["assets/js/parser/", "assets/js/shared/Xcrpc/", reactMapping.src];
         for (var webpack_req of webpack_paths_to_clean) {
             var fullPath = BLDROOT + webpack_req;
             grunt.log.writeln("Delete webpack file/dir " + fullPath + " ... ");
@@ -3715,22 +3746,23 @@ module.exports = function(grunt) {
         for (var tsFile of tsFilepaths) {
             // skip 3rd party and node_modules occurrances
             // this is quicker than specifying dirs not to match on in the expand call
-            if (ourFile(tsFile)) {
+            if (ourFile(tsFile) && tsFile.indexOf(reactMapping.src) === -1) {
+                // file in src/ is for webpack to build react
                 grunt.log.write("  Delete .ts file : " + tsFile + " ... ");
                 grunt.file.delete(tsFile);
                 grunt.log.ok();
             }
         }
-        grunt.log.writeln("Remove our tsconfig.json files in the build");
-        var tsConfigFilepaths = grunt.file.expand(BLDROOT + "**/tsconfig.json");
-        for (var tsConfigFile of tsConfigFilepaths) {
-            // skip 3rd party and node_modules occurrances
-            if (ourFile(tsConfigFile)) {
-                grunt.log.write("  Delete tsconfig.json file : " + tsConfigFile + " ... ");
-                grunt.file.delete(tsConfigFile);
-                grunt.log.ok();
-            }
-        }
+        // grunt.log.writeln("Remove our tsconfig.json files in the build");
+        // var tsConfigFilepaths = grunt.file.expand(BLDROOT + "**/tsconfig.json");
+        // for (var tsConfigFile of tsConfigFilepaths) {
+        //     // skip 3rd party and node_modules occurrances
+        //     if (ourFile(tsConfigFile)) {
+        //         grunt.log.write("  Delete tsconfig.json file : " + tsConfigFile + " ... ");
+        //         grunt.file.delete(tsConfigFile);
+        //         grunt.log.ok();
+        //     }
+        // }
     });
 
     /**
@@ -5481,6 +5513,10 @@ module.exports = function(grunt) {
                 // XXX figure out why we are not doing anything here
                 determinedRebuildProcess = true;
                 break;
+            case WATCH_TARGET_REACT:
+                taskList.push("build_react_watch");
+                determinedRebuildProcess = true;
+                break;
             default:
                 grunt.fail.fatal("Could not determine type of watched file: " +
                     filepath);
@@ -5631,6 +5667,8 @@ module.exports = function(grunt) {
             filetype = WATCH_TARGET_CTOR;
         } else if (filename === 'tsconfig.json') {
             filetype = WATCH_TARGET_TYPESCRIPT;
+        } else if (filepath.includes(reactMapping.src)) {
+            filetype = WATCH_TARGET_REACT;
         } else {
             switch (fileExt) {
                 case '.html':
@@ -5664,7 +5702,6 @@ module.exports = function(grunt) {
                                       filepath).bold.red);
             }
         }
-
         if (filetype && !WATCH_FILETYPES.hasOwnProperty(filetype)) {
             grunt.fail.fatal("Error: Did you forget to add the file type to " +
                              "WATCH_FILETYPES struct?");
@@ -5708,6 +5745,7 @@ module.exports = function(grunt) {
         WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js',
             SRCROOT + typescriptMapping.src + "/**/*.js", SRCROOT + "assets/lang/" + "**/*.js"];
         WATCH_FILETYPES[WATCH_TARGET_CTOR] = [SRCROOT + 'site/render/template/constructor.template.js'];
+        WATCH_FILETYPES[WATCH_TARGET_REACT] = [SRCROOT + reactMapping.src + "**/*"];
     }
 
     function displayHelpMenu() {

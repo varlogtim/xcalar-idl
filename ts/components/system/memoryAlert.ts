@@ -30,7 +30,7 @@ class MemoryAlert {
             }
             if ($el.hasClass("tableAlert")) {
                 MainMenu.openPanel("monitorPanel", "systemButton");
-                DeleteTableModal.Instance.show();
+                $("#monitor-delete").click();
             } else {
                 // go to datastore panel
                 var $datastoreTab = $("#dataStoresTab");

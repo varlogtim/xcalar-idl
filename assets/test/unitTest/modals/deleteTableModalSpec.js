@@ -1,4 +1,5 @@
-describe("Delete Table Modal Test", function() {
+// XXX TODO, enable it with jest
+describe.skip("Delete Table Modal Test", function() {
     var oldGetTables;
     var oldTimestamp;
 

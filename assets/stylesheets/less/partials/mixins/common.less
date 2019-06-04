@@ -61,6 +61,21 @@
     }
 }
 
+.fadeIn(@time, @endOpacity: 1) {
+    animation: fadeIn @time;
+    -webkit-animation: fadeIn @time;
+
+    @-webkit-keyframes fadeIn {
+        0%   { opacity: 0; }
+        100% { opacity: @endOpacity; }
+    }
+
+    @keyframes fadeIn {
+        0%   { opacity: 0; }
+        100% { opacity: @endOpacity; }
+    }
+}
+
 .no-selection {
     .noSelection;
     // no selection area should not have text curosr

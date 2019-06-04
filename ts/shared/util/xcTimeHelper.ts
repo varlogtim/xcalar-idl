@@ -57,6 +57,25 @@ namespace xcTimeHelper {
                 '" data-original-title="' + title + '" ';
     };
 
+    /*
+     * xcTimeHelper.getDateTip
+     * returns tooltip string for dates
+     * date can be date timestamp or moment object
+     */
+    export function reactGetDateTip(date: Date | any, options: TipOption = <TipOption>{}): object {
+        if (typeof date !== "object" || !date._isAMomentObject) {
+            date = moment(date);
+        }
+        const container: string = options.container || "body";
+        const prefix = options.prefix || "";
+        const title: string = prefix + date.format("h:mm:ss A M-D-Y");
+        return {"data-toggle": "tooltip",
+                "data-placement": "top",
+                "data-container": container,
+                "data-original-title": title
+        };
+    };
+
     export function getServerTime(): JQueryPromise<any> {
         const action: string = "GET";
         const url: string = "/service/getTime";

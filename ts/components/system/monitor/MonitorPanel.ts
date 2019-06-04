@@ -166,11 +166,6 @@ namespace MonitorPanel {
     function _addEventListeners(): void {
         xcUIHelper.expandListEvent($("#monitorMenu-sys"));
 
-        $("#monitor-delete").click((e) => {
-            $(e.currentTarget).blur();
-            DeleteTableModal.Instance.show();
-        });
-
         $("#monitorMenu-sys").find('.graphSwitch').click((e) => {
             let $switch = $(e.currentTarget);
             let index = $switch.index();

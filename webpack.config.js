@@ -81,6 +81,26 @@ module.exports = function(env, argv) {
                 net: "empty",
                 fs: "empty"
             }
+        },
+
+        // Compile tsx
+        {
+            entry: path.resolve(env.buildroot, "src/index.tsx"),
+            output: {
+                path: path.resolve(env.buildroot, "assets/js/"),
+                filename: "react.js"
+            },
+            resolve: {
+                extensions: [".ts", ".tsx", ".js"]
+            },
+            devtool: buildSourceMap ? 'eval' : '',
+            module: {
+                rules: [{
+                    test: /\.tsx?$/,
+                    loader: ["ts-loader"],
+                    exclude: /node_modules/
+                }]
+            }
         }
     ];
 };

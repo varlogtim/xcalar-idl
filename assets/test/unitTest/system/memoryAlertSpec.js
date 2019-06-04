@@ -3,6 +3,7 @@ describe('Memory Alert Test', () => {
 
     before(() => {
         $memoryAlert = $("#memoryAlert");
+        UnitTest.onMinMode();
     });
 
     describe('detectUsage Test', () => {
@@ -27,7 +28,6 @@ describe('Memory Alert Test', () => {
             oldRefresh = TblManager.refreshOrphanList;
 
             TblManager.refreshOrphanList = () => PromiseHelper.resolve();
-            UnitTest.onMinMode();
         });
 
         afterEach(() => {
@@ -152,7 +152,6 @@ describe('Memory Alert Test', () => {
 
         after(() => {
             TblManager.refreshOrphanList = oldRefresh;
-            UnitTest.offMinMode();
         });
     });
 
@@ -317,14 +316,13 @@ describe('Memory Alert Test', () => {
 
     describe('UI Behavior Test', () => {
         it("should trigger meomryAlert with table", () => {
-            const oldFunc = DeleteTableModal.Instance.show;
-            let test = false;
-            DeleteTableModal.Instance.show = () => { test = true; };
+            $("#monitor-delete").click();
             $memoryAlert.addClass("yellow")
                 .addClass("tableAlert")
                 .click();
-            expect(test).to.be.true;
-            DeleteTableModal.Instance.show = oldFunc;
+            assert.isTrue($("#deleteTableModal").is(":visible"));
+            $("#deleteTableModal .close").click();
+            assert.isFalse($("#deleteTableModal").is(":visible"));
         });
 
         it("should trigger meomryAlert with ds", () => {
@@ -368,5 +366,9 @@ describe('Memory Alert Test', () => {
             // clear up
             MainMenu.openPanel = oldFunc;
         });
+    });
+
+    after(function() {
+        UnitTest.offMinMode();
     });
 });

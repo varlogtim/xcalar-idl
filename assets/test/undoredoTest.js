@@ -430,7 +430,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
     function deleteAllTables() {
         var deferred = PromiseHelper.deferred();
-
+        // XXX TODO: fix it, it's broken now
         DeleteTableModal.Instance.show(true)
         .then(function() {
             var def = PromiseHelper.deferred();
