@@ -2,10 +2,17 @@ describe('ExpServer Tutorial Test', function() {
     // Test setup
     var expect = require('chai').expect;
     require(__dirname + '/../expServer.js');
-    var tutorialManager = require(__dirname + '/../controllers/tutorialManager.js');
+    var tutorialManager = require(__dirname + '/../controllers/tutorialManager.js').default.getInstance;
     var testVersion;
     var oldGetObject;
     this.timeout(10000);
+
+    function fakeGetObject(func) {
+        tutorialManager._s3.getObject = func;
+    }
+    function fakeProcessItem(func) {
+        tutorialManager.processItem = func;
+    }
 
     // Test begins
     before(function() {
@@ -19,7 +26,7 @@ describe('ExpServer Tutorial Test', function() {
         testType = "test";
         testDownloadName = "test";
         testFileName = "extensions/distinct/1.0.0/distinct-1.0.0.tar.gz";
-        oldGetObject = tutorialManager.getObject;
+        oldGetObject = tutorialManager._s3.getObject;
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
         }
@@ -35,7 +42,7 @@ describe('ExpServer Tutorial Test', function() {
         var fakeFunc = function(data, callback) {
             callback("fail");
         }
-        tutorialManager.fakeGetObject(fakeFunc);
+        fakeGetObject(fakeFunc);
         tutorialManager.downloadTutorial(testDownloadName, testVersion)
         .then(function() {
             done("fail");
@@ -45,16 +52,16 @@ describe('ExpServer Tutorial Test', function() {
             done();
         })
         .always(function() {
-            tutorialManager.fakeGetObject(oldGetObject);
+            fakeGetObject(oldGetObject);
         });
     });
 
     it("tutorialManager.downloadTutorial should work", function(done) {
         testDownloadName = "simpleTutorial";
-        var fakeGetObject = function(data, callback) {
+        var fakeFunc = function(data, callback) {
             callback(null, {Body: {msg: "success"}});
         }
-        tutorialManager.fakeGetObject(fakeGetObject);
+        fakeGetObject(fakeFunc);
         tutorialManager.downloadTutorial(testDownloadName, testVersion)
         .then(function(ret) {
             expect(ret.status).to.equal(1);
@@ -64,7 +71,7 @@ describe('ExpServer Tutorial Test', function() {
             done("fail");
         })
         .always(function() {
-            tutorialManager.fakeGetObject(oldGetObject);
+            fakeGetObject(oldGetObject);
         })
     });
 
@@ -107,7 +114,7 @@ describe('ExpServer Tutorial Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().reject("processItem fails").promise();
         }
-        tutorialManager.fakeProcessItem(fakeFunc);
+        fakeProcessItem(fakeFunc);
         tutorialManager.fetchAllTutorials()
         .then(function() {
             done("fail");
@@ -117,7 +124,7 @@ describe('ExpServer Tutorial Test', function() {
             done();
         })
         .always(function() {
-            tutorialManager.fakeProcessItem(oldFunc);
+            fakeProcessItem(oldFunc);
         });
     });
 

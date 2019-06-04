@@ -1,9 +1,10 @@
-import { Router } from "express"
+import { Router } from "express";
 import { Status } from "../utils/supportStatusFile";
 import * as xcConsole from "../utils/expServerXcConsole"
 import * as support from "../utils/expServerSupport";
 export const router = Router();
-import * as tutorialManager from "../controllers/tutorialManager";
+import TutorialManager from "../controllers/tutorialManager";
+const tutorialManager = TutorialManager.getInstance;
 
 router.post("/tutorial/download",
             [support.checkAuthAdmin], function(req, res) {
