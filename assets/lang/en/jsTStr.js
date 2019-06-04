@@ -1217,7 +1217,7 @@ DSTStr = {
     'TableName': 'Table Name',
     'DSName': 'Dataset Name',
     'Sources': 'Sources',
-    'NoSourcesToRestore': "No datasets need to restore.",
+    'NoSourcesToRestore': "No dataset needs restoring.",
     'KeepConfig': "Keep current configuration",
     'ApplyNewConfig': "Apply new configuration",
 
