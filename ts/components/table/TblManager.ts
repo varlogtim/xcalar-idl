@@ -2279,10 +2279,7 @@ class TblManager {
             let $table = $tbody.closest(".xcTable");
             if (!$table.hasClass("noOperation")) {
                 // when it's not table view in sql mdoe
-                const node: DagNode = DagTable.Instance.getBindNode();
-                if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
-                    node != null && node.getMaxChildren() === 0
-                ) {
+                if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished) {
                     // when published tab or out node
                     return;
                 }
@@ -2496,10 +2493,7 @@ class TblManager {
                 let $table = $tbody.closest(".xcTable");
                 if (!$table.hasClass("noOperation")) {
                     // when it's not table view in sql mdoe
-                    const node: DagNode = DagTable.Instance.getBindNode();
-                    if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
-                        node != null && node.getMaxChildren() === 0
-                    ) {
+                    if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished) {
                         // when published tab or out node
                         return false;
                     }

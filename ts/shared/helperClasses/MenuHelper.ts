@@ -899,20 +899,37 @@ class MenuHelper {
         const filterTypes: string[] = [ColumnType.string, ColumnType.float,
                 ColumnType.integer, ColumnType.boolean, ColumnType.timestamp,
                 ColumnType.money, ColumnType.mixed];
-        const shouldNotFilter: boolean = options.isMultiCol ||
-                                    filterTypes.indexOf(columnType) === -1 ||
-                                    MenuHelper.isInvalidMixed(columnType, cells) ||
-                                    ($("#container").hasClass('columnPicker'));
-
+        const node: DagNode = DagTable.Instance.getBindNode();
+        let noFilterReason: string = null;
+        if (!noFilterReason && $("#container").hasClass('columnPicker')) {
+            noFilterReason = "Cannot filter or exclude when form is open.";
+        }
+        if (!noFilterReason && (node != null && node.getMaxChildren() === 0)) {
+            noFilterReason = "Cannot filter or exclude values on terminal nodes.";
+        }
+        if (!noFilterReason && options.isMultiCol) {
+            noFilterReason = "Cannot filter or exclude values on multiple columns.";
+        }
+        if (!noFilterReason && filterTypes.indexOf(columnType) === -1) {
+            noFilterReason = "Can only filter or exclude values on column with the following types: " + filterTypes.join(", ") + ".";
+        }
+        if (!noFilterReason && MenuHelper.isInvalidMixed(columnType, cells)) {
+            noFilterReason = "Cannot filter or exclude values of mixed types.";
+        }
+        const shouldNotFilter: boolean = noFilterReason != null;
         const $tdFilter: JQuery = $menu.find(".tdFilter");
         const $tdExclude: JQuery = $menu.find(".tdExclude");
 
         if (shouldNotFilter || notAllowed) {
             $tdFilter.addClass("unavailable");
             $tdExclude.addClass("unavailable");
+            if (noFilterReason) {
+                xcTooltip.add($tdFilter.add($tdExclude), {title: noFilterReason});
+            }
         } else {
             $tdFilter.removeClass("unavailable");
             $tdExclude.removeClass("unavailable");
+            xcTooltip.remove($tdFilter.add($tdExclude));
         }
 
         $tdFilter.removeClass("multiCell preFormatted");
