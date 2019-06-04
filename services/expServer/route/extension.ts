@@ -4,7 +4,7 @@ import * as xcConsole from "../utils/expServerXcConsole";
 import * as path from "path";
 import * as fs from "fs";
 import * as support from "../utils/expServerSupport";
-import * as upload from "../controllers/upload";
+import upload from "../controllers/upload";
 import ExtensionManager from "../controllers/extensionManager";
 const extensionManager = ExtensionManager.getInstance;
 import * as socketUtils from "../controllers/socket";

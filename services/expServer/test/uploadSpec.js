@@ -4,7 +4,7 @@ describe('ExpServer Upload Test', function() {
 
     var request = require('request');
     require(__dirname + '/../expServer.js');
-    var upload = require(__dirname + '/../controllers/upload.js');
+    var upload = require(__dirname + '/../controllers/upload.js').default;
     var testMin;
     var testMax;
     var testCommand;
@@ -16,6 +16,22 @@ describe('ExpServer Upload Test', function() {
     var testS3;
     var testExt;
     this.timeout(10000);
+
+    function fakeUpload() {
+        upload.upload = function(file, content, s3Tmp) {
+            return jQuery.Deferred().resolve().promise();
+        }
+    }
+    function fakeUploadMeta() {
+        upload.uploadMeta = function() {
+            return jQuery.Deferred().resolve("upload success").promise();
+        }
+    }
+    function fakeUploadContent() {
+        upload.uploadContent = function(req, res) {
+            return jQuery.Deferred().resolve("success").promise();
+        };
+    }
     // Test begins
     before(function() {
         testMin = 5;
@@ -36,7 +52,7 @@ describe('ExpServer Upload Test', function() {
                 imgPath: testFilePath
             }
         }
-        upload.fakeUpload();
+        fakeUpload();
     });
 
     it("getRandomInt should work", function() {
@@ -90,7 +106,7 @@ describe('ExpServer Upload Test', function() {
     });
 
     it("uploadContent should work", function(done) {
-        upload.fakeUploadMeta();
+        fakeUploadMeta();
         upload.uploadContent(testReq)
         .then(function(ret) {
             expect(ret).to.equal("upload success");
@@ -102,7 +118,7 @@ describe('ExpServer Upload Test', function() {
     });
 
     it('Publish router shoud work', function(done) {
-        upload.fakeUploadContent();
+        fakeUploadContent();
         testData = {
             "targz": "testTargz",
             "name": "test"
