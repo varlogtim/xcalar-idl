@@ -650,6 +650,61 @@ describe("Dataset-DSPreview Test", function() {
                 });
             });
 
+            describe('validateParquetArg Test', () => {
+                let oldImport;
+                let loadArgs;
+                let validateParquetArgs;
+
+                before(() => {
+                    oldImport = DS.load;
+                    DS.load = (args) => PromiseHelper.resolve(args);
+
+                    loadArgs = DSPreview.__testOnly__.get().loadArgs;
+                    validateParquetArgs = DSPreview.__testOnly__.validateParquetArgs;
+                });
+
+                it('should get parquetArgs', () => {
+                    let oldIsParquet = DSTargetManager.isSparkParquet;
+                    DSTargetManager.isSparkParquet = () => true;
+                    const $partitionList = $previewCard.find(".parquetSection .partitionAdvanced .partitionList");
+                    $partitionList.append('<div class="row">' +
+                                            '<label>col1:</label>' +
+                                            '<input value="test">' +
+                                        '</div>');
+                    const $partitionSelectColList = $previewCard.find(".parquetSection .selectedColSection .colList");
+                    $partitionSelectColList.append('<li class="mustSelect">' +
+                                                        '<span class="colName">col1</span>' +
+                                                    '</li>');
+                    $partitionSelectColList.append('<li>' +
+                                                        '<span class="colName">col2</span>' +
+                                                    '</li>');
+                    const $partitionAvialableColList = $previewCard.find(".parquetSection .availableColSection .colList");
+                    $partitionAvialableColList.append('<li>' +
+                                                        '<span class="colName">col1</span>' +
+                                                    '</li>');
+
+                    loadArgs.files = [{path: 'path'}];
+                    loadArgs.multiDS = false;
+                    let parquetArgs = validateParquetArgs();
+                    expect(parquetArgs.partitionKeys).to.deep.equal({'col1':['test']});
+                    expect(parquetArgs.columns).to.deep.equal(['col1', 'col2']);
+                    DSTargetManager.isSparkParquet = oldIsParquet;
+                    $partitionList.empty();
+                    $partitionSelectColList.empty();
+                    $partitionAvialableColList.empty();
+                });
+
+                after(() => {
+                    Transaction.start = oldTranStart;
+                    Transaction.done = oldTransDone;
+                    Transaction.fail = oldTransFail;
+                    XcalarListFiles = oldList;
+                    DS.load = oldImport;
+                    loadArgs.reset();
+                    DSPreview.__testOnly__.resetForm();
+                });
+            });
+
             describe('importDataHelper Test', () => {
                 let importDataHelper;
                 let oldImport;
@@ -678,7 +733,7 @@ describe("Dataset-DSPreview Test", function() {
 
                     importDataHelper(['ds'], dsArgs, [])
                     .then((multiLoadArgs) => {
-                        expect(multiLoadArgs.sources[0].path).to.equal('path?col=test');
+                        expect(multiLoadArgs.sources[0].path).to.equal('path');
                         done();
                     })
                     .fail(() => {

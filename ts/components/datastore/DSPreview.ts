@@ -1926,18 +1926,6 @@ namespace DSPreview {
         let targetName: string = loadArgs.getTargetName();
         let promises: XDPromise<void>[] = [];
         let getSource = function(file) {
-            if (DSTargetManager.isSparkParquet(targetName)) {
-                let partitionValues = {};
-                let partitions = $(".parquetSection .partitionAdvanced .row");
-                for (let i = 0; i < partitions.length; i++) {
-                    let label: string = partitions.eq(i).find("label").text();
-                    label = label.substring(0, label.length-1);
-                    partitionValues[label] = partitions.eq(i).find("input")
-                                                       .val();
-                }
-                file.path = file.path.split("?")[0] +
-                            xcHelper.formatAsUrl(partitionValues);
-            }
             return {
                 targetName: targetName,
                 path: file.path,
@@ -2265,7 +2253,7 @@ namespace DSPreview {
         };
     }
 
-    function validateParquetArgs(): {columns: string[]} | null {
+    function validateParquetArgs(): {columns: string[], partitionKeys: {}} | null {
         let $parquetSection = $form.find(".parquetSection");
         let $selectedColList = $parquetSection.find(".selectedColSection .colList");
         let $cols = $selectedColList.find("li");
@@ -2311,8 +2299,16 @@ namespace DSPreview {
             // when select all columns, let backend handle it
             names = null;
         }
+        let partitionValues = {};
+        let $partitions = $parquetSection.find(".partitionAdvanced .row");
+        for (let i = 0; i < $partitions.length; i++) {
+            let label = $partitions.eq(i).find("label").text();
+            label = label.substring(0, label.length - 1);
+            let paramValues = $partitions.eq(i).find("input").val();
+            partitionValues[label] = paramValues.split(",");
+        }
 
-        return {columns: names};
+        return {columns: names, partitionKeys: partitionValues};
     }
 
     function validateAdvancedArgs(): {
@@ -6647,6 +6643,7 @@ namespace DSPreview {
         __testOnly__.resetIsCreateTableMode = function() {
             DSPreview.isCreateTableMode = oldIsCreateTableMode;
         };
+        __testOnly__.validateParquetArgs = validateParquetArgs;
     }
     /* End Of Unit Test Only */
 }
