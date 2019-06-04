@@ -1436,6 +1436,7 @@ namespace DSPreview {
         $previewWrap.find(".errorSection").addClass("hidden")
                                           .removeClass("cancelState");
         $previewWrap.find(".loadHidden").removeClass("hidden");
+        toggleSubmitButton(false);
     }
 
     function resetPreviewRows(): void {
@@ -3176,7 +3177,7 @@ namespace DSPreview {
 
         let curPreviewId = updatePreviewId();
         let initialLoadArgStr: string;
-        xcUIHelper.disableSubmit($form.find(".confirm"));
+        toggleSubmitButton(true);
         getURLToPreview()
         .then((ret: {sourceIndex: number, url: string}) => {
             const {sourceIndex, url} = ret;
@@ -3373,7 +3374,9 @@ namespace DSPreview {
             deferred.reject(error);
         })
         .always(() => {
-            xcUIHelper.enableSubmit($form.find(".confirm"));
+            if (isValidPreviewId(curPreviewId)) {
+                toggleSubmitButton(false);
+            }
         });
 
         return deferred.promise();
@@ -5554,6 +5557,15 @@ namespace DSPreview {
         let progressCircle = new ProgressCircle(txId, 0, withText);
         $waitSection.find(".cancelLoad").data("progresscircle",
                                                 progressCircle);
+    }
+
+    function toggleSubmitButton(disable: boolean): void {
+        let $btn: JQuery = $form.find(".btn-submit");
+        if (disable) {
+            $btn.addClass("xc-disabled");
+        } else {
+            $btn.removeClass("xc-disabled");
+        }
     }
 
     // currently only being used for CSV
