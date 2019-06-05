@@ -175,10 +175,10 @@ class TableMeta extends Durable {
         return true;
     }
 
-    public addToColTypeCache(colMap) {
-        for (let [colName, type] of colMap) {
+    public addToColTypeCache(colMap: Map<string, ProgCol>) {
+        for (let [colName, progCol] of colMap) {
             if (!this.colTypeCache.get(colName)) {
-                this.colTypeCache.set(colName, type);
+                this.colTypeCache.set(colName, progCol.getType());
             }
         }
     }

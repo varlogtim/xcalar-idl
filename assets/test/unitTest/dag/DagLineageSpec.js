@@ -134,7 +134,7 @@ describe("DagLineage Test", () => {
         };
         let res = lineage.getHiddenColumns();
         expect(res.size).to.equal(1);
-        expect(res.get("test1")).to.equal(ColumnType.integer);
+        expect(res.get("test1").getType()).to.equal(ColumnType.integer);
     });
 
     describe("_update", () => {
