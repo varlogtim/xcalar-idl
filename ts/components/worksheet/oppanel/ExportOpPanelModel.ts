@@ -180,10 +180,16 @@ class ExportOpPanelModel {
                 "value": null
             }
             if (param.type == "boolean") {
-                arg.value = "false";
+                arg.value = param.defArg || "false";
             }
-            if (oldArgs) {
+            if (oldArgs && oldArgs[param.name]) {
                 arg.value = oldArgs[param.name];
+            } else {
+                if (param.defArg == null) {
+                    arg.value = null;
+                } else {
+                    arg.value = param.defArg;
+                }
             }
             driverParams.push(arg);
         });
@@ -203,6 +209,7 @@ class ExportOpPanelModel {
         }
         this.currentDriver = driver;
         this.driverArgs = this.constructParams(driver);
+        this._restoreParams();
     }
 
     /**
@@ -429,7 +436,8 @@ class ExportOpPanelModel {
         if (param.type == "target") {
             argHtml += this._createTargetListHtml();
         } else if (param.type == "boolean") {
-            argHtml += '<div class="checkbox">' +
+            let checked: string = (param.defArg === "true") ? " checked" : "";
+            argHtml += '<div class="checkbox' + checked + '">' +
             '<i class="icon xi-ckbox-empty"></i>' +
             '<i class="icon xi-ckbox-selected"></i></div>'
         } else {

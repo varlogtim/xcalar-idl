@@ -38,6 +38,7 @@ describe("ExportOpPanelModel Test", function() {
                         "type": "string",
                         "description": "desc",
                         "secret": false,
+                        "defArg": "notstri",
                         "optional": false
                     }
                 ]
@@ -62,6 +63,7 @@ describe("ExportOpPanelModel Test", function() {
                         "type": "string",
                         "description": "desc",
                         "secret": false,
+                        "defArg": "default",
                         "optional": false
                     },
                     {
@@ -158,7 +160,7 @@ describe("ExportOpPanelModel Test", function() {
             "name": "str param",
             "type": "string",
             "optional": false,
-            "value": null
+            "value": "default"
         });
     });
 
@@ -180,7 +182,7 @@ describe("ExportOpPanelModel Test", function() {
             "name": "str param",
             "type": "string",
             "optional": false,
-            "value": null
+            "value": "default"
         });
     });
 
@@ -190,7 +192,7 @@ describe("ExportOpPanelModel Test", function() {
             "name": "str param",
             "type": "string",
             "optional": false,
-            "value": null
+            "value": "default"
         });
         model.setParamValue("cat",0);
         expect(model.driverArgs[0]["value"]).to.equal("cat");

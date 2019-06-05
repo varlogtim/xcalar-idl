@@ -35,7 +35,8 @@ interface ExportParam {
     name: string,
     optional: boolean,
     secret: boolean,
-    type: string
+    type: string,
+    defArg?: string
 }
 
 interface ExportDriver {
