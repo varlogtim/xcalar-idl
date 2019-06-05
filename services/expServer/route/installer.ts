@@ -1,10 +1,9 @@
 import { Router } from "express";
 export const router = Router();
 import * as xcConsole from "../utils/expServerXcConsole";
-import * as installerManager from "../controllers/installerManager";
-import * as HttpStatus from "../../../assets/js/httpStatus";
+import { httpStatus } from "../../../assets/js/httpStatus";
 import * as support from "../utils/expServerSupport";
-const httpStatus = HttpStatus.httpStatus;
+import installerManager from "../controllers/installerManager";
 
 router.post('/xdp/license/verification', function(req, res) {
     xcConsole.log("Checking License");
@@ -102,7 +101,7 @@ router.get("/installationLogs/slave", function(req, res) {
     });
 });
 
-// Below part is only for Unit Test
+//Below part is only for Unit Test
 function fakeSlaveExecuteAction(func) {
     support.slaveExecuteAction = func;
 }
