@@ -1613,7 +1613,7 @@ class DagGraph extends Durable {
     /**
      * Given aggregate nodes within this graph, checks if their current aggregates belongs to them
      * If not, renames them.
-     * @param aggregateNodes 
+     * @param aggregateNodes
      */
     public resolveAggConflict(aggregateNodes: DagNodeAggregate[]): DagNodeAggregate[] {
         let changedNodes = [];

@@ -275,7 +275,24 @@ class DagGraphExecutor {
         const allSeen = {};
         const trees = {};
         let currentTree = {};
+        let aggregateNodes: Set<DagNodeAggregate> = new Set();
+        let nodes: Map<DagNodeId, DagNode> = new Map();
+        // 1. add all nodes to nodes map, add aggregate nodes to it's own set
         this._nodes.forEach(node => {
+            nodes.set(node.getId(), node);
+            if (node instanceof DagNodeAggregate) {
+                aggregateNodes.add(node);
+            }
+        });
+        // 2. remove all aggregate nodes and their parents from the nodes map
+        // so we can ignore these nodes when checking for disjoint dataflows
+        aggregateNodes.forEach((node) => {
+            nodes.delete(node.getId());
+            self._graph.traverseParents(node, (parentNode)=> {
+                nodes.delete(parentNode.getId());
+            });
+        })
+        nodes.forEach(node => {
             notSeen[node.getId()] = node;
         });
         const endNode = this._nodes[this._nodes.length - 1];
