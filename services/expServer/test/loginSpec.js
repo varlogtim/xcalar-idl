@@ -10,7 +10,7 @@ describe('ExpServer Login Test', function() {
     var oldCheckAuthAdmin;
     this.timeout(5000);
 
-    var loginManager = require(__dirname + '/../controllers/loginManager.js');
+    var loginManager = require(__dirname + '/../controllers/loginManager.js').default;
     var support = require(__dirname + '/../utils/expServerSupport.js').default;
     require(__dirname + '/../expServer.js');
     var httpStatus = require(__dirname + "/../../../assets/js/httpStatus.js").httpStatus;
@@ -65,7 +65,18 @@ describe('ExpServer Login Test', function() {
     function fakeGetXlrRoot(func) {
         support.getXlrRoot = func;
     }
-
+    function fakeSetupLdapConfigs(func) {
+        loginManager._ldapConfig.setupConfigs = func;
+    }
+    function fakeSetLdapConnection(func) {
+        loginManager._ldapConfig.setConnection = func;
+    }
+    function fakeLdapAuthentication(func) {
+        loginManager._ldapConfig.authentication = func;
+    }
+    function fakePrepareResponse(func) {
+        loginManager._ldapConfig.prepareResponse = func;
+    }
     // Test begins
     before(function() {
         // restore ldapConfig.json to a known good copy
@@ -156,11 +167,11 @@ describe('ExpServer Login Test', function() {
         support.checkAuthAdminImpl = oldCheckAuthAdmin;
     });
 
-    it("loginManager.setupLdapConfigs should work", function(done) {
+    it("ldap setupConfigs should work", function(done) {
         fakeGetXlrRoot(fakeRoot);
-        loginManager.setupLdapConfigs(true)
+        loginManager._ldapConfig.setupConfigs(true)
         .then(function(ret) {
-            expect(ret).to.equal("setupLdapConfigs succeeds");
+            expect(ret).to.equal("ldap setupConfigs succeeds");
             done();
         })
         .fail(function() {
@@ -171,17 +182,17 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it("loginManager.setupLdapConfigs should fail when getXlrRoot fails", function(done) {
+    it("ldap setupConfigs should fail when getXlrRoot fails", function(done) {
         var fakeFunc = function() {
             return jQuery.Deferred().reject("TestError").promise();
         };
         fakeGetXlrRoot(fakeFunc);
-        loginManager.setupLdapConfigs(true)
+        loginManager._ldapConfig.setupConfigs(true)
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error).to.have.string("setupLdapConfigs fails TestError");
+            expect(error).to.have.string("ldap setupConfigs fails TestError");
             done();
         })
         .always(function() {
@@ -189,17 +200,17 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it("loginManager.setupLdapConfigs should fail when XlrRoot is bad", function(done) {
+    it("ldap setupConfigs should fail when XlrRoot is bad", function(done) {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve("/never/nopath").promise();
         };
         fakeGetXlrRoot(fakeFunc);
-        loginManager.setupLdapConfigs(true)
+        loginManager._ldapConfig.setupConfigs(true)
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error).to.have.string("setupLdapConfigs fails config file path does not exist:");
+            expect(error).to.have.string("ldap setupConfigs fails config file path does not exist:");
             done();
         })
         .always(function() {
@@ -208,10 +219,10 @@ describe('ExpServer Login Test', function() {
     });
 
 
-    it('loginManager.setLdapConnection should work', function(done) {
-        loginManager.setLdapConnection(testCredArray, testLdapConn, testConfig, testLoginId)
+    it('ldap setConnection should work', function(done) {
+        loginManager._ldapConfig.setConnection(testCredArray, testLdapConn, testConfig, testLoginId)
         .then(function(ret) {
-            expect(ret).to.equal("setLdapConnection succeeds");
+            expect(ret).to.equal("ldap setConnection succeeds");
             done();
         })
         .fail(function() {
@@ -231,7 +242,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('loginManager.ldapAuthentication should fail when error', function(done) {
+    it('ldap authentication should fail when error', function(done) {
         var invalidConn = jQuery.extend(true, {}, testLdapConn);
         invalidConn.client = ldap.createClient({
             url: testLdapConn.client_url,
@@ -240,25 +251,25 @@ describe('ExpServer Login Test', function() {
         });
         invalidConn.username = "invalid";
         invalidConn.password = null;
-        loginManager.ldapAuthentication(invalidConn, testLoginId)
+        loginManager._ldapConfig.authentication(invalidConn, testLoginId)
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error).to.equal("ldapAuthentication fails");
+            expect(error).to.equal("ldap authentication fails");
             done();
         });
     });
 
-    it('loginManager.ldapAuthentication should work', function(done) {
+    it('ldap authentication should work', function(done) {
         testLdapConn.client = ldap.createClient({
             url: testLdapConn.client_url,
             timeout: 10000,
             connectTimeout: 20000
         });
-        loginManager.ldapAuthentication(testLdapConn, testLoginId)
+        loginManager._ldapConfig.authentication(testLdapConn, testLoginId)
         .then(function(ret) {
-            expect(ret).to.equal("ldapAuthentication succeeds");
+            expect(ret).to.equal("ldap authentication succeeds");
             done();
         })
         .fail(function() {
@@ -266,8 +277,8 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('loginManager.prepareResponse should work', function(done) {
-        loginManager.prepareResponse(testLoginId, testLdapConn.activeDir, testCredArray)
+    it('ldap prepareResponse should work', function(done) {
+        loginManager._ldapConfig.prepareResponse(testLoginId, testLdapConn.activeDir, testCredArray)
         .then(function(ret) {
             expect(ret.isValid).to.be.true;
             done();
@@ -277,8 +288,8 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('loginManager.prepareResponse should fail when error', function(done) {
-        loginManager.prepareResponse(-1, testLdapConn.activeDir)
+    it('ldap prepareResponse should fail when error', function(done) {
+        loginManager._ldapConfig.prepareResponse(-1, testLdapConn.activeDir)
         .then(function() {
             done("fail");
         })
@@ -288,19 +299,19 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('loginManager.ldapAuthentication with AD should work', function(done) {
-        loginManager.setLdapConnection(testCredArray2, testLdapConn2, testConfig2, testLoginId2)
+    it('ldap authentication with AD should work', function(done) {
+        loginManager._ldapConfig.setConnection(testCredArray2, testLdapConn2, testConfig2, testLoginId2)
         .then(function(ret) {
-            expect(ret).to.equal("setLdapConnection succeeds");
-            return loginManager.ldapAuthentication(testLdapConn2, testLoginId2);
+            expect(ret).to.equal("ldap setConnection succeeds");
+            return loginManager._ldapConfig.authentication(testLdapConn2, testLoginId2);
         })
         .then(function(ret) {
-            expect(ret).to.equal("ldapAuthentication succeeds");
-            return loginManager.ldapGroupRetrieve(testLdapConn2, 'user', testLoginId2);
+            expect(ret).to.equal("ldap authentication succeeds");
+            return loginManager._ldapConfig.groupRetrieve(testLdapConn2, 'user', testLoginId2);
         })
         .then(function(ret) {
             expect(ret).to.equal('Group search process succeeds for user');
-            return loginManager.ldapGroupRetrieve(testLdapConn2, 'admin', testLoginId2);
+            return loginManager._ldapConfig.groupRetrieve(testLdapConn2, 'admin', testLoginId2);
         })
         .then(function(ret) {
             expect(ret).to.equal('Group search process succeeds for admin');
@@ -311,14 +322,14 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('loginManager.ldapAuthentication with AD subgroup search should work', function(done) {
-        loginManager.setLdapConnection(testCredArray2, testLdapConn3, testConfig3, testLoginId3)
+    it('ldap authentication with AD subgroup search should work', function(done) {
+        loginManager._ldapConfig.setConnection(testCredArray2, testLdapConn3, testConfig3, testLoginId3)
         .then(function(ret) {
-            expect(ret).to.equal("setLdapConnection succeeds");
-            return loginManager.ldapAuthentication(testLdapConn3, testLoginId3);
+            expect(ret).to.equal("ldap setConnection succeeds");
+            return loginManager._ldapConfig.authentication(testLdapConn3, testLoginId3);
         })
         .then(function(ret) {
-            expect(ret).to.equal("ldapAuthentication succeeds");
+            expect(ret).to.equal("ldap authentication succeeds");
             done();
         })
         .fail(function() {
@@ -329,13 +340,13 @@ describe('ExpServer Login Test', function() {
     it('loginManager.loginAuthentication should work', function(done) {
         testCredArray = { "xiusername": "foo", "xipassword": "bar" };
         fakeGetXlrRoot(fakeRoot);
-        var oldConfig = loginManager.setupLdapConfigs;
-        var oldConn = loginManager.setLdapConnection;
-        var oldAuth = loginManager.ldapAuthentication;
-        var oldResponse = loginManager.prepareResponse;
-        loginManager.fakeSetupLdapConfigs(emptyPromise);
-        loginManager.fakeSetLdapConnection(ldapEmptyPromise);
-        loginManager.fakeLdapAuthentication(emptyPromise);
+        var oldConfig = loginManager._ldapConfig.setupConfigs;
+        var oldConn = loginManager._ldapConfig.setConnection;
+        var oldAuth = loginManager._ldapConfig.authentication;
+        var oldResponse = loginManager._ldapConfig.prepareResponse;
+        fakeSetupLdapConfigs(emptyPromise);
+        fakeSetLdapConnection(ldapEmptyPromise);
+        fakeLdapAuthentication(emptyPromise);
         var fakeResponse = function() {
             var msg = {
                 "status": 200,
@@ -343,7 +354,7 @@ describe('ExpServer Login Test', function() {
             };
             return jQuery.Deferred().resolve(msg).promise();
         };
-        loginManager.fakePrepareResponse(fakeResponse);
+        fakePrepareResponse(fakeResponse);
         loginManager.loginAuthentication(testCredArray)
         .then(function(ret) {
             expect(ret.isValid).to.be.true;
@@ -354,26 +365,26 @@ describe('ExpServer Login Test', function() {
         })
         .always(function() {
             fakeGetXlrRoot(oldRoot);
-            loginManager.fakeSetupLdapConfigs(oldConfig);
-            loginManager.fakeSetLdapConnection(oldConn);
-            loginManager.fakeLdapAuthentication(oldAuth);
-            loginManager.fakePrepareResponse(oldResponse);
+            fakeSetupLdapConfigs(oldConfig);
+            fakeSetLdapConnection(oldConn);
+            fakeLdapAuthentication(oldAuth);
+            fakePrepareResponse(oldResponse);
         });
     });
 
     it('loginManager.loginAuthentication should fail when error', function(done) {
         testCredArray = { "xiusername": "nobody", "xipassword": "wrong" };
-        var oldConfig = loginManager.setupLdapConfigs;
-        var oldConn = loginManager.setLdapConnection;
-        var oldAuth = loginManager.ldapAuthentication;
-        var oldResponse = loginManager.prepareResponse;
-        loginManager.fakeSetupLdapConfigs(emptyPromise);
-        loginManager.fakeSetLdapConnection(emptyPromise);
-        loginManager.fakeLdapAuthentication(emptyPromise);
+        var oldConfig = loginManager._ldapConfig.setupConfigs;
+        var oldConn = loginManager._ldapConfig.setConnection;
+        var oldAuth = loginManager._ldapConfig.authentication;
+        var oldResponse = loginManager._ldapConfig.prepareResponse;
+        fakeSetupLdapConfigs(emptyPromise);
+        fakeSetLdapConnection(emptyPromise);
+        fakeLdapAuthentication(emptyPromise);
         var fakeResponse = function() {
             return jQuery.Deferred().reject().promise();
         };
-        loginManager.fakePrepareResponse(fakeResponse);
+        fakePrepareResponse(fakeResponse);
         loginManager.loginAuthentication(testCredArray)
         .then(function() {
             done("fail");
@@ -383,10 +394,10 @@ describe('ExpServer Login Test', function() {
             done();
         })
         .always(function() {
-            loginManager.fakeSetupLdapConfigs(oldConfig);
-            loginManager.fakeSetLdapConnection(oldConn);
-            loginManager.fakeLdapAuthentication(oldAuth);
-            loginManager.fakePrepareResponse(oldResponse);
+            fakeSetupLdapConfigs(oldConfig);
+            fakeSetLdapConnection(oldConn);
+            fakeLdapAuthentication(oldAuth);
+            fakePrepareResponse(oldResponse);
         });
     });
 
@@ -1185,7 +1196,7 @@ describe('ExpServer Login Test', function() {
 
             try {
                 expect(ret.body).to.deep.equal(expectedRetMsg);
-                return postRequest("POST", "/login/ldapConfig/get"); 
+                return postRequest("POST", "/login/ldapConfig/get");
             } catch (error) {
                 return jQuery.Deferred().reject(error).promise();
             }
@@ -1214,7 +1225,7 @@ describe('ExpServer Login Test', function() {
         .always(function() {
             // We need to restore the ldapConfig at the end of the test
             // in order to allow grunt test to repeatably keep working
-            // This is because ldapConfig.json is in use by other test (setupLdapConfigs test)
+            // This is because ldapConfig.json is in use by other test (ldap setupConfigs test)
             postRequest("POST", "/login/ldapConfig/set", origLdapConfig)
             .then(function(ret) {
                 if (!ret.body.success) {

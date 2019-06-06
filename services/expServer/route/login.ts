@@ -8,7 +8,7 @@ import atob = require("atob");
 import { Router } from "express"
 export const router: any = Router()
 
-import * as loginManager from "../controllers/loginManager"
+import loginManager from "../controllers/loginManager"
 
 // Start of LDAP calls
 /*
@@ -92,7 +92,10 @@ router.post('/login/with/HttpAuth', function(req, res) {
             .then(function(message) {
                 // Add in token information for SSO access
                 message.timestamp = Date.now();
-                message.signature = crypto.createHmac("sha256", "xcalar-salt2").update(JSON.stringify(userInfo, Object.keys(userInfo).sort())).digest("hex");
+                message.signature = crypto.createHmac("sha256", "xcalar-salt2")
+                    .update(
+                        JSON.stringify(userInfo, Object.keys(userInfo).sort()))
+                    .digest("hex");
                 delete message.status;
 
                 if (message.isValid) {
@@ -133,7 +136,9 @@ router.post('/login/verifyToken', function(req, res) {
         var userInfoSignature = userInfo.signature;
         delete userInfo.signature;
 
-        var computedSignature = crypto.createHmac("sha256", "xcalar-salt2").update(JSON.stringify(userInfo, Object.keys(userInfo).sort())).digest("hex");
+        var computedSignature = crypto.createHmac("sha256", "xcalar-salt2")
+            .update(JSON.stringify(userInfo, Object.keys(userInfo).sort()))
+            .digest("hex");
 
         if (userInfoSignature != computedSignature) {
             throw new Error("Token has been tampered with!");
