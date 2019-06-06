@@ -1567,7 +1567,7 @@ namespace xcHelper {
                 namePattern = /^[a-zA-Z0-9_-]{1,31}$/;
                 break;
             case PatternCategory.UDF:
-                namePattern = /^[a-z_][a-zA-Z0-9_-]*$/;
+                namePattern = /^[a-z_][a-zA-Z0-9_]*$/;
                 break;
             case PatternCategory.UDFFn:
                 namePattern = /^[a-z_][a-zA-Z0-9_]*$/;

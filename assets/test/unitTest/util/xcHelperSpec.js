@@ -845,7 +845,7 @@ describe("xcHelper Test", function() {
         }, {
             "category": "udf",
             "action": "check",
-            "name": "_ab9-c",
+            "name": "_ab9_c",
             "expect": true
         }, {
             "category": "workbook",

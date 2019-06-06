@@ -1320,7 +1320,7 @@ UDFTStr = {
     // Must be kept consistent with htmlTStr.UDF
     "NameHint": "Module name (lowercase)",
     "NoTemplate": "Cannot find the module",
-    "InValidName": "Module name should start with a lowercase letter or underscore and contain only letters, digits, hyphens(-) or underscores(_)",
+    "InValidName": "Module name should start with a lowercase letter or underscore and contain only letters, digits, underscores(_)",
     "InValidFileName": "File name should end with \".py\"",
     "InValidFnName": "Function name should start with a lowercase letter or underscore and contain only letters, digits or underscores(_)",
     "InValidPath": "UDF file path is read only",
