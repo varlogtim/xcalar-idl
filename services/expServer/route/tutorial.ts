@@ -3,8 +3,7 @@ import { Status } from "../utils/supportStatusFile";
 import * as xcConsole from "../utils/expServerXcConsole"
 import * as support from "../utils/expServerSupport";
 export const router = Router();
-import TutorialManager from "../controllers/tutorialManager";
-const tutorialManager = TutorialManager.getInstance;
+import tutorialManager from "../controllers/tutorialManager";
 
 router.post("/tutorial/download",
             [support.checkAuthAdmin], function(req, res) {

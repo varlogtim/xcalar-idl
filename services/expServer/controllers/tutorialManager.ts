@@ -1,7 +1,7 @@
 import * as xcConsole from "../utils/expServerXcConsole";
 import { Status } from "../utils/supportStatusFile";
 
-export default class TutorialManager {
+class TutorialManager {
     private static _instance = null;
     public static get getInstance(): TutorialManager{
         return this._instance || (this._instance = new this());
@@ -116,3 +116,6 @@ export default class TutorialManager {
         return deferredOnFetch.promise();
     }
 }
+
+const tutorialManager = TutorialManager.getInstance;
+export default tutorialManager;

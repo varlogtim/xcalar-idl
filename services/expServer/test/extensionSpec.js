@@ -6,7 +6,7 @@ describe('ExpServer Extension Test', function() {
     require(__dirname + '/../expServer.js');
 
     var extensionManager = require(__dirname +
-        '/../controllers/extensionManager.js').default.getInstance;
+        '/../controllers/extensionManager.js').default;
     var support = require(__dirname + '/../utils/expServerSupport.js');
     var testTargz;
     var testName;

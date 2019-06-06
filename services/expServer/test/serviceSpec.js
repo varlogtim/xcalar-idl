@@ -3,9 +3,11 @@ describe('ExpServer Service Test', function() {
     var expect = require('chai').expect;
     var request = require('request');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js');
+    var support = require(__dirname +
+        '/../../expServer/utils/expServerSupport.js');
     var service = require(__dirname + '/../../expServer/route/service.js');
-    var serviceManager = require(__dirname + '/../../expServer/controllers/serviceManager.js');
+    var serviceManager = require(__dirname +
+            '/../../expServer/controllers/serviceManager.js').default;
     var oldMasterExec;
     var oldSlaveExec;
     var oldRemoveSession;
@@ -21,16 +23,16 @@ describe('ExpServer Service Test', function() {
         fakeFunc = function() {
             return jQuery.Deferred().resolve({status: 200}).promise();
         }
-        oldMasterExec = serviceManager.masterExecuteAction;
-        oldSlaveExec = serviceManager.slaveExecuteAction;
-        oldRemoveSession = serviceManager.removeSessionFiles;
-        oldRemoveSHM = serviceManager.removeSHM;
-        oldGetLic = serviceManager.getLicense;
-        oldSubTicket = serviceManager.submitTicket;
-        oldGetMatch = serviceManager.getMatchedHosts;
-        oldGetTickets = serviceManager.getTickets;
-        oldGetPatch = serviceManager.getHotPatch;
-        oldSetPatch = serviceManager.setHotPatch;
+        oldMasterExec = support.masterExecuteAction;
+        oldSlaveExec = support.slaveExecuteAction;
+        oldRemoveSession = support.removeSessionFiles;
+        oldRemoveSHM = support.removeSHM;
+        oldGetLic = support.getLicense;
+        oldSubTicket = support.submitTicket;
+        oldGetMatch = support.getMatchedHosts;
+        oldGetTickets = support.getTickets;
+        oldGetPatch = support.getHotPatch;
+        oldSetPatch = support.setHotPatch;
         service.fakeMasterExecuteAction(fakeFunc);
         service.fakeSlaveExecuteAction(fakeFunc);
         service.fakeRemoveSessionFiles(fakeFunc);
@@ -49,10 +51,21 @@ describe('ExpServer Service Test', function() {
     after(function() {
         support.checkAuthTrue(support.checkAuthImpl);
         support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        service.fakeMasterExecuteAction(oldMasterExec);
+        service.fakeSlaveExecuteAction(oldSlaveExec);
+        service.fakeRemoveSessionFiles(oldRemoveSession);
+        service.fakeRemoveSHM(oldRemoveSHM);
+        service.fakeGetLicense(oldGetLic);
+        service.fakeSubmitTicket(oldSubTicket);
+        service.fakeGetMatchedHosts(oldGetMatch);
+        service.fakeGetTickets(oldGetTickets);
+        service.fakeGetHotPatch(oldGetPatch);
+        service.fakeSetHotPatch(oldSetPatch);
     });
 
     it("service.convertToBase64 should work", function() {
-        expect(serviceManager.convertToBase64(testStr)).to.equal(Buffer.from(testStr).toString("base64"));
+        expect(serviceManager.convertToBase64(testStr)).to
+            .equal(Buffer.from(testStr).toString("base64"));
     });
 
     it('Start router should work', function(done) {
@@ -245,19 +258,5 @@ describe('ExpServer Service Test', function() {
             expect(JSON.parse(res.body).status).to.equal(200);
             done();
         });
-    });
-
-
-    after(function() {
-        service.fakeMasterExecuteAction(oldMasterExec);
-        service.fakeSlaveExecuteAction(oldSlaveExec);
-        service.fakeRemoveSessionFiles(oldRemoveSession);
-        service.fakeRemoveSHM(oldRemoveSHM);
-        service.fakeGetLicense(oldGetLic);
-        service.fakeSubmitTicket(oldSubTicket);
-        service.fakeGetMatchedHosts(oldGetMatch);
-        service.fakeGetTickets(oldGetTickets);
-        service.fakeGetHotPatch(oldGetPatch);
-        service.fakeSetHotPatch(oldSetPatch);
     });
 });

@@ -1,16 +1,12 @@
-import SqlManager from "./sqlManager"
+import sqlManager from "./sqlManager"
 
-export default class SqlManagerDeprecated {
+class SqlManagerDeprecated {
     private static _instance = null;
     public static get getInstance(): SqlManagerDeprecated {
         return this._instance || (this._instance = new this());
     }
 
-    private _sqlManager: SqlManager;
-
-    private constructor() {
-        this._sqlManager = SqlManager.getInstance;
-    }
+    private constructor() {}
 
     // Deprecated
     cleanAllTables(allIds: string[], checkTime: number): JQueryPromise<any> {
@@ -39,7 +35,7 @@ export default class SqlManagerDeprecated {
         publishArgsList.forEach((publishArgs) => {
             let innerDeferred: any = PromiseHelper.deferred();
 
-                this._sqlManager.convertToDerivedColAndGetSchema(publishArgs.txId,
+                sqlManager.convertToDerivedColAndGetSchema(publishArgs.txId,
                                                         publishArgs.importTable,
                                                         publishArgs.sqlTable)
                 .then((schema: any): void => {
@@ -91,10 +87,10 @@ export default class SqlManagerDeprecated {
         checkTime: number): JQueryPromise<any> {
         let deferred: any = PromiseHelper.deferred();
         let publishArgsList: SQLPublishInput[] = [];
-        this._sqlManager.connect("localhost")
+        sqlManager.connect("localhost")
         .then((): JQueryPromise<any> => {
             xcConsole.log("Connected. Going to workbook...");
-            return this._sqlManager.goToSqlWkbk();
+            return sqlManager.goToSqlWkbk();
         })
         .then((): XcalarSelectQuery[] => {
             xcConsole.log("Selecting published tables: ", publishNames);
@@ -108,7 +104,7 @@ export default class SqlManagerDeprecated {
                     publishName: name
                 };
             });
-            return this._sqlManager.selectPublishedTables(publishArgsList, checkTime);
+            return sqlManager.selectPublishedTables(publishArgsList, checkTime);
         })
         .then((): JQueryPromise<any> => {
             xcConsole.log("Finalizing tables");
@@ -137,3 +133,6 @@ export default class SqlManagerDeprecated {
         return pubTablesUsed;
     }
 }
+
+const sqlManagerDeprecated = SqlManagerDeprecated.getInstance;
+export default sqlManagerDeprecated;

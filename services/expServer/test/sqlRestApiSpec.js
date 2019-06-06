@@ -2,8 +2,8 @@ describe("sqlRestApi Test", function() {
     const { expect, assert } = require('chai');
     const request = require('request');
     require(__dirname + '/../expServer.js');
-    const sqlManager = require(__dirname + '/../controllers/sqlManager.js').default.getInstance;
-    const sqlManagerDeprecated = require(__dirname + '/../controllers/sqlManagerDeprecated.js').default.getInstance;
+    const sqlManager = require(__dirname + '/../controllers/sqlManager.js').default;
+    const sqlManagerDeprecated = require(__dirname + '/../controllers/sqlManagerDeprecated.js').default;
     const sqlUser = "xcalar-internal-sql";
     const sqlId = 4193719;
     const sqlWkbk = "xcalar_test_wkbk";

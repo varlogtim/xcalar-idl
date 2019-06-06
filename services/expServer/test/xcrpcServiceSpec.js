@@ -6,14 +6,26 @@ describe("sdk service Test", () => {
 
     const wb_pb = proto.xcalar.compute.localtypes.Workbook
     const sdkService = require(__dirname +
-        '/../controllers/sdk_service_impls/SDKServiceMgr.js');
+        '/../controllers/sdk_service_impls/SDKServiceMgr.js').default;
     const xcrpcRouter = require(__dirname + '/../route/xcrpc.js');
     const request = require("request")
+
+    function fakeServiceRegistry(fakeRegistry) {
+        const oldRegistry = sdkService._SERVICEREGISTRY;
+        sdkService._SERVICEREGISTRY = fakeRegistry;
+        return oldRegistry;
+    }
+    function fakeServiceInfo(fakeInfo) {
+        const oldInfo = sdkService._SERVICEINFO;
+        sdkService._SERVICEINFO = fakeInfo;
+        return oldInfo;
+    }
+
 
     describe("Functional Test", () => {
         // XXX add functional test for xcrpcManager
 
-        const fakeServiceRegistry = {
+        const fakeRegistry = {
             Workbook: {
                 testMethod: () => {
                     let resp = new wb_pb.ConvertKvsToQueryResponse();
@@ -26,7 +38,7 @@ describe("sdk service Test", () => {
                 nullMethod: null
             }
         }
-        const fakeServiceInfo = {
+        const fakeInfo = {
             Workbook: {
                 testMethod: ["xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest",
                     "xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse"],
@@ -39,8 +51,13 @@ describe("sdk service Test", () => {
         let sdkServiceResp;
 
         before(() => {
-            oldRegistry = sdkService.fakeServiceRegistry(fakeServiceRegistry);
-            oldInfo = sdkService.fakeServiceInfo(fakeServiceInfo);
+            oldRegistry = fakeServiceRegistry(fakeRegistry);
+            oldInfo = fakeServiceInfo(fakeInfo);
+        })
+
+        after(() => {
+            fakeServiceRegistry(oldRegistry);
+            fakeServiceInfo(oldInfo);
         })
 
         it("SDKService.handleService should work", async () => {
@@ -126,11 +143,6 @@ describe("sdk service Test", () => {
                 expect(e).to.eq("test error");
             }
         });
-
-        after(() => {
-            sdkService.fakeServiceRegistry(oldRegistry);
-            sdkService.fakeServiceInfo(oldInfo);
-        })
     })
 
     describe("Router Test", () => {
@@ -151,6 +163,9 @@ describe("sdk service Test", () => {
             }
         })
 
+        after(() => {
+            xcrpcRouter.fakeRouteToXce(oldRouteToXceFunc);
+        })
 
         it("expServer xcrpc router should work with handled service", (done) => {
             const fakeFunc = () => PromiseHelper.resolve({
@@ -181,10 +196,6 @@ describe("sdk service Test", () => {
                 expect(body.data).to.eq("route to xce");
                 done();
             })
-        })
-
-        after(() => {
-            xcrpcRouter.fakeRouteToXce(oldRouteToXceFunc);
         })
     })
 })

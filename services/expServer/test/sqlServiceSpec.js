@@ -6,6 +6,13 @@ describe("sdk sql service Test", () => {
     const sql_pb = proto.xcalar.compute.localtypes.Sql;
     const sqlService = require(__dirname +
         '/../../expServer/controllers/sdk_service_impls/sqlService.js');
+    const sqlManager = require(__dirname +
+        '/../../expServer/controllers/sqlManager.js').default;
+    const oldFunc = sqlManager.executeSql;
+
+    function fakeExecuteSql(func) {
+        sqlManager.executeSql = func;
+    }
 
     describe("Functional Test", ()=> {
         const ret = {
@@ -22,7 +29,7 @@ describe("sdk sql service Test", () => {
         it("sqlService.ExecuteSql should work", async () => {
             let sqlQueryResp;
             const fakeFunc = () => PromiseHelper.resolve(ret);
-            const oldFunc = sqlService.fakeExecuteSql(fakeFunc);
+            fakeExecuteSql(fakeFunc);
 
             let req = new sql_pb.SQLQueryRequest();
             let optimizations = new sql_pb.SQLQueryRequest.Optimizations();
@@ -42,14 +49,14 @@ describe("sdk sql service Test", () => {
             } catch(e) {
                 errorHandling(e);
             } finally {
-                sqlService.fakeExecuteSql(oldFunc);
+                fakeExecuteSql(oldFunc);
             }
         });
         it("sqlService.ExecuteSql should fail", async () => {
             let sqlQueryResp;
             const error = "Error";
             const fakeFunc = () => PromiseHelper.reject(error);
-            const oldFunc = sqlService.fakeExecuteSql(fakeFunc);
+            fakeExecuteSql(fakeFunc);
 
             let req = new sql_pb.SQLQueryRequest();
             let optimizations = new sql_pb.SQLQueryRequest.Optimizations();
@@ -61,7 +68,7 @@ describe("sdk sql service Test", () => {
             } catch(e) {
                 expect(e).to.eq(error);
             } finally {
-                sqlService.fakeExecuteSql(oldFunc);
+                fakeExecuteSql(oldFunc);
             }
         });
     })

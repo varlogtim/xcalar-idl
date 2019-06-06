@@ -1,6 +1,5 @@
 import * as xcalar from "xcalar";
-import SqlManager from "../sqlManager";
-const sqlManager = SqlManager.getInstance;
+import sqlManager from "../sqlManager";
 // sql.proto / sql_pb.js
 const sql_pb: any = proto.xcalar.compute.localtypes.Sql;
 
@@ -46,14 +45,3 @@ function executeSql(sqlQueryReq: any): Promise<any> {
 }
 
 export { executeSql as ExecuteSQL }
-
-// Below part is only for unit test
-function fakeExecuteSql(func: any): any {
-    const oldFunc: any = sqlManager.executeSql;
-    sqlManager.executeSql = func;
-    return oldFunc
-}
-
-if (process.env.NODE_ENV == "test") {
-    exports.fakeExecuteSql = fakeExecuteSql;
-}

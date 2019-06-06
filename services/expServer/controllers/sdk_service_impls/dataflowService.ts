@@ -481,4 +481,4 @@ function synthesize(synthesizeReq: any): Promise<any> {
         });
     return deferred.promise();
 }
-export { synthesize as Synthesize}
+export { synthesize as Synthesize }

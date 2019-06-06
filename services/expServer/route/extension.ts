@@ -5,8 +5,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as support from "../utils/expServerSupport";
 import upload from "../controllers/upload";
-import ExtensionManager from "../controllers/extensionManager";
-const extensionManager = ExtensionManager.getInstance;
+import extensionManager from "../controllers/extensionManager";
 import socket from "../controllers/socket";
 import { Status } from "../utils/supportStatusFile";
 

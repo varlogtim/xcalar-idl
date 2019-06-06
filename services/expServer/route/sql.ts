@@ -1,10 +1,8 @@
 import { Router } from "express"
 export const router = Router()
 
-import SqlManager from "../controllers/sqlManager"
-const sqlManager = SqlManager.getInstance;
-import SqlManagerDeprecated from "../controllers/sqlManagerDeprecated"
-const sqlManagerDeprecated = SqlManagerDeprecated.getInstance;
+import sqlManager from "../controllers/sqlManager"
+import sqlManagerDeprecated from "../controllers/sqlManagerDeprecated"
 import * as support from "../utils/expServerSupport"
 import { SqlUtil } from "../utils/sqlUtils"
 

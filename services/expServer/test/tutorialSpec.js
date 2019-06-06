@@ -2,7 +2,7 @@ describe('ExpServer Tutorial Test', function() {
     // Test setup
     var expect = require('chai').expect;
     require(__dirname + '/../expServer.js');
-    var tutorialManager = require(__dirname + '/../controllers/tutorialManager.js').default.getInstance;
+    var tutorialManager = require(__dirname + '/../controllers/tutorialManager.js').default;
     var testVersion;
     var oldGetObject;
     this.timeout(10000);

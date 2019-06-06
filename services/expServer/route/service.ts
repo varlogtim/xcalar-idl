@@ -1,10 +1,9 @@
 import { Router } from "express";
 export const router = Router();
-import * as serviceManager from "../controllers/serviceManager"
+import serviceManager from "../controllers/serviceManager"
 import * as support from "../utils/expServerSupport";
 import * as xcConsole from "../utils/expServerXcConsole"
-import * as HttpStatus from "../../../assets/js/httpStatus";
-const httpStatus = HttpStatus.httpStatus;
+import { httpStatus } from "../../../assets/js/httpStatus";
 import * as fs from "fs";
 require("../utils/dag/dagUtils");
 

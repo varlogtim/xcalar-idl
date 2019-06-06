@@ -1,6 +1,6 @@
 import request = require("request");
 
-export default class SqlManager {
+class SqlManager {
     private static _instance = null;
     public static get getInstance(): SqlManager {
         return this._instance || (this._instance = new this());
@@ -1107,3 +1107,6 @@ export default class SqlManager {
         }
     }
 }
+
+const sqlManager = SqlManager.getInstance;
+export default sqlManager;

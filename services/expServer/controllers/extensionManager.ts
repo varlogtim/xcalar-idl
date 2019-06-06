@@ -14,7 +14,7 @@ interface ReturnMsg {
     data: string
 }
 
-export default class ExtensionManager {
+class ExtensionManager {
     private static _instance = null;
     public static get getInstance(): ExtensionManager {
         return this._instance || (this._instance = new this());
@@ -349,3 +349,6 @@ export default class ExtensionManager {
     }
 
 }
+
+const extensionManager = ExtensionManager.getInstance;
+export default extensionManager;

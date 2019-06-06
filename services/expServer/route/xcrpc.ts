@@ -1,7 +1,7 @@
 import { Router } from "express";
 export const router = Router();
-import * as serviceMgr from "../controllers/sdk_service_impls/SDKServiceMgr"
-import * as xcrpcManager from "../controllers/xcrpcManager";
+import serviceMgr from "../controllers/sdk_service_impls/SDKServiceMgr"
+import xcrpcManager from "../controllers/xcrpcManager";
 
 // set default timeout to 20 min
 const defaultSQLTimeout = process.env.EXP_SQL_TIMEOUT &&

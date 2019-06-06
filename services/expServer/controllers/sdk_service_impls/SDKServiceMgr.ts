@@ -1,88 +1,92 @@
-import { ServiceInfo as serviceInfo } from "xcalar";
-import { ServiceRegistry as serviceRegistry } from "./SDKServiceRegistry";
+import { ServiceInfo } from "xcalar";
+import * as xcConsole from "../../utils/expServerXcConsole";
 
-function serializeResponse(serviceResponse: any): string {
-    let msg: any = new proto.ProtoMsg();
-    msg.setType(proto.ProtoMsgType.PROTOMSGTYPERESPONSE);
-    msg.setResponse(new proto.ProtoResponseMsg());
-    msg.getResponse().setRequestid(0);
-    msg.getResponse().setStatus(0);
-    msg.getResponse().setServic(serviceResponse);
-
-    let responseBytes: Buffer = msg.serializeBinary();
-    let resBase64: string = Buffer.from(responseBytes).toString("base64");
-    return resBase64;
-}
-
-function unpackTo(anyReq: any, serviceName: string, methodName: string): any {
-   let reqType: string  = serviceInfo[serviceName][methodName][0].split("\.").pop();
-   let aReqObj: any = proto.xcalar.compute.localtypes[serviceName][reqType];
-   return aReqObj.deserializeBinary(anyReq);
-}
-
-function packFrom(anyRes: any, serviceName: string, methodName: string): any {
-    let resType: string = serviceInfo[serviceName][methodName][1];
-    if (resType == "google.protobuf.Empty") {
-        return;
+class SDKServiceMgr {
+    private static _instance = null;
+    public static get getInstance(): SDKServiceMgr {
+        return this._instance || (this._instance = new this());
     }
-    let anyWrapper: any = new proto.google.protobuf.Any();
-    anyWrapper.setValue(anyRes.serializeBinary());
-    let typeUrl: string = `type.googleapis.com/${resType}`
-    anyWrapper.setTypeUrl(typeUrl);
-    return anyWrapper;
-}
 
-export function handleService(protoReqMsg: Buffer): Promise<any> {
-    let deferred: any = PromiseHelper.deferred();
-    let pMsg: any = proto.ProtoMsg.deserializeBinary(Array.from(protoReqMsg));
-    let serviceReqMsg: any = pMsg.getRequest().getServic();
-    let serviceName: string = serviceReqMsg.getServicename();
-    if(!(serviceName in serviceRegistry)) {
-        //The service is not implemented in expserver
-        //need to route it to backend
-        deferred.resolve({reqHandled: false, resp: null});
+    private _SERVICEREGISTRY: any = {
+        Dataflow: require(__dirname + "/dataflowService"),
+        Sql: require(__dirname + "/sqlService"),
+        Workbook: require(__dirname + "/workbookService"),
+    }
+    private _SERVICEINFO: any = ServiceInfo;
+
+    private constructor() {}
+
+    private serializeResponse(serviceResponse: any): string {
+        let msg: any = new proto.ProtoMsg();
+        msg.setType(proto.ProtoMsgType.PROTOMSGTYPERESPONSE);
+        msg.setResponse(new proto.ProtoResponseMsg());
+        msg.getResponse().setRequestid(0);
+        msg.getResponse().setStatus(0);
+        msg.getResponse().setServic(serviceResponse);
+
+        let responseBytes: Buffer = msg.serializeBinary();
+        let resBase64: string = Buffer.from(responseBytes).toString("base64");
+        return resBase64;
+    }
+
+    private unpackTo(anyReq: any, serviceName: string, methodName: string): any {
+        let reqType: string  = this._SERVICEINFO[serviceName][methodName][0]
+                                .split("\.").pop();
+        let aReqObj: any = proto.xcalar.compute.localtypes[serviceName][reqType];
+        return aReqObj.deserializeBinary(anyReq);
+    }
+
+    private packFrom(anyRes: any, serviceName: string, methodName: string): any {
+        let resType: string = this._SERVICEINFO[serviceName][methodName][1];
+        if (resType == "google.protobuf.Empty") {
+            return;
+        }
+        let anyWrapper: any = new proto.google.protobuf.Any();
+        anyWrapper.setValue(anyRes.serializeBinary());
+        let typeUrl: string = `type.googleapis.com/${resType}`
+        anyWrapper.setTypeUrl(typeUrl);
+        return anyWrapper;
+    }
+
+    handleService(protoReqMsg: Buffer): Promise<any> {
+        let deferred: any = PromiseHelper.deferred();
+        let pMsg: any = proto.ProtoMsg.deserializeBinary(
+                                            Array.from(protoReqMsg));
+        let serviceReqMsg: any = pMsg.getRequest().getServic();
+        let serviceName: string = serviceReqMsg.getServicename();
+        if(!(serviceName in this._SERVICEREGISTRY)) {
+            //The service is not implemented in expserver
+            //need to route it to backend
+            deferred.resolve({reqHandled: false, resp: null});
+            return deferred.promise();
+        }
+        let methodName: string = serviceReqMsg.getMethodname();
+        let serviceHandle: any = this._SERVICEREGISTRY[serviceName];
+        let methodHandle: any = serviceHandle[methodName];
+        if (methodHandle == null || typeof methodHandle != 'function') {
+            //The method is not implemented in expserver
+            //need to route it to backend
+            deferred.resolve({reqHandled: false, resp: null});
+            return deferred.promise();
+        }
+        xcConsole.log(`Service name:: ${serviceName}, ` +
+                    `Method name:: ${methodName}`);
+        let aReqMsg: any = this.unpackTo(serviceReqMsg.getBody().getValue(),
+                                serviceName, methodName);
+        methodHandle(aReqMsg)
+        .then((res: any): void => {
+            var anyRes = this.packFrom(res, serviceName, methodName);
+            var serviceResponse = new proto.ServiceResponse();
+            serviceResponse.setBody(anyRes);
+            deferred.resolve({reqHandled: true,
+                resp: this.serializeResponse(serviceResponse)});
+        })
+        .fail((err: any): void => {
+            deferred.reject(err);
+        });
         return deferred.promise();
     }
-    let methodName: string = serviceReqMsg.getMethodname();
-    let serviceHandle: any = serviceRegistry[serviceName];
-    let methodHandle: any = serviceHandle[methodName];
-    if (methodHandle == null || typeof methodHandle != 'function') {
-        //The method is not implemented in expserver
-        //need to route it to backend
-        deferred.resolve({reqHandled: false, resp: null});
-        return deferred.promise();
-    }
-    console.log(`Service name:: ${serviceName}, Method name:: ${methodName}`);
-    let aReqMsg: any = unpackTo(serviceReqMsg.getBody().getValue(),
-                            serviceName, methodName);
-    methodHandle(aReqMsg)
-    .then(function(res: any): void {
-        var anyRes = packFrom(res, serviceName, methodName);
-        var serviceResponse = new proto.ServiceResponse();
-        serviceResponse.setBody(anyRes);
-        deferred.resolve({reqHandled: true,
-            resp: serializeResponse(serviceResponse)});
-    })
-    .fail(function(err: any): void {
-        deferred.reject(err);
-    });
-    return deferred.promise();
 }
 
-// Below part is only for unit test
-function fakeServiceRegistry(fakeRegistry: any): any {
-    const oldRegistry: any = serviceRegistry;
-    serviceRegistry = fakeRegistry;
-    return oldRegistry;
-}
-
-function fakeServiceInfo(fakeInfo: any): any {
-    const oldInfo: any = serviceInfo;
-    serviceInfo = fakeInfo;
-    return oldInfo;
-}
-
-if (process.env.NODE_ENV == "test") {
-    exports.fakeServiceRegistry = fakeServiceRegistry;
-    exports.fakeServiceInfo = fakeServiceInfo;
-}
+const serviceMgr = SDKServiceMgr.getInstance;
+export default serviceMgr;
