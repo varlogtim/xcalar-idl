@@ -3370,7 +3370,8 @@ namespace DSPreview {
             deferred.reject(error);
         })
         .always(() => {
-            if (isValidPreviewId(curPreviewId)) {
+            if (previewId == null || isValidPreviewId(curPreviewId)) {
+                // in error case or current preview case
                 toggleSubmitButton(false);
             }
         });
