@@ -48,7 +48,8 @@ class QueryService {
                 return {
                     name: queryInfo.getName(),
                     millisecondsElapsed: queryInfo.getMillisecondsElapsed(),
-                    state: queryInfo.getState()
+                    // TODO: Use proto version maps instead when we have them in package
+                    state: QueryStateTStr[queryInfo.getState()]
                 };
             });
         } catch (e) {
