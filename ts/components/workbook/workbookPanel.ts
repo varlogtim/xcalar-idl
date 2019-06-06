@@ -842,11 +842,14 @@ namespace WorkbookPanel {
 
     function deleteWorkbookHelper(workbookId: string): void {
         let $workbookBox = getWorkbookBoxById(workbookId);
+        let oldMessage = showLoadingSection($workbookBox, WKBKTStr.DeletingWKBK);
         WorkbookManager.deleteWKBK(workbookId)
         .then(function() {
+            hideLoadingSection($workbookBox, oldMessage);
             removeWorkbookBox($workbookBox);
         })
         .fail(function(error) {
+            hideLoadingSection($workbookBox, oldMessage);
             handleError(error, $workbookBox);
         });
     }
@@ -859,6 +862,19 @@ namespace WorkbookPanel {
         setTimeout(function() {
             $workbookBox.remove();
         }, 600);
+    }
+
+    function showLoadingSection($workbookBox: JQuery, text: string): string {
+        $workbookBox.addClass("loading");
+        let $section: JQuery = $workbookBox.find(".loadSection .text");
+        let oldText = $section.text();
+        $section.text(text);
+        return oldText;
+    }
+
+    function hideLoadingSection($workbookBox: JQuery, oldText: string): void {
+        $workbookBox.removeClass("loading");
+        $workbookBox.find(".loadSection .text").text(oldText);
     }
 
     function validateName(wbName: string, wbId: string, $wbCard: JQuery): boolean {
@@ -1207,7 +1223,9 @@ namespace WorkbookPanel {
 
     if (window["unitTestMode"]) {
         WorkbookPanel["__testOnly__"] = {
-            changeFilePath: changeFilePath
+            changeFilePath: changeFilePath,
+            showLoadingSection: showLoadingSection,
+            hideLoadingSection: hideLoadingSection
         }
     }
 }

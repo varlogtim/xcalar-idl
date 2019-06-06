@@ -60,6 +60,31 @@ describe("Workbook Panel Test", function() {
         });
     });
 
+    describe("Toggle loading section test", function() {
+        let $worbookBox;
+
+        before(function() {
+            $worbookBox = $('<div>' +
+                                '<div class="loadSection">' +
+                                    '<div class="text">test</div>' +
+                                '</div>' +
+                            '</div>');
+        });
+
+        it("should show loading section", function() {
+            let oldText = WorkbookPanel.__testOnly__.showLoadingSection($worbookBox, "test2");
+            expect(oldText).to.equal("test");
+            expect($worbookBox.find(".text").text()).to.equal("test2");
+            expect($worbookBox.hasClass("loading")).to.be.true;
+        });
+
+        it("should hide loading section", function() {
+            WorkbookPanel.__testOnly__.hideLoadingSection($worbookBox, "test");
+            expect($worbookBox.find(".text").text()).to.equal("test");
+            expect($worbookBox.hasClass("loading")).to.be.false;
+        });
+    });
+
     describe("Basic Behavior Test", function() {
         it("Should show workbook from home button", function(done) {
             $("#homeBtn").click();
