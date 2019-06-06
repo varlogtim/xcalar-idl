@@ -572,7 +572,7 @@ class SQLEditorSpace {
     private _downlodSnippet(): void {
         let fileName: string = this._getFileName() + ".sql";
         let content: string = this._sqlEditor.getValue();
-        xcHelper.downloadAsFile(fileName, content, false);
+        xcHelper.downloadAsFile(fileName, content);
     }
 
     private _renameSnippet($nameInput: JQuery): void {

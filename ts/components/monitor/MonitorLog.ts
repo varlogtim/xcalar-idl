@@ -46,7 +46,7 @@ class MonitorLog {
         let $card = this._getCard();
         let $tabArea = $card.find('.tabArea');
         let html: HTML = "";
-        
+
         keys.sort((a, b) => {
             return Number(hosts[a]) - Number(hosts[b]);
         });
@@ -599,7 +599,7 @@ class MonitorLog {
     private _downloadLog(): void {
         let logs = this._getLogText();
         let fileName = this._getCard().find(".tab.focus").data("original-title") + "-logs.txt";
-        xcHelper.downloadAsFile(fileName, logs, false);
+        xcHelper.downloadAsFile(fileName, logs);
     }
 
     private _getLogText(): string {

@@ -970,7 +970,7 @@ class SupTicketModal {
 
     private _downloadTicket(ticketObj): void {
         ticketObj.time = new Date();
-        xcHelper.downloadAsFile("xcalarTicket.txt", JSON.stringify(ticketObj), false);
+        xcHelper.downloadAsFile("xcalarTicket.txt", JSON.stringify(ticketObj));
     }
 
     // ticket consists of a group of tickets with the same id;

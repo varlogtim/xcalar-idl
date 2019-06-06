@@ -137,7 +137,7 @@ abstract class DagTab extends Durable {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const statsJson = this.getGraph().getStatsJson();
 
-        xcHelper.downloadAsFile(fileName, JSON.stringify(statsJson, null, 4), true);
+        xcHelper.downloadAsFile(fileName, JSON.stringify(statsJson, null, 4));
         deferred.resolve();
 
         return deferred.promise();

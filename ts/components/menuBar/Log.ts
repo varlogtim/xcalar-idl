@@ -1120,7 +1120,7 @@ namespace Log {
                     "At least one bar should be showing");
             value = JSON.stringify(getAllLogs());
         }
-        xcHelper.downloadAsFile("xcalar.log", value, false);
+        xcHelper.downloadAsFile("xcalar.log", value);
     }
 
     function toggleLogSize($section: JQuery): void {

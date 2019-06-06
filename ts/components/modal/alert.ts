@@ -547,7 +547,7 @@ namespace Alert {
                         log = JSON.stringify(logCaches);
                     }
 
-                    xcHelper.downloadAsFile("xcalar.log", log, false);
+                    xcHelper.downloadAsFile("xcalar.log", log);
                     xcUIHelper.showSuccess(SuccessTStr.Copy);
                 });
                 break;

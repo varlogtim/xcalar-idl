@@ -417,9 +417,8 @@ class UDFFileManager extends BaseFileManager {
                 } else {
                     const moduleSplit: string[] = nsPath.split("/");
                     xcHelper.downloadAsFile(
-                        moduleSplit[moduleSplit.length - 1],
-                        entireString,
-                        false
+                        moduleSplit[moduleSplit.length - 1] + ".py",
+                        entireString
                     );
                 }
                 deferred.resolve();

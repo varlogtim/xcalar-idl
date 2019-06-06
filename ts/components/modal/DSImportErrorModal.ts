@@ -210,7 +210,7 @@ class DSImportErrorModal {
 
             let fileName: string = dsName + "_err.json";
             let content: string = JSON.stringify(errorData, null, 2);
-            xcHelper.downloadAsFile(fileName, content, false);
+            xcHelper.downloadAsFile(fileName, content);
         })
         .fail((error) => {
             Alert.error(ErrTStr.ErrorModalDownloadFailure, error);
@@ -393,7 +393,7 @@ class DSImportErrorModal {
             type = "file";
             tooltip = DSTStr.FileError;
         }
-        let html: HTML = 
+        let html: HTML =
         '<div class="row type-' + type + ' row' + rowNum + activeClass +
         '" data-path="' + fullPath + '">' +
             '<i class="icon xi-error"' + xcTooltip.Attrs +

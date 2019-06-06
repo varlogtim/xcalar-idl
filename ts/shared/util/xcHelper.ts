@@ -946,23 +946,21 @@ namespace xcHelper {
     export function downloadAsFile(
         fileName: string,
         fileContents: string,
-        isRaw: boolean
+        type?: string
     ): void {
-        // XXX FIXME fix it if you can find a way to download it as .py file
-        var element = document.createElement('a');
-        var contents = fileContents;
-        if (isRaw) {
-            contents = 'data:text/plain;base64,' + btoa(fileContents);
+        let blob: Blob;
+        if (type) {
+            let len = fileContents.length;
+            let buffer = new ArrayBuffer(len);
+            let view = new Uint8Array(buffer);
+            for (var i = 0; i < len; i++) {
+                view[i] = fileContents.charCodeAt(i);
+            }
+            blob = new Blob([view], { type: type});
         } else {
-            contents = 'data:text/plain;charset=utf-8,' +
-                       encodeURIComponent(fileContents);
+            blob = new Blob([fileContents], {type: "data:text/plain;charset=utf-8"});
         }
-        element.setAttribute('href', contents);
-        element.setAttribute('download', fileName);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
+        window["saveAs"](blob, fileName);
     }
 
     /**

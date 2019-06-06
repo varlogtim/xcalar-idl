@@ -497,62 +497,36 @@ describe("xcHelper Test", function() {
         [window['expHost'], hostname] = [oldHostname, oldexpHost];
     });
 
-    it("xcHelper.downloadAsFile should work", function(done) {
+    it("xcHelper.downloadAsFile should work", function() {
         var fileName = "fileName";
         var fileContent = "test";
-        var deferrd = PromiseHelper.deferred();
-        function clickEvent (event) {
-            event.preventDefault();
-            var $a = $(event.target);
-            var testName = $a.attr("download");
-            var testContent = $a.attr("href");
-
-            deferrd.resolve(testName, testContent);
+        let called = false;
+        let cached = window.saveAs;
+        window.saveAs = (blob, fName) => {
+            expect(blob.size).to.equal(4);
+            expect(fName).to.equal(fileName);
+            called = true;
         }
-        $(document).on("click", "a", clickEvent);
         xcHelper.downloadAsFile(fileName, fileContent);
 
-        deferrd.promise()
-        .then(function(testName, testContent) {
-            expect(testName).to.equal(fileName);
-            expect(testContent).to.contain(fileContent);
-            done();
-        })
-        .fail(function(error) {
-            throw error;
-        })
-        .always(function() {
-            $(document).off("click", clickEvent);
-        });
+        expect(called).to.be.true;
+        window.saveAs = cached;
     });
 
-    it("xcHelper.downloadAsFile with raw data should work", function(done) {
+    it("xcHelper.downloadAsFile with raw data should work", function() {
         var fileName = "fileName";
         var fileContent = "test";
-        var deferrd = PromiseHelper.deferred();
-        function clickEvent (event) {
-            event.preventDefault();
-            var $a = $(event.target);
-            var testName = $a.attr("download");
-            var testContent = $a.attr("href");
-
-            deferrd.resolve(testName, testContent);
+        let called = false;
+        let cached = window.saveAs;
+        window.saveAs = (blob, fName) => {
+            expect(blob.size).to.equal(4);
+            expect(fName).to.equal(fileName);
+            called = true;
         }
-        $(document).on("click", "a", clickEvent);
-        xcHelper.downloadAsFile(fileName, fileContent, true);
+        xcHelper.downloadAsFile(fileName, fileContent, "application/gzip");
 
-        deferrd.promise()
-        .then(function(testName, testContent) {
-            expect(testName).to.equal(fileName);
-            expect(testContent).not.to.contain(fileContent);
-            done();
-        })
-        .fail(function(error) {
-            throw error;
-        })
-        .always(function() {
-            $(document).off("click", clickEvent);
-        });
+        expect(called).to.be.true;
+        window.saveAs = cached;
     });
 
     it("xcHelper.sizeTranslator should work", function() {

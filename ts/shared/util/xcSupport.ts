@@ -177,7 +177,7 @@ namespace XcSupport {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarExportRetina(lrqName)
             .then((a) => {
-                xcHelper.downloadAsFile(lrqName + ".tar.gz", a.retina, true);
+                xcHelper.downloadAsFile(lrqName + ".tar.gz", a.retina, "application/gzip");
                 deferred.resolve();
             })
             .fail((error) => {

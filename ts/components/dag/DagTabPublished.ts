@@ -277,7 +277,7 @@ class DagTabPublished extends DagTab {
             return promise;
         })
         .then((file) => {
-            xcHelper.downloadAsFile(fileName, file.sessionContent, true);
+            xcHelper.downloadAsFile(fileName, file.sessionContent, "application/gzip");
             if (optimized) {
                 return PromiseHelper.alwaysResolve(this._removeOptimizedRetainArgs());
             }
