@@ -126,6 +126,7 @@ class AdvancedModeState extends State {
         let dsNode = this.dagViewManager.newNode({type:DagNodeType.Dataset});
         let dsArgs = await DS.getLoadArgsFromDS(ds.id);
         let dsSchema = await DS.getDSBasicInfo(ds.id);
+
         dsNode.setParam({
             'source': ds.id,
             'prefix': Util.randName(xcHelper.parseDSName(ds.id)["dsName"]),
@@ -752,15 +753,20 @@ class AdvancedModeState extends State {
                 newState = await randomAction.call(this);
         } catch (error) {
             // XXX: Ignoring all errors. Might want to rethrow some errors;
-            console.log(`Error: ${error}`);
+            console.log(`Exec Action Error: ${error}`);
         }
         await this.currentTab.save();
-        this.dagViewManager.autoAlign(this.currentTab.getId());
+        try {
+            this.dagViewManager.autoAlign(this.currentTab.getId());
+        } catch (error) {
+            // It's ok to ignore the autoAlign render error
+            console.log(`Dag View Render Error: ${error}`);
+        }
         try {
             await this.runDF();
         } catch (error) {
             // XXX: Ignoring all errors. Might want to rethrow some errors;
-            console.log(`Error: ${error}`);
+            console.log(`Run DF Error: ${error}`);
         }
         this.run++;
         return newState;
