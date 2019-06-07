@@ -3,7 +3,7 @@ describe('ExpServer Support Test', function() {
     var expect = require('chai').expect;
     require(__dirname + '/../expServer.js');
 
-    var support = require(__dirname + '/../utils/expServerSupport.js');
+    var support = require(__dirname + '/../utils/expServerSupport.js').default;
     var path = require("path");
     var cfgDir = __dirname + '/config';
     var testHostsFile;
@@ -16,7 +16,22 @@ describe('ExpServer Support Test', function() {
     var testLogOpts;
     var defaultXcalarDir;
     var testDir;
+    var oldCheckAuth;
+    var oldCheckAuthAdmin;
     this.timeout(10000);
+
+    function fakeExecuteCommand(func) {
+        support.executeCommand = func;
+    }
+    function fakeReadHostsFromFile(func) {
+        support.readHostsFromFile = func;
+    }
+    function fakeSendCommandToSlaves(func) {
+        support.sendCommandToSlaves = func;
+    }
+    function fakeGetXlrRoot(func) {
+        support.getXlrRoot = func;
+    }
 
     // Test begins
     before(function() {
@@ -53,14 +68,16 @@ describe('ExpServer Support Test', function() {
         testStopCommand = defaultXcalarDir + "/bin/xcalarctl stop";
         testStartData = "xcmgmtd started";
         testStopData = "Stopped Xcalar";
-        support.setDefaultHostsFile(__dirname + "/config/test.cfg");
-        support.checkAuthTrue(support.userTrue);
-        support.checkAuthAdminTrue(support.adminTrue);
+        support._defaultHostsFile = __dirname + "/config/test.cfg";
+        oldCheckAuth = support.checkAuthImpl;
+        oldCheckAuthAdmin = support.checkAuthAdminImpl;
+        support.checkAuthImpl = (req, res, next) => { next(); }
+        support.checkAuthAdminImpl = (req, res, next) => { next(); }
     });
 
     after(function() {
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
     });
 
     it('executeCommand should work', function(done) {
@@ -75,8 +92,8 @@ describe('ExpServer Support Test', function() {
     });
 
     it('executeCommand should work even if timeout', function(done) {
-        var timeout = support.getTimeout();
-        support.setNewTimeout(1);
+        var timeout = support._timeout;
+        support._timeout = 1;
         support.executeCommand("sleep 1")
         .then(function(ret) {
             expect(ret.status).to.equal(200);
@@ -86,7 +103,7 @@ describe('ExpServer Support Test', function() {
             done("fail");
         })
         .always(function() {
-            support.setNewTimeout(timeout);
+            support._timeout = timeout;
         });
     });
 
@@ -146,7 +163,7 @@ describe('ExpServer Support Test', function() {
         var fakeFunc =  function(command) {
             return jQuery.Deferred().resolve(command + " succeeds").promise();
         }
-        support.fakeExecuteCommand(fakeFunc);
+        fakeExecuteCommand(fakeFunc);
         support.slaveExecuteAction("", "/service/start/slave", testContent)
         .then(function() {
             return support.slaveExecuteAction("", "/service/stop/slave", testContent);
@@ -166,7 +183,7 @@ describe('ExpServer Support Test', function() {
             done("fail");
         })
         .always(function() {
-            support.fakeExecuteCommand(oldFunc);
+            fakeExecuteCommand(oldFunc);
         });
     });
 
@@ -185,8 +202,8 @@ describe('ExpServer Support Test', function() {
         var fakeSend = function() {
             return jQuery.Deferred().resolve().promise();
         };
-        support.fakeReadHostsFromFile(fakeRead);
-        support.fakeSendCommandToSlaves(fakeSend);
+        fakeReadHostsFromFile(fakeRead);
+        fakeSendCommandToSlaves(fakeSend);
         support.masterExecuteAction(testAction, testSlaveUrl, testContent, true)
         .then(function(ret) {
             expect(ret.status).to.equal(200);
@@ -200,8 +217,8 @@ describe('ExpServer Support Test', function() {
             done("fail");
         })
         .always(function() {
-            support.fakeReadHostsFromFile(oldRead);
-            support.fakeSendCommandToSlaves(oldSend);
+            fakeReadHostsFromFile(oldRead);
+            fakeSendCommandToSlaves(oldSend);
         });
     });
 
@@ -232,7 +249,7 @@ describe('ExpServer Support Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve(testDir).promise();
         };
-        support.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
         // It should catch 'undefined' and handle it correctly
         // support.removeSessionFiles(undefined)
         support.removeSessionFiles('nonFile')
@@ -244,7 +261,7 @@ describe('ExpServer Support Test', function() {
             done("fail");
         })
         .always(function() {
-            support.fakeGetXlrRoot(oldFunc);
+            fakeGetXlrRoot(oldFunc);
         });
     });
 
@@ -253,7 +270,7 @@ describe('ExpServer Support Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve(cfgDir).promise();
         };
-        support.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
         support.getLicense()
         .then(function(ret) {
             expect(ret.status).to.equal(200);
@@ -263,7 +280,7 @@ describe('ExpServer Support Test', function() {
             done("fail");
         })
         .always(function() {
-            support.fakeGetXlrRoot(oldFunc);
+            fakeGetXlrRoot(oldFunc);
         });
     });
 
@@ -278,7 +295,7 @@ describe('ExpServer Support Test', function() {
 
     it('getMatchedHosts should work', function(done) {
         console.log("XCE_CONFIG: " + process.env.XCE_CONFIG);
-        console.log("defaultHostsFile: " + support.defaultHostsFile);
+        console.log("defaultHostsFile: " + support._defaultHostsFile);
         support.getMatchedHosts({hostnamePattern: ".*"})
         .then(function(ret) {
             expect(ret.status).to.equal(200);
@@ -365,7 +382,7 @@ describe('ExpServer Support Test', function() {
         var fakeFunc =  function(command) {
             return jQuery.Deferred().resolve(command + " succeeds").promise();
         }
-        support.fakeExecuteCommand(fakeFunc);
+        fakeExecuteCommand(fakeFunc);
         support.removeSHM()
         .then(function(ret) {
             expect(ret).to.include("succeeds");
@@ -375,7 +392,7 @@ describe('ExpServer Support Test', function() {
             done("fail");
         })
         .always(function() {
-            support.fakeExecuteCommand(oldFunc);
+            fakeExecuteCommand(oldFunc);
         });
     });
 
@@ -384,7 +401,7 @@ describe('ExpServer Support Test', function() {
         var fakeFunc =  function(command) {
             return jQuery.Deferred().resolve(command + " succeeds").promise();
         }
-        support.fakeExecuteCommand(fakeFunc);
+        fakeExecuteCommand(fakeFunc);
         support.getOperatingSystem()
         .then(function(ret) {
             expect(ret).to.include("succeeds");
@@ -394,7 +411,7 @@ describe('ExpServer Support Test', function() {
             done("fail");
         })
         .always(function() {
-            support.fakeExecuteCommand(oldFunc);
+            fakeExecuteCommand(oldFunc);
         });
     });
 
@@ -403,7 +420,7 @@ describe('ExpServer Support Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve(testDir).promise();
         };
-        support.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
         var enableHotPatches = true;
         support.setHotPatch(enableHotPatches)
         .then(function(ret) {
@@ -414,7 +431,7 @@ describe('ExpServer Support Test', function() {
             done("fail");
         })
         .always(function() {
-            support.fakeGetXlrRoot(oldFunc);
+            fakeGetXlrRoot(oldFunc);
         });
     });
 
@@ -423,7 +440,7 @@ describe('ExpServer Support Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve(testDir).promise();
         };
-        support.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
         support.getHotPatch()
         .then(function(ret) {
             expect(ret.hotPatchEnabled).to.equal(true);
@@ -433,7 +450,7 @@ describe('ExpServer Support Test', function() {
             done("fail");
         })
         .always(function() {
-            support.fakeGetXlrRoot(oldFunc);
+            fakeGetXlrRoot(oldFunc);
         });
     });
 

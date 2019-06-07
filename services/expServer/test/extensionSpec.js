@@ -7,7 +7,7 @@ describe('ExpServer Extension Test', function() {
 
     var extensionManager = require(__dirname +
         '/../controllers/extensionManager.js').default;
-    var support = require(__dirname + '/../utils/expServerSupport.js');
+    var support = require(__dirname + '/../utils/expServerSupport.js').default;
     var testTargz;
     var testName;
     var testVersion;
@@ -71,13 +71,18 @@ describe('ExpServer Extension Test', function() {
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
         }
-        support.checkAuthTrue(support.userTrue);
-        support.checkAuthAdminTrue(support.adminTrue);
+        function fakeCheck(req, res, next) {
+            next();
+        }
+        oldCheckAuth = support.checkAuthImpl;
+        oldCheckAuthAdmin = support.checkAuthAdminImpl;
+        support.checkAuthImpl = fakeCheck;
+        support.checkAuthAdminImpl = fakeCheck;
     });
 
     after(function() {
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
     });
 
     it("extensionManager.writeTarGz should fail when error", function(done) {

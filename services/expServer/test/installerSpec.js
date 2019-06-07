@@ -7,7 +7,7 @@ describe('ExpServer Installer Test', function() {
     var installer = require(__dirname + '/../route/installer.js');
     var installerManager = require(__dirname + '/../controllers/'+
         'installerManager.js').default;
-    var support = require(__dirname + '/../utils/expServerSupport.js');
+    var support = require(__dirname + '/../utils/expServerSupport.js').default;
     var licenseLocation;
     var hostnameLocation;
     var privHostnameLocation;
@@ -166,6 +166,11 @@ describe('ExpServer Installer Test', function() {
         };
         oldSlaveExec = support.slaveExecuteAction;
         installer.fakeSlaveExecuteAction(succPromise);
+        support.slaveExecuteAction = succPromise;
+    });
+
+    after(function() {
+        support.slaveExecuteAction = oldSlaveExec;
     });
 
     after(function() {
@@ -420,4 +425,6 @@ describe('ExpServer Installer Test', function() {
             done();
         });
     });
+
+
 });

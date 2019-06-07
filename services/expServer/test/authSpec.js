@@ -4,7 +4,7 @@ describe('ExpServer Auth Test', function() {
     // var request = require('request');
     var expServer = require(__dirname + '/../expServer.js');
     var authManager = require(__dirname + '/../controllers/authManager.js').default;
-    var support = require(__dirname + '/../utils/expServerSupport.js');
+    var support = require(__dirname + '/../utils/expServerSupport.js').default;
     var cfgFile = __dirname + '/config/test.cfg';
     var jwt = require('jsonwebtoken');
     var fs = require('fs');
@@ -16,6 +16,9 @@ describe('ExpServer Auth Test', function() {
     var certArray, certArray1 = {}, certArray2, certArray3;
     var urlRefCount;
     var jwks_url = "http://something.else.where/some/document/here";
+    var oldHostsFile;
+    var oldCheckAuth;
+    var oldCheckAuthAdmin;
 
     this.timeout(10000);
 
@@ -133,15 +136,22 @@ describe('ExpServer Auth Test', function() {
         certArray3 = null;
 
         expServer.fakeBootstrapXlrRoot(dummyBootstrapXlrRoot);
-        support.setDefaultHostsFile(cfgFile);
-        support.checkAuthTrue(support.userTrue);
-        support.checkAuthAdminTrue(support.adminTrue);
+        function fakeCheck(req, res, next) {
+            next();
+        }
+        oldHostsFile = support._defaultHostsFile
+        oldCheckAuth = support.checkAuthImpl;
+        oldCheckAuthAdmin = support.checkAuthAdminImpl;
+        support._defaultHostsFile = cfgFile;
+        support.checkAuthImpl = fakeCheck;
+        support.checkAuthAdminImpl = fakeCheck;
     });
 
     after(function() {
         expServer.fakeBootstrapXlrRoot(expServer.bootstrapXlrRoot);
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        support._defaultHostsFile = oldHostsFile;
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
     });
 
     it("getUrl should work", function(done) {

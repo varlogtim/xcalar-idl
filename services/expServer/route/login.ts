@@ -1,5 +1,5 @@
 import * as xcConsole from "../utils/expServerXcConsole";
-import * as support from "../utils/expServerSupport";
+import support from "../utils/expServerSupport";
 import * as HttpStatus from "../../../assets/js/httpStatus";
 const httpStatus = HttpStatus.httpStatus;
 import * as crypto from "crypto";

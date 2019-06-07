@@ -3,7 +3,7 @@ describe("sqlRestApi Test", function() {
     const request = require('request');
     require(__dirname + '/../expServer.js');
     const sqlManager = require(__dirname + '/../controllers/sqlManager.js').default;
-    const support = require(__dirname + "/../utils/expServerSupport.js")
+    const support = require(__dirname + "/../utils/expServerSupport.js").default;
     const sqlUser = "xcalar-internal-sql";
     const sqlId = 4193719;
     const sqlWkbk = "xcalar_test_wkbk";
@@ -64,17 +64,20 @@ describe("sqlRestApi Test", function() {
         fakeRejectFunc = function() {
             return PromiseHelper.reject(rejectStr);
         };
+        fakeCheck = function(req, res, next) {
+            next();
+        }
         tablePrefix = "XC_TABLENAME_";
         testSession = "testSession_";
 
         oldUpsertQuery = SqlQueryHistory.getInstance().upsertQuery;
         SqlQueryHistory.getInstance().upsertQuery = fakeFunc;
         oldCheckAuth = support.checkAuthImpl;
-        support.checkAuthTrue(support.userTrue);
+        support.checkAuthImpl = fakeCheck;
     });
     after(() => {
         SqlQueryHistory.getInstance().upsertQuery = oldUpsertQuery;
-        support.checkAuthTrue(oldCheckAuth);
+        support.checkAuthImpl = oldCheckAuth;
     })
 
     describe("Functional Test", function() {

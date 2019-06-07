@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Status } from "../utils/supportStatusFile";
 import * as xcConsole from "../utils/expServerXcConsole"
-import * as support from "../utils/expServerSupport";
+import support from "../utils/expServerSupport";
 export const router = Router();
 import tutorialManager from "../controllers/tutorialManager";
 

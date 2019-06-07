@@ -3,8 +3,7 @@ describe('ExpServer Service Test', function() {
     var expect = require('chai').expect;
     var request = require('request');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
-    var support = require(__dirname +
-        '/../../expServer/utils/expServerSupport.js');
+    var support = require(__dirname + '/../../expServer/utils/expServerSupport.js').default;
     var service = require(__dirname + '/../../expServer/route/service.js');
     var serviceManager = require(__dirname +
             '/../../expServer/controllers/serviceManager.js').default;
@@ -15,6 +14,8 @@ describe('ExpServer Service Test', function() {
     var oldGetLic;
     var oldSubTicket;
     var oldGetMatch;
+    var oldCheckAuth;
+    var oldCheckAuthAdmin;
     this.timeout(10000);
 
     // Test begins
@@ -22,6 +23,9 @@ describe('ExpServer Service Test', function() {
         testStr = "test";
         fakeFunc = function() {
             return jQuery.Deferred().resolve({status: 200}).promise();
+        }
+        fakeCheck = function(req, res, next) {
+            next();
         }
         oldMasterExec = support.masterExecuteAction;
         oldSlaveExec = support.slaveExecuteAction;
@@ -33,34 +37,36 @@ describe('ExpServer Service Test', function() {
         oldGetTickets = support.getTickets;
         oldGetPatch = support.getHotPatch;
         oldSetPatch = support.setHotPatch;
-        service.fakeMasterExecuteAction(fakeFunc);
-        service.fakeSlaveExecuteAction(fakeFunc);
-        service.fakeRemoveSessionFiles(fakeFunc);
-        service.fakeRemoveSHM(fakeFunc);
-        service.fakeGetLicense(fakeFunc);
-        service.fakeSubmitTicket(fakeFunc);
-        service.fakeGetMatchedHosts(fakeFunc);
-        service.fakeGetTickets(fakeFunc);
-        service.fakeGetHotPatch(fakeFunc);
-        service.fakeSetHotPatch(fakeFunc);
+        oldCheckAuth = support.checkAuthImpl;
+        oldCheckAuthAdmin = support.checkAuthAdminImpl;
 
-        support.checkAuthTrue(support.userTrue);
-        support.checkAuthAdminTrue(support.adminTrue);
+        support.masterExecuteAction = fakeFunc;
+        support.slaveExecuteAction = fakeFunc;
+        support.removeSessionFiles = fakeFunc;
+        support.removeSHM = fakeFunc;
+        support.getLicense = fakeFunc;
+        support.submitTicket = fakeFunc;
+        support.getMatchedHosts = fakeFunc;
+        support.getTickets = fakeFunc;
+        support.getHotPatch = fakeFunc;
+        support.setHotPatch = fakeFunc;
+        support.checkAuthImpl = fakeCheck;
+        support.checkAuthAdminImpl = fakeCheck;
     });
 
     after(function() {
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
-        service.fakeMasterExecuteAction(oldMasterExec);
-        service.fakeSlaveExecuteAction(oldSlaveExec);
-        service.fakeRemoveSessionFiles(oldRemoveSession);
-        service.fakeRemoveSHM(oldRemoveSHM);
-        service.fakeGetLicense(oldGetLic);
-        service.fakeSubmitTicket(oldSubTicket);
-        service.fakeGetMatchedHosts(oldGetMatch);
-        service.fakeGetTickets(oldGetTickets);
-        service.fakeGetHotPatch(oldGetPatch);
-        service.fakeSetHotPatch(oldSetPatch);
+        support.masterExecuteAction = oldMasterExec;
+        support.slaveExecuteAction = oldSlaveExec;
+        support.removeSessionFiles = oldRemoveSHM;
+        support.removeSHM = oldRemoveSHM;
+        support.getLicense = oldGetLic;
+        support.submitTicket = oldSubTicket;
+        support.getMatchedHosts = oldGetMatch;
+        support.getTickets = oldGetTickets;
+        support.getHotPatch = oldGetPatch;
+        support.setHotPatch = oldSetPatch;
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
     });
 
     it("service.convertToBase64 should work", function() {

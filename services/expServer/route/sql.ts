@@ -2,7 +2,7 @@ import { Router } from "express"
 export const router = Router()
 import * as xcConsole from "../utils/expServerXcConsole";
 import sqlManager from "../controllers/sqlManager"
-import * as support from "../utils/expServerSupport"
+import support from "../utils/expServerSupport"
 
 // set default timeout to 20 min
 const defaultSQLTimeout: number = process.env.EXP_SQL_TIMEOUT &&

@@ -5,7 +5,7 @@ import * as ldap from "ldapjs";
 import * as xcConsole from "../utils/expServerXcConsole";
 import * as HttpStatus from "../../../assets/js/httpStatus";
 const httpStatus = HttpStatus.httpStatus;
-import * as support from "../utils/expServerSupport";
+import support from "../utils/expServerSupport";
 import Ajv = require('ajv');
 const ajv: Ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
 import authManager from "./authManager"

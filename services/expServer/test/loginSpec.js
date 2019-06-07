@@ -6,12 +6,18 @@ describe('ExpServer Login Test', function() {
     const ldap = require('ldapjs');
     const request = require('request');
     require(__dirname + '/../expServer.js');
+    var oldCheckAuth;
+    var oldCheckAuthAdmin;
     this.timeout(5000);
 
     var loginManager = require(__dirname + '/../controllers/loginManager.js');
-    var support = require(__dirname + '/../utils/expServerSupport.js');
+    var support = require(__dirname + '/../utils/expServerSupport.js').default;
     require(__dirname + '/../expServer.js');
     var httpStatus = require(__dirname + "/../../../assets/js/httpStatus.js").httpStatus;
+
+    function fakeCheck(req, res, next) {
+        next();
+    }
 
     function postRequest(action, url, str, jar) {
         var deferred = jQuery.Deferred();
@@ -55,6 +61,10 @@ describe('ExpServer Login Test', function() {
     var fakeRoot;
     var emptyPromise;
     var setCredentialTrue = { 'valid': true, 'status': httpStatus.OK };
+
+    function fakeGetXlrRoot(func) {
+        support.getXlrRoot = func;
+    }
 
     // Test begins
     before(function() {
@@ -135,17 +145,19 @@ describe('ExpServer Login Test', function() {
             else return jQuery.Deferred().resolve(msg).promise();
         };
 
-        support.checkAuthTrue(support.userTrue);
-        support.checkAuthAdminTrue(support.adminTrue);
+        oldCheckAuth = support.checkAuthImpl;
+        oldCheckAuthAdmin = support.checkAuthAdminImpl;
+        support.checkAuthImpl = fakeCheck;
+        support.checkAuthAdminImpl = fakeCheck;
     });
 
     after(function() {
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
     });
 
     it("loginManager.setupLdapConfigs should work", function(done) {
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
         loginManager.setupLdapConfigs(true)
         .then(function(ret) {
             expect(ret).to.equal("setupLdapConfigs succeeds");
@@ -155,7 +167,7 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -163,7 +175,7 @@ describe('ExpServer Login Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().reject("TestError").promise();
         };
-        loginManager.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
         loginManager.setupLdapConfigs(true)
         .then(function() {
             done("fail");
@@ -173,7 +185,7 @@ describe('ExpServer Login Test', function() {
             done();
         })
         .always(function() {
-            support.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -181,7 +193,7 @@ describe('ExpServer Login Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve("/never/nopath").promise();
         };
-        loginManager.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
         loginManager.setupLdapConfigs(true)
         .then(function() {
             done("fail");
@@ -191,7 +203,7 @@ describe('ExpServer Login Test', function() {
             done();
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -316,7 +328,7 @@ describe('ExpServer Login Test', function() {
 
     it('loginManager.loginAuthentication should work', function(done) {
         testCredArray = { "xiusername": "foo", "xipassword": "bar" };
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
         var oldConfig = loginManager.setupLdapConfigs;
         var oldConn = loginManager.setLdapConnection;
         var oldAuth = loginManager.ldapAuthentication;
@@ -341,7 +353,7 @@ describe('ExpServer Login Test', function() {
             done("fail: " + JSON.stringify(message));
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
             loginManager.fakeSetupLdapConfigs(oldConfig);
             loginManager.fakeSetLdapConnection(oldConn);
             loginManager.fakeLdapAuthentication(oldAuth);
@@ -383,7 +395,7 @@ describe('ExpServer Login Test', function() {
             xiusername: "sPerson1@gmail.com",
             xipassword: "Welcome1"
         };
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
 
         var expectedRetMsg = {
             "status": 200,
@@ -403,7 +415,7 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -412,7 +424,7 @@ describe('ExpServer Login Test', function() {
             xiusername: "sPerson1@gmail.com",
             xipassword: "Welcome1"
         };
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
 
         var expectedRetMsg = {
             "status": 200,
@@ -429,8 +441,8 @@ describe('ExpServer Login Test', function() {
         }
         var cookieJar = request.jar();
 
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
         postRequest("POST", "/login", testCredArray, cookieJar)
         .then(function(ret) {
             expect(ret.body).to.deep.equal(expectedRetMsg);
@@ -453,9 +465,9 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            support.checkAuthTrue(support.userTrue);
-            support.checkAuthAdminTrue(support.adminTrue);
-            loginManager.fakeGetXlrRoot(oldRoot);
+            support.checkAuthImpl = fakeCheck;
+            support.checkAuthAdminImpl = fakeCheck;
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -464,7 +476,7 @@ describe('ExpServer Login Test', function() {
             xiusername: "sPerson2@gmail.com",
             xipassword: "5678"
         };
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
 
         var expectedRetMsg = {
             "status": 200,
@@ -479,8 +491,8 @@ describe('ExpServer Login Test', function() {
                      three: "four" };
         var cookieJar = request.jar();
 
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
         postRequest("POST", "/login/test/user", body)
         .then(function(err) {
             return jQuery.Deferred().reject(err).promise();
@@ -512,9 +524,9 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            support.checkAuthTrue(support.userTrue);
-            support.checkAuthAdminTrue(support.adminTrue);
-            loginManager.fakeGetXlrRoot(oldRoot);
+            support.checkAuthImpl = fakeCheck;
+            support.checkAuthAdminImpl = fakeCheck;
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -523,7 +535,7 @@ describe('ExpServer Login Test', function() {
             xiusername: "sPerson1@gmail.com",
             xipassword: "Welcome1"
         };
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
 
         var expectedRetMsg = {
             "status": 200,
@@ -538,8 +550,8 @@ describe('ExpServer Login Test', function() {
                      three: "four" };
         var cookieJar = request.jar();
 
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
         postRequest("POST", "/login/test/admin", body)
         .then(function(err) {
             return jQuery.Deferred().reject(err).promise();
@@ -566,9 +578,9 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            support.checkAuthTrue(support.userTrue);
-            support.checkAuthAdminTrue(support.adminTrue);
-            loginManager.fakeGetXlrRoot(oldRoot);
+            support.checkAuthImpl = fakeCheck;
+            support.checkAuthAdminImpl = fakeCheck;
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -589,12 +601,46 @@ describe('ExpServer Login Test', function() {
         var body = { one: "two",
                      three: "four" };
         var cookieJar = request.jar();
+        var oldLoginAuth;
 
-        loginManager.fakeGetXlrRoot(fakeRoot);
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
-        support.setTestMaxAge(3000);
-        support.fakeLoginAuth(support.loginAuthTest);
+        function loginAuthTest(req, res) {
+            req.session.cookie.maxAge = 3000;
+
+            let message = {
+                'status': httpStatus.Unauthorized
+            };
+            try {
+                message = JSON.parse(res.locals.message);
+            } catch(e) {
+                xcConsole.error('loginAuth: ' + e);
+            }
+
+            let now = Date.now();
+
+            if (message.hasOwnProperty('isValid') &&
+                message.hasOwnProperty('isAdmin') &&
+                message.hasOwnProperty('isSupporter')) {
+
+                if (message.isValid) {
+                    req.session.loggedIn = true;
+
+                    req.session.loggedInAdmin = message.isAdmin;
+                    req.session.loggedInUser = !message.isAdmin;
+
+                    req.session.firstName = message.firstName;
+                    req.session.emailAddress = message.mail;
+
+                }
+            }
+
+            res.status(message.status).send(message);
+        }
+
+        fakeGetXlrRoot(fakeRoot);
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
+        oldLoginAuth = support.loginAuthImpl;
+        support.loginAuthImpl = loginAuthTest;
         postRequest("POST", "/login", testCredArray, cookieJar)
         .then(function(res) {
             expect(res.body).to.deep.equal(expectedRetMsg);
@@ -603,7 +649,7 @@ describe('ExpServer Login Test', function() {
             // chain of promises.  It must do its own init/cleanup
             // separate from the routine that sets it up.
             setTimeout(function() {
-                support.checkAuthTrue(support.checkAuthImpl);
+                support.checkAuthImpl = oldCheckAuth;
                 postRequest("POST", "/login/test/user", body, cookieJar)
                 .then(function() {
                     done("fail");
@@ -612,7 +658,7 @@ describe('ExpServer Login Test', function() {
                     done();
                 })
                 .always(function() {
-                    support.checkAuthTrue(support.userTrue);
+                    support.checkAuthImpl = fakeCheck;
                 });
             }, 3500);
         })
@@ -620,11 +666,10 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
-            support.checkAuthTrue(support.userTrue);
-            support.checkAuthAdminTrue(support.adminTrue);
-            support.fakeLoginAuth(support.loginAuthImpl);
-            support.setTestMaxAge(support.testMaxAge);
+            fakeGetXlrRoot(oldRoot);
+            support.checkAuthImpl = fakeCheck;
+            support.checkAuthAdminImpl = fakeCheck;
+            support.loginAuthImpl = oldLoginAuth;
         });
     });
 
@@ -654,9 +699,9 @@ describe('ExpServer Login Test', function() {
         };
         var cookieJar = request.jar();
 
-        loginManager.fakeGetXlrRoot(fakeRoot);
-        support.checkAuthTrue(support.checkAuthImpl);
-        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        fakeGetXlrRoot(fakeRoot);
+        support.checkAuthImpl = oldCheckAuth;
+        support.checkAuthAdminImpl = oldCheckAuthAdmin;
         postRequest("POST", "/login", testCredArray, cookieJar)
         .then(function(ret) {
             console.log(1)
@@ -703,8 +748,8 @@ describe('ExpServer Login Test', function() {
         })
         .then(function(ret) {
             expect(ret.body.status).to.equal(httpStatus.OK);
-            support.checkAuthTrue(support.userTrue);
-            support.checkAuthAdminTrue(support.adminTrue);
+            support.checkAuthImpl = fakeCheck;
+            support.checkAuthAdminImpl = fakeCheck;
             if (testStatus) {
                 done();
             } else {
@@ -712,7 +757,7 @@ describe('ExpServer Login Test', function() {
             }
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         })
     });
 
@@ -752,7 +797,7 @@ describe('ExpServer Login Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
-        loginManager.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
 
         var credArray = {
             msalEnabled: true,
@@ -773,12 +818,12 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should work with proper setMsalConfig action and getMsalConfig action', function(done) {
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
         var setArray = {
             msalEnabled: true,
             msal: {
@@ -856,12 +901,12 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should fail with setDefaultAdmin action and invalid input', function(done) {
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
 
         var testInput = {
             "bogus": "bogus"
@@ -882,7 +927,7 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -890,7 +935,7 @@ describe('ExpServer Login Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
-        loginManager.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
 
         var testInput = {
             "username": "foo",
@@ -908,7 +953,7 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -933,7 +978,7 @@ describe('ExpServer Login Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve(path.join(configDir)).promise();
         };
-        loginManager.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
 
         postRequest("POST", "/login/defaultAdmin/get", testInput)
         .then(function(ret) {
@@ -944,7 +989,7 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -970,7 +1015,7 @@ describe('ExpServer Login Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve(path.join(configDir)).promise();
         };
-        loginManager.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
 
         postRequest("POST", "/login/defaultAdmin/set", testInput)
         .then(function(ret) {
@@ -1051,12 +1096,12 @@ describe('ExpServer Login Test', function() {
             done("fail: " + JSON.stringify(error));
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should fail with setLdapConfig action and bogus ldapConfig', function(done) {
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
         var credArray = {
             bogus: "bogus"
         };
@@ -1076,7 +1121,7 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -1084,7 +1129,7 @@ describe('ExpServer Login Test', function() {
         var fakeFunc = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
-        loginManager.fakeGetXlrRoot(fakeFunc);
+        fakeGetXlrRoot(fakeFunc);
 
         var credArray = {
             ldap_uri: "legitLookingLdapUri",
@@ -1105,12 +1150,12 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .always(function() {
-            loginManager.fakeGetXlrRoot(oldRoot);
+            fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should work with proper setLdapConfig action and getLdapConfig action', function(done) {
-        loginManager.fakeGetXlrRoot(fakeRoot);
+        fakeGetXlrRoot(fakeRoot);
 
         var origLdapConfig;
         var testPassed = false;
@@ -1184,7 +1229,7 @@ describe('ExpServer Login Test', function() {
                 done("Failed to restore origLdapConfig: " + errorMsg);
             })
             .always(function() {
-                loginManager.fakeGetXlrRoot(oldRoot);
+                fakeGetXlrRoot(oldRoot);
             });
         });
     });

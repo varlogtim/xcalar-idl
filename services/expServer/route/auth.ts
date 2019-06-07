@@ -1,7 +1,7 @@
 import * as xcConsole from "../utils/expServerXcConsole";
 import * as HttpStatus from "../../../assets/js/httpStatus";
 const httpStatus = HttpStatus.httpStatus;
-import * as support from "../utils/expServerSupport";
+import support from "../utils/expServerSupport";
 import * as cookieParser from "cookie-parser";
 import { Router } from "express"
 export const router = Router();

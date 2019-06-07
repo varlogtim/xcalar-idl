@@ -1,7 +1,7 @@
 import { Router } from "express";
 export const router = Router();
 import serviceManager from "../controllers/serviceManager"
-import * as support from "../utils/expServerSupport";
+import support from "../utils/expServerSupport";
 import * as xcConsole from "../utils/expServerXcConsole"
 import { httpStatus } from "../../../assets/js/httpStatus";
 import * as fs from "fs";
@@ -281,49 +281,3 @@ router.get("/service/getTime", function(req, res) {
     res.status(httpStatus.OK).send(JSON.stringify(Date.now()));
 });
 // End of service calls
-
-
-// Below part is only for Unit Test
-function fakeMasterExecuteAction(func: any) {
-    support.masterExecuteAction = func;
-}
-function fakeSlaveExecuteAction(func: any) {
-    support.slaveExecuteAction = func;
-}
-function fakeRemoveSessionFiles(func: any) {
-    support.removeSessionFiles = func;
-}
-function fakeRemoveSHM(func: any) {
-    support.removeSHM = func;
-}
-function fakeGetLicense(func: any) {
-    support.getLicense = func;
-}
-function fakeSubmitTicket(func: any) {
-    support.submitTicket = func;
-}
-function fakeGetMatchedHosts(func: any) {
-    support.getMatchedHosts = func;
-}
-function fakeGetTickets(func: any) {
-    support.getTickets = func;
-}
-function fakeGetHotPatch(func: any) {
-    support.getHotPatch = func;
-}
-function fakeSetHotPatch(func: any) {
-    support.setHotPatch = func;
-}
-
-if (process.env.NODE_ENV === "test") {
-    exports.fakeMasterExecuteAction = fakeMasterExecuteAction;
-    exports.fakeSlaveExecuteAction = fakeSlaveExecuteAction;
-    exports.fakeRemoveSessionFiles = fakeRemoveSessionFiles;
-    exports.fakeRemoveSHM = fakeRemoveSHM;
-    exports.fakeGetLicense = fakeGetLicense;
-    exports.fakeSubmitTicket = fakeSubmitTicket;
-    exports.fakeGetMatchedHosts = fakeGetMatchedHosts;
-    exports.fakeGetTickets = fakeGetTickets;
-    exports.fakeGetHotPatch = fakeGetHotPatch;
-    exports.fakeSetHotPatch = fakeSetHotPatch;
-}

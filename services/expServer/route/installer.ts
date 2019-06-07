@@ -2,8 +2,8 @@ import { Router } from "express";
 export const router = Router();
 import * as xcConsole from "../utils/expServerXcConsole";
 import { httpStatus } from "../../../assets/js/httpStatus";
-import * as support from "../utils/expServerSupport";
 import installerManager from "../controllers/installerManager";
+import support from "../utils/expServerSupport";
 
 router.post('/xdp/license/verification', function(req, res) {
     xcConsole.log("Checking License");

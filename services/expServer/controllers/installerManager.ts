@@ -5,7 +5,7 @@ import * as path from "path";
 import * as stream from "stream";
 import * as zlib from "zlib";
 import * as crypto from "crypto";
-import * as support from "../utils/expServerSupport";
+import support from "../utils/expServerSupport";
 import * as xcConsole from "../utils/expServerXcConsole";
 import { httpStatus } from "../../../assets/js/httpStatus";
 

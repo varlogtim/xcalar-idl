@@ -3,7 +3,7 @@ export const router = Router();
 import * as xcConsole from "../utils/expServerXcConsole";
 import * as path from "path";
 import * as fs from "fs";
-import * as support from "../utils/expServerSupport";
+import support from "../utils/expServerSupport";
 import upload from "../controllers/upload";
 import extensionManager from "../controllers/extensionManager";
 import socket from "../controllers/socket";
