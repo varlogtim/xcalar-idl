@@ -1,11 +1,11 @@
 class DagNodeDataset extends DagNodeIn {
     protected input: DagNodeDatasetInput;
 
-    public constructor(options: DagNodeInInfo) {
-        super(options);
+    public constructor(options: DagNodeInInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Dataset;
         this.display.icon = "&#xe90f";
-        this.input = new DagNodeDatasetInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeDatasetInput(options.input));
     }
 
     public static readonly specificSchema = {
@@ -94,7 +94,7 @@ class DagNodeDataset extends DagNodeIn {
         const source: string = input.source;
         const prefix: string = input.prefix;
         const synthesize: boolean = input.synthesize;
-        const loadArgs: string = input.loadArgs;        
+        const loadArgs: string = input.loadArgs;
 
         this.input.setInput({
             source: source,

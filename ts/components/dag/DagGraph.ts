@@ -780,11 +780,13 @@ class DagGraph extends Durable {
                 sqlNodes.set(node.getId(), node);
             }
         });
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, {
-            optimized: true,
-            noReplaceParam: noReplaceParam,
-            sqlNodes: sqlNodes
-        });
+        const executor: DagGraphExecutor = this.getRuntime().accessible(
+            new DagGraphExecutor(orderedNodes, clonedGraph, {
+                optimized: true,
+                noReplaceParam: noReplaceParam,
+                sqlNodes: sqlNodes
+            })
+        );
         return executor.getBatchQuery();
     }
 
@@ -813,7 +815,7 @@ class DagGraph extends Durable {
         });
     }
 
-    public getRetinaArgs(nodeIds?: DagNodeId[]): XDPromise<void> {
+    public getRetinaArgs(nodeIds?: DagNodeId[], noReplaceParam: boolean = true): XDPromise<void> {
         let nodesMap: Map<DagNodeId, DagNode>;
         let startingNodes: DagNodeId[];
         // If optimized and nodeIds not specified, then look for 1 optimized node.
@@ -850,10 +852,12 @@ class DagGraph extends Durable {
                 "type": error.error
             });
         }
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this, {
-            optimized: true,
-            noReplaceParam: true
-        });
+        const executor: DagGraphExecutor = this.getRuntime().accessible(
+            new DagGraphExecutor(orderedNodes, this, {
+                optimized: true,
+                noReplaceParam: noReplaceParam
+            })
+        );
         let checkResult = executor.validateAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);

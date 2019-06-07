@@ -26,8 +26,8 @@ class DagNodeSQL extends DagNode {
     private _queryObj: any;
     private _allowUpdateSQLHistory: boolean = false;
 
-    public constructor(options: DagNodeSQLInfo) {
-        super(options);
+    public constructor(options: DagNodeSQLInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.SQL;
         this.tableSrcMap = options.tableSrcMap;
         this.columns = options.columns;
@@ -35,7 +35,7 @@ class DagNodeSQL extends DagNode {
         this.minParents = 0; // when working on pub tables in SQL mode, it can
                              // be 0
         this.display.icon = "&#xe957;";
-        this.input = new DagNodeSQLInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeSQLInput(options.input));
         const identifiers = new Map<number, string>();
         const identifiersOrder = this.input.getInput().identifiersOrder;
         const identifiersRaw = this.input.getInput().identifiers;
@@ -1156,10 +1156,15 @@ class DagNodeSQL extends DagNode {
             if (replaceParam) {
                 // paramterize SQL
                 const parameters = DagNodeInput.getParamsInVal(sqlQueryStr);
-                DagParamManager.Instance.updateSQLParamMap(
-                                   options.originalSQLNode || this, parameters);
+                const paramService = this.getRuntime().getDagParamService();
+                paramService.updateSQLParamMap(
+                    options.originalSQLNode || this, parameters);
                 sqlQueryStr = xcStringHelper.replaceMsg(sqlQueryStr,
-                                  DagParamManager.Instance.getParamMap(), true);
+                    paramService.getParamMap(), true);
+                // DagParamManager.Instance.updateSQLParamMap(
+                //                    options.originalSQLNode || this, parameters);
+                // sqlQueryStr = xcStringHelper.replaceMsg(sqlQueryStr,
+                //                   DagParamManager.Instance.getParamMap(), true);
             }
             // set all options
             self.setIdentifiers(options.identifiers);

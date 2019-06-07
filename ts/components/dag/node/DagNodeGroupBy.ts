@@ -2,12 +2,12 @@ class DagNodeGroupBy extends DagNode {
     protected input: DagNodeGroupByInput;
     protected joinRenames: any[];
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.GroupBy;
         this.minParents = 1;
         this.display.icon = "&#xe937;";
-        this.input = new DagNodeGroupByInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeGroupByInput(options.input));
         this.joinRenames = [];
     }
 

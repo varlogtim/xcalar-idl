@@ -3,11 +3,11 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
 
     private _queries: Map<string, string>; // non-persist
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.DFOut;
         this.display.icon = "&#xe955;"; // XXX TODO: UI design
-        this.input = new DagNodeDFOutInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeDFOutInput(options.input));
         this.optimized = this.subType === DagNodeSubType.DFOutOptimized;
         this._queries = new Map<string, string>();
     }

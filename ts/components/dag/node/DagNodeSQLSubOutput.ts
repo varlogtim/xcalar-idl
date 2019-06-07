@@ -1,6 +1,6 @@
 class DagNodeSQLSubOutput extends DagNode {
-    public constructor(options?: DagNodeInfo) {
-        super(options);
+    public constructor(options?: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.SQLSubOutput;
         this.maxParents = 1;
         this.minParents = 1;

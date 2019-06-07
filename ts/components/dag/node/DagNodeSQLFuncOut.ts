@@ -1,11 +1,11 @@
 class DagNodeSQLFuncOut extends DagNodeOut {
     protected input: DagNodeSQlFuncOutInput;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.SQLFuncOut;
         this.display.icon = "&#xe955;";
-        this.input = new DagNodeSQlFuncOutInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeSQlFuncOutInput(options.input));
     }
 
     public static readonly specificSchema = {

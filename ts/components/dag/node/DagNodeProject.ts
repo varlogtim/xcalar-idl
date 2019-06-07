@@ -1,12 +1,12 @@
 class DagNodeProject extends DagNode {
     protected input: DagNodeProjectInput;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Project;
         this.minParents = 1;
         this.display.icon = "&#xe9d7;";
-        this.input = new DagNodeProjectInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeProjectInput(options.input));
     }
 
     public static readonly specificSchema = {

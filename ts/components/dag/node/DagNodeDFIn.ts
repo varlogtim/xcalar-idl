@@ -4,12 +4,12 @@ class DagNodeDFIn extends DagNodeIn {
     protected input: DagNodeDFInInput;
     private _graph: DagGraph; // non-persistent
 
-    public constructor(options: DagNodeDFInInfo) {
-        super(<DagNodeInInfo>options);
+    public constructor(options: DagNodeDFInInfo, runtime?: DagRuntime) {
+        super(<DagNodeInInfo>options, runtime);
         this.type = DagNodeType.DFIn;
         this.display.icon = "&#xe952;"; // XXX TODO: UI design
-        this.input = new DagNodeDFInInput(options.input);
-        this._graph = options.graph || null;
+        this.input = this.getRuntime().accessible(new DagNodeDFInInput(options.input));
+        this._graph = options.graph == null ? null : this.getRuntime().accessible(options.graph);
     }
 
     public static readonly specificSchema = {

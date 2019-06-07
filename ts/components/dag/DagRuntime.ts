@@ -15,6 +15,7 @@ class DagRuntime {
     private _dagTabService: DagTabService;
     private _xdfService: XDFService;
     private _dagAggService: DagAggService;
+    private _dagParamService: DagParamService;
 
     public constructor() {
         // Caution: all services should be initialized seperately with the runtime data at some point
@@ -24,6 +25,7 @@ class DagRuntime {
         this._dagTabService = this.accessible(new DagTabService());
         this._xdfService = this.accessible(new XDFService());
         this._dagAggService = this.accessible(new DagAggService());
+        this._dagParamService = this.accessible(new DagParamService());
     }
 
     public getDagTabService(): DagTabService {
@@ -36,6 +38,10 @@ class DagRuntime {
 
     public getDagAggService(): DagAggService {
         return this._dagAggService;
+    }
+
+    public getDagParamService(): DagParamService {
+        return this._dagParamService;
     }
 
     // === Decorator functions: begin ===

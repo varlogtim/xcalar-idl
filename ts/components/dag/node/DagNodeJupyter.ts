@@ -1,12 +1,12 @@
 class DagNodeJupyter extends DagNodeOut {
     protected input: DagNodeJupyterInput;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Jupyter;
         this.maxParents = 1;
         this.display.icon = "&#xe955;";
-        this.input = new DagNodeJupyterInput(<DagNodeJupyterInputStruct>options.input);
+        this.input = this.getRuntime().accessible(new DagNodeJupyterInput(<DagNodeJupyterInputStruct>options.input));
     }
 
     public static readonly specificSchema = {

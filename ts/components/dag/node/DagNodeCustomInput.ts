@@ -1,8 +1,8 @@
 class DagNodeCustomInput extends DagNode {
     private _container: DagNodeCustom;
 
-    public constructor(options?: DagNodeInfo) {
-        super(options);
+    public constructor(options?: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.CustomInput;
         this.maxParents = 0;
         this.minParents = 0;

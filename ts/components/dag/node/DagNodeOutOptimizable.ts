@@ -1,8 +1,8 @@
 class DagNodeOutOptimizable extends DagNodeOut {
     protected optimized: boolean;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
     }
 
     public isOptimized(): boolean {

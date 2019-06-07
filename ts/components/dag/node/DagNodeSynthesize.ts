@@ -1,8 +1,8 @@
 class DagNodeSynthesize extends DagNode {
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.minParents = 1;
-        this.input = new DagNodeSynthesizeInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeSynthesizeInput(options.input));
         // this.display.icon = "&#xe936;";
     }
 

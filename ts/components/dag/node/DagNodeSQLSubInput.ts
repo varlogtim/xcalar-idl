@@ -1,8 +1,8 @@
 class DagNodeSQLSubInput extends DagNode {
     private _container: DagNodeSQL;
 
-    public constructor(options?: DagNodeInfo) {
-        super(options);
+    public constructor(options?: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.SQLSubInput;
         this.maxParents = 0;
         this.minParents = 0;

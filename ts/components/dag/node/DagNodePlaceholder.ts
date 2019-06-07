@@ -2,11 +2,11 @@ class DagNodePlaceholder extends DagNode {
     protected columns: ProgCol[];
     protected name: string;
 
-    public constructor(options: DagNodePlaceholderInfo) {
-        super(options);
+    public constructor(options: DagNodePlaceholderInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.maxParents = -1;
         this.minParents = 1;
-        this.input = new DagNodePlaceholderInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodePlaceholderInput(options.input));
         this.name = options.name || DagNodeType.Placeholder;
         // this.display.icon = "&#xe936;";
     }

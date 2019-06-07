@@ -1,13 +1,13 @@
 class DagNodeFilter extends DagNode {
     protected input: DagNodeFilterInput;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Filter;
         this.allowAggNode = true;
         this.minParents = 1;
         this.display.icon = "&#xe938;";
-        this.input = new DagNodeFilterInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeFilterInput(options.input));
     }
 
     public static readonly specificSchema = {

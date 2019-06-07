@@ -3,13 +3,13 @@ class DagNodeIMDTable extends DagNodeIn {
     protected columns: ProgCol[];
     private elapsedTime: number;
 
-    public constructor(options: DagNodeInInfo) {
-        super(options);
+    public constructor(options: DagNodeInInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.IMDTable;
         this.maxParents = 0;
         this.minParents = 0;
         this.display.icon = "&#xea55;";
-        this.input = new DagNodeIMDTableInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeIMDTableInput(options.input));
     }
 
     public static readonly specificSchema = {

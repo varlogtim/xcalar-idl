@@ -2,12 +2,12 @@ class DagNodeSQLFuncIn extends DagNodeIn {
     protected input: DagNodeSQLFuncInInput;
     private order: number;
 
-    public constructor(options: DagNodeSQLFuncInInfo) {
-        super(<DagNodeInInfo>options);
+    public constructor(options: DagNodeSQLFuncInInfo, runtime?: DagRuntime) {
+        super(<DagNodeInInfo>options, runtime);
         this.type = DagNodeType.SQLFuncIn;
         this.display.icon = "&#xe90f";
-        this.input = new DagNodeSQLFuncInInput(options.input);
-        this.order = options.order;  
+        this.input = this.getRuntime().accessible(new DagNodeSQLFuncInInput(options.input));
+        this.order = options.order;
     }
 
     public static readonly specificSchema = {

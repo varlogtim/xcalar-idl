@@ -1,13 +1,13 @@
 class DagNodeRowNum extends DagNode {
     protected input: DagNodeRowNumInput;
 
-    public constructor(options: DagNodeInfo) {
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
         super(options);
         this.type = DagNodeType.RowNum;
         this.maxParents = 1;
         this.minParents = 1;
         this.display.icon = "&#xea16;";
-        this.input = new DagNodeRowNumInput(<DagNodeRowNumInputStruct>options.input);
+        this.input = this.getRuntime().accessible(new DagNodeRowNumInput(<DagNodeRowNumInputStruct>options.input));
     }
 
     public static readonly specificSchema = {

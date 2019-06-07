@@ -1,13 +1,13 @@
 class DagNodeSet extends DagNode {
     protected input: DagNodeSetInput;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Set;
         this.maxParents = -1;
         this.minParents = 1;
         this.display.icon = "&#xea2d;";
-        this.input = new DagNodeSetInput(<DagNodeSetInputStruct>options.input, this);
+        this.input = this.getRuntime().accessible(new DagNodeSetInput(<DagNodeSetInputStruct>options.input, this));
     }
 
     public static readonly specificSchema = {

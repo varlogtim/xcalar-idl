@@ -13,8 +13,8 @@ class DagNodeExtension extends DagNode {
     private newColumns: {name: string, type: ColumnType}[];
     private droppedColumns: string[];
 
-    public constructor(options: DagNodeExtensionInfo) {
-        super(options);
+    public constructor(options: DagNodeExtensionInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Extension;
         this.allowAggNode = true;
         this.maxParents = -1;
@@ -22,7 +22,7 @@ class DagNodeExtension extends DagNode {
         this.newColumns = options.newColumns || [];
         this.droppedColumns = options.droppedColumns || [];
         this.display.icon = "&#xe96d;";
-        this.input = new DagNodeExtensionInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeExtensionInput(options.input));
     }
 
     public static readonly specificSchema = {

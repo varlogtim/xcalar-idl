@@ -1,7 +1,7 @@
 // General Class for Dest Node
 abstract class DagNodeOut extends DagNode {
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.maxChildren = 0;
         this.minParents = 1;
         this.display.icon = "&#xe955;";

@@ -1,13 +1,13 @@
 class DagNodeMap extends DagNode {
     protected input: DagNodeMapInput;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Map;
         this.allowAggNode = true;
         this.minParents = 1;
         this.display.icon = "&#xe9da;";
-        this.input = new DagNodeMapInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeMapInput(options.input));
     }
 
     public static readonly specificSchema = {

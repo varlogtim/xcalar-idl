@@ -12,7 +12,7 @@ class DagNodeAggregate extends DagNode {
         this.maxChildren = 0;
         this.minParents = 1;
         this.display.icon = "&#xe939;";
-        this.input = new DagNodeAggregateInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeAggregateInput(options.input));
         let dest: string = this.input.getInput().dest;
         let backname: string = dest;
         if (dest.startsWith(gAggVarPrefix)) {

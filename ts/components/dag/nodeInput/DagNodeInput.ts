@@ -140,7 +140,8 @@ class DagNodeInput {
     public getInput(replaceParameters?: boolean) {
         let input;
         if (replaceParameters) {
-            input = DagNodeInput.replaceParameters(this.input, DagParamManager.Instance.getParamMap());
+            input = DagNodeInput.replaceParameters(this.input, this.getRuntime().getDagParamService().getParamMap());
+            // input = DagNodeInput.replaceParameters(this.input, DagParamManager.Instance.getParamMap());
         } else {
             input = this.input;
         }
@@ -326,6 +327,15 @@ class DagNodeInput {
             }
             return null;
         }
+    }
+
+    protected getRuntime(): DagRuntime {
+        // In expServer execution, this function is overridden by DagRuntime.accessible() and should never be invoked.
+        // In XD execution, this will be invoked in case the DagNode instance
+        // is not decorated by DagRuntime.accessible(). Even the decoration happens,
+        // the return object will always be DagRuntime._defaultRuntime, which is the same
+        // object as we return in this function.
+        return DagRuntime.getDefaultRuntime();
     }
 }
 

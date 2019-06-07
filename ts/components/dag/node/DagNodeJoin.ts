@@ -1,14 +1,14 @@
 class DagNodeJoin extends DagNode {
     protected input: DagNodeJoinInput;
 
-    public constructor(options?: DagNodeInfo) {
+    public constructor(options?: DagNodeInfo, runtime?: DagRuntime) {
         options = options || <DagNodeInfo>{};
-        super(options);
+        super(options, runtime);
         this.type = DagNodeType.Join;
         this.maxParents = 2;
         this.minParents = 2;
         this.display.icon = "&#xe93e;";
-        this.input = new DagNodeJoinInput(<DagNodeJoinInputStruct>options.input, this);
+        this.input = this.getRuntime().accessible(new DagNodeJoinInput(<DagNodeJoinInputStruct>options.input, this));
     }
 
     public static readonly specificSchema = {

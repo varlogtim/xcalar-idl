@@ -1,13 +1,13 @@
 class DagNodePublishIMD extends DagNode {
     protected input: DagNodePublishIMDInput;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.PublishIMD;
         this.maxChildren = 0;
         this.minParents = 1;
         this.display.icon = "&#xea55;";
-        this.input = new DagNodePublishIMDInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodePublishIMDInput(options.input));
     }
 
     public static readonly specificSchema = {

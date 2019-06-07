@@ -3,8 +3,8 @@ abstract class DagNodeIn extends DagNode {
     protected schema: ColSchema[];
     private lastSchema: ColSchema[];
 
-    public constructor(options: DagNodeInInfo) {
-        super(options);
+    public constructor(options: DagNodeInInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.maxParents = 0;
         this.minParents = 0;
         if (options && options.schema) {

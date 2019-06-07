@@ -2,11 +2,11 @@ class DagNodeSort extends DagNode {
     protected input: DagNodeSortInput;
     protected columns: ProgCol[];
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Sort;
         this.minParents = 1;
-        this.input = new DagNodeSortInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeSortInput(options.input));
         this.display.icon = "&#xe921;";
     }
 

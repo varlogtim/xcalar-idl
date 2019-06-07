@@ -1,11 +1,11 @@
 class DagNodeExport extends DagNodeOutOptimizable {
     protected input: DagNodeExportInput;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Export;
         this.display.icon = "&#xe955;";
-        this.input = new DagNodeExportInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeExportInput(options.input));
         this.optimized = this.subType === DagNodeSubType.ExportOptimized;
     }
 

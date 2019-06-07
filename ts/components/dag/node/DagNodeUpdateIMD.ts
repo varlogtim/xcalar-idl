@@ -1,11 +1,11 @@
 class DagNodeUpdateIMD extends DagNodeOut {
     protected input: DagNodeUpdateIMDInput;
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.UpdateIMD;
         this.display.icon = "&#xea55;";
-        this.input = new DagNodeUpdateIMDInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeUpdateIMDInput(options.input));
     }
 
     public static readonly specificSchema = {

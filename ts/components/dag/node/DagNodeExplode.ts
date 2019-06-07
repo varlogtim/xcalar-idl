@@ -1,7 +1,7 @@
 class DagNodeExplode extends DagNodeMap {
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Explode;
         this.minParents = 1;
         this.maxParents = 1;

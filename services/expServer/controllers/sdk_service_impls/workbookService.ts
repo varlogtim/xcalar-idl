@@ -14,12 +14,13 @@ function convertKvsToQuery(convertRequest: any): Promise<any> {
     let userName: string = convertRequest.getUsername();
     let sessionId: string = convertRequest.getSessionid();
     let workbookName: string = convertRequest.getWorkbookname();
+    const parameterMap: Map<string, string> = createParameterMap(convertRequest.getParametersList());
     // let txId = Transaction.start({"simulate": true});
     let cvtKvsToQueryResponse: any = new wkbk_pb.ConvertKvsToQueryResponse();
 
     cvtKvsToQueryResponse.setConverted(false);
     DagHelper.convertKvs(kvsQueryList, dataflowName, optimized, listXdfsOutput,
-            userName, sessionId, workbookName)
+            userName, sessionId, workbookName, parameterMap)
     .then(function(convertedQuery: any): void {
         if (optimized) {
             let optimizedStr: string = JSON.stringify(convertedQuery)
@@ -47,4 +48,15 @@ function convertKvsToQuery(convertRequest: any): Promise<any> {
     });
     return deferred.promise();
 }
+
+function createParameterMap(parameters: Array<any>): Map<string, string> {
+    if (parameters == null) {
+        return new Map();
+    }
+    return parameters.reduce((kvMap, kvObj) => {
+        kvMap.set(kvObj.getName(), kvObj.getValue());
+        return kvMap;
+    }, new Map<string, string>());
+}
+
 export { convertKvsToQuery as ConvertKvsToQuery }

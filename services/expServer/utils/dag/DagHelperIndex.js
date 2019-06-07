@@ -3,7 +3,7 @@ var DagRuntime = require("../../dagHelper/DagRuntime.js").DagRuntime;
 
 class DagHelper {
     static convertKvs(kvsStrList, dataflowName, optimized, listXdfsOutput, userName,
-            sessionId, workbookName) {
+            sessionId, workbookName, parameterMap) {
         if (typeof kvsStrList !== "object" || kvsStrList === 0) {
             return PromiseHelper.reject( {error: "KVS list not provided"});
         }
@@ -18,6 +18,9 @@ class DagHelper {
         }
         if (typeof workbookName !== "string" || workbookName.length === 0) {
             return PromiseHelper.reject({ error: "workbookName string not provided" });
+        }
+        if (parameterMap == null) {
+            parameterMap = new Map();
         }
         try {
             var dagRuntime = new DagRuntime();
@@ -38,6 +41,9 @@ class DagHelper {
                 userName: userName, sessionId: sessionId, listXdfsObj: parsedXdfs
             });
 
+            // Setup parameters
+            dagRuntime.getDagParamService().initParameters(parameterMap);
+
             // Convert dataflow JSON to Xcalar queries
             var graph = dagRuntime.accessible(new DagGraph());
             graph.create(targetDag);
@@ -47,7 +53,7 @@ class DagHelper {
             // 2. Apply linkOut's resultant table to linkIn's source, to avoid real query execution
             graph.processLinkedNodes();
             if (optimized) {
-                return graph.getRetinaArgs();
+                return graph.getRetinaArgs(null, false);
             } else {
                 let deferred = PromiseHelper.deferred();
                 graph.getQuery()

@@ -62,7 +62,7 @@ abstract class DagNode extends Durable {
         }
         const coordinates = options.display || {x: -1, y: -1};
         this.display = {coordinates: coordinates, icon: "", description: ""};
-        this.input = new DagNodeInput({});
+        this.input = this.getRuntime().accessible(new DagNodeInput({}));
         this.error = options.error;
         this.aggregates = options.aggregates || [];
 
@@ -362,7 +362,7 @@ abstract class DagNode extends Durable {
      * Get Param
      */
     public getParam(replaceParameters?: boolean) {
-        return this.input.getInput(replaceParameters);
+        return this.input.getInput(replaceParameters, this.getRuntime().getDagParamService().getParamMap());
     }
 
     /**

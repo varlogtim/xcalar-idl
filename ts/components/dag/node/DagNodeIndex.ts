@@ -1,10 +1,10 @@
 class DagNodeIndex extends DagNode {
     protected columns: ProgCol[];
 
-    public constructor(options: DagNodeInfo) {
-        super(options);
+    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.minParents = 1;
-        this.input = new DagNodeIndexInput(options.input);
+        this.input = this.getRuntime().accessible(new DagNodeIndexInput(options.input));
         this.display.icon = "&#xe936;";
     }
 
