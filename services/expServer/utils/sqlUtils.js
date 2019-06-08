@@ -90,6 +90,8 @@ global.SelectPushDown = SelectPushDown = sqlHelpers ? sqlHelpers.SelectPushDown 
 global.SynthesizePushDown = SynthesizePushDown = sqlHelpers ?
               sqlHelpers.SynthesizePushDown :
               require("../sqlHelpers/synthesizePushDown.js").SynthesizePushDown;
+global.FilterPushUp = FilterPushUp = sqlHelpers ? sqlHelpers.FilterPushUp :
+                          require("../sqlHelpers/filterPushUp.js").FilterPushUp;
 
 global.SQLCompiler = SQLCompiler = sqlHelpers ? sqlHelpers.SQLCompiler :
                             require("../sqlHelpers/SQLCompiler.js").SQLCompiler;

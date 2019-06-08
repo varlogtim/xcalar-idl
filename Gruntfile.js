@@ -1205,6 +1205,7 @@ module.exports = function(grunt) {
                         BLDROOT + "assets/js/components/sql/rules/parquetPushDown.js",
                         BLDROOT + "assets/js/components/sql/rules/selectPushDown.js",
                         BLDROOT + "assets/js/components/sql/rules/synthesizePushDown.js",
+                        BLDROOT + "assets/js/components/sql/rules/filterPushUp.js",
                      ],
                     dest: BLDROOT + "services/expServer/sqlHelpers/"
                 }],
@@ -1474,6 +1475,7 @@ module.exports = function(grunt) {
                       BLDROOT + "assets/js/components/sql/rules/parquetPushDown.js",
                       BLDROOT + "assets/js/components/sql/rules/selectPushDown.js",
                       BLDROOT + "assets/js/components/sql/rules/synthesizePushDown.js",
+                      BLDROOT + "assets/js/components/sql/rules/filterPushUp.js",
                       BLDROOT + "services/expServer/sqlHelpers/SQLCompiler.js",
                       BLDROOT + "services/expServer/sqlHelpers/SQLExecutor.js",
                       BLDROOT + "services/expServer/sqlHelpers/logicalOptimizer.js",
