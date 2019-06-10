@@ -679,7 +679,9 @@ describe("PTblManager Test", function() {
             };
 
             Alert.show = (options) => {
-                options.onConfirm();
+                if (options.onConfirm) {
+                    options.onConfirm();
+                }
                 called++;
             };
 
@@ -705,7 +707,7 @@ describe("PTblManager Test", function() {
         it("should hanndle has failure case", function(done) {
             PTblManager.Instance._deleteTables = () => {
                 called++;
-                return PromiseHelper.resolve({succeds: [], failures: ["A"]});
+                return PromiseHelper.resolve({succeeds: [], failures: ["A"]});
             };
 
             PTblManager.Instance.deleteTables(["A"])
@@ -1156,7 +1158,7 @@ describe("PTblManager Test", function() {
         });
 
         it("_deleteOneTable should work", function(done) {
-            PTblManager.Instance._deleteOneTable(tableName, succeeds, failures)
+            PTblManager.Instance._deleteOneTable(tableName, false, succeeds, failures)
             .then(function() {
                 expect(succeeds.length).to.equal(1);
                 expect(failures.length).to.equal(0);
@@ -1170,7 +1172,7 @@ describe("PTblManager Test", function() {
 
         it("_deleteOneTable should handle fail case", function(done) {
             tableInfo.delete = () => PromiseHelper.reject("test");
-            PTblManager.Instance._deleteOneTable(tableName, succeeds, failures)
+            PTblManager.Instance._deleteOneTable(tableName, false, succeeds, failures)
             .then(function() {
                 expect(succeeds.length).to.equal(0);
                 expect(failures.length).to.equal(1);
@@ -1186,7 +1188,7 @@ describe("PTblManager Test", function() {
             let oldFunc = PTblManager.Instance._deleteDSTable;
             PTblManager.Instance._deleteDSTable = () => PromiseHelper.resolve();
 
-            PTblManager.Instance._deleteOneTable(name, succeeds, failures)
+            PTblManager.Instance._deleteOneTable(name, false, succeeds, failures)
             .then(function() {
                 expect(succeeds.length).to.equal(0);
                 expect(failures.length).to.equal(0);
@@ -1200,9 +1202,103 @@ describe("PTblManager Test", function() {
             });
         });
 
+        it("_deleteOneTable should fail in checkDeleteDependency if not force delete", function(done) {
+            PTblManager.Instance._checkDeleteDependency = () => PromiseHelper.reject("test check");
+            tableInfo.delete = () => PromiseHelper.reject("test delete");
+            PTblManager.Instance._deleteOneTable(tableName, false, succeeds, failures)
+            .then(function() {
+                expect(succeeds.length).to.equal(0);
+                expect(failures.length).to.equal(1);
+                expect(failures[0]).contains("test check");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("_deleteOneTable should not fail in checkDeleteDependency if force deleted", function(done) {
+            PTblManager.Instance._checkDeleteDependency = () => PromiseHelper.reject("test check");
+            tableInfo.delete = () => PromiseHelper.reject("test delete");
+            PTblManager.Instance._deleteOneTable(tableName, true, succeeds, failures)
+            .then(function() {
+                expect(succeeds.length).to.equal(0);
+                expect(failures.length).to.equal(1);
+                expect(failures[0]).contains("test delete");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
         after(function() {
             PTblManager.Instance._tableMap.delete(tableName);
             PTblManager.Instance._checkDeleteDependency = oldCheck;
+        });
+    });
+
+    it("_getTablesToForceDelete should work", function() {
+        let tableNames = ["a", "b"];
+        let succedTables = ["b"];
+        let res = PTblManager.Instance._getTablesToForceDelete(tableNames, succedTables);
+        expect(res.length).to.equal(1);
+        expect(res[0]).to.equal("a");
+    });
+
+    describe("_handleDeleteTableFailures Test", function() {
+        let oldAlert;
+        let calledAlert;
+
+        before(function() {
+            oldAlert = Alert.show;
+            Alert.show = () => {
+                calledAlert = true;
+            };
+        });
+
+        beforeEach(function() {
+            calledAlert = false;
+        });
+
+        it("should show error if it's normal error case", function() {
+            PTblManager.Instance._handleDeleteTableFailures("test", null);
+            expect(calledAlert).to.be.true;
+        });
+
+        it("should show error if no tables to force delete", function() {
+            PTblManager.Instance._handleDeleteTableFailures("test", []);
+            expect(calledAlert).to.be.true;
+        });
+
+        it("should show alert and let user force delete tables", function() {
+            let called = 0;
+            Alert.show = (options) => {
+                calledAlert = true;
+                options.buttons[0].func();
+            };
+
+            let oldDelete = PTblManager.Instance.deleteTablesOnConfirm;
+            let oldRefresh = TblSource.Instance.refresh;
+            PTblManager.Instance.deleteTablesOnConfirm = () => {
+                called++;
+                return PromiseHelper.resolve();
+            };
+
+            TblSource.Instance.refresh = () => {
+                called++;
+            };
+
+            PTblManager.Instance._handleDeleteTableFailures("test", ["A"]);
+            expect(calledAlert).to.be.true;
+            expect(called).to.equal(2);
+
+            PTblManager.Instance.deleteTablesOnConfirm = oldDelete;
+            TblSource.Instance.refresh = oldRefresh;
+        });
+
+        after(function() {
+            Alert.show = oldAlert;
         });
     });
 

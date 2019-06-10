@@ -502,7 +502,7 @@ class PTblManager {
                 "tableName": tableNames.join(", ")
             }),
             'onConfirm': () => {
-                this.deleteTablesOnConfirm(tableNames, true)
+                this.deleteTablesOnConfirm(tableNames, true, false)
                 .then(deferred.resolve)
                 .fail(deferred.reject);
             },
@@ -516,16 +516,20 @@ class PTblManager {
 
     public deleteTablesOnConfirm(
         tableNames: string[],
-        showError?: boolean
+        showError: boolean = false,
+        forceDelete: boolean = false,
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._deleteTables(tableNames)
+        this._deleteTables(tableNames, forceDelete)
         .then((ret) => {
             const {succeeds, failures} = ret;
             if (failures.length > 0) {
                 let error: string = failures.join("\n");
                 if (showError) {
-                    Alert.error(IMDTStr.DelTableFail, error);
+                    let tablesToForceDelete: string[] = forceDelete ?
+                    null :
+                    this._getTablesToForceDelete(tableNames, succeeds);
+                    this._handleDeleteTableFailures(error, tablesToForceDelete);
                 }
             }
             XcSocket.Instance.sendMessage("refreshIMD", {
@@ -536,7 +540,7 @@ class PTblManager {
         })
         .fail((error) => {
             if (showError) {
-                Alert.error(IMDTStr.DelTableFail, error);
+                this._handleDeleteTableFailures(error, null);
             }
             deferred.reject(error);
         });
@@ -712,13 +716,16 @@ class PTblManager {
         return deferred.promise();
     }
 
-    private _deleteTables(tableNames: string[]): XDPromise<{succeeds: string[], failures: any[]}> {
+    private _deleteTables(
+        tableNames: string[],
+        forceDelete: boolean
+    ): XDPromise<{succeeds: string[], failures: any[]}> {
         const deferred: XDDeferred<{succeeds: string[], failures: any[]}> = PromiseHelper.deferred();
         const succeeds: string[] = [];
         const failures: string[] = [];
         const promises = tableNames.map((tableName) => {
             return (): XDPromise<void> => {
-                return this._deleteOneTable(tableName, succeeds, failures);
+                return this._deleteOneTable(tableName, forceDelete, succeeds, failures);
             }
         });
 
@@ -733,6 +740,7 @@ class PTblManager {
 
     private _deleteOneTable(
         tableName: string,
+        forceDelete: boolean,
         succeeds: string[],
         failures: string[]
     ): XDPromise<void> {
@@ -742,8 +750,10 @@ class PTblManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
-        this._checkDeleteDependency(tableName)
+        const checkDeleteDependency = forceDelete ?
+                                        PromiseHelper.resolve() :
+                                        this._checkDeleteDependency(tableName);
+        checkDeleteDependency
         .then(() => {
             return tableInfo.delete();
         })
@@ -764,6 +774,44 @@ class PTblManager {
             deferred.resolve(); // still resolve it
         });
         return deferred.promise();
+    }
+
+    private _getTablesToForceDelete(
+        tableNames: string[] = [],
+        succeedTables: string[] = []
+    ): string[] {
+        let cache = {};
+        succeedTables.forEach(table => cache[table] = true);
+        return tableNames.filter(table => !cache[table]);
+    }
+
+    private _handleDeleteTableFailures(
+        error: string,
+        tablesToForceDelete: string[]
+    ): void {
+        if (tablesToForceDelete == null || tablesToForceDelete.length === 0) {
+            Alert.error(IMDTStr.DelTableFail, error);
+        } else {
+            error = error + "\n" + IMDTStr.DelTableFailMsg;
+            Alert.show({
+                title: IMDTStr.DelTableFail,
+                msg: error,
+                hideButtons: ["cancel"],
+                buttons: [{
+                    "name": "Force Delete",
+                    "className": "btn-submit",
+                    "func": () => {
+                        this.deleteTablesOnConfirm(tablesToForceDelete, true, true)
+                        .always(() => {
+                            TblSource.Instance.refresh();
+                        });
+                    }
+                }, {
+                    "name": AlertTStr.Close,
+                    "func": () => {}
+                }]
+            });
+        }
     }
 
     private _deleteDSTable(tableName: string, failures: string[]): XDPromise<void> {
