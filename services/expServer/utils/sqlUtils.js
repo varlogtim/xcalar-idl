@@ -129,7 +129,6 @@ XDParser.XEvalParser = require("./xEvalParser/index.js").XEvalParser;
 
 // Default session info for jdbc
 var defaultUserName = 'xcalar-internal-sql';
-var defaultUserId = 4193719;
 var jdbcWkbkName = 'sql-workbook';
 
 // Set session info every time we make a thrift call
@@ -137,12 +136,21 @@ var jdbcWkbkName = 'sql-workbook';
 SqlUtil.setSessionInfo = function(userName, userId, sessionName) {
     const sessionInfo = {
         userName: userName || defaultUserName,
-        userId: userId || defaultUserId,
         sessionName: sessionName || jdbcWkbkName
     };
+    sessionInfo.userId = userId || this.getUserIdUnique(sessionInfo.userName, jQuery.md5)
     xcalarApi.setUserIdAndName(sessionInfo.userName, sessionInfo.userId, jQuery.md5);
     setSessionName(sessionInfo.sessionName);
     return sessionInfo;
+}
+// Generate unique user id
+SqlUtil.getUserIdUnique = function(name, hashFunc) {
+    // XXX This should be removed when we don't need userIdUnique
+    // after xcrpc migration is done
+    const hash = hashFunc(name);
+    const len = 5;
+    const id = parseInt("0x" + hash.substring(0, len)) + 4000000;
+    return id;
 }
 // Table prefix validation
 // Replace every illegal character with _ and make sure it starts with a letter

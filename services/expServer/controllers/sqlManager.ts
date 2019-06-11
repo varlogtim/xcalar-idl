@@ -1,10 +1,14 @@
 import request = require("request");
+import * as xcConsole from "../utils/expServerXcConsole";
 
 class SqlManager {
     private static _instance = null;
     public static get getInstance(): SqlManager {
         return this._instance || (this._instance = new this());
     }
+
+    public SqlUtil: any;
+
     private _sqlQueryObjects: any;
     private _workerFlag: boolean;
     private _sqlWorkerPool: any;
@@ -12,7 +16,6 @@ class SqlManager {
     private _gTurnSelectCacheOn: boolean;
 
     private jQuery: any;
-    private SqlUtil: any;
 
     private constructor() {
         this._sqlQueryObjects= {};
@@ -31,11 +34,11 @@ class SqlManager {
                 console.error(err);
                 return;
             }
-            global.jQuery = this.jQuery = require("jquery")(window);
-            global.$ = this.jQuery;
+            global['jQuery'] = this.jQuery = require("jquery")(window);
+            global['$'] = this.jQuery;
+            this.SqlUtil = require("../utils/sqlUtils.js").SqlUtil;
             this.jQuery.md5 = require(
                                 '../../../3rd/jQuery-MD5-master/jquery.md5.js');
-            this.SqlUtil = require("../utils/sqlUtils.js").SqlUtil;
         });
     }
 
@@ -56,7 +59,7 @@ class SqlManager {
         this._idNum++;
         // Avoid # symbol in table name
         // cause it might be potential table publish issue
-        // return userName + "-wkbk-" + wkbkName + "-" + Date.now() + "#" + curNum;
+        // return userName + "_wkbk_" + wkbkName + "_" + Date.now() + "_" + curNum;
         return userName + "_wkbk_" + wkbkName + "_" + Date.now() + "_" + curNum;
     }
 
@@ -74,7 +77,7 @@ class SqlManager {
 
     private connect(
         hostname: string,
-    ): JQueryPromise<SQLConnectResp> {
+    ): JQueryPromise<any> {
         let deferred = PromiseHelper.deferred();
         const url: string = "https://" + hostname + "/app/service/xce";
         let newThrift: boolean = false;
@@ -94,7 +97,7 @@ class SqlManager {
         })
         .fail(deferred.reject)
 
-        return deferred;
+        return deferred.promise();
     };
 
     private activateWkbk(
@@ -119,7 +122,6 @@ class SqlManager {
     }
 
     private goToSqlWkbk(sessionInfo: SessionInfo): JQueryPromise<any> {
-        sessionInfo.sessionName = sessionInfo.sessionName || "sql-workbook";
         let deferred: any = PromiseHelper.deferred();
         let activeSessionNames: string[] = [];
         let sqlSession: any = null;
@@ -167,23 +169,12 @@ class SqlManager {
         userIdUnique: number,
         wkbkName: string
     ): JQueryPromise<any> {
-        let sessionInfo: SessionInfo = {
-            userName: userIdName,
-            userId: userIdUnique,
-            sessionName: wkbkName,
-        }
         let deferred: any = this.jQuery.Deferred();
         this.connect("localhost")
         .then((ret) => {
             xcConsole.log("connected  to localhost");
-            if (!sessionInfo.userName) {
-                sessionInfo.userName = "xcalar-internal-sql";
-                sessionInfo.userId = 4193719;
-            }
-            if (!sessionInfo.userId) {
-                sessionInfo.userId= this.getUserIdUnique(sessionInfo.userName,
-                                                        this.jQuery.md5);
-            }
+            let sessionInfo = this.SqlUtil.setSessionInfo(userIdName,
+                                                        userIdUnique, wkbkName)
             if (ret.newThrift) {
                 Admin.addNewUser(sessionInfo.userName);
             }
@@ -221,8 +212,7 @@ class SqlManager {
             });
             deferred.resolve({pubTablesRes: pubTablesRes});
         })
-        .fail((): void => {
-            let args: IArguments = arguments;
+        .fail((args): void => {
             let error: any = null;
             for (let i: number = 0; i < args.length; i++) {
                 if (args[i] && (args[i].error ||
@@ -642,7 +632,7 @@ class SqlManager {
                     allSelects[pubTable] = xcalarTableName;
                 }
             }
-            let query_array: XcalarQuery[] =
+            let query_array: XcalarSelectQuery[] =
                 this.selectPublishedTables(toSelect, allSchemas, batchIdMap);
 
             //xd tables information gathering
@@ -656,9 +646,8 @@ class SqlManager {
 
             deferred.resolve(query_array, allSchemas, allSelects);
         })
-        .fail(() => {
+        .fail((args) => {
             if (whenCallSent && !whenCallReturned) {
-                let args: IArguments = arguments;
                 let error: any = null;
                 for (let i: number = 0; i < args.length; i++) {
                     if (args[i] && (args[i].error ||
@@ -669,7 +658,7 @@ class SqlManager {
                 }
                 deferred.reject(error);
             } else {
-                deferred.reject.apply(this, arguments);
+                deferred.reject(args);
             }
         });
         return deferred.promise();
@@ -710,9 +699,12 @@ class SqlManager {
     ) {
         let deferred: any = PromiseHelper.deferred();
         let optimizations: SQLOptimizations = params.optimizations;
+        let sessionInfo: SessionInfo = this.SqlUtil.setSessionInfo(
+                                            params.userName, params.userId,
+                                            params.sessionName);
         let tablePrefix: string = params.tablePrefix ||
                             this.generateTablePrefix(
-                                params.userName, params.sessionName);
+                                sessionInfo.userName, sessionInfo.sessionName);
         tablePrefix = this.SqlUtil.cleansePrefix(tablePrefix);
         params.usePaging = params.usePaging || false;
         let allSelects: any = {};
@@ -727,17 +719,13 @@ class SqlManager {
         };
         let sqlQueryObj: any;
 
-        this.setupConnection(params.userName, params.userId, params.sessionName)
+        this.setupConnection(sessionInfo.userName, sessionInfo.userId,
+            sessionInfo.sessionName)
         .then(() => {
             sqlHistoryObj["startTime"] = new Date();
-            this.SqlUtil.setSessionInfo(params.userName, params.userId,
-                                        params.sessionName);
+            this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
+                                        sessionInfo.sessionName);
             SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
-            let sessionInfo: SessionInfo = {
-                "userName": params.userName,
-                "userId": params.userId,
-                "sessionName": params.sessionName
-            };
             return this.collectTablesMetaInfo(params.queryString, tablePrefix,
                                                         type, sessionInfo);
         })
@@ -759,7 +747,7 @@ class SqlManager {
                 data: schemasToSendToSqlDf
             }
             return this.sendToPlanner(tablePrefix, requestStruct,
-                                params.userName, params.sessionName);
+                                sessionInfo.userName, sessionInfo.sessionName);
         })
         .then((): JQueryPromise<any> => {
             // get logical plan
@@ -769,7 +757,7 @@ class SqlManager {
                 data: {"sqlQuery": params.queryString}
             }
             return this.sendToPlanner(tablePrefix, requestStruct,
-                                params.userName, params.sessionName);
+                                sessionInfo.userName, sessionInfo.sessionName);
         })
         .then((plan: string): JQueryPromise<any> => {
             sqlQueryObj = new SQLQuery(queryId, params.queryString, plan,
@@ -812,6 +800,7 @@ class SqlManager {
                                                         .optimizedQueryString;
                     } catch(e) {
                         deferred.reject(e);
+                        return;
                     }
                 }
                 // Auto-generate a name for the final table if not specified
@@ -832,8 +821,8 @@ class SqlManager {
             // To show better performance, we only display duration of execution
             sqlHistoryObj["startTime"] = new Date();
             sqlHistoryObj["status"] = SQLStatus.Running;
-            const sessionInfo = this.SqlUtil.setSessionInfo(
-                params.userName, params.userId, params.sessionName
+            this.SqlUtil.setSessionInfo(
+                sessionInfo.userName, sessionInfo.userId, sessionInfo.sessionName
             );
             SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
             return SQLExecutor.execute(sqlQueryObj, {
@@ -846,8 +835,8 @@ class SqlManager {
             sqlHistoryObj["status"] = SQLStatus.Done;
             sqlHistoryObj["endTime"] = new Date();
             sqlHistoryObj["tableName"] = sqlQueryObj.newTableName;
-            this.SqlUtil.setSessionInfo(params.userName, params.userId,
-                                            params.sessionName);
+            this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
+                                            sessionInfo.sessionName);
             SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
             // Drop schemas and nuke session on planner
             let requestStruct: RequestInput = {
@@ -855,7 +844,7 @@ class SqlManager {
                 method: "delete"
             }
             return this.sendToPlanner(tablePrefix, requestStruct,
-                                        params.userName, params.sessionName)
+                                        sessionInfo.userName, sessionInfo.sessionName)
         })
         .then((): JQueryPromise<SQLResult> => {
             if (sqlQueryObj.status === SQLStatus.Cancelled) {
@@ -863,11 +852,6 @@ class SqlManager {
                 return PromiseHelper.reject(SQLErrTStr.Cancel);
             }
             if (type === "odbc") {
-                let sessionInfo: SessionInfo = {
-                    userName: params.userName,
-                    userId: params.userId,
-                    sessionName: params.sessionName
-                };
                 return this.SqlUtil.getResults(sqlQueryObj.newTableName,
                                         sqlQueryObj.allColumns, params.rowsToFetch,
                                         params.execid, params.usePaging, sessionInfo);
@@ -894,16 +878,16 @@ class SqlManager {
                 sqlHistoryObj["status"] = SQLStatus.Failed;
                 sqlHistoryObj["errorMsg"] = err;
             }
-            this.SqlUtil.setSessionInfo(params.userName, params.userId,
-                                            params.sessionName);
+            this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
+                                            sessionInfo.sessionName);
             SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
             deferred.reject(retObj);
         })
         .always((): void => {
             if (type == "odbc" || optimizations.dropAsYouGo) {
-                const sessionInfo = this.SqlUtil.setSessionInfo(params.userName,
-                                                                params.userId,
-                                                                params.sessionName);
+                this.SqlUtil.setSessionInfo(sessionInfo.userName,
+                                            sessionInfo.userId,
+                                            sessionInfo.sessionName);
                 var deleteCompletely = true;
                 XcalarDeleteTable(tablePrefix + "*", -1, undefined, deleteCompletely,
                                   {userName: sessionInfo.userName,
@@ -920,9 +904,11 @@ class SqlManager {
     ): JQueryPromise<any> {
         let deferred: any = PromiseHelper.deferred();
         let optimizations: SQLOptimizations = params.optimizations;
+        let sessionInfo: SessionInfo = {"userName": params.userName,
+            "userId": params.userId, "sessionName": params.sessionName};
         let tablePrefix: string = params.tablePrefix ||
-                            this.generateTablePrefix(params.userName,
-                                params.sessionName);
+                            this.generateTablePrefix(sessionInfo.userName,
+                                sessionInfo.sessionName);
         params.usePaging = params.usePaging || false;
         let option: any = {
             prefix: tablePrefix,
@@ -936,10 +922,9 @@ class SqlManager {
 
         let selectQuery: string | XcalarSelectQuery[] = "";
 
-        this.setupConnection(params.userName, params.userId, params.sessionName)
+        this.setupConnection(sessionInfo.userName, sessionInfo.userId,
+            sessionInfo.sessionName)
         .then((): JQueryPromise<any> => {
-            let sessionInfo: SessionInfo = {"userName": params.userName,
-                "userId": params.userId, "sessionName": params.sessionName};
             return this.collectTablesMetaInfo(params.queryString, tablePrefix,
                                                     type, sessionInfo);
         })
@@ -961,7 +946,7 @@ class SqlManager {
                 data: schemasToSendToSqlDf
             }
             return this.sendToPlanner(tablePrefix, requestStruct,
-                                params.userName, params.sessionName);
+                                sessionInfo.userName, sessionInfo.sessionName);
         })
         .then((): JQueryPromise<any> => {
             // get logical plan
@@ -971,7 +956,7 @@ class SqlManager {
                 data: {"sqlQuery": params.queryString}
             }
             return this.sendToPlanner(tablePrefix, requestStruct,
-                                params.userName, params.sessionName);
+                                sessionInfo.userName, sessionInfo.sessionName);
         })
         .then((plan: string): JQueryPromise<any> => {
             sqlQueryObj = new SQLQuery(queryId, params.queryString, plan,
@@ -996,6 +981,7 @@ class SqlManager {
                                                     .optimizedQueryString;
             } catch(e) {
                 deferred.reject(e);
+                return;
             }
             let prefixStruct: SQLAddPrefixReturnMsg = this.SqlUtil.addPrefix(
                 JSON.parse(sqlQueryObj.xcQueryString),
@@ -1020,7 +1006,7 @@ class SqlManager {
     };
 
     public result(
-        resultSetId: number,
+        resultSetId: string,
         rowPosition: number,
         rowsToFetch: number,
         totalRows: number,
@@ -1061,7 +1047,7 @@ class SqlManager {
             for (let row of data) {
                 cleanedData.push(JSON.parse(row));
             }
-            deferred.resolve(data);
+            deferred.resolve(cleanedData);
         })
         .fail(deferred.reject);
         return deferred.promise();
@@ -1103,7 +1089,7 @@ class SqlManager {
             xcConsole.log("connected");
             return this.listPublishedTables(pattern);
         })
-        .then((ret: any): JQueryPromise<any> => {
+        .then((ret: any) => {
             const results: XcalarApiListTablesOutput = ret.pubTablesRes;
             const tables: string[] = ret.publishedTables;
             let retStruct: any[] = [];

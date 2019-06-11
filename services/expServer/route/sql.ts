@@ -1,6 +1,6 @@
 import { Router } from "express"
 export const router = Router()
-
+import * as xcConsole from "../utils/expServerXcConsole";
 import sqlManager from "../controllers/sqlManager"
 import * as support from "../utils/expServerSupport"
 
@@ -73,7 +73,7 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
         execid: req.body.execid,
         queryString: req.body.queryString,
         limit: req.body.limit,
-        tablePrefix: req.body.sessionId,
+        tablePrefix: tablePrefix,
         checkTime: checkTime,
         queryName: req.body.queryName,
         usePaging: usePaging,
@@ -117,7 +117,7 @@ router.post("/xcsql/getXCqueryWithPublishedTables", [support.checkAuth],
         execid: req.body.execid,
         queryString: req.body.queryString,
         limit: req.body.limit,
-        tablePrefix: req.body.sessionId,
+        tablePrefix: tablePrefix,
         checkTime: checkTime,
         queryName: req.body.queryName,
         usePaging: usePaging,
@@ -135,7 +135,7 @@ router.post("/xcsql/getXCqueryWithPublishedTables", [support.checkAuth],
 })
 
 router.post("/xcsql/result", [support.checkAuth], function(req, res) {
-    let resultSetId = req.body.resultSetId;
+    let resultSetId: string = req.body.resultSetId;
     let rowPosition: number = parseInt(req.body.rowPosition);
     let rowsToFetch: number = parseInt(req.body.rowsToFetch);
     let totalRows: number = parseInt(req.body.totalRows);
@@ -182,18 +182,15 @@ router.post("/xcsql/getTable", [support.checkAuth], function (req, res) {
 router.post("/xcsql/clean", [support.checkAuth], function(req, res) {
     let tableName: string = req.body.tableName;
     let resultSetId: string = req.body.resultSetId;
-    let userName: string = req.body.userName;
-    let userId: number = req.body.userId;
-    let sessionName: string = req.body.sessionName;
     let sessionInfo: SessionInfo = {
         userName: req.body.userName,
         userId: req.body.userId,
         sessionName: req.body.sessionName,
     }
-    sqlManager.clean(tableName,resultSetId, sessionInfo)
+    sqlManager.clean(tableName, resultSetId, sessionInfo)
     .then(function(): void {
         xcConsole.log("cleaned table and free result set for: ", tableName);
-        res.send({sucess: true});
+        res.send({success: true});
     })
     .fail(function(error): void {
         xcConsole.log("failed to drop table: ", tableName, error);
