@@ -14,6 +14,9 @@ describe('ExpServer Extension Test', function() {
     var testData;
     var testType;
     var oldGetObject;
+    var oldListObjects;
+    var oldCheckAuth;
+    var oldCheckAuthAdmin;
     var emptyPromise;
     this.timeout(10000);
 
@@ -25,6 +28,9 @@ describe('ExpServer Extension Test', function() {
     }
     function fakeGetObject(func) {
         extensionManager._s3.getObject = func;
+    }
+    function fakeListObjects(func) {
+        extensionManager._s3.listObjects = func;
     }
     function fakeProcessItem(func) {
         extensionManager.processItem = func;
@@ -61,6 +67,7 @@ describe('ExpServer Extension Test', function() {
         testDownloadName = "test";
         testFileName = "extensionManagers/distinct/1.0.0/distinct-1.0.0.tar.gz";
         oldGetObject = extensionManager._s3.getObject;
+        oldListObjects = extensionManager._s3.listObjects;
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
         }
@@ -248,13 +255,20 @@ describe('ExpServer Extension Test', function() {
     });
 
     it("extensionManager.processItem should fail when error", function(done) {
+        const fakeFunc = (data, callback) => {
+            callback("key does not exists");
+        }
+        fakeGetObject(fakeFunc);
         extensionManager.processItem([], "notExist.txt")
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error).to.not.equal(null);
+            expect(error).to.equal("key does not exists");
             done();
+        })
+        .always(function() {
+            fakeGetObject(oldGetObject);
         });
     });
 
@@ -270,22 +284,73 @@ describe('ExpServer Extension Test', function() {
     });
 
     it("extensionManager.fetchAllExtensions should work", function(done) {
+        const oldProcessFunc = extensionManager.processItem;
+        const fakeProcessFunc = (ret, fileName) => {
+            ret.push(fileName);
+            return jQuery.Deferred().resolve();
+        }
+        const fakeListFunc = (params, callback) => {
+            const data = {
+                Contents: [{
+                    Key: "test1.txt",
+                },{
+                    Key: "test2.txt",
+                }],
+            }
+            callback(null, data);
+        }
+        fakeProcessItem(fakeProcessFunc);
+        fakeListObjects(fakeListFunc);
         extensionManager.fetchAllExtensions()
         .then(function(ret) {
-            expect(ret).to.be.an.instanceof(Array);
+            expect(ret).to.deep.equal(["test1.txt", "test2.txt"])
             done();
         })
-        .fail(function() {
+        .fail(function(err) {
+            console.log(err);
             done("fail");
+        })
+        .always(function() {
+            fakeProcessItem(fakeProcessFunc);
+            fakeListObjects(oldListObjects);
         });
     });
 
-    it("extensionManager.fetchAllExtensions should fail when error", function(done) {
-        var oldFunc = extensionManager.processItem;
-        var fakeFunc = function() {
+    it("extensionManager.fetchAllExtensions should fail when failed to list s3 objects", function(done) {
+        const fakeFunc = (params, callback) => {
+            callback("s3 listObjests error");
+        }
+        fakeListObjects(fakeFunc);
+        extensionManager.fetchAllExtensions()
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(err) {
+            expect(err).to.equal("s3 listObjests error");
+            done();
+        })
+        .always(function() {
+            fakeListObjects(oldListObjects);
+        });
+    });
+
+    it("extensionManager.fetchAllExtensions should fail when failed to process item", function(done) {
+        const oldProcessFunc = extensionManager.processItem;
+        const fakeProcessFunc = function() {
             return jQuery.Deferred().reject("processItem fails").promise();
         }
-        fakeProcessItem(fakeFunc);
+        const data = {
+            Contents: [{
+                Key: "test1.txt",
+            },{
+                Key: "test2.txt",
+            }],
+        }
+        const fakeListFunc = (params, callback) => {
+            callback(params, data);
+        }
+        fakeProcessItem(fakeProcessFunc);
+        fakeListObjects(fakeListFunc);
         extensionManager.fetchAllExtensions()
         .then(function() {
             done("fail");
@@ -295,7 +360,8 @@ describe('ExpServer Extension Test', function() {
             done();
         })
         .always(function() {
-            fakeProcessItem(oldFunc);
+            fakeProcessItem(oldProcessFunc);
+            fakeListObjects(oldListObjects);
         });
     });
 
