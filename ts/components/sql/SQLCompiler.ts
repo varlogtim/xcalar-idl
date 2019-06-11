@@ -57,10 +57,13 @@ class SQLCompiler {
                     return cli;
                 });
                 const xcQueryString = "[" + cliArray.join(",") + "]";
-                // rename columns as specified by user
+                // rename & drop columns as specified by user
+                const needToDropCols = tree.xcCols.length > 0 ||
+                                       tree.sparkCols.length > 0;
                 return SQLSimulator.addSynthesize(xcQueryString,
                                                   tree.newTableName,
-                                                  tree.usrCols, tree.orderCols);
+                                                  tree.usrCols, tree.orderCols,
+                                                  needToDropCols);
             })
             .then(function(ret) {
                 const {xcQueryString, newTableName, allColumns} = ret;

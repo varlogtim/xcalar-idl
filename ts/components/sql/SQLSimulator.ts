@@ -30,13 +30,14 @@ class SQLSimulator {
         xcQueryString: string,
         tableName: string,
         newCols: SQLColumn[],
-        orderCols: SQLColumn[]
+        orderCols: SQLColumn[],
+        needToDropCols: boolean
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const colNameSet = new Set();
         const colIdSet = new Set();
         const colInfos = [];
-        let needSynthesize = false;
+        let needRename = false;
         const txId = SQLSimulator.start();
         const allCols = [];
         orderCols = orderCols || [];
@@ -67,12 +68,12 @@ class SQLSimulator {
                 type: xcHelper.convertColTypeToFieldType(xcHelper.convertSQLTypeToColType(column.colType))
             });
             if (colName !== displayName) {
-                needSynthesize = true;
+                needRename = true;
                 // this will change newCols as well
                 column.rename = displayName;
             }
         }
-        if (needSynthesize) {
+        if (needRename || needToDropCols) {
             XIApi.synthesize(txId, colInfos, tableName)
             .then((finalTable) => {
                 const cli = SQLSimulator.end(txId);
