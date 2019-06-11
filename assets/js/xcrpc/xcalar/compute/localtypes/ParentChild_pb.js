@@ -259,7 +259,7 @@ proto.ParentChildShmPtr.toObject = function(includeInstance, msg) {
   var f, obj = {
     index: jspb.Message.getFieldWithDefault(msg, 1, 0),
     offset: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    bufcacheoffset: jspb.Message.getFieldWithDefault(msg, 3, 0)
+    bufCacheOffset: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
   if (includeInstance) {
@@ -306,7 +306,7 @@ proto.ParentChildShmPtr.deserializeBinaryFromReader = function(msg, reader) {
       break;
     case 3:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setBufcacheoffset(value);
+      msg.setBufCacheOffset(value);
       break;
     default:
       reader.skipField();
@@ -351,7 +351,7 @@ proto.ParentChildShmPtr.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getBufcacheoffset();
+  f = message.getBufCacheOffset();
   if (f !== 0) {
     writer.writeUint64(
       3,
@@ -392,16 +392,16 @@ proto.ParentChildShmPtr.prototype.setOffset = function(value) {
 
 
 /**
- * optional uint64 bufCacheOffset = 3;
+ * optional uint64 buf_cache_offset = 3;
  * @return {number}
  */
-proto.ParentChildShmPtr.prototype.getBufcacheoffset = function() {
+proto.ParentChildShmPtr.prototype.getBufCacheOffset = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.ParentChildShmPtr.prototype.setBufcacheoffset = function(value) {
+proto.ParentChildShmPtr.prototype.setBufCacheOffset = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
@@ -453,8 +453,8 @@ proto.ChildUdfInitRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.ChildUdfInitRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    username: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    sessionid: jspb.Message.getFieldWithDefault(msg, 2, 0)
+    userName: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    sessionId: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
@@ -493,11 +493,11 @@ proto.ChildUdfInitRequest.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUsername(value);
+      msg.setUserName(value);
       break;
     case 2:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setSessionid(value);
+      msg.setSessionId(value);
       break;
     default:
       reader.skipField();
@@ -528,14 +528,14 @@ proto.ChildUdfInitRequest.prototype.serializeBinary = function() {
  */
 proto.ChildUdfInitRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getUsername();
+  f = message.getUserName();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getSessionid();
+  f = message.getSessionId();
   if (f !== 0) {
     writer.writeUint64(
       2,
@@ -546,31 +546,31 @@ proto.ChildUdfInitRequest.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional string userName = 1;
+ * optional string user_name = 1;
  * @return {string}
  */
-proto.ChildUdfInitRequest.prototype.getUsername = function() {
+proto.ChildUdfInitRequest.prototype.getUserName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.ChildUdfInitRequest.prototype.setUsername = function(value) {
+proto.ChildUdfInitRequest.prototype.setUserName = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional uint64 sessionId = 2;
+ * optional uint64 session_id = 2;
  * @return {number}
  */
-proto.ChildUdfInitRequest.prototype.getSessionid = function() {
+proto.ChildUdfInitRequest.prototype.getSessionId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.ChildUdfInitRequest.prototype.setSessionid = function(value) {
+proto.ChildUdfInitRequest.prototype.setSessionId = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
@@ -622,8 +622,8 @@ proto.ChildEvalRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.ChildEvalRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ptrinput: (f = msg.getPtrinput()) && proto.ParentChildShmPtr.toObject(includeInstance, f),
-    ptroutput: (f = msg.getPtroutput()) && proto.ParentChildShmPtr.toObject(includeInstance, f)
+    ptrInput: (f = msg.getPtrInput()) && proto.ParentChildShmPtr.toObject(includeInstance, f),
+    ptrOutput: (f = msg.getPtrOutput()) && proto.ParentChildShmPtr.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -663,12 +663,12 @@ proto.ChildEvalRequest.deserializeBinaryFromReader = function(msg, reader) {
     case 1:
       var value = new proto.ParentChildShmPtr;
       reader.readMessage(value,proto.ParentChildShmPtr.deserializeBinaryFromReader);
-      msg.setPtrinput(value);
+      msg.setPtrInput(value);
       break;
     case 2:
       var value = new proto.ParentChildShmPtr;
       reader.readMessage(value,proto.ParentChildShmPtr.deserializeBinaryFromReader);
-      msg.setPtroutput(value);
+      msg.setPtrOutput(value);
       break;
     default:
       reader.skipField();
@@ -699,7 +699,7 @@ proto.ChildEvalRequest.prototype.serializeBinary = function() {
  */
 proto.ChildEvalRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getPtrinput();
+  f = message.getPtrInput();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -707,7 +707,7 @@ proto.ChildEvalRequest.serializeBinaryToWriter = function(message, writer) {
       proto.ParentChildShmPtr.serializeBinaryToWriter
     );
   }
-  f = message.getPtroutput();
+  f = message.getPtrOutput();
   if (f != null) {
     writer.writeMessage(
       2,
@@ -719,23 +719,23 @@ proto.ChildEvalRequest.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional ParentChildShmPtr ptrInput = 1;
+ * optional ParentChildShmPtr ptr_input = 1;
  * @return {?proto.ParentChildShmPtr}
  */
-proto.ChildEvalRequest.prototype.getPtrinput = function() {
+proto.ChildEvalRequest.prototype.getPtrInput = function() {
   return /** @type{?proto.ParentChildShmPtr} */ (
     jspb.Message.getWrapperField(this, proto.ParentChildShmPtr, 1));
 };
 
 
 /** @param {?proto.ParentChildShmPtr|undefined} value */
-proto.ChildEvalRequest.prototype.setPtrinput = function(value) {
+proto.ChildEvalRequest.prototype.setPtrInput = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
 
 
-proto.ChildEvalRequest.prototype.clearPtrinput = function() {
-  this.setPtrinput(undefined);
+proto.ChildEvalRequest.prototype.clearPtrInput = function() {
+  this.setPtrInput(undefined);
 };
 
 
@@ -743,29 +743,29 @@ proto.ChildEvalRequest.prototype.clearPtrinput = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ChildEvalRequest.prototype.hasPtrinput = function() {
+proto.ChildEvalRequest.prototype.hasPtrInput = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
 
 /**
- * optional ParentChildShmPtr ptrOutput = 2;
+ * optional ParentChildShmPtr ptr_output = 2;
  * @return {?proto.ParentChildShmPtr}
  */
-proto.ChildEvalRequest.prototype.getPtroutput = function() {
+proto.ChildEvalRequest.prototype.getPtrOutput = function() {
   return /** @type{?proto.ParentChildShmPtr} */ (
     jspb.Message.getWrapperField(this, proto.ParentChildShmPtr, 2));
 };
 
 
 /** @param {?proto.ParentChildShmPtr|undefined} value */
-proto.ChildEvalRequest.prototype.setPtroutput = function(value) {
+proto.ChildEvalRequest.prototype.setPtrOutput = function(value) {
   jspb.Message.setWrapperField(this, 2, value);
 };
 
 
-proto.ChildEvalRequest.prototype.clearPtroutput = function() {
-  this.setPtroutput(undefined);
+proto.ChildEvalRequest.prototype.clearPtrOutput = function() {
+  this.setPtrOutput(undefined);
 };
 
 
@@ -773,7 +773,7 @@ proto.ChildEvalRequest.prototype.clearPtroutput = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ChildEvalRequest.prototype.hasPtroutput = function() {
+proto.ChildEvalRequest.prototype.hasPtrOutput = function() {
   return jspb.Message.getField(this, 2) != null;
 };
 
@@ -832,15 +832,15 @@ proto.ChildAppStartRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.ChildAppStartRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    hosttype: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    hostType: jspb.Message.getFieldWithDefault(msg, 1, 0),
     exec: msg.getExec_asB64(),
-    instr: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    appname: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    username: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    xpuid: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    xpuclustersize: jspb.Message.getFieldWithDefault(msg, 7, 0),
-    sessionid: jspb.Message.getFieldWithDefault(msg, 8, 0),
-    xpuidrangeList: jspb.Message.toObjectList(msg.getXpuidrangeList(),
+    inStr: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    appName: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    userName: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    xpuId: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    xpuClusterSize: jspb.Message.getFieldWithDefault(msg, 7, 0),
+    sessionId: jspb.Message.getFieldWithDefault(msg, 8, 0),
+    xpuIdRangeList: jspb.Message.toObjectList(msg.getXpuIdRangeList(),
     proto.ChildAppStartRequest.XpuIdRange.toObject, includeInstance)
   };
 
@@ -880,7 +880,7 @@ proto.ChildAppStartRequest.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setHosttype(value);
+      msg.setHostType(value);
       break;
     case 2:
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
@@ -888,32 +888,32 @@ proto.ChildAppStartRequest.deserializeBinaryFromReader = function(msg, reader) {
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setInstr(value);
+      msg.setInStr(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAppname(value);
+      msg.setAppName(value);
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUsername(value);
+      msg.setUserName(value);
       break;
     case 6:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setXpuid(value);
+      msg.setXpuId(value);
       break;
     case 7:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setXpuclustersize(value);
+      msg.setXpuClusterSize(value);
       break;
     case 8:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setSessionid(value);
+      msg.setSessionId(value);
       break;
     case 9:
       var value = new proto.ChildAppStartRequest.XpuIdRange;
       reader.readMessage(value,proto.ChildAppStartRequest.XpuIdRange.deserializeBinaryFromReader);
-      msg.addXpuidrange(value);
+      msg.addXpuIdRange(value);
       break;
     default:
       reader.skipField();
@@ -944,7 +944,7 @@ proto.ChildAppStartRequest.prototype.serializeBinary = function() {
  */
 proto.ChildAppStartRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getHosttype();
+  f = message.getHostType();
   if (f !== 0) {
     writer.writeUint32(
       1,
@@ -958,49 +958,49 @@ proto.ChildAppStartRequest.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getInstr();
+  f = message.getInStr();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = message.getAppname();
+  f = message.getAppName();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = message.getUsername();
+  f = message.getUserName();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = message.getXpuid();
+  f = message.getXpuId();
   if (f !== 0) {
     writer.writeUint32(
       6,
       f
     );
   }
-  f = message.getXpuclustersize();
+  f = message.getXpuClusterSize();
   if (f !== 0) {
     writer.writeUint32(
       7,
       f
     );
   }
-  f = message.getSessionid();
+  f = message.getSessionId();
   if (f !== 0) {
     writer.writeUint64(
       8,
       f
     );
   }
-  f = message.getXpuidrangeList();
+  f = message.getXpuIdRangeList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       9,
@@ -1058,8 +1058,8 @@ proto.ChildAppStartRequest.XpuIdRange.prototype.toObject = function(opt_includeI
  */
 proto.ChildAppStartRequest.XpuIdRange.toObject = function(includeInstance, msg) {
   var f, obj = {
-    xpuidstart: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    xpuidend: jspb.Message.getFieldWithDefault(msg, 2, 0)
+    xpuIdStart: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    xpuIdEnd: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
@@ -1098,11 +1098,11 @@ proto.ChildAppStartRequest.XpuIdRange.deserializeBinaryFromReader = function(msg
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setXpuidstart(value);
+      msg.setXpuIdStart(value);
       break;
     case 2:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setXpuidend(value);
+      msg.setXpuIdEnd(value);
       break;
     default:
       reader.skipField();
@@ -1133,14 +1133,14 @@ proto.ChildAppStartRequest.XpuIdRange.prototype.serializeBinary = function() {
  */
 proto.ChildAppStartRequest.XpuIdRange.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getXpuidstart();
+  f = message.getXpuIdStart();
   if (f !== 0) {
     writer.writeUint32(
       1,
       f
     );
   }
-  f = message.getXpuidend();
+  f = message.getXpuIdEnd();
   if (f !== 0) {
     writer.writeUint32(
       2,
@@ -1151,46 +1151,46 @@ proto.ChildAppStartRequest.XpuIdRange.serializeBinaryToWriter = function(message
 
 
 /**
- * optional uint32 xpuIdStart = 1;
+ * optional uint32 xpu_id_start = 1;
  * @return {number}
  */
-proto.ChildAppStartRequest.XpuIdRange.prototype.getXpuidstart = function() {
+proto.ChildAppStartRequest.XpuIdRange.prototype.getXpuIdStart = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.ChildAppStartRequest.XpuIdRange.prototype.setXpuidstart = function(value) {
+proto.ChildAppStartRequest.XpuIdRange.prototype.setXpuIdStart = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
 /**
- * optional uint32 xpuIdEnd = 2;
+ * optional uint32 xpu_id_end = 2;
  * @return {number}
  */
-proto.ChildAppStartRequest.XpuIdRange.prototype.getXpuidend = function() {
+proto.ChildAppStartRequest.XpuIdRange.prototype.getXpuIdEnd = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.ChildAppStartRequest.XpuIdRange.prototype.setXpuidend = function(value) {
+proto.ChildAppStartRequest.XpuIdRange.prototype.setXpuIdEnd = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional uint32 hostType = 1;
+ * optional uint32 host_type = 1;
  * @return {number}
  */
-proto.ChildAppStartRequest.prototype.getHosttype = function() {
+proto.ChildAppStartRequest.prototype.getHostType = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.ChildAppStartRequest.prototype.setHosttype = function(value) {
+proto.ChildAppStartRequest.prototype.setHostType = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
@@ -1235,107 +1235,107 @@ proto.ChildAppStartRequest.prototype.setExec = function(value) {
 
 
 /**
- * optional string inStr = 3;
+ * optional string in_str = 3;
  * @return {string}
  */
-proto.ChildAppStartRequest.prototype.getInstr = function() {
+proto.ChildAppStartRequest.prototype.getInStr = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
 /** @param {string} value */
-proto.ChildAppStartRequest.prototype.setInstr = function(value) {
+proto.ChildAppStartRequest.prototype.setInStr = function(value) {
   jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional string appName = 4;
+ * optional string app_name = 4;
  * @return {string}
  */
-proto.ChildAppStartRequest.prototype.getAppname = function() {
+proto.ChildAppStartRequest.prototype.getAppName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
 /** @param {string} value */
-proto.ChildAppStartRequest.prototype.setAppname = function(value) {
+proto.ChildAppStartRequest.prototype.setAppName = function(value) {
   jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional string userName = 5;
+ * optional string user_name = 5;
  * @return {string}
  */
-proto.ChildAppStartRequest.prototype.getUsername = function() {
+proto.ChildAppStartRequest.prototype.getUserName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
 /** @param {string} value */
-proto.ChildAppStartRequest.prototype.setUsername = function(value) {
+proto.ChildAppStartRequest.prototype.setUserName = function(value) {
   jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
 /**
- * optional uint32 xpuId = 6;
+ * optional uint32 xpu_id = 6;
  * @return {number}
  */
-proto.ChildAppStartRequest.prototype.getXpuid = function() {
+proto.ChildAppStartRequest.prototype.getXpuId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
 };
 
 
 /** @param {number} value */
-proto.ChildAppStartRequest.prototype.setXpuid = function(value) {
+proto.ChildAppStartRequest.prototype.setXpuId = function(value) {
   jspb.Message.setProto3IntField(this, 6, value);
 };
 
 
 /**
- * optional uint32 xpuClusterSize = 7;
+ * optional uint32 xpu_cluster_size = 7;
  * @return {number}
  */
-proto.ChildAppStartRequest.prototype.getXpuclustersize = function() {
+proto.ChildAppStartRequest.prototype.getXpuClusterSize = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
 };
 
 
 /** @param {number} value */
-proto.ChildAppStartRequest.prototype.setXpuclustersize = function(value) {
+proto.ChildAppStartRequest.prototype.setXpuClusterSize = function(value) {
   jspb.Message.setProto3IntField(this, 7, value);
 };
 
 
 /**
- * optional uint64 sessionId = 8;
+ * optional uint64 session_id = 8;
  * @return {number}
  */
-proto.ChildAppStartRequest.prototype.getSessionid = function() {
+proto.ChildAppStartRequest.prototype.getSessionId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
 };
 
 
 /** @param {number} value */
-proto.ChildAppStartRequest.prototype.setSessionid = function(value) {
+proto.ChildAppStartRequest.prototype.setSessionId = function(value) {
   jspb.Message.setProto3IntField(this, 8, value);
 };
 
 
 /**
- * repeated XpuIdRange xpuIdRange = 9;
+ * repeated XpuIdRange xpu_id_range = 9;
  * @return {!Array<!proto.ChildAppStartRequest.XpuIdRange>}
  */
-proto.ChildAppStartRequest.prototype.getXpuidrangeList = function() {
+proto.ChildAppStartRequest.prototype.getXpuIdRangeList = function() {
   return /** @type{!Array<!proto.ChildAppStartRequest.XpuIdRange>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.ChildAppStartRequest.XpuIdRange, 9));
 };
 
 
 /** @param {!Array<!proto.ChildAppStartRequest.XpuIdRange>} value */
-proto.ChildAppStartRequest.prototype.setXpuidrangeList = function(value) {
+proto.ChildAppStartRequest.prototype.setXpuIdRangeList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 9, value);
 };
 
@@ -1345,13 +1345,13 @@ proto.ChildAppStartRequest.prototype.setXpuidrangeList = function(value) {
  * @param {number=} opt_index
  * @return {!proto.ChildAppStartRequest.XpuIdRange}
  */
-proto.ChildAppStartRequest.prototype.addXpuidrange = function(opt_value, opt_index) {
+proto.ChildAppStartRequest.prototype.addXpuIdRange = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 9, opt_value, proto.ChildAppStartRequest.XpuIdRange, opt_index);
 };
 
 
-proto.ChildAppStartRequest.prototype.clearXpuidrangeList = function() {
-  this.setXpuidrangeList([]);
+proto.ChildAppStartRequest.prototype.clearXpuIdRangeList = function() {
+  this.setXpuIdRangeList([]);
 };
 
 
@@ -1409,8 +1409,8 @@ proto.XpuReceiveBufferFromSrc.prototype.toObject = function(opt_includeInstance)
  */
 proto.XpuReceiveBufferFromSrc.toObject = function(includeInstance, msg) {
   var f, obj = {
-    srcxpuid: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    dstxpuid: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    srcXpuId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    dstXpuId: jspb.Message.getFieldWithDefault(msg, 2, 0),
     buffersList: jspb.Message.toObjectList(msg.getBuffersList(),
     proto.XpuReceiveBufferFromSrc.Buffer.toObject, includeInstance)
   };
@@ -1451,11 +1451,11 @@ proto.XpuReceiveBufferFromSrc.deserializeBinaryFromReader = function(msg, reader
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setSrcxpuid(value);
+      msg.setSrcXpuId(value);
       break;
     case 2:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setDstxpuid(value);
+      msg.setDstXpuId(value);
       break;
     case 3:
       var value = new proto.XpuReceiveBufferFromSrc.Buffer;
@@ -1491,14 +1491,14 @@ proto.XpuReceiveBufferFromSrc.prototype.serializeBinary = function() {
  */
 proto.XpuReceiveBufferFromSrc.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getSrcxpuid();
+  f = message.getSrcXpuId();
   if (f !== 0) {
     writer.writeUint32(
       1,
       f
     );
   }
-  f = message.getDstxpuid();
+  f = message.getDstXpuId();
   if (f !== 0) {
     writer.writeUint32(
       2,
@@ -1686,31 +1686,31 @@ proto.XpuReceiveBufferFromSrc.Buffer.prototype.setLength = function(value) {
 
 
 /**
- * optional uint32 srcXpuId = 1;
+ * optional uint32 src_xpu_id = 1;
  * @return {number}
  */
-proto.XpuReceiveBufferFromSrc.prototype.getSrcxpuid = function() {
+proto.XpuReceiveBufferFromSrc.prototype.getSrcXpuId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.XpuReceiveBufferFromSrc.prototype.setSrcxpuid = function(value) {
+proto.XpuReceiveBufferFromSrc.prototype.setSrcXpuId = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
 /**
- * optional uint32 dstXpuId = 2;
+ * optional uint32 dst_xpu_id = 2;
  * @return {number}
  */
-proto.XpuReceiveBufferFromSrc.prototype.getDstxpuid = function() {
+proto.XpuReceiveBufferFromSrc.prototype.getDstXpuId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.XpuReceiveBufferFromSrc.prototype.setDstxpuid = function(value) {
+proto.XpuReceiveBufferFromSrc.prototype.setDstXpuId = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
@@ -1779,12 +1779,12 @@ proto.ProtoChildRequest.oneofGroups_ = [[2,3,4,5,6,7]];
  */
 proto.ProtoChildRequest.PayloadCase = {
   PAYLOAD_NOT_SET: 0,
-  SHMPTR: 2,
-  PCBUF: 3,
-  CHILDEVAL: 4,
-  APPSTART: 5,
-  RECVBUFFERFROMSRC: 6,
-  CHILDUDFINIT: 7
+  SHM_PTR: 2,
+  PC_BUF: 3,
+  CHILD_EVAL: 4,
+  APP_START: 5,
+  RECV_BUFFER_FROM_SRC: 6,
+  CHILD_UDF_INIT: 7
 };
 
 /**
@@ -1824,12 +1824,12 @@ proto.ProtoChildRequest.prototype.toObject = function(opt_includeInstance) {
 proto.ProtoChildRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     func: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    shmptr: (f = msg.getShmptr()) && proto.ParentChildShmPtr.toObject(includeInstance, f),
-    pcbuf: (f = msg.getPcbuf()) && proto.ParentChildBuf.toObject(includeInstance, f),
-    childeval: (f = msg.getChildeval()) && proto.ChildEvalRequest.toObject(includeInstance, f),
-    appstart: (f = msg.getAppstart()) && proto.ChildAppStartRequest.toObject(includeInstance, f),
-    recvbufferfromsrc: (f = msg.getRecvbufferfromsrc()) && proto.XpuReceiveBufferFromSrc.toObject(includeInstance, f),
-    childudfinit: (f = msg.getChildudfinit()) && proto.ChildUdfInitRequest.toObject(includeInstance, f)
+    shmPtr: (f = msg.getShmPtr()) && proto.ParentChildShmPtr.toObject(includeInstance, f),
+    pcBuf: (f = msg.getPcBuf()) && proto.ParentChildBuf.toObject(includeInstance, f),
+    childEval: (f = msg.getChildEval()) && proto.ChildEvalRequest.toObject(includeInstance, f),
+    appStart: (f = msg.getAppStart()) && proto.ChildAppStartRequest.toObject(includeInstance, f),
+    recvBufferFromSrc: (f = msg.getRecvBufferFromSrc()) && proto.XpuReceiveBufferFromSrc.toObject(includeInstance, f),
+    childUdfInit: (f = msg.getChildUdfInit()) && proto.ChildUdfInitRequest.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1873,32 +1873,32 @@ proto.ProtoChildRequest.deserializeBinaryFromReader = function(msg, reader) {
     case 2:
       var value = new proto.ParentChildShmPtr;
       reader.readMessage(value,proto.ParentChildShmPtr.deserializeBinaryFromReader);
-      msg.setShmptr(value);
+      msg.setShmPtr(value);
       break;
     case 3:
       var value = new proto.ParentChildBuf;
       reader.readMessage(value,proto.ParentChildBuf.deserializeBinaryFromReader);
-      msg.setPcbuf(value);
+      msg.setPcBuf(value);
       break;
     case 4:
       var value = new proto.ChildEvalRequest;
       reader.readMessage(value,proto.ChildEvalRequest.deserializeBinaryFromReader);
-      msg.setChildeval(value);
+      msg.setChildEval(value);
       break;
     case 5:
       var value = new proto.ChildAppStartRequest;
       reader.readMessage(value,proto.ChildAppStartRequest.deserializeBinaryFromReader);
-      msg.setAppstart(value);
+      msg.setAppStart(value);
       break;
     case 6:
       var value = new proto.XpuReceiveBufferFromSrc;
       reader.readMessage(value,proto.XpuReceiveBufferFromSrc.deserializeBinaryFromReader);
-      msg.setRecvbufferfromsrc(value);
+      msg.setRecvBufferFromSrc(value);
       break;
     case 7:
       var value = new proto.ChildUdfInitRequest;
       reader.readMessage(value,proto.ChildUdfInitRequest.deserializeBinaryFromReader);
-      msg.setChildudfinit(value);
+      msg.setChildUdfInit(value);
       break;
     default:
       reader.skipField();
@@ -1936,7 +1936,7 @@ proto.ProtoChildRequest.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getShmptr();
+  f = message.getShmPtr();
   if (f != null) {
     writer.writeMessage(
       2,
@@ -1944,7 +1944,7 @@ proto.ProtoChildRequest.serializeBinaryToWriter = function(message, writer) {
       proto.ParentChildShmPtr.serializeBinaryToWriter
     );
   }
-  f = message.getPcbuf();
+  f = message.getPcBuf();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -1952,7 +1952,7 @@ proto.ProtoChildRequest.serializeBinaryToWriter = function(message, writer) {
       proto.ParentChildBuf.serializeBinaryToWriter
     );
   }
-  f = message.getChildeval();
+  f = message.getChildEval();
   if (f != null) {
     writer.writeMessage(
       4,
@@ -1960,7 +1960,7 @@ proto.ProtoChildRequest.serializeBinaryToWriter = function(message, writer) {
       proto.ChildEvalRequest.serializeBinaryToWriter
     );
   }
-  f = message.getAppstart();
+  f = message.getAppStart();
   if (f != null) {
     writer.writeMessage(
       5,
@@ -1968,7 +1968,7 @@ proto.ProtoChildRequest.serializeBinaryToWriter = function(message, writer) {
       proto.ChildAppStartRequest.serializeBinaryToWriter
     );
   }
-  f = message.getRecvbufferfromsrc();
+  f = message.getRecvBufferFromSrc();
   if (f != null) {
     writer.writeMessage(
       6,
@@ -1976,7 +1976,7 @@ proto.ProtoChildRequest.serializeBinaryToWriter = function(message, writer) {
       proto.XpuReceiveBufferFromSrc.serializeBinaryToWriter
     );
   }
-  f = message.getChildudfinit();
+  f = message.getChildUdfInit();
   if (f != null) {
     writer.writeMessage(
       7,
@@ -2003,23 +2003,23 @@ proto.ProtoChildRequest.prototype.setFunc = function(value) {
 
 
 /**
- * optional ParentChildShmPtr shmPtr = 2;
+ * optional ParentChildShmPtr shm_ptr = 2;
  * @return {?proto.ParentChildShmPtr}
  */
-proto.ProtoChildRequest.prototype.getShmptr = function() {
+proto.ProtoChildRequest.prototype.getShmPtr = function() {
   return /** @type{?proto.ParentChildShmPtr} */ (
     jspb.Message.getWrapperField(this, proto.ParentChildShmPtr, 2));
 };
 
 
 /** @param {?proto.ParentChildShmPtr|undefined} value */
-proto.ProtoChildRequest.prototype.setShmptr = function(value) {
+proto.ProtoChildRequest.prototype.setShmPtr = function(value) {
   jspb.Message.setOneofWrapperField(this, 2, proto.ProtoChildRequest.oneofGroups_[0], value);
 };
 
 
-proto.ProtoChildRequest.prototype.clearShmptr = function() {
-  this.setShmptr(undefined);
+proto.ProtoChildRequest.prototype.clearShmPtr = function() {
+  this.setShmPtr(undefined);
 };
 
 
@@ -2027,29 +2027,29 @@ proto.ProtoChildRequest.prototype.clearShmptr = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoChildRequest.prototype.hasShmptr = function() {
+proto.ProtoChildRequest.prototype.hasShmPtr = function() {
   return jspb.Message.getField(this, 2) != null;
 };
 
 
 /**
- * optional ParentChildBuf pcBuf = 3;
+ * optional ParentChildBuf pc_buf = 3;
  * @return {?proto.ParentChildBuf}
  */
-proto.ProtoChildRequest.prototype.getPcbuf = function() {
+proto.ProtoChildRequest.prototype.getPcBuf = function() {
   return /** @type{?proto.ParentChildBuf} */ (
     jspb.Message.getWrapperField(this, proto.ParentChildBuf, 3));
 };
 
 
 /** @param {?proto.ParentChildBuf|undefined} value */
-proto.ProtoChildRequest.prototype.setPcbuf = function(value) {
+proto.ProtoChildRequest.prototype.setPcBuf = function(value) {
   jspb.Message.setOneofWrapperField(this, 3, proto.ProtoChildRequest.oneofGroups_[0], value);
 };
 
 
-proto.ProtoChildRequest.prototype.clearPcbuf = function() {
-  this.setPcbuf(undefined);
+proto.ProtoChildRequest.prototype.clearPcBuf = function() {
+  this.setPcBuf(undefined);
 };
 
 
@@ -2057,29 +2057,29 @@ proto.ProtoChildRequest.prototype.clearPcbuf = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoChildRequest.prototype.hasPcbuf = function() {
+proto.ProtoChildRequest.prototype.hasPcBuf = function() {
   return jspb.Message.getField(this, 3) != null;
 };
 
 
 /**
- * optional ChildEvalRequest childEval = 4;
+ * optional ChildEvalRequest child_eval = 4;
  * @return {?proto.ChildEvalRequest}
  */
-proto.ProtoChildRequest.prototype.getChildeval = function() {
+proto.ProtoChildRequest.prototype.getChildEval = function() {
   return /** @type{?proto.ChildEvalRequest} */ (
     jspb.Message.getWrapperField(this, proto.ChildEvalRequest, 4));
 };
 
 
 /** @param {?proto.ChildEvalRequest|undefined} value */
-proto.ProtoChildRequest.prototype.setChildeval = function(value) {
+proto.ProtoChildRequest.prototype.setChildEval = function(value) {
   jspb.Message.setOneofWrapperField(this, 4, proto.ProtoChildRequest.oneofGroups_[0], value);
 };
 
 
-proto.ProtoChildRequest.prototype.clearChildeval = function() {
-  this.setChildeval(undefined);
+proto.ProtoChildRequest.prototype.clearChildEval = function() {
+  this.setChildEval(undefined);
 };
 
 
@@ -2087,29 +2087,29 @@ proto.ProtoChildRequest.prototype.clearChildeval = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoChildRequest.prototype.hasChildeval = function() {
+proto.ProtoChildRequest.prototype.hasChildEval = function() {
   return jspb.Message.getField(this, 4) != null;
 };
 
 
 /**
- * optional ChildAppStartRequest appStart = 5;
+ * optional ChildAppStartRequest app_start = 5;
  * @return {?proto.ChildAppStartRequest}
  */
-proto.ProtoChildRequest.prototype.getAppstart = function() {
+proto.ProtoChildRequest.prototype.getAppStart = function() {
   return /** @type{?proto.ChildAppStartRequest} */ (
     jspb.Message.getWrapperField(this, proto.ChildAppStartRequest, 5));
 };
 
 
 /** @param {?proto.ChildAppStartRequest|undefined} value */
-proto.ProtoChildRequest.prototype.setAppstart = function(value) {
+proto.ProtoChildRequest.prototype.setAppStart = function(value) {
   jspb.Message.setOneofWrapperField(this, 5, proto.ProtoChildRequest.oneofGroups_[0], value);
 };
 
 
-proto.ProtoChildRequest.prototype.clearAppstart = function() {
-  this.setAppstart(undefined);
+proto.ProtoChildRequest.prototype.clearAppStart = function() {
+  this.setAppStart(undefined);
 };
 
 
@@ -2117,29 +2117,29 @@ proto.ProtoChildRequest.prototype.clearAppstart = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoChildRequest.prototype.hasAppstart = function() {
+proto.ProtoChildRequest.prototype.hasAppStart = function() {
   return jspb.Message.getField(this, 5) != null;
 };
 
 
 /**
- * optional XpuReceiveBufferFromSrc recvBufferFromSrc = 6;
+ * optional XpuReceiveBufferFromSrc recv_buffer_from_src = 6;
  * @return {?proto.XpuReceiveBufferFromSrc}
  */
-proto.ProtoChildRequest.prototype.getRecvbufferfromsrc = function() {
+proto.ProtoChildRequest.prototype.getRecvBufferFromSrc = function() {
   return /** @type{?proto.XpuReceiveBufferFromSrc} */ (
     jspb.Message.getWrapperField(this, proto.XpuReceiveBufferFromSrc, 6));
 };
 
 
 /** @param {?proto.XpuReceiveBufferFromSrc|undefined} value */
-proto.ProtoChildRequest.prototype.setRecvbufferfromsrc = function(value) {
+proto.ProtoChildRequest.prototype.setRecvBufferFromSrc = function(value) {
   jspb.Message.setOneofWrapperField(this, 6, proto.ProtoChildRequest.oneofGroups_[0], value);
 };
 
 
-proto.ProtoChildRequest.prototype.clearRecvbufferfromsrc = function() {
-  this.setRecvbufferfromsrc(undefined);
+proto.ProtoChildRequest.prototype.clearRecvBufferFromSrc = function() {
+  this.setRecvBufferFromSrc(undefined);
 };
 
 
@@ -2147,29 +2147,29 @@ proto.ProtoChildRequest.prototype.clearRecvbufferfromsrc = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoChildRequest.prototype.hasRecvbufferfromsrc = function() {
+proto.ProtoChildRequest.prototype.hasRecvBufferFromSrc = function() {
   return jspb.Message.getField(this, 6) != null;
 };
 
 
 /**
- * optional ChildUdfInitRequest childUdfInit = 7;
+ * optional ChildUdfInitRequest child_udf_init = 7;
  * @return {?proto.ChildUdfInitRequest}
  */
-proto.ProtoChildRequest.prototype.getChildudfinit = function() {
+proto.ProtoChildRequest.prototype.getChildUdfInit = function() {
   return /** @type{?proto.ChildUdfInitRequest} */ (
     jspb.Message.getWrapperField(this, proto.ChildUdfInitRequest, 7));
 };
 
 
 /** @param {?proto.ChildUdfInitRequest|undefined} value */
-proto.ProtoChildRequest.prototype.setChildudfinit = function(value) {
+proto.ProtoChildRequest.prototype.setChildUdfInit = function(value) {
   jspb.Message.setOneofWrapperField(this, 7, proto.ProtoChildRequest.oneofGroups_[0], value);
 };
 
 
-proto.ProtoChildRequest.prototype.clearChildudfinit = function() {
-  this.setChildudfinit(undefined);
+proto.ProtoChildRequest.prototype.clearChildUdfInit = function() {
+  this.setChildUdfInit(undefined);
 };
 
 
@@ -2177,7 +2177,7 @@ proto.ProtoChildRequest.prototype.clearChildudfinit = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoChildRequest.prototype.hasChildudfinit = function() {
+proto.ProtoChildRequest.prototype.hasChildUdfInit = function() {
   return jspb.Message.getField(this, 7) != null;
 };
 
@@ -2229,7 +2229,7 @@ proto.ParentAppGetOutputBuffersRequest.prototype.toObject = function(opt_include
  */
 proto.ParentAppGetOutputBuffersRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    numbuffers: jspb.Message.getFieldWithDefault(msg, 1, 0)
+    numBuffers: jspb.Message.getFieldWithDefault(msg, 1, 0)
   };
 
   if (includeInstance) {
@@ -2268,7 +2268,7 @@ proto.ParentAppGetOutputBuffersRequest.deserializeBinaryFromReader = function(ms
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setNumbuffers(value);
+      msg.setNumBuffers(value);
       break;
     default:
       reader.skipField();
@@ -2299,7 +2299,7 @@ proto.ParentAppGetOutputBuffersRequest.prototype.serializeBinary = function() {
  */
 proto.ParentAppGetOutputBuffersRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getNumbuffers();
+  f = message.getNumBuffers();
   if (f !== 0) {
     writer.writeInt64(
       1,
@@ -2310,16 +2310,16 @@ proto.ParentAppGetOutputBuffersRequest.serializeBinaryToWriter = function(messag
 
 
 /**
- * optional int64 numBuffers = 1;
+ * optional int64 num_buffers = 1;
  * @return {number}
  */
-proto.ParentAppGetOutputBuffersRequest.prototype.getNumbuffers = function() {
+proto.ParentAppGetOutputBuffersRequest.prototype.getNumBuffers = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.ParentAppGetOutputBuffersRequest.prototype.setNumbuffers = function(value) {
+proto.ParentAppGetOutputBuffersRequest.prototype.setNumBuffers = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
@@ -2372,8 +2372,8 @@ proto.ParentAppDoneRequest.prototype.toObject = function(opt_includeInstance) {
 proto.ParentAppDoneRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     status: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    outstr: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    errstr: jspb.Message.getFieldWithDefault(msg, 3, "")
+    outStr: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    errStr: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -2416,11 +2416,11 @@ proto.ParentAppDoneRequest.deserializeBinaryFromReader = function(msg, reader) {
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setOutstr(value);
+      msg.setOutStr(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setErrstr(value);
+      msg.setErrStr(value);
       break;
     default:
       reader.skipField();
@@ -2458,14 +2458,14 @@ proto.ParentAppDoneRequest.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getOutstr();
+  f = message.getOutStr();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getErrstr();
+  f = message.getErrStr();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -2491,31 +2491,31 @@ proto.ParentAppDoneRequest.prototype.setStatus = function(value) {
 
 
 /**
- * optional string outStr = 2;
+ * optional string out_str = 2;
  * @return {string}
  */
-proto.ParentAppDoneRequest.prototype.getOutstr = function() {
+proto.ParentAppDoneRequest.prototype.getOutStr = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.ParentAppDoneRequest.prototype.setOutstr = function(value) {
+proto.ParentAppDoneRequest.prototype.setOutStr = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional string errStr = 3;
+ * optional string err_str = 3;
  * @return {string}
  */
-proto.ParentAppDoneRequest.prototype.getErrstr = function() {
+proto.ParentAppDoneRequest.prototype.getErrStr = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
 /** @param {string} value */
-proto.ParentAppDoneRequest.prototype.setErrstr = function(value) {
+proto.ParentAppDoneRequest.prototype.setErrStr = function(value) {
   jspb.Message.setProto3StringField(this, 3, value);
 };
 
@@ -2567,9 +2567,9 @@ proto.ParentReportNumFilesRequest.prototype.toObject = function(opt_includeInsta
  */
 proto.ParentReportNumFilesRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    filessampled: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    totalfilebytes: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    downsampled: jspb.Message.getFieldWithDefault(msg, 3, false)
+    filesSampled: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    totalFileBytes: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    downSampled: jspb.Message.getFieldWithDefault(msg, 3, false)
   };
 
   if (includeInstance) {
@@ -2608,15 +2608,15 @@ proto.ParentReportNumFilesRequest.deserializeBinaryFromReader = function(msg, re
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setFilessampled(value);
+      msg.setFilesSampled(value);
       break;
     case 2:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setTotalfilebytes(value);
+      msg.setTotalFileBytes(value);
       break;
     case 3:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setDownsampled(value);
+      msg.setDownSampled(value);
       break;
     default:
       reader.skipField();
@@ -2647,21 +2647,21 @@ proto.ParentReportNumFilesRequest.prototype.serializeBinary = function() {
  */
 proto.ParentReportNumFilesRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getFilessampled();
+  f = message.getFilesSampled();
   if (f !== 0) {
     writer.writeInt64(
       1,
       f
     );
   }
-  f = message.getTotalfilebytes();
+  f = message.getTotalFileBytes();
   if (f !== 0) {
     writer.writeInt64(
       2,
       f
     );
   }
-  f = message.getDownsampled();
+  f = message.getDownSampled();
   if (f) {
     writer.writeBool(
       3,
@@ -2672,48 +2672,48 @@ proto.ParentReportNumFilesRequest.serializeBinaryToWriter = function(message, wr
 
 
 /**
- * optional int64 filesSampled = 1;
+ * optional int64 files_sampled = 1;
  * @return {number}
  */
-proto.ParentReportNumFilesRequest.prototype.getFilessampled = function() {
+proto.ParentReportNumFilesRequest.prototype.getFilesSampled = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.ParentReportNumFilesRequest.prototype.setFilessampled = function(value) {
+proto.ParentReportNumFilesRequest.prototype.setFilesSampled = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
 /**
- * optional int64 totalFileBytes = 2;
+ * optional int64 total_file_bytes = 2;
  * @return {number}
  */
-proto.ParentReportNumFilesRequest.prototype.getTotalfilebytes = function() {
+proto.ParentReportNumFilesRequest.prototype.getTotalFileBytes = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.ParentReportNumFilesRequest.prototype.setTotalfilebytes = function(value) {
+proto.ParentReportNumFilesRequest.prototype.setTotalFileBytes = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional bool downSampled = 3;
+ * optional bool down_sampled = 3;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
-proto.ParentReportNumFilesRequest.prototype.getDownsampled = function() {
+proto.ParentReportNumFilesRequest.prototype.getDownSampled = function() {
   return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 3, false));
 };
 
 
 /** @param {boolean} value */
-proto.ParentReportNumFilesRequest.prototype.setDownsampled = function(value) {
+proto.ParentReportNumFilesRequest.prototype.setDownSampled = function(value) {
   jspb.Message.setProto3BooleanField(this, 3, value);
 };
 
@@ -2772,12 +2772,12 @@ proto.ParentAppLoadBufferRequest.prototype.toObject = function(opt_includeInstan
  */
 proto.ParentAppLoadBufferRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    numfiles: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    numfilebytes: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    numerrors: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    databuffersList: jspb.Message.toObjectList(msg.getDatabuffersList(),
+    numFiles: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    numFileBytes: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    numErrors: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    dataBuffersList: jspb.Message.toObjectList(msg.getDataBuffersList(),
     proto.ParentAppLoadBufferRequest.DataBuffer.toObject, includeInstance),
-    unusedbuffersList: jspb.Message.toObjectList(msg.getUnusedbuffersList(),
+    unusedBuffersList: jspb.Message.toObjectList(msg.getUnusedBuffersList(),
     proto.ParentAppLoadBufferRequest.Buffer.toObject, includeInstance)
   };
 
@@ -2817,25 +2817,25 @@ proto.ParentAppLoadBufferRequest.deserializeBinaryFromReader = function(msg, rea
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setNumfiles(value);
+      msg.setNumFiles(value);
       break;
     case 2:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setNumfilebytes(value);
+      msg.setNumFileBytes(value);
       break;
     case 3:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setNumerrors(value);
+      msg.setNumErrors(value);
       break;
     case 4:
       var value = new proto.ParentAppLoadBufferRequest.DataBuffer;
       reader.readMessage(value,proto.ParentAppLoadBufferRequest.DataBuffer.deserializeBinaryFromReader);
-      msg.addDatabuffers(value);
+      msg.addDataBuffers(value);
       break;
     case 5:
       var value = new proto.ParentAppLoadBufferRequest.Buffer;
       reader.readMessage(value,proto.ParentAppLoadBufferRequest.Buffer.deserializeBinaryFromReader);
-      msg.addUnusedbuffers(value);
+      msg.addUnusedBuffers(value);
       break;
     default:
       reader.skipField();
@@ -2866,28 +2866,28 @@ proto.ParentAppLoadBufferRequest.prototype.serializeBinary = function() {
  */
 proto.ParentAppLoadBufferRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getNumfiles();
+  f = message.getNumFiles();
   if (f !== 0) {
     writer.writeInt64(
       1,
       f
     );
   }
-  f = message.getNumfilebytes();
+  f = message.getNumFileBytes();
   if (f !== 0) {
     writer.writeInt64(
       2,
       f
     );
   }
-  f = message.getNumerrors();
+  f = message.getNumErrors();
   if (f !== 0) {
     writer.writeInt64(
       3,
       f
     );
   }
-  f = message.getDatabuffersList();
+  f = message.getDataBuffersList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       4,
@@ -2895,7 +2895,7 @@ proto.ParentAppLoadBufferRequest.serializeBinaryToWriter = function(message, wri
       proto.ParentAppLoadBufferRequest.DataBuffer.serializeBinaryToWriter
     );
   }
-  f = message.getUnusedbuffersList();
+  f = message.getUnusedBuffersList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       5,
@@ -3095,7 +3095,7 @@ proto.ParentAppLoadBufferRequest.DataBuffer.prototype.toObject = function(opt_in
  */
 proto.ParentAppLoadBufferRequest.DataBuffer.toObject = function(includeInstance, msg) {
   var f, obj = {
-    haserrors: jspb.Message.getFieldWithDefault(msg, 1, false),
+    hasErrors: jspb.Message.getFieldWithDefault(msg, 1, false),
     buffer: (f = msg.getBuffer()) && proto.ParentAppLoadBufferRequest.Buffer.toObject(includeInstance, f)
   };
 
@@ -3135,7 +3135,7 @@ proto.ParentAppLoadBufferRequest.DataBuffer.deserializeBinaryFromReader = functi
     switch (field) {
     case 1:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setHaserrors(value);
+      msg.setHasErrors(value);
       break;
     case 2:
       var value = new proto.ParentAppLoadBufferRequest.Buffer;
@@ -3171,7 +3171,7 @@ proto.ParentAppLoadBufferRequest.DataBuffer.prototype.serializeBinary = function
  */
 proto.ParentAppLoadBufferRequest.DataBuffer.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getHaserrors();
+  f = message.getHasErrors();
   if (f) {
     writer.writeBool(
       1,
@@ -3190,18 +3190,18 @@ proto.ParentAppLoadBufferRequest.DataBuffer.serializeBinaryToWriter = function(m
 
 
 /**
- * optional bool hasErrors = 1;
+ * optional bool has_errors = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
-proto.ParentAppLoadBufferRequest.DataBuffer.prototype.getHaserrors = function() {
+proto.ParentAppLoadBufferRequest.DataBuffer.prototype.getHasErrors = function() {
   return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 1, false));
 };
 
 
 /** @param {boolean} value */
-proto.ParentAppLoadBufferRequest.DataBuffer.prototype.setHaserrors = function(value) {
+proto.ParentAppLoadBufferRequest.DataBuffer.prototype.setHasErrors = function(value) {
   jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
@@ -3237,62 +3237,62 @@ proto.ParentAppLoadBufferRequest.DataBuffer.prototype.hasBuffer = function() {
 
 
 /**
- * optional int64 numFiles = 1;
+ * optional int64 num_files = 1;
  * @return {number}
  */
-proto.ParentAppLoadBufferRequest.prototype.getNumfiles = function() {
+proto.ParentAppLoadBufferRequest.prototype.getNumFiles = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.ParentAppLoadBufferRequest.prototype.setNumfiles = function(value) {
+proto.ParentAppLoadBufferRequest.prototype.setNumFiles = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
 /**
- * optional int64 numFileBytes = 2;
+ * optional int64 num_file_bytes = 2;
  * @return {number}
  */
-proto.ParentAppLoadBufferRequest.prototype.getNumfilebytes = function() {
+proto.ParentAppLoadBufferRequest.prototype.getNumFileBytes = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.ParentAppLoadBufferRequest.prototype.setNumfilebytes = function(value) {
+proto.ParentAppLoadBufferRequest.prototype.setNumFileBytes = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional int64 numErrors = 3;
+ * optional int64 num_errors = 3;
  * @return {number}
  */
-proto.ParentAppLoadBufferRequest.prototype.getNumerrors = function() {
+proto.ParentAppLoadBufferRequest.prototype.getNumErrors = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.ParentAppLoadBufferRequest.prototype.setNumerrors = function(value) {
+proto.ParentAppLoadBufferRequest.prototype.setNumErrors = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * repeated DataBuffer dataBuffers = 4;
+ * repeated DataBuffer data_buffers = 4;
  * @return {!Array<!proto.ParentAppLoadBufferRequest.DataBuffer>}
  */
-proto.ParentAppLoadBufferRequest.prototype.getDatabuffersList = function() {
+proto.ParentAppLoadBufferRequest.prototype.getDataBuffersList = function() {
   return /** @type{!Array<!proto.ParentAppLoadBufferRequest.DataBuffer>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.ParentAppLoadBufferRequest.DataBuffer, 4));
 };
 
 
 /** @param {!Array<!proto.ParentAppLoadBufferRequest.DataBuffer>} value */
-proto.ParentAppLoadBufferRequest.prototype.setDatabuffersList = function(value) {
+proto.ParentAppLoadBufferRequest.prototype.setDataBuffersList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 4, value);
 };
 
@@ -3302,28 +3302,28 @@ proto.ParentAppLoadBufferRequest.prototype.setDatabuffersList = function(value) 
  * @param {number=} opt_index
  * @return {!proto.ParentAppLoadBufferRequest.DataBuffer}
  */
-proto.ParentAppLoadBufferRequest.prototype.addDatabuffers = function(opt_value, opt_index) {
+proto.ParentAppLoadBufferRequest.prototype.addDataBuffers = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 4, opt_value, proto.ParentAppLoadBufferRequest.DataBuffer, opt_index);
 };
 
 
-proto.ParentAppLoadBufferRequest.prototype.clearDatabuffersList = function() {
-  this.setDatabuffersList([]);
+proto.ParentAppLoadBufferRequest.prototype.clearDataBuffersList = function() {
+  this.setDataBuffersList([]);
 };
 
 
 /**
- * repeated Buffer unusedBuffers = 5;
+ * repeated Buffer unused_buffers = 5;
  * @return {!Array<!proto.ParentAppLoadBufferRequest.Buffer>}
  */
-proto.ParentAppLoadBufferRequest.prototype.getUnusedbuffersList = function() {
+proto.ParentAppLoadBufferRequest.prototype.getUnusedBuffersList = function() {
   return /** @type{!Array<!proto.ParentAppLoadBufferRequest.Buffer>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.ParentAppLoadBufferRequest.Buffer, 5));
 };
 
 
 /** @param {!Array<!proto.ParentAppLoadBufferRequest.Buffer>} value */
-proto.ParentAppLoadBufferRequest.prototype.setUnusedbuffersList = function(value) {
+proto.ParentAppLoadBufferRequest.prototype.setUnusedBuffersList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 5, value);
 };
 
@@ -3333,13 +3333,13 @@ proto.ParentAppLoadBufferRequest.prototype.setUnusedbuffersList = function(value
  * @param {number=} opt_index
  * @return {!proto.ParentAppLoadBufferRequest.Buffer}
  */
-proto.ParentAppLoadBufferRequest.prototype.addUnusedbuffers = function(opt_value, opt_index) {
+proto.ParentAppLoadBufferRequest.prototype.addUnusedBuffers = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 5, opt_value, proto.ParentAppLoadBufferRequest.Buffer, opt_index);
 };
 
 
-proto.ParentAppLoadBufferRequest.prototype.clearUnusedbuffersList = function() {
-  this.setUnusedbuffersList([]);
+proto.ParentAppLoadBufferRequest.prototype.clearUnusedBuffersList = function() {
+  this.setUnusedBuffersList([]);
 };
 
 
@@ -3397,8 +3397,8 @@ proto.XpuSendListToDsts.prototype.toObject = function(opt_includeInstance) {
  */
 proto.XpuSendListToDsts.toObject = function(includeInstance, msg) {
   var f, obj = {
-    srcxpuid: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    sendlistList: jspb.Message.toObjectList(msg.getSendlistList(),
+    srcXpuId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    sendListList: jspb.Message.toObjectList(msg.getSendListList(),
     proto.XpuSendListToDsts.XpuSendListBufferToDst.toObject, includeInstance)
   };
 
@@ -3438,12 +3438,12 @@ proto.XpuSendListToDsts.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setSrcxpuid(value);
+      msg.setSrcXpuId(value);
       break;
     case 2:
       var value = new proto.XpuSendListToDsts.XpuSendListBufferToDst;
       reader.readMessage(value,proto.XpuSendListToDsts.XpuSendListBufferToDst.deserializeBinaryFromReader);
-      msg.addSendlist(value);
+      msg.addSendList(value);
       break;
     default:
       reader.skipField();
@@ -3474,14 +3474,14 @@ proto.XpuSendListToDsts.prototype.serializeBinary = function() {
  */
 proto.XpuSendListToDsts.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getSrcxpuid();
+  f = message.getSrcXpuId();
   if (f !== 0) {
     writer.writeUint32(
       1,
       f
     );
   }
-  f = message.getSendlistList();
+  f = message.getSendListList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       2,
@@ -3546,7 +3546,7 @@ proto.XpuSendListToDsts.XpuSendListBufferToDst.prototype.toObject = function(opt
  */
 proto.XpuSendListToDsts.XpuSendListBufferToDst.toObject = function(includeInstance, msg) {
   var f, obj = {
-    dstxpuid: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    dstXpuId: jspb.Message.getFieldWithDefault(msg, 1, 0),
     buffersList: jspb.Message.toObjectList(msg.getBuffersList(),
     proto.XpuSendListToDsts.XpuSendListBufferToDst.Buffer.toObject, includeInstance)
   };
@@ -3587,7 +3587,7 @@ proto.XpuSendListToDsts.XpuSendListBufferToDst.deserializeBinaryFromReader = fun
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readUint32());
-      msg.setDstxpuid(value);
+      msg.setDstXpuId(value);
       break;
     case 2:
       var value = new proto.XpuSendListToDsts.XpuSendListBufferToDst.Buffer;
@@ -3623,7 +3623,7 @@ proto.XpuSendListToDsts.XpuSendListBufferToDst.prototype.serializeBinary = funct
  */
 proto.XpuSendListToDsts.XpuSendListBufferToDst.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getDstxpuid();
+  f = message.getDstXpuId();
   if (f !== 0) {
     writer.writeUint32(
       1,
@@ -3811,16 +3811,16 @@ proto.XpuSendListToDsts.XpuSendListBufferToDst.Buffer.prototype.setLength = func
 
 
 /**
- * optional uint32 dstXpuId = 1;
+ * optional uint32 dst_xpu_id = 1;
  * @return {number}
  */
-proto.XpuSendListToDsts.XpuSendListBufferToDst.prototype.getDstxpuid = function() {
+proto.XpuSendListToDsts.XpuSendListBufferToDst.prototype.getDstXpuId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.XpuSendListToDsts.XpuSendListBufferToDst.prototype.setDstxpuid = function(value) {
+proto.XpuSendListToDsts.XpuSendListBufferToDst.prototype.setDstXpuId = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
@@ -3857,32 +3857,32 @@ proto.XpuSendListToDsts.XpuSendListBufferToDst.prototype.clearBuffersList = func
 
 
 /**
- * optional uint32 srcXpuId = 1;
+ * optional uint32 src_xpu_id = 1;
  * @return {number}
  */
-proto.XpuSendListToDsts.prototype.getSrcxpuid = function() {
+proto.XpuSendListToDsts.prototype.getSrcXpuId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.XpuSendListToDsts.prototype.setSrcxpuid = function(value) {
+proto.XpuSendListToDsts.prototype.setSrcXpuId = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
 /**
- * repeated XpuSendListBufferToDst sendList = 2;
+ * repeated XpuSendListBufferToDst send_list = 2;
  * @return {!Array<!proto.XpuSendListToDsts.XpuSendListBufferToDst>}
  */
-proto.XpuSendListToDsts.prototype.getSendlistList = function() {
+proto.XpuSendListToDsts.prototype.getSendListList = function() {
   return /** @type{!Array<!proto.XpuSendListToDsts.XpuSendListBufferToDst>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.XpuSendListToDsts.XpuSendListBufferToDst, 2));
 };
 
 
 /** @param {!Array<!proto.XpuSendListToDsts.XpuSendListBufferToDst>} value */
-proto.XpuSendListToDsts.prototype.setSendlistList = function(value) {
+proto.XpuSendListToDsts.prototype.setSendListList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
@@ -3892,13 +3892,13 @@ proto.XpuSendListToDsts.prototype.setSendlistList = function(value) {
  * @param {number=} opt_index
  * @return {!proto.XpuSendListToDsts.XpuSendListBufferToDst}
  */
-proto.XpuSendListToDsts.prototype.addSendlist = function(opt_value, opt_index) {
+proto.XpuSendListToDsts.prototype.addSendList = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 2, opt_value, proto.XpuSendListToDsts.XpuSendListBufferToDst, opt_index);
 };
 
 
-proto.XpuSendListToDsts.prototype.clearSendlistList = function() {
-  this.setSendlistList([]);
+proto.XpuSendListToDsts.prototype.clearSendListList = function() {
+  this.setSendListList([]);
 };
 
 
@@ -3949,8 +3949,8 @@ proto.ParentReportFileErrorRequest.prototype.toObject = function(opt_includeInst
  */
 proto.ParentReportFileErrorRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    filename: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    fileerror: jspb.Message.getFieldWithDefault(msg, 2, "")
+    fileName: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    fileError: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -3989,11 +3989,11 @@ proto.ParentReportFileErrorRequest.deserializeBinaryFromReader = function(msg, r
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFilename(value);
+      msg.setFileName(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFileerror(value);
+      msg.setFileError(value);
       break;
     default:
       reader.skipField();
@@ -4024,14 +4024,14 @@ proto.ParentReportFileErrorRequest.prototype.serializeBinary = function() {
  */
 proto.ParentReportFileErrorRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getFilename();
+  f = message.getFileName();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getFileerror();
+  f = message.getFileError();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -4042,31 +4042,31 @@ proto.ParentReportFileErrorRequest.serializeBinaryToWriter = function(message, w
 
 
 /**
- * optional string fileName = 1;
+ * optional string file_name = 1;
  * @return {string}
  */
-proto.ParentReportFileErrorRequest.prototype.getFilename = function() {
+proto.ParentReportFileErrorRequest.prototype.getFileName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.ParentReportFileErrorRequest.prototype.setFilename = function(value) {
+proto.ParentReportFileErrorRequest.prototype.setFileName = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional string fileError = 2;
+ * optional string file_error = 2;
  * @return {string}
  */
-proto.ParentReportFileErrorRequest.prototype.getFileerror = function() {
+proto.ParentReportFileErrorRequest.prototype.getFileError = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.ParentReportFileErrorRequest.prototype.setFileerror = function(value) {
+proto.ParentReportFileErrorRequest.prototype.setFileError = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
 };
 
@@ -4118,7 +4118,7 @@ proto.XdbGetMetaRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.XdbGetMetaRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    xdbid: jspb.Message.getFieldWithDefault(msg, 1, 0)
+    xdbId: jspb.Message.getFieldWithDefault(msg, 1, 0)
   };
 
   if (includeInstance) {
@@ -4157,7 +4157,7 @@ proto.XdbGetMetaRequest.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setXdbid(value);
+      msg.setXdbId(value);
       break;
     default:
       reader.skipField();
@@ -4188,7 +4188,7 @@ proto.XdbGetMetaRequest.prototype.serializeBinary = function() {
  */
 proto.XdbGetMetaRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getXdbid();
+  f = message.getXdbId();
   if (f !== 0) {
     writer.writeInt64(
       1,
@@ -4199,16 +4199,16 @@ proto.XdbGetMetaRequest.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional int64 xdbId = 1;
+ * optional int64 xdb_id = 1;
  * @return {number}
  */
-proto.XdbGetMetaRequest.prototype.getXdbid = function() {
+proto.XdbGetMetaRequest.prototype.getXdbId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.XdbGetMetaRequest.prototype.setXdbid = function(value) {
+proto.XdbGetMetaRequest.prototype.setXdbId = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
@@ -4436,8 +4436,8 @@ proto.XdbGetMetaResponse.prototype.toObject = function(opt_includeInstance) {
  */
 proto.XdbGetMetaResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    xdbid: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    numrowspernodeList: jspb.Message.getRepeatedField(msg, 2),
+    xdbId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    numRowsPerNodeList: jspb.Message.getRepeatedField(msg, 2),
     columnsList: jspb.Message.toObjectList(msg.getColumnsList(),
     proto.XdbColumnDesc.toObject, includeInstance)
   };
@@ -4478,11 +4478,11 @@ proto.XdbGetMetaResponse.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setXdbid(value);
+      msg.setXdbId(value);
       break;
     case 2:
       var value = /** @type {!Array<number>} */ (reader.readPackedInt64());
-      msg.setNumrowspernodeList(value);
+      msg.setNumRowsPerNodeList(value);
       break;
     case 3:
       var value = new proto.XdbColumnDesc;
@@ -4518,14 +4518,14 @@ proto.XdbGetMetaResponse.prototype.serializeBinary = function() {
  */
 proto.XdbGetMetaResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getXdbid();
+  f = message.getXdbId();
   if (f !== 0) {
     writer.writeInt64(
       1,
       f
     );
   }
-  f = message.getNumrowspernodeList();
+  f = message.getNumRowsPerNodeList();
   if (f.length > 0) {
     writer.writePackedInt64(
       2,
@@ -4544,31 +4544,31 @@ proto.XdbGetMetaResponse.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional int64 xdbId = 1;
+ * optional int64 xdb_id = 1;
  * @return {number}
  */
-proto.XdbGetMetaResponse.prototype.getXdbid = function() {
+proto.XdbGetMetaResponse.prototype.getXdbId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.XdbGetMetaResponse.prototype.setXdbid = function(value) {
+proto.XdbGetMetaResponse.prototype.setXdbId = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
 /**
- * repeated int64 numRowsPerNode = 2;
+ * repeated int64 num_rows_per_node = 2;
  * @return {!Array<number>}
  */
-proto.XdbGetMetaResponse.prototype.getNumrowspernodeList = function() {
+proto.XdbGetMetaResponse.prototype.getNumRowsPerNodeList = function() {
   return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 2));
 };
 
 
 /** @param {!Array<number>} value */
-proto.XdbGetMetaResponse.prototype.setNumrowspernodeList = function(value) {
+proto.XdbGetMetaResponse.prototype.setNumRowsPerNodeList = function(value) {
   jspb.Message.setField(this, 2, value || []);
 };
 
@@ -4577,13 +4577,13 @@ proto.XdbGetMetaResponse.prototype.setNumrowspernodeList = function(value) {
  * @param {!number} value
  * @param {number=} opt_index
  */
-proto.XdbGetMetaResponse.prototype.addNumrowspernode = function(value, opt_index) {
+proto.XdbGetMetaResponse.prototype.addNumRowsPerNode = function(value, opt_index) {
   jspb.Message.addToRepeatedField(this, 2, value, opt_index);
 };
 
 
-proto.XdbGetMetaResponse.prototype.clearNumrowspernodeList = function() {
-  this.setNumrowspernodeList([]);
+proto.XdbGetMetaResponse.prototype.clearNumRowsPerNodeList = function() {
+  this.setNumRowsPerNodeList([]);
 };
 
 
@@ -4672,11 +4672,11 @@ proto.XdbGetLocalRowsRequest.prototype.toObject = function(opt_includeInstance) 
  */
 proto.XdbGetLocalRowsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    xdbid: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    startrow: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    numrows: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    nodeid: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    asdatapage: jspb.Message.getFieldWithDefault(msg, 5, false),
+    xdbId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    startRow: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    numRows: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    nodeId: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    asDataPage: jspb.Message.getFieldWithDefault(msg, 5, false),
     columnsList: jspb.Message.getRepeatedField(msg, 6)
   };
 
@@ -4716,23 +4716,23 @@ proto.XdbGetLocalRowsRequest.deserializeBinaryFromReader = function(msg, reader)
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setXdbid(value);
+      msg.setXdbId(value);
       break;
     case 2:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setStartrow(value);
+      msg.setStartRow(value);
       break;
     case 3:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setNumrows(value);
+      msg.setNumRows(value);
       break;
     case 4:
       var value = /** @type {number} */ (reader.readInt32());
-      msg.setNodeid(value);
+      msg.setNodeId(value);
       break;
     case 5:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setAsdatapage(value);
+      msg.setAsDataPage(value);
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
@@ -4767,35 +4767,35 @@ proto.XdbGetLocalRowsRequest.prototype.serializeBinary = function() {
  */
 proto.XdbGetLocalRowsRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getXdbid();
+  f = message.getXdbId();
   if (f !== 0) {
     writer.writeInt64(
       1,
       f
     );
   }
-  f = message.getStartrow();
+  f = message.getStartRow();
   if (f !== 0) {
     writer.writeInt64(
       2,
       f
     );
   }
-  f = message.getNumrows();
+  f = message.getNumRows();
   if (f !== 0) {
     writer.writeInt64(
       3,
       f
     );
   }
-  f = message.getNodeid();
+  f = message.getNodeId();
   if (f !== 0) {
     writer.writeInt32(
       4,
       f
     );
   }
-  f = message.getAsdatapage();
+  f = message.getAsDataPage();
   if (f) {
     writer.writeBool(
       5,
@@ -4813,78 +4813,78 @@ proto.XdbGetLocalRowsRequest.serializeBinaryToWriter = function(message, writer)
 
 
 /**
- * optional int64 xdbId = 1;
+ * optional int64 xdb_id = 1;
  * @return {number}
  */
-proto.XdbGetLocalRowsRequest.prototype.getXdbid = function() {
+proto.XdbGetLocalRowsRequest.prototype.getXdbId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.XdbGetLocalRowsRequest.prototype.setXdbid = function(value) {
+proto.XdbGetLocalRowsRequest.prototype.setXdbId = function(value) {
   jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
 /**
- * optional int64 startRow = 2;
+ * optional int64 start_row = 2;
  * @return {number}
  */
-proto.XdbGetLocalRowsRequest.prototype.getStartrow = function() {
+proto.XdbGetLocalRowsRequest.prototype.getStartRow = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.XdbGetLocalRowsRequest.prototype.setStartrow = function(value) {
+proto.XdbGetLocalRowsRequest.prototype.setStartRow = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional int64 numRows = 3;
+ * optional int64 num_rows = 3;
  * @return {number}
  */
-proto.XdbGetLocalRowsRequest.prototype.getNumrows = function() {
+proto.XdbGetLocalRowsRequest.prototype.getNumRows = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.XdbGetLocalRowsRequest.prototype.setNumrows = function(value) {
+proto.XdbGetLocalRowsRequest.prototype.setNumRows = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional int32 nodeId = 4;
+ * optional int32 node_id = 4;
  * @return {number}
  */
-proto.XdbGetLocalRowsRequest.prototype.getNodeid = function() {
+proto.XdbGetLocalRowsRequest.prototype.getNodeId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
 /** @param {number} value */
-proto.XdbGetLocalRowsRequest.prototype.setNodeid = function(value) {
+proto.XdbGetLocalRowsRequest.prototype.setNodeId = function(value) {
   jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
 /**
- * optional bool asDataPage = 5;
+ * optional bool as_data_page = 5;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
-proto.XdbGetLocalRowsRequest.prototype.getAsdatapage = function() {
+proto.XdbGetLocalRowsRequest.prototype.getAsDataPage = function() {
   return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 5, false));
 };
 
 
 /** @param {boolean} value */
-proto.XdbGetLocalRowsRequest.prototype.setAsdatapage = function(value) {
+proto.XdbGetLocalRowsRequest.prototype.setAsDataPage = function(value) {
   jspb.Message.setProto3BooleanField(this, 5, value);
 };
 
@@ -4951,7 +4951,7 @@ proto.XdbGetLocalRowsResponse.oneofGroups_ = [[1,2]];
  */
 proto.XdbGetLocalRowsResponse.DataCase = {
   DATA_NOT_SET: 0,
-  DATAPAGE: 1,
+  DATA_PAGE: 1,
   ROWS: 2
 };
 
@@ -4991,7 +4991,7 @@ proto.XdbGetLocalRowsResponse.prototype.toObject = function(opt_includeInstance)
  */
 proto.XdbGetLocalRowsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    datapage: msg.getDatapage_asB64(),
+    dataPage: msg.getDataPage_asB64(),
     rows: (f = msg.getRows()) && proto.XdbGetLocalRowsResponse.RowBatch.toObject(includeInstance, f)
   };
 
@@ -5031,7 +5031,7 @@ proto.XdbGetLocalRowsResponse.deserializeBinaryFromReader = function(msg, reader
     switch (field) {
     case 1:
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
-      msg.setDatapage(value);
+      msg.setDataPage(value);
       break;
     case 2:
       var value = new proto.XdbGetLocalRowsResponse.RowBatch;
@@ -5254,45 +5254,45 @@ proto.XdbGetLocalRowsResponse.RowBatch.prototype.clearRowsList = function() {
 
 
 /**
- * optional bytes dataPage = 1;
+ * optional bytes data_page = 1;
  * @return {!(string|Uint8Array)}
  */
-proto.XdbGetLocalRowsResponse.prototype.getDatapage = function() {
+proto.XdbGetLocalRowsResponse.prototype.getDataPage = function() {
   return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * optional bytes dataPage = 1;
- * This is a type-conversion wrapper around `getDatapage()`
+ * optional bytes data_page = 1;
+ * This is a type-conversion wrapper around `getDataPage()`
  * @return {string}
  */
-proto.XdbGetLocalRowsResponse.prototype.getDatapage_asB64 = function() {
+proto.XdbGetLocalRowsResponse.prototype.getDataPage_asB64 = function() {
   return /** @type {string} */ (jspb.Message.bytesAsB64(
-      this.getDatapage()));
+      this.getDataPage()));
 };
 
 
 /**
- * optional bytes dataPage = 1;
+ * optional bytes data_page = 1;
  * Note that Uint8Array is not supported on all browsers.
  * @see http://caniuse.com/Uint8Array
- * This is a type-conversion wrapper around `getDatapage()`
+ * This is a type-conversion wrapper around `getDataPage()`
  * @return {!Uint8Array}
  */
-proto.XdbGetLocalRowsResponse.prototype.getDatapage_asU8 = function() {
+proto.XdbGetLocalRowsResponse.prototype.getDataPage_asU8 = function() {
   return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
-      this.getDatapage()));
+      this.getDataPage()));
 };
 
 
 /** @param {!(string|Uint8Array)} value */
-proto.XdbGetLocalRowsResponse.prototype.setDatapage = function(value) {
+proto.XdbGetLocalRowsResponse.prototype.setDataPage = function(value) {
   jspb.Message.setOneofField(this, 1, proto.XdbGetLocalRowsResponse.oneofGroups_[0], value);
 };
 
 
-proto.XdbGetLocalRowsResponse.prototype.clearDatapage = function() {
+proto.XdbGetLocalRowsResponse.prototype.clearDataPage = function() {
   jspb.Message.setOneofField(this, 1, proto.XdbGetLocalRowsResponse.oneofGroups_[0], undefined);
 };
 
@@ -5301,7 +5301,7 @@ proto.XdbGetLocalRowsResponse.prototype.clearDatapage = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.XdbGetLocalRowsResponse.prototype.hasDatapage = function() {
+proto.XdbGetLocalRowsResponse.prototype.hasDataPage = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
@@ -5369,14 +5369,14 @@ proto.ParentAppRequest.oneofGroups_ = [[1,2,3,4,5,6,7,8]];
  */
 proto.ParentAppRequest.PayloadCase = {
   PAYLOAD_NOT_SET: 0,
-  GETBUFFERS: 1,
+  GET_BUFFERS: 1,
   DONE: 2,
-  REPORTNUMFILES: 3,
-  LOADBUFFERS: 4,
-  FILEERROR: 5,
-  SENDLISTTODSTS: 6,
-  XDBGETMETA: 7,
-  XDBGETLOCALROWS: 8
+  REPORT_NUM_FILES: 3,
+  LOAD_BUFFERS: 4,
+  FILE_ERROR: 5,
+  SEND_LIST_TO_DSTS: 6,
+  XDB_GET_META: 7,
+  XDB_GET_LOCAL_ROWS: 8
 };
 
 /**
@@ -5415,14 +5415,14 @@ proto.ParentAppRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.ParentAppRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    getbuffers: (f = msg.getGetbuffers()) && proto.ParentAppGetOutputBuffersRequest.toObject(includeInstance, f),
+    getBuffers: (f = msg.getGetBuffers()) && proto.ParentAppGetOutputBuffersRequest.toObject(includeInstance, f),
     done: (f = msg.getDone()) && proto.ParentAppDoneRequest.toObject(includeInstance, f),
-    reportnumfiles: (f = msg.getReportnumfiles()) && proto.ParentReportNumFilesRequest.toObject(includeInstance, f),
-    loadbuffers: (f = msg.getLoadbuffers()) && proto.ParentAppLoadBufferRequest.toObject(includeInstance, f),
-    fileerror: (f = msg.getFileerror()) && proto.ParentReportFileErrorRequest.toObject(includeInstance, f),
-    sendlisttodsts: (f = msg.getSendlisttodsts()) && proto.XpuSendListToDsts.toObject(includeInstance, f),
-    xdbgetmeta: (f = msg.getXdbgetmeta()) && proto.XdbGetMetaRequest.toObject(includeInstance, f),
-    xdbgetlocalrows: (f = msg.getXdbgetlocalrows()) && proto.XdbGetLocalRowsRequest.toObject(includeInstance, f)
+    reportNumFiles: (f = msg.getReportNumFiles()) && proto.ParentReportNumFilesRequest.toObject(includeInstance, f),
+    loadBuffers: (f = msg.getLoadBuffers()) && proto.ParentAppLoadBufferRequest.toObject(includeInstance, f),
+    fileError: (f = msg.getFileError()) && proto.ParentReportFileErrorRequest.toObject(includeInstance, f),
+    sendListToDsts: (f = msg.getSendListToDsts()) && proto.XpuSendListToDsts.toObject(includeInstance, f),
+    xdbGetMeta: (f = msg.getXdbGetMeta()) && proto.XdbGetMetaRequest.toObject(includeInstance, f),
+    xdbGetLocalRows: (f = msg.getXdbGetLocalRows()) && proto.XdbGetLocalRowsRequest.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -5462,7 +5462,7 @@ proto.ParentAppRequest.deserializeBinaryFromReader = function(msg, reader) {
     case 1:
       var value = new proto.ParentAppGetOutputBuffersRequest;
       reader.readMessage(value,proto.ParentAppGetOutputBuffersRequest.deserializeBinaryFromReader);
-      msg.setGetbuffers(value);
+      msg.setGetBuffers(value);
       break;
     case 2:
       var value = new proto.ParentAppDoneRequest;
@@ -5472,32 +5472,32 @@ proto.ParentAppRequest.deserializeBinaryFromReader = function(msg, reader) {
     case 3:
       var value = new proto.ParentReportNumFilesRequest;
       reader.readMessage(value,proto.ParentReportNumFilesRequest.deserializeBinaryFromReader);
-      msg.setReportnumfiles(value);
+      msg.setReportNumFiles(value);
       break;
     case 4:
       var value = new proto.ParentAppLoadBufferRequest;
       reader.readMessage(value,proto.ParentAppLoadBufferRequest.deserializeBinaryFromReader);
-      msg.setLoadbuffers(value);
+      msg.setLoadBuffers(value);
       break;
     case 5:
       var value = new proto.ParentReportFileErrorRequest;
       reader.readMessage(value,proto.ParentReportFileErrorRequest.deserializeBinaryFromReader);
-      msg.setFileerror(value);
+      msg.setFileError(value);
       break;
     case 6:
       var value = new proto.XpuSendListToDsts;
       reader.readMessage(value,proto.XpuSendListToDsts.deserializeBinaryFromReader);
-      msg.setSendlisttodsts(value);
+      msg.setSendListToDsts(value);
       break;
     case 7:
       var value = new proto.XdbGetMetaRequest;
       reader.readMessage(value,proto.XdbGetMetaRequest.deserializeBinaryFromReader);
-      msg.setXdbgetmeta(value);
+      msg.setXdbGetMeta(value);
       break;
     case 8:
       var value = new proto.XdbGetLocalRowsRequest;
       reader.readMessage(value,proto.XdbGetLocalRowsRequest.deserializeBinaryFromReader);
-      msg.setXdbgetlocalrows(value);
+      msg.setXdbGetLocalRows(value);
       break;
     default:
       reader.skipField();
@@ -5528,7 +5528,7 @@ proto.ParentAppRequest.prototype.serializeBinary = function() {
  */
 proto.ParentAppRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getGetbuffers();
+  f = message.getGetBuffers();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -5544,7 +5544,7 @@ proto.ParentAppRequest.serializeBinaryToWriter = function(message, writer) {
       proto.ParentAppDoneRequest.serializeBinaryToWriter
     );
   }
-  f = message.getReportnumfiles();
+  f = message.getReportNumFiles();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -5552,7 +5552,7 @@ proto.ParentAppRequest.serializeBinaryToWriter = function(message, writer) {
       proto.ParentReportNumFilesRequest.serializeBinaryToWriter
     );
   }
-  f = message.getLoadbuffers();
+  f = message.getLoadBuffers();
   if (f != null) {
     writer.writeMessage(
       4,
@@ -5560,7 +5560,7 @@ proto.ParentAppRequest.serializeBinaryToWriter = function(message, writer) {
       proto.ParentAppLoadBufferRequest.serializeBinaryToWriter
     );
   }
-  f = message.getFileerror();
+  f = message.getFileError();
   if (f != null) {
     writer.writeMessage(
       5,
@@ -5568,7 +5568,7 @@ proto.ParentAppRequest.serializeBinaryToWriter = function(message, writer) {
       proto.ParentReportFileErrorRequest.serializeBinaryToWriter
     );
   }
-  f = message.getSendlisttodsts();
+  f = message.getSendListToDsts();
   if (f != null) {
     writer.writeMessage(
       6,
@@ -5576,7 +5576,7 @@ proto.ParentAppRequest.serializeBinaryToWriter = function(message, writer) {
       proto.XpuSendListToDsts.serializeBinaryToWriter
     );
   }
-  f = message.getXdbgetmeta();
+  f = message.getXdbGetMeta();
   if (f != null) {
     writer.writeMessage(
       7,
@@ -5584,7 +5584,7 @@ proto.ParentAppRequest.serializeBinaryToWriter = function(message, writer) {
       proto.XdbGetMetaRequest.serializeBinaryToWriter
     );
   }
-  f = message.getXdbgetlocalrows();
+  f = message.getXdbGetLocalRows();
   if (f != null) {
     writer.writeMessage(
       8,
@@ -5596,23 +5596,23 @@ proto.ParentAppRequest.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional ParentAppGetOutputBuffersRequest getBuffers = 1;
+ * optional ParentAppGetOutputBuffersRequest get_buffers = 1;
  * @return {?proto.ParentAppGetOutputBuffersRequest}
  */
-proto.ParentAppRequest.prototype.getGetbuffers = function() {
+proto.ParentAppRequest.prototype.getGetBuffers = function() {
   return /** @type{?proto.ParentAppGetOutputBuffersRequest} */ (
     jspb.Message.getWrapperField(this, proto.ParentAppGetOutputBuffersRequest, 1));
 };
 
 
 /** @param {?proto.ParentAppGetOutputBuffersRequest|undefined} value */
-proto.ParentAppRequest.prototype.setGetbuffers = function(value) {
+proto.ParentAppRequest.prototype.setGetBuffers = function(value) {
   jspb.Message.setOneofWrapperField(this, 1, proto.ParentAppRequest.oneofGroups_[0], value);
 };
 
 
-proto.ParentAppRequest.prototype.clearGetbuffers = function() {
-  this.setGetbuffers(undefined);
+proto.ParentAppRequest.prototype.clearGetBuffers = function() {
+  this.setGetBuffers(undefined);
 };
 
 
@@ -5620,7 +5620,7 @@ proto.ParentAppRequest.prototype.clearGetbuffers = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ParentAppRequest.prototype.hasGetbuffers = function() {
+proto.ParentAppRequest.prototype.hasGetBuffers = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
@@ -5656,23 +5656,23 @@ proto.ParentAppRequest.prototype.hasDone = function() {
 
 
 /**
- * optional ParentReportNumFilesRequest reportNumFiles = 3;
+ * optional ParentReportNumFilesRequest report_num_files = 3;
  * @return {?proto.ParentReportNumFilesRequest}
  */
-proto.ParentAppRequest.prototype.getReportnumfiles = function() {
+proto.ParentAppRequest.prototype.getReportNumFiles = function() {
   return /** @type{?proto.ParentReportNumFilesRequest} */ (
     jspb.Message.getWrapperField(this, proto.ParentReportNumFilesRequest, 3));
 };
 
 
 /** @param {?proto.ParentReportNumFilesRequest|undefined} value */
-proto.ParentAppRequest.prototype.setReportnumfiles = function(value) {
+proto.ParentAppRequest.prototype.setReportNumFiles = function(value) {
   jspb.Message.setOneofWrapperField(this, 3, proto.ParentAppRequest.oneofGroups_[0], value);
 };
 
 
-proto.ParentAppRequest.prototype.clearReportnumfiles = function() {
-  this.setReportnumfiles(undefined);
+proto.ParentAppRequest.prototype.clearReportNumFiles = function() {
+  this.setReportNumFiles(undefined);
 };
 
 
@@ -5680,29 +5680,29 @@ proto.ParentAppRequest.prototype.clearReportnumfiles = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ParentAppRequest.prototype.hasReportnumfiles = function() {
+proto.ParentAppRequest.prototype.hasReportNumFiles = function() {
   return jspb.Message.getField(this, 3) != null;
 };
 
 
 /**
- * optional ParentAppLoadBufferRequest loadBuffers = 4;
+ * optional ParentAppLoadBufferRequest load_buffers = 4;
  * @return {?proto.ParentAppLoadBufferRequest}
  */
-proto.ParentAppRequest.prototype.getLoadbuffers = function() {
+proto.ParentAppRequest.prototype.getLoadBuffers = function() {
   return /** @type{?proto.ParentAppLoadBufferRequest} */ (
     jspb.Message.getWrapperField(this, proto.ParentAppLoadBufferRequest, 4));
 };
 
 
 /** @param {?proto.ParentAppLoadBufferRequest|undefined} value */
-proto.ParentAppRequest.prototype.setLoadbuffers = function(value) {
+proto.ParentAppRequest.prototype.setLoadBuffers = function(value) {
   jspb.Message.setOneofWrapperField(this, 4, proto.ParentAppRequest.oneofGroups_[0], value);
 };
 
 
-proto.ParentAppRequest.prototype.clearLoadbuffers = function() {
-  this.setLoadbuffers(undefined);
+proto.ParentAppRequest.prototype.clearLoadBuffers = function() {
+  this.setLoadBuffers(undefined);
 };
 
 
@@ -5710,29 +5710,29 @@ proto.ParentAppRequest.prototype.clearLoadbuffers = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ParentAppRequest.prototype.hasLoadbuffers = function() {
+proto.ParentAppRequest.prototype.hasLoadBuffers = function() {
   return jspb.Message.getField(this, 4) != null;
 };
 
 
 /**
- * optional ParentReportFileErrorRequest fileError = 5;
+ * optional ParentReportFileErrorRequest file_error = 5;
  * @return {?proto.ParentReportFileErrorRequest}
  */
-proto.ParentAppRequest.prototype.getFileerror = function() {
+proto.ParentAppRequest.prototype.getFileError = function() {
   return /** @type{?proto.ParentReportFileErrorRequest} */ (
     jspb.Message.getWrapperField(this, proto.ParentReportFileErrorRequest, 5));
 };
 
 
 /** @param {?proto.ParentReportFileErrorRequest|undefined} value */
-proto.ParentAppRequest.prototype.setFileerror = function(value) {
+proto.ParentAppRequest.prototype.setFileError = function(value) {
   jspb.Message.setOneofWrapperField(this, 5, proto.ParentAppRequest.oneofGroups_[0], value);
 };
 
 
-proto.ParentAppRequest.prototype.clearFileerror = function() {
-  this.setFileerror(undefined);
+proto.ParentAppRequest.prototype.clearFileError = function() {
+  this.setFileError(undefined);
 };
 
 
@@ -5740,29 +5740,29 @@ proto.ParentAppRequest.prototype.clearFileerror = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ParentAppRequest.prototype.hasFileerror = function() {
+proto.ParentAppRequest.prototype.hasFileError = function() {
   return jspb.Message.getField(this, 5) != null;
 };
 
 
 /**
- * optional XpuSendListToDsts sendListToDsts = 6;
+ * optional XpuSendListToDsts send_list_to_dsts = 6;
  * @return {?proto.XpuSendListToDsts}
  */
-proto.ParentAppRequest.prototype.getSendlisttodsts = function() {
+proto.ParentAppRequest.prototype.getSendListToDsts = function() {
   return /** @type{?proto.XpuSendListToDsts} */ (
     jspb.Message.getWrapperField(this, proto.XpuSendListToDsts, 6));
 };
 
 
 /** @param {?proto.XpuSendListToDsts|undefined} value */
-proto.ParentAppRequest.prototype.setSendlisttodsts = function(value) {
+proto.ParentAppRequest.prototype.setSendListToDsts = function(value) {
   jspb.Message.setOneofWrapperField(this, 6, proto.ParentAppRequest.oneofGroups_[0], value);
 };
 
 
-proto.ParentAppRequest.prototype.clearSendlisttodsts = function() {
-  this.setSendlisttodsts(undefined);
+proto.ParentAppRequest.prototype.clearSendListToDsts = function() {
+  this.setSendListToDsts(undefined);
 };
 
 
@@ -5770,29 +5770,29 @@ proto.ParentAppRequest.prototype.clearSendlisttodsts = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ParentAppRequest.prototype.hasSendlisttodsts = function() {
+proto.ParentAppRequest.prototype.hasSendListToDsts = function() {
   return jspb.Message.getField(this, 6) != null;
 };
 
 
 /**
- * optional XdbGetMetaRequest xdbGetMeta = 7;
+ * optional XdbGetMetaRequest xdb_get_meta = 7;
  * @return {?proto.XdbGetMetaRequest}
  */
-proto.ParentAppRequest.prototype.getXdbgetmeta = function() {
+proto.ParentAppRequest.prototype.getXdbGetMeta = function() {
   return /** @type{?proto.XdbGetMetaRequest} */ (
     jspb.Message.getWrapperField(this, proto.XdbGetMetaRequest, 7));
 };
 
 
 /** @param {?proto.XdbGetMetaRequest|undefined} value */
-proto.ParentAppRequest.prototype.setXdbgetmeta = function(value) {
+proto.ParentAppRequest.prototype.setXdbGetMeta = function(value) {
   jspb.Message.setOneofWrapperField(this, 7, proto.ParentAppRequest.oneofGroups_[0], value);
 };
 
 
-proto.ParentAppRequest.prototype.clearXdbgetmeta = function() {
-  this.setXdbgetmeta(undefined);
+proto.ParentAppRequest.prototype.clearXdbGetMeta = function() {
+  this.setXdbGetMeta(undefined);
 };
 
 
@@ -5800,29 +5800,29 @@ proto.ParentAppRequest.prototype.clearXdbgetmeta = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ParentAppRequest.prototype.hasXdbgetmeta = function() {
+proto.ParentAppRequest.prototype.hasXdbGetMeta = function() {
   return jspb.Message.getField(this, 7) != null;
 };
 
 
 /**
- * optional XdbGetLocalRowsRequest xdbGetLocalRows = 8;
+ * optional XdbGetLocalRowsRequest xdb_get_local_rows = 8;
  * @return {?proto.XdbGetLocalRowsRequest}
  */
-proto.ParentAppRequest.prototype.getXdbgetlocalrows = function() {
+proto.ParentAppRequest.prototype.getXdbGetLocalRows = function() {
   return /** @type{?proto.XdbGetLocalRowsRequest} */ (
     jspb.Message.getWrapperField(this, proto.XdbGetLocalRowsRequest, 8));
 };
 
 
 /** @param {?proto.XdbGetLocalRowsRequest|undefined} value */
-proto.ParentAppRequest.prototype.setXdbgetlocalrows = function(value) {
+proto.ParentAppRequest.prototype.setXdbGetLocalRows = function(value) {
   jspb.Message.setOneofWrapperField(this, 8, proto.ParentAppRequest.oneofGroups_[0], value);
 };
 
 
-proto.ParentAppRequest.prototype.clearXdbgetlocalrows = function() {
-  this.setXdbgetlocalrows(undefined);
+proto.ParentAppRequest.prototype.clearXdbGetLocalRows = function() {
+  this.setXdbGetLocalRows(undefined);
 };
 
 
@@ -5830,7 +5830,7 @@ proto.ParentAppRequest.prototype.clearXdbgetlocalrows = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ParentAppRequest.prototype.hasXdbgetlocalrows = function() {
+proto.ParentAppRequest.prototype.hasXdbGetLocalRows = function() {
   return jspb.Message.getField(this, 8) != null;
 };
 
@@ -6389,11 +6389,11 @@ proto.ProtoParentChildResponse.oneofGroups_ = [[1,2,3,4,5]];
  */
 proto.ProtoParentChildResponse.PayloadCase = {
   PAYLOAD_NOT_SET: 0,
-  OUTPUTBUFFERS: 1,
-  GROUPID: 2,
-  PCBUF: 3,
-  XDBGETMETA: 4,
-  XDBGETLOCALROWS: 5
+  OUTPUT_BUFFERS: 1,
+  GROUP_ID: 2,
+  PC_BUF: 3,
+  XDB_GET_META: 4,
+  XDB_GET_LOCAL_ROWS: 5
 };
 
 /**
@@ -6432,11 +6432,11 @@ proto.ProtoParentChildResponse.prototype.toObject = function(opt_includeInstance
  */
 proto.ProtoParentChildResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    outputbuffers: (f = msg.getOutputbuffers()) && proto.ParentGetOutputBufferResponse.toObject(includeInstance, f),
-    groupid: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    pcbuf: (f = msg.getPcbuf()) && proto.ParentChildBuf.toObject(includeInstance, f),
-    xdbgetmeta: (f = msg.getXdbgetmeta()) && proto.XdbGetMetaResponse.toObject(includeInstance, f),
-    xdbgetlocalrows: (f = msg.getXdbgetlocalrows()) && proto.XdbGetLocalRowsResponse.toObject(includeInstance, f)
+    outputBuffers: (f = msg.getOutputBuffers()) && proto.ParentGetOutputBufferResponse.toObject(includeInstance, f),
+    groupId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    pcBuf: (f = msg.getPcBuf()) && proto.ParentChildBuf.toObject(includeInstance, f),
+    xdbGetMeta: (f = msg.getXdbGetMeta()) && proto.XdbGetMetaResponse.toObject(includeInstance, f),
+    xdbGetLocalRows: (f = msg.getXdbGetLocalRows()) && proto.XdbGetLocalRowsResponse.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -6476,26 +6476,26 @@ proto.ProtoParentChildResponse.deserializeBinaryFromReader = function(msg, reade
     case 1:
       var value = new proto.ParentGetOutputBufferResponse;
       reader.readMessage(value,proto.ParentGetOutputBufferResponse.deserializeBinaryFromReader);
-      msg.setOutputbuffers(value);
+      msg.setOutputBuffers(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setGroupid(value);
+      msg.setGroupId(value);
       break;
     case 3:
       var value = new proto.ParentChildBuf;
       reader.readMessage(value,proto.ParentChildBuf.deserializeBinaryFromReader);
-      msg.setPcbuf(value);
+      msg.setPcBuf(value);
       break;
     case 4:
       var value = new proto.XdbGetMetaResponse;
       reader.readMessage(value,proto.XdbGetMetaResponse.deserializeBinaryFromReader);
-      msg.setXdbgetmeta(value);
+      msg.setXdbGetMeta(value);
       break;
     case 5:
       var value = new proto.XdbGetLocalRowsResponse;
       reader.readMessage(value,proto.XdbGetLocalRowsResponse.deserializeBinaryFromReader);
-      msg.setXdbgetlocalrows(value);
+      msg.setXdbGetLocalRows(value);
       break;
     default:
       reader.skipField();
@@ -6526,7 +6526,7 @@ proto.ProtoParentChildResponse.prototype.serializeBinary = function() {
  */
 proto.ProtoParentChildResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getOutputbuffers();
+  f = message.getOutputBuffers();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -6541,7 +6541,7 @@ proto.ProtoParentChildResponse.serializeBinaryToWriter = function(message, write
       f
     );
   }
-  f = message.getPcbuf();
+  f = message.getPcBuf();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -6549,7 +6549,7 @@ proto.ProtoParentChildResponse.serializeBinaryToWriter = function(message, write
       proto.ParentChildBuf.serializeBinaryToWriter
     );
   }
-  f = message.getXdbgetmeta();
+  f = message.getXdbGetMeta();
   if (f != null) {
     writer.writeMessage(
       4,
@@ -6557,7 +6557,7 @@ proto.ProtoParentChildResponse.serializeBinaryToWriter = function(message, write
       proto.XdbGetMetaResponse.serializeBinaryToWriter
     );
   }
-  f = message.getXdbgetlocalrows();
+  f = message.getXdbGetLocalRows();
   if (f != null) {
     writer.writeMessage(
       5,
@@ -6569,23 +6569,23 @@ proto.ProtoParentChildResponse.serializeBinaryToWriter = function(message, write
 
 
 /**
- * optional ParentGetOutputBufferResponse outputBuffers = 1;
+ * optional ParentGetOutputBufferResponse output_buffers = 1;
  * @return {?proto.ParentGetOutputBufferResponse}
  */
-proto.ProtoParentChildResponse.prototype.getOutputbuffers = function() {
+proto.ProtoParentChildResponse.prototype.getOutputBuffers = function() {
   return /** @type{?proto.ParentGetOutputBufferResponse} */ (
     jspb.Message.getWrapperField(this, proto.ParentGetOutputBufferResponse, 1));
 };
 
 
 /** @param {?proto.ParentGetOutputBufferResponse|undefined} value */
-proto.ProtoParentChildResponse.prototype.setOutputbuffers = function(value) {
+proto.ProtoParentChildResponse.prototype.setOutputBuffers = function(value) {
   jspb.Message.setOneofWrapperField(this, 1, proto.ProtoParentChildResponse.oneofGroups_[0], value);
 };
 
 
-proto.ProtoParentChildResponse.prototype.clearOutputbuffers = function() {
-  this.setOutputbuffers(undefined);
+proto.ProtoParentChildResponse.prototype.clearOutputBuffers = function() {
+  this.setOutputBuffers(undefined);
 };
 
 
@@ -6593,27 +6593,27 @@ proto.ProtoParentChildResponse.prototype.clearOutputbuffers = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoParentChildResponse.prototype.hasOutputbuffers = function() {
+proto.ProtoParentChildResponse.prototype.hasOutputBuffers = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
 
 /**
- * optional string groupId = 2;
+ * optional string group_id = 2;
  * @return {string}
  */
-proto.ProtoParentChildResponse.prototype.getGroupid = function() {
+proto.ProtoParentChildResponse.prototype.getGroupId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.ProtoParentChildResponse.prototype.setGroupid = function(value) {
+proto.ProtoParentChildResponse.prototype.setGroupId = function(value) {
   jspb.Message.setOneofField(this, 2, proto.ProtoParentChildResponse.oneofGroups_[0], value);
 };
 
 
-proto.ProtoParentChildResponse.prototype.clearGroupid = function() {
+proto.ProtoParentChildResponse.prototype.clearGroupId = function() {
   jspb.Message.setOneofField(this, 2, proto.ProtoParentChildResponse.oneofGroups_[0], undefined);
 };
 
@@ -6622,29 +6622,29 @@ proto.ProtoParentChildResponse.prototype.clearGroupid = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoParentChildResponse.prototype.hasGroupid = function() {
+proto.ProtoParentChildResponse.prototype.hasGroupId = function() {
   return jspb.Message.getField(this, 2) != null;
 };
 
 
 /**
- * optional ParentChildBuf pcBuf = 3;
+ * optional ParentChildBuf pc_buf = 3;
  * @return {?proto.ParentChildBuf}
  */
-proto.ProtoParentChildResponse.prototype.getPcbuf = function() {
+proto.ProtoParentChildResponse.prototype.getPcBuf = function() {
   return /** @type{?proto.ParentChildBuf} */ (
     jspb.Message.getWrapperField(this, proto.ParentChildBuf, 3));
 };
 
 
 /** @param {?proto.ParentChildBuf|undefined} value */
-proto.ProtoParentChildResponse.prototype.setPcbuf = function(value) {
+proto.ProtoParentChildResponse.prototype.setPcBuf = function(value) {
   jspb.Message.setOneofWrapperField(this, 3, proto.ProtoParentChildResponse.oneofGroups_[0], value);
 };
 
 
-proto.ProtoParentChildResponse.prototype.clearPcbuf = function() {
-  this.setPcbuf(undefined);
+proto.ProtoParentChildResponse.prototype.clearPcBuf = function() {
+  this.setPcBuf(undefined);
 };
 
 
@@ -6652,29 +6652,29 @@ proto.ProtoParentChildResponse.prototype.clearPcbuf = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoParentChildResponse.prototype.hasPcbuf = function() {
+proto.ProtoParentChildResponse.prototype.hasPcBuf = function() {
   return jspb.Message.getField(this, 3) != null;
 };
 
 
 /**
- * optional XdbGetMetaResponse xdbGetMeta = 4;
+ * optional XdbGetMetaResponse xdb_get_meta = 4;
  * @return {?proto.XdbGetMetaResponse}
  */
-proto.ProtoParentChildResponse.prototype.getXdbgetmeta = function() {
+proto.ProtoParentChildResponse.prototype.getXdbGetMeta = function() {
   return /** @type{?proto.XdbGetMetaResponse} */ (
     jspb.Message.getWrapperField(this, proto.XdbGetMetaResponse, 4));
 };
 
 
 /** @param {?proto.XdbGetMetaResponse|undefined} value */
-proto.ProtoParentChildResponse.prototype.setXdbgetmeta = function(value) {
+proto.ProtoParentChildResponse.prototype.setXdbGetMeta = function(value) {
   jspb.Message.setOneofWrapperField(this, 4, proto.ProtoParentChildResponse.oneofGroups_[0], value);
 };
 
 
-proto.ProtoParentChildResponse.prototype.clearXdbgetmeta = function() {
-  this.setXdbgetmeta(undefined);
+proto.ProtoParentChildResponse.prototype.clearXdbGetMeta = function() {
+  this.setXdbGetMeta(undefined);
 };
 
 
@@ -6682,29 +6682,29 @@ proto.ProtoParentChildResponse.prototype.clearXdbgetmeta = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoParentChildResponse.prototype.hasXdbgetmeta = function() {
+proto.ProtoParentChildResponse.prototype.hasXdbGetMeta = function() {
   return jspb.Message.getField(this, 4) != null;
 };
 
 
 /**
- * optional XdbGetLocalRowsResponse xdbGetLocalRows = 5;
+ * optional XdbGetLocalRowsResponse xdb_get_local_rows = 5;
  * @return {?proto.XdbGetLocalRowsResponse}
  */
-proto.ProtoParentChildResponse.prototype.getXdbgetlocalrows = function() {
+proto.ProtoParentChildResponse.prototype.getXdbGetLocalRows = function() {
   return /** @type{?proto.XdbGetLocalRowsResponse} */ (
     jspb.Message.getWrapperField(this, proto.XdbGetLocalRowsResponse, 5));
 };
 
 
 /** @param {?proto.XdbGetLocalRowsResponse|undefined} value */
-proto.ProtoParentChildResponse.prototype.setXdbgetlocalrows = function(value) {
+proto.ProtoParentChildResponse.prototype.setXdbGetLocalRows = function(value) {
   jspb.Message.setOneofWrapperField(this, 5, proto.ProtoParentChildResponse.oneofGroups_[0], value);
 };
 
 
-proto.ProtoParentChildResponse.prototype.clearXdbgetlocalrows = function() {
-  this.setXdbgetlocalrows(undefined);
+proto.ProtoParentChildResponse.prototype.clearXdbGetLocalRows = function() {
+  this.setXdbGetLocalRows(undefined);
 };
 
 
@@ -6712,7 +6712,7 @@ proto.ProtoParentChildResponse.prototype.clearXdbgetlocalrows = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.ProtoParentChildResponse.prototype.hasXdbgetlocalrows = function() {
+proto.ProtoParentChildResponse.prototype.hasXdbGetLocalRows = function() {
   return jspb.Message.getField(this, 5) != null;
 };
 
@@ -6721,30 +6721,30 @@ proto.ProtoParentChildResponse.prototype.hasXdbgetlocalrows = function() {
  * @enum {number}
  */
 proto.ProtoChildFunc = {
-  CHILDFUNCSHUTDOWN: 0,
-  CHILDFUNCUDFEVAL: 1,
-  CHILDFUNCAPPSTART: 2,
-  CHILDFUNCUDFADD: 3,
-  CHILDFUNCUDFUPDATE: 4,
-  CHILDFUNCUDFLISTFUNCTIONS: 5,
-  CHILDFUNCRECVBUFFERFROMSRC: 6,
-  CHILDFUNCUDFINIT: 7
+  CHILD_FUNC_SHUT_DOWN: 0,
+  CHILD_FUNC_UDF_EVAL: 1,
+  CHILD_FUNC_APP_START: 2,
+  CHILD_FUNC_UDF_ADD: 3,
+  CHILD_FUNC_UDF_UPDATE: 4,
+  CHILD_FUNC_UDF_LIST_FUNCTIONS: 5,
+  CHILD_FUNC_RECV_BUFFER_FROM_SRC: 6,
+  CHILD_FUNC_UDF_INIT: 7
 };
 
 /**
  * @enum {number}
  */
 proto.ProtoParentFunc = {
-  PARENTFUNCCONNECT: 0,
-  PARENTFUNCAPPDONE: 1,
-  PARENTFUNCAPPGETGROUPID: 2,
-  PARENTFUNCAPPREPORTNUMFILES: 3,
-  PARENTFUNCAPPLOADBUFFER: 4,
-  PARENTFUNCAPPGETOUTPUTBUFFER: 5,
-  PARENTFUNCAPPREPORTFILEERROR: 6,
-  PARENTFUNCXPUSENDLISTTODSTS: 7,
-  PARENTFUNCXDBGETMETA: 8,
-  PARENTFUNCXDBGETLOCALROWS: 9
+  PARENT_FUNC_CONNECT: 0,
+  PARENT_FUNC_APP_DONE: 1,
+  PARENT_FUNC_APP_GET_GROUP_ID: 2,
+  PARENT_FUNC_APP_REPORT_NUM_FILES: 3,
+  PARENT_FUNC_APP_LOAD_BUFFER: 4,
+  PARENT_FUNC_APP_GET_OUTPUT_BUFFER: 5,
+  PARENT_FUNC_APP_REPORT_FILE_ERROR: 6,
+  PARENT_FUNC_XPU_SEND_LIST_TO_DSTS: 7,
+  PARENT_FUNC_XDB_GET_META: 8,
+  PARENT_FUNC_XDB_GET_LOCAL_ROWS: 9
 };
 
 goog.object.extend(exports, proto);

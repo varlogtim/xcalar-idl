@@ -4,11 +4,11 @@ var request = require('request-promise-native');
 
 function serializeRequest(serviceRequest) {
     var msg = new protoMsg.ProtoMsg();
-    msg.setType(protoMsg.ProtoMsgType.PROTOMSGTYPEREQUEST);
+    msg.setType(protoMsg.ProtoMsgType.PROTO_MSG_TYPE_REQUEST);
     msg.setRequest(new protoMsg.ProtoRequestMsg());
-    msg.getRequest().setRequestid(0);
-    msg.getRequest().setChildid(0);
-    msg.getRequest().setTarget(protoMsg.ProtoMsgTarget.PROTOMSGTARGETSERVICE);
+    msg.getRequest().setRequestId(0);
+    msg.getRequest().setChildId(0);
+    msg.getRequest().setTarget(protoMsg.ProtoMsgTarget.PROTO_MSG_TARGET_SERVICE);
 
     msg.getRequest().setServic(serviceRequest);
 
