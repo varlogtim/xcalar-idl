@@ -26,12 +26,14 @@
       </div>
       <div class="loginSectionBody optionSet xc-hidden">
         <div class="clearfix">
-          <div class="formBiRow inputRow">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.adminUsername %></div>
             <input type="text" name="fake" style="display:none"> <!-- Stop autofill -->
             <input name="fake" id="loginConfigAdminUsername" type="text" class="xc-input" autocomplete="off">
           </div>
-          <div class="formBiRow inputRow">
+        </div>
+        <div class="clearfix">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.adminEmail %></div>
             <input type="text" name="fake" style="display:none"> <!-- Stop autofill -->
             <input name="fake" id="loginConfigAdminEmail" type="text" class="xc-input" autocomplete="off">
@@ -83,21 +85,25 @@
           </div>
         </div>
         <div class="clearfix">
-          <div class="formBiRow inputRow">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.ldapUrl %></div>
             <input id="loginConfigLdapUrl" type="text" class="xc-input">
           </div>
-          <div class="formBiRow inputRow">
+        </div>
+        <div class="clearfix">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.userDn %></div>
             <input id="loginConfigLdapUserDn" type="text" class="xc-input">
           </div>
         </div>
         <div class="clearfix">
-          <div class="formBiRow inputRow">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.searchFilter %></div>
             <input id="loginConfigLdapSearchFilter" type="text" class="xc-input">
           </div>
-          <div class="formBiRow inputRow">
+        </div>
+        <div class="clearfix">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.serverKeyFile %></div>
             <input id="loginConfigLdapServerKeyFile" type="text" class="xc-input">
           </div>
@@ -161,21 +167,25 @@
       </div>
       <div class="loginSectionBody optionSet xc-hidden">
         <div class="clearfix">
-          <div class="formBiRow inputRow">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.clientId %></div>
             <input id="loginConfigMSALClientId" type="text" class="xc-input">
           </div>
-          <div class="formBiRow inputRow">
+        </div>
+        <div class="clearfix">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.webApi %></div>
             <input id="loginConfigMSALWebApi" type="text" class="xc-input">
           </div>
         </div>
         <div class="clearfix">
-          <div class="formBiRow inputRow">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.authority %></div>
             <input id="loginConfigMSALAuthority" type="text" class="xc-input">
           </div>
-          <div class="formBiRow inputRow">
+        </div>
+        <div class="clearfix">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.azureEndpoint %></div>
             <input id="loginConfigMSALAzureEndpoint" type="text" class="xc-input">
           </div>
