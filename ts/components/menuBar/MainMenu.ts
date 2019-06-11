@@ -140,7 +140,7 @@ namespace MainMenu {
     };
 
     export function openPanel(panelId: string, subTabId?: string): void {
-       let $tab: JQuery;
+        let $tab: JQuery;
         switch (panelId) {
             case ("monitorPanel"):
                 $tab = $("#monitorTab");
@@ -510,6 +510,10 @@ namespace MainMenu {
         const curTab: string = $curTab.attr("id");
         $menuBar.find(".topMenuBarTab").removeClass("active");
         $curTab.addClass("active");
+        if (($("#helpSection").hasClass("active") || $("#udfSection").hasClass("active"))
+                && !$("#bottomMenu").hasClass("poppedOut")) {
+            BottomMenu.close();
+        }
 
         switch (curTab) {
             case ("dataStoresTab"):
