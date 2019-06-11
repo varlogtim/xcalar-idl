@@ -2136,7 +2136,7 @@ window.Function.prototype.bind = function() {
             }
 
             table = new XcalarApiNamedInputT();
-            table.name = "";
+            table.name = tableName;
             table.nodeId = nodeId;
 
             return xcalarTagDagNodes(thriftHandle, "testTag2", [table])
@@ -3674,32 +3674,6 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function testUserDetach(test) {
-        var userToDetach = "detachUser";
-        // Save the current user name as we're going to change it to one specific
-        // to this test.
-        var savedUserIdName = userIdName;
-        userIdName = userToDetach;
-        var sessName = "detachSession";
-
-        xcalarApiSessionNew(thriftHandle, sessName, false, "")
-        .then(function() {
-            // Switch back to the original user and detach the user
-            // that was just created
-            userIdName = savedUserIdName;
-            return xcalarApiUserDetach(thriftHandle, userToDetach)
-        })
-        .then(function() {
-            // It would be nice to verify that the user and sessions
-            // are gone but the act of listing (via SessionList) reloads
-            // them.
-            test.pass();
-        })
-        .fail(function(reason) {
-           test.fail(reason);
-        })
-    }
-
     function testPerNodeOpStats() {
         xcalarApiGetPerNodeOpStats(thriftHandle)
         .done(function(res) {
@@ -4300,7 +4274,8 @@ window.Function.prototype.bind = function() {
 
             var sourceArgs = new DataSourceArgsT();
             sourceArgs.targetName = parquetTargetName;
-            sourceArgs.path = pathToParquetDataset + "?" + expectedPartitionKeys[0] + "=*&" + expectedPartitionKeys[1] + "=" + randomPartitionKeyValue;
+            //sourceArgs.path = pathToParquetDataset + "?" + expectedPartitionKeys[0] + "=*&" + expectedPartitionKeys[1] + "=" + randomPartitionKeyValue;
+            sourceArgs.path = pathToParquetDataset;
             sourceArgs.fileNamePattern = "";
             sourceArgs.recursive = false;
 
@@ -4314,8 +4289,13 @@ window.Function.prototype.bind = function() {
                 randomColumns.push(expectedPartitionKeys[idx]);
             }
 
+            var partKeys = {};
+            partKeys[expectedPartitionKeys[0]] = ['*'];
+            partKeys[expectedPartitionKeys[1]] = [randomPartitionKeyValue];
+
+            console.log("partKeys", JSON.stringify(partKeys))
             console.log(JSON.stringify(randomColumns))
-            var parquetArgs = { "columns": randomColumns }
+            var parquetArgs = { "columns": randomColumns, "partitionKeys": partKeys, "parquetParser": "pyArrow" }
             var parseArgs = new ParseArgsT();
             parseArgs.parserFnName = "default:parseParquet";
             parseArgs.parserArgJson = JSON.stringify(parquetArgs);
@@ -4369,7 +4349,7 @@ window.Function.prototype.bind = function() {
     fails             = 0;
     skips             = 0;
     returnValue       = 0;
-    defaultTimeout    = 256000000;
+    defaultTimeout    = 600000; // 600s
     disableIsPass     = true;
 
     var content = fs.read(system.env.MGMTDTEST_DIR + '/test-config.cfg');
@@ -4464,7 +4444,6 @@ window.Function.prototype.bind = function() {
     addTestCase(testSessionInact, "inact session", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionDownload, "download session", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionUpload, "upload session", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testUserDetach, "detach user", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testGetStats, "get stats", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetStatGroupIdMap, "get stats group id map", defaultTimeout, TestCaseEnabled, "");

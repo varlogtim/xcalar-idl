@@ -32,7 +32,8 @@ DfFormatTypeT = {
   'DfFormatJson' : 1,
   'DfFormatCsv' : 2,
   'DfFormatSql' : 3,
-  'DfFormatInternal' : 4
+  'DfFormatInternal' : 4,
+  'DfFormatParquet' : 5
 };
 DfFieldTypeTStr = {
   0 : 'DfUnknown',
@@ -83,12 +84,14 @@ DfFormatTypeTStr = {
   1 : 'json',
   2 : 'csv',
   3 : 'sql',
-  4 : 'internal'
+  4 : 'internal',
+  5 : 'parquet'
 };
 DfFormatTypeTFromStr = {
   'unknown' : 0,
   'json' : 1,
   'csv' : 2,
   'sql' : 3,
-  'internal' : 4
+  'internal' : 4,
+  'parquet' : 5
 };

@@ -780,18 +780,6 @@ declare class XcalarApiGetStatOutputT {
 		stats?: XcalarApiStatT[],
 	});
 }
-declare class XcalarApiStatByGroupIdInputT {
-	numNodeId: number;
-	nodeId: number[];
-	numGroupId: number;
-	groupId: number[];
-	constructor(args?: {
-		numNodeId?: number,
-		nodeId?: number[],
-		numGroupId?: number,
-		groupId?: number[],
-	});
-}
 declare class XcalarApiMapInputT {
 	source: string;
 	dest: string;
@@ -1172,12 +1160,6 @@ declare class XcalarApiTopOutputT {
 		topOutputPerNode?: XcalarApiTopOutputPerNodeT[],
 	});
 }
-declare class XcalarApiMemoryInputT {
-	tagName: string;
-	constructor(args?: {
-		tagName?: string,
-	});
-}
 declare class XcalarApiQueryListInputT {
 	namePattern: string;
 	constructor(args?: {
@@ -1246,16 +1228,6 @@ declare class XcalarApiSessionDeleteInputT {
 		noCleanup?: boolean,
 	});
 }
-declare class XcalarApiSessionSwitchInputT {
-	sessionName: string;
-	origSessionName: string;
-	noCleanup: boolean;
-	constructor(args?: {
-		sessionName?: string,
-		origSessionName?: string,
-		noCleanup?: boolean,
-	});
-}
 declare class XcalarApiSessionActivateInputT {
 	sessionName: string;
 	constructor(args?: {
@@ -1298,12 +1270,7 @@ declare class XcalarApiSessionUploadInputT {
 		sessionContent?: string,
 	});
 }
-declare class XcalarApiUserDetachInputT {
-	userName: string;
-	constructor(args?: {
-		userName?: string,
-	});
-}
+
 declare class XcalarApiGetQueryOutputT {
 	query: string;
 	constructor(args?: {
@@ -1609,18 +1576,6 @@ declare class XcalarApiDeleteRetinaInputT {
 		delRetInput?: string,
 	});
 }
-declare class XcalarApiLicenseUpdateInputT {
-	licUpdateInput: string;
-	constructor(args?: {
-		licUpdateInput?: string,
-	});
-}
-declare class XcalarApiDeleteDatasetsInputT {
-	delInput: string;
-	constructor(args?: {
-		delInput?: string,
-	});
-}
 declare class XcalarApiShutdownInputT {
 	doShutdown: boolean;
 	constructor(args?: {
@@ -1658,12 +1613,6 @@ declare class XcalarApiGetDatasetsInfoInputT {
 	});
 }
 declare class XcalarApiListDatasetUsersInputT {
-	datasetName: string;
-	constructor(args?: {
-		datasetName?: string,
-	});
-}
-declare class XcalarApiLockDatasetInputT {
 	datasetName: string;
 	constructor(args?: {
 		datasetName?: string,
@@ -1778,7 +1727,6 @@ declare class XcalarApiInputT {
 	listDagNodesInput: XcalarApiDagNodeNamePatternInputT;
 	deleteDagNodeInput: XcalarApiDagNodeNamePatternInputT;
 	queryInput: XcalarApiQueryInputT;
-	statByGroupIdInput: XcalarApiStatByGroupIdInputT;
 	makeResultSetInput: XcalarApiMakeResultSetInputT;
 	mapInput: XcalarApiMapInputT;
 	aggregateInput: XcalarApiAggregateInputT;
@@ -1802,10 +1750,8 @@ declare class XcalarApiInputT {
 	shutdownInput: XcalarApiShutdownInputT;
 	listXdfsInput: XcalarApiListXdfsInputT;
 	renameNodeInput: XcalarApiRenameNodeInputT;
-	memoryInput: XcalarApiMemoryInputT;
 	sessionNewInput: XcalarApiSessionNewInputT;
 	sessionDeleteInput: XcalarApiSessionDeleteInputT;
-	sessionSwitchInput: XcalarApiSessionSwitchInputT;
 	sessionListInput: XcalarApiSessionListArrayInputT;
 	sessionRenameInput: XcalarApiSessionRenameInputT;
 	createDhtInput: XcalarApiCreateDhtInputT;
@@ -1823,7 +1769,6 @@ declare class XcalarApiInputT {
 	exportRetinaInput: XcalarApiExportRetinaInputT;
 	startFuncTestInput: XcalarApiStartFuncTestInputT;
 	listFuncTestInput: XcalarApiListFuncTestInputT;
-	deleteDatasetsInput: XcalarApiDeleteDatasetsInputT;
 	setConfigParamInput: XcalarApiSetConfigParamInputT;
 	removeTargetInput: ExExportTargetHdrT;
 	appSetInput: XcalarApiAppSetInputT;
@@ -1831,7 +1776,6 @@ declare class XcalarApiInputT {
 	appRunInput: XcalarApiAppRunInputT;
 	appReapInput: XcalarApiAppReapInputT;
 	demoFileInput: XcalarApiDemoFileInputT;
-	updateLicenseInput: XcalarApiLicenseUpdateInputT;
 	memoryUsageInput: XcalarApiGetMemoryUsageInputT;
 	logLevelSetInput: XcalarApiLogLevelSetInputT;
 	getIpAddrInput: XcalarApiGetIpAddrInputT;
@@ -1839,7 +1783,6 @@ declare class XcalarApiInputT {
 	tagDagNodesInput: XcalarApiTagDagNodesInputT;
 	commentDagNodesInput: XcalarApiCommentDagNodesInputT;
 	listDatasetUsersInput: XcalarApiListDatasetUsersInputT;
-	lockDatasetInput: XcalarApiLockDatasetInputT;
 	keyListInput: XcalarApiKeyListInputT;
 	listUserDatasetsInput: XcalarApiListUserDatasetsInputT;
 	unionInput: XcalarApiUnionInputT;
@@ -1857,7 +1800,6 @@ declare class XcalarApiInputT {
 	listTablesInput: XcalarApiListTablesInputT;
 	restoreTableInput: XcalarApiRestoreTableInputT;
 	coalesceInput: XcalarApiCoalesceInputT;
-	userDetachInput: XcalarApiUserDetachInputT;
 	sessionActivateInput: XcalarApiSessionActivateInputT;
 	cgroupInput: XcalarApiCgroupInputT;
 	queryListInput: XcalarApiQueryListInputT;
@@ -1878,7 +1820,6 @@ declare class XcalarApiInputT {
 		listDagNodesInput?: XcalarApiDagNodeNamePatternInputT,
 		deleteDagNodeInput?: XcalarApiDagNodeNamePatternInputT,
 		queryInput?: XcalarApiQueryInputT,
-		statByGroupIdInput?: XcalarApiStatByGroupIdInputT,
 		makeResultSetInput?: XcalarApiMakeResultSetInputT,
 		mapInput?: XcalarApiMapInputT,
 		aggregateInput?: XcalarApiAggregateInputT,
@@ -1902,10 +1843,8 @@ declare class XcalarApiInputT {
 		shutdownInput?: XcalarApiShutdownInputT,
 		listXdfsInput?: XcalarApiListXdfsInputT,
 		renameNodeInput?: XcalarApiRenameNodeInputT,
-		memoryInput?: XcalarApiMemoryInputT,
 		sessionNewInput?: XcalarApiSessionNewInputT,
 		sessionDeleteInput?: XcalarApiSessionDeleteInputT,
-		sessionSwitchInput?: XcalarApiSessionSwitchInputT,
 		sessionListInput?: XcalarApiSessionListArrayInputT,
 		sessionRenameInput?: XcalarApiSessionRenameInputT,
 		createDhtInput?: XcalarApiCreateDhtInputT,
@@ -1923,7 +1862,6 @@ declare class XcalarApiInputT {
 		exportRetinaInput?: XcalarApiExportRetinaInputT,
 		startFuncTestInput?: XcalarApiStartFuncTestInputT,
 		listFuncTestInput?: XcalarApiListFuncTestInputT,
-		deleteDatasetsInput?: XcalarApiDeleteDatasetsInputT,
 		setConfigParamInput?: XcalarApiSetConfigParamInputT,
 		removeTargetInput?: ExExportTargetHdrT,
 		appSetInput?: XcalarApiAppSetInputT,
@@ -1931,7 +1869,6 @@ declare class XcalarApiInputT {
 		appRunInput?: XcalarApiAppRunInputT,
 		appReapInput?: XcalarApiAppReapInputT,
 		demoFileInput?: XcalarApiDemoFileInputT,
-		updateLicenseInput?: XcalarApiLicenseUpdateInputT,
 		memoryUsageInput?: XcalarApiGetMemoryUsageInputT,
 		logLevelSetInput?: XcalarApiLogLevelSetInputT,
 		getIpAddrInput?: XcalarApiGetIpAddrInputT,
@@ -1939,7 +1876,6 @@ declare class XcalarApiInputT {
 		tagDagNodesInput?: XcalarApiTagDagNodesInputT,
 		commentDagNodesInput?: XcalarApiCommentDagNodesInputT,
 		listDatasetUsersInput?: XcalarApiListDatasetUsersInputT,
-		lockDatasetInput?: XcalarApiLockDatasetInputT,
 		keyListInput?: XcalarApiKeyListInputT,
 		listUserDatasetsInput?: XcalarApiListUserDatasetsInputT,
 		unionInput?: XcalarApiUnionInputT,
@@ -1957,7 +1893,6 @@ declare class XcalarApiInputT {
 		listTablesInput?: XcalarApiListTablesInputT,
 		restoreTableInput?: XcalarApiRestoreTableInputT,
 		coalesceInput?: XcalarApiCoalesceInputT,
-		userDetachInput?: XcalarApiUserDetachInputT,
 		sessionActivateInput?: XcalarApiSessionActivateInputT,
 		cgroupInput?: XcalarApiCgroupInputT,
 		queryListInput?: XcalarApiQueryListInputT,
