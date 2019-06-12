@@ -258,7 +258,8 @@ interface SQLColumn {
 
 interface SQLResult {
     tableName: string,
-    columns: SQLColumn[]
+    columns: SQLColumn[],
+    orderColumns: SQLColumn[]
 }
 
 interface SQLLoadInput {

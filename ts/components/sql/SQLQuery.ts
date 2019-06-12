@@ -7,6 +7,7 @@ class SQLQuery {
     public newTableName?: string;
     public runTxId?: number;
     public allColumns?: SQLColumn[];
+    public orderColumns?: SQLColumn[];
     // For sql history
     public status?: SQLStatus;
     public startTime?: Date;

@@ -861,7 +861,8 @@ class SqlManager {
             } else {
                 let result: SQLResult = {
                     tableName: sqlQueryObj.newTableName,
-                    columns: sqlQueryObj.allColumns
+                    columns: sqlQueryObj.allColumns,
+                    orderColumns: sqlQueryObj.orderColumns
                 }
                 return PromiseHelper.resolve(result);
             }

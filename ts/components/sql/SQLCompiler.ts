@@ -66,10 +66,11 @@ class SQLCompiler {
                                                   needToDropCols);
             })
             .then(function(ret) {
-                const {xcQueryString, newTableName, allColumns} = ret;
+                const {xcQueryString, newTableName, allColumns, orderColumns} = ret;
                 sqlQueryObj.xcQueryString = xcQueryString;
                 sqlQueryObj.newTableName = newTableName;
                 sqlQueryObj.allColumns = allColumns;
+                sqlQueryObj.orderColumns = orderColumns;
                 deferred.resolve(sqlQueryObj);
             })
             .fail(function(err) {

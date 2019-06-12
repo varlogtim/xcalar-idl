@@ -69,7 +69,7 @@ class SQLSimulator {
             });
             if (colName !== displayName) {
                 needRename = true;
-                // this will change newCols as well
+                // this will change newCols & orderCols as well
                 column.rename = displayName;
             }
         }
@@ -79,11 +79,21 @@ class SQLSimulator {
                 const cli = SQLSimulator.end(txId);
                 const synthesizeQuery = cli.endsWith(",") ? cli.slice(0, -1) : cli;
                 xcQueryString = xcQueryString.slice(0, -1) + "," + synthesizeQuery + "]";
-                deferred.resolve({xcQueryString: xcQueryString, newTableName: finalTable, allColumns: newCols});
+                deferred.resolve({
+                    xcQueryString: xcQueryString,
+                    newTableName: finalTable,
+                    allColumns: newCols,
+                    orderColumns: orderCols
+                });
             })
             .fail(deferred.reject);
         } else {
-            deferred.resolve({xcQueryString: xcQueryString, newTableName: tableName, allColumns: newCols});
+            deferred.resolve({
+                xcQueryString: xcQueryString,
+                newTableName: tableName,
+                allColumns: newCols,
+                orderColumns: orderCols
+            });
         }
         return deferred.promise();
     }
