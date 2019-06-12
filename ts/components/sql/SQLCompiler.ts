@@ -103,6 +103,10 @@ class SQLCompiler {
         return tableNames;
     }
 
+    static _getSparkExpression(expr: string) {
+        return SparkExpressions[expr] || expr;
+    }
+
     // Options: extractAggregates -- change aggregate nodes to a different tree
     static secondTraverse(
         node: TreeNode,
@@ -120,21 +124,21 @@ class SQLCompiler {
         let opName = node.value.class.substring(
             node.value.class.indexOf("expressions.") + "expressions.".length);
         switch (opName) {
-            case (SparkExpressions.UnaryMinus): {
+            case (SQLCompiler._getSparkExpression("UnaryMinus")): {
                 const subNode = TreeNodeFactory.getSubtractNode();
                 const zeroNode = TreeNodeFactory.getLiteralNumberNode(0);
                 subNode.children = [zeroNode, node.children[0]];
                 node = subNode;
                 break;
             }
-            case (SparkExpressions.Remainder): {
+            case (SQLCompiler._getSparkExpression("Remainder")): {
                 const intNodeL = TreeNodeFactory.getCastNode("int");
                 const intNodeR = TreeNodeFactory.getCastNode("int");
                 intNodeL.children = [node.children[0]];
                 intNodeR.children = [node.children[1]];
                 break;
             }
-            case (SparkExpressions.Rand): {
+            case (SQLCompiler._getSparkExpression("Rand")): {
                 const intMax = 2147483647;
                 const intMaxNode = TreeNodeFactory.getLiteralNumberNode(intMax);
                 const endNode = TreeNodeFactory.getLiteralNumberNode(intMax-1);
@@ -148,11 +152,11 @@ class SQLCompiler {
                 node = divNode;
                 break;
             }
-            case (SparkExpressions.FindInSet): {
+            case (SQLCompiler._getSparkExpression("FindInSet")): {
                 node.children = [node.children[1], node.children[0]];
                 break;
             }
-            case (SparkExpressions.Substring): {
+            case (SQLCompiler._getSparkExpression("Substring")): {
 
                 // XXX since this traverse is top down, we will end up
                 // traversing the subtrees twice. Might need to add a flag
@@ -258,7 +262,7 @@ class SQLCompiler {
             // Left & Right are now handled by UDFs
             // case ("expressions.Left"):
             // case ("expressions.Right"):
-            case (SparkExpressions.Like): {
+            case (SQLCompiler._getSparkExpression("Like")): {
                 SQLUtil.assert(node.children.length === 2,
                             SQLErrTStr.LikeTwoChildren + node.children.length);
                 const strNode = node.children[1];
@@ -275,8 +279,8 @@ class SQLCompiler {
 
                 break;
             }
-            case (SparkExpressions.CaseWhenCodegen):
-            case (SparkExpressions.CaseWhen): {
+            case (SQLCompiler._getSparkExpression("CaseWhenCodegen")):
+            case (SQLCompiler._getSparkExpression("CaseWhen")): {
                 if (node.value.elseValue && node.children.length % 2 !== 1) {
                     // If there's an elseValue, then num children must be odd
                     SQLUtil.assert(false, SQLErrTStr.CaseWhenOdd +
@@ -320,7 +324,7 @@ class SQLCompiler {
                 node = newNode;
                 break;
             }
-            case (SparkExpressions.In): {
+            case (SQLCompiler._getSparkExpression("In")): {
                 // Note: The first OR node or the ONLY In node will be the root
                 // of the tree
                 SQLUtil.assert(node.children.length >= 2,
@@ -355,7 +359,7 @@ class SQLCompiler {
                 node = newNode;
                 break;
             }
-            case (SparkExpressions.Cast): {
+            case (SQLCompiler._getSparkExpression("Cast")): {
                 const type = node.value.dataType;
                 const convertedType = SQLCompiler.convertSparkTypeToXcalarType(
                                                                           type);
@@ -363,7 +367,7 @@ class SQLCompiler {
                                         "expressions.XcType." + convertedType);
                 break;
             }
-            case (SparkExpressions["aggregate.AggregateExpression"]): {
+            case (SQLCompiler._getSparkExpression("aggregate.AggregateExpression")): {
                 // If extractAggregates is true, then we need to cut the tree
                 // here and construct a different tree
                 if (!isRoot && options && options.extractAggregates) {
@@ -384,7 +388,7 @@ class SQLCompiler {
                 }
                 break;
             }
-            case (SparkExpressions.ScalarSubquery): {
+            case (SQLCompiler._getSparkExpression("ScalarSubquery")): {
                 // The result of the subquery should be a single value
                 // XXX Currently, Aggregate node should be the first in the plan
                 // This assertion is NO longer valid when we move to TPCDS
@@ -412,14 +416,14 @@ class SQLCompiler {
                                                              node.subqueryTree);
                 break;
             }
-            case (SparkExpressions.Year):
-            case (SparkExpressions.Quarter):
-            case (SparkExpressions.Month):
-            case (SparkExpressions.DayOfWeek):
-            case (SparkExpressions.DayOfMonth):
-            case (SparkExpressions.Hour):
-            case (SparkExpressions.Minute):
-            case (SparkExpressions.Second): {
+            case (SQLCompiler._getSparkExpression("Year")):
+            case (SQLCompiler._getSparkExpression("Quarter")):
+            case (SQLCompiler._getSparkExpression("Month")):
+            case (SQLCompiler._getSparkExpression("DayOfWeek")):
+            case (SQLCompiler._getSparkExpression("DayOfMonth")):
+            case (SQLCompiler._getSparkExpression("Hour")):
+            case (SQLCompiler._getSparkExpression("Minute")):
+            case (SQLCompiler._getSparkExpression("Second")): {
                 SQLUtil.assert(node.children.length === 1,
                             SQLErrTStr.DateTimeOneChild + node.children.length);
                 const lookUpDict = {
@@ -438,7 +442,7 @@ class SQLCompiler {
                 node.value["num-children"]++;
                 break;
             }
-            case (SparkExpressions.FromUnixTime): {
+            case (SQLCompiler._getSparkExpression("FromUnixTime")): {
                 SQLUtil.assert(node.children.length === 2,
                          SQLErrTStr.UnixTimeTwoChildren + node.children.length);
                 const multNode = TreeNodeFactory.getMultiplyNode();
@@ -449,8 +453,8 @@ class SQLCompiler {
                 node.value["num-children"] = 1;
                 break;
             }
-            case (SparkExpressions.ToUnixTimestamp):
-            case (SparkExpressions.UnixTimestamp): {
+            case (SQLCompiler._getSparkExpression("ToUnixTimestamp")):
+            case (SQLCompiler._getSparkExpression("UnixTimestamp")): {
                 // Takes in string/date/timestamp.
                 // We cast all to timestamp first.
                 SQLUtil.assert(node.children.length === 2,
@@ -468,8 +472,8 @@ class SQLCompiler {
                 node = parentIntNode;
                 break;
             }
-            case (SparkExpressions.TimeAdd):
-            case (SparkExpressions.TimeSub): {
+            case (SQLCompiler._getSparkExpression("TimeAdd")):
+            case (SQLCompiler._getSparkExpression("TimeSub")): {
                 SQLUtil.assert(node.children.length === 2,
                      SQLErrTStr.TimeIntervalTwoChildren + node.children.length);
                 const intervalNode = node.children[node.value["interval"]];
@@ -513,7 +517,7 @@ class SQLCompiler {
                 node.children[node.value["interval"]] = newIntervalNode;
                 break;
             }
-            case (SparkExpressions.DateFormatClass): {
+            case (SQLCompiler._getSparkExpression("DateFormatClass")): {
                 SQLUtil.assert(node.children.length === 2,
                        SQLErrTStr.DateFormatTwoChildren + node.children.length);
                 const formatNode = node.children[1];
@@ -543,7 +547,7 @@ class SQLCompiler {
                 // node = intNode;
                 break;
             }
-            case (SparkExpressions.Coalesce): {
+            case (SQLCompiler._getSparkExpression("Coalesce")): {
                 // XXX It's a hack. It should be compiled into CASE WHEN as it
                 // may have more than 2 children
                 SQLUtil.assert(node.children.length === 2,
@@ -558,7 +562,7 @@ class SQLCompiler {
                 node = newNode;
                 break;
             }
-            case (SparkExpressions.IsNull): {
+            case (SQLCompiler._getSparkExpression("IsNull")): {
                 const nNode = TreeNodeFactory.getNotNode();
                 const notNNode = TreeNodeFactory.getExistNode();
                 nNode.children = [notNNode];
@@ -566,15 +570,15 @@ class SQLCompiler {
                 node = nNode;
                 break;
             }
-            case (SparkExpressions.CheckOverflow):
-            case (SparkExpressions.PromotePrecision): {
+            case (SQLCompiler._getSparkExpression("CheckOverflow")):
+            case (SQLCompiler._getSparkExpression("PromotePrecision")): {
                 SQLUtil.assert(node.children.length === 1,
                         SQLErrTStr.DecimalNodeChildren + node.children.length);
                 node = SQLCompiler.secondTraverse(node.children[0], options,
                                                   false, tablePrefix);
                 break;
             }
-            case (SparkExpressions.StringInstr): {
+            case (SQLCompiler._getSparkExpression("StringInstr")): {
                 const retNode = TreeNodeFactory.getAddNode();
                 const fNode = TreeNodeFactory.getFindNode();
                 const zeroNode = TreeNodeFactory.getLiteralNumberNode(0);
@@ -585,7 +589,7 @@ class SQLCompiler {
                 node = retNode;
                 break;
             }
-            case (SparkExpressions.StringLocate): {
+            case (SQLCompiler._getSparkExpression("StringLocate")): {
                 const retNode = TreeNodeFactory.getAddNode();
                 const subNode = TreeNodeFactory.getSubtractNode();
                 const fNode = TreeNodeFactory.getFindNode();
@@ -600,25 +604,25 @@ class SQLCompiler {
                 node = retNode;
                 break;
             }
-            case (SparkExpressions.Rank):
-            case (SparkExpressions.PercentRank):
-            case (SparkExpressions.DenseRank): {
+            case (SQLCompiler._getSparkExpression("Rank")):
+            case (SQLCompiler._getSparkExpression("PercentRank")):
+            case (SQLCompiler._getSparkExpression("DenseRank")): {
                 node.children = [];
                 node.value["num-children"] = 0;
                 break;
             }
-            case (SparkExpressions.TruncTimestamp):
-            case (SparkExpressions.DateDiff): {
+            case (SQLCompiler._getSparkExpression("TruncTimestamp")):
+            case (SQLCompiler._getSparkExpression("DateDiff")): {
                 node.children = [node.children[1], node.children[0]];
                 break;
             }
-            case (SparkExpressions.AddMonths): {
+            case (SQLCompiler._getSparkExpression("AddMonths")): {
                 node.value["num-children"] = 4;
                 const zeroNode = TreeNodeFactory.getLiteralNumberNode(0);
                 node.children = [node.children[0], zeroNode, node.children[1], zeroNode];
                 break;
             }
-            case (SparkExpressions.DateAdd): {
+            case (SQLCompiler._getSparkExpression("DateAdd")): {
                 SQLUtil.assert(node.children.length === 2,
                         SQLErrTStr.DateSubTwoChildren + node.children.length);
                 node.value["num-children"] = 4;
@@ -626,7 +630,7 @@ class SQLCompiler {
                 node.children = [node.children[0], zeroNode, zeroNode, node.children[1]];
                 break;
             }
-            case (SparkExpressions.DateSub): {
+            case (SQLCompiler._getSparkExpression("DateSub")): {
                 SQLUtil.assert(node.children.length === 2,
                         SQLErrTStr.DateSubTwoChildren + node.children.length);
                 node.value["num-children"] = 4;
@@ -639,7 +643,7 @@ class SQLCompiler {
                 node.children = [node.children[0], zeroNode, zeroNode, intNode];
                 break;
             }
-            case (SparkExpressions["aggregate.CollectList"]): {
+            case (SQLCompiler._getSparkExpression("aggregate.CollectList")): {
                 // XXX this is a workaround because we don't have list type
                 node.value.class =
                     "org.apache.spark.sql.catalyst.expressions.aggregate.ListAgg";
@@ -703,8 +707,9 @@ class SQLCompiler {
             node.colType = SQLCompiler.getColType(node.aggTree);
         } else if (node.subqueryTree) {
             node.colType = node.subqueryTree.aggType;
-        } else if (curOpName === SparkExpressions.AttributeReference ||
-                   curOpName === SparkExpressions.Literal) {
+        } else if (curOpName ===
+                   SQLCompiler._getSparkExpression("AttributeReference") ||
+                   curOpName === SQLCompiler._getSparkExpression("Literal")) {
             node.colType = SQLCompiler.convertSparkTypeToXcalarType(node.value.dataType);
         } else if (curOpName === "XCEPassThrough") {
             // XXX Remove second block when type map added to sqldf
@@ -739,7 +744,7 @@ class SQLCompiler {
             } else {
                 node.colType = SQLColumnType.String;
             }
-        } else if (curOpName === SparkExpressions.If) {
+        } else if (curOpName === SQLCompiler._getSparkExpression("If")) {
             if (SQLCompiler.getColType(node.children[1]) == null) {
                 node.colType = SQLCompiler.getColType(node.children[2]);
             } else {
@@ -749,8 +754,10 @@ class SQLCompiler {
                    SparkExprToXdf[curOpName].indexOf("*") != -1) {
             if (curOpName === "Lead" || curOpName === "Lag") {
                 node.colType = SQLCompiler.getColType(node.children[0]);
-            } else if (curOpName === SparkExpressions.PercentRank ||
-                       curOpName === SparkExpressions.CumeDist) {
+            } else if (curOpName ===
+                       SQLCompiler._getSparkExpression("PercentRank") ||
+                       curOpName ===
+                       SQLCompiler._getSparkExpression("CumeDist")) {
                 node.colType = SQLColumnType.Float;
             } else {
                 node.colType = SQLColumnType.Integer;
@@ -761,19 +768,19 @@ class SQLCompiler {
         }
         opName = node.value.class.substring(node.value.class
                             .indexOf("expressions.") + "expressions.".length);
-        if (opName === SparkExpressions.Round &&
+        if (opName === SQLCompiler._getSparkExpression("Round") &&
             SQLCompiler.getColType(node.children[0]) === "money") {
             node.value.class = node.value.class + "Numeric";
             node.colType = SQLColumnType.Money;
-        } else if (opName === SparkExpressions.Add ||
-                   opName === SparkExpressions.Subtract ||
-                   opName === SparkExpressions.Multiply ||
-                   opName === SparkExpressions.Abs ||
-                   opName === SparkExpressions.Divide ||
-                   opName === SparkExpressions["aggregate.Sum"] ||
-                   opName === SparkExpressions["aggregate.Max"] ||
-                   opName === SparkExpressions["aggregate.Min"] ||
-                   opName === SparkExpressions["aggregate.Average"]) {
+        } else if (opName === SQLCompiler._getSparkExpression("Add") ||
+                   opName === SQLCompiler._getSparkExpression("Subtract") ||
+                   opName === SQLCompiler._getSparkExpression("Multiply") ||
+                   opName === SQLCompiler._getSparkExpression("Abs") ||
+                   opName === SQLCompiler._getSparkExpression("Divide") ||
+                   opName === SQLCompiler._getSparkExpression("aggregate.Sum") ||
+                   opName === SQLCompiler._getSparkExpression("aggregate.Max") ||
+                   opName === SQLCompiler._getSparkExpression("aggregate.Min") ||
+                   opName === SQLCompiler._getSparkExpression("aggregate.Average")) {
             let allInteger = true;
             let allMoney = true;
             for (let i = 0; i < node.children.length; i++) {
@@ -784,8 +791,9 @@ class SQLCompiler {
                     allMoney = false;
                 }
             }
-            if (allInteger && opName != SparkExpressions["aggregate.Average"] &&
-                opName != SparkExpressions.Divide) {
+            if (allInteger &&
+                opName != SQLCompiler._getSparkExpression("aggregate.Average") &&
+                opName != SQLCompiler._getSparkExpression("Divide")) {
                 node.value.class = node.value.class + "Integer";
                 node.colType = SQLColumnType.Integer;
             } else if (allMoney) {
@@ -793,14 +801,14 @@ class SQLCompiler {
                 node.value.class = node.value.class + "Numeric";
                 node.colType = SQLColumnType.Money;
             }
-        } else if (opName === SparkExpressions.If &&
+        } else if (opName === SQLCompiler._getSparkExpression("If") &&
                    SQLCompiler.getColType(node.children[1]) === "money" &&
                    SQLCompiler.getColType(node.children[2]) === "money") {
             node.value.class = node.value.class + "Numeric";
             node.colType = SQLColumnType.Money;
         }
         node.visited = true;
-        if (opName === SparkExpressions.UnaryMinus &&
+        if (opName === SQLCompiler._getSparkExpression("UnaryMinus") &&
             node.children[1].colType === "int") {
             const intNode = TreeNodeFactory.getCastNode("int");
             intNode.children = [node];
@@ -1314,9 +1322,9 @@ class SQLCompiler {
         const opName = condTree.value.class.substring(condTree.value.class
                             .indexOf("expressions.") + "expressions.".length);
         if (opName in SparkExprToXdf ||
-            opName === SparkExpressions["aggregate.AggregateExpression"] ||
-            opName === SparkExpressions["ScalarSubquery"] ||
-            opName === SparkExpressions["XCEPassThrough"]) {
+            opName === SQLCompiler._getSparkExpression("aggregate.AggregateExpression") ||
+            opName === SQLCompiler._getSparkExpression("ScalarSubquery") ||
+            opName === SQLCompiler._getSparkExpression("XCEPassThrough")) {
             let hasLeftPar = false;
             if (opName.indexOf("aggregate.") === 0) {
                 if (opName === "aggregate.AggregateExpression") {
