@@ -4,6 +4,8 @@ class TutorialPanel {
     private _tutSet: ExtCategorySet;
     private _isFirstTouch: boolean = true;
     private currVer: number;
+    private _categoryOrder: Map<string, number>;
+    private _orderedCatLength: number;
 
     constructor() {}
 
@@ -53,6 +55,7 @@ class TutorialPanel {
             self._refreshTutorial(searchKey);
         });
 
+        this._setupCategoryOrder();
     };
 
     public active(): XDPromise<any> {
@@ -136,6 +139,23 @@ class TutorialPanel {
 
     private _refreshTutorial(searchKey?: string): void {
         let categoryList: ExtCategory[] = this._tutSet.getList();
+        categoryList.sort((firstCat: ExtCategory, secondCat: ExtCategory) => {
+            let firstName = firstCat.getName();
+            let secName = secondCat.getName();
+            let firstVal: number;
+            if (this._categoryOrder.has(firstName)) {
+                firstVal = this._categoryOrder.get(firstName);
+            } else {
+                firstVal = this._orderedCatLength;
+            }
+            let secVal: number;
+            if (this._categoryOrder.has(secName)) {
+                secVal = this._categoryOrder.get(secName);
+            } else {
+                secVal = this._orderedCatLength;
+            }
+            return (firstVal - secVal);
+        });
         this._generateTutView(categoryList, searchKey);
     }
 
@@ -297,5 +317,17 @@ class TutorialPanel {
         html += '</div></div>';
 
         return html;
+    }
+
+    // Reorders the categories. If it is not in this map, it will be ordered alphabetically.
+    private _setupCategoryOrder() {
+        this._categoryOrder = new Map<string, number>();
+        this._categoryOrder.set("import", 0);
+        this._categoryOrder.set("imports", 1);
+        this._categoryOrder.set("sql mode", 2);
+        this._categoryOrder.set("advanced mode", 3);
+        this._categoryOrder.set("export/publish", 4);
+        this._categoryOrder.set("system", 5);
+        this._orderedCatLength = 6;
     }
 }
