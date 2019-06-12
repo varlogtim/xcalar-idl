@@ -164,7 +164,8 @@ describe("DagNodeExecutor Test", () => {
                 operator: "count",
                 aggColName: "aggCol",
                 newColName: "count_aggCol",
-                isDistinct: true
+                isDistinct: true,
+                delim: undefined
             });
             expect(groupByCols.length).to.equal(1);
             expect(groupByCols[0]).to.equal("groupCol");

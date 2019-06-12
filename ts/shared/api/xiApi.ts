@@ -716,7 +716,11 @@ namespace XIApi {
         } else if (op === "var") {
             evalStr = `div(sum(pow(sub(${colName}, avg(${colName})), 2)), sub(count(${colName}), 1))`;
         } else {
-            evalStr = `${op}(${colName})`;
+            let delim = "";
+            if (aggArg.delim) {
+                delim = `,"${aggArg.delim}"`;
+            }
+            evalStr = `${op}(${colName}${delim})`;
         }
         return evalStr;
     }

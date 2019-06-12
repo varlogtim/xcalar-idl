@@ -69,7 +69,8 @@ class GroupByOpPanel extends GeneralOpPanel {
      *
      * @param node
      */
-    public show(node: DagNode, options: ShowPanelInfo) {
+    public show(node: DagNode, options: ShowPanelInfo): XDPromise<void> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
         super.show(node, options)
         .then(() => {
             this.model = new GroupByOpPanelModel(this._dagNode, (all) => {
@@ -80,7 +81,12 @@ class GroupByOpPanel extends GeneralOpPanel {
             this._render(true);
             this._focusNextInput(0);
             this._checkPanelOpeningError();
+            deferred.resolve();
+        })
+        .fail(() => {
+            deferred.reject();
         });
+        return deferred.promise();
     };
 
     // functions that get called after list udfs is called during op view show
@@ -152,7 +158,6 @@ class GroupByOpPanel extends GeneralOpPanel {
                 let argVal: string = arg.getValue();
                 if ($args.eq(j).length) {
                     if (updateAll && arg.isCast()) {
-                        // arg = xcHelper.castStrHelper(arg, model.groups[i].args[j].getCast());
                         let colType = self.model.getColumnTypeFromArg(arg.getFormattedValue());
                         let requiredTypes = self._parseType(arg.getTypeid());
                         allColTypes.push({
@@ -487,7 +492,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         let numArgs = Math.max(Math.abs(operObj.numArgs),
                                 operObj.argDescs.length);
-        numArgs = Math.min(numArgs, 1); // XXX only showing a maximum of 1 input
+
         const numInputsNeeded = numArgs + 1;
 
         this._addArgRows(numInputsNeeded, $argsGroup, groupIndex);

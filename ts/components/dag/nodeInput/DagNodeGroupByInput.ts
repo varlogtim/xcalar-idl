@@ -78,6 +78,12 @@ class DagNodeGroupByInput extends DagNodeInput {
                   "minLength": 1,
                   "pattern": "^(.*)$"
                 },
+                "delim": {
+                    "$id": "#/properties/aggregate/items/properties/delim",
+                    "type": "string",
+                    "title": "The Delim Schema",
+                    "default": ""
+                },
                 "destColumn": {
                   "$id": "#/properties/aggregate/items/properties/destColumn",
                   "type": "string",

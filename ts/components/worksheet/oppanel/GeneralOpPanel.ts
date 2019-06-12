@@ -516,7 +516,7 @@ class GeneralOpPanel extends BaseOpPanel {
         });
     }
 
-    public show(node: DagNode, options?: ShowPanelInfo) {
+    public show(node: DagNode, options?: ShowPanelInfo): XDPromise<void>  {
         const self = this;
         this._dagNode = node;
         if (this._formHelper.isOpen()) {

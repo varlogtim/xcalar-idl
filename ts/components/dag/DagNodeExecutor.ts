@@ -413,7 +413,8 @@ class DagNodeExecutor {
                 operator: aggInfo.operator,
                 aggColName: this._mapEvalStrAggs(aggInfo.sourceColumn, usedAggs),
                 newColName: aggInfo.destColumn,
-                isDistinct: aggInfo.distinct
+                isDistinct: aggInfo.distinct,
+                delim: aggInfo.delim
             }
         });
         const newKeys: string[] = node.updateNewKeys(params.newKeys);

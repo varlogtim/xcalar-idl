@@ -162,13 +162,19 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                     throw({error: "Function not selected."});
                 }
             } else if (opInfo) {
-                const isOptional = this._isOptional(opInfo, i);
-                const argInfo: OpPanelArg = new OpPanelArg(argGroup.sourceColumn,
+                let isOptional = this._isOptional(opInfo, 0);
+                let argInfo: OpPanelArg = new OpPanelArg(argGroup.sourceColumn,
                                         opInfo.argDescs[0].typesAccepted,
                                         isOptional, true);
 
                 argInfo.setCast(argGroup.cast);
                 args.push(argInfo);
+                if (opInfo.argDescs[1]) { // listAggs accepts a 2nd argument
+                    isOptional = this._isOptional(opInfo, 1);
+                    argInfo = new OpPanelArg(argGroup.delim, opInfo.argDescs[1].typesAccepted, isOptional, true);
+                    argInfo.setFormattedValue(argGroup.delim);
+                    args.push(argInfo);
+                }
             }
 
             args.forEach((arg) => {
@@ -203,14 +209,17 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 sourceColumn = "";
                 cast = null;
             }
-
-            aggregates.push({
+            let aggregateInfo = {
                 operator: group.operator,
                 sourceColumn: sourceColumn,
                 destColumn: group.newFieldName,
                 distinct: group.distinct,
                 cast: cast
-            });
+            };
+            if (group.args[1]) {
+                aggregateInfo.delim = group.args[1].getValue();
+            }
+            aggregates.push(aggregateInfo);
         });
 
         if (this.groupAll) {

@@ -78,6 +78,7 @@ interface AggColInfo {
     aggColName: string;
     newColName: string;
     isDistinct?: boolean;
+    delim?: string;
 }
 
 interface GroupByOptions {

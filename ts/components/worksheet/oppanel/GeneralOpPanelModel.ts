@@ -872,7 +872,21 @@ abstract class GeneralOpPanelModel {
         return this._getOperatorObj(operator) != null;
     }
 
-    protected _getOperatorObj(operatorName: string): any {
+    protected _getOperatorObj(operatorName: string): {
+        argDescs: {
+            argDesc: string,
+            argType: number,
+            isSingletonValue: true,
+            maxArgs: number,
+            minArgs: number,
+            typesAccepted: number
+        }[],
+        category: number,
+        displayName: string,
+        fnDesc: string,
+        numArgs: number,
+        outputType: number
+    } {
         for (let i = 0; i < this._opCategories.length; i++) {
             let ops = GeneralOpPanel.getOperatorsMap()[this._opCategories[i]];
             const op = ops[operatorName];
@@ -1065,9 +1079,9 @@ abstract class GeneralOpPanelModel {
         return {error: text};
     }
 
-    protected _isOptional(opInfo, index): boolean {
+    protected _isOptional(opInfo, argIndex): boolean {
         return (opInfo.category !== FunctionCategoryT.FunctionCategoryUdf) &&
-                opInfo.argDescs[index] != null &&
-                (opInfo.argDescs[index].argType === XcalarEvalArgTypeT.OptionalArg);
+                opInfo.argDescs[argIndex] != null &&
+                (opInfo.argDescs[argIndex].argType === XcalarEvalArgTypeT.OptionalArg);
     }
 }
