@@ -96,7 +96,11 @@ class SQLModeState extends State {
 
     // Get latest sql history
     private async getLatestSQLHistory(): SqlQueryHistory.QueryInfo {
-        await SqlQueryHistory.getInstance().readStore(true);
+        try{
+            await SqlQueryHistory.getInstance().readStore();
+        } catch(err) {
+            console.log("Read sql query history from kvstore fails: " + err);
+        }
         let historyMap = SqlQueryHistory.getInstance().getQueryMap();
         let qInfo = null;
         for (let idx in historyMap) {
