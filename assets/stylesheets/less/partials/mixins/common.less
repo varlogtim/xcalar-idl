@@ -1141,7 +1141,7 @@
 
         .row {
             &:hover {
-                background-color: @color-bg-list-hover-blue;
+                background-color: #EDF2F7;
             }
 
             &.selected {
@@ -1398,17 +1398,14 @@
     }
 }
 
-.xc-worksheetList {
-    li {
-        padding-right: 25px !important;
-        .position(relative);
+.xc-icon {
+    background-color: @color-bg-topBarGray2;
+    .rounded(3px);
 
-        .icon {
-            .size(@width: 14px);
-            .vertical-align;
-            .position(absolute, @right: 10px);
-            .font(@size: 14px, @color: @color-font-gray36);
-        }
+    .icon {
+        display: block;
+        .center-align;
+        color: @color-bg-cardHeader;
     }
 }
 

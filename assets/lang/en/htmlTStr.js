@@ -372,7 +372,7 @@ module.exports = {
     "Table": {
         "Create": "Create Table",
         "Export": "Export Result",
-        "Preview": "Table Preview",
+        "Preview": "Preview of Table",
         "Show": "Show Tables",
         "Activate": "Activate Table",
         "Deactivate": "Deactivate Table",

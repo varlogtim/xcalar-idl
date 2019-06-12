@@ -1,11 +1,7 @@
 <div id="sqlTableListerArea" class="noBottom">
   <div class="topSection">
-    <div class="label"><%= dicts.common.Tables %></div>
-    <div class="searchbarArea">
-      <input type="text" placeholder="<%= dicts.common.Search %>">
-      <i class="icon xi-search"></i>
-    </div>
-    <div class="actionArea">
+    <span class="label"><%= dicts.common.Tables %></span>
+    <span class="actionArea">
       <div class="xc-action refresh">
         <i class="icon xi-refresh"></i>
         <span><%= dicts.common.Refresh %></span>
@@ -14,13 +10,11 @@
         <i class="icon xi-show"></i>
         <span><%= dicts.dag.viewSchema %></span>
       </div>
-      <!-- XXX TODO: support them when possible -->
-      <!--
-      <div class="xc-action drop">
-        <i class="icon xi-trash"></i>
-        <span><%= dicts.MenuTStr.DelTbl %></span>
-      </div> -->
-    </div>
+    </span>
+    <span class="searchbarArea">
+      <input type="text">
+      <i class="icon xi-search"></i>
+    </span>
   </div>
   <div class="mainSection xc-gridList"></div>
 </div>

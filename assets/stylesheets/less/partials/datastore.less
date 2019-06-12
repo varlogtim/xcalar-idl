@@ -451,6 +451,7 @@ html.safari {
 
         .schemaSection {
             height: 100%;
+            border-top: 1px solid @color-border-softGray;
 
             .loading {
                 padding-left: 15px;
@@ -859,6 +860,7 @@ table.datasetTable {
 
             input {
                 padding-right: 20px;
+                background-color: @color-bg-topBarGray2;
 
                 &:focus {
                     ~ .clear {
@@ -890,9 +892,14 @@ table.datasetTable {
             float: right;
             position: relative;
 
-            > button {
+            .xc-icon {
                 float: right;
                 margin-left: 5px;
+                .size(30px, 30px);
+
+                .icon {
+                    width: 17px;
+                }
             }
 
             #fileBrowserSortMenu {
@@ -3320,6 +3327,7 @@ table.datasetTable {
         overflow-x: hidden;
         overflow-y: auto;
         margin-top: 20px;
+        padding-left: 1px;
 
         .gridItems {
             .size(@width: 100%);

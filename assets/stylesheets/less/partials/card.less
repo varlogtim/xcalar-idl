@@ -30,8 +30,11 @@
     .no-selection;
     line-height: @height-card-header;
     text-align: left;
-    text-transform: capitalize;
     background-color: @color-bg-cardHeader;
+
+    &:not(.noTransform) {
+        text-transform: capitalize;
+    }
 
     .title {
         .font(@weight: 600, @size: 18px, @color: @color-white);
