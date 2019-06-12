@@ -1,0 +1,28 @@
+{
+    "ColumnAttributeVersionSignature" : 199286749,
+    "EchoVersionSignature" : 3466616,
+    "ResultSetVersionSignature" : 30399951,
+    "ServiceVersionSignature" : 59787815,
+    "SqlVersionSignature" : 146971870,
+    "TableVersionSignature" : 83473886,
+    "TableMetaVersionSignature" : 45672993,
+    "CgroupVersionSignature" : 193016325,
+    "DataflowVersionSignature" : 261519686,
+    "FileVersionSignature" : 30587311,
+    "KvStoreVersionSignature" : 240006277,
+    "LicenseVersionSignature" : 69608712,
+    "OperatorVersionSignature" : 126449347,
+    "ParentChildVersionSignature" : 221825572,
+    "ProtoFieldValueVersionSignature" : 117723183,
+    "ProtoMsgVersionSignature" : 165439450,
+    "PublishedTableVersionSignature" : 21442408,
+    "QueryVersionSignature" : 31034356,
+    "StatsVersionSignature" : 149250745,
+    "UDFVersionSignature" : 21162965,
+    "XDFVersionSignature" : 250999780,
+    "XcalarEnumTypeVersionSignature" : 222419149,
+    "WorkbookVersionSignature" : 23962016,
+    "DagNodeVersionSignature" : 129670732,
+    "ProtoAPIVersionSignature" : 243398496
+}
+

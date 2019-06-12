@@ -45,4 +45,20 @@ if(isNodeJs) {
     exports.ServiceInfo = _serviceInfo
 }
 
+// Expose all enum maps to exports.EnumMap.<mapName>
+if (isNodeJs) {
+    context = requireContext(__dirname + "/enumMap", true, /.json$/);
+} else {
+    context = require.context("./enumMap", true, /.json$/);
+}
+const _EnumMap = {};
+context.keys().forEach(function(key) {
+    const mapName = key.substring(
+        key.lastIndexOf('/') + 1,
+        key.lastIndexOf('.json')
+    );
+    _EnumMap[mapName] = context(key);
+});
+exports.EnumMap = _EnumMap;
+
 exports.XceClient = client.XceClient

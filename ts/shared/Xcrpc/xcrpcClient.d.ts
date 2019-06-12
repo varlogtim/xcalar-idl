@@ -6,6 +6,8 @@ declare module 'xcalar' {
         constructor(endpoint: string);
     }
 
+    export * from 'xcalarEnumMap';
+
     export class KvStoreService {
         constructor(client: XceClient);
         lookup(request: proto.xcalar.compute.localtypes.KvStore.LookupRequest): Promise<proto.xcalar.compute.localtypes.KvStore.LookupResponse>;

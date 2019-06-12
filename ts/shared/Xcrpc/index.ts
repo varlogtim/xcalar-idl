@@ -12,6 +12,7 @@
 export * from './ServiceClient';
 export * from './ServiceClientFactory';
 export * from './ServiceError';
+export { EnumMap } from 'xcalar';
 
 // Services
 // Wrap the services in its own namesapce to avoid name confliction

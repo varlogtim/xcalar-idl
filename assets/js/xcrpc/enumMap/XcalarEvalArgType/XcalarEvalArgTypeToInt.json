@@ -1,0 +1,7 @@
+{
+    "OptionalArg" : 0,
+    "RequiredArg" : 1,
+    "VariableArg" : 2,
+    "UdfArg" : 3
+}
+
