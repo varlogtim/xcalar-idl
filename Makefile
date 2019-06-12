@@ -12,12 +12,12 @@ all: setup_npm
 dev: setup_npm
 	node_modules/grunt/bin/grunt dev $(GRUNT_EXTRA_FLAGS)
 installer: setup_npm
-	node_modules/grunt/bin/grunt installer $(GRUNT_EXTRA_FLAGS)
+	node_modules/grunt/bin/grunt $(NPM_GRUNT_COLOR) installer $(GRUNT_EXTRA_FLAGS)
 trunk: setup_npm
 	node_modules/grunt/bin/grunt trunk $(GRUNT_EXTRA_FLAGS)
 debug: setup_npm
 	node_modules/grunt/bin/grunt debug $(GRUNT_EXTRA_FLAGS)
 
 setup_npm:
-	npm install --save-dev
-	node_modules/grunt/bin/grunt init
+	npm install $(NPM_GRUNT_COLOR) --save-dev
+	node_modules/grunt/bin/grunt $(NPM_GRUNT_COLOR) init
