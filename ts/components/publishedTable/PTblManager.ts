@@ -524,7 +524,8 @@ class PTblManager {
         .then((ret) => {
             const {succeeds, failures} = ret;
             if (failures.length > 0) {
-                let error: string = failures.join("\n");
+                let error: string = failures.map((message, i) => `${(i + 1)}. ${message}`).join("\n");
+                error = TblTStr.CannotDeletePrefix + ":\n" + error;
                 if (showError) {
                     let tablesToForceDelete: string[] = forceDelete ?
                     null :
@@ -792,10 +793,11 @@ class PTblManager {
         if (tablesToForceDelete == null || tablesToForceDelete.length === 0) {
             Alert.error(IMDTStr.DelTableFail, error);
         } else {
-            error = error + "\n" + IMDTStr.DelTableFailMsg;
+            error = error + "\n\n" + IMDTStr.DelTableFailMsg;
             Alert.show({
                 title: IMDTStr.DelTableFail,
                 msg: error,
+                sizeToText: true,
                 hideButtons: ["cancel"],
                 buttons: [{
                     "name": "Force Delete",
@@ -1147,7 +1149,7 @@ class PTblManager {
                 if (dependendcy != null) {
                     let children: string[] = Object.keys(dependendcy.children);
                     if (children.length > 0) {
-                        let error: string = IMDTStr.DeleteHasDependency + " " + children.join(", ");
+                        let error: string = IMDTStr.DeleteHasDependency + " (" + children.join(", ") + ")";
                         return PromiseHelper.reject({
                             error: error
                         });

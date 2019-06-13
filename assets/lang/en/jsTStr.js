@@ -1361,6 +1361,7 @@ TblTStr = {
     'CreateDF': "Create Dataflow",
     'WriteSQL': "Write SQL",
     "EstimatedRowCountHint": "The row count is approximate because the table had an update.",
+    "CannotDeletePrefix": "The following could not be deleted",
 };
 
 ResultSetTStr = {
@@ -1651,7 +1652,7 @@ IMDTStr = {
     "Coalesce": "Coalesce",
     "CoalesceTip": "Conserve memory by combining updated tables into one. This operation cannot be undone.",
     "GenerateTable": "Generate Table",
-    "DeleteHasDependency": "The following table(s) are dependent on it:",
+    "DeleteHasDependency": "has dependent tables",
 };
 
 DagTStr = {
