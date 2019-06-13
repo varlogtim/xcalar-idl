@@ -175,7 +175,7 @@ namespace TooltipWalkthroughs {
         if (WorkbookPanel.isWBMode()) {
             if (WorkbookManager.getActiveWKBK() != null) {
                 // if we're in a workbook, but on the workbook screen, we just go back to it
-                WorkbookPanel.hide(true);
+                $("#homeBtn").click();
             } else {
                 // If we aren't in a workbook, we need to open one.
                 return TooltipTStr.TooltipNoWorkbook;

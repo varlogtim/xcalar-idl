@@ -44,7 +44,7 @@ describe("Tooltip Walkthrough Test", function() {
         expect(started).to.be.true;
     });
 
-    it("Should 'start' a walkthrough while in a wkbk on the wkbk screen", function() {
+    it("Should 'start' a walkthrough while in a wkbk on the wkbk screen", function(done) {
         WorkbookPanel.show(true);
         expect(WorkbookPanel.isWBMode()).to.be.true;
         var started = false;
@@ -55,9 +55,12 @@ describe("Tooltip Walkthrough Test", function() {
             return;
         }
         var startErr = TooltipWalkthroughs.startWalkthrough("SQL Mode");
-        expect(started).to.be.true;
-        expect(startErr).to.equal("");
-        expect(WorkbookPanel.isWBMode()).to.be.false;
+        setTimeout(function() { // allow time for the click event to go through
+            expect(started).to.be.true;
+            expect(startErr).to.equal("");
+            expect(WorkbookPanel.isWBMode()).to.be.false;
+            done();
+        }, 500);
     });
 
     it("Should not 'start' a walkthrough while not in a wkbk on the wkbk screen", function() {
