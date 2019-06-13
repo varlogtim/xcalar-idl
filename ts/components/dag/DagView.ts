@@ -4211,10 +4211,13 @@ class DagView {
         // but don't allow dragging on deselected node
         if (!$operator.hasClass("selected") && !event.shiftKey) {
             this.deselectNodes();
-        } else if ($operator.hasClass("selected") && event.shiftKey) {
+        } else if ($operator.hasClass("selected") && (event.shiftKey ||
+            (isSystemMac && event.metaKey || !isSystemMac && event.ctrlKey))) {
             DagView.deselectNode($operator);
+            DagNodeInfoPanel.Instance.hide();
             return;
         }
+
         DagView.selectNode($operator);
 
         const nodeId: DagNodeId = $operator.data("nodeid");
@@ -4303,7 +4306,6 @@ class DagView {
                         DagView.selectNode($operator);
                     }
                     // if no drag, treat as right click and open menu
-
                     if (!$opMain.hasClass("comment") && !event.shiftKey) {
                         let contextMenuEvent = $.Event("contextmenu", {
                             pageX: event.pageX,

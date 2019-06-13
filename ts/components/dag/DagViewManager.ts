@@ -1060,15 +1060,6 @@ class DagViewManager {
                     "onDraw": _drawRect,
                     "onEnd": _endDrawRect
                 });
-            } else if ($target.closest(".operator").length) {
-                const $operator = $target.closest(".operator");
-                if (!$operator.hasClass("selected")) {
-                    self._deselectAllNodes();
-                    DagView.selectNode($operator);
-                    const nodeId: DagNodeId = $operator.data("nodeid");
-                    const node: DagNode = self.activeDag.getNode(nodeId);
-                    DagNodeInfoPanel.Instance.show(node);
-                }
             }
         });
 
