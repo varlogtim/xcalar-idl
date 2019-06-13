@@ -1063,7 +1063,7 @@ abstract class DagNode extends Durable {
                 switch (type) {
                     case (DagColumnChangeType.Hide):
                         if (colInfo.isPulled) {
-                            delete colInfo.isPulled;
+                            colInfo = {};
                         } else {
                             colInfo.isHidden = true;
                             colInfo.type = info[i].type;

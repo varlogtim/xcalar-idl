@@ -209,6 +209,12 @@ class DagLineage {
                 parentIndexList = [destColMap.kept.get(colName)];
             } else if (destColMap.pulled.has(colName)) {
                 changeInfo.type = 'pull';
+                // check if pulled from origin column
+                let nestedName = ColManager.parseColFuncArgs(colName).nested[0];
+                if (destColMap.kept.has(nestedName)) {
+                    colName = nestedName;
+                    parentIndexList = [destColMap.kept.get(colName)];
+                }
             } else {
                 // This should never happen
                 console.error(`Source column not found: ${colName}`);
@@ -291,8 +297,7 @@ class DagLineage {
                 } else { // to != null && from == null: new columns
                     destColMap.added.add(destColName);
                 }
-            }
-            else if (from) { // to == null && from != null: removed columns
+            } else if (from) { // to == null && from != null: removed columns
                 const sourceColName = from.getBackColName();
                 if (!sourceColMap.removed.has(sourceColName)) {
                     sourceColMap.removed.set(sourceColName, []);
@@ -343,7 +348,7 @@ class DagLineage {
 
         // Columns = add + rename + keep
         for (const col of cols) {
-            const colName = col.getBackColName();
+            let colName = col.getBackColName();
             if (!destColMap.added.has(colName) && !destColMap.renamed.has(colName) &&
                 !destColMap.pulled.has(colName)) {
                 // This column is kept from one of the parents.
@@ -358,20 +363,24 @@ class DagLineage {
                     });
                 }
 
-                const potentialParents = sourceParentMap.get(colName);
+                let potentialParents = sourceParentMap.get(colName);
                 if (potentialParents == null) {
                     // Nodes w/o parents(ex. dataset) will go here
                     // XXX also if column is pulled -- but this could change
                     // if we make the "pull" action considered to be a "change"
                     if (pulledColumns.has(colName)) {
+
+
                         destColMap.pulled.add(colName);
+                        // colName = ColManager.parseColFuncArgs(colName).nested[0];
+                        // potentialParents = sourceParentMap.get(colName);
                     } else if (hiddenColsMap.has(colName)) {
                         sourceColMap.hidden.set(colName, [0]);
                     } else {
                         destColMap.added.add(colName);
                     }
-
-                } else {
+                }
+                if (potentialParents != null) {
                     // Remove the parents renamed/removed
                     for (const changedParentIndex of parentsRemoved.concat(parentsRenamed)) {
                         potentialParents.delete(changedParentIndex);

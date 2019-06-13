@@ -1622,7 +1622,7 @@ namespace ColManager {
     // Help Functon for pullAllCols and pullCOlHelper
     // parse tableCol.func.args
     // assumes legal syntax ie. votes[funny] and not votes[funny]blah
-    function parseColFuncArgs(key: string): {
+    export function parseColFuncArgs(key: string): {
         nested: string[],
         types?: string[]
     } {
@@ -1668,6 +1668,7 @@ namespace ColManager {
         }
         return {nested: nested, types: types};
     }
+
 
     // parse json string of a table row
     function parseRowJSON(jsonStr: string): any {
