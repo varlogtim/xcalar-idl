@@ -476,7 +476,7 @@ class JoinOpPanelModel {
         if (!this._needRenameByType(this.getJoinType())) {
             return result;
         }
-        
+
         const {
             colDestLeft, colDestRight, prefixDestLeft, prefixDestRight
         } = this._getRenameMap();
@@ -592,7 +592,7 @@ class JoinOpPanelModel {
 
     /**
      * Get selected columns, which consist of selectable columns(user selected) and fixed columns(according to joinType)
-     * @param selection 
+     * @param selection
      * @description
      * All columns in the result are guaranteed to exist in columnMeta
      */
@@ -660,7 +660,7 @@ class JoinOpPanelModel {
 
     /**
      * Get selected columns, which consist of selectable columns(user selected) and fixed columns(according to joinType)
-     * @param selection 
+     * @param selection
      * @description
      * 1. All columns in the result are guaranteed to exist in columnMetaMaps
      * 2. Dup columns between fixed and selectable are removed from selectable list
@@ -735,7 +735,7 @@ class JoinOpPanelModel {
 
     /**
      * Get selected columns after removing duplicate names in joinOn and columnSelected, and those not in column metadata
-     * @param param 
+     * @param param
      */
     private _getCleanSelectedColumns(param: {
         leftColumnMetaMap: Map<string, JoinOpColumnInfo>,
@@ -1394,13 +1394,13 @@ class JoinOpPanelModel {
 
     /**
      * Rebuild the column rename list by comparing the source columns
-     * @param dest 
+     * @param dest
      */
     private _buildRenameInfo(dest: { // This argument is ignored right now!!!
         colDestLeft: { [source: string]: string },
         colDestRight: { [source: string]: string },
         prefixDestLeft: { [source: string]: string },
-        prefixDestRight: { [source: string]: string },
+        prefixDestRight: { [source: string]: string }
     }): void {
         const {
             colDestLeft,
@@ -1428,6 +1428,8 @@ class JoinOpPanelModel {
         // Now we only check duplicate source column names, instead of those after renaming
         // Change isApplyToKey = true when calling _applyColumnRename(),
         // in case we want to check dup names after renaming.
+        const leftColRenamed = new Set<string>();
+        const rightColRenamed = new Set<string>();
         const columnCollisions = this._checkCollisionByKey(
             leftColNames, rightColNames
         );
@@ -1438,13 +1440,32 @@ class JoinOpPanelModel {
                 dest: leftDest,
                 isPrefix: false
             });
+            leftColRenamed.add(leftSource);
             const { source: rightSource, dest: rightDest } = rightColNames[i2];
             this._columnRename.right.push({
                 source: rightSource,
                 dest: rightDest,
                 isPrefix: false
             });
+            rightColRenamed.add(rightSource);
         }
+        // Optional columns:
+        // not having collision, but still need to rename
+        // ex. manually added in advanced form
+        Object.entries(colDestLeft).forEach(([source, dest]) => {
+            if (!leftColRenamed.has(source) && leftColMetaMap.has(source)) {
+                this._columnRename.left.push({
+                    source: source, dest: dest, isPrefix: false
+                });
+            }
+        });
+        Object.entries(colDestRight).forEach(([source, dest]) => {
+            if (!rightColRenamed.has(source) && rightColMetaMap.has(source)) {
+                this._columnRename.right.push({
+                    source: source, dest: dest, isPrefix: false
+                });
+            }
+        })
 
         // Prefixes need to rename
         const leftPrefixNames = this._applyPrefixRename(
@@ -1456,6 +1477,8 @@ class JoinOpPanelModel {
         // Now we only check duplicate prefixes, instead of those after renaming
         // Change isApplyToKey = true when calling _applyPrefixRename(),
         // in case we want to check dup names after renaming.
+        const leftPrefixRenamed = new Set<string>();
+        const rightPrefixRenamed = new Set<string>();
         const prefixCollisions = this._checkCollisionByKey(
             leftPrefixNames, rightPrefixNames
         );
@@ -1466,13 +1489,30 @@ class JoinOpPanelModel {
                 dest: leftDest,
                 isPrefix: true
             });
+            leftPrefixRenamed.add(leftSource);
             const { source: rightSource, dest: rightDest } = rightPrefixNames[i2];
             this._columnRename.right.push({
                 source: rightSource,
                 dest: rightDest,
                 isPrefix: true
             });
+            rightPrefixRenamed.add(rightSource);
         }
+        // Optional prefixes
+        Object.entries(prefixDestLeft).forEach(([source, dest]) => {
+            if (!leftPrefixRenamed.has(source) && leftPrefixMetaMap.has(source)) {
+                this._columnRename.left.push({
+                    source: source, dest: dest, isPrefix: true
+                });
+            }
+        });
+        Object.entries(prefixDestRight).forEach(([source, dest]) => {
+            if (!rightPrefixRenamed.has(source) && rightPrefixMetaMap.has(source)) {
+                this._columnRename.right.push({
+                    source: source, dest: dest, isPrefix: true
+                });
+            }
+        });
     }
 
     public static refreshColumns(oldModel, dagNode: DagNodeJoin) {

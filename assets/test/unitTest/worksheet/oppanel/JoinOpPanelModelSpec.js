@@ -1,6 +1,6 @@
 describe("JoinOpPanelModel Test", () => {
     const preset = {};
-    
+
     before(() => {
         preset.leftPrefixedCount = 2;
         preset.leftDerivedCount = 2;
@@ -72,7 +72,7 @@ describe("JoinOpPanelModel Test", () => {
                 rename: rightRenames
             },
             evalString: 'evalString',
-            keepAllColumns: true,     
+            keepAllColumns: true,
         };
 
         const model = JoinOpPanelModel.fromDagInput(
@@ -156,7 +156,7 @@ describe("JoinOpPanelModel Test", () => {
                 rename: rightRenames
             },
             evalString: 'evalString',
-            keepAllColumns: true,     
+            keepAllColumns: true,
         };
 
         const node = new DagNodeJoin();
@@ -230,7 +230,7 @@ describe("JoinOpPanelModel Test", () => {
             const rightColsKeep = preset.leftColumns.slice(1).map((v) => v.getBackColName()); // Same columns, so that renaming will work
             const leftRenames = genRenames(preset.leftColumns, 'lrn');
             const rightRenames = genRenames(preset.leftColumns, 'rrn');
-    
+
             inputStruct = {
                 joinType: JoinOperatorTStr[JoinOperatorT.InnerJoin],
                 left: {
@@ -244,7 +244,7 @@ describe("JoinOpPanelModel Test", () => {
                     rename: rightRenames
                 },
                 evalString: 'evalString',
-                keepAllColumns: false,     
+                keepAllColumns: false,
             };
         });
 
@@ -455,7 +455,7 @@ describe("JoinOpPanelModel Test", () => {
                 rightDerivedColumns[0].getBackColName(),
                 rightPrefixedColumns[0].getBackColName()
             ];
-    
+
             inputStruct = {
                 joinType: JoinOperatorTStr[JoinOperatorT.InnerJoin],
                 left: {
@@ -469,14 +469,14 @@ describe("JoinOpPanelModel Test", () => {
                     rename: []
                 },
                 evalString: 'evalString',
-                keepAllColumns: true,     
+                keepAllColumns: true,
             };
         });
 
         it("keepAllColumns == true case", () => {
             const dagInput = xcHelper.deepCopy(inputStruct);
             dagInput.keepAllColumns = true;
-            
+
             const {
                 leftColMetaMap, rightColMetaMap,
                 leftPrefixMetaMap, rightPrefixMetaMap
@@ -501,7 +501,7 @@ describe("JoinOpPanelModel Test", () => {
         it("keepAllColumns == false; column selected == []; case", () => {
             const dagInput = xcHelper.deepCopy(inputStruct)
             dagInput.keepAllColumns = false;
-            
+
             const {
                 leftColMetaMap, rightColMetaMap,
                 leftPrefixMetaMap, rightPrefixMetaMap
@@ -528,7 +528,7 @@ describe("JoinOpPanelModel Test", () => {
             dagInput.keepAllColumns = false;
             dagInput.left.keepColumns = [leftColumns[1].getBackColName()];
             dagInput.right.keepColumns = [rightColumns[1].getBackColName()];
-            
+
             const {
                 leftColMetaMap, rightColMetaMap,
                 leftPrefixMetaMap, rightPrefixMetaMap
@@ -577,7 +577,7 @@ describe("JoinOpPanelModel Test", () => {
                     rename: []
                 },
                 evalString: 'evalString',
-                keepAllColumns: true,     
+                keepAllColumns: true,
             };
         });
 
@@ -598,7 +598,7 @@ describe("JoinOpPanelModel Test", () => {
                 colDestLeft: {},
                 colDestRight: {},
                 prefixDestLeft: {},
-                prefixDestRight: {},        
+                prefixDestRight: {},
             })
 
             let leftColRenameCount = 0;
@@ -619,7 +619,7 @@ describe("JoinOpPanelModel Test", () => {
         });
 
         it("Case: no conflict in source; conflict after rename", () => {
-            const dagInput = xcHelper.deepCopy(inputStruct)
+            const dagInput = xcHelper.deepCopy(inputStruct);
             const model = JoinOpPanelModel.fromDagInput(
                 leftColumns, rightColumns,
                 dagInput,
@@ -651,8 +651,8 @@ describe("JoinOpPanelModel Test", () => {
 
             expect(leftColRenameCount).to.equal(0);
             expect(leftPrefixRenameCount).to.equal(0);
-            expect(rightColRenameCount).to.equal(0);
-            expect(rightPrefixRenameCount).to.equal(0);
+            expect(rightColRenameCount).to.equal(2);
+            expect(rightPrefixRenameCount).to.equal(1);
         });
 
         it("Case: conflict in source", () => {
@@ -691,6 +691,46 @@ describe("JoinOpPanelModel Test", () => {
             expect(rightColRenameCount).to.equal(3);
             expect(rightPrefixRenameCount).to.equal(1);
         });
+
+        it("Case: optional columns/prefixes", () => {
+            const dagInput = xcHelper.deepCopy(inputStruct);
+            dagInput.left.keepColumns = ['left::col#1'];
+            dagInput.right.keepColumns = ['rightCol#1'];
+            dagInput.keepAllColumns = false;
+            const model = JoinOpPanelModel.fromDagInput(
+                leftColumns, rightColumns,
+                dagInput,
+                preset.leftTable, preset.rightTable,
+                {
+                    currentStep: 1,
+                    isAdvMode: false,
+                    isNoCast: true,
+                    isFixedType: false
+                }
+            );
+            model._buildRenameInfo({
+                colDestLeft: {},
+                colDestRight: {'rightCol#1': 'renamed'},
+                prefixDestLeft: {'left': 'renamed'},
+                prefixDestRight: {},
+            })
+
+            let leftColRenameCount = 0;
+            let leftPrefixRenameCount = 0;
+            model._columnRename.left.forEach(({ source, dest, isPrefix }) => {
+                isPrefix ? leftPrefixRenameCount ++ : leftColRenameCount ++;
+            });
+            let rightColRenameCount = 0;
+            let rightPrefixRenameCount = 0;
+            model._columnRename.right.forEach(({ source, dest, isPrefix }) => {
+                isPrefix ? rightPrefixRenameCount ++ : rightColRenameCount ++;
+            });
+
+            expect(leftColRenameCount).to.equal(0);
+            expect(leftPrefixRenameCount).to.equal(1);
+            expect(rightColRenameCount).to.equal(1);
+            expect(rightPrefixRenameCount).to.equal(0);
+        });
     });
 
     describe("updateRenameInfo should work", () => {
@@ -719,7 +759,7 @@ describe("JoinOpPanelModel Test", () => {
                     rename: []
                 },
                 evalString: 'evalString',
-                keepAllColumns: true,     
+                keepAllColumns: true,
             };
         });
 
@@ -789,7 +829,7 @@ describe("JoinOpPanelModel Test", () => {
                     rename: genRenames(rightColumns)
                 },
                 evalString: 'evalString',
-                keepAllColumns: true,     
+                keepAllColumns: true,
             };
 
             model = JoinOpPanelModel.fromDagInput(
@@ -843,7 +883,7 @@ describe("JoinOpPanelModel Test", () => {
                 rename: []
             },
             evalString: 'evalString',
-            keepAllColumns: true,     
+            keepAllColumns: true,
         };
 
         const renameInfo = {
@@ -884,7 +924,7 @@ describe("JoinOpPanelModel Test", () => {
             const {
                 columnLeft, columnRight, prefixLeft, prefixRight
             } = model.getCollisionNames();
-    
+
             expect(columnLeft.size).to.equal(0);
             expect(columnRight.size).to.equal(0);
             expect(prefixLeft.size).to.equal(0);
@@ -910,7 +950,7 @@ describe("JoinOpPanelModel Test", () => {
             const {
                 columnLeft, columnRight, prefixLeft, prefixRight
             } = model.getCollisionNames();
-    
+
             expect(columnLeft.size).to.equal(3);
             expect(columnRight.size).to.equal(3);
             expect(prefixLeft.size).to.equal(3);
@@ -1011,9 +1051,9 @@ describe("JoinOpPanelModel Test", () => {
                     rename: []
                 },
                 evalString: 'evalString',
-                keepAllColumns: false,     
+                keepAllColumns: false,
             };
-    
+
             model = JoinOpPanelModel.fromDagInput(
                 preset.leftColumns, preset.rightColumns,
                 inputStruct,
@@ -1126,7 +1166,7 @@ describe("JoinOpPanelModel Test", () => {
             model.addColumnPair();
             expect(model._joinColumnPairs.length).to.equal(1);
             expect(model._joinColumnPairs[0]).to.deep.equal(model._getDefaultColumnPair());
-    
+
             // Case: regular column pair
             const pair = {
                 leftName: 'leftName',
@@ -1162,7 +1202,7 @@ describe("JoinOpPanelModel Test", () => {
 
         it("modifyColumnPairName test", () => {
             model._joinColumnPairs = initPairs.map((v) => Object.assign({}, v));
-            
+
             // Case: Index out of range
             model.modifyColumnPairName(100, { left: 'left', right: 'right' });
             const pairs = model.getColumnPairs();
