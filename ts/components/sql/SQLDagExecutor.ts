@@ -204,7 +204,7 @@ class SQLDagExecutor {
             if (this._advancedDebug) {
                 return this._expandSQLNodeAndAddToList();
             } else {
-                return this._inspectSQLNodeAndAddToList();   
+                return this._inspectSQLNodeAndAddToList();
             }
         })
         .then(() => {
@@ -226,7 +226,7 @@ class SQLDagExecutor {
             reset: false,
             createdTime: xcTimeHelper.now()
         });
-        DagViewManager.Instance.render($(), this._tempGraph, <DagTab>this._tempTab, true);
+        DagViewManager.Instance.render($("#sqlDataflowArea .dataflowArea"), this._tempGraph, <DagTab>this._tempTab, true);
         this._tempGraph.addNode(this._sqlNode);
     }
 
@@ -295,7 +295,7 @@ class SQLDagExecutor {
             return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        
+
         DagTabManager.Instance.addSQLTabCache(this._tempTab);
         let promise = DagViewManager.Instance.expandSQLNodeInTab(this._sqlNode, <DagTab>this._tempTab, true);
         PromiseHelper.alwaysResolve(promise)

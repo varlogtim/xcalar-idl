@@ -89,7 +89,7 @@ class DagTabManager {
             return dagTab.getId() === tabId;
         });
         let dagTab = dagTabs.length > 0 ? dagTabs[0] : null;
-        if (dagTab == null && XVM.isSQLMode()) {
+        if (dagTab == null) {
             dagTab = <DagTab>this._cachedSQLDags[tabId];
             if (!dagTab && this._sqlPreviewTab
                 && this._sqlPreviewTab.getId() === tabId) {

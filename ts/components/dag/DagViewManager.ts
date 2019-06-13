@@ -437,12 +437,20 @@ class DagViewManager {
         }
         // set activedag here
         $dfArea = $dfArea || this._getActiveArea();
-        if ($dfArea.hasClass("rendered")) {
+        if ($dfArea.closest("#dagView").length && $dfArea.hasClass("rendered")) {
             return;
         }
         graph = graph || this.activeDag;
         const tabId = graph.getTabId();
-        const newDagView = new DagView($dfArea, graph, this.containerSelector, dagTab);
+        let containerSelector;
+        if ($dfArea.closest("#dagView").length) {
+            containerSelector = "#dagView";
+        } else if ($dfArea.length) {
+            containerSelector = "#sqlDataflowArea";
+        } else {
+            containerSelector = this.containerSelector;
+        }
+        const newDagView = new DagView($dfArea, graph, containerSelector, dagTab);
         this.dagViewMap.set(graph.getTabId(), newDagView);
 
         if (this.activeDag && tabId === this.activeDag.getTabId()) {

@@ -794,7 +794,7 @@ class DagView {
      */
     public render($dfArea?: JQuery, graph?: DagGraph, noEvents?: boolean): void {
         this.$dfArea = $dfArea || this.$dfArea;
-        if (this.$dfArea.hasClass("rendered")) {
+        if (this.$dfArea.closest("#dagView").length && this.$dfArea.hasClass("rendered")) {
             return;
         }
         this.graph = graph || this.graph;
@@ -3360,7 +3360,6 @@ class DagView {
             .addClass("hasConnection");
 
         const svg: d3 = d3.select(this.containerSelector + ' .dataflowArea[data-id="' + this.tabId + '"] .edgeSvg');
-
         if (isMultiParent) {
             // if re-adding an edge from a multichildnode then increment all
             // the edges that have a greater or equal index than the removed one
