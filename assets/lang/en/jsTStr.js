@@ -387,8 +387,7 @@ ErrWRepTStr = {
     'NoPath': '<path> was not found. Redirected to the root directory.',
     'NoPathInLoad': 'Path <path> was not found. (Not set up?)',
     'NoUDF': 'UDF \" <udf> \" does not exist.',
-    'InvalidOpsType': 'Invalid type for the field,' +
-                      ' wanted: <type1>, but provided: <type2>.',
+    'InvalidOpsType': 'Data type is invalid. Expected: <type1>, Entered: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
     'InvalidColOnTable': 'Column "<col>" does not exist in result set <table>.',
     'InvalidColOnNode': 'Column "<col>" does not exist in node <node>.',

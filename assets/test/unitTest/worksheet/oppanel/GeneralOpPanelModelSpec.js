@@ -5,7 +5,7 @@ describe("GeneralOpPanelModel Test", function() {
     var openOptions = {};
     var columns;
 
-    before(function() {
+    before(function(done) {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
@@ -29,6 +29,11 @@ describe("GeneralOpPanelModel Test", function() {
         openOptions = {
             udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
         };
+
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            done();
+        });
     });
 
     describe("General Panel Model Tests", function() {
@@ -47,8 +52,8 @@ describe("GeneralOpPanelModel Test", function() {
             expect(fn([ColumnType.integer], "integer")).to.be.null;
             expect(fn([ColumnType.float], "number")).to.be.null;
             expect(fn([ColumnType.integer], "number")).to.be.null;
-            expect(fn([ColumnType.string], "number")).to.equal("Invalid type for the field, wanted: string, but provided: number.");
-            expect(fn([ColumnType.string, ColumnType.boolean], "number")).to.equal("Invalid type for the field, wanted: string/boolean, but provided: number.");
+            expect(fn([ColumnType.string], "number")).to.equal("Data type is invalid. Expected: string, Entered: number.");
+            expect(fn([ColumnType.string, ColumnType.boolean], "number")).to.equal("Data type is invalid. Expected: string/boolean, Entered: number.");
         });
 
         it("get columnNumByName should work", function() {
@@ -398,27 +403,27 @@ describe("GeneralOpPanelModel Test", function() {
             it("invalid string type should be caught", function() {
                 model._parseType = () => ["integer", "float", "boolean"]; // the type that the eval string should output
                 // output type === "float"
-                expect(fn("add(1, 'a')")).to.equal("Invalid type for the field, wanted: integer/float/boolean, but provided: string.");
+                expect(fn("add(1, 'a')")).to.equal("Data type is invalid. Expected: integer/float/boolean, Entered: string.");
             });
 
             it("invalid string type should be caught", function() {
                 model._parseType = () => ["integer", "float", "boolean"];
-                expect(fn("add(1, add(2,'a'))")).to.equal("Invalid type for the field, wanted: integer/float/boolean, but provided: string.");
+                expect(fn("add(1, add(2,'a'))")).to.equal("Data type is invalid. Expected: integer/float/boolean, Entered: string.");
             });
 
             it("invalid integer type should be caught", function() {
                 model._parseType = () => ["string"];
-                expect(fn("concat(1, 3)")).to.equal("Invalid type for the field, wanted: string, but provided: integer.");
+                expect(fn("concat(1, 3)")).to.equal("Data type is invalid. Expected: string, Entered: integer.");
             });
 
             it("invalid float type should be caught", function() {
                 model._parseType = () => ["string"];
-                expect(fn("concat(3.2, 1)")).to.equal("Invalid type for the field, wanted: string, but provided: float.");
+                expect(fn("concat(3.2, 1)")).to.equal("Data type is invalid. Expected: string, Entered: float.");
             });
 
             it("invalid colArg(int) type should be caught", function() {
                 model._parseType = () => ["string"];
-                expect(fn("concat(prefix::average_stars, 3)", null, columns)).to.equal("Invalid type for the field, wanted: string, but provided: integer.");
+                expect(fn("concat(prefix::average_stars, 3)", null, columns)).to.equal("Data type is invalid. Expected: string, Entered: integer.");
             });
 
             after(function() {
