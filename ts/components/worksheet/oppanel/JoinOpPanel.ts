@@ -37,7 +37,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         // Setup data model
         this._dataModel = JoinOpPanelModel.fromDag(dagNode, {
             currentStep: 1,
-            isAdvMode: this._isAdvancedMode(),
+            isAdvMode: false,
             isNoCast: isNoCast
         });
         if (this._dataModel.getColumnPairsLength() === 0) {
