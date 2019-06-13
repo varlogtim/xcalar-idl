@@ -156,7 +156,9 @@ class UDFPanel {
             $("#monitor-file-manager")
         );
         UDFFileManager.Instance.registerPanel(monitorFileManager);
-
+        $("#udfButtonWrap .refreshUdf").on("click", () => {
+            UDFFileManager.Instance.refresh(true, true);
+        });
         const $toManagerButton: JQuery = $("#udfButtonWrap .toManager");
         $toManagerButton.on("click", (_event: JQueryEventObject) => {
             $udfSection.addClass("switching");

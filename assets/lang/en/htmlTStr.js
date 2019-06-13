@@ -439,6 +439,7 @@ module.exports = {
         "Module": "UDF Module",
         "ModuleName": "Module name",
         "NameHint": "Module name (lowercase)",
+        "Refresh": "Refresh UDF List",
         "SelectTemplate": "Select Module",
         "ToManager": "Open File Manager",
         "SaveFile": "Save File",
