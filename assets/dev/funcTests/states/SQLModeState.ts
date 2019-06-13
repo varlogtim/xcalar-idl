@@ -225,7 +225,8 @@ class SQLModeState extends State {
                 // Deal with OOM issue
                 await this.tableManager.createTableFromView([], columns, qInfo.tableName, tableName);
             } catch (error) {
-                if (error.includes("Out of resources")) {
+                // Out of resource error
+                if (error && error.status == StatusT.StatusNoXdbPageBcMem) {
                     // If OOM, randomly delete some tables
                     let deletePublishTables = Util.pickRandom(publishTables, Math.min(publishTables.length, 10));
                     await this.tableManager._deleteTables(deletePublishTables);
