@@ -56,13 +56,16 @@ class SynthesizePushDown {
                 case "XcalarApiIntersect":
                 case "XcalarApiExcept":
                 case "XcalarApiJoin":
-                    allColumns = child.value.args.columns;
+                    allColumns = jQuery.extend(true, [], child.value.args.columns);
                     for (let i = 0; i < allColumns.length; i++) {
                         const newColList = [];
                         for (let colStruct of allColumns[i]) {
                             if (renameMap.hasOwnProperty(colStruct.destColumn)) {
                                 colStruct.destColumn = renameMap[colStruct.destColumn];
                                 newColList.push(colStruct);
+                            } else {
+                                // we can't push then bc column might be used as key
+                                return node;
                             }
                         }
                         allColumns[i] = newColList;
