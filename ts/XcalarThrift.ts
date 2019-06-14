@@ -204,18 +204,28 @@ function thriftLog(
         if (has_require) {
             return thriftError;
         } else if (status === StatusT.StatusOk || httpStatus === 0) {
-            XcSupport.checkConnection();
+            if (typeof XcSupport !== "undefined") {
+                XcSupport.checkConnection();
+            }
             return thriftError;
         } else if (httpStatus === oldHttpStatus.Unauthorized) {
-            HTTPService.Instance.error(httpStatus);
+            if (typeof HTTPService !== "undefined") {
+                HTTPService.Instance.error(httpStatus);
+            }
             return thriftError;
+        } else if (status === StatusT.StatusNoXdbPageBcMem) {
+            if (typeof MemoryAlert !== "undefined") {
+                MemoryAlert.Instance.check();
+            }
         } else {
             // XXX We might need to include connection status 502 (Proxy error)
             if (status === StatusT.StatusConnReset ||
                 status === StatusT.StatusConnRefused) {
                 // This is bad, connection was lost so UI cannot do anything
                 // LOCK THE SCREEN
-                if (!xcManager.isInSetup()) {
+                if (typeof xcManager !== "undefined" &&
+                    !xcManager.isInSetup()
+                ) {
                     // set up time has it's own handler
                     const alertError = {"error": ThriftTStr.CCNBE};
                     Alert.error(ThriftTStr.CCNBEErr, alertError, {
@@ -223,7 +233,9 @@ function thriftLog(
                     });
                 }
 
-                Log.backup();
+                if (typeof Log !== "undefined") {
+                    Log.backup();
+                }
                 return thriftError;
             }
         }

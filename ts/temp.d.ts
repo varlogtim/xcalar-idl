@@ -753,7 +753,8 @@ declare enum StatusT {
     StatusAllFilesEmpty,
     StatusUdfModuleInUse,
     StatusIO,
-    StatusXdfDivByZero
+    StatusXdfDivByZero,
+    StatusNoXdbPageBcMem
 }
 
 declare enum FunctionCategoryT {
