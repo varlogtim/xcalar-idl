@@ -811,27 +811,23 @@ namespace xcManager {
     export function setModeStatus(): void {
         let $modeArea: JQuery = $("#modeArea");
         let $container: JQuery = $("#container");
-        let text: string;
+        let currentText: string;
+        let nextText: string;
         if (XVM.isSQLMode()) {
-            text = ModeTStr.SQL;
+            currentText = ModeTStr.SQL;
+            nextText = ModeTStr.Advanced;
             $modeArea.removeClass("on");
-            xcTooltip.add($modeArea, {
-                title: ModeTStr.SQLTooltip,
-                placement: "bottom"
-            });
             $container.addClass("sqlMode")
                     .removeClass("advMode");
         } else {
-            text = ModeTStr.Advanced;
+            currentText = ModeTStr.Advanced;
+            nextText = ModeTStr.SQL;
             $modeArea.addClass("on");
-            xcTooltip.add($modeArea, {
-                title: ModeTStr.AdvancedTooltip,
-                placement: "bottom"
-            });
             $container.removeClass("sqlMode")
                     .addClass("advMode");
         }
-        $modeArea.find(".text").text(text);
+        $modeArea.find(".text.current").text(currentText);
+        $modeArea.find(".text.next").text(nextText);
     }
 
     function setupModeArea(): void {
