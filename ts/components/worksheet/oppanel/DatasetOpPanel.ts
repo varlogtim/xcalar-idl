@@ -140,6 +140,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._fileLister.goToPath(path, false);
     }
 
+    private _goToSourceDatasetsPanel(): void {
+        MainMenu.openPanel("datastorePanel", "inButton");
+    }
+
     private _convertAdvConfigToModel(): {
         prefix: string,
         source: string,
@@ -375,6 +379,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
         $panel.on("click", ".refreshDatasetList", () => {
             this._refreshDatasetList();
+        });
+
+        $panel.on("click", ".instrText .link", () => {
+            this._goToSourceDatasetsPanel();
         });
 
         $panel.on("click", ".next", () => {
