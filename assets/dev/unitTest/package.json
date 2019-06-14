@@ -15,7 +15,7 @@
     "ldapjs": "^1.0.0",
     "less": "^2.6.1",
     "mocha": "^3.2.0",
-    "node": "^7.6.0",
+    "node": "10.15.3",
     "node-bin-setup": "^1.0.6",
     "puppeteer": "^1.15.0",
     "rsa-pem-to-jwk": "^1.1.3"
