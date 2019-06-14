@@ -3264,12 +3264,23 @@
 
                 .col {
                     border: 1px solid @color-bg-white-five;
+                    min-width: 50%;
                     line-height: unset;
                     .text {
                         padding-top: 4px;
                     }
                 }
 
+            }
+            .dropDownList {
+                .openList {
+                    max-height: 200px !important;
+                    overflow-y: auto;
+                    width: 100%;
+                }
+                .searchCol {
+                    width: 100%;
+                }
             }
         }
     }

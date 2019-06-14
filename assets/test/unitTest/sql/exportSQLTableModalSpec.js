@@ -119,8 +119,37 @@ describe("Export SQL Table Modal Test", function() {
         expect($("#exportSQLTableColumns .col .checkbox.checked").length).to.equal(4);
         $box.click();
         expect($("#exportSQLTableColumns .col .checkbox.checked").length).to.equal(0);
-        $("#exportSQLTableModal .close").click()
+        $("#exportSQLTableModal .close").click();
     })
+
+    describe("Column Searching related Export Modal Tests", function() {
+        it("Should have the hint list populated", function() {
+            ExportSQLTableModal.Instance.show("testTable", columns);
+            expect($('#exportSQLTableColumns .searchCol').length).to.equal(4);
+            $("#exportSQLTableModal .close").click();
+        });
+
+        it("should hide columns when an input is specified", function() {
+            ExportSQLTableModal.Instance.show("testTable", columns);
+            $('#exportSQLTableColumns .searchInput').val("1").trigger("input");
+            expect($('#exportSQLTableColumns .searchCol.xc-hidden').length).to.equal(3);
+            $('#exportSQLTableColumns .searchInput').val("").trigger("input");
+            expect($('#exportSQLTableColumns .searchCol.xc-hidden').length).to.equal(0);
+            $("#exportSQLTableModal .close").click();
+        });
+
+        it("Should select a checkbox when a hint is clicked", function() {
+            ExportSQLTableModal.Instance.show("testTable", columns);
+            expect($('#exportSQLTableColumns .cols .col').eq(0).hasClass("checked")).to.be.false;
+            $('#exportSQLTableColumns .searchInput').click();
+            $('#exportSQLTableColumns .searchCol').eq(0).trigger(fakeEvent.mouseup);
+            expect($('#exportSQLTableColumns .cols .col').eq(0).hasClass("checked")).to.be.true;
+            $('#exportSQLTableColumns .searchInput').click();
+            $('#exportSQLTableColumns .searchCol').eq(0).trigger(fakeEvent.mouseup);
+            expect($('#exportSQLTableColumns .cols .col').eq(0).hasClass("checked")).to.be.false;
+            $("#exportSQLTableModal .close").click();
+        });
+    });
 
     // Tests for errors and driver parameters coming with the unit test for exportoppanel, since
     // Many will be similar.

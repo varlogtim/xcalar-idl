@@ -49,7 +49,47 @@ class ExportSQLTableModal {
             }
         });
         expList.setupListeners();
+
+        this._activateDropDown($("#exportSQLTableColumns .dropDownList"), "#exportSQLTableColumns .dropDownList");
+
+        let colList: MenuHelper = new MenuHelper($("#exportSQLTableColumns .dropDownList"), {
+            "onSelect": function($li) {
+
+                let colNum = $li.data("colnum");
+                let $col = self._$exportColList.find('.col').eq(colNum - 1);
+                let $box = $col.find(".checkbox");
+                self._changeCheckbox($box, $col);
+            }
+        });
+        colList.setupListeners();
+
+        $("#exportSQLTableColumns .dropDownList .searchInput").on("input", (event)  => {
+            colList.openList();
+            const $searchInput: JQuery = $(event.currentTarget);
+            const keyword: string = $searchInput.val().trim();
+            const $dropDown: JQuery = $searchInput.closest(".dropDownList");
+            this._filterCandidateDropdown($dropDown, keyword);
+        });
+
         this._addEventListeners();
+    }
+
+    private _filterCandidateDropdown($dropDown: JQuery, keyword: string) {
+        const $lis: JQuery = $dropDown.find(".searchCol");
+        const $hint: JQuery = $dropDown.find(".hint");
+        $hint.addClass("xc-hidden");
+        if (!keyword) {
+            $lis.removeClass("xc-hidden");
+            return;
+        }
+        const $filterLis: JQuery = $lis.filter(function () {
+            return $(this).text().includes(keyword);
+        });
+        $lis.addClass("xc-hidden");
+        $filterLis.removeClass("xc-hidden");
+        if ($filterLis.length === 0) {
+            $hint.removeClass("xc-hidden");
+        }
     }
 
     private _activateDropDown($list: JQuery, container: string) {
@@ -182,10 +222,13 @@ class ExportSQLTableModal {
 
         // Render column list
         let html: string = "";
+        let dropdownHtml: string = "";
         columnList.forEach((column, index) => {
             const colName: string = xcStringHelper.escapeHTMLSpecialChar(
                 column.name);
             const colNum: number = (index + 1);
+            dropdownHtml += '<li class="searchCol" ' +
+                'data-colnum="' + colNum + '">' + column.name + '</li>';
             html += '<li class="col' +
                 '" data-colnum="' + colNum + '">' +
                 this._getTypeIcon(column.getType()) +
@@ -203,6 +246,7 @@ class ExportSQLTableModal {
                 '</div>' +
             '</li>';
         });
+        $("#exportSQLTableColumns .dropDownList .list").html(dropdownHtml);
         this._$exportColList.html(html);
         $("#exportSQLTableColumns .selectAllWrap").show();
         $("#exportSQLTableColumns .noColsHint").hide();
@@ -260,20 +304,7 @@ class ExportSQLTableModal {
             let $box: JQuery = $(this);
             let $col: JQuery = $(this).parent();
             event.stopPropagation();
-            if ($box.hasClass("active")) {
-                return;
-            }
-            if ($col.hasClass("checked")) {
-                $col.removeClass("checked");
-                $box.removeClass("checked");
-                self._$modal.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
-            } else {
-                $col.addClass("checked");
-                $box.addClass("checked");
-                if (self._$exportColList.find('.col .checked').length == self._$exportColList.find('.checkbox').length) {
-                    self._$modal.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
-                }
-            }
+            self._changeCheckbox($box, $col);
         });
 
         $('#exportSQLTableModal .argsSection').on("click", ".checkbox", function(event) {
@@ -299,6 +330,23 @@ class ExportSQLTableModal {
             let paramIndex = $("#exportSQLTableModal .exportArg").index($arg);
             self._dataModel.setParamValue($input.val(), paramIndex);
         });
+    }
+
+    private _changeCheckbox($box, $col) {
+        if ($box.hasClass("active")) {
+            return;
+        }
+        if ($col.hasClass("checked")) {
+            $col.removeClass("checked");
+            $box.removeClass("checked");
+            this._$modal.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
+        } else {
+            $col.addClass("checked");
+            $box.addClass("checked");
+            if (this._$exportColList.find('.col .checked').length == this._$exportColList.find('.checkbox').length) {
+                this._$modal.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
+            }
+        }
     }
 
     private _closeModal(): void {

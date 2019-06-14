@@ -36,6 +36,15 @@
                     </div>
 
                     <div class="columnsToExport columnsWrap flexWrap clearfix">
+                        <div class="searchArea dropDownList">
+                            <div class="searchBox">
+                                <input type="text" class="searchInput xc-input" placeholder="Search Columns">
+                            </div>
+                            <div class="list">
+                                <ul></ul>
+                                include "../../util/menuScrollArea.html"
+                            </div>
+                        </div>
                         <ul class="cols"></ul>
                         <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
                     </div>

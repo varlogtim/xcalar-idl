@@ -7,6 +7,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     private _$exportDestList: JQuery = null; // $("#exportDestList");
     private _$exportColList: JQuery = null; // $("#exportOpColumns .cols");
     private _$exportArgSection: JQuery = null; // $("#exportOpPanel .argsSection");
+    private _$exportSearchSection: JQuery = null; //$("#exportOpColumns .dropDownList")
     protected _dagNode: DagNodeExport = null;
     private _dataModel: ExportOpPanelModel = null;
     private _currentDriver: string = "";
@@ -28,6 +29,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         this._$exportDestList = $("#exportDriverList");
         this._$exportColList = $("#exportOpColumns .cols");
         this._$exportArgSection = $("#exportOpPanel .argsSection");
+        this._$exportSearchSection = $("#exportOpColumns .dropDownList");
         super.setup(this._$elemPanel);
 
         this._activateDropDown(this._$exportDestList, "#exportDriverList");
@@ -51,7 +53,47 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             }
         });
         expList.setupListeners();
+
+        this._activateDropDown(this._$exportSearchSection, "#exportOpColumns .dropDownList");
+
+        let colList: MenuHelper = new MenuHelper(this._$exportSearchSection, {
+            "onSelect": function($li) {
+
+                let colNum = $li.data("colnum");
+                let $col = self._$exportColList.find('.col').eq(colNum - 1);
+                let $box = $col.find(".checkbox");
+                self._changeCheckbox($box, $col);
+            }
+        });
+        colList.setupListeners();
+
+        $("#exportOpColumns .dropDownList .searchInput").on("input", function(event) {
+            colList.openList();
+            const $searchInput: JQuery = $(event.currentTarget);
+            const keyword: string = $searchInput.val().trim();
+            const $dropDown: JQuery = $searchInput.closest(".dropDownList");
+            self._filterCandidateDropdown($dropDown, keyword);
+        });
+
         this._setupEventListener();
+    }
+
+    private _filterCandidateDropdown($dropDown: JQuery, keyword: string) {
+        const $lis: JQuery = $dropDown.find(".searchCol");
+        const $hint: JQuery = $dropDown.find(".hint");
+        $hint.addClass("xc-hidden");
+        if (!keyword) {
+            $lis.removeClass("xc-hidden");
+            return;
+        }
+        const $filterLis: JQuery = $lis.filter(function () {
+            return $(this).text().includes(keyword);
+        });
+        $lis.addClass("xc-hidden");
+        $filterLis.removeClass("xc-hidden");
+        if ($filterLis.length === 0) {
+            $hint.removeClass("xc-hidden");
+        }
     }
 
     private _activateDropDown($list: JQuery, container: string) {
@@ -193,11 +235,15 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
 
         // Render column list
         let html: string = "";
+        let dropdownHtml: string = "";
         columnList.forEach((column, index) => {
             const colName: string = xcStringHelper.escapeHTMLSpecialChar(
                 column.sourceColumn);
             const colNum: number = (index + 1);
             let checked = column.isSelected ? " checked" : "";
+
+            dropdownHtml += '<li class="searchCol" ' +
+                'data-colnum="' + colNum + '">' + colName + '</li>';
             html += '<li class="col' + checked +
                 '" data-colnum="' + colNum + '">' +
                 '<span class="text tooltipOverflow" ' +
@@ -214,6 +260,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 '</div>' +
             '</li>';
         });
+        $("#exportOpColumns .dropDownList .list").html(dropdownHtml);
         this._$exportColList.html(html);
         $("#exportOpColumns .selectAllWrap").show();
         $("#exportOpColumns .noColsHint").hide();
@@ -401,19 +448,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             let $box: JQuery = $(this).find(".checkbox");
             let $col: JQuery = $(this);
             event.stopPropagation();
-            if ($col.hasClass("checked")) {
-                $col.removeClass("checked");
-                $box.removeClass("checked");
-                self._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
-            } else {
-                $col.addClass("checked");
-                $box.addClass("checked");
-                if (self._$exportColList.find('.col .checked').length == self._$exportColList.find('.checkbox').length) {
-                    self._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
-                }
-            }
-            let colIndex = $("#exportOpColumns .columnsToExport .cols .col").index($col);
-            self._dataModel.toggleCol(colIndex);
+            self._changeCheckbox($box, $col);
         });
 
         $('#exportOpPanel .argsSection').on("click", ".checkbox", function(event) {
@@ -449,6 +484,22 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 self._$exportColList.addClass("minimized");
             }
         });
+    }
+
+    private _changeCheckbox($box, $col) {
+        if ($col.hasClass("checked")) {
+            $col.removeClass("checked");
+            $box.removeClass("checked");
+            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
+        } else {
+            $col.addClass("checked");
+            $box.addClass("checked");
+            if (this._$exportColList.find('.col .checked').length == this._$exportColList.find('.checkbox').length) {
+                this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
+            }
+        }
+        let colIndex = $("#exportOpColumns .columnsToExport .cols .col").index($col);
+        this._dataModel.toggleCol(colIndex);
     }
 
 }

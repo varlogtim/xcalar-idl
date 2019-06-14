@@ -8,90 +8,94 @@ describe("Export Operator Panel Test", function() {
     var node;
     var editor;
 
-    before(function() {
-        oldDriverList = XcalarDriverList;
-        node = new DagNodeExport({});
-        XcalarDriverList = function() {
-            calledDriverList = true;
-            return PromiseHelper.deferred().resolve([
-                {
-                    "name": "test1",
-                    "params" : [
-                        {
-                            "name": "param1",
-                            "type": "string",
-                            "description": "desc",
-                            "secret": false,
-                            "optional": false
-                        }
-                    ]
-                },
-                {
-                    "name": "test2",
-                    "params" : [
-                        {
-                            "name": "param1",
-                            "type": "integer",
-                            "description": "desc",
-                            "secret": false,
-                            "optional": false
-                        }
-                    ]
-                },
-                {
-                    "name": "full test driver",
-                    "params" : [
-                        {
-                            "name": "str param",
-                            "type": "string",
-                            "description": "desc",
-                            "secret": false,
-                            "optional": false
-                        },
-                        {
-                            "name": "int param",
-                            "type": "integer",
-                            "description": "desc",
-                            "secret": false,
-                            "optional": false
-                        },
-                        {
-                            "name": "bool param",
-                            "type": "boolean",
-                            "description": "desc",
-                            "secret": false,
-                            "optional": false
-                        },
-                        {
-                            "name": "secret optional param",
-                            "type": "string",
-                            "description": "desc",
-                            "secret": true,
-                            "optional": true
-                        },
-                        {
-                            "name": "target param",
-                            "type": "target",
-                            "description": "desc",
-                            "secret": false,
-                            "optional": false
-                        },
-                    ]
-                },
-            ]);
-        };
+    before(function(done) {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            oldDriverList = XcalarDriverList;
+            node = new DagNodeExport({});
+            XcalarDriverList = function() {
+                calledDriverList = true;
+                return PromiseHelper.deferred().resolve([
+                    {
+                        "name": "test1",
+                        "params" : [
+                            {
+                                "name": "param1",
+                                "type": "string",
+                                "description": "desc",
+                                "secret": false,
+                                "optional": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "test2",
+                        "params" : [
+                            {
+                                "name": "param1",
+                                "type": "integer",
+                                "description": "desc",
+                                "secret": false,
+                                "optional": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "full test driver",
+                        "params" : [
+                            {
+                                "name": "str param",
+                                "type": "string",
+                                "description": "desc",
+                                "secret": false,
+                                "optional": false
+                            },
+                            {
+                                "name": "int param",
+                                "type": "integer",
+                                "description": "desc",
+                                "secret": false,
+                                "optional": false
+                            },
+                            {
+                                "name": "bool param",
+                                "type": "boolean",
+                                "description": "desc",
+                                "secret": false,
+                                "optional": false
+                            },
+                            {
+                                "name": "secret optional param",
+                                "type": "string",
+                                "description": "desc",
+                                "secret": true,
+                                "optional": true
+                            },
+                            {
+                                "name": "target param",
+                                "type": "target",
+                                "description": "desc",
+                                "secret": false,
+                                "optional": false
+                            },
+                        ]
+                    },
+                ]);
+            };
 
-        oldDatTargetList = DSTargetManager.getAllTargets;
-        DSTargetManager.getAllTargets = function() {
-            calledTargetList = true;
-            return [
-                {"name": "target1"},
-                {"name": "target2"},
-            ];
-        };
-        oldJSONParse = JSON.parse;
-        exportOpPanel = ExportOpPanel.Instance;
-        editor = exportOpPanel.getEditor();
+            oldDatTargetList = DSTargetManager.getAllTargets;
+            DSTargetManager.getAllTargets = function() {
+                calledTargetList = true;
+                return [
+                    {"name": "target1"},
+                    {"name": "target2"},
+                ];
+            };
+            oldJSONParse = JSON.parse;
+            exportOpPanel = ExportOpPanel.Instance;
+            editor = exportOpPanel.getEditor();
+            done();
+        });
     });
 
     describe("Basic Export Panel UI Tests", function() {
@@ -334,6 +338,58 @@ describe("Export Operator Panel Test", function() {
             expect(keys[0]).to.equal("param1");
             expect(params["param1"]).to.equal("demo");
             exportOpPanel.close();
+        });
+    });
+
+    describe("Column Searching related Export Panel Tests", function() {
+        before(function() {
+            const parentNode = new DagNodeMap({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName("prefix", 'a'),
+                        type: "number"
+                    }),
+                    new ProgCol({
+                        backName: xcHelper.getPrefixColName("prefix", 'b'),
+                        type: "number"
+                    }),
+                    new ProgCol({
+                        backName: xcHelper.getPrefixColName("prefix", 'c'),
+                        type: "number"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            };
+        })
+        it("Should have the hint list populated", function() {
+            exportOpPanel.show(node);
+            expect($('#exportOpColumns .searchCol').length).to.equal(3);
+            exportOpPanel.close(node);
+        });
+
+        it("should hide columns when an input is specified", function() {
+            exportOpPanel.show(node);
+            $('#exportOpColumns .searchInput').val("a").trigger("input");
+            expect($('#exportOpColumns .searchCol.xc-hidden').length).to.equal(2);
+            $('#exportOpColumns .searchInput').val("").trigger("input");
+            expect($('#exportOpColumns .searchCol.xc-hidden').length).to.equal(0);
+            exportOpPanel.close(node);
+        });
+
+        it("Should select a checkbox when a hint is clicked", function() {
+            exportOpPanel.show(node);
+            expect($('#exportOpColumns .cols .col').eq(2).hasClass("checked")).to.be.false;
+            console.log("here");
+            $('#exportOpColumns .searchInput').click();
+            $('#exportOpColumns .searchCol').eq(2).trigger(fakeEvent.mouseup);
+            expect($('#exportOpColumns .cols .col').eq(2).hasClass("checked")).to.be.true;
+            $('#exportOpColumns .searchInput').click();
+            $('#exportOpColumns .searchCol').eq(2).trigger(fakeEvent.mouseup);
+            expect($('#exportOpColumns .cols .col').eq(2).hasClass("checked")).to.be.false;
+            exportOpPanel.close(node);
         });
     });
 
