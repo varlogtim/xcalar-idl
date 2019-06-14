@@ -38,6 +38,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         var deferred = PromiseHelper.deferred();
         // in case of the auto login trigger of short cuts
         xcLocalStorage.removeItem("autoLogin");
+        xcLocalStorage.setItem("xcalar-noModeSwitchAlert", "true");
 
         var params = getUrlParameters();
         var runTest = hasUser && parseBooleanParam(params.test);

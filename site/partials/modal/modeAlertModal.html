@@ -1,0 +1,29 @@
+<!-- mode alert modal -->
+<div id="modeAlertModal" class="modalContainer" style="display:none;">
+    <!-- header -->
+    <header class="header">
+      <div class="title">
+        <i class="icon xi-warning"></i>
+        <span class="text">Alert! You are switching to <span class="mode"></span></span>
+      </div>
+      <div class="close xc-action">
+        <i class="icon xi-close"></i>
+      </div>
+    </header>
+    <div class="divider"></div>
+    <!-- content -->
+    <section class="content">
+        <div class="text">
+            To switch between SQL and Dataflow mode, use the <b>blue</b> toggle button at the top right hand corner of the screen.
+        </div>
+        <div class="checkboxSection">
+          <div class="checkbox">
+            <i class="icon xi-ckbox-empty"></i>
+            <i class="icon xi-ckbox-selected"></i>
+          </div>
+          <div class="text"><%= dicts.common.DontShow %></div>
+        </div>
+        <button type="button" class="btn btn-clear cancel"><%= dicts.common.Close %></button>
+    </section>
+  </div>
+  <!-- End of Alert Modal -->

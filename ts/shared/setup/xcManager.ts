@@ -845,6 +845,7 @@ namespace xcManager {
                 modeToSwitch = XVM.Mode.SQL;
             }
             XVM.setMode(modeToSwitch);
+            ModeAlertModal.Instance.show();
         });
     }
 
