@@ -16,9 +16,7 @@
   <!-- content -->
   <div class="mainContent">
     <div class="dataset opSection">
-      <p class="mainInstructions instrText">
-        Select a Dataset to use in your dataflow. If the desired Dataset is inactive or does not exist, go to <span class="link">Sources -> Datasets</span> to activate/create it, and then click on the Dataflows icon in the sidebar to come back to this dataflow.
-      </p>
+      <p class="mainInstructions instrText"><%= dicts.datasetOp.datasetInstr %></p>
       <!-- Dataset View Top Section-->
       <section class="modalTopMain">
         <!-- dataset source -->
@@ -26,7 +24,9 @@
           <div class="subHeading clearfix">
             <div class="label"><%= dicts.datasetOp.source %>:</div>
           </div>
-          <p class="instrText"><%= dicts.datasetOp.sourceInstr %></p>
+          <p class="instrText">
+            Select a Dataset to use in your dataflow. If the desired Dataset is inactive or does not exist, go to <span class="link">Sources -> Datasets</span> to activate/create it, and then click on the Dataflows icon in the sidebar to come back to this dataflow.
+          </p>
           <div id="datasetOpBrowser" class="mainSection xc-fileListView">
             include "../util/fileListView.html"
           </div>

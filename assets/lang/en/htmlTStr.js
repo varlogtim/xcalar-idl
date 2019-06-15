@@ -990,11 +990,11 @@ module.exports = {
 
     "datasetOp": {
         "dataset": "DATASET",
-        "datasetInstr": "Use the dataset as the source for data, with columns prefixed by prefix",
+        "datasetInstr": "Configure the Dataset Node as a source of data.",
         "source": "Source",
         "sourceInstr": "Select Dataset to use in this dataflow. If a dataset does not appear, or is inactive, close the panel and load/activate the dataset.",
         "prefix": "Prefix",
-        "prefixInstr": "Result set column Prefix",
+        "prefixInstr": "A prefix for the columns of the result set.",
         "save": "Save"
     },
 
