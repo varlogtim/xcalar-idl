@@ -217,7 +217,11 @@ class KVStore {
         promise
         .then(() => {
             // must come after Log.restore
-            QueryManager.restore(metaInfo.getQueryMeta());
+            try {
+                QueryManager.restore(metaInfo.getQueryMeta());
+            } catch (e) {
+                console.error(e);
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);

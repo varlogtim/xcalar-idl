@@ -22,6 +22,7 @@ namespace Transaction {
         parentTxId?: number,
         udfUserName?: string;
         udfSessionName?: string;
+        queryMeta?: string;
     }
 
     export interface TransactionDoneOptions {
@@ -175,7 +176,8 @@ namespace Transaction {
                 numSteps: numSubQueries,
                 cancelable: options.cancelable,
                 exportName: options.exportName,
-                srcTables: getSrcTables(options.sql)
+                srcTables: getSrcTables(options.sql),
+                queryMeta: options.queryMeta
             };
 
             QueryManager.addQuery(curId, operation, queryOptions);

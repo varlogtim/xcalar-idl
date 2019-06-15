@@ -23,7 +23,8 @@ namespace QueryManager {
     export interface AddQueryOptions {
         numSteps?: number,
         cancelable?: boolean,
-        srcTables?: string[]
+        srcTables?: string[],
+        queryMeta?: string
     }
 
     export interface AddSubQueryOptions {
@@ -105,7 +106,8 @@ namespace QueryManager {
             "opTime": null,
             "opTimeAdded": null,
             "outputTableName": null,
-            "outputTableState": null
+            "outputTableState": null,
+            "queryMeta": options.queryMeta
         });
 
         queryLists[id] = mainQuery;
@@ -123,7 +125,8 @@ namespace QueryManager {
         }, id, QueryStatus.Run, true);
 
         if (UserSettings.getPref("hideSysOps") &&
-            sysQueryTypes.indexOf(name) > -1) {
+            sysQueryTypes.indexOf(name) > -1
+        ) {
             updateQueryTextDisplay("");
         }
     };
@@ -177,7 +180,7 @@ namespace QueryManager {
         }
         const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
         if ($query.hasClass('active')) {
-            updateQueryTextDisplay(mainQuery.getQuery());
+            updateQueryTextDisplay(mainQuery.getQuery(), undefined, undefined, mainQuery.getQueryMeta());
         }
     };
 
@@ -560,7 +563,7 @@ namespace QueryManager {
                 }
             }
         }
-        updateQueryTextDisplay(mainQuery.getQuery(), false, mainQuery.error);
+        updateQueryTextDisplay(mainQuery.getQuery(), false, mainQuery.error, mainQuery.getQueryMeta());
 
         mainQuery.setElapsedTime();
         clearIntervalHelper(id);
@@ -693,7 +696,8 @@ namespace QueryManager {
                 "type": "restored",
                 "error": queries[i].error,
                 "srcTables": null,
-                "cancelable": null
+                "cancelable": null,
+                "queryMeta": queries[i].queryMeta
             });
             queryLists[i - numQueries] = query; // using negative keys for
             // restored queries
@@ -1315,7 +1319,7 @@ namespace QueryManager {
         const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
 
         if ($query.hasClass('active')) {
-            updateQueryTextDisplay(mainQuery.getQuery());
+            updateQueryTextDisplay(mainQuery.getQuery(), undefined, undefined, mainQuery.getQueryMeta());
         }
 
         if (mainQuery.numSteps !== -1 &&
@@ -1376,7 +1380,10 @@ namespace QueryManager {
             "opTime": opTime,
             "total": totalTime
         }, queryId);
-        updateQueryTextDisplay(query, false, mainQuery.error);
+
+        let error = mainQuery ? mainQuery.error : null;
+        let queryMeta = mainQuery ? mainQuery.getQueryMeta() : "";
+        updateQueryTextDisplay(query, false, error, queryMeta);
         updateOutputSection(queryId);
     }
 
@@ -1430,7 +1437,12 @@ namespace QueryManager {
         }
     }
 
-    function updateQueryTextDisplay(query: string, blank?: boolean, errorText?: string): void {
+    function updateQueryTextDisplay(
+        query: string,
+        blank?: boolean,
+        errorText?: string,
+        queryMeta?: string
+    ): void {
         let queryString: string = "";
         if (query) {
             let querySplit: string[] = [];
@@ -1457,6 +1469,10 @@ namespace QueryManager {
         if (errorText) {
             queryString += '<div class="queryRow errorRow">' +
                            xcStringHelper.escapeHTMLSpecialChar(errorText) + '</div>';
+        }
+        if (queryMeta) {
+            queryString = '<div class="queryRow">' + queryMeta + '</div>' +
+                            queryString;
         }
 
         $queryDetail.find(".operationSection .content").html(queryString);

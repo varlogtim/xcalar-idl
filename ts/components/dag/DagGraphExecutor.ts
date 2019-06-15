@@ -416,8 +416,16 @@ class DagGraphExecutor {
             let nodeIds = nodes.map(node => node.getId());
 
             let operation = "Dataflow execution";
+            let queryMeta: string = null;
             if (nodes.length === 1) {
                 operation = nodes[0].getType();
+                if (nodes[0] instanceof DagNodeSQL) {
+                    let node = <DagNodeSQL>nodes[0];
+                    let sqlQuery = node.getSQLQuery();
+                    if (sqlQuery) {
+                        queryMeta = sqlQuery.queryString;
+                    }
+                }
             }
 
             const tabId: string = this._graph.getTabId();
@@ -431,7 +439,8 @@ class DagGraphExecutor {
                 nodeIds: nodeIds,
                 parentTxId: this._parentTxId,
                 udfUserName: udfContext.udfUserName,
-                udfSessionName: udfContext.udfSessionName
+                udfSessionName: udfContext.udfSessionName,
+                queryMeta: queryMeta
             });
             this._currentTxId = txId;
             this._getAndExecuteBatchQuery(txId)

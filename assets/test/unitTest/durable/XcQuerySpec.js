@@ -1,6 +1,5 @@
-// XX incomplete since the change where monitor query bars are working
-describe("XcQuery Constructor Test", function() {
-    it("Should have 21 attributes", function() {
+describe("XcQuery Test", function() {
+    it("Should have 22 attributes", function() {
         var xcQuery = new XcQuery({
             "name": "test",
             "fullName": "full test",
@@ -11,7 +10,7 @@ describe("XcQuery Constructor Test", function() {
         });
 
         expect(xcQuery).to.be.an.instanceof(XcQuery);
-        expect(Object.keys(xcQuery).length).to.equal(21);
+        expect(Object.keys(xcQuery).length).to.equal(22);
         expect(xcQuery).to.have.property("version")
         .and.to.equal(Durable.Version);
         expect(xcQuery).to.have.property("name")
@@ -54,6 +53,7 @@ describe("XcQuery Constructor Test", function() {
         .and.to.be.false;
         expect(xcQuery).to.have.property("error");
         expect(xcQuery).to.have.property("indexTables");
+        expect(xcQuery).to.have.property("queryMeta");
     });
 
     it("XcQuery OOP function should work", function() {
@@ -61,7 +61,8 @@ describe("XcQuery Constructor Test", function() {
             "name": "test2",
             "fullName": "full test2",
             "time": 456,
-            "state": QueryStateT.qrProcessing
+            "state": QueryStateT.qrProcessing,
+            "queryMeta": "test"
         });
 
         expect(xcQuery.getName()).to.equal("test2");
@@ -69,5 +70,6 @@ describe("XcQuery Constructor Test", function() {
         expect(xcQuery.getTime()).to.equal(456);
         expect(xcQuery.getState()).to.equal(QueryStateT.qrProcessing);
         expect(xcQuery.getStateString()).to.equal("qrProcessing");
+        expect(xcQuery.getQueryMeta()).to.equal("test");
     });
 });

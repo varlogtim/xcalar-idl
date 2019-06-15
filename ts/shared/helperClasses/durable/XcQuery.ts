@@ -31,6 +31,7 @@ class XcQuery extends Durable {
     private outputTableName: string; // output table
     private queryStr: string; // query string
     private indexTables: string[]; // used to hold reused indexed tables
+    private queryMeta: string;
 
     constructor(options: XcQueryOptions) {
         options = options || <XcQueryOptions>{};
@@ -48,6 +49,7 @@ class XcQuery extends Durable {
         this.queryStr = options.queryStr || "";
         this.subQueries = [];
         this.srcTables = options.srcTables || null;
+        this.queryMeta = options.queryMeta || "";
 
         if (options.sqlNum != null) {
             this.sqlNum = options.sqlNum;
@@ -133,6 +135,10 @@ class XcQuery extends Durable {
         } else {
             return "";
         }
+    }
+
+    public getQueryMeta(): string {
+        return this.queryMeta;
     }
 
     public getOutputTableName(): string {
@@ -292,6 +298,10 @@ class XcQuery extends Durable {
                 key = this.fullName
             } else {
                 key = this.sqlNum;
+            }
+
+            if (this.queryMeta) {
+                abbrQueryObj.queryMeta = this.queryMeta;
             }
         }
 
