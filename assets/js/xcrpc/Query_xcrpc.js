@@ -28,6 +28,24 @@ function QueryService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 QueryService.prototype = {
+    execute: async function(executeRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(executeRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Query.ExecuteRequest");
+        //anyWrapper.pack(executeRequest.serializeBinary(), "ExecuteRequest");
+
+        var responseData = await this.client.execute("Query", "Execute", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var executeResponse =
+        //    responseData.unpack(query.ExecuteResponse.deserializeBinary,
+        //                        "ExecuteResponse");
+        var executeResponse = query.ExecuteResponse.deserializeBinary(specificBytes);
+        return executeResponse;
+    },
     list: async function(listRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
@@ -45,6 +63,42 @@ QueryService.prototype = {
         //                        "ListResponse");
         var listResponse = query.ListResponse.deserializeBinary(specificBytes);
         return listResponse;
+    },
+    deleteQuery: async function(deleteRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(deleteRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Query.DeleteRequest");
+        //anyWrapper.pack(deleteRequest.serializeBinary(), "DeleteRequest");
+
+        var responseData = await this.client.execute("Query", "DeleteQuery", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var deleteResponse =
+        //    responseData.unpack(query.DeleteResponse.deserializeBinary,
+        //                        "DeleteResponse");
+        var deleteResponse = query.DeleteResponse.deserializeBinary(specificBytes);
+        return deleteResponse;
+    },
+    cancel: async function(cancelRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(cancelRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Query.CancelRequest");
+        //anyWrapper.pack(cancelRequest.serializeBinary(), "CancelRequest");
+
+        var responseData = await this.client.execute("Query", "Cancel", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var cancelResponse =
+        //    responseData.unpack(query.CancelResponse.deserializeBinary,
+        //                        "CancelResponse");
+        var cancelResponse = query.CancelResponse.deserializeBinary(specificBytes);
+        return cancelResponse;
     },
 };
 

@@ -26,3 +26,5 @@ import * as PublishedTable from './PublishedTable/PublishedTableService';
 export { PublishedTable };
 import * as Table from './Table/TableService';
 export { Table };
+import * as GetQuery from './Operator/GetQueryService';
+export { GetQuery };

@@ -6,6 +6,7 @@ const PublishedTableServiceTest = require('./PublishedTableServiceSpec');
 const QueryServiceTest = require('./QueryServiceSpec');
 const UDFServiceTest = require('./UDFServiceSpec');
 const TableServiceTest = require('./TableServiceSpec');
+const GetQueryServiceTest = require('./GetQueryServiceSpec');
 
 //creat xcrpc client
 const hostname = "localhost:12124"
@@ -20,6 +21,7 @@ let PublishedTableService = client.getPublishedTableService();
 let QueryService = client.getQueryService();
 let UDFService = client.getUDFService();
 let TableService = client.getTableService();
+let GetQueryService = client.getGetQueryService();
 
 describe("xcrpc integration test: ", function () {
     // run the testSuit for each services
@@ -29,4 +31,5 @@ describe("xcrpc integration test: ", function () {
     QueryServiceTest.testSuit(QueryService);
     UDFServiceTest.testSuit(UDFService);
     TableServiceTest.testSuit(TableService);
+    GetQueryServiceTest.testSuit(GetQueryService);
 });
