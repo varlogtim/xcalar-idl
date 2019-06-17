@@ -181,7 +181,10 @@ namespace BottomMenu {
     function closeMenu(topMenuOpening: boolean = false): boolean {
         if (needsMainMenuBackOpen && !topMenuOpening) {
             needsMainMenuBackOpen = false;
-            if ($(".topMenuBarTab.active").hasClass("mainMenuOpen")) {
+            let $activeTab =  $(".topMenuBarTab.active");
+            if ($activeTab.hasClass("mainMenuOpen") &&
+                !$activeTab.hasClass("noLeftPanel")
+            ) {
                 MainMenu.open();
                 return;
             }

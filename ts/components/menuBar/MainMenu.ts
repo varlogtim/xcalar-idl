@@ -60,14 +60,7 @@ namespace MainMenu {
     };
 
     export function switchMode(): boolean {
-        const $dataflowMenu: JQuery = $("#dataflowMenu");
         const isSQLMode: boolean = XVM.isSQLMode();
-        if (isSQLMode) {
-            $dataflowMenu.data("tab", "sqlTab");
-        } else {
-            $dataflowMenu.data("tab", "modelingDataflowTab");
-        }
-
         const $sqlModeTabs: JQuery = $("#sqlTab");
         const $advModeTabs: JQuery = $("#modelingDataflowTab, #jupyterTab, #inButton");
         let allPanelsClosed: boolean = false;
