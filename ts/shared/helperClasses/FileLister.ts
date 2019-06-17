@@ -3,18 +3,20 @@ class FileLister {
     private _currentPath: string[];
     private _futurePath: string[];
     private _$section: JQuery;
-    private _renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[], path?: string) => string;
+    private _renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[], path?: string, sortKey?: string) => string;
     private _rootPath: string;
+    private _sortKey: string;
 
     public constructor(
         $section: JQuery,
         options: {
-            renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[], path?: string) => string,
+            renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[], path?: string, sortKey?: string) => string,
             folderSingleClick?: boolean
         }
     ) {
         this._$section = $section;
         this._renderTemplate = options.renderTemplate;
+        this._sortKey = undefined;
         this.setRootPath(null);
         this._resetPath();
         this._addEventListeners(options);
@@ -121,6 +123,7 @@ class FileLister {
         if (this._fileObject == null) {
             return;
         }
+        this._renderSortSection(this._sortKey);
         this._verifyPath(ignoreError);
         const pathLen: number = this._currentPath.length;
         let curObj: FileListerFolder = this._fileObject;
@@ -155,7 +158,7 @@ class FileLister {
         } else {
             const folders: string[] = Object.keys(curObj.folders);
             const currentPath = this.getCurrentPath();
-            const html: HTML = this._renderTemplate(curObj.files, folders, currentPath);
+            const html: HTML = this._renderTemplate(curObj.files, folders, currentPath, this._sortKey);
             this._$section.find(".pathSection .path").html(path);
             this._$section.find(".listView ul").html(html);
         }
@@ -166,6 +169,20 @@ class FileLister {
         this._futurePath = [];
         this._getForwardBtn().addClass("xc-disabled");
         this._getBackBtn().addClass("xc-disabled");
+    }
+
+    private _setSortKey(key: string): void {
+        if (this._sortKey === key) {
+            return;
+        }
+        this._sortKey = (key === "none")? undefined : key;
+        this._render(true);
+    }
+
+    private _renderSortSection(key: string = "none"): void {
+        let $sortSection = this._$section.find(".sortSection");
+        $sortSection.find(".sortOption.key").removeClass("key");
+        $sortSection.find(`.sortOption[data-key="${key}"]`).addClass("key");
     }
 
     private _addEventListeners(options): void {
@@ -202,9 +219,14 @@ class FileLister {
             }
         });
 
-        this._$section.find(".pathSection").on("click", ".path span", (event) => {
-            const path = $(event.currentTarget).data("path");
+        this._$section.find(".pathSection").on("click", ".path span", (e) => {
+            const path = $(e.currentTarget).data("path");
             this.goToPath(path);
+        });
+
+        this._$section.find(".sortSection").on("click", ".sortOption", (e) => {
+            let key = $(e.currentTarget).data("key");
+            this._setSortKey(key);
         });
     }
 

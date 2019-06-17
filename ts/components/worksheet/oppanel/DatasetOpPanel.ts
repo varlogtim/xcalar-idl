@@ -72,50 +72,140 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _setupFileLister(): void {
         const renderTemplate = (
-            files: {name: string, id: string, options: {inActivated: boolean}}[],
-            folders: string[]
+            files,
+            folders,
+            path,
+            sortKey
         ): string => {
-            let html: HTML = "";
-            // Add files
-            files.forEach((file) => {
-                if (file.options && file.options.inActivated) {
-                    html +=
-                    '<li class="fileName inActivated"' +
-                    ' data-toggle="tooltip"' +
-                    ' data-placement"top"' +
-                    ' data-container="body"' +
-                    ' data-original-title="' + DSTStr.inActivated + '"' +
-                    ' data-id="' + file.id + '">' +
-                        '<i class="gridIcon icon xi_data"></i>' +
-                        '<div class="name">' + file.name + '</div>' +
-                    '</li>';
-                } else {
-                    html +=
-                    '<li class="fileName" data-id="' + file.id + '">' +
-                        '<i class="gridIcon icon xi_data"></i>' +
-                        '<div class="name">' + file.name + '</div>' +
-                        '<i class="viewTable icon xi-show"' +
-                        ' data-toggle="tooltip"' +
-                        ' data-placement"top"' +
-                        ' data-container="body"' +
-                        ' data-original-title="' + DSTStr.Preview + '"></i>' +
-                    '</li>';
-                }
-            });
-            // Add folders
-            folders.forEach((folder) => {
-                // TODO: what if their folder is called datasets
-                html += '<li class="folderName">' +
-                            '<i class="gridIcon icon xi-folder"></i>' +
-                            '<div class="name">' + folder + '</div>' +
-                        '</li>';
-            });
-            return html;
+            return this._renderDatasetList(files, folders, path, sortKey);
         };
         this._fileLister = new FileLister($("#datasetOpBrowser"), {
             renderTemplate: renderTemplate,
             folderSingleClick: true
         });
+    }
+
+    private _renderDatasetList(
+        files: {
+            name: string,
+            id: string,
+            options: {
+                inActivated: boolean,
+                size: number
+            }
+        }[],
+        folders: string[],
+        _path: string,
+        sortKey: string
+    ): HTML {
+        let html: HTML = this._sortListObj(files, folders, sortKey).map((listObj) => {
+            return listObj.isFolder ? this._getFolderHTML(listObj.obj) : this._getFileHTML(listObj.obj);
+        }).join("");
+        return html;
+    }
+
+    private _sortListObj(
+        files: {
+            name: string,
+            id: string,
+            options: {
+                inActivated: boolean,
+                size: number
+            }
+        }[],
+        folders: string[],
+        sortKey: string,
+    ): {obj: any, isFolder: boolean}[] {
+        let sortByName = (name1, name2) => {
+            name1 = (name1 || "").toLowerCase();
+            name2 = (name2 || "").toLowerCase();
+            return name1 < name2 ? -1 : (name1 > name2 ? 1 : 0)
+        };
+
+        if (sortKey === "name") {
+            let listObjs = this._getListObjs(files, folders);
+            listObjs.sort((obj1, obj2) => {
+                let name1 = obj1.isFolder ? obj1.obj : obj1.obj.name;
+                let name2 = obj2.isFolder ? obj2.obj : obj2.obj.name;
+                return sortByName(name1, name2);
+            });
+            return listObjs;
+        } else if (sortKey === "type") {
+            files = [...files].sort((file1, file2) => sortByName(file1.name, file2.name));
+            folders = [...folders].sort(sortByName);
+            return this._getListObjs(files, folders);
+        } else if (sortKey === "size") {
+            files = [...files].sort((file1, file2) => {
+                let size1 = file1.options.size || 0;
+                let size2 = file2.options.size || 0;
+                return size1 - size2;
+            });
+            return this._getListObjs(files, folders);
+        } else {
+            // default is no sort
+            return this._getListObjs(files, folders);
+        }
+    }
+
+    private _getListObjs(
+        files: any[],
+        folders: string[],
+    ): {obj: any, isFolder: boolean}[] {
+        let listObjs: {obj: any, isFolder: boolean}[] = [];
+        files.forEach((file) => {
+            listObjs.push({
+                obj: file,
+                isFolder: false
+            });
+        });
+
+        folders.forEach((folder) => {
+            listObjs.push({
+                obj: folder,
+                isFolder: true
+            });
+        });
+
+        return listObjs;
+    }
+
+    private _getFileHTML(file: {
+        name: string,
+        id: string,
+        options: {inActivated: boolean, size: number}
+    }): HTML {
+        let html: HTML = "";
+        if (file.options && file.options.inActivated) {
+            html +=
+            '<li class="fileName inActivated"' +
+            ' data-toggle="tooltip"' +
+            ' data-placement"top"' +
+            ' data-container="body"' +
+            ' data-original-title="' + DSTStr.inActivated + '"' +
+            ' data-id="' + file.id + '">' +
+                '<i class="gridIcon icon xi_data"></i>' +
+                '<div class="name">' + file.name + '</div>' +
+            '</li>';
+        } else {
+            html +=
+            '<li class="fileName" data-id="' + file.id + '">' +
+                '<i class="gridIcon icon xi_data"></i>' +
+                '<div class="name">' + file.name + '</div>' +
+                '<i class="viewTable icon xi-show"' +
+                ' data-toggle="tooltip"' +
+                ' data-placement"top"' +
+                ' data-container="body"' +
+                ' data-original-title="' + DSTStr.Preview + '"></i>' +
+            '</li>';
+        }
+        return html;
+    }
+
+    private _getFolderHTML(folder: string): HTML {
+        return '<li class="folderName">' +
+                '<i class="gridIcon icon xi-folder"></i>' +
+                    '<div class="name">' + folder + '</div>' +
+                '</li>';
     }
 
     private _setupDatasetList(): void {

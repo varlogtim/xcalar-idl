@@ -4,6 +4,7 @@ describe("Dataset Operator Panel Test", function() {
     var oldListDS;
     var oldJSONParse;
     var oldGetDS;
+    var oldWaitForSetup;
 
     before(function(done) {
         node = new DagNodeDataset({});
@@ -14,13 +15,19 @@ describe("Dataset Operator Panel Test", function() {
                     path: "ds1",
                     id: "support@ds1",
                     suffix: "",
-                    options: {inActivated: false}
+                    options: {
+                        inActivated: false,
+                        size: 123,
+                    }
                 },
                 {
                     path: "/folder/ds2",
                     id: "support@ds2",
                     suffix: "",
-                    options: {inActivated: false}
+                    options: {
+                        inActivated: false,
+                        size: 456
+                    }
                 }
             ]
         }
@@ -35,7 +42,9 @@ describe("Dataset Operator Panel Test", function() {
         node.setParam = () => {
             var deferred = PromiseHelper.deferred();
             return deferred.resolve();
-        }
+        };
+        oldWaitForSetup = XDFManager.Instance.waitForSetup;
+        XDFManager.Instance.waitForSetup = () => PromiseHelper.resolve();
 
         UnitTest.testFinish(() => DagPanel.hasSetup())
         .always(function() {
@@ -234,6 +243,51 @@ describe("Dataset Operator Panel Test", function() {
             DS.getDSObj = oldFunc;
         });
 
+        it("_sortListObj should sort files by name", function() {
+            let file = {name: "B"};
+            let res = datasetOpPanel._sortListObj([file], ["a"], "name");
+            expect(res[0].obj).to.equal("a");
+            expect(res[1].obj).to.equal(file);
+        });
+
+        it("_sortListObj should sort files by type", function() {
+            let file = {name: "B"};
+            let res = datasetOpPanel._sortListObj([file], ["a"], "type");
+            expect(res[0].obj).to.equal(file);
+            expect(res[1].obj).to.equal("a");
+        });
+
+        it("_sortListObj should sort files by size", function() {
+            let file1 = {name: "B", options: {size: 456}};
+            let file2 = {name: "a", options: {size: 123}};
+            let res = datasetOpPanel._sortListObj([file1, file2], [], "size");
+            expect(res[0].obj).to.equal(file2);
+            expect(res[1].obj).to.equal(file1);
+        });
+
+        it("_sortListObj should sort files by none", function() {
+            let file = {name: "B"};
+            let res = datasetOpPanel._sortListObj([file], ["a"]);
+            expect(res[0].obj).to.equal(file);
+            expect(res[1].obj).to.equal("a");
+        });
+
+        it("_getFileHTML should work", function() {
+            // case 1
+            let file = {name: "test", id: "test", options: {inActivated: true}};
+            let res = datasetOpPanel._getFileHTML(file);
+            expect(res).to.contains("inActivated");
+            // case 2
+            file = {name: "test", id: "test"};
+            res = datasetOpPanel._getFileHTML(file);
+            expect(res).not.to.contains("inActivated");
+        });
+        
+        it("_getFolderHTML should work", function() {
+            let res = datasetOpPanel._getFolderHTML("test");
+            expect(res).to.contains("folderName");
+        });
+
         // it("Should submit valid arguments", function() {
         //     var oldFunc = DS.getDSObj;
         //     DS.getDSObj = function() {
@@ -320,6 +374,7 @@ describe("Dataset Operator Panel Test", function() {
         DS.listDatasets = oldListDS;
         JSON.parse = oldJSONParse;
         DS.getDSObj = oldGetDS;
+        XDFManager.Instance.waitForSetup = oldWaitForSetup;
         datasetOpPanel.close();
     });
 });

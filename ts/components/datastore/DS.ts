@@ -906,7 +906,8 @@ namespace DS {
         suffix: string,
         id: string,
         options: {
-            inActivated: boolean
+            inActivated: boolean,
+            size: number
         }
     }[] {
         let list: {
@@ -914,17 +915,18 @@ namespace DS {
             suffix: string,
             id: string,
             options: {
-                inActivated: boolean
+                inActivated: boolean,
+                size: number
             }
         }[] = [];
         let path: string[] = [];
-        let folder: DSObj[] = sharedOnly ? DS.getDSObj(DSObjTerm.SharedFolderId) : homeFolder;
+        let folder: DSObj = sharedOnly ? DS.getDSObj(DSObjTerm.SharedFolderId) : homeFolder;
         populate(folder, path);
 
-        function populate(el, path) {
-            if (el.isFolder) {
-                let name: string = el.name;
-                if (el.name === ".") {
+        function populate(el: DSObj, path: string[]) {
+            if (el.beFolder()) {
+                let name: string = el.getName();
+                if (name === ".") {
                     name = "";
                 }
                 path.push(name);
@@ -935,14 +937,15 @@ namespace DS {
             } else {
                 let suffix: string = "";
                 if (path[1] === DSObjTerm.SharedFolder) {
-                    suffix = el.user;
+                    suffix = el.getUser();
                 }
                 list.push({
-                    path: path.join("/") + "/" + el.name,
+                    path: path.join("/") + "/" + el.getName(),
                     suffix: suffix,
                     id: el.id,
                     options: {
-                        inActivated: !el.isActivated()
+                        inActivated: !el.isActivated(),
+                        size: el.getSize()
                     }
                 });
             }
