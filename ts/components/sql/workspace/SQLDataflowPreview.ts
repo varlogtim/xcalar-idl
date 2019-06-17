@@ -86,7 +86,7 @@ class SQLDataflowPreview {
 
     private _alertAnalyze(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        Alert.show({
+        MessageModal.Instance.show({
             title: SQLTStr.EditAdvanced,
             msg: SQLTStr.EditAdvancedInstr,
             onConfirm: () => {
@@ -95,7 +95,7 @@ class SQLDataflowPreview {
             onCancel: () => {
                 deferred.reject("canceled");
             },
-        })
+        });
 
         return deferred.promise();
     }

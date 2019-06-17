@@ -1655,9 +1655,10 @@ html.microsoft {
 }
 /* End Of Alert Modal */
 
-#modeAlertModal {
+#messageModal {
     @modal-h: 223px;
     @header-h: 67px;
+    @checkbox-h: 30px;
 
     width: 636px;
     height: @modal-h;
@@ -1665,6 +1666,17 @@ html.microsoft {
     box-shadow: 0 4px 7px 1px @color-font-form-gray;
     background-color: @color-white;
     color: @color-font-form-gray;
+
+    &.noCheckbox {
+        height: @modal-h - @checkbox-h !important;
+        .content {
+            height: @modal-h - @header-h - 1px - @checkbox-h;
+
+            .checkboxSection {
+                display: none;
+            }
+        } 
+    }
 
     .header {
         height: @header-h;
@@ -1716,8 +1728,9 @@ html.microsoft {
         padding: 22px;
         font-size: 14px;
 
-        > .text {
+        .message {
             font-weight: normal;
+            margin-bottom: 15px;
 
             b {
                 color: @color-font-link-blue;
@@ -1725,7 +1738,6 @@ html.microsoft {
         }
 
         .checkboxSection {
-            margin-top: 15px;
             font-weight: 600;
             width: 140px;
 
@@ -1734,9 +1746,13 @@ html.microsoft {
             }
         }
 
-        .btn {
-            clear: both;
-            float: right;
+        .buttonSection {
+            height: 30px;
+
+            .btn {
+                float: right;
+                margin-left: 10px;
+            }
         }
     }
 }

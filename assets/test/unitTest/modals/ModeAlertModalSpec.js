@@ -1,9 +1,10 @@
 describe("ModeAlertModal Test", function() {
     let modeAlertModal;
+    let notShow
 
     before(function() {
         modeAlertModal = ModeAlertModal.Instance;
-        UnitTest.onMinMode();
+        notShow = modeAlertModal._notShow;
     });
     
     it("should be a valid class", function() {
@@ -12,22 +13,25 @@ describe("ModeAlertModal Test", function() {
 
     it("should not show if notShow is set", function() {
         modeAlertModal._notShow = true;
+        let oldFuc = MessageModal.Instance.show;
+        let called = false;
+        MessageModal.Instance.show = () => { called = true; };
         modeAlertModal.show();
-        assert.isFalse(modeAlertModal._getModal().is(":visible"));
+        expect(called).to.be.false;
+        MessageModal.Instance.show = oldFuc;
     });
 
     it("should show modal", function() {
         modeAlertModal._notShow = false;
+        let oldFuc = MessageModal.Instance.show;
+        let called = true;
+        MessageModal.Instance.show = () => { called = true; };
         modeAlertModal.show();
-        assert.isTrue(modeAlertModal._getModal().is(":visible"));
-    });
-
-    it("should close the modal", function() {
-        modeAlertModal._getModal().find(".close").click();
-        assert.isFalse(modeAlertModal._getModal().is(":visible"));
+        expect(called).to.be.true;
+        MessageModal.Instance.show = oldFuc;
     });
 
     after(function() {
-        UnitTest.offMinMode();
+        modeAlertModal._setNotShow(notShow);
     });
 });

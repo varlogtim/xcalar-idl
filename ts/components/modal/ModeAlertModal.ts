@@ -4,15 +4,10 @@ class ModeAlertModal {
         return this._instance || (this._instance = new this());
     }
 
-    private _modalHelper: ModalHelper;
     private _notShow: boolean;
 
     private constructor() {
-        this._modalHelper = new ModalHelper(this._getModal(), {
-            noResize: true
-        });
         this._notShow = this._isNotShow();
-        this._addEventListeners();
     }
 
     /**
@@ -22,25 +17,24 @@ class ModeAlertModal {
         if (this._notShow) {
             return;
         }
-        this._modalHelper.setup();
-        this._fillModeText();
+        MessageModal.Instance.show({
+            title: this._getTitle(),
+            msg: this._getMessage(),
+            isAlert: true,
+            isCheckBox: true,
+            onCancel: (notShow) => {
+                this._setNotShow(notShow);
+            }
+        });
     }
 
-    private _getModal(): JQuery {
-        return $("#modeAlertModal");
+    private _getTitle(): string {
+        let modeTitle: string = XVM.isSQLMode() ? ModeTStr.SQL : ModeTStr.Advanced;
+        return `Alert! You are switching to ${modeTitle}`;
     }
 
-    private _close(): void {
-        this._notShow = this._getModal().find(".checkbox").hasClass("checked");
-        if (this._notShow) {
-            this._setNotShow();
-        }
-        this._modalHelper.clear();
-    }
-
-    private _fillModeText(): void {
-        let text: string = XVM.isSQLMode() ? ModeTStr.SQL : ModeTStr.Advanced;
-        this._getModal().find(".mode").text(text);
+    private _getMessage(): string {
+        return 'To switch between SQL and Dataflow mode, use the <b>blue</b> toggle button at the top right hand corner of the screen.';
     }
 
     private _isNotShow(): boolean {
@@ -51,7 +45,8 @@ class ModeAlertModal {
         }
     }
 
-    private _setNotShow(): void {
+    private _setNotShow(notShow: boolean): void {
+        this._notShow = notShow;
         if (typeof xcLocalStorage === "undefined") {
             return;
         }
@@ -61,17 +56,5 @@ class ModeAlertModal {
         } else {
             xcLocalStorage.removeItem("xcalar-noModeSwitchAlert");
         }
-    }
-
-    private _addEventListeners(): void {
-        let $modal = this._getModal();
-        $modal.on("click", ".close, .cancel", () => {
-            this._close();
-        });
-
-        $modal.on("click", ".checkboxSection", (e) => {
-            e.stopPropagation();
-            $(e.currentTarget).find(".checkbox").toggleClass("checked");
-        });
     }
 }
