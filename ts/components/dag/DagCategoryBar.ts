@@ -850,6 +850,7 @@ class DagCategoryBar {
         .then(() => {
             XcSocket.Instance.sendMessage("refreshDagCategory");
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
         return deferred.promise();
     }

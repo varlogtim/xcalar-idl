@@ -437,7 +437,8 @@ class DagView {
 
     private static _createCustomNode(
         dagNodeInfos,
-        connection: DagSubGraphConnectionInfo
+        connection: DagSubGraphConnectionInfo,
+        nodeTitle: string
     ): {
             node: DagNodeCustom,
             connectionIn: NodeConnection[],
@@ -445,6 +446,9 @@ class DagView {
         } {
         const customNode = new DagNodeCustom();
         const nodeIdMap = new Map<DagNodeId, DagNodeId>();
+
+        // Set custom node title
+        customNode.setTitle(nodeTitle);
 
         // Create sub graph
         const dagNodes = dagNodeInfos.map((nodeInfo) => {
@@ -1802,7 +1806,7 @@ class DagView {
                 node: customNode,
                 connectionIn: newConnectionIn,
                 connectionOut: newConnectionOut
-            } = DagView._createCustomNode(nodeInfos, connectionInfo);
+            } = DagView._createCustomNode(nodeInfos, connectionInfo, this.getGraph().generateNodeTitle());
 
             // Position custom operator
             const nodePosList = nodeInfos.map((nodeInfo) => ({

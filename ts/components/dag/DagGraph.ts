@@ -337,10 +337,17 @@ class DagGraph extends Durable {
         nodeInfo["graph"] = this;
         const dagNode: DagNode = DagNodeFactory.create(nodeInfo);
         if (!dagNode.getTitle()) {
-            dagNode.setTitle("Node " + (this.nodesMap.size + 1));
+            dagNode.setTitle(this.generateNodeTitle());
         }
         this.addNode(dagNode);
         return dagNode;
+    }
+
+    /**
+     * Generate node title with format "Node {number}"
+     */
+    public generateNodeTitle(): string {
+        return `Node ${this.nodesMap.size + 1}`;
     }
 
     /**
