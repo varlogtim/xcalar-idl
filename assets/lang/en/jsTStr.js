@@ -144,6 +144,7 @@ CommonTxtTstr = {
     'ClickToOpts': 'Click to see options',
     "ColRenames": "Column Renames",
     "ColRenameInstr": "The columns that you have selected are duplicates. Please rename either or both of the offending columns.",
+    'Columns': 'Columns',
     'Continue': 'Continue',
     'Copy': 'Copy',
     'Create': 'Create',

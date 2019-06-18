@@ -377,6 +377,29 @@ describe("PbTblInfo Test", function() {
         expect(tableInfo.getRowCountStr()).to.equal("~1,000");
     });
 
+    it("should getColCountStr", function() {
+        let tableInfo = new PbTblInfo;
+
+        // case 1
+        tableInfo.active = false;
+        tableInfo.columns = null;
+        expect(tableInfo.getColCountStr()).to.equal("N/A");
+
+        // case 2
+        tableInfo.active = true;
+        expect(tableInfo.getColCountStr()).to.equal("N/A");
+
+        // case 3
+        tableInfo.columns = [];
+        expect(tableInfo.getColCountStr()).to.equal("0");
+
+        // case 4
+        tableInfo.columns = [{"name": "col", "type": ColumnType.string},
+            {"name": "col", "type": ColumnType.string}];
+        expect(tableInfo.getColCountStr()).to.equal("2");
+    });
+
+
     it("_selectTable should work", function(done) {
         let oldFunc = DagGraph.prototype.execute;
         let called = false;

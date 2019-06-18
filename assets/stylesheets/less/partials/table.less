@@ -479,8 +479,14 @@ html.edge {
     display: inline-block;
 
     &:only-child, &.noDrag {
-        .tableGrab {
+        .tableGrab, .dragArea {
             cursor: pointer !important;
+        }
+    }
+
+    &.pTblViewPreview {
+        .tableGrab, .dragArea, .editableHead {
+            cursor: default !important;
         }
     }
 

@@ -804,6 +804,7 @@ module.exports = {
         "ModifiedDate": "Modified Date",
         "Path": "Path",
         "Records": "Records",
+        "Columns": "Columns",
         "DSName": "Dataset Name",
         "clickToView": "Click to View",
         "createDF": "Create Dataflow",

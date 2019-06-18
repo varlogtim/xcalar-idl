@@ -2026,7 +2026,7 @@ class TblManager {
         // listeners on thead
         $thead.on("mousedown", ".flexContainer, .dragArea", (event: any) => {
             const $el: JQuery = $(event.currentTarget);
-            if ($("#container").hasClass("columnPicker")) {
+            if ($("#container").hasClass("columnPicker") || $("#datastorePanel").hasClass("active")) {
                 // not focus when in modal unless bypassModa is true
                 return;
             } else if ($el.closest('.dataCol').length !== 0) {

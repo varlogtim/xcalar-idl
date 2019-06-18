@@ -191,6 +191,16 @@ class PbTblInfo {
         return rows;
     }
 
+    public getColCountStr(): string {
+        let cols: string;
+        if (this.active && this.columns != null) {
+            cols = xcStringHelper.numToStr(this.columns.length);
+        } else {
+            cols = "N/A";
+        }
+        return cols;
+    }
+
     private _selectTable(limitedRows: number): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const graph: DagGraph = new DagGraph();

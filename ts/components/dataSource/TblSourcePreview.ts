@@ -183,6 +183,9 @@ class TblSourcePreview {
             key: "rows",
             text: CommonTxtTstr.Rows
         }, {
+            key: "cols",
+            text: CommonTxtTstr.Columns
+        },  {
             key: "size",
             text: CommonTxtTstr.Size
         }, {
@@ -390,6 +393,7 @@ class TblSourcePreview {
                 $container.removeClass("loading");
                 TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
             }
+            $("#pTblView .xcTableWrap").addClass("undraggable").addClass('pTblViewPreview');
             deferred.resolve();
         })
         .fail((error) => {

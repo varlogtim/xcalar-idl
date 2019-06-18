@@ -282,6 +282,10 @@ class DSTable {
         return $("#dsInfo-records");
     }
 
+    private static _getDSInfoColEl(): JQuery {
+        return $("#dsInfo-cols");
+    }
+
     private static _getDSInfoErrorEl(): JQuery {
         return $("#dsInfo-error");
     }
@@ -386,6 +390,12 @@ class DSTable {
             numEntriesStr = CommonTxtTstr.NA;
         }
 
+        let numColumnsStr: string;
+        if (dsObj.getColumns() != null) {
+            numColumnsStr = xcStringHelper.numToStr(dsObj.getColumns().length);
+        }
+
+        this._getDSInfoColEl().text(numColumnsStr);
         this._getDSInfoRecordEl().text(numEntriesStr);
         if (preFetch || postFetch) {
             this._toggleErrorIcon(dsObj);

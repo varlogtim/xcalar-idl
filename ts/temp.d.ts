@@ -179,6 +179,7 @@ interface PbTblDisplayInfo {
     index: number;
     name: string;
     rows: string;
+    cols: string;
     size: string;
     createTime: string;
     status: PbTblStatus;
