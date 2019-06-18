@@ -235,7 +235,7 @@ SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging, sessi
         }
         rowsToFetch = Math.min(rowsToFetch, resultMeta.totalRows);
         return SqlUtil.fetchData(resultMeta.resultSetId, rowPosition, rowsToFetch,
-                         resultMeta.totalRows, [], 0, 0, sessionInfo);
+                         resultMeta.totalRows, sessionInfo);
     })
     .then(function(ret) {
         if (!usePaging && resultMeta.resultSetId != null) {

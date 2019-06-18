@@ -85,11 +85,15 @@ class SqlManager {
         return XcalarGetVersion();
     };
 
-    private activateWkbk(activeSessionNames: string[], wkbkName: string):
-        JQueryPromise<any> {
+    private activateWkbk(
+        activeSessionNames: string[],
+        sessionInfo: SessionInfo
+    ):JQueryPromise<any> {
         const deferred = PromiseHelper.deferred();
-        if (activeSessionNames.indexOf(wkbkName) < 0) {
-            XcalarActivateWorkbook(wkbkName)
+        let {userName, userId, sessionName} = sessionInfo;
+        if (activeSessionNames.indexOf(sessionName) < 0) {
+            this.SqlUtil.setSessionInfo(userName, userId, sessionName);
+            XcalarActivateWorkbook(sessionName)
             .then(() => {
                 deferred.resolve("newly activated");
             })
@@ -102,16 +106,18 @@ class SqlManager {
         return deferred.promise();
     }
 
-    goToSqlWkbk(workbook?: string): JQueryPromise<any> {
-        let wkbkName: string = workbook || "sql-workbook";
+    goToSqlWkbk(sessionInfo: SessionInfo): JQueryPromise<any> {
+        sessionInfo.sessionName = sessionInfo.sessionName || "sql-workbook";
         let deferred: any = PromiseHelper.deferred();
         let activeSessionNames: string[] = [];
         let sqlSession: any = null;
+        let {userName, userId, sessionName} = sessionInfo;
 
+        this.SqlUtil.setSessionInfo(userName, userId, sessionName);
         XcalarListWorkbooks("*", true)
         .then((res: XcalarApiSessionListOutput): any => {
             res.sessions.forEach((session) => {
-                if (session.name === wkbkName) {
+                if (session.name === sessionName) {
                     sqlSession = session;
                 }
                 if (session.state === "Active") {
@@ -119,21 +125,22 @@ class SqlManager {
                 }
             });
             if (sqlSession == null) {
-                return XcalarNewWorkbook(wkbkName, false);
+                this.SqlUtil.setSessionInfo(userName, userId, sessionName);
+                return XcalarNewWorkbook(sessionName, false);
             }
         })
         .then(() => {
-            return this.activateWkbk(activeSessionNames, wkbkName);
+            return this.activateWkbk(activeSessionNames, sessionInfo);
         }, (error: any): any => {
             if (error.status === StatusT.StatusSessionExists) {
-                return this.activateWkbk(activeSessionNames, wkbkName);
+                return this.activateWkbk(activeSessionNames, sessionInfo);
             } else {
                 return PromiseHelper.reject(error);
             }
         })
         .then((ret: any) => {
-            xcConsole.log("Activated workbook " + wkbkName + ": ", ret);
-            setSessionName(wkbkName);
+            xcConsole.log("Activated workbook " + sessionName + ": ", ret);
+            setSessionName(sessionName);
             deferred.resolve(ret);
         })
         .fail((err) => {
@@ -143,13 +150,21 @@ class SqlManager {
         return deferred.promise();
     }
 
-    setupConnection(userIdName?: string, userIdUnique?: string | number,
-        wkbkName?: string): JQueryPromise<any> {
+    setupConnection(
+        userIdName: string,
+        userIdUnique: number,
+        wkbkName: string
+    ): JQueryPromise<any> {
+        let sessionInfo: SessionInfo = {
+            userName: userIdName,
+            userId: userIdUnique,
+            sessionName: wkbkName,
+        }
         let deferred: any = this.jQuery.Deferred();
         this.connect("localhost", userIdName, userIdUnique)
         .then(() => {
             xcConsole.log("connected  to localhost");
-            return this.goToSqlWkbk(wkbkName);
+            return this.goToSqlWkbk(sessionInfo);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -158,7 +173,7 @@ class SqlManager {
 
     executeSqlWithExtPlan(execid: string, planStr: string,
         rowsToFetch: number, sessionPrefix: string, checkTime: number,
-        queryName: string): JQueryPromise<any> {
+        queryName: string, sessionInfo: SessionInfo): JQueryPromise<any> {
         let deferred: any = PromiseHelper.deferred();
         if (rowsToFetch == null) {
             rowsToFetch = 10; // default to be 10
@@ -175,7 +190,8 @@ class SqlManager {
         let compilerObject: any = new SQLCompiler();
         this._sqlQueryObjects[name] = compilerObject;
 
-        this.setupConnection()
+        let {userName, userId, sessionName} = sessionInfo;
+        this.setupConnection(userName, userId, sessionName)
         .then((): JQueryPromise<any> => {
             return compilerObject.compile(queryName, planStr, true, option);
         })
@@ -203,17 +219,21 @@ class SqlManager {
             deferred.reject(retObj);
         })
         .always(() => {
-            XIApi.deleteTable(1, params.sessionPrefix + "*");
+            this.SqlUtil.setSessionInfo(userName, userId, sessionName);
+            XIApi.deleteTable(1, sessionPrefix + "*");
         });
 
         return deferred.promise();
     };
 
     private listAllTables(pattern: string, pubTables: Map<string, string>,
-        xdTables: Map<string, string>): JQueryPromise<any> {
+        xdTables: Map<string, string>,
+        sessionInfo: SessionInfo): JQueryPromise<any> {
         let deferred: any = PromiseHelper.deferred();
         let patternMatch: string = pattern || "*";
         let tableListPromiseArray: JQueryPromise<any>[] = [];
+        let {userName, userId, sessionName} = sessionInfo;
+        this.SqlUtil.setSessionInfo(userName, userId, sessionName);
         tableListPromiseArray.push(XcalarListPublishedTables(patternMatch));
         tableListPromiseArray.push(XcalarGetTables(patternMatch));
         PromiseHelper.when.apply(this, tableListPromiseArray)
@@ -526,7 +546,8 @@ class SqlManager {
             prom = this.listPublishedTables('*');
         }
         else {
-            prom = this.listAllTables('*', pubTablesMap, xdTablesMap);
+            prom = this.listAllTables('*', pubTablesMap, xdTablesMap,
+                                        sessionInfo);
         }
         prom
         .then((ret: any) => {
@@ -679,6 +700,8 @@ class SqlManager {
         this.setupConnection(params.userName, params.userId, params.sessionName)
         .then(() => {
             sqlHistoryObj["startTime"] = new Date();
+            this.SqlUtil.setSessionInfo(params.userName, params.userId,
+                                        params.sessionName);
             SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
             let sessionInfo: SessionInfo = {
                 "userName": params.userName,
@@ -727,8 +750,6 @@ class SqlManager {
                 sqlQueryObj.checkTime = params.checkTime;
             }
             this._sqlQueryObjects[queryId] = sqlQueryObj;
-            this.SqlUtil.setSessionInfo(params.userName, params.userId,
-                                            params.sessionName);
             if (this._workerFlag) {
                 let workerData: SQLWorkerData = {
                     sqlQueryObj: sqlQueryObj,
@@ -856,17 +877,21 @@ class SqlManager {
         return deferred.promise();
     };
 
-    private loadDatasets(args: SQLLoadInput): JQueryPromise<string> {
+    private loadDatasets(args: SQLLoadInput, sessionInfo: SessionInfo):
+        JQueryPromise<string> {
         let dsArgs: SQLLoadInput["dsArgs"] = args.dsArgs;
         let formatArgs: SQLLoadInput["formatArgs"] = args.formatArgs;
         let txId: SQLLoadInput["txId"] = args.txId;
         let importTable: SQLLoadInput["importTable"] = args.importTable;
         let sqlDS: SQLLoadInput["sqlDS"] = args.sqlDS;
+        let {userName, userId, sessionName} = sessionInfo;
 
         let deferred: any = PromiseHelper.deferred();
+        this.SqlUtil.setSessionInfo(userName, userId, sessionName);
         XIApi.load(dsArgs, formatArgs, sqlDS, txId)
         .then((): JQueryPromise<string> => {
             xcConsole.log("load dataset");
+            this.SqlUtil.setSessionInfo(userName, userId, sessionName);
             return XIApi.indexFromDataset(txId, sqlDS, importTable, "p");
         })
         .then(deferred.resolve)
@@ -875,13 +900,14 @@ class SqlManager {
     }
 
     private getDerivedCol(txId: number, tableName: string, schema: any,
-        dstTable: string): JQueryPromise<any> {
+        dstTable: string, sessionInfo: SessionInfo): JQueryPromise<any> {
         let deferred: any = PromiseHelper.deferred();
         let newSchema: any[] = [];
         let mapStrs: string[] = [];
         let newColNames: string[] = [];
         let newTableName: string =
             xcHelper.randName("tempTable") + Authentication.getHashId();
+        let {userName, userId, sessionName} = sessionInfo;
         schema.forEach((cell: any): void => {
             let colName: string = Object.keys(cell)[0];
             let type: string = cell[colName];
@@ -910,6 +936,7 @@ class SqlManager {
             return XIApi.project(txId, newColNames, newTableName, dstTable);
         })
         .then((): void => {
+            this.SqlUtil.setSessionInfo(userName, userId, sessionName);
             XIApi.deleteTable(txId, tableName);
             XIApi.deleteTable(txId, newTableName);
             deferred.resolve(newSchema);
@@ -920,11 +947,12 @@ class SqlManager {
     }
 
     convertToDerivedColAndGetSchema(txId: number, tableName: string,
-        dstTable: string): JQueryPromise<any> {
+        dstTable: string, sessionInfo: SessionInfo): JQueryPromise<any> {
         let deferred: any = PromiseHelper.deferred();
-        this.SqlUtil.getSchema(tableName)
+        this.SqlUtil.getSchema(tableName, null, sessionInfo)
         .then((res: any): JQueryPromise<any> => {
-            return this.getDerivedCol(txId, tableName, res.schema, dstTable);
+            return this.getDerivedCol(txId, tableName, res.schema, dstTable,
+                        sessionInfo);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -932,7 +960,8 @@ class SqlManager {
         return deferred.promise();
     }
 
-    sqlLoad(path: string): JQueryPromise<SQLLoadReturnMsg> {
+    sqlLoad(path: string, sessionInfo: SessionInfo):
+        JQueryPromise<SQLLoadReturnMsg> {
         let sqlTable: string = xcHelper.randName("SQL") +
                                     Authentication.getHashId();
         let sqlTableAlias: string = "sql";
@@ -952,18 +981,20 @@ class SqlManager {
         args.txId = 1;
         args.sqlDS = xcHelper.randName("sql.12345.ds");
 
-        this.connect("localhost")
+        this.connect("localhost", sessionInfo.userName)
         .then((): JQueryPromise<any> => {
             xcConsole.log("connected");
-            return this.goToSqlWkbk();
+            return this.goToSqlWkbk(sessionInfo);
         })
         .then((): JQueryPromise<string> => {
-            return this.loadDatasets(args);
+            return this.loadDatasets(args, sessionInfo);
         })
         .then((): JQueryPromise<any> => {
             xcConsole.log("create table");
             return this.convertToDerivedColAndGetSchema(args.txId,
-                                                        args.importTable, sqlTable);
+                                                        args.importTable,
+                                                        sqlTable,
+                                                        sessionInfo);
         })
         .then((schema: any): void => {
             let res: SQLLoadReturnMsg = {
@@ -1084,9 +1115,11 @@ class SqlManager {
         return deferred.promise();
     };
 
-    cancelQuery(queryName: string): any {
+    cancelQuery(queryName: string, sessionInfo: SessionInfo): any {
         let deferred: any = PromiseHelper.deferred();
         let sqlQueryObj = this._sqlQueryObjects[queryName];
+        let {userName, userId, sessionName} = sessionInfo;
+        this.SqlUtil.setSessionInfo(userName, userId, sessionName);
         if (sqlQueryObj) {
             return sqlQueryObj.setStatus(SQLStatus.Cancelled);
         } else {
@@ -1097,6 +1130,7 @@ class SqlManager {
                     status: SQLStatus.Cancelled,
                     endTime: new Date()
                 };
+                this.SqlUtil.setSessionInfo(userName, userId, sessionName);
                 SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
                 deferred.resolve();
             })

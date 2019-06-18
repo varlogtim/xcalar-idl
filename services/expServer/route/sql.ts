@@ -13,8 +13,13 @@ const defaultSQLTimeout: number = process.env.EXP_SQL_TIMEOUT &&
 
 router.post("/xcedf/load", function(req, res) {
     let path: string = req.body.path;
+    let sessionInfo: SessionInfo = {
+        userName: req.body.userName,
+        userId: req.body.userId,
+        sessionName: req.body.sessionName,
+    }
     xcConsole.log("load sql path", path);
-    sqlManager.sqlLoad(path)
+    sqlManager.sqlLoad(path, sessionInfo)
     .then(function(output: any): void {
         xcConsole.log("sql load finishes");
         res.send(output);
@@ -36,10 +41,16 @@ router.post("/deprecated/select", function(req, res) {
     let sessionPrefix: string = req.body.sessionId;
     let cleanup: boolean = (req.body.cleanup === "true");
     let checkTime: number = parseInt(req.body.checkTime);
+    let sessionInfo: SessionInfo = {
+        userName: req.body.userName,
+        userId: req.body.userId,
+        sessionName: req.body.sessionName,
+    }
     checkTime = isNaN(checkTime) ? undefined : checkTime;
     sessionPrefix = "src" + sessionPrefix.replace(/-/g, "") + "_";
     xcConsole.log("load from published table: ", publishNames);
-    sqlManagerDeprecated.sqlSelect(publishNames, sessionPrefix, cleanup, checkTime)
+    sqlManagerDeprecated.sqlSelect(publishNames, sessionPrefix, cleanup,
+                                    checkTime, sessionInfo)
     .then(function(output) {
         xcConsole.log("sql load published table finishes");
         res.send(output);
@@ -187,11 +198,11 @@ router.post("/xcsql/result", [support.checkAuth], function(req, res) {
         userId: req.body.userId,
         sessionName: req.body.sessionName
     }
-    const {userName, userId, sessionName} = sessionInfo;
+    let {userName, userId, sessionName} = sessionInfo;
     sqlManager.setupConnection(userName, userId, sessionName)
     .then(function() {
         return SqlUtil.fetchData(resultSetId, rowPosition, rowsToFetch,
-                            totalRows, [], 0, 0, sessionInfo);
+                            totalRows, sessionInfo);
     })
     .then(function(data: any): void {
         let result: any = SqlUtil.parseRows(data, schema, renameMap);
@@ -212,10 +223,15 @@ router.post("/xcsql/getTable", [support.checkAuth], function (req, res) {
     let userName: string = req.body.userName;
     let userId: number = req.body.userId;
     let sessionName: string = req.body.sessionName;
+    let sessionInfo: SessionInfo = {
+        userName: userName,
+        userId: userId,
+        sessionName: sessionName,
+    }
     sqlManager.setupConnection(userName, userId, sessionName)
     .then(function(): JQueryPromise<any> {
         return SqlUtil.getRows(tableName, rowPosition, rowsToFetch, false,
-            {userName: userName, userId: userId, sessionName: sessionName});
+            sessionInfo);
     })
     .then(function(data: any): void {
         let cleanedData: any[] = [];
@@ -234,7 +250,7 @@ router.post("/xcsql/clean", [support.checkAuth], function(req, res) {
     let tableName: string = req.body.tableName;
     let resultSetId: string = req.body.resultSetId;
     let userName: string = req.body.userName;
-    let userId: string = req.body.userId;
+    let userId: number = req.body.userId;
     let sessionName: string = req.body.sessionName;
     sqlManager.setupConnection(userName, userId, sessionName)
     .then(function() {
@@ -267,10 +283,15 @@ router.post("/xdh/query", [support.checkAuth], function(req, res) {
     let limit: any = req.body.limit;
     let sessionPrefix: string = req.body.sessionId;
     let checkTime: number = parseInt(req.body.checkTime);
+    let sessionInfo: SessionInfo = {
+        userName: req.body.userName,
+        userId: req.body.userId,
+        sessionName: req.body.sessionName,
+    }
     checkTime = isNaN(checkTime) ? undefined : checkTime;
     sessionPrefix = "sql" + sessionPrefix.replace(/-/g, "") + "_";
     sqlManager.executeSqlWithExtPlan(execid, plan, limit, sessionPrefix,
-        checkTime, queryName)
+        checkTime, queryName, sessionInfo)
     .then(function (output: any): void {
         xcConsole.log("sql query finishes");
         res.send(output);
@@ -283,7 +304,8 @@ router.post("/xdh/query", [support.checkAuth], function(req, res) {
 
 router.post("/xcsql/list", [support.checkAuth], function(req, res) {
     let pattern: string = req.body.pattern;
-    sqlManager.connect("localhost")
+    let userName: string = req.body.userName;
+    sqlManager.connect("localhost", userName)
     .then(function(): JQueryPromise<any> {
         xcConsole.log("connected");
         return sqlManager.listPublishedTables(pattern);
@@ -314,12 +336,21 @@ router.post("/xcsql/list", [support.checkAuth], function(req, res) {
 router.post("/xcsql/cancel", [support.checkAuth], function(req, res) {
     let queryName: string = req.body.queryName;
     let userName: string = req.body.userName;
-    let userId: string = req.body.userId;
+    let userId: number = req.body.userId;
     let sessionName: string = req.body.sessionName;
+    let sessionInfo: SessionInfo = {
+        userName: userName,
+        userId: userId,
+        sessionName: sessionName,
+    }
     sqlManager.setupConnection(userName, userId, sessionName)
     .then(function() {
-        SqlUtil.setSessionInfo(userName, userId, sessionName);
-        return sqlManager.cancelQuery(queryName)
+        let sessionInfo = {
+            userName: userName,
+            userId: userId,
+            sessionName: sessionName,
+        }
+        return sqlManager.cancelQuery(queryName, sessionInfo);
     })
     .then(function(): void {
         xcConsole.log("query cancelled");

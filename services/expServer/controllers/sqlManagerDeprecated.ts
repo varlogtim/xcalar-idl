@@ -9,8 +9,10 @@ class SqlManagerDeprecated {
     private constructor() {}
 
     // Deprecated
-    cleanAllTables(allIds: string[], checkTime: number): JQueryPromise<any> {
+    cleanAllTables(allIds: string[], checkTime: number, sessionInfo: SessionInfo):
+        JQueryPromise<any> {
         let queryArray: XcalarDeleteQuery[] = [];
+        let {userName, userId, sessionName} = sessionInfo;
         for (let i: number = 0; i < allIds.length; i++) {
             let query: XcalarDeleteQuery = {
                             "operation": "XcalarApiDeleteObjects",
@@ -27,7 +29,7 @@ class SqlManagerDeprecated {
 
     // Deprecated
     private finalizeTable(publishArgsList: SQLPublishInput[], cleanup: boolean,
-        checkTime: number): JQueryPromise<any> {
+        checkTime: number, sessionInfo: SessionInfo): JQueryPromise<any> {
         let deferred: any = PromiseHelper.deferred();
         let res: SQLPublishReturnMsg[] = [];
         let promiseArray: any[] = [];
@@ -37,7 +39,8 @@ class SqlManagerDeprecated {
 
                 sqlManager.convertToDerivedColAndGetSchema(publishArgs.txId,
                                                         publishArgs.importTable,
-                                                        publishArgs.sqlTable)
+                                                        publishArgs.sqlTable,
+                                                        publishArgs.sessionInfo)
                 .then((schema: any): void => {
                     res.push({
                         table: publishArgs.publishName,
@@ -57,7 +60,7 @@ class SqlManagerDeprecated {
             whenCallReturned = true;
             if (cleanup) {
                 xcConsole.log("clean up after select");
-                return this.cleanAllTables(sqlTables, checkTime);
+                return this.cleanAllTables(sqlTables, checkTime, sessionInfo);
             }
         })
         .then((): void => {
@@ -84,13 +87,13 @@ class SqlManagerDeprecated {
 
     // Already deprecated
     sqlSelect(publishNames: string[], sessionPrefix: string, cleanup: boolean,
-        checkTime: number): JQueryPromise<any> {
+        checkTime: number, sessionInfo: SessionInfo): JQueryPromise<any> {
         let deferred: any = PromiseHelper.deferred();
         let publishArgsList: SQLPublishInput[] = [];
-        sqlManager.connect("localhost")
+        sqlManager.connect("localhost", sessionInfo.userName)
         .then((): JQueryPromise<any> => {
             xcConsole.log("Connected. Going to workbook...");
-            return sqlManager.goToSqlWkbk();
+            return sqlManager.goToSqlWkbk(sessionInfo);
         })
         .then((): XcalarSelectQuery[] => {
             xcConsole.log("Selecting published tables: ", publishNames);
@@ -101,14 +104,15 @@ class SqlManagerDeprecated {
                     importTable: xcHelper.randName("importTable") +
                                                         Authentication.getHashId(),
                     txId: 1,
-                    publishName: name
+                    publishName: name,
+                    sessionInfo: sessionInfo,
                 };
             });
             return sqlManager.selectPublishedTables(publishArgsList, checkTime);
         })
         .then((): JQueryPromise<any> => {
             xcConsole.log("Finalizing tables");
-            this.finalizeTable(publishArgsList, cleanup, checkTime)
+            this.finalizeTable(publishArgsList, cleanup, checkTime, sessionInfo)
             .then(deferred.resolve)
             .fail((errors: any): void => {
                 deferred.reject(errors[0]);

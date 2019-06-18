@@ -116,6 +116,7 @@ interface SQLPublishInput {
     publishName: string,
     txId?: number,
     sqlTable?: string,
+    sessionInfo?: SessionInfo
 }
 
 interface SQLPublishReturnMsg {
