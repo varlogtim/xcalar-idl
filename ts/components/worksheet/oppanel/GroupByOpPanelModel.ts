@@ -123,8 +123,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _initialize(paramsRaw, _strictCheck?: boolean, isSubmit?: boolean) {
-        const self = this;
-
         this.icv = paramsRaw.icv || false;
         this.includeSample = paramsRaw.includeSample || false;
         this.joinBack = paramsRaw.joinBack || false;
@@ -172,17 +170,21 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 if (opInfo.argDescs[1]) { // listAggs accepts a 2nd argument
                     isOptional = this._isOptional(opInfo, 1);
                     argInfo = new OpPanelArg(argGroup.delim, opInfo.argDescs[1].typesAccepted, isOptional, true);
-                    argInfo.setFormattedValue(argGroup.delim);
                     args.push(argInfo);
                 }
             }
 
-            args.forEach((arg) => {
+            args.forEach((arg, index) => {
                 const rawValue = arg.getValue();
-                const value = self.formatArgToUI(rawValue);
+                let value;
+                if (index === 1) {
+                    value = rawValue;
+                } else {
+                    value = this.formatArgToUI(rawValue);
+                }
                 arg.setValue(value);
                 arg.setFormattedValue(rawValue);
-                self._validateArg(arg);
+                this._validateArg(arg);
             });
 
             groups.push({
@@ -209,7 +211,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 sourceColumn = "";
                 cast = null;
             }
-            let aggregateInfo = {
+            let aggregateInfo: any = {
                 operator: group.operator,
                 sourceColumn: sourceColumn,
                 destColumn: group.newFieldName,

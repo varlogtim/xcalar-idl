@@ -114,7 +114,8 @@ class MapOpPanel extends GeneralOpPanel {
             });
 
             for (let j = 0; j < model.groups[i].args.length; j++) {
-                let arg = model.groups[i].args[j].getValue();
+                let arg: OpPanelArg = model.groups[i].args[j];
+                let argVal: string = arg.getValue();
                 if (!$args.eq(j).length) {
                     if ($group.find(".addArgWrap").length) {
                         $group.find(".addArg").last().click(); // change this
@@ -126,17 +127,17 @@ class MapOpPanel extends GeneralOpPanel {
                     }
                 }
 
-                $args.eq(j).val(arg);
+                $args.eq(j).val(argVal);
                 if ($args.eq(j).closest(".row").hasClass("boolOption")) {
-                    if (arg === "true") {
+                    if (argVal === "true") {
                         $args.eq(j).closest(".row")
                                 .find(".boolArgWrap .checkbox")
                                 .addClass("checked");
                     }
-                } else if (model.groups[i].args[j].checkIsEmptyString()) {
+                } else if (arg.checkIsEmptyString()) {
                     this._showEmptyOptions($args.eq(j));
                     $args.eq(j).closest(".row").find(".emptyStrWrap").click();
-                } else if (model.groups[i].args[j].hasNoneChecked()) {
+                } else if (arg.hasNoneChecked()) {
                     this._showEmptyOptions($args.eq(j));
                     $args.eq(j).closest(".row").find(".noArgWrap").click();
                 }

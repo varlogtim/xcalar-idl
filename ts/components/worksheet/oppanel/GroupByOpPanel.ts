@@ -594,7 +594,7 @@ class GroupByOpPanel extends GeneralOpPanel {
                         types.indexOf(ColumnType.undefined) > -1)) {
                     // one case is the "contains" function
                     this._addBoolCheckbox($input);
-                } else {
+                } else if (i !== 1 || operObj.displayName !== "listAgg") {
                     this._showEmptyOptions($input);
                 }
             } else {
