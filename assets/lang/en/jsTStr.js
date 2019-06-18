@@ -123,6 +123,7 @@ TooltipTStr = {
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",
     "SystemGood": "All Systems Good",
+    "CloseConfigForm": "Exit the configuration form to perform this action",
 
     // with replace
     'Undo': 'Undo: <op>',

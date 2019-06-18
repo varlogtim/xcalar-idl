@@ -825,16 +825,22 @@ namespace DagNodeMenu {
     }
 
     function adjustMenuForOpenForm(enableConfig?: boolean) {
+        let $lis: JQuery = $menu.find(".executeNode, .executeAllNodes, " +
+                        ".executeNodeOptimized, .executeAllNodesOptimized, " +
+                        ".resetNode, .resetAllNodes, .cutNodes, " +
+                        ".createCustom, .removeNode, .removeAllNodes");
+        xcTooltip.remove($lis.add($menu.find(".configureNode")));
+
         if (!FormHelper.activeForm) {
             return;
         }
+
         if (!enableConfig) {
             $menu.find(".configureNode").addClass("unavailable");
+            xcTooltip.add($menu.find(".configureNode"), {title: TooltipTStr.CloseConfigForm});
         }
-        $menu.find(".executeNode, .executeAllNodes, " +
-                    ".executeNodeOptimized, .executeAllNodesOptimized, " +
-                    ".resetNode, .resetAllNodes, .cutNodes, .createCustom")
-            .addClass("unavailable");
+        $lis.addClass("unavailable");
+        xcTooltip.add($lis, {title: TooltipTStr.CloseConfigForm});
     }
 
     function adjustMenuForBackground() {
