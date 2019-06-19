@@ -505,7 +505,7 @@ namespace DSTargetManager {
             let $funcLis = $udfFuncList.find(".list li").addClass("hidden")
             .filter(function() {
                 let relativeModule = $(this).data("module").split("/").pop();
-                return relativeModule === module;
+                return relativeModule === moduleName;
             }).removeClass("hidden");
             if ($funcLis.length === 1) {
                 selectUDFFunc($funcLis.eq(0).text());
@@ -560,7 +560,7 @@ namespace DSTargetManager {
                     let inValid: boolean = true;
                     $udfFuncList.find(".list li").each(function() {
                         let relativeModule = $(this).data("module").split("/").pop();
-                    if (relativeModule === module && $(this).text() === func){
+                    if (relativeModule === moduleName && $(this).text() === func){
                         inValid = false;
                         return false;
                     }
