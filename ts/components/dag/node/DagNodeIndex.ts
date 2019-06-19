@@ -38,7 +38,7 @@ class DagNodeIndex extends DagNode {
         };
     }
 
-    protected _getSerializeInfo(includeStats?: boolean):DagNodeIndexInfo {
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeIndexInfo {
         const serializedInfo: DagNodeIndexInfo = <DagNodeIndexInfo>super._getSerializeInfo(includeStats);
         if (this.columns) {
             const columns = this.columns.map((progCol) => {
@@ -55,7 +55,7 @@ class DagNodeIndex extends DagNode {
     protected _genParamHint(): string {
         let hint: string = "";
         const input: DagNodeIndexInputStruct = this.getParam();
-        if (input.columns) {
+        if (input.columns && input.columns.length) {
             hint = `Index on: ${input.columns.join(", ")}`;
         }
         return hint;
