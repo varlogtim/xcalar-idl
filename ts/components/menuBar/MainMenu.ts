@@ -167,7 +167,9 @@ namespace MainMenu {
                     $subTab.click();
                 }
             }
-            sizeRightPanel();
+            if (_isMenuOpen) {
+                sizeRightPanel();
+            }
         }
     };
 
