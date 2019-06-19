@@ -14,6 +14,8 @@ export * from './ServiceClientFactory';
 import * as Error from './ServiceError';
 export { Error };
 export { EnumMap } from 'xcalar';
+import * as Debug from './Common/Debug';
+export { Debug };
 
 // Services
 // Wrap the services in its own namesapce to avoid name confliction

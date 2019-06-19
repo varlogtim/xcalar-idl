@@ -1,14 +1,10 @@
 
 import { UserDefinedFunctionService as ApiUDF, XceClient as ApiClient } from 'xcalar';
 import { ServiceError, ErrorType } from '../ServiceError';
+import { SCOPE as UDFSCOPE, ScopeInfo, createScopeMessage } from '../Common/Scope';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
 class UDFService {
-    public static readonly UDFSCOPE = {
-        GLOBAL: ProtoTypes.Workbook.ScopeType.GLOBALSCOPETYPE,
-        WORKBOOK: ProtoTypes.Workbook.ScopeType.WORKBOOKSCOPETYPE
-    };
-
     private _apiClient: ApiClient;
 
     constructor(apiClient: ApiClient) {
@@ -161,34 +157,15 @@ class UDFService {
         // XXX need to assing default value correctly
         const { userName = null, workbookName = null } = scopeInfo || {};
 
-        const scope = new ProtoTypes.Workbook.WorkbookScope();
-        if (udfScope === UDFService.UDFSCOPE.GLOBAL) {
-            scope.setGlobl(new ProtoTypes.Workbook.GlobalSpecifier());
-        } else if (udfScope === UDFService.UDFSCOPE.WORKBOOK) {
-            const nameInfo = new ProtoTypes.Workbook.WorkbookSpecifier.NameSpecifier();
-            nameInfo.setUsername(userName);
-            nameInfo.setWorkbookname(workbookName);
-            const workbookInfo = new ProtoTypes.Workbook.WorkbookSpecifier();
-            workbookInfo.setName(nameInfo);
-            scope.setWorkbook(workbookInfo);
-        } else {
-            throw new Error(`Invalid UDF Scope: ${udfScope}`);
-        }
+        const scope = createScopeMessage({
+            scope: udfScope,
+            scopeInfo: { userName: userName, workbookName: workbookName }
+        });
         const udfModule = new ProtoTypes.UDF.UdfModule();
         udfModule.setScope(scope);
         udfModule.setName(moduleName);
         return udfModule;
     }
 }
-
-type ScopeInfo = {
-    userName: string,
-    workbookName: string
-}
-
-enum UDFSCOPE {
-    GLOBAL = ProtoTypes.Workbook.ScopeType.GLOBALSCOPETYPE,
-    WORKBOOK = ProtoTypes.Workbook.ScopeType.WORKBOOKSCOPETYPE
-};
 
 export { UDFService, ScopeInfo, UDFSCOPE };

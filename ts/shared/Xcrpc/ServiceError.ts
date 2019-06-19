@@ -12,7 +12,7 @@ interface XcalarLoadError extends XcalarError {
     errorString: string, errorFile?: string
 }
 interface UnknownError {
-    type: ErrorType, error: any
+    type: ErrorType, error: string
 }
 
 enum ErrorType {
@@ -21,26 +21,30 @@ enum ErrorType {
 }
 
 function parseError(err: any): ServiceError {
-    if (rawErrorCheck.isApiError(err)) {
-        const serviceError = {
-            type: ErrorType.XCALAR,
-            status: err.status, error: err.error,
-        };
-        if (rawErrorCheck.isApiLoadError(err)) {
-            const [errorString, errorFile] =
-                [err.response.getErrorString(), err.response.getErrorFile()];
-            if (errorString != null && errorString.length > 0) {
-                serviceError['errorString'] = errorString;
+    try {
+        if (rawErrorCheck.isApiError(err)) {
+            const serviceError = {
+                type: ErrorType.XCALAR,
+                status: err.status, error: err.error,
+            };
+            if (rawErrorCheck.isApiLoadError(err)) {
+                const [errorString, errorFile] =
+                    [err.response.getErrorString(), err.response.getErrorFile()];
+                if (errorString != null && errorString.length > 0) {
+                    serviceError['errorString'] = errorString;
+                }
+                if (errorFile != null && errorFile.length > 0) {
+                    serviceError['errorFile'] = errorFile;
+                }
             }
-            if (errorFile != null && errorFile.length > 0) {
-                serviceError['errorFile'] = errorFile;
-            }
+            return serviceError;
+        } else if (rawErrorCheck.isNetworkError(err)) {
+            return { type: ErrorType.NETWORK, httpStatus: err.statusCode };
+        } else {
+            return { type: ErrorType.UNKNOWN, error: err.message || JSON.stringify(err) };
         }
-        return serviceError;
-    } else if (rawErrorCheck.isNetworkError(err)) {
-        return { type: ErrorType.NETWORK, httpStatus: err.statusCode };
-    } else {
-        return { type: ErrorType.UNKNOWN, error: err };
+    } catch(e) {
+        return { type: ErrorType.UNKNOWN, error: e.message || JSON.stringify(e) };
     }
 }
 
@@ -72,4 +76,4 @@ function isXcalarLoadError(error: ServiceError): error is XcalarLoadError {
     return error != null && error.type === ErrorType.XCALAR && error.hasOwnProperty('errorString');
 }
 
-export { ServiceError, ErrorType, parseError, isNetworkError, isXcalarError, isXcalarLoadError };
+export { ServiceError, UnknownError, ErrorType, parseError, isNetworkError, isXcalarError, isXcalarLoadError };

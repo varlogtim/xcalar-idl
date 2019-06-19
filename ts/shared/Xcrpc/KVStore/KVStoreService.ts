@@ -1,4 +1,9 @@
 import { KvStoreService as ApiKVStore, XceClient as ApiClient } from 'xcalar';
+import {
+    SCOPE as KVSCOPE,
+    ScopeInfo as KvScopeInfo,
+    createScopeMessage
+} from '../Common/Scope';
 import { ServiceError, ErrorType } from '../ServiceError';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
@@ -18,7 +23,7 @@ class KVStoreService {
      */
 
     public async lookup(param: {
-        keyName: string, kvScope: number, scopeInfo?: ScopeInfo
+        keyName: string, kvScope: number, scopeInfo?: KvScopeInfo
     }): Promise<Value> {
         try {
             // Deconstruct arguments
@@ -28,7 +33,7 @@ class KVStoreService {
             const scopeKey = new ProtoTypes.KvStore.ScopedKey();
             scopeKey.setName(keyName);
 
-            const scope = this._setScopeKey({kvScope: kvScope, scopeInfo:scopeInfo});
+            const scope = createScopeMessage({scope: kvScope, scopeInfo:scopeInfo});
             const request = new ProtoTypes.KvStore.LookupRequest();
             scopeKey.setScope(scope);
             request.setKey(scopeKey);
@@ -53,7 +58,7 @@ class KVStoreService {
 
     public async addOrReplace(param: {
         key: string, value: string, persist: boolean, kvScope: number,
-        scopeInfo?: ScopeInfo
+        scopeInfo?: KvScopeInfo
     }):Promise<void> {
         try {
             const {key, value, persist, kvScope, scopeInfo} = param;
@@ -61,7 +66,7 @@ class KVStoreService {
             const scopeKey = new ProtoTypes.KvStore.ScopedKey();
             scopeKey.setName(key);
 
-            const scope = this._setScopeKey({kvScope: kvScope, scopeInfo:scopeInfo});
+            const scope = createScopeMessage({scope: kvScope, scopeInfo:scopeInfo});
             scopeKey.setScope(scope);
 
             const keyValue = new ProtoTypes.KvStore.KeyValue();
@@ -81,7 +86,7 @@ class KVStoreService {
     }
 
     public async deleteKey(param:{
-        keyName: string, kvScope: number, scopeInfo?: ScopeInfo
+        keyName: string, kvScope: number, scopeInfo?: KvScopeInfo
     }): Promise<void> {
         try {
             const { keyName, kvScope, scopeInfo } = param;
@@ -89,7 +94,7 @@ class KVStoreService {
             const scopeKey = new ProtoTypes.KvStore.ScopedKey();
             scopeKey.setName(keyName);
 
-            const scope = this._setScopeKey({kvScope: kvScope, scopeInfo:scopeInfo});
+            const scope = createScopeMessage({scope: kvScope, scopeInfo:scopeInfo});
             scopeKey.setScope(scope);
 
             const request = new ProtoTypes.KvStore.DeleteKeyRequest();
@@ -103,7 +108,7 @@ class KVStoreService {
     }
 
 
-    public async append(param:{keyName: string, kvScope: number, scopeInfo?: ScopeInfo,
+    public async append(param:{keyName: string, kvScope: number, scopeInfo?: KvScopeInfo,
         persist:boolean, kvSuffix: string}) : Promise<void>
     {
         try {
@@ -111,7 +116,7 @@ class KVStoreService {
             const scopeKey = new ProtoTypes.KvStore.ScopedKey();
             scopeKey.setName(keyName);
 
-            const scope = this._setScopeKey({kvScope: kvScope, scopeInfo:scopeInfo});
+            const scope = createScopeMessage({scope: kvScope, scopeInfo:scopeInfo});
             const request = new ProtoTypes.KvStore.AppendRequest();
             scopeKey.setScope(scope);
             request.setKey(scopeKey);
@@ -134,14 +139,14 @@ class KVStoreService {
     }
 
 
-    public async setIfEqual (params: {kvScope: number, scopeInfo?: ScopeInfo,
+    public async setIfEqual (params: {kvScope: number, scopeInfo?: KvScopeInfo,
         persist:boolean, countSecondaryPairs: number, kvKeyCompare: string, kvValueCompare: string, kvValueReplace: string, kvKeySecondary: string,
         kvValueSecondary: string}): Promise<{noKV:boolean}>{
             try {
                 const {kvScope, scopeInfo, persist, countSecondaryPairs, kvKeyCompare, kvValueCompare, kvValueReplace, kvKeySecondary,
                     kvValueSecondary} = params
 
-                const scope = this._setScopeKey({kvScope: kvScope, scopeInfo:scopeInfo});
+                const scope = createScopeMessage({scope: kvScope, scopeInfo:scopeInfo});
                 const request = new ProtoTypes.KvStore.SetIfEqualRequest()
                 request.setScope(scope);
                 request.setPersist(persist);
@@ -164,12 +169,12 @@ class KVStoreService {
 
     }
 
-    public async list (param:{kvScope: number, scopeInfo?: ScopeInfo,
+    public async list (param:{kvScope: number, scopeInfo?: KvScopeInfo,
         kvKeyRegex: string}) : Promise<keyListResponse>
     {
         try {
             const {kvScope, scopeInfo, kvKeyRegex} = param;
-            const scope = this._setScopeKey({kvScope: kvScope, scopeInfo:scopeInfo});
+            const scope = createScopeMessage({scope: kvScope, scopeInfo:scopeInfo});
 
             const request = new ProtoTypes.KvStore.ListRequest();
             request.setScope(scope);
@@ -222,39 +227,7 @@ class KVStoreService {
         };
         throw e;
     }
-
-    private _setScopeKey(param:{kvScope: number,
-        scopeInfo?: ScopeInfo
-    }): ProtoTypes.Workbook.WorkbookScope {
-        const {kvScope, scopeInfo } = param;
-        const { userName = null, workbookName = null } = scopeInfo || {};
-
-        const scope = new ProtoTypes.Workbook.WorkbookScope();
-        if (kvScope === KVSCOPE.GLOBAL) {
-            scope.setGlobl(new ProtoTypes.Workbook.GlobalSpecifier());
-        } else if (kvScope === KVSCOPE.WORKBOOK) {
-            const nameInfo = new ProtoTypes.Workbook.WorkbookSpecifier.NameSpecifier();
-            nameInfo.setUsername(userName);
-            nameInfo.setWorkbookname(workbookName);
-            const workbookInfo = new ProtoTypes.Workbook.WorkbookSpecifier();
-            workbookInfo.setName(nameInfo);
-            scope.setWorkbook(workbookInfo);
-        } else {
-            throw new Error(`Invalid kvScope: ${kvScope}`);
-        }
-        return scope;
-    }
 }
-
-type ScopeInfo = {
-    userName: string,
-    workbookName: string
-}
-
-enum KVSCOPE {
-    GLOBAL = ProtoTypes.Workbook.ScopeType.GLOBALSCOPETYPE,
-    WORKBOOK = ProtoTypes.Workbook.ScopeType.WORKBOOKSCOPETYPE
-};
 
 type Value = {
     value: string
@@ -275,4 +248,10 @@ type keyListResponse = {
     keys: Array<string>
 };
 
-export { KVStoreService, ScopeInfo, KVSCOPE, Value, keyListResponse};
+export {
+    KVStoreService,
+    KvScopeInfo as ScopeInfo,
+    KVSCOPE,
+    Value,
+    keyListResponse
+};

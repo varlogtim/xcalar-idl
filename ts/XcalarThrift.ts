@@ -3040,7 +3040,7 @@ XcalarArchiveTable = function(
 // must make sure that the first table that is being passed into XcalarQuery
 // is an unsorted table! Otherwise backend may crash
 // txId does not need to be passed in if xcalarquery not called inside a transaction
-XcalarQuery = function(
+XcalarQueryThrift = function(
     queryName: string,
     queryString: string,
     txId: number,
@@ -3093,6 +3093,76 @@ XcalarQuery = function(
     })
     .fail(function(error) {
         const thriftError = thriftLog("XcalarQuery", error);
+        Log.errorLog("XcalarQuery", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+};
+
+/**
+ * Execute xcalar query with xcrpc API
+ */
+XcalarQuery = function(
+    queryName: string,
+    queryString: string,
+    txId: number,
+    options?: {
+        bailOnError?: boolean,
+        udfUserName?: string,
+        udfSessionName?: string
+    },
+    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+): XDPromise<void> {
+    const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    if (Transaction.checkCanceled(txId)) {
+        console.info('cancelation detected');
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+
+    options = options || {};
+    let bailOnError: boolean = options.bailOnError;
+    // Default behavior is true so if null or undefined, then should be set to true
+    if (bailOnError == null) {
+        bailOnError = true; // Stop running query on error
+    }
+
+    const schedName:string = ""; // New backend flag
+    const udfUserName: string = options.udfUserName;
+    const udfSessionName: string = options.udfSessionName;
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getQueryService().execute({
+            queryName: queryName, queryString: queryString,
+            scheduledName: schedName,
+            scope: Xcrpc.Query.QUERYSCOPE.WORKBOOK, // Hard code to workbook scope, as we don't have a use case execute xcalar query in global scope
+            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }, // If no scopeInfo passed in, use global info
+            options: {
+                udfUserName: udfUserName,
+                udfSessionName: udfSessionName,
+                isBailOnError: bailOnError
+            }
+        })
+    )
+    .then(function() {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            if (txId != null) {
+                Transaction.startSubQuery(txId, queryName, null, queryString);
+            }
+            deferred.resolve();
+        }
+    })
+    .fail(function(error: Xcrpc.Error.ServiceError) {
+        let thriftError: ThriftError = null;
+        if (Xcrpc.Error.isXcalarError(error)) {
+            thriftError = thriftLog('XcalarQuery', {
+                status: error.status
+            });
+            thriftError.error = error.error;
+        } else {
+            thriftError = thriftLog('XcalarQuery', (<Xcrpc.Error.UnknownError>error).error);
+        }
         Log.errorLog("XcalarQuery", null, null, thriftError);
         deferred.reject(thriftError);
     });
@@ -3234,14 +3304,15 @@ XcalarQueryWithCheck = function(
         noCleanup?: boolean,
         udfUserName: string,
         udfSessionName: string
-    }
+    },
+    scopeInfo?: Xcrpc.Query.QueryScopeInfo
 ): XDPromise<XcalarApiQueryStateOutputT> {
     const deferred: XDDeferred<XcalarApiQueryStateOutputT> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    XcalarQuery(queryName, queryString, txId, options)
+    XcalarQuery(queryName, queryString, txId, options, scopeInfo)
     .then(function() {
         return XcalarQueryCheck(queryName, undefined, txId, options);
     })

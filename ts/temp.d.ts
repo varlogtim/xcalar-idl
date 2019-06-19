@@ -611,6 +611,7 @@ declare var XcalarProject: any;
 declare var XcalarUnion: any;
 declare var XcalarGenRowNum: any;
 declare var XcalarArchiveTable: any;
+declare var XcalarQueryThrift: any;
 declare var XcalarQuery: any;
 declare var XcalarQueryState: any;
 declare var XcalarQueryCheck: any;

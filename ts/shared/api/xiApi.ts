@@ -2330,7 +2330,8 @@ namespace XIApi {
             noCleanup?: boolean,
             udfUserName?: string,
             udfSessionName?: string
-        }
+        },
+        scopeInfo?: Xcrpc.Query.QueryScopeInfo
     ): XDPromise<XcalarApiQueryStateOutputT> {
         if (txId == null || queryName == null || queryStr == null) {
             return PromiseHelper.reject("Invalid args in query");
@@ -2385,7 +2386,7 @@ namespace XIApi {
                 udfUserName: txLog.udfUserName,
                 udfSessionName: txLog.udfSessionName
             }, options);
-            XcalarQueryWithCheck(queryName, queryStr, txId, options)
+            XcalarQueryWithCheck(queryName, queryStr, txId, options, scopeInfo)
             .then((res) => {
                 let error: {error: string, log?: string} = null;
                 try {

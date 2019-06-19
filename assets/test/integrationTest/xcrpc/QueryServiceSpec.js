@@ -11,5 +11,13 @@ exports.testSuit = function(QueryService) {
                 expect.fail(err);
             }
         });
+
+        describe("Query.execute() should work", () => {
+            // XXX TODO: test all the xcalar operators
+            // Need session implemented to access the workbook scope
+            it("XCALAR_API_BULK_LOAD", () => {
+                expect(true).to.be.true;
+            });
+        });
     });
 }

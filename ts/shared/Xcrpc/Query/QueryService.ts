@@ -1,17 +1,11 @@
-// Note about Promise:
-// We are using native JS promise(async/await) in the Xcrpc code.
-// However, in order to incorporate with other code which still use JQuery promise,
-// we need to convert promises between different types.
-// 1. xcrpc JS client returns JQuery promise, which can be converted to native promise by PromiseHelper.convertToNative()
-//
-// 2. The code invoking Xcrpc may expect JQuery promise, so use PromiseHelper.convertToJQuery() as needed.
-// import ApiQuery = xce.QueryService;
-// import ApiClient = xce.XceClient;
-// import ProtoTypes = proto.xcalar.compute.localtypes;
-// import ServiceError = Xcrpc.ServiceError;
-
 import { QueryService as ApiQuery, XceClient as ApiClient } from 'xcalar';
-import { ServiceError, ErrorType } from '../ServiceError';
+import {
+    ScopeInfo as QueryScopeInfo,
+    SCOPE as QUERYSCOPE,
+    createScopeMessage
+} from '../Common/Scope';
+import { parseError } from '../ServiceError';
+import { perfAsync } from '../Common/Debug';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
 class QueryService {
@@ -53,11 +47,53 @@ class QueryService {
                 };
             });
         } catch (e) {
-            // XXX TODO: API error handling
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
+        }
+    }
+
+    @perfAsync('Query.execute')
+    public async execute(param: {
+        queryName: string,
+        queryString: string,
+        scheduledName?: string,
+        scope: QUERYSCOPE,
+        scopeInfo?: QueryScopeInfo,
+        options?: {
+            udfUserName?: string,
+            udfSessionName?: string,
+            isSameSession?: boolean,
+            isBailOnError?: boolean,
+            isAsync?: boolean
+        }
+    }): Promise<string> {
+        try {
+            const {
+                queryName, queryString, scheduledName = '',
+                scope, scopeInfo,
+                options = {}
+            } = param;
+            const {
+                udfUserName, udfSessionName,
+                isSameSession = true, isBailOnError = true, isAsync = true
+            } = options;
+
+            const request = new ProtoTypes.Query.ExecuteRequest();
+            request.setQueryName(queryName);
+            request.setQueryStr(queryString);
+            request.setSchedName(scheduledName);
+            request.setUdfUserName(udfUserName);
+            request.setUdfSessionName(udfSessionName);
+            request.setScope(createScopeMessage({ scope: scope, scopeInfo: scopeInfo}));
+            request.setSameSession(isSameSession);
+            request.setBailOnError(isBailOnError);
+            request.setIsAsync(isAsync);
+
+            const queryService = new ApiQuery(this._apiClient);
+            const response = await queryService.execute(request);
+
+            return response.getQueryName();
+        } catch (e) {
+            throw parseError(e);
         }
     }
 }
@@ -68,4 +104,4 @@ type QueryInfo = {
     state: string
 }
 
-export { QueryService, QueryInfo };
+export { QueryService, QueryInfo, QUERYSCOPE, QueryScopeInfo };

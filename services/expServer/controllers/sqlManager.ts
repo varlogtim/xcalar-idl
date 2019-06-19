@@ -832,10 +832,14 @@ class SqlManager {
             // To show better performance, we only display duration of execution
             sqlHistoryObj["startTime"] = new Date();
             sqlHistoryObj["status"] = SQLStatus.Running;
-            this.SqlUtil.setSessionInfo(params.userName, params.userId,
-                                            params.sessionName);
+            const sessionInfo = this.SqlUtil.setSessionInfo(
+                params.userName, params.userId, params.sessionName
+            );
             SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
-            return SQLExecutor.execute(sqlQueryObj);
+            return SQLExecutor.execute(sqlQueryObj, {
+                userName: sessionInfo.userName,
+                workbookName: sessionInfo.sessionName
+            });
         })
         .then((): JQueryPromise<any> => {
             xcConsole.log("Execution finished!");

@@ -1,5 +1,5 @@
 class SQLExecutor {
-    static execute(sqlQueryObj: SQLQuery): XDPromise<any> {
+    static execute(sqlQueryObj: SQLQuery, scopeInfo: Xcrpc.Query.QueryScopeInfo): XDPromise<any> {
         if (!sqlQueryObj.fromExpServer) {
             // Currently SQLExecutor is only used by expServer
             return PromiseHelper.reject(SQLErrTStr.NeedSQLMode);
@@ -18,7 +18,7 @@ class SQLExecutor {
         const options = {
             checkTime: sqlQueryObj.checkTime || 200
         };
-        XIApi.query(txId, sqlQueryObj.queryId, sqlQueryObj.xcQueryString, options)
+        XIApi.query(txId, sqlQueryObj.queryId, sqlQueryObj.xcQueryString, options, scopeInfo)
         .then(function() {
             // jdbc will resolve with cancel status here
             if (arguments && arguments[0] &&

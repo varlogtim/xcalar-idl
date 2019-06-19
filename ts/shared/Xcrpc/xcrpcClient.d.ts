@@ -21,13 +21,14 @@ declare module 'xcalar' {
 
     export class LicenseService {
         constructor(client: XceClient);
-        get(request: proto.xcalar.compute.localtypes.License.GetRequest): XDPromise<proto.xcalar.compute.localtypes.License.GetResponse>;
-        update(request: proto.xcalar.compute.localtypes.License.UpdateRequest): XDPromise<void>;
+        get(request: proto.xcalar.compute.localtypes.License.GetRequest): Promise<proto.xcalar.compute.localtypes.License.GetResponse>;
+        update(request: proto.xcalar.compute.localtypes.License.UpdateRequest): Promise<void>;
     }
 
     export class QueryService {
         constructor(client: XceClient);
-        list(request: proto.xcalar.compute.localtypes.Query.ListRequest): XDPromise<proto.xcalar.compute.localtypes.Query.ListResponse>;
+        list(request: proto.xcalar.compute.localtypes.Query.ListRequest): Promise<proto.xcalar.compute.localtypes.Query.ListResponse>;
+        execute(request: proto.xcalar.compute.localtypes.Query.ExecuteRequest): Promise<proto.xcalar.compute.localtypes.Query.ExecuteResponse>;
     }
 
     export class ResultSetService {
@@ -36,11 +37,11 @@ declare module 'xcalar' {
 
     export class UserDefinedFunctionService {
         constructor(client: XceClient);
-        getResolution(request: proto.xcalar.compute.localtypes.UDF.GetResolutionRequest): XDPromise<proto.xcalar.compute.localtypes.UDF.GetResolutionResponse>;
-        get(request: proto.xcalar.compute.localtypes.UDF.GetRequest): XDPromise<proto.xcalar.compute.localtypes.UDF.GetResponse>;
-        add(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): XDPromise<void>;
-        update(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): XDPromise<void>;
-        delete(request: proto.xcalar.compute.localtypes.UDF.DeleteRequest): XDPromise<void>;
+        getResolution(request: proto.xcalar.compute.localtypes.UDF.GetResolutionRequest): Promise<proto.xcalar.compute.localtypes.UDF.GetResolutionResponse>;
+        get(request: proto.xcalar.compute.localtypes.UDF.GetRequest): Promise<proto.xcalar.compute.localtypes.UDF.GetResponse>;
+        add(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): Promise<void>;
+        update(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): Promise<void>;
+        delete(request: proto.xcalar.compute.localtypes.UDF.DeleteRequest): Promise<void>;
     }
     export class PublishedTableService {
         constructor(client: XceClient)
@@ -55,7 +56,7 @@ declare module 'xcalar' {
 
     export class TableService {
         constructor(client: XceClient);
-        addIndex(request: proto.xcalar.compute.localtypes.Table.IndexRequest): XDPromise<proto.google.protobuf.Empty>;
+        addIndex(request: proto.xcalar.compute.localtypes.Table.IndexRequest): Promise<proto.google.protobuf.Empty>;
     }
 
 }
@@ -402,7 +403,14 @@ declare namespace proto.xcalar.compute.localtypes {
         }
         export class CancelResponse{
         }
-        export class ExecuteRequest{
+
+        export class QueryInfo {
+            getName(): string;
+            getMillisecondsElapsed(): number;
+            getState(): proto.xcalar.compute.localtypes.XcalarEnumType.QueryState;
+        }
+
+        export class ExecuteRequest {
             setSameSession(value: boolean): void;
             setQueryName(value: string): void;
             setQueryStr(value: string): void;
@@ -413,14 +421,9 @@ declare namespace proto.xcalar.compute.localtypes {
             setUdfSessionName(value: string): void;
             setScope(value: Workbook.WorkbookScope): void;
         }
-        export class ExecuteResponse{
-            getQueryName(): string;
-        }
 
-        export class QueryInfo {
-            getName(): string;
-            getMillisecondsElapsed(): number;
-            getState(): proto.xcalar.compute.localtypes.XcalarEnumType.QueryState;
+        export class ExecuteResponse {
+            getQueryName(): string
         }
     }
 

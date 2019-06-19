@@ -135,16 +135,14 @@ var jdbcWkbkName = 'sql-workbook';
 // Set session info every time we make a thrift call
 // TODO might refactor this later
 SqlUtil.setSessionInfo = function(userName, userId, sessionName) {
-    if (!userName) {
-        xcalarApi.setUserIdAndName(defaultUserName, defaultUserId, jQuery.md5);
-    } else {
-        xcalarApi.setUserIdAndName(userName, userId, jQuery.md5);
-    }
-    if (!sessionName) {
-        setSessionName(jdbcWkbkName);
-    } else {
-        setSessionName(sessionName);
-    }
+    const sessionInfo = {
+        userName: userName || defaultUserName,
+        userId: userId || defaultUserId,
+        sessionName: sessionName || jdbcWkbkName
+    };
+    xcalarApi.setUserIdAndName(sessionInfo.userName, sessionInfo.userId, jQuery.md5);
+    setSessionName(sessionInfo.sessionName);
+    return sessionInfo;
 }
 // Table prefix validation
 // Replace every illegal character with _ and make sure it starts with a letter
