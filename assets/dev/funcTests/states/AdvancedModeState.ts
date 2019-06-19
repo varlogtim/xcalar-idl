@@ -53,9 +53,6 @@ class AdvancedModeState extends State {
         let name = "AdvancedMode";
         super(name, stateMachine, verbosity);
 
-        // Sets in the advanced mode
-        this.mode = XVM.Mode.Advanced;
-        XVM.setMode(this.mode);
         //turn off auto execute and auto preview
         UserSettings.setPref("dfAutoExecute", false, false);
         UserSettings.setPref("dfAutoPreview", false, false);
@@ -746,7 +743,12 @@ class AdvancedModeState extends State {
     }
 
     public async takeOneAction() {
-        XVM.setMode(this.mode);
+        try {
+            await XVM.setMode(this.mode);
+        } catch (error) {
+            console.log(`Error switching mode to ${this.mode}`);
+            throw error
+        }
         let randomAction = Util.pickRandom(this.availableActions);
         let newState = this;
         try {

@@ -156,7 +156,13 @@ class WorkbookState extends State {
     private async createNewWorkbook(): XDPromise<WorkbookState> {
         let wkbkName = this.getUniqueRandName();
         this.log(`Creating workbook ${wkbkName}`);
-        const wkbkId = await WorkbookManager.newWKBK(wkbkName);
+        let wkbkId;
+        try {
+            wkbkId = await WorkbookManager.newWKBK(wkbkName);
+        } catch (error) {
+            this.log(`Error creating workbook ${wkbkName}`);
+            throw error;
+        }
         this.log(`Created workbook ${wkbkId}!`);
         this.addAction(this.activateWorkbook);
         this.addAction(this.copyWorkbook);

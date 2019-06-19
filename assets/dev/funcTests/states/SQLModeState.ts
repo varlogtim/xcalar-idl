@@ -25,10 +25,6 @@ class SQLModeState extends State {
         let name = "SQLMode";
         super(name, stateMachine, verbosity);
 
-        // Set up the sql mode
-        this.mode = XVM.Mode.SQL;
-        XVM.setMode(this.mode);
-
         //turn off auto execute and auto preview for dataflow
         UserSettings.setPref("dfAutoExecute", false, false);
         UserSettings.setPref("dfAutoPreview", false, false);
