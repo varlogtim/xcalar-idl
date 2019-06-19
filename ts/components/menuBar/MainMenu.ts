@@ -505,7 +505,7 @@ namespace MainMenu {
         $curTab.addClass("active");
         if (($("#helpSection").hasClass("active") || $("#udfSection").hasClass("active"))
                 && !$("#bottomMenu").hasClass("poppedOut")) {
-            BottomMenu.close();
+            BottomMenu.close(true);
         }
 
         switch (curTab) {
