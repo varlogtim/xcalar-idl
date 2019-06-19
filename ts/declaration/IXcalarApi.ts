@@ -95,11 +95,6 @@ declare function xcalarGetIpAddr(
     nodeId: number
 ): XDPromise<XcalarApiGetIpAddrOutputT>;
 
-declare function xcalarUpdateLicense(
-    thriftHandle: ThriftHandler,
-    licenseKey: string
-): XDPromise<number>;
-
 declare function xcalarPreview(
     thriftHandle: ThriftHandler,
     sourceArgs: XcalarApiPreivewInputSource,

@@ -2741,7 +2741,7 @@ window.Function.prototype.bind = function() {
             test.fail(reason);
         })
         .fail(function(reason) {
-            if (reason.xcalarStatus === StatusT.StatusEvalStringTooLong) {
+            if (reason.xcalarStatus === StatusT.StatusParameterTooLong) {
                 test.pass();
             } else {
                 reason = "Map returned status " + StatusTStr[reason.xcalarStatus] + " (" + reason + ")";
