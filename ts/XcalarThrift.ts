@@ -5376,15 +5376,33 @@ XcalarLogLevelSet = function(
 XcalarTargetCreate = function(
     targetType: string,
     targetName: string,
-    targetParams: object
+    targetParams: object,
+    scopeInfo?: Xcrpc.Query.QueryScopeInfo
 ): XDPromise<any> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
-    xcalarTargetCreate(tHandle, targetType, targetName, targetParams)
-    .then(deferred.resolve)
+    const inputObj = {"func": "addTarget",
+                      "targetTypeId": targetType,
+                      "targetName": targetName,
+                      "targetParams": targetParams};
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTargetService().run({
+            inputJson: inputObj,
+            scope: Xcrpc.Target.TARGETSCOPE.WORKBOOK,
+            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+        })
+    )
+    .then(function(outputJson) {
+        try {
+            // XXX TODO: previously we have timeElapsed added to output here
+            deferred.resolve(JSON.parse(outputJson));
+        } catch(err) {
+            deferred.reject(err);
+        }
+    })
     .fail(function(error) {
         const thriftError = thriftLog("XcalarTargetCreate", error);
         deferred.reject(thriftError);
@@ -5393,14 +5411,32 @@ XcalarTargetCreate = function(
     return deferred.promise();
 };
 
-XcalarTargetDelete = function(targetName: string): XDPromise<any> {
+XcalarTargetDelete = function(
+    targetName: string,
+    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+): XDPromise<any> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
-    xcalarTargetDelete(tHandle, targetName)
-    .then(deferred.resolve)
+    const inputObj = {"func": "deleteTarget",
+                      "targetName": targetName};
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTargetService().run({
+            inputJson: inputObj,
+            scope: Xcrpc.Target.TARGETSCOPE.WORKBOOK,
+            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+        })
+    )
+    .then(function(outputJson) {
+        try {
+            // XXX TODO: previously we have timeElapsed added to output here
+            deferred.resolve(JSON.parse(outputJson));
+        } catch(err) {
+            deferred.reject(err);
+        }
+    })
     .fail(function(error) {
         const thriftError = thriftLog("XcalarTargetDelete", error);
         deferred.reject(thriftError);
@@ -5409,14 +5445,29 @@ XcalarTargetDelete = function(targetName: string): XDPromise<any> {
     return deferred.promise();
 };
 
-XcalarTargetList = function(): XDPromise<any[]> {
+XcalarTargetList = function(
+    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+): XDPromise<any[]> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
     const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
-    xcalarTargetList(tHandle)
-    .then(deferred.resolve)
+    const inputObj = {"func": "listTargets"};
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTargetService().run({
+            inputJson: inputObj,
+            scope: Xcrpc.Target.TARGETSCOPE.WORKBOOK,
+            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+        })
+    )
+    .then(function(outputJson) {
+        try {
+            deferred.resolve(JSON.parse(outputJson));
+        } catch(err) {
+            deferred.reject(err);
+        }
+    })
     .fail(function(error) {
         const thriftError = thriftLog("XcalarTargetList", error);
         deferred.reject(thriftError);
@@ -5425,14 +5476,29 @@ XcalarTargetList = function(): XDPromise<any[]> {
     return deferred.promise();
 };
 
-XcalarTargetTypeList = function(): XDPromise<any[]> {
+XcalarTargetTypeList = function(
+    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+): XDPromise<any[]> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
     const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
-    xcalarTargetTypeList(tHandle)
-    .then(deferred.resolve)
+    const inputObj = {"func": "listTypes"};
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTargetService().run({
+            inputJson: inputObj,
+            scope: Xcrpc.Target.TARGETSCOPE.WORKBOOK,
+            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+        })
+    )
+    .then(function(outputJson) {
+        try {
+            deferred.resolve(JSON.parse(outputJson));
+        } catch(err) {
+            deferred.reject(err);
+        }
+    })
     .fail(function(error) {
         const thriftError = thriftLog("XcalarTargetTypeList", error);
         deferred.reject(thriftError);

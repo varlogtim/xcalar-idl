@@ -43,6 +43,7 @@ declare module 'xcalar' {
         update(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): Promise<void>;
         delete(request: proto.xcalar.compute.localtypes.UDF.DeleteRequest): Promise<void>;
     }
+
     export class PublishedTableService {
         constructor(client: XceClient)
         select(request: proto.xcalar.compute.localtypes.PublishedTable.SelectRequest): Promise<proto.xcalar.compute.localtypes.PublishedTable.SelectResponse>;
@@ -64,6 +65,10 @@ declare module 'xcalar' {
         addIndex(request: proto.xcalar.compute.localtypes.Table.IndexRequest): Promise<proto.google.protobuf.Empty>;
     }
 
+    export class TargetService {
+        constructor(client: XceClient);
+        run(request: proto.xcalar.compute.localtypes.Target.TargetRequest): proto.xcalar.compute.localtypes.Target.TargetResponse;
+    }
 }
 // === Service definitions: End ===
 
@@ -662,13 +667,6 @@ declare namespace proto.xcalar.compute.localtypes {
         }
         export class ExportResponse {
         }
-        export class RenameNodeRequest {
-            setOldName(value: string): void;
-            setNewName(value: string): void;
-            setScope(value: Workbook.WorkbookScope): void;
-        }
-        export class RenameNodeResponse {
-        }
         export class SynthesizeRequest {
             setSource(value: string): void;
             setDest(value: string): void;
@@ -787,6 +785,11 @@ declare namespace proto.xcalar.compute.localtypes {
             getNumNodes(): number;
             getStatusesList(): XcalarApiDeleteDagNodeStatus[];
         }
+        export class RenameRequest {
+            setOldName(value: string): void;
+            setNewName(value: string): void;
+            setScope(value: Workbook.WorkbookScope): void;
+        }
     }
 
     export namespace Dataflow {
@@ -849,6 +852,17 @@ declare namespace proto.xcalar.compute.localtypes {
         }
         export class DeleteRequest {
             setUdfModule(value: UdfModule): void;
+        }
+    }
+
+    export namespace Target {
+        export class TargetRequest {
+            setInputJson(value: string): void;
+            setScope(value: Workbook.WorkbookScope): void;
+        }
+
+        export class TargetResponse {
+            getOutputJson(): string;
         }
     }
 }

@@ -8,6 +8,7 @@ import { TableService } from './Table/TableService';
 import { DataflowService } from './Dataflow/DataflowService';
 import { GetQueryService } from './Operator/GetQueryService';
 import { OperatorService } from './Operator/OperatorService';
+import { TargetService } from './Target/TargetService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -50,6 +51,10 @@ class ServiceClient {
 
     public getOperatorService(): OperatorService {
         return new OperatorService(this._apiClient);
+    }
+
+    public getTargetService(): TargetService {
+        return new TargetService(this._apiClient);
     }
 }
 

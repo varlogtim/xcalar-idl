@@ -393,8 +393,8 @@ class GetQueryService {
         oldName: string,
         newName: string
     ): string {
-        const renameNodeRequest: ProtoTypes.Operator.RenameNodeRequest
-                = new ProtoTypes.Operator.RenameNodeRequest();
+        const renameNodeRequest: ProtoTypes.DagNode.RenameRequest
+                = new ProtoTypes.DagNode.RenameRequest();
         renameNodeRequest.setOldName(oldName);
         renameNodeRequest.setNewName(newName);
         return this.getQueryFromRequest(ProtoTypes.XcalarEnumType.XcalarApis.XCALAR_API_RENAME_NODE, renameNodeRequest);

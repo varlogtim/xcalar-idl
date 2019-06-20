@@ -38,14 +38,22 @@ DagNodeService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.TagRequest");
         //anyWrapper.pack(tagRequest.serializeBinary(), "TagRequest");
 
-        var responseData = await this.client.execute("DagNode", "Tag", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var empty =
-        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-        //                        "Empty");
-        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-        return empty;
+        try {
+            var responseData = await this.client.execute("DagNode", "Tag", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     comment: async function(commentRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -56,14 +64,48 @@ DagNodeService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.CommentRequest");
         //anyWrapper.pack(commentRequest.serializeBinary(), "CommentRequest");
 
-        var responseData = await this.client.execute("DagNode", "Comment", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var empty =
-        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-        //                        "Empty");
-        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-        return empty;
+        try {
+            var responseData = await this.client.execute("DagNode", "Comment", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    rename: async function(renameRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(renameRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.RenameRequest");
+        //anyWrapper.pack(renameRequest.serializeBinary(), "RenameRequest");
+
+        try {
+            var responseData = await this.client.execute("DagNode", "Rename", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
 };
 
