@@ -704,9 +704,12 @@ class DagViewManager {
         parentNodeId?: DagNodeId,
         input?: object,
         x?: number,
-        y?: number
+        y?: number,
+        options: {
+            isTempDebugNode?: boolean
+        } = {}
     ): DagNode {
-        return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y);
+        return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y, options);
     }
 
     public getAllNodes(includeComments?: boolean): JQuery {
@@ -1017,7 +1020,7 @@ class DagViewManager {
         const self = this;
 
         // moving node in dataflow area to another position
-        this.$dfWrap.on("mousedown", ".operator .main, .comment", function (event) {
+        this.$dfWrap.on("mousedown", ".operator .main, .operator .iconArea, .comment", function (event) {
             self.activeDagView.operatorMousedown(event, $(this));
         });
 

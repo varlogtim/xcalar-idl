@@ -1486,6 +1486,9 @@ class DagView {
         input?: object,
         x?: number,
         y?: number,
+        options: {
+            isTempDebugNode?: boolean
+        } = {}
     ): DagNode {
         let logActions = [];
         let parentNode: DagNode;
@@ -1500,7 +1503,8 @@ class DagView {
             type: newType,
             subType: subType,
             input: input,
-            display: originalCoors
+            display: originalCoors,
+            isTempDebugNode: options.isTempDebugNode
         };
         this.dagTab.turnOffSave();
         const node: DagNode = this.graph.newNode(nodeInfo);
@@ -3446,6 +3450,10 @@ class DagView {
 
         $node.appendTo(this.$dfArea.find(".operatorSvg"));
 
+        if (node instanceof DagNodeMap && node.hasUDFError()) {
+            this._updateNodeUDFErrorIcon($node);
+        }
+
         // Update connector UI according to the number of I/O ports
         if (node instanceof DagNodeCustom) {
             const { input, output } = node.getNumIOPorts();
@@ -3454,6 +3462,13 @@ class DagView {
         }
 
         return $node;
+    }
+
+    private _updateNodeUDFErrorIcon($node) {
+        $node.addClass("hasUdfError");
+        $node.find(".iconArea").attr("fill", "#F15840");
+        $node.find(".icon").text("\uea70");
+        xcTooltip.add($node.find(".iconArea"), {title: "here"});
     }
 
     private _updateConnectorIn(nodeId: DagNodeId, numInputs: number) {
@@ -3823,6 +3838,7 @@ class DagView {
         if (parentNode == null || childNode == null) {
             return;
         }
+        let isTempDebugNode = childNode.isTempDebugNode();
         let numParents = childNode.getMaxParents();
         let numConnections = connectorIndex;
         let isMulti = false;
@@ -3841,17 +3857,24 @@ class DagView {
             y: childNode.getPosition().y + 2 +
                 ((DagView.nodeHeight - 4) / (numParents + 1) * (1 + numConnections))
         };
+        let edgeClass = "edge";
+        if (isTempDebugNode) {
+            edgeClass += " debugEdge";
+        }
 
         const edge = svg.append("g")
-            .attr("class", "edge")
+            .attr("class", edgeClass)
             .attr("data-childnodeid", childNodeId)
             .attr("data-parentnodeid", parentNodeId)
             .attr("data-connectorindex", connectorIndex.toString());
 
-        edge.append("path")
+        let path = edge.append("path")
             .attr("class", "visibleLine")
             .attr("d", DagView.lineFunction([parentCoors, childCoors]));
-
+        if (isTempDebugNode) {
+            path.attr("stroke-dasharray", "10,10");
+            path.attr("stroke-dashoffset", "-4");
+        }
         edge.append("path")
             .attr("class", "invisibleLine")
             .attr("d", DagView.lineFunction([parentCoors, childCoors]));
@@ -4243,7 +4266,8 @@ class DagView {
         }
         if (this.dagTab instanceof DagTabPublished) {
              // if no drag, treat as right click and open menu
-            if (!$opMain.hasClass("comment") && !event.shiftKey) {
+            if (!$opMain.hasClass("comment") && !$opMain.hasClass("iconArea") &&
+                !event.shiftKey) {
                 let contextMenuEvent = $.Event("contextmenu", {
                     pageX: event.pageX,
                     pageY: event.pageY
@@ -4310,12 +4334,16 @@ class DagView {
                         DagView.selectNode($operator);
                     }
                     // if no drag, treat as right click and open menu
-                    if (!$opMain.hasClass("comment") && !event.shiftKey) {
-                        let contextMenuEvent = $.Event("contextmenu", {
-                            pageX: event.pageX,
-                            pageY: event.pageY
-                        });
-                        $opMain.trigger(contextMenuEvent);
+                    if (!event.shiftKey && !$opMain.hasClass("comment")) {
+                        if ($opMain.hasClass("iconArea")) {
+                            DagUDFErrorModal.Instance.show(nodeId);
+                        } else {
+                            let contextMenuEvent = $.Event("contextmenu", {
+                                pageX: event.pageX,
+                                pageY: event.pageY
+                            });
+                            $opMain.trigger(contextMenuEvent);
+                        }
                     }
                 }
             },

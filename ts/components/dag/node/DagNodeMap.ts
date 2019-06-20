@@ -1,13 +1,15 @@
 class DagNodeMap extends DagNode {
     protected input: DagNodeMapInput;
+    private _hasUDFError: boolean;
 
-    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+    public constructor(options: DagNodeMapInfo, runtime?: DagRuntime) {
         super(options, runtime);
         this.type = DagNodeType.Map;
         this.allowAggNode = true;
         this.minParents = 1;
         this.display.icon = "&#xe9da;";
         this.input = this.getRuntime().accessible(new DagNodeMapInput(options.input));
+        this._hasUDFError = options.hasUDFError || false;
     }
 
     public static readonly specificSchema = {
@@ -43,12 +45,12 @@ class DagNodeMap extends DagNode {
      * @param input {DagNodeMapInputStruct}
      * @param input.eval {Array} array of {evalString, newFieldName}
      */
-    public setParam(input: DagNodeMapInputStruct = <DagNodeMapInputStruct>{}): boolean | void {
+    public setParam(input: DagNodeMapInputStruct = <DagNodeMapInputStruct>{}, noAutoExecute?: boolean): boolean | void {
         this.input.setInput({
             eval: input.eval,
             icv: input.icv,
         });
-        return super.setParam();
+        return super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(
@@ -165,6 +167,10 @@ class DagNodeMap extends DagNode {
             }
             return result;
         });
+    }
+
+    public hasUDFError(): boolean {
+        return this._hasUDFError;
     }
 
     /**

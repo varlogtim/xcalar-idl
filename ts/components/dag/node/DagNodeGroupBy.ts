@@ -41,7 +41,7 @@ class DagNodeGroupBy extends DagNode {
      * @param input.eval an array of column eval info
      * @param includeSample {boolean} include sample columns or not
      */
-    public setParam(input: DagNodeGroupByInputStruct = <DagNodeGroupByInputStruct>{}) {
+    public setParam(input: DagNodeGroupByInputStruct = <DagNodeGroupByInputStruct>{}, noAutoExecute?: boolean) {
         if (input.joinBack) {
             input.includeSample = false;
         }
@@ -55,7 +55,7 @@ class DagNodeGroupBy extends DagNode {
             newKeys: input.newKeys,
             dhtName: input.dhtName
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     // XXX TODO: verify it's correctness

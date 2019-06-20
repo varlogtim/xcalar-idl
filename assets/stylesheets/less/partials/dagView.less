@@ -504,6 +504,12 @@
             opacity: 0.6;
         }
 
+        &.hasUdfError {
+            .iconArea {
+                pointer-events: initial;
+            }
+        }
+
         .opTitle, .iconArea, .icon, .opSubTypeTitle {
             pointer-events: none;
         }
@@ -883,6 +889,12 @@
                 stroke-linecap: round;
             }
 
+            &.debugEdge {
+                .visibleLine {
+                    stroke: @color-error-red;
+                }
+            }
+
             .invisibleLine {
                 stroke: transparent;
                 stroke-width: 9px;
@@ -894,6 +906,11 @@
                 .visibleLine {
                     stroke: #555555;
                     stroke-width: 2px;
+                }
+                &.debugEdge {
+                    .visibleLine {
+                        stroke: @color-error-red;
+                    }
                 }
                 .connectorIndex {
                     fill: #444444;

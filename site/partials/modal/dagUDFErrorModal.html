@@ -1,0 +1,33 @@
+<div id="dagUDFErrorModal" class="modalContainer shadow">
+<!-- Header -->
+<header class="modalHeader">
+    <span class="text">Error Count</span>
+    <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Minimize %>">
+    <i class="icon xi-exit-fullscreen"></i>
+    </div>
+    <div class="headerBtn fullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Maximize %>">
+    <i class="icon xi-fullscreen"></i>
+    </div>
+    <div class="close">
+    <i class="icon xi-close"></i>
+    </div>
+</header>
+<!-- Instruction -->
+<section class="modalInstruction">
+    <i class="icon xi-error"></i>
+    <div class="text">Total number of failures: <span class="numErrors">1000</span></div>
+</section>
+<section class="modalRow">
+    Error Count and Description
+</section>
+<!-- Main Section -->
+<section class="modalMain">
+    <div class="errorList"></div>
+</section>
+
+<section class="modalBottom">
+    <button type="button" class="btn btn-large btn-submit genErrorTable">Generate Detailed Error Table</button>
+    <button type="button" class="btn btn-large btn-next-secondary genSummaryTable">Generate Detailed Summary Table</button>
+    <button type="button" class="btn cancel"><%= dicts.common.Cancel %></button>
+</section>
+</div>

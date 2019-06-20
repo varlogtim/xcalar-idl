@@ -4872,6 +4872,47 @@ html.microsoft {
 
 }
 
+#dagUDFErrorModal {
+    .size(@width: 730px, @height: 400px, @min-width: 730px, @min-height: 250px);
+
+    .modalInstruction {
+        border-bottom: none;
+
+        .xi-error {
+            color: @color-error-red;
+            margin-top: 0px;
+            line-height: 36px;
+        }
+        .text {
+            align-self: center;
+            font-size: 15px;
+        }
+    }
+    .modalRow {
+        background-color: @color-bg-topBarGray2;
+        border-top: 1px solid @color-border-menubar-grey;
+        border-bottom: 1px solid @color-border-menubar-grey;
+        font-size: 15px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+    .modalMain {
+        .size(@height: ~"calc(100% - 190px)");
+        overflow: auto;
+        border-bottom: 1px solid @color-border-menubar-grey;
+    }
+    .errorRow {
+        border-bottom: 1px solid @color-border-menubar-grey;
+        padding: 10px;
+    }
+    .btn-large {
+        width: 250px;
+    }
+}
+
 #dagDescriptionModal, #dagCustomRenameModal {
     .size(@width: 450px, @height: 250px, @min-width: 450px, @min-height: 250px);
 
