@@ -140,6 +140,11 @@ interface XDTableInfo {
     found?: boolean
 }
 
+interface SQLConnectResp {
+    xcalarVersion: XcalarApiGetVersionOutput,
+    newThrift: boolean,
+}
+
 interface TableInfo extends XcalarApiTableInfo {
     schema?: any
 }
