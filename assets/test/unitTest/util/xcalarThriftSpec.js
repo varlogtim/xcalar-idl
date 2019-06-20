@@ -112,7 +112,7 @@ describe("XcalarThrift Test", function() {
         const oldApiCall = Xcrpc.License.LicenseService.prototype.getLicense;
         var errorMsg = {"xcalarStatus": 1, "log": "1234"};
         Xcrpc.License.LicenseService.prototype.getLicense = async function() {
-            throw { type: Xcrpc.ErrorType.SERVICE, error: errorMsg };
+            throw { type: Xcrpc.Error.ErrorType.SERVICE, error: errorMsg };
         };
         XcalarGetLicense()
         .then(function() {
@@ -131,7 +131,7 @@ describe("XcalarThrift Test", function() {
         const oldApiCall = Xcrpc.License.LicenseService.prototype.getLicense;
         var errorMsg = {"httpStatus": 500};
         Xcrpc.License.LicenseService.prototype.getLicense = async function() {
-            throw { type: Xcrpc.ErrorType.SERVICE, error: errorMsg };
+            throw { type: Xcrpc.Error.ErrorType.SERVICE, error: errorMsg };
         };
         XcalarGetLicense()
         .then(function() {
@@ -195,7 +195,7 @@ describe("XcalarThrift Test", function() {
         const oldApiCall = Xcrpc.License.LicenseService.prototype.updateLicense;
         var errorMsg = {"xcalarStatus": 1, "log": "1234"};
         Xcrpc.License.LicenseService.prototype.updateLicense = async function() {
-            throw { type: Xcrpc.ErrorType.SERVICE, error: errorMsg};
+            throw { type: Xcrpc.Error.ErrorType.SERVICE, error: errorMsg};
         }
         XcalarUpdateLicense()
         .then(function() {
@@ -214,7 +214,7 @@ describe("XcalarThrift Test", function() {
         const oldApiCall = Xcrpc.License.LicenseService.prototype.updateLicense;
         var errorMsg = {"httpStatus": 500};
         Xcrpc.License.LicenseService.prototype.updateLicense = async function() {
-            throw { type: Xcrpc.ErrorType.SERVICE, error: errorMsg};
+            throw { type: Xcrpc.Error.ErrorType.SERVICE, error: errorMsg};
         }
         XcalarUpdateLicense()
         .then(function() {
@@ -322,12 +322,12 @@ describe("XcalarThrift Test", function() {
 
     describe("XcalarDatasetActivate test", function() {
         it("should return an object if fails with 502 error", function(done) {
-            var cachedLoadFn = xcalarLoad;
+            var cachedLoadFn = Xcrpc.Operator.OperatorService.prototype.opBulkLoad;
             var cachedGetQueryFn = XcalarGetQuery;
             var cachedGetDatasetsFn = XcalarGetDatasets;
             var getDatasetsCalled = false;
-            xcalarLoad = function() {
-                return PromiseHelper.reject({httpStatus: 502});
+            Xcrpc.Operator.OperatorService.prototype.opBulkLoad = async function() {
+                throw { type: Xcrpc.Error.ErrorType.NETWORK, httpStatus: 502 }
             };
             XcalarGetQuery = function() {
                 return "someString";
@@ -349,10 +349,10 @@ describe("XcalarThrift Test", function() {
                 done();
             })
             .fail(function() {
-                done("failed");
+                done('fail');
             })
             .always(function() {
-                xcalarLoad = cachedLoadFn;
+                Xcrpc.Operator.OperatorService.prototype.opBulkLoad = cachedLoadFn;
                 XcalarGetQuery = cachedGetQueryFn;
                 XcalarGetDatasets = cachedGetDatasetsFn;
             });

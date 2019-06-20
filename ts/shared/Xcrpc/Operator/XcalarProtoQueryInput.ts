@@ -47,19 +47,13 @@ export declare class ColumnArgs {
         columnType?: string,
     });
 }
-export declare class DataSourceArgs {
+export declare type DataSourceArgs = {
 	targetName: string;
 	path: string;
 	fileNamePattern: string;
 	recursive: boolean;
-	constructor(args?: {
-		targetName?: string,
-		path?: string,
-		fileNamePattern?: string,
-		recursive?: boolean,
-	});
 }
-export declare class ParseArgs {
+export declare type ParseArgs = {
 	parserFnName: string;
 	parserArgJson: string;
 	fileNameFieldName: string;
@@ -67,25 +61,11 @@ export declare class ParseArgs {
 	allowRecordErrors: boolean;
 	allowFileErrors: boolean;
 	schema: ColumnArgs[];
-	constructor(args?: {
-		parserFnName?: string,
-		parserArgJson?: string,
-		fileNameFieldName?: string,
-		recordNumFieldName?: string,
-		allowRecordErrors?: boolean,
-		allowFileErrors?: boolean,
-		schema?: ColumnArgs[],
-	});
 }
-export declare class XcalarApiDfLoadArgs {
+export declare type XcalarApiDfLoadArgs = {
 	sourceArgsList: DataSourceArgs[];
 	parseArgs: ParseArgs;
 	size: number;
-	constructor(args?: {
-		sourceArgsList?: DataSourceArgs[],
-		parseArgs?: ParseArgs,
-		size?: number,
-	});
 }
 export declare class XcalarApiExportColumn {
 	columnName: string;
@@ -176,15 +156,10 @@ export declare class FilterArgs {
         eval?: EvalArgs[],
     });
 }
-export declare class LoadArgs {
+export declare type LoadArgs = {
     dest: string;
     loadArgs: XcalarApiDfLoadArgs;
     dagNodeId: string;
-    constructor(args?: {
-        dest?: string,
-        loadArgs?: XcalarApiDfLoadArgs,
-        dagNodeId?: string,
-    });
 }
 export declare class IndexArgs {
     source: string;

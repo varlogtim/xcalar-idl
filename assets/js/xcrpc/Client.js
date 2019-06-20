@@ -49,10 +49,14 @@ function XceClient(serviceUrl) {
             var respMsg = protoMsg.ProtoMsg.deserializeBinary(byteBuffer).getResponse();
             if (respMsg.getStatus() != 0) {
                 // If we get a status code other than StatusOk, this failed
-                throw {
+                const error = {
                     "status": respMsg.getStatus(),
-                    "error": respMsg.getError()
-                };
+                    "error": respMsg.getError(),
+                }
+                if (respMsg.hasServic()) {
+                    error.response = respMsg.getServic().getBody();
+                }
+                throw error;
             }
 
             // Unpack all of the layers of the successful response, except

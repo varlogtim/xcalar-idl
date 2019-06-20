@@ -13,7 +13,6 @@ var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
 var operator = require("./xcalar/compute/localtypes/Operator_pb");
-var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +28,24 @@ function OperatorService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 OperatorService.prototype = {
+    opJoin: async function(joinRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(joinRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.JoinRequest");
+        //anyWrapper.pack(joinRequest.serializeBinary(), "JoinRequest");
+
+        var responseData = await this.client.execute("Operator", "OpJoin", anyWrapper);
+        var specificBytes = responseData.getValue();
+        // XXX Any.unpack() is only available in protobuf 3.2; see above
+        //var joinResponse =
+        //    responseData.unpack(operator.JoinResponse.deserializeBinary,
+        //                        "JoinResponse");
+        var joinResponse = operator.JoinResponse.deserializeBinary(specificBytes);
+        return joinResponse;
+    },
     opMap: async function(mapRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
@@ -83,24 +100,6 @@ OperatorService.prototype = {
         var unionResponse = operator.UnionResponse.deserializeBinary(specificBytes);
         return unionResponse;
     },
-    opDataSetCreate: async function(dataSetCreateRequest) {
-        // XXX we want to use Any.pack() here, but it is only available
-        // in protobuf 3.2
-        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
-        var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(dataSetCreateRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.DataSetCreateRequest");
-        //anyWrapper.pack(dataSetCreateRequest.serializeBinary(), "DataSetCreateRequest");
-
-        var responseData = await this.client.execute("Operator", "OpDataSetCreate", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var empty =
-        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-        //                        "Empty");
-        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-        return empty;
-    },
     opBulkLoad: async function(bulkLoadRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
@@ -110,14 +109,22 @@ OperatorService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.BulkLoadRequest");
         //anyWrapper.pack(bulkLoadRequest.serializeBinary(), "BulkLoadRequest");
 
-        var responseData = await this.client.execute("Operator", "OpBulkLoad", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var bulkLoadResponse =
-        //    responseData.unpack(operator.BulkLoadResponse.deserializeBinary,
-        //                        "BulkLoadResponse");
-        var bulkLoadResponse = operator.BulkLoadResponse.deserializeBinary(specificBytes);
-        return bulkLoadResponse;
+        try {
+            var responseData = await this.client.execute("Operator", "OpBulkLoad", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var bulkLoadResponse =
+            //    responseData.unpack(operator.BulkLoadResponse.deserializeBinary,
+            //                        "BulkLoadResponse");
+            var bulkLoadResponse = operator.BulkLoadResponse.deserializeBinary(specificBytes);
+            return bulkLoadResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.BulkLoadResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
 };
 

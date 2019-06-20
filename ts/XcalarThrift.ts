@@ -890,12 +890,13 @@ XcalarDatasetRestore = function(
 
 XcalarDatasetActivate = function(
     datasetName: string,
-    txId: number
+    txId: number,
+    scopeInfo?: Xcrpc.Operator.LoadScopeInfo
 ): XDPromise<any> {
-    return XcalarDatasetLoad(datasetName, null, txId);
+    return XcalarDatasetLoad(datasetName, null, txId, scopeInfo);
 };
 
-XcalarDatasetLoad = function(
+XcalarDatasetLoadThrift = function(
     datasetName: string,
     options: XcalarLoadInputOptions,
     txId: number
@@ -967,6 +968,94 @@ XcalarDatasetLoad = function(
                 thriftError.error = loadError;
             }
             deferred.reject(thriftError);
+        }
+    });
+
+    return deferred.promise();
+};
+
+XcalarDatasetLoad = function(
+    datasetName: string,
+    options: XcalarLoadInputOptions,
+    txId: number,
+    scopeInfo?: Xcrpc.Operator.LoadScopeInfo
+): XDPromise<any> {
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject({error: StatusTStr[StatusT.StatusCanceled]}).promise());
+    }
+
+    let def: XDPromise<any>;
+    let args = {sourceArgsList: null, parseArgs: null, size: null};
+    if (options != null) {
+        args = XcalarParseDSLoadArgs(options);
+    }
+    if (args == null) {
+        return PromiseHelper.reject({error: "Error Parse Args"});
+    }
+
+    const dsName: string = parseDS(datasetName);
+    const workItem: WorkItem = xcalarLoadWorkItem(dsName, args.sourceArgsList, args.parseArgs, args.size);
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
+        // def = xcalarLoad(tHandle, dsName, args.sourceArgsList, args.parseArgs, args.size);
+        def = PromiseHelper.convertToJQuery(
+            Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getOperatorService().opBulkLoad({
+                datasetName: dsName, loadArgs: args,
+                scope: Xcrpc.Operator.LOADSCOPE.WORKBOOK,
+                scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+            })
+        );
+    }
+    const query: string = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, "Import Dataset", dsName, query);
+    def
+    .then(function(ret) {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject({error: StatusTStr[StatusT.StatusCanceled]});
+        } else {
+            Transaction.log(txId, query, dsName, ret.timeElapsed);
+            deferred.resolve(ret);
+        }
+    })
+    .fail(function(error: Xcrpc.Error.ServiceError) {
+        if (has_require) {
+            deferred.reject({error: error});
+        } else if (Xcrpc.Error.isNetworkError(error)) {
+            // 502 = Bad Gateway server error
+            // Thrift time out
+            // Just pretend like nothing happened and quietly listDatasets
+            // in intervals until the load is complete. Then do the ack/fail
+            checkForDatasetLoad(deferred, query, datasetName, txId);
+        } else if (Xcrpc.Error.isXcalarLoadError(error)) {
+            console.error("error in import", error.errorString, error.errorFile);
+            let loadError = xcStringHelper.replaceMsg(DSTStr.LoadErr, {
+                "error": parseLoadError({ errorString: error.errorString })
+            });
+
+            if (error.errorFile != null) {
+                loadError = xcStringHelper.replaceMsg(DSTStr.LoadErrFile, {
+                    "file": error.errorFile
+                }) + "\n" + loadError;
+            }
+
+            const thriftError: ThriftError = thriftLog('XcalarLoad', {
+                status: error.status
+            });
+            thriftError.error = loadError;
+            deferred.reject(thriftError);
+        } else if (Xcrpc.Error.isXcalarError(error)) {
+            const thriftError: ThriftError = thriftLog('XcalarLoad', {
+                status: error.status
+            });
+            thriftError.error = error.error;
+            deferred.reject(thriftError);
+        } else {
+            deferred.reject(error);
         }
     });
 

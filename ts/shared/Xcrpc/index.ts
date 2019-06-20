@@ -11,7 +11,8 @@
 // These are top-level functions
 export * from './ServiceClient';
 export * from './ServiceClientFactory';
-export * from './ServiceError';
+import * as Error from './ServiceError';
+export { Error };
 export { EnumMap } from 'xcalar';
 
 // Services
@@ -28,3 +29,5 @@ import * as Table from './Table/TableService';
 export { Table };
 import * as GetQuery from './Operator/GetQueryService';
 export { GetQuery };
+import * as Operator from './Operator/OperatorService';
+export { Operator };

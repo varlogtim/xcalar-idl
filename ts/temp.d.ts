@@ -561,6 +561,7 @@ declare var XcalarDatasetCreate: any;
 declare var XcalarDatasetRestore: any;
 declare var XcalarDatasetDelete: any;
 declare var XcalarDatasetActivate: any;
+declare var XcalarDatasetLoadThrift: any;
 declare var XcalarDatasetLoad: any;
 declare var XcalarDatasetDeactivate: any;
 declare var XcalarDatasetDeleteLoadNode: any;

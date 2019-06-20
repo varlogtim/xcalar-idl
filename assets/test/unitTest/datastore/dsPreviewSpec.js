@@ -627,8 +627,8 @@ describe("Dataset-DSPreview Test", function() {
             });
 
             it('should handle excel case', (done) => {
-                const oldLoad = XIApi.loadDataset;
-                XIApi.loadDataset = () => PromiseHelper.reject('test');
+                const oldLoad = XcalarDatasetLoad
+                XcalarDatasetLoad = () => PromiseHelper.reject('test');
 
                 loadArgs.setPreviewingSource(1, 'test.xlsx');
                 loadArgs.setFormat('Excel')
@@ -646,7 +646,7 @@ describe("Dataset-DSPreview Test", function() {
                     done();
                 })
                 .always(() => {
-                    XIApi.loadDataset = oldLoad;
+                    XcalarDatasetLoad = oldLoad;
                 });
             });
 

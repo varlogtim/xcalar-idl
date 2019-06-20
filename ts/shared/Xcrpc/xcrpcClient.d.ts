@@ -48,6 +48,11 @@ declare module 'xcalar' {
         listTables(request: proto.xcalar.compute.localtypes.PublishedTable.ListTablesRequest): Promise<proto.xcalar.compute.localtypes.PublishedTable.ListTablesResponse>;
     }
 
+    export class OperatorService {
+        constructor(client: XceClient);
+        opBulkLoad(request: proto.xcalar.compute.localtypes.Operator.BulkLoadRequest): Promise<proto.xcalar.compute.localtypes.Operator.BulkLoadResponse>;
+    }
+
     export class TableService {
         constructor(client: XceClient);
         addIndex(request: proto.xcalar.compute.localtypes.Table.IndexRequest): XDPromise<proto.google.protobuf.Empty>;
