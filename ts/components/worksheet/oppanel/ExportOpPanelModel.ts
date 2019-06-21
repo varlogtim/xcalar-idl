@@ -52,7 +52,8 @@ class ExportOpPanelModel {
                 sourceColumn: sourceColumn,
                 destColumn: isSelected ? selectedColumns[sourceColumn].destColumn : this._createHeaderName(sourceColumn, takenHeaderNames),
                 isSelected: isSelected,
-                type: colInfo.type
+                type: colInfo.type,
+                isHidden: false
             });
         }
 
@@ -86,6 +87,7 @@ class ExportOpPanelModel {
                 destColumn: isSelected ? selectedColumns[sourceColumn].destColumn : this._createHeaderName(sourceColumn, takenHeaderNames),
                 isSelected: isSelected,
                 type: colInfo.type,
+                isHidden: false
               });
         }
 
@@ -373,7 +375,9 @@ class ExportOpPanelModel {
      */
     public setAllCol(selected: boolean): void {
         this.columnList.forEach((column: ExportOpPanelModelColumnInfo) => {
-            column.isSelected = selected;
+            if (!column.isHidden) {
+                column.isSelected = selected;
+            }
         });
     }
 
@@ -385,6 +389,20 @@ class ExportOpPanelModel {
         let col: ExportOpPanelModelColumnInfo = this.columnList[colIndex];
         col.isSelected = !col.isSelected;
         return;
+    }
+
+    /**
+     * Hides the columns not including the keyword
+     * @param keyword 
+     */
+    public hideCols(keyword: string): void {
+        this.columnList.forEach((column: ExportOpPanelModelColumnInfo) => {
+            if (column.sourceColumn.includes(keyword)) {
+                column.isHidden = false;
+            } else {
+                column.isHidden = true;
+            }
+        });
     }
 
     /**

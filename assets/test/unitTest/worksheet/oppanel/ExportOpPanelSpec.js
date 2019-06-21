@@ -341,7 +341,7 @@ describe("Export Operator Panel Test", function() {
         });
     });
 
-    describe("Column Searching related Export Panel Tests", function() {
+    describe("Column Filtering related Export Panel Tests", function() {
         before(function() {
             const parentNode = new DagNodeMap({});
             parentNode.getLineage = function() {
@@ -364,31 +364,33 @@ describe("Export Operator Panel Test", function() {
                 return [parentNode];
             };
         })
-        it("Should have the hint list populated", function() {
-            exportOpPanel.show(node);
-            expect($('#exportOpColumns .searchCol').length).to.equal(3);
-            exportOpPanel.close(node);
-        });
 
         it("should hide columns when an input is specified", function() {
             exportOpPanel.show(node);
             $('#exportOpColumns .searchInput').val("a").trigger("input");
-            expect($('#exportOpColumns .searchCol.xc-hidden').length).to.equal(2);
+            expect($('#exportOpColumns .col.xc-hidden').length).to.equal(2);
             $('#exportOpColumns .searchInput').val("").trigger("input");
-            expect($('#exportOpColumns .searchCol.xc-hidden').length).to.equal(0);
+            expect($('#exportOpColumns .col.xc-hidden').length).to.equal(0);
             exportOpPanel.close(node);
         });
 
-        it("Should select a checkbox when a hint is clicked", function() {
+        it("should only select all of the filtered columns", function() {
             exportOpPanel.show(node);
-            expect($('#exportOpColumns .cols .col').eq(2).hasClass("checked")).to.be.false;
-            console.log("here");
-            $('#exportOpColumns .searchInput').click();
-            $('#exportOpColumns .searchCol').eq(2).trigger(fakeEvent.mouseup);
-            expect($('#exportOpColumns .cols .col').eq(2).hasClass("checked")).to.be.true;
-            $('#exportOpColumns .searchInput').click();
-            $('#exportOpColumns .searchCol').eq(2).trigger(fakeEvent.mouseup);
-            expect($('#exportOpColumns .cols .col').eq(2).hasClass("checked")).to.be.false;
+            $('#exportOpColumns .searchInput').val("a").trigger("input");
+            $('#exportOpColumns .selectAllWrap').trigger("mouseDown");
+            expect($('#exportOpColumns .col.checked').length).to.equal(1);
+            exportOpPanel.close(node);
+        })
+
+        it("should change the select all checkbox depending on what's selected", function() {
+            exportOpPanel.show(node);
+            $('#exportOpColumns .searchInput').val("a").trigger("input");
+            $('#exportOpColumns .selectAllWrap').trigger("mouseDown");
+            expect($('#exportOpColumns .selectAllWrap .checkbox').hasClass("checked")).to.be.true;
+            $('#exportOpColumns .searchInput').val("").trigger("input");
+            expect($('#exportOpColumns .selectAllWrap .checkbox').hasClass("checked")).to.be.false;
+            $('#exportOpColumns .searchInput').val("a").trigger("input");
+            expect($('#exportOpColumns .selectAllWrap .checkbox').hasClass("checked")).to.be.true;
             exportOpPanel.close(node);
         });
     });

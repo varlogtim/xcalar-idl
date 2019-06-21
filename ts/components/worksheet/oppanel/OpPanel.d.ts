@@ -188,6 +188,7 @@ declare type ExportOpPanelModelColumnInfo = {
     sourceColumn: string;
     destColumn: string;
     isSelected: boolean;
+    isHidden: boolean;
     type: string;
 }
 

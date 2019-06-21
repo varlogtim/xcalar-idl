@@ -36,10 +36,12 @@
                     </div>
 
                     <div class="columnsToExport columnsWrap flexWrap clearfix">
-                        <div class="searchArea dropDownList">
+                        <div class="searchArea">
                             <div class="searchBox">
                                 <input type="text" class="searchInput xc-input" placeholder="Search Columns">
+                                <i class="icon xi-search colSearchIcon"></i>
                             </div>
+                            <div class="filterHint"><%= dicts.dataflow.filterHint %></div>
                             <div class="list">
                                 <ul></ul>
                                 include "../../util/menuScrollArea.html"

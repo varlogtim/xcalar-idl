@@ -858,6 +858,7 @@ module.exports = {
         "create": "CREATE",
         "CreateDF": "Create new dataflow",
         "noColsHint": "No columns are available for export",
+        "filterHint": "Showing only filtered columns",
         "newParam": "new parameter",
         "param": "Parameter",
         "params": "Parameters",

@@ -122,31 +122,34 @@ describe("Export SQL Table Modal Test", function() {
         $("#exportSQLTableModal .close").click();
     })
 
-    describe("Column Searching related Export Modal Tests", function() {
-        it("Should have the hint list populated", function() {
-            ExportSQLTableModal.Instance.show("testTable", columns);
-            expect($('#exportSQLTableColumns .searchCol').length).to.equal(4);
-            $("#exportSQLTableModal .close").click();
-        });
-
+    describe("Column Filtering related Export Modal Tests", function() {
         it("should hide columns when an input is specified", function() {
             ExportSQLTableModal.Instance.show("testTable", columns);
-            $('#exportSQLTableColumns .searchInput').val("1").trigger("input");
-            expect($('#exportSQLTableColumns .searchCol.xc-hidden').length).to.equal(3);
+            $('#exportSQLTableColumns .searchInput').val("col1").trigger("input");
+            expect($('#exportSQLTableColumns .col.xc-hidden').length).to.equal(3);
             $('#exportSQLTableColumns .searchInput').val("").trigger("input");
-            expect($('#exportSQLTableColumns .searchCol.xc-hidden').length).to.equal(0);
+            expect($('#exportSQLTableColumns .col.xc-hidden').length).to.equal(0);
             $("#exportSQLTableModal .close").click();
         });
 
-        it("Should select a checkbox when a hint is clicked", function() {
+        it("should only select all of the filtered columns", function() {
             ExportSQLTableModal.Instance.show("testTable", columns);
-            expect($('#exportSQLTableColumns .cols .col').eq(0).hasClass("checked")).to.be.false;
-            $('#exportSQLTableColumns .searchInput').click();
-            $('#exportSQLTableColumns .searchCol').eq(0).trigger(fakeEvent.mouseup);
-            expect($('#exportSQLTableColumns .cols .col').eq(0).hasClass("checked")).to.be.true;
-            $('#exportSQLTableColumns .searchInput').click();
-            $('#exportSQLTableColumns .searchCol').eq(0).trigger(fakeEvent.mouseup);
-            expect($('#exportSQLTableColumns .cols .col').eq(0).hasClass("checked")).to.be.false;
+            $('#exportSQLTableColumns .searchInput').val("col1").trigger("input");
+            $('#exportSQLTableModal .selectAllWrap .checkbox').trigger("click");
+            expect($('#exportSQLTableModal .col.checked').length).to.equal(1);
+            $('#exportSQLTableModal .selectAllWrap .checkbox').trigger("click");
+            $("#exportSQLTableModal .close").click();
+        });
+
+        it("should change the select all checkbox depending on what's selected", function() {
+            ExportSQLTableModal.Instance.show("testTable", columns);
+            $('#exportSQLTableModal .searchInput').val("col1").trigger("input");
+            $('#exportSQLTableModal .selectAllWrap .checkbox').trigger("click");
+            expect($('#exportSQLTableModal .selectAllWrap .checkbox').hasClass("checked")).to.be.true;
+            $('#exportSQLTableModal .searchInput').val("").trigger("input");
+            expect($('#exportSQLTableModal .selectAllWrap .checkbox').hasClass("checked")).to.be.false;
+            $('#exportSQLTableModal .searchInput').val("col1").trigger("input");
+            expect($('#exportSQLTableModal .selectAllWrap .checkbox').hasClass("checked")).to.be.true;
             $("#exportSQLTableModal .close").click();
         });
     });

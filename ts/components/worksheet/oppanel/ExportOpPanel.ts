@@ -54,46 +54,40 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         });
         expList.setupListeners();
 
-        this._activateDropDown(this._$exportSearchSection, "#exportOpColumns .dropDownList");
-
-        let colList: MenuHelper = new MenuHelper(this._$exportSearchSection, {
-            "onSelect": function($li) {
-
-                let colNum = $li.data("colnum");
-                let $col = self._$exportColList.find('.col').eq(colNum - 1);
-                let $box = $col.find(".checkbox");
-                self._changeCheckbox($box, $col);
-            }
-        });
-        colList.setupListeners();
-
-        $("#exportOpColumns .dropDownList .searchInput").on("input", function(event) {
-            colList.openList();
+        $("#exportOpColumns .searchArea .searchInput").on("input", function(event) {
             const $searchInput: JQuery = $(event.currentTarget);
             const keyword: string = $searchInput.val().trim();
-            const $dropDown: JQuery = $searchInput.closest(".dropDownList");
-            self._filterCandidateDropdown($dropDown, keyword);
+            self._filterColumns(keyword);
         });
 
         this._setupEventListener();
     }
 
-    private _filterCandidateDropdown($dropDown: JQuery, keyword: string) {
-        const $lis: JQuery = $dropDown.find(".searchCol");
-        const $hint: JQuery = $dropDown.find(".hint");
-        $hint.addClass("xc-hidden");
-        if (!keyword) {
-            $lis.removeClass("xc-hidden");
-            return;
+    private _filterColumns(keyword: string) {
+        if (keyword == "") {
+            this._$elemPanel.find(".columnsToExport .filterHint").addClass("xc-hidden");
+        } else {
+            this._$elemPanel.find(".columnsToExport .filterHint").removeClass("xc-hidden");
         }
-        const $filterLis: JQuery = $lis.filter(function () {
-            return $(this).text().includes(keyword);
-        });
-        $lis.addClass("xc-hidden");
-        $filterLis.removeClass("xc-hidden");
-        if ($filterLis.length === 0) {
-            $hint.removeClass("xc-hidden");
+        keyword = keyword.toLocaleLowerCase();
+        let cols = this._$exportColList.find(".col");
+        for (let i = 0; i < cols.length; i++) {
+            let col = cols.eq(i);
+            if (col.text().toLocaleLowerCase().includes(keyword)) {
+                col.removeClass("xc-hidden");
+                col.find(".checkbox").removeClass("xc-hidden");
+            } else {
+                col.addClass("xc-hidden");
+                col.find(".checkbox").addClass("xc-hidden");
+            }
         }
+        if (this._$exportColList.find('.col .checked').not(".xc-hidden").length
+            == this._$exportColList.find('.checkbox').not(".xc-hidden").length) {
+            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
+        } else {
+            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
+        }
+        this._dataModel.hideCols(keyword);
     }
 
     private _activateDropDown($list: JQuery, container: string) {
@@ -201,6 +195,8 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             })
             .always(() => {
                 MainMenu.setFormOpen();
+                this._$elemPanel.find(".searchBox .searchInput").val("");
+                this._$elemPanel.find(".columnsToExport .filterHint").addClass("xc-hidden");
                 this.panelResize();
                 xcUIHelper.enableScreen($waitIcon);
             });
@@ -235,15 +231,12 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
 
         // Render column list
         let html: string = "";
-        let dropdownHtml: string = "";
         columnList.forEach((column, index) => {
             const colName: string = xcStringHelper.escapeHTMLSpecialChar(
                 column.sourceColumn);
             const colNum: number = (index + 1);
             let checked = column.isSelected ? " checked" : "";
 
-            dropdownHtml += '<li class="searchCol" ' +
-                'data-colnum="' + colNum + '">' + colName + '</li>';
             html += '<li class="col' + checked +
                 '" data-colnum="' + colNum + '">' +
                 '<span class="text tooltipOverflow" ' +
@@ -260,11 +253,11 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 '</div>' +
             '</li>';
         });
-        $("#exportOpColumns .dropDownList .list").html(dropdownHtml);
         this._$exportColList.html(html);
         $("#exportOpColumns .selectAllWrap").show();
         $("#exportOpColumns .noColsHint").hide();
-        if (this._$exportColList.find('.col .checked').length == this._$exportColList.find('.checkbox').length) {
+        if (this._$exportColList.find('.col .checked').length
+            == this._$exportColList.find('.checkbox').length) {
             this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
         } else {
             this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
@@ -434,12 +427,12 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             event.stopPropagation();
             if ($box.hasClass("checked")) {
                 $box.removeClass("checked");
-                self._$exportColList.find('.checked').removeClass("checked");
+                self._$exportColList.find('.checked').not(".xc-hidden").removeClass("checked");
                 self._dataModel.setAllCol(false);
             } else {
                 $box.addClass("checked");
-                self._$exportColList.find('.col').addClass("checked");
-                self._$exportColList.find('.checkbox').addClass("checked");
+                self._$exportColList.find('.col').not(".xc-hidden").addClass("checked");
+                self._$exportColList.find('.checkbox').not(".xc-hidden").addClass("checked");
                 self._dataModel.setAllCol(true);
             }
         });

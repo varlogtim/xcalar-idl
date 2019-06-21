@@ -293,6 +293,30 @@ describe("ExportOpPanelModel Test", function() {
         expect(model.columnList[1].isSelected).to.be.false;
     });
 
+    it("Should hide columns correctly", function() {
+        expect(model.columnList[0].isHidden).to.be.false;
+        expect(model.columnList[1].isHidden).to.be.false;
+        model.hideCols("a");
+        expect(model.columnList[0].isHidden).to.be.true;
+        expect(model.columnList[1].isHidden).to.be.true;
+        model.hideCols("t");
+        expect(model.columnList[0].isHidden).to.be.false;
+        expect(model.columnList[1].isHidden).to.be.false;
+        model.hideCols("t1");
+        expect(model.columnList[0].isHidden).to.be.false;
+        expect(model.columnList[1].isHidden).to.be.true;
+        model.hideCols("");
+    });
+
+    it("Should only set all non hidden columns correctly", function() {
+        model.hideCols("t2");
+        expect(model.columnList[0].isHidden).to.be.true;
+        model.setAllCol(true);
+        expect(model.columnList[0].isSelected).to.be.false;
+        expect(model.columnList[1].isSelected).to.be.true;
+        model.setAllCol(false);
+    });
+
     it("Should set and check if advanced mode correctly", function() {
         model.setAdvMode(false);
         expect(model.isAdvMode()).to.be.false;

@@ -50,45 +50,38 @@ class ExportSQLTableModal {
         });
         expList.setupListeners();
 
-        this._activateDropDown($("#exportSQLTableColumns .dropDownList"), "#exportSQLTableColumns .dropDownList");
-
-        let colList: MenuHelper = new MenuHelper($("#exportSQLTableColumns .dropDownList"), {
-            "onSelect": function($li) {
-
-                let colNum = $li.data("colnum");
-                let $col = self._$exportColList.find('.col').eq(colNum - 1);
-                let $box = $col.find(".checkbox");
-                self._changeCheckbox($box, $col);
-            }
-        });
-        colList.setupListeners();
-
-        $("#exportSQLTableColumns .dropDownList .searchInput").on("input", (event)  => {
-            colList.openList();
+        $("#exportSQLTableColumns .searchInput").on("input", (event)  => {
             const $searchInput: JQuery = $(event.currentTarget);
             const keyword: string = $searchInput.val().trim();
-            const $dropDown: JQuery = $searchInput.closest(".dropDownList");
-            this._filterCandidateDropdown($dropDown, keyword);
+            this._filterColumns(keyword);
         });
 
         this._addEventListeners();
     }
 
-    private _filterCandidateDropdown($dropDown: JQuery, keyword: string) {
-        const $lis: JQuery = $dropDown.find(".searchCol");
-        const $hint: JQuery = $dropDown.find(".hint");
-        $hint.addClass("xc-hidden");
-        if (!keyword) {
-            $lis.removeClass("xc-hidden");
-            return;
+    private _filterColumns(keyword: string) {
+        if (keyword == "") {
+            this._$modal.find(".columnsToExport .filterHint").addClass("xc-hidden");
+        } else {
+            this._$modal.find(".columnsToExport .filterHint").removeClass("xc-hidden");
         }
-        const $filterLis: JQuery = $lis.filter(function () {
-            return $(this).text().includes(keyword);
-        });
-        $lis.addClass("xc-hidden");
-        $filterLis.removeClass("xc-hidden");
-        if ($filterLis.length === 0) {
-            $hint.removeClass("xc-hidden");
+        keyword = keyword.toLocaleLowerCase();
+        let cols = this._$exportColList.find(".col");
+        for (let i = 0; i < cols.length; i++) {
+            let col = cols.eq(i);
+            if (col.text().toLocaleLowerCase().includes(keyword)) {
+                col.removeClass("xc-hidden");
+                col.find(".checkbox").removeClass("xc-hidden");
+            } else {
+                col.addClass("xc-hidden");
+                col.find(".checkbox").addClass("xc-hidden");
+            }
+        }
+        if (this._$exportColList.find('.col .checked').not(".xc-hidden").length
+                == this._$exportColList.find('.checkbox').not(".xc-hidden").length) {
+                this._$modal.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
+        } else {
+            this._$modal.find(".selectAllWrap .checkbox").eq(0).removeClass("checked"); 
         }
     }
 
@@ -128,6 +121,8 @@ class ExportSQLTableModal {
         this._dataModel = new ExportOpPanelModel();
         this._selectedDriver = "";
         this._modalHelper.setup();
+        this._$modal.find(".columnsToExport .filterHint").addClass("xc-hidden");
+        $("#exportSQLTableColumns .searchBox .searchInput").val("");
         this._dataModel.loadDrivers()
         .then(() => {
             this._updateUI();
@@ -222,13 +217,10 @@ class ExportSQLTableModal {
 
         // Render column list
         let html: string = "";
-        let dropdownHtml: string = "";
         columnList.forEach((column, index) => {
             const colName: string = xcStringHelper.escapeHTMLSpecialChar(
                 column.name);
             const colNum: number = (index + 1);
-            dropdownHtml += '<li class="searchCol" ' +
-                'data-colnum="' + colNum + '">' + column.name + '</li>';
             html += '<li class="col' +
                 '" data-colnum="' + colNum + '">' +
                 this._getTypeIcon(column.getType()) +
@@ -246,7 +238,6 @@ class ExportSQLTableModal {
                 '</div>' +
             '</li>';
         });
-        $("#exportSQLTableColumns .dropDownList .list").html(dropdownHtml);
         this._$exportColList.html(html);
         $("#exportSQLTableColumns .selectAllWrap").show();
         $("#exportSQLTableColumns .noColsHint").hide();
@@ -292,11 +283,11 @@ class ExportSQLTableModal {
             }
             if ($box.hasClass("checked")) {
                 $box.removeClass("checked");
-                self._$exportColList.find('.checked').not(".active").removeClass("checked");
+                self._$exportColList.find('.checked').not(".active").not(".xc-hidden").removeClass("checked");
             } else {
                 $box.addClass("checked");
-                self._$exportColList.find('.col').addClass("checked");
-                self._$exportColList.find('.checkbox').addClass("checked");
+                self._$exportColList.find('.col').not(".xc-hidden").addClass("checked");
+                self._$exportColList.find('.checkbox').not(".xc-hidden").addClass("checked");
             }
         });
 
@@ -343,7 +334,8 @@ class ExportSQLTableModal {
         } else {
             $col.addClass("checked");
             $box.addClass("checked");
-            if (this._$exportColList.find('.col .checked').length == this._$exportColList.find('.checkbox').length) {
+            if (this._$exportColList.find('.col .checked').not(".xc-hidden").length
+                == this._$exportColList.find('.checkbox').not(".xc-hidden").length) {
                 this._$modal.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
             }
         }
