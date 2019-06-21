@@ -3949,6 +3949,9 @@ namespace DSPreview {
             let displayError;
             if (error && error.error) {
                 displayError = error.error;
+                if (error.log) {
+                    displayError += ". " + error.log
+                }
             } else {
                 displayError = error;
             }
