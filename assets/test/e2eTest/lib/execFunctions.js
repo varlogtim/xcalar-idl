@@ -79,4 +79,15 @@ module.exports = {
     disableAutoExec: function() {
         UserSettings.setPref('dfAutoExecute', false, false);
     },
+
+    executeAllNonOptimized: function() {
+        let nodes = DagViewManager.Instance.getActiveDag().getAllNodes();
+        let nodeIds = [];
+        nodes.forEach(node => {
+            if (node.subType !== "link out Optimized") {
+                nodeIds.push(node.getId());
+            }
+        });
+        DagViewManager.Instance.run(nodeIds);
+    }
 };

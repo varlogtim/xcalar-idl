@@ -148,8 +148,15 @@ function replay(testConfig, tags) {
                     })
                     .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
                         browser.assert.ok(result.value.length < numOfNodes);
-                    })
-                    .executeAll(numOfNodes * 20000);
+                    });
+                    if (linkOutNode) {
+                        // if there's an optimized node present, get all the nodeIds
+                        // of the other nodes and execute those, leaving the optimized
+                        // node out
+                        browser.executeAllNonOptimized(numOfNodes * 20000);
+                    } else {
+                        browser.executeAll(numOfNodes * 20000);
+                    }
 
                     if (linkOutNode) {
                         browser.elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {

@@ -973,7 +973,10 @@ class DagView {
             .then(() => {
                 return this._runValidation(nodeIds, optimized);
             })
-            .then(() => {
+            .then((ret) => {
+                if (ret && ret.optimized) {
+                    optimized = true;
+                }
                 return this.graph.execute(nodeIds, optimized);
             })
             .then(() => {
@@ -3757,10 +3760,26 @@ class DagView {
     // and continue if an error is found - one case is if a parameter with no
     // value is found -- we can prompt the user to continue or abandon the execution
     private _runValidation(nodeIds: DagNodeId[], optimized: boolean): XDPromise<any> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const ret = this.graph.executionPreCheck(nodeIds, optimized)
         if (!ret) {
-            return PromiseHelper.resolve();
+            if (nodeIds == null && !optimized && DagViewManager.Instance.hasOptimizedNode()) {
+                Alert.show({
+                    "title": "Confirmation",
+                    "msgTemplate": "The dataflow contains an optimized node and can only be executed in optimized mode. " +
+                            "Would you like to execute all nodes in optimized mode?",
+                    "onConfirm": function() {
+                        deferred.resolve({optimized: true});
+                    },
+                    "onCancel": function() {
+                        deferred.reject({
+                            error: "cancel"
+                        });
+                    }
+                });
+            } else {
+                return PromiseHelper.resolve();
+            }
         } else if (ret.status === "confirm" && ret.msg) {
             Alert.show({
                 "title": "Confirmation",
