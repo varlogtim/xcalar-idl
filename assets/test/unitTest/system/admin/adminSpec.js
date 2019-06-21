@@ -240,8 +240,8 @@ describe("Admin Test", function() {
                 expect(text.indexOf('Breakdown')).to.be.gt(-1);
                 expect($ownLi.find(".memory").data("originalTitle")).to.equal("Memory usage: 3 B");
                 expect($("#userMemPopup").find(".breakdown .jObj").is(":visible")).to.be.false;
-                $("#userMemPopup").find(".toggleBreakdown").click();
-                expect($("#userMemPopup").find(".breakdown .jObj").is(":visible")).to.be.true;
+                // $("#userMemPopup").find(".toggleBreakdown").click();
+                // expect($("#userMemPopup").find(".breakdown .jObj").is(":visible")).to.be.true;
 
                 $(document).mousedown();
                 expect($("#userMemPopup").is(":visible")).to.be.false;
