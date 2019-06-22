@@ -755,20 +755,23 @@ class AdvancedModeState extends State {
                 newState = await randomAction.call(this);
         } catch (error) {
             // XXX: Ignoring all errors. Might want to rethrow some errors;
-            console.log(`Exec Action Error: ${error}`);
+            this.log(`Exec Action Error: `);
+            this.logError(error);
         }
         await this.currentTab.save();
         try {
             this.dagViewManager.autoAlign(this.currentTab.getId());
         } catch (error) {
             // It's ok to ignore the autoAlign render error
-            console.log(`Dag View Render Error: ${error}`);
+            this.log(`Dag View Render Error:`);
+            this.logError(error);
         }
         try {
             await this.runDF();
         } catch (error) {
             // XXX: Ignoring all errors. Might want to rethrow some errors;
-            console.log(`Run DF Error: ${error}`);
+            this.log(`Run DF Error`);
+            this.logError(error);
         }
         this.run++;
         return newState;

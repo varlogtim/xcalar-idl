@@ -95,7 +95,7 @@ class SQLModeState extends State {
         try{
             await SqlQueryHistory.getInstance().readStore();
         } catch(err) {
-            console.log("Read sql query history from kvstore fails: " + err);
+            this.log("Read sql query history from kvstore fails");
         }
         let historyMap = SqlQueryHistory.getInstance().getQueryMap();
         let qInfo = null;
@@ -119,7 +119,7 @@ class SQLModeState extends State {
             this.sqlEditor.newSQL(sql);
             await this.sqlEditor.save();
         } catch (err) {
-            this.log(`Error creating snippet ${err} in WKBK ${this.currentWKBKId}`);
+            this.log(`Error creating snippet in WKBK ${this.currentWKBKId}`);
             throw err;
         }
 
@@ -145,7 +145,7 @@ class SQLModeState extends State {
             await this.sqlSnippet.deleteSnippet(randomSnippet);
             await this.sqlEditor._newSnippet();
         } catch (err) {
-            this.log(`Error deleting snippet ${err} in WKBK ${this.currentWKBKId}`);
+            this.log(`Error deleting snippet in WKBK ${this.currentWKBKId}`);
             throw err;
         }
 
@@ -176,7 +176,7 @@ class SQLModeState extends State {
             this.log(`Executing sql query ${snippet} in WKBK ${this.currentWKBKId}`);
             await this.sqlEditor.execute(snippet);
         } catch (err) {
-            this.log(`Error executing snippet ${err} in WKBK ${this.currentWKBKId}`);
+            this.log(`Error executing snippet in WKBK ${this.currentWKBKId}`);
             throw err;
         }
 

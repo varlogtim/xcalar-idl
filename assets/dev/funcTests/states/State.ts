@@ -18,6 +18,19 @@ abstract class State {
         }
     }
 
+    public logError(errorMsg: any) {
+        if (typeof errorMsg === "object") {
+            if (errorMsg instanceof Error) {
+                errorMsg = errorMsg.stack;
+            } else if (errorMsg.error instanceof Error) {
+                errorMsg = errorMsg.error.stack;
+            } else {
+                errorMsg = JSON.stringify(errorMsg);
+            }
+        }
+        console.log(`XDFuncTest Error log: ${errorMsg}`);
+    }
+
     /* -------------------------------Helper Function------------------------------- */
     // Add an availble action
     // If this action already exists, don't do anything. Otherwise add it

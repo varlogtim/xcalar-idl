@@ -205,11 +205,15 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
             if (typeof errorMsg === "object") {
                 if (errorMsg instanceof Error) {
                     errorMsg = errorMsg.stack;
+                } else if (errorMsg.error instanceof Error) {
+                    errorMsg = errorMsg.error.stack;
                 } else {
                     errorMsg = JSON.stringify(errorMsg);
                 }
             }
+            console.log("======================XDFuncTest Fatal Error===========================");
             console.log(errorMsg)
+            console.log("======================XDFuncTest Fatal Error Ends=======================");
             xcSessionStorage.setItem("xdFuncTestStatus", 'fail');
             cleanupSessionStorage();
             test.fail(deferred, testName, totalRun-currentRun, errorMsg);

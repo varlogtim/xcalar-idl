@@ -73,7 +73,7 @@ class WorkbookState extends State {
                 $("#homeBtn").click(); // Go inside the workbook
                 return this.stateMachine.statesMap.get(xcSessionStorage.getItem('xdFuncTestStateName'));
             } else {
-                this.log(`Error activating workbook ${error}`);
+                this.log(`Error activating workbook ${randomWorkbook}`);
                 throw error;
             }
         }
@@ -99,13 +99,13 @@ class WorkbookState extends State {
         try {
             await WorkbookManager.copyWKBK(randomWorkbook, wkbkName);
         } catch (error) {
-            this.log(`Error copying workbook ${error}`);
+            this.log(`Error copying workbook ${randomWorkbook} to ${wkbkName}`);
             throw error;
         }
         if (!this.workbookExist(wkbkName)) {
             throw `Error copying workbook from ${randomWorkbook}. The copied workbook ${wkbkName} doesn't exist`
         }
-        // This should be changed as we have more funcTest for other module
+        this.log(`Copied workbook ${randomWorkbook} to ${wkbkName}`);
         return this;
     }
 
@@ -116,7 +116,7 @@ class WorkbookState extends State {
         try {
             await WorkbookManager.renameWKBK(randomWorkbook, wkbkName, "");
         } catch (error) {
-            this.log(`Error renaming workbook ${error}`);
+            this.log(`Error renaming workbook ${randomWorkbook} to ${wkbkName}`);
             throw error;
         }
         if (WorkbookManager.getWorkbook(randomWorkbook) != null) {
@@ -125,7 +125,7 @@ class WorkbookState extends State {
         if (!this.workbookExist(wkbkName)) {
             throw `Error renaming workbook ${randomWorkbook}, expect new workbook with name ${wkbkName} doesn't exist`;
         }
-        // This should be changed as we have more funcTest for other module
+        this.log(`Renamed workbook ${randomWorkbook} to ${wkbkName}`);
         return this;
     }
 
@@ -149,7 +149,7 @@ class WorkbookState extends State {
             this.deleteAction(this.deactiveWorkbook);
             this.deleteAction(this.deleteWorkbook);
         }
-        // This should be changed as we have more funcTest for other module
+        this.log(`Deleted workbook ${randomWorkbook}`);
         return this
     }
 
