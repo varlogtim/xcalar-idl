@@ -30,6 +30,9 @@ describe('ExpServer Installer Test', function() {
     function getCurStepStatus() {
         return installerManager._curStep.curStepStatus;
     }
+    function getCurStepStepString() {
+        return installerManager._curStep.stepString;
+    }
     function setTestVariables(opts) {
         if (opts.hostnameLocation) {
             installerManager._hostnameLocation = opts.hostnameLocation;
@@ -247,9 +250,10 @@ describe('ExpServer Installer Test', function() {
     it("installUpgradeUtil should work", function(done) {
         testCredArray.credentials = {"sshKey": "test"};
         testCredArray.privHostNames = [];
-        installerManager.installUpgradeUtil(testCredArray,"","echo Success")
+        installerManager.installUpgradeUtil(testCredArray,"","echo Step \[Success\]")
         .then(function() {
             expect(getCurStepStatus()).to.equal(2);
+            expect(getCurStepStepString()).to.equal("Step [Success]");
             done();
         })
         .fail(function() {

@@ -247,21 +247,22 @@ class InstallerManager {
 
     private stdOutCallback(dataBlock: string): void {
         let lines: string[] = dataBlock.split("\n");
+        let self: InstallerManager = InstallerManager.getInstance;
         for (let i = 0; i<lines.length; i++) {
             let data: string = lines[i];
             xcConsole.log("Start ==" + data + "==");
             if (data.indexOf("Step [") === 0 || data.indexOf("STEP [") === 0) {
                 // New Step! Means all the old ones are done
-                this._curStep.stepString = data;
-                this._curStep.nodesCompletedCurrent = [];
+                self._curStep.stepString = data;
+                self._curStep.nodesCompletedCurrent = [];
             } else if (data.indexOf("[") === 0) {
                 // One node completed current step!
-                let hostId: string = (this._getNodeRegex.exec(data))[1];
-                let status: string = (this._getStatusRegex.exec(data))[1];
+                let hostId: string = (self._getNodeRegex.exec(data))[1];
+                let status: string = (self._getStatusRegex.exec(data))[1];
                 if (status === "SUCCESS") {
-                    this._curStep.nodesCompletedCurrent[hostId] = true;
+                    self._curStep.nodesCompletedCurrent[hostId] = true;
                 } else {
-                    this._curStep.nodesCompletedCurrent[hostId] = false;
+                    self._curStep.nodesCompletedCurrent[hostId] = false;
                     // XXX error message?
                 }
             }
@@ -269,7 +270,37 @@ class InstallerManager {
     }
 
     private stdErrCallback(dataBlock: string): void {
-        this._errorLog += dataBlock + "\n";
+        InstallerManager.getInstance._errorLog += dataBlock + "\n";
+    }
+
+    private initialStep(credArray: CredArray): Promise<any> {
+        let deferred: any = jQuery.Deferred();
+        if ("password" in credArray.credentials) {
+            let password: string = credArray.credentials.password;
+            fs.writeFile(this._credentialLocation, password,
+                        {mode: parseInt('600', 8)},
+                        function(err) {
+                            if (err) {
+                                deferred.reject(err);
+                                return;
+                            }
+                            deferred.resolve();
+                        });
+        } else if ("sshKey" in credArray.credentials) {
+            let sshkey: string = credArray.credentials.sshKey;
+            fs.writeFile(this._credentialLocation, sshkey,
+                        {mode: parseInt('600', 8)},
+                        function(err) {
+                            if (err) {
+                                deferred.reject(err);
+                                return;
+                            }
+                            deferred.resolve();
+                        });
+        } else {  // when it contains sshUserSettings
+            deferred.resolve();
+        }
+        return deferred.promise();
     }
 
     private installUpgradeUtil(credArray: CredArray, execCommand: string,
@@ -280,38 +311,8 @@ class InstallerManager {
         let hasPrivHosts = false;
         this.clearErrorLog();
 
-        function initialStep(): Promise<any> {
-            let deferred: any = jQuery.Deferred();
-            let self: InstallerManager = InstallerManager.getInstance;
-            if ("password" in credArray.credentials) {
-                let password: string = credArray.credentials.password;
-                fs.writeFile(self._credentialLocation, password,
-                            {mode: parseInt('600', 8)},
-                            function(err) {
-                                if (err) {
-                                    deferred.reject(err);
-                                    return;
-                                }
-                                deferred.resolve();
-                            });
-            } else if ("sshKey" in credArray.credentials) {
-                let sshkey: string = credArray.credentials.sshKey;
-                fs.writeFile(self._credentialLocation, sshkey,
-                            {mode: parseInt('600', 8)},
-                            function(err) {
-                                if (err) {
-                                    deferred.reject(err);
-                                    return;
-                                }
-                                deferred.resolve();
-                            });
-            } else {  // when it contains sshUserSettings
-                deferred.resolve();
-            }
-            return deferred.promise();
-        }
 
-        initialStep()
+        this.initialStep(credArray)
         .then(() => {
             let deferred: any = jQuery.Deferred();
             fs.writeFile(this._hostnameLocation, hostArray.join("\n"), (err) => {
@@ -514,7 +515,7 @@ class InstallerManager {
         return deferredOut.promise();
     }
 
-    createStatusArray(credArray: CredArray): Promise<ReturnMsg> {
+    public createStatusArray(credArray: CredArray): Promise<ReturnMsg> {
         let deferred: any = jQuery.Deferred();
         let ackArray: string[] = [];
         // Check global array that has been populated by prev step
@@ -553,10 +554,11 @@ class InstallerManager {
         return deferred.promise();
     }
 
-    checkLicense(credArray: any, script?: string): Promise<ReturnMsg> {
+    public checkLicense(credArray: any, script?: string): Promise<ReturnMsg> {
         let deferredOut: any = jQuery.Deferred();
         let fileLocation: string = this._licenseLocation;
-        let compressedLicense: Buffer = Buffer.from(credArray.licenseKey, 'base64');
+        let compressedLicense: Buffer = Buffer.from(credArray.licenseKey,
+                                                        'base64');
         let licenseStream: stream.PassThrough = new stream.PassThrough();
 
         licenseStream.write(compressedLicense);
@@ -629,19 +631,19 @@ class InstallerManager {
         return deferredOut.promise();
     }
 
-    installXcalar(credArray: CredArray): void {
+    public installXcalar(credArray: CredArray): void {
         this.installUpgradeUtil(credArray, "cluster-install.sh");
     }
 
-    upgradeXcalar(credArray: CredArray): void {
+    public upgradeXcalar(credArray: CredArray): void {
         this.installUpgradeUtil(credArray, "cluster-upgrade.sh");
     }
 
-    uninstallXcalar(credArray: CredArray): void {
+    public uninstallXcalar(credArray: CredArray): void {
         this.installUpgradeUtil(credArray, "cluster-uninstall.sh");
     }
 
-    discoverXcalar(credArray: CredArray): Promise<any> {
+    public discoverXcalar(credArray: CredArray): Promise<any> {
         return this.discoverUtil(credArray, "cluster-discover.sh");
     }
 }
