@@ -24,6 +24,27 @@ namespace TooltipWalkthroughs {
         );
     }
 
+    export function emergencyPopup(): void {
+        TooltipManager.start({
+            tooltipTitle: "Warning",
+            background: false,
+            startScreen: null,
+            isSingleTooltip: true
+        },
+        [{
+            highlight_div: "#homeBtn",
+            interact_div: "#homeBtn",
+            text: "Something has gone wrong while executing this tooltip walkthrough. Please try again later.",
+            type: TooltipType.Click
+        }],
+        0,
+        {
+            closeOnModalClick: true,
+            includeNumbering: false
+        }
+        );
+    }
+
     // XXX TODO: add something that enters a workbook if not in one.
 
     export function SQLModeWalkthrough(): void {

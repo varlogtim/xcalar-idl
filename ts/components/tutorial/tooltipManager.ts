@@ -32,10 +32,11 @@ namespace TooltipManager {
 
 
     export function start(walkthroughInfo: WalkthroughInfo, tooltips: TooltipInfo[],
-            step: number, userOptions?: any) {
+            step: number, userOptions?: any): XDPromise<void> {
         stepNumber = step - 1;
         currWalkthrough = tooltips;
         title = walkthroughInfo.tooltipTitle;
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         if (userOptions) {
             setOptions(userOptions);
@@ -74,10 +75,13 @@ namespace TooltipManager {
 
             // temp
             //$('#xcalarVid').attr('muted', "true");
+            deferred.resolve();
         })
         .fail((e) => {
             console.error("Could not open walkthrough: " + e);
+            deferred.reject();
         });
+        return deferred.promise();
     };
 
     function switchScreen(screen: TooltipStartScreen): JQueryPromise<void> {
@@ -131,6 +135,7 @@ namespace TooltipManager {
                 deferred.resolve();
                 break;
             default:
+                deferred.resolve();
                 break;
         }
         return deferred.promise();
@@ -258,7 +263,34 @@ namespace TooltipManager {
             showPopoverEndState();
         }
 
+        if (stepNumber > 0) {
+            let oldInteractiveEle = currWalkthrough[stepNumber - 1].interact_div;
+            if (currWalkthrough[stepNumber - 1].type == TooltipType.Click) {
+                ensureOpenScreen(oldInteractiveEle);
+            }
+        }
         highlightNextElement();
+    }
+
+    /**
+     * This ensures that some hardcoded interactive elements open respective panels.
+     * In the future this function could be removed entirely, but for now there are some
+     * behaviors that may need to be hardcoded.
+     * @param interact_div 
+     */
+    function ensureOpenScreen(interact_div) {
+        if (!interact_div) {
+            return;
+        }
+        switch(interact_div) {
+            case (hardcodedInteractives.DatasetCreateTablePanel):
+            case (hardcodedInteractives.SQLCreateTablePanel):
+                DSForm.show();
+            default:
+                MainMenu.open(true);
+                break;
+        }
+        return;
     }
 
     function clearListeners() {
@@ -284,9 +316,21 @@ namespace TooltipManager {
         let currentStep = currWalkthrough[stepNumber];
 
         $currElem = $(currentStep.highlight_div);
+        if ($currElem.length == 0) {
+            // the next element was not successfully found.
+            closeWalkthrough();
+            TooltipWalkthroughs.emergencyPopup();
+            return;
+        }
 
         $currElem.addClass('intro-highlightedElement');
         currElemRect = $currElem[0].getBoundingClientRect();
+        if (currElemRect.width == 0 || currElemRect.height == 0) {
+            // the next element is not successfully displayed.
+            closeWalkthrough();
+            TooltipWalkthroughs.emergencyPopup();
+            return;
+        }
 
         moveElementLayer();
         moveHighlightBox();
@@ -569,4 +613,9 @@ enum TooltipStartScreen {
     SQLWorkspace = "SQLWorkspace",
     ADVModeDataflow = "Adv Mode Dataflow",
     Workbooks = "Workbook Screen"
+}
+
+enum hardcodedInteractives {
+    SQLCreateTablePanel = "#sourceTblButton",
+    DatasetCreateTablePanel = "#inButton"
 }

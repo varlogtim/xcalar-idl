@@ -1,4 +1,4 @@
-describe("Tooltip Manager Test", function() {
+describe("Tooltip Manager Test", function(done) {
     let basicTest;
     let basicInfo;
 
@@ -150,5 +150,117 @@ describe("Tooltip Manager Test", function() {
         });
     });
 
+    describe("Reliability/emergency Tests", function() {
+        var oldEmergencyStart;
+        before(function() {
+            oldEmergencyStart = TooltipWalkthroughs.emergencyPopup;
+        });
+
+        it("should open the emergency popup when the next highlighted element cannot be found", function () {
+            var called = false;
+            TooltipWalkthroughs.emergencyPopup = function() {
+                called = true;
+            }
+            var invalidElement = [{
+                highlight_div: "#nonExistBtn",
+                text: "test",
+                type: TooltipType.Text
+            }];
+            TooltipManager.start(basicInfo, invalidElement, 0);
+            expect(called).to.be.true;
+            TooltipManager.closeWalkthrough();
+        });
+
+        it("should open the emergency popup if the next highlighted element does not have a size", function () {
+            var called = false;
+            TooltipWalkthroughs.emergencyPopup = function() {
+                called = true;
+            }
+            let html = "<div id='hiddentooltipobject' class='xc-hidden'></div>"
+            $("#container").append(html);
+            var invalidElement = [{
+                highlight_div: "#hiddentooltipobject",
+                text: "test",
+                type: TooltipType.Text
+            }];
+            TooltipManager.start(basicInfo, invalidElement, 0);
+            $("#hiddentooltipobject").remove();
+            expect(called).to.be.true;
+            TooltipManager.closeWalkthrough();
+        });
+
+        after(function() {
+            TooltipWalkthroughs.emergencyPopup = oldEmergencyStart;
+        });
+    });
+
+    describe("Should ensure open screens and panels", function(done) {
+        before(function () {
+            if (XVM.isSQLMode()) {
+                $("#modeArea").click();
+            }
+            basicInfo.startScreen = null;
+        });
+        it("Should open the dataset screen and panel when the dataset button is clicked", function(done) {
+            var buttonClick = [{
+                highlight_div: "#inButton",
+                interact_div: "#inButton",
+                text: "test",
+                type: "click"
+            },{
+                highlight_div: "#homeBtn",
+                text: "test2",
+                type: "text"
+            }];
+            // Ensure datastores tab is open
+            MainMenu.openPanel("datastorePanel");
+            // hide everything
+            MainMenu.close(true);
+            DSForm.hide();
+            TooltipManager.start(basicInfo, buttonClick, 0)
+            .always(() => {
+                expect(MainMenu.isMenuOpen()).to.be.false;
+                expect($("#dsFormView").hasClass("xc-hidden")).to.be.true;
+                var e = jQuery.Event("click.tooltip");
+                $("#inButton").trigger(e);
+                expect(MainMenu.isMenuOpen()).to.be.true;
+                expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
+                TooltipManager.closeWalkthrough();
+                done();
+            });
+        });
+
+        it("Should open the table screen and panel when the table button is clicked", function(done) {
+            if (XVM.isSQLMode()) {
+                $("#modeArea").click();
+            }
+            var buttonClick = [{
+                highlight_div: "#sourceTblButton",
+                interact_div: "#sourceTblButton",
+                text: "test",
+                type: TooltipType.Click
+            },{
+                highlight_div: "#homeBtn",
+                text: "test2",
+                type: "text"
+            }];
+            // Ensure datastores tab is open
+            MainMenu.openPanel("datastorePanel");
+            // hide everything
+            MainMenu.close(true);
+            DSForm.hide();
+            TooltipManager.start(basicInfo, buttonClick, 0)
+            .always(() => {
+                expect(MainMenu.isMenuOpen()).to.be.false;
+                expect($("#dsFormView").hasClass("xc-hidden")).to.be.true;
+                var e = jQuery.Event("click.tooltip");
+                $("#sourceTblButton").trigger(e);
+                expect(MainMenu.isMenuOpen()).to.be.true;
+                expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
+                TooltipManager.closeWalkthrough();
+                done();
+            });
+        });
+    });
 
 });
