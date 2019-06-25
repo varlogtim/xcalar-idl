@@ -686,7 +686,7 @@ class DagView {
         }
 
         function searchForTooltip(node: DagNode, seen: Set<DagNodeId>) {
-            if (node.getState() !== DagNodeState.Complete) {
+            if (node.getState() === DagNodeState.Complete) {
                 return true;
             }
             if (seen.has(node.getId())) {
@@ -1740,14 +1740,14 @@ class DagView {
         let tipText = "";
         if (type === "rename") {
             tipText = CommonTxtTstr.Renamed;
+        } else if (type === "hide") {
+                tipText = "Hidden";
         } else if (type === "add" || node.getNumParent() === 0) {
             tipText = CommonTxtTstr.Created;
         } else if (type === "remove") {
             tipText = CommonTxtTstr.Removed;
         } else if (type === "pull") {
             tipText = "Pulled";
-        } else if (type === "hide") {
-            tipText = "Hidden";
         }
         if (tipText) {
             const scale = this.graph.getScale();

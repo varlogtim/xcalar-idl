@@ -53,7 +53,6 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
         columns: ProgCol[],
         replaceParameters?: boolean
     ): DagLineageChange {
-
         if (this.optimized) {
             const allCols = [];
             const changes = [];
@@ -80,6 +79,15 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
                         to: null
                     });
                 }
+            });
+            let hiddenColumns = this.lineage.getHiddenColumns();
+            hiddenColumns.forEach((progCol, colName) => {
+                hiddenColumns.delete(colName);
+                changes.push({
+                    from: progCol,
+                    to: null,
+                    hidden: true
+                });
             });
             return {
                 columns: allCols,

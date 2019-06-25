@@ -31,10 +31,29 @@ describe("Project Dag Node Test", () => {
         node.setParam({
             columns: ['prefix::col#1', 'col#1']
         });
-        
+
         const result = node.lineageChange(columns);
         expect(result.columns.length).to.equal(4);
         expect(result.changes.length).to.equal(2);
+    });
+
+    it("lineageChange with hidden columns should work", () => {
+        const columns = genProgCols('prefix::col', 3).concat(genProgCols('col', 3));
+        node.setParam({
+            columns: ['prefix::col#1', 'col#1']
+        });
+        const lineage = node.getLineage();
+        lineage.getHiddenColumns = () => {
+            let map = new Map();
+            map.set("a", ColManager.newPullCol("a", "a", ColumnType.string));
+            return map;
+        };
+        const result = node.lineageChange(columns);
+        expect(result.columns.length).to.equal(4);
+        expect(result.changes.length).to.equal(3);
+        expect(result.changes[2].from.getBackColName()).to.equal("a");
+        expect(result.changes[2].to).to.be.null;
+        expect(result.changes[2].hidden).to.be.true;
     });
 
     function genProgCols(colPrefix, count) {

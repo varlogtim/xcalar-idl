@@ -20,7 +20,8 @@ interface DagColumnChange {
     from: ProgCol,
     to: ProgCol,
     parentIndex?: number,
-    hidden?: boolean
+    hidden?: boolean,
+    hiddenCol?: ProgCol
 }
 
 interface BackTraceInfo {

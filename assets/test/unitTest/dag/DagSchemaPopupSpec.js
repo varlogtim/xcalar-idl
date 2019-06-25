@@ -80,7 +80,14 @@ describe("DagSchemaPopup Test", function() {
                     "parents": [
                         "dag_5C2E5E0B0EF91A85_1551910568274_43"
                     ],
-                    "nodeId": "dag_5C2E5E0B0EF91A85_1552410078861_36"
+                    "nodeId": "dag_5C2E5E0B0EF91A85_1552410078861_36",
+                    "columnDeltas": [
+                        {
+                            "name": "classes::class_name",
+                            "isHidden": true,
+                            "type": "string"
+                        }
+                    ],
                 },
                 {
                     "type": "map",
@@ -182,6 +189,8 @@ describe("DagSchemaPopup Test", function() {
                 }
             ];
 
+
+
             dagView.validateAndPaste(JSON.stringify(nodeInfos));
             groupByNodeId = $dfArea.find(".operator.groupBy").data("nodeid");
             datasetNodeId = $dfArea.find(".operator.dataset").data("nodeid");
@@ -212,10 +221,13 @@ describe("DagSchemaPopup Test", function() {
     it("should have correct rows", function() {
         DagSchemaPopup.Instance.show(groupByNodeId);
         expect($popup.find("li").length).to.equal(4);
+
         expect($popup.find("li").eq(0).attr("class")).to.equal("changeType-remove");
-        expect($popup.find("li").eq(0).text()).to.equal("-stringclasses::class_name");
-        expect($popup.find("li").eq(1).attr("class")).to.equal("changeType-remove");
-        expect($popup.find("li").eq(1).text()).to.equal("-moneyclass_id");
+        expect($popup.find("li").eq(0).text()).to.equal("-moneyclass_id");
+
+        expect($popup.find("li").eq(1).attr("class")).to.equal("changeType-remove hidden");
+        expect($popup.find("li").eq(1).text()).to.equal("-stringclasses::class_name");
+
         expect($popup.find("li").eq(2).attr("class")).to.equal("changeType-add");
         expect($popup.find("li").eq(2).text()).to.equal("+integergbCol");
         expect($popup.find("li").eq(3).attr("class")).to.equal("");
@@ -230,7 +242,7 @@ describe("DagSchemaPopup Test", function() {
         expect($popup.find("li").eq(0).text()).to.equal("+integerclasses::class_id");
         expect($popup.find("li").eq(1).attr("class")).to.equal("changeType-replace");
         expect($popup.find("li").eq(1).text()).to.equal("+moneyclass_id");
-        expect($popup.find("li").eq(2).attr("class")).to.equal("");
+        expect($popup.find("li").eq(2).attr("class")).to.equal("changeType-hidden");
         expect($popup.find("li").eq(2).text()).to.equal("stringclasses::class_name");
         DagSchemaPopup.Instance._close();
     });
@@ -250,13 +262,13 @@ describe("DagSchemaPopup Test", function() {
             expect($dfArea.find(".operator.lineageSelected").length).to.equal(0);
             expect($dfArea.find(".edge").length).to.equal(4);
             expect($dfArea.find(".edge.lineageSelected").length).to.equal(0);
-            $popup.find("li").eq(0).trigger(fakeEvent.mouseup);
+            $popup.find("li").eq(1).trigger(fakeEvent.mouseup);
             expect($dfArea.find(".operator.lineageSelected").length).to.equal(4);
             expect($dfArea.find(".edge.lineageSelected").length).to.equal(3);
         });
 
         it("should show removed tip", function() {
-            expect($dfArea.find(".lineageTip").length).to.equal(2);
+            expect($dfArea.find(".lineageTip").length).to.equal(3);
             expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Removed");
             let nodeRect = $dfArea.find(".operator.groupBy")[0].getBoundingClientRect();
             let tipRect = $dfArea.find(".lineageTip")[0].getBoundingClientRect();
@@ -266,9 +278,9 @@ describe("DagSchemaPopup Test", function() {
             expect(tipRect.top - nodeRect.top).to.be.lt(-10);
         });
         it("should show created tip", function() {
-            expect($dfArea.find(".lineageTip").eq(1).text()).to.equal("Created");
+            expect($dfArea.find(".lineageTip").eq(2).text()).to.equal("Created");
             let nodeRect = $dfArea.find(".operator.dataset")[0].getBoundingClientRect();
-            let tipRect = $dfArea.find(".lineageTip")[1].getBoundingClientRect();
+            let tipRect = $dfArea.find(".lineageTip")[2].getBoundingClientRect();
             expect(tipRect.left - nodeRect.left).to.be.gt(20);
             expect(tipRect.left - nodeRect.left).to.be.lt(40);
             expect(tipRect.top - nodeRect.top).to.be.gt(-30);
@@ -276,7 +288,7 @@ describe("DagSchemaPopup Test", function() {
         });
 
         it("should show renamed tooltip", function() {
-            $popup.find("li").eq(1).trigger(fakeEvent.mouseup);
+            $popup.find("li").eq(0).trigger(fakeEvent.mouseup);
             expect($dfArea.find(".lineageTip").length).to.equal(3);
 
             expect($dfArea.find(".lineageTip").eq(2).text()).to.equal("Created");
@@ -330,6 +342,18 @@ describe("DagSchemaPopup Test", function() {
             expect(tipRect.left - nodeRect.left).to.be.lt(40);
             expect(tipRect.top - nodeRect.top).to.be.gt(-30);
             expect(tipRect.top - nodeRect.top).to.be.lt(-10);
+        });
+
+        it("should handle hidden column in current node", function() {
+            DagSchemaPopup.Instance._close();
+            DagSchemaPopup.Instance.show(castNodeId);
+
+            $popup.find("li").eq(2).trigger(fakeEvent.mouseup);
+            expect($dfArea.find(".lineageTip").length).to.equal(2);
+
+            expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Hidden");
+            expect($dfArea.find(".lineageTip").eq(1).text()).to.equal("Created");
+            DagSchemaPopup.Instance._close();
         });
 
         describe("sql node", function() {

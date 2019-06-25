@@ -128,6 +128,18 @@ class DagNodeGroupBy extends DagNode {
                     });
                 }
             }
+
+            if (!input.joinBack) {
+                let hiddenColumns = this.lineage.getHiddenColumns();
+                hiddenColumns.forEach((progCol, colName) => {
+                    hiddenColumns.delete(colName);
+                    changes.push({
+                        from: progCol,
+                        to: null,
+                        hidden: true
+                    });
+                });
+            }
         }
 
         return {

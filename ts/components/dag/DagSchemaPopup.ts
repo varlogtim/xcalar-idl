@@ -106,6 +106,7 @@ class DagSchemaPopup {
         let adds = {html: ""};
         let removes = {html: ""};
         let replaces = {html: ""};
+        let hides = {html: ""};
         let changeIcon;
         let seenColumns: Set<string> = new Set();
         // list changes first
@@ -116,6 +117,8 @@ class DagSchemaPopup {
             let destCol;
             let otherProgCol;
             let htmlType;
+            let isHidden = false
+
             if (change.to) {
                 progCol = change.to;
                 seenColumns.add(progCol.getBackColName());
@@ -138,9 +141,18 @@ class DagSchemaPopup {
                 changeType = "remove";
                 if (change.hidden) {
                     changeType += " hidden";
+                    isHidden = true;
                 }
                 htmlType = removes;
                 changeIcon = "-";
+            } else if (change.hiddenCol) {
+                progCol = change.hiddenCol;
+                seenColumns.add(progCol.getBackColName());
+                destCol = progCol;
+                changeType = "hidden";
+                isHidden = true;
+                htmlType = hides;
+                changeIcon = "";
             }
 
             if (changeType === "replace") {
@@ -152,7 +164,7 @@ class DagSchemaPopup {
 
             let liClass = 'changeType-' + changeType;
             htmlType.html += this._liTemplate(progCol, changeIcon,
-                                             liClass, destCol);
+                                             liClass, destCol, isHidden);
             if (changeType === "replace") {
                 htmlType.html += '<div class="arrow">&darr;</div>';
                 htmlType.html += '</ul>';
@@ -168,6 +180,7 @@ class DagSchemaPopup {
         let noChange = (html === "<ul>");
 
         // list columns that have no change (have not been seen)
+
         for (let i = 0; i < this._tableColumns.length; i++) {
             const progCol = this._tableColumns[i];
             if (seenColumns.has(progCol.getBackColName())) {
@@ -176,14 +189,17 @@ class DagSchemaPopup {
             seenColumns.add(progCol.getBackColName());
             html += this._liTemplate(progCol, "", "");
         }
-        // TODO: uncomment hiddenCols when design is ready
-        // let hiddenColumns = lineage.getHiddenColumns();
-        // hiddenColumns.forEach((progCol, colName) => {
-        //     if (seenColumns.has(colName)) {
-        //         return;
-        //     }
-        //     html += this._liTemplate(progCol, "", "hidden");
-        // });
+
+        let hiddenColumns = lineage.getHiddenColumns();
+        hiddenColumns.forEach((progCol, colName) => {
+            if (seenColumns.has(colName)) {
+                return;
+            }
+            html += this._liTemplate(progCol, "", "hidden", null, true);
+            numCols++;
+        });
+
+        html += hides.html; // show hidden columns after kept columns
 
         if (!numCols) {
             html += '<span class="noFields">' + DFTStr.NoFields + '</span>';
@@ -248,6 +264,7 @@ class DagSchemaPopup {
         changeIcon: string,
         liClass: string,
         destCol?: ProgCol,
+        isHidden?: boolean
     ): HTML {
         let type = progCol.getType();
         let name = xcStringHelper.escapeHTMLSpecialChar(
@@ -257,6 +274,8 @@ class DagSchemaPopup {
         const destColName = destCol != null
             ? xcStringHelper.escapeHTMLSpecialChar(destCol.getBackColName())
             : '';
+        let hideIcon: HTML = isHidden ? '<i class="icon xi-hide" ' + xcTooltip.Attrs +
+                        '  data-tipclasses="highZindex" data-original-title="Field is hidden from result set"></i>' : "";
         let html: HTML =
             '<li class="' + liClass + '">' +
                 '<div>' +
@@ -272,6 +291,7 @@ class DagSchemaPopup {
                 'data-backname="' + backName + '">' +
                     name +
                 '</div>' +
+                hideIcon +
                 // '<div>' +
                 // // XX SAMPLE DATA GOES HERE
                 // '</div>' +

@@ -79,24 +79,19 @@ class DagNodeProject extends DagNode {
                 }
             });
         }
-        // TODO: uncomment hiddenCols when design is ready
-        // let hiddenColumns = this.lineage.getHiddenColumns();
-        let hiddenColumns = null;
-        if (hiddenColumns != null) {
-            hiddenColumns.forEach((progCol, colName) => {
-                const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
-                const keep: boolean = parsed.prefix && prefixSet.has(parsed.prefix);
-
-                if (!keep) {
-                    hiddenColumns.delete(colName);
-                    changes.push({
-                        from: progCol,
-                        to: null,
-                        hidden: true
-                    });
-                }
-            });
-        }
+        let hiddenColumns = this.lineage.getHiddenColumns();
+        hiddenColumns.forEach((progCol, colName) => {
+            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
+            const keep: boolean = parsed.prefix && prefixSet.has(parsed.prefix);
+            if (!keep) {
+                hiddenColumns.delete(colName);
+                changes.push({
+                    from: progCol,
+                    to: null,
+                    hidden: true
+                });
+            }
+        });
 
         return {
             columns: finalCols,

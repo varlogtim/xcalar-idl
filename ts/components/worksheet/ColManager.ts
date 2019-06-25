@@ -564,7 +564,7 @@ namespace ColManager {
                 }
                 let curType: ColumnType = progCol.getType();
                 deferred.resolve({
-                    updateType: (origType == curType) ? null : curType
+                    updateType: curType
                 });
                 break;
             case ("raw"):

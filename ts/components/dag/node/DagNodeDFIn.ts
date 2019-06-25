@@ -78,12 +78,13 @@ class DagNodeDFIn extends DagNodeIn {
     }
 
     public lineageChange(_columns: ProgCol[]): DagLineageChange {
-        const colums: ProgCol[] = this.getSchema().map((col) => {
+        const columns: ProgCol[] = this.getSchema().map((col) => {
             const fontName: string = xcHelper.parsePrefixColName(col.name).name;
             return ColManager.newPullCol(fontName, col.name, col.type);
         });
+
         return {
-            columns: colums,
+            columns: columns,
             changes: []
         };
     }

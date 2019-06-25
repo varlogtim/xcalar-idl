@@ -15,13 +15,14 @@ class DagLineage {
         sourceColMap: {
             removed: Map<string, number[]>, // source columns removed
             renamed: Map<string, Map<string, number>>, // source columns renamed
-            hidden: Map<string, number[]>
+            hidden: Map<string, number[]>,
+            hiddenThisNode: Map<string, number[]>
         },
         destColMap: {
             added: Set<string>, // New columns
             renamed: Map<string, {from: string, parentIndex: number}>, // Dest columns renamed
             kept: Map<string, number>, // Dest columns kept
-            pulled: Set<string>
+            pulled: Map<string, number>
         }
     };
 
@@ -76,13 +77,10 @@ class DagLineage {
             return this.columns;
         }
     }
-    /**
-     *
-     * @param includeNewlyPulled : if true, will include columns that were hidden in parent
-     * but no longer hidden due to a pullCol that occured in this node
-     */
-    public getHiddenColumns(includeNewlyPulled = false): Map<string, ProgCol> {
-        if (includeNewlyPulled || this.hiddenColumns == null) {
+
+
+    public getHiddenColumns(): Map<string, ProgCol> {
+        if (this.hiddenColumns == null) {
             const columnDeltas: Map<string, any> = this.node.getColumnDeltas();
             let hiddenColumns: Map<string, ProgCol> = new Map();
             let pulledColumns: Set<string> = new Set();
@@ -94,25 +92,40 @@ class DagLineage {
                     pulledColumns.add(colName);
                 }
             });
-            if (!this.node.isSourceNode() && this.node.getType() !== DagNodeType.Aggregate) {
+
+            let node = this.node;
+            if (!node.isSourceNode() && node.getType() !== DagNodeType.Aggregate) {
                 // aggregate has no columns. just a value
-                this.node.getParents().forEach((parentNode) => {
+                node.getParents().forEach((parentNode) => {
                     if (parentNode == null) {
                         return;
                     }
                     // clone because we will remove pulled columns and we don't want to affect
                     // parent node's hiddenColumns map
                     const parentHiddenColumns = new Map(parentNode.getLineage().getHiddenColumns());
-                    if (!includeNewlyPulled) {
-                        pulledColumns.forEach(colName => {
-                            if (parentHiddenColumns.has(colName)) {
-                                parentHiddenColumns.delete(colName);
-                            }
-                        });
-                    }
+                    pulledColumns.forEach(colName => {
+                        if (parentHiddenColumns.has(colName)) {
+                            parentHiddenColumns.delete(colName);
+                        }
+                    });
 
                     hiddenColumns = new Map([...parentHiddenColumns, ...hiddenColumns]);
                 });
+            } else if (node instanceof DagNodeDFIn) {
+                 // if link in node, use it's linkOut node as reference for hidden columns
+                try {
+                    let linkOutNode = node.getLinkedNodeAndGraph().node;
+                    if (linkOutNode) {
+                        hiddenColumns = new Map(linkOutNode.getLineage().getHiddenColumns());
+                        pulledColumns.forEach(colName => {
+                            if (hiddenColumns.has(colName)) {
+                                hiddenColumns.delete(colName);
+                            }
+                        });
+                    }
+                } catch (e) {
+
+                }
             }
             this.hiddenColumns = hiddenColumns;
         }
@@ -194,7 +207,6 @@ class DagLineage {
         this.columnHistory = [changeInfo];
 
         const { sourceColMap, destColMap } = this._getColumnMaps();
-
         // populate change information
         let parentIndexList: number[];
         if (destColName == null) { // We are looking for a dest column
@@ -205,8 +217,6 @@ class DagLineage {
                 changeInfo.type = 'rename';
                 parentIndexList = [colRenameInfo.parentIndex];
                 colName = colRenameInfo.from;
-            } else if (destColMap.kept.has(colName)) {
-                parentIndexList = [destColMap.kept.get(colName)];
             } else if (destColMap.pulled.has(colName)) {
                 changeInfo.type = 'pull';
                 // check if pulled from origin column
@@ -214,7 +224,16 @@ class DagLineage {
                 if (destColMap.kept.has(nestedName)) {
                     colName = nestedName;
                     parentIndexList = [destColMap.kept.get(colName)];
+                } else if (destColMap.pulled.get(colName) != null) {
+                    parentIndexList = [destColMap.pulled.get(colName)];
                 }
+            } else if (sourceColMap.hiddenThisNode.has(colName)) {
+                changeInfo.type = 'hide';
+                parentIndexList = sourceColMap.hidden.get(colName).map((v) => v);
+            } else if (sourceColMap.hidden.has(colName)) {
+                parentIndexList = sourceColMap.hidden.get(colName).map((v) => v);
+            } else if (destColMap.kept.has(colName)) {
+                parentIndexList = [destColMap.kept.get(colName)];
             } else {
                 // This should never happen
                 console.error(`Source column not found: ${colName}`);
@@ -234,7 +253,12 @@ class DagLineage {
                     console.error(`Dest column not found: ${destColName}`);
                 }
             }
+            if (sourceColMap.hidden.has(colName)) {
+                changeInfo.type = 'hide';
+                parentIndexList = sourceColMap.hidden.get(colName).map((v) => v);
+            }
         }
+
         if (parentIndexList == null) {
             return this.columnHistory;
         }
@@ -258,13 +282,14 @@ class DagLineage {
         sourceColMap: {
             removed: Map<string, number[]>, // source columns removed
             renamed: Map<string, Map<string, number>> // source columns renamed
-            hidden: Map<string, number[]>
+            hidden: Map<string, number[]>,
+            hiddenThisNode: Map<string, number[]>
         },
         destColMap: {
             added: Set<string>, // New columns
             renamed: Map<string, {from: string, parentIndex: number}>, // Dest columns renamed
             kept: Map<string, number>, // Dest columns kept
-            pulled: Set<string>
+            pulled: Map<string, number>
         }
     } {
         if (this.columnParentMaps != null) {
@@ -274,16 +299,17 @@ class DagLineage {
         const sourceColMap = {
             removed: new Map<string, number[]>(), // source columns removed
             renamed: new Map<string, Map<string, number>>(), // source columns renamed
-            hidden: new Map<string, number[]>()
+            hidden: new Map<string, number[]>(),
+            hiddenThisNode: new Map<string, number[]>()
         };
         const destColMap = {
             added: new Set<string>(), // New columns
             renamed: new Map<string, {from: string, parentIndex: number}>(), // Dest columns renamed
             kept: new Map<string, number>(), // Dest columns kept
-            pulled: new Set<string>()
+            pulled: new Map<string, number>()
         }
         // Columns changed by this node
-        for (const {from, to, parentIndex = 0} of this.getChanges()) {
+        for (const {from, to, hiddenCol, parentIndex = 0} of this.getChanges()) {
             if (to) {
                 const destColName = to.getBackColName();
                 if (from) { // to != null && from != null: renamed columns
@@ -303,12 +329,23 @@ class DagLineage {
                     sourceColMap.removed.set(sourceColName, []);
                 }
                 sourceColMap.removed.get(sourceColName).push(parentIndex);
+            } else if (hiddenCol) {
+                const colName = hiddenCol.getBackColName();
+                if (!sourceColMap.hidden.has(colName)) {
+                    sourceColMap.hidden.set(colName, []);
+                }
+                if (!sourceColMap.hiddenThisNode.has(colName)) {
+                    sourceColMap.hiddenThisNode.set(colName, []);
+                }
+                sourceColMap.hidden.get(colName).push(parentIndex);
+                sourceColMap.hiddenThisNode.get(colName).push(parentIndex);
             }
         }
 
         // Columns kept from parents
         // Where all the source columns come from. The map could be empty if it's a input node.
         const sourceParentMap = new Map<string, Set<number>>();
+        const hiddenSourceParentMap = new Map<string, Set<number>>();
         const parents = this.node.getParents();
         for (let i = 0; i < parents.length; i ++) {
             const parent = parents[i];
@@ -322,22 +359,19 @@ class DagLineage {
                 }
                 sourceParentMap.get(colName).add(i);
             }
-            // TODO: uncomment when design is ready
-            // for (const [_str, progCol] of parent.getLineage().getHiddenColumns()) {
-            //     const colName = progCol.getBackColName();
-            //     if (!sourceParentMap.has(colName)) {
-            //         sourceParentMap.set(colName, new Set<number>());
-            //     }
-            //     sourceParentMap.get(colName).add(i);
-            // }
+
+            for (const [_str, progCol] of parent.getLineage().getHiddenColumns()) {
+                const colName = progCol.getBackColName();
+                if (!hiddenSourceParentMap.has(colName)) {
+                    hiddenSourceParentMap.set(colName, new Set<number>());
+                }
+                hiddenSourceParentMap.get(colName).add(i);
+            }
         }
 
-        // TODO: uncomment hiddenCols and pulledCols when design is ready
-        // let hiddenColsMap = this.getHiddenColumns();
-        let hiddenColsMap = new Map();
-        // let hiddenCols = hiddenColsMap.values();
-        // let cols = [...this.getColumns(), ...hiddenCols];
-        let cols = this.getColumns();
+        let hiddenColsMap = this.getHiddenColumns();
+        let hiddenCols = hiddenColsMap.values();
+        let cols = [...this.getColumns(), ...hiddenCols];
         const columnDeltas: Map<string, any> = this.node.getColumnDeltas();
         let pulledColumns: Set<string> = new Set();
         columnDeltas.forEach((colInfo, colName) => {
@@ -369,25 +403,28 @@ class DagLineage {
                     // XXX also if column is pulled -- but this could change
                     // if we make the "pull" action considered to be a "change"
                     if (pulledColumns.has(colName)) {
-
-
-                        destColMap.pulled.add(colName);
-                        // colName = ColManager.parseColFuncArgs(colName).nested[0];
-                        // potentialParents = sourceParentMap.get(colName);
+                        if (hiddenSourceParentMap.has(colName)) {
+                            destColMap.pulled.set(colName, hiddenSourceParentMap.get(colName).values().next().value);
+                        } else {
+                            destColMap.pulled.set(colName, null);
+                        }
                     } else if (hiddenColsMap.has(colName)) {
                         sourceColMap.hidden.set(colName, [0]);
                     } else {
                         destColMap.added.add(colName);
                     }
-                }
-                if (potentialParents != null) {
+                } else {
                     // Remove the parents renamed/removed
                     for (const changedParentIndex of parentsRemoved.concat(parentsRenamed)) {
                         potentialParents.delete(changedParentIndex);
                     }
                     // The parent remaining in the set is the one where the column comes from
                     if (potentialParents.size === 1) {
-                        destColMap.kept.set(colName, potentialParents.values().next().value);
+                        if (hiddenColsMap.has(colName)) {
+                            sourceColMap.hidden.set(colName, [0]);
+                        } else {
+                            destColMap.kept.set(colName, potentialParents.values().next().value);
+                        }
                     } else {
                         // Should never happen!
                         console.error(`Column ${colName} comes from ${potentialParents.size} parents`);
@@ -420,22 +457,27 @@ class DagLineage {
 
             colInfo = this._applyChanges(replaceParameters, columns);
         }
+        let columns: ProgCol[] = colInfo.columns;
+        let changes: DagColumnChange[] = colInfo.changes;
 
         // Step 2. add Pulled columns
         const columnDeltas: Map<string, any> = this.node.getColumnDeltas();
         // check if node has "pulled columns" action and add these to
         // colInfo.columns if they aren't already there
-        const colNames: Set<string> = new Set(colInfo.columns.map(col => col.getBackColName()));
-        let hiddenCols: Map<string, ProgCol>;
+        const colNames: Set<string> = new Set(columns.map(col => col.getBackColName()));
+        let hiddenCols: Map<string, ProgCol> = this.getHiddenColumns();
+        let colsHiddenInThisNode: Set<string> = new Set();
         columnDeltas.forEach((colInf, colName) => {
+            // add pulled columns
             if (colInf.isPulled && !colNames.has(colName)) {
                 let frontName = xcHelper.parsePrefixColName(colName);
-                hiddenCols = hiddenCols || this.getHiddenColumns(true);
                 if (hiddenCols.has(colName)) {
-                    colInfo.columns.push(hiddenCols.get(colName));
+                    columns.push(hiddenCols.get(colName));
                 } else {
-                    colInfo.columns.push(ColManager.newCol({name: frontName.name, backName: colName, type: colInf.type}));
+                    columns.push(ColManager.newCol({name: frontName.name, backName: colName, type: colInf.type}));
                 }
+            } else if (colInf.isHidden) {
+                colsHiddenInThisNode.add(colName);
             }
         });
 
@@ -443,9 +485,8 @@ class DagLineage {
         // replace "colInfo.columns" with "updatedColumns" that contain
         // updated widths and text alignment
         let updatedColumns: ProgCol[] = [];
-        let updatedChanges: DagColumnChange[] = [];
         let hiddenColumns: Set<ProgCol> = new Set();
-        colInfo.columns.forEach((column) => {
+        columns.forEach((column) => {
             if (columnDeltas.has(column.getBackColName())) {
                 let columnInfo = columnDeltas.get(column.getBackColName());
                 if (columnInfo.isHidden) {
@@ -479,33 +520,40 @@ class DagLineage {
         });
 
         // Step 4. adjust changes.from/to due to hidden columns
-        // for hidden columns, remove changes.from and changes.to
+        // for hidden columns
+        let updatedChanges: DagColumnChange[] = [];
         let changedColumnsSet: Set<string> = new Set();
-        colInfo.changes.forEach((change) => {
-            if (change.from && columnDeltas.has(change.from.getBackColName())) {
-                let columnInfo = columnDeltas.get(change.from.getBackColName());
-                if (columnInfo.isHidden) {
-                    change.from = null;
-                    // change.hidden = true;
-                }
+        changes.forEach((change) => {
+            if (change.from && columnDeltas.has(change.from.getBackColName()) &&
+                columnDeltas.get(change.from.getBackColName()).isHidden) {
+                    change.hidden = true;
             }
-            if (change.to && columnDeltas.has(change.to.getBackColName())) {
-                let columnInfo = columnDeltas.get(change.to.getBackColName());
-                if (columnInfo.isHidden) {
-                    change.to = null;
-                    // change.hidden = true;
-                }
+            if (change.to && columnDeltas.has(change.to.getBackColName()) &&
+                columnDeltas.get(change.to.getBackColName()).isHidden) {
+                    change.hidden = true;
             }
-            if (change.from != null || change.to != null) {
-                updatedChanges.push(change);
-                if (change.from) {
-                    changedColumnsSet.add(change.from.getBackColName());
-                }
-                if (change.to) {
-                    changedColumnsSet.add(change.to.getBackColName());
+
+            updatedChanges.push(change);
+            if (change.from) {
+                changedColumnsSet.add(change.from.getBackColName());
+            }
+            if (change.to) {
+                changedColumnsSet.add(change.to.getBackColName());
+            }
+        });
+
+
+        hiddenCols.forEach((column) => {
+            let name = column.getBackColName();
+            if (!changedColumnsSet.has(name)) {
+                let change = {to: null, from: null, hidden: true};
+                if (colsHiddenInThisNode.has(name)) {
+                    change.hiddenCol = column;
+                    updatedChanges.push(change);
                 }
             }
         });
+
 
         // Step 5. reorder columns if necessary
         // if columns are reordered, create map of colName:progCol so that we

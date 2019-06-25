@@ -137,6 +137,48 @@ describe("DagLineage Test", () => {
         expect(res.get("test1").getType()).to.equal(ColumnType.integer);
     });
 
+    it("should get hidden columns in linked in node", () => {
+        let parentNode;
+        let node;
+        let childNode;
+        let lineage;
+        parentNode = DagNodeFactory.create({
+            type: DagNodeType.Dataset
+        });
+        parentNode.setSchema([{name: "test1", type: ColumnType.integer}, {name: "test2", type: ColumnType.string}]);
+        node = DagNodeFactory.create({
+            type: DagNodeType.DFOut
+        });
+        node.connectToParent(parentNode);
+        node.setParam({
+            name: "a",
+            linkAfterExecution: true,
+            columns: []
+        });
+
+        childNode = DagNodeFactory.create({
+            type: DagNodeType.DFIn
+        });
+
+        childNode.setParam({
+            dataflowId: "self",
+            linkOutName: "a",
+            source: "",
+            schema: [{name: "test1", type: ColumnType.integer}, {name: "test2", type: ColumnType.string}]
+        });
+        childNode.getLinkedNodeAndGraph = () => {
+            return {node};
+        };
+        lineage = new DagLineage(childNode);
+
+        node.getColumnDeltas = () => {
+            return new Map([["test1", {isHidden: true, type: ColumnType.integer}]])
+        };
+        let res = lineage.getHiddenColumns();
+        expect(res.size).to.equal(1);
+        expect(res.get("test1").getType()).to.equal(ColumnType.integer);
+    });
+
     describe("_update", () => {
         let parentNode;
         let node;
@@ -168,9 +210,13 @@ describe("DagLineage Test", () => {
             expect(res.columns.length).to.equal(2);
             expect(res.columns[0].getBackColName()).to.equal("test2");
             expect(res.columns[1].getBackColName()).to.equal("test3");
-            expect(res.changes.length).to.equal(1);
+            expect(res.changes.length).to.equal(2);
             expect(res.changes[0].from).to.be.null;
             expect(res.changes[0].to.getBackColName()).to.equal("test3");
+            expect(res.changes[1].from).to.be.null;
+            expect(res.changes[1].to).to.be.null;
+            expect(res.changes[1].hidden).to.be.true;
+            expect(res.changes[1].hiddenCol.getBackColName()).to.equal("test1");
         });
 
         it("_update with pulled column should work", () => {

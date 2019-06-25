@@ -5,8 +5,8 @@ describe("Join Dag Node Test", () => {
         preset.leftColumns = genProgCols('leftCol', 2).concat(genProgCols('left::col', 2));
         preset.rightColumns = genProgCols('rightCol', 3).concat(genProgCols('right::col', 3));
         preset.pseudoParents = [
-            { getLineage: () => ({ getColumns: () => preset.leftColumns }) },
-            { getLineage: () => ({ getColumns: () => preset.rightColumns }) },
+            { getLineage: () => ({ getColumns: () => preset.leftColumns, getHiddenColumns: ()=> new Map() }) },
+            { getLineage: () => ({ getColumns: () => preset.rightColumns, getHiddenColumns: ()=> new Map() }) },
         ]
     });
 
