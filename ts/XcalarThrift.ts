@@ -1000,7 +1000,7 @@ XcalarDatasetRestore = function(
 XcalarDatasetActivate = function(
     datasetName: string,
     txId: number,
-    scopeInfo?: Xcrpc.Operator.LoadScopeInfo
+    scopeInfo?: Xcrpc.Operator.OperatorScopeInfo
 ): XDPromise<any> {
     return XcalarDatasetLoad(datasetName, null, txId, scopeInfo);
 };
@@ -1087,7 +1087,7 @@ XcalarDatasetLoad = function(
     datasetName: string,
     options: XcalarLoadInputOptions,
     txId: number,
-    scopeInfo?: Xcrpc.Operator.LoadScopeInfo
+    scopeInfo?: Xcrpc.Operator.OperatorScopeInfo
 ): XDPromise<any> {
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
@@ -1115,7 +1115,7 @@ XcalarDatasetLoad = function(
         def = PromiseHelper.convertToJQuery(
             Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getOperatorService().opBulkLoad({
                 datasetName: dsName, loadArgs: convertToXcrpcLoadArgs(args),
-                scope: Xcrpc.Operator.LOADSCOPE.WORKBOOK,
+                scope: Xcrpc.Operator.OPERATORSCOPE.WORKBOOK,
                 scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
             })
         );
@@ -1470,14 +1470,14 @@ XcalarExport = function(
     driverParams: {},
     columns: XcalarApiExportColumnT[],
     exportName: string,
-    txId?: number
+    txId?: number,
+    scopeInfo?: Xcrpc.Operator.OperatorScopeInfo
 ): XDPromise<any> {
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
 
-    var workItem = xcalarExportWorkItem(tableName, driverName, driverParams, columns, exportName);
     let def: XDPromise<any>;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
@@ -1485,9 +1485,19 @@ XcalarExport = function(
         if (tHandle == null) {
             return PromiseHelper.resolve(null);
         }
-        def = xcalarExport(tHandle, tableName, driverName, driverParams, columns, exportName);
+        def = PromiseHelper.convertToJQuery(
+            Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getOperatorService().export({
+                tableName: tableName,
+                driverName: driverName,
+                driverParams: driverParams,
+                columns: columns,
+                exportName: exportName,
+                scope: Xcrpc.Operator.OPERATORSCOPE.WORKBOOK,
+                scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+            })
+        );
     }
-    let query = XcalarGetQuery(workItem);
+    let query = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getGetQueryService().getExport(tableName, exportName, columns, driverName, JSON.stringify(driverParams));
     Transaction.startSubQuery(txId, 'export', exportName, query);
 
     def

@@ -493,7 +493,6 @@ declare var gRescol: {
     minResizeWidth: number
     leftDragMax: number
     pageX: number
-    timer: number
 };
 declare var gKVScope: {
     GLOB: number,

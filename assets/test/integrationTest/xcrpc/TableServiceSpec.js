@@ -6,7 +6,7 @@ exports.testSuit = function(TableService) {
                 await TableService.addIndex("","");
                 expect.fail("addIndex cannot handle invalid input");
             } catch(err) {
-                expect(err.error.error).to.equal("Bad name for Namespace");
+                expect(err.error.error.includes("Bad name for Namespace")).to.be.true;
             }
         });
     });

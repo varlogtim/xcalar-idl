@@ -35,6 +35,10 @@ class ServiceClient {
         return new QueryService(this._apiClient);
     }
 
+    public getOperatorService(): OperatorService {
+        return new OperatorService(this._apiClient);
+    }
+
     public getUDFService(): UDFService {
         return new UDFService(this._apiClient);
     }

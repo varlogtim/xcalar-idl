@@ -28,6 +28,136 @@ function OperatorService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 OperatorService.prototype = {
+    opAggregate: async function(aggRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(aggRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.AggRequest");
+        //anyWrapper.pack(aggRequest.serializeBinary(), "AggRequest");
+
+        try {
+            var responseData = await this.client.execute("Operator", "OpAggregate", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var aggResponse =
+            //    responseData.unpack(operator.AggResponse.deserializeBinary,
+            //                        "AggResponse");
+            var aggResponse = operator.AggResponse.deserializeBinary(specificBytes);
+            return aggResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.AggResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    opIndex: async function(indexRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(indexRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.IndexRequest");
+        //anyWrapper.pack(indexRequest.serializeBinary(), "IndexRequest");
+
+        try {
+            var responseData = await this.client.execute("Operator", "OpIndex", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var indexResponse =
+            //    responseData.unpack(operator.IndexResponse.deserializeBinary,
+            //                        "IndexResponse");
+            var indexResponse = operator.IndexResponse.deserializeBinary(specificBytes);
+            return indexResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.IndexResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    opProject: async function(projectRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(projectRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.ProjectRequest");
+        //anyWrapper.pack(projectRequest.serializeBinary(), "ProjectRequest");
+
+        try {
+            var responseData = await this.client.execute("Operator", "OpProject", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var projectResponse =
+            //    responseData.unpack(operator.ProjectResponse.deserializeBinary,
+            //                        "ProjectResponse");
+            var projectResponse = operator.ProjectResponse.deserializeBinary(specificBytes);
+            return projectResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.ProjectResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    opGetRowNum: async function(getRowNumRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(getRowNumRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.GetRowNumRequest");
+        //anyWrapper.pack(getRowNumRequest.serializeBinary(), "GetRowNumRequest");
+
+        try {
+            var responseData = await this.client.execute("Operator", "OpGetRowNum", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var getRowNumResponse =
+            //    responseData.unpack(operator.GetRowNumResponse.deserializeBinary,
+            //                        "GetRowNumResponse");
+            var getRowNumResponse = operator.GetRowNumResponse.deserializeBinary(specificBytes);
+            return getRowNumResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.GetRowNumResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    opFilter: async function(filterRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(filterRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.FilterRequest");
+        //anyWrapper.pack(filterRequest.serializeBinary(), "FilterRequest");
+
+        try {
+            var responseData = await this.client.execute("Operator", "OpFilter", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var filterResponse =
+            //    responseData.unpack(operator.FilterResponse.deserializeBinary,
+            //                        "FilterResponse");
+            var filterResponse = operator.FilterResponse.deserializeBinary(specificBytes);
+            return filterResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.FilterResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
     opJoin: async function(joinRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
@@ -37,14 +167,22 @@ OperatorService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.JoinRequest");
         //anyWrapper.pack(joinRequest.serializeBinary(), "JoinRequest");
 
-        var responseData = await this.client.execute("Operator", "OpJoin", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var joinResponse =
-        //    responseData.unpack(operator.JoinResponse.deserializeBinary,
-        //                        "JoinResponse");
-        var joinResponse = operator.JoinResponse.deserializeBinary(specificBytes);
-        return joinResponse;
+        try {
+            var responseData = await this.client.execute("Operator", "OpJoin", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var joinResponse =
+            //    responseData.unpack(operator.JoinResponse.deserializeBinary,
+            //                        "JoinResponse");
+            var joinResponse = operator.JoinResponse.deserializeBinary(specificBytes);
+            return joinResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.JoinResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     opMap: async function(mapRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -55,14 +193,22 @@ OperatorService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.MapRequest");
         //anyWrapper.pack(mapRequest.serializeBinary(), "MapRequest");
 
-        var responseData = await this.client.execute("Operator", "OpMap", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var mapResponse =
-        //    responseData.unpack(operator.MapResponse.deserializeBinary,
-        //                        "MapResponse");
-        var mapResponse = operator.MapResponse.deserializeBinary(specificBytes);
-        return mapResponse;
+        try {
+            var responseData = await this.client.execute("Operator", "OpMap", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var mapResponse =
+            //    responseData.unpack(operator.MapResponse.deserializeBinary,
+            //                        "MapResponse");
+            var mapResponse = operator.MapResponse.deserializeBinary(specificBytes);
+            return mapResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.MapResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     opGroupBy: async function(groupByRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -73,14 +219,22 @@ OperatorService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.GroupByRequest");
         //anyWrapper.pack(groupByRequest.serializeBinary(), "GroupByRequest");
 
-        var responseData = await this.client.execute("Operator", "OpGroupBy", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var groupByResponse =
-        //    responseData.unpack(operator.GroupByResponse.deserializeBinary,
-        //                        "GroupByResponse");
-        var groupByResponse = operator.GroupByResponse.deserializeBinary(specificBytes);
-        return groupByResponse;
+        try {
+            var responseData = await this.client.execute("Operator", "OpGroupBy", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var groupByResponse =
+            //    responseData.unpack(operator.GroupByResponse.deserializeBinary,
+            //                        "GroupByResponse");
+            var groupByResponse = operator.GroupByResponse.deserializeBinary(specificBytes);
+            return groupByResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.GroupByResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     opUnion: async function(unionRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -91,14 +245,48 @@ OperatorService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.UnionRequest");
         //anyWrapper.pack(unionRequest.serializeBinary(), "UnionRequest");
 
-        var responseData = await this.client.execute("Operator", "OpUnion", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var unionResponse =
-        //    responseData.unpack(operator.UnionResponse.deserializeBinary,
-        //                        "UnionResponse");
-        var unionResponse = operator.UnionResponse.deserializeBinary(specificBytes);
-        return unionResponse;
+        try {
+            var responseData = await this.client.execute("Operator", "OpUnion", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var unionResponse =
+            //    responseData.unpack(operator.UnionResponse.deserializeBinary,
+            //                        "UnionResponse");
+            var unionResponse = operator.UnionResponse.deserializeBinary(specificBytes);
+            return unionResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.UnionResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    opSynthesize: async function(synthesizeRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(synthesizeRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.SynthesizeRequest");
+        //anyWrapper.pack(synthesizeRequest.serializeBinary(), "SynthesizeRequest");
+
+        try {
+            var responseData = await this.client.execute("Operator", "OpSynthesize", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var synthesizeResponse =
+            //    responseData.unpack(operator.SynthesizeResponse.deserializeBinary,
+            //                        "SynthesizeResponse");
+            var synthesizeResponse = operator.SynthesizeResponse.deserializeBinary(specificBytes);
+            return synthesizeResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.SynthesizeResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     opBulkLoad: async function(bulkLoadRequest) {
         // XXX we want to use Any.pack() here, but it is only available

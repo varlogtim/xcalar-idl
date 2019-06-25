@@ -1,5 +1,22 @@
+// Note about Promise:
+// We are using native JS promise(async/await) in the Xcrpc code.
+// However, in order to incorporate with other code which still use JQuery promise,
+// we need to convert promises between different types.
+// 1. xcrpc JS client returns JQuery promise, which can be converted to native promise by PromiseHelper.convertToNative()
+//
+// 2. The code invoking Xcrpc may expect JQuery promise, so use PromiseHelper.convertToJQuery() as needed.
+// import ApiQuery = xce.QueryService;
+// import ApiClient = xce.XceClient;
+// import ProtoTypes = proto.xcalar.compute.localtypes;
+// import ServiceError = Xcrpc.ServiceError;
+
 import { OperatorService as ApiOperator, XceClient as ApiClient } from 'xcalar';
+import {
+    ScopeInfo as OperatorScopeInfo,
+    SCOPE as OPERATORSCOPE
+} from '../Common/Scope';
 import { parseError } from '../ServiceError';
+import * as queryInput from './XcalarProtoQueryInput';
 import { XcalarApiDfLoadArgs as BulkLoadArgs } from './XcalarProtoQueryInput';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
@@ -80,6 +97,57 @@ class OperatorService {
             });
         }
     }
+
+    /**
+     * Export xcalar table to target
+     * @param param
+     * @description
+     * This function returns native promise!
+     * Use PromiseHelper.
+     */
+    public async export(param: {
+        tableName: string,
+        driverName: string,
+        driverParams: {},
+        columns: queryInput.XcalarApiExportColumn[],
+        exportName: string,
+        scope: OPERATORSCOPE,
+        scopeInfo?: OperatorScopeInfo
+    }): Promise<any> {
+        try {
+            // Deconstruct arguments
+            const { tableName, driverName, driverParams, columns, exportName, scope, scopeInfo } = param;
+            let columnInfo: ProtoTypes.Operator.XcalarApiExportColumn[] = columns.map(function(col) {
+                let ret = new ProtoTypes.Operator.XcalarApiExportColumn;
+                ret.setColumnName(col.columnName);
+                ret.setHeaderName(col.headerName);
+                return ret;
+            });
+
+            // Step #1: Construct xcrpc service input
+            const request = new ProtoTypes.Operator.ExportRequest();
+            request.setSource(tableName);
+            request.setDest(exportName);
+            request.setDriverName(driverName);
+            request.setDriverParams(JSON.stringify(driverParams));
+            request.setColumnsList(columnInfo);
+            const apiScope = createScopeMessage({
+                scope: scope,
+                scopeInfo: scopeInfo
+            });
+            request.setScope(apiScope);
+
+            // Step #2: Call xcrpc service
+            const operatorService = new ApiOperator(this._apiClient);
+            const response = await operatorService.opExport(request);
+
+            // Step #3: Parse xcrpc service response
+            // For export there is no response value, just need to get status
+            return {status: ProtoTypes.XcalarEnumType.Status.STATUS_OK};
+        } catch (e) {
+            throw parseError(e);
+        }
+    }
 }
 
 type BulkLoadErrorResponse = {
@@ -130,4 +198,4 @@ function createScopeMessage(param: {
     return scopeObj;
 }
 
-export { OperatorService, SCOPE as LOADSCOPE, ScopeInfo as LoadScopeInfo, isBulkLoadErrorResponse };
+export { OperatorService, SCOPE as OPERATORSCOPE, ScopeInfo as OperatorScopeInfo, isBulkLoadErrorResponse };

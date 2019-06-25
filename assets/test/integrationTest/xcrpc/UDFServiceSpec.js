@@ -17,7 +17,7 @@ exports.testSuit = function(UDFService) {
                 expect.fail("getRes cannot handle the invalid input");
             } catch(err) {
                 //after we have error handler for xcrpc, we should change it
-                expect(err.error.error).to.equal("The specified user-defined module/application was not found");
+                expect(err.error.error.includes("The specified user-defined module/application was not found")).to.be.true;
             }
         })
         it("get() should work", async function () {

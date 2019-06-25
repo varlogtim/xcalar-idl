@@ -25,6 +25,8 @@ import * as License from './License/LicenseService';
 export { License };
 import * as Query from './Query/QueryService';
 export { Query };
+import * as Operator from './Operator/OperatorService';
+export { Operator };
 import * as PublishedTable from './PublishedTable/PublishedTableService';
 export { PublishedTable };
 import * as Table from './Table/TableService';
@@ -35,8 +37,6 @@ import * as GetQuery from './Operator/GetQueryService';
 export { GetQuery };
 import * as Dataset from './Dataset/DatasetService';
 export { Dataset };
-import * as Operator from './Operator/OperatorService';
-export { Operator };
 import * as Target from './Target/TargetService';
 export { Target }
 import * as DagNode from './DagNode/DagNodeService';
