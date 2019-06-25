@@ -804,9 +804,6 @@ namespace IMDPanel {
                         // the result does not come with update information
                         // so we have to call listTables to get that info
                     }
-                    if (!failed) {
-                        showTable(table.name);
-                    }
                 });
                 resetInactiveChecked();
                 updateHistory();
@@ -842,6 +839,7 @@ namespace IMDPanel {
                     PromiseHelper.when.apply(this, promises)
                     .always(function() {
                         listAndCheckActive();
+                        resetInactiveChecked();
                     });
                 } else { // restoration failed without being canceled
                     // list tables and find out which ones succeeded
@@ -876,7 +874,7 @@ namespace IMDPanel {
                     deactivateTables(pCheckedTables)
                     .then(function() {
                         pCheckedTables.forEach(function (table:PublishTable) {
-                            hideTable(table.name);
+                            moveTableToInactive(table.name);
                             XcSocket.Instance.sendMessage("refreshIMD", {
                                 "action": "deactivate",
                                 "tableName": tableName
@@ -1060,7 +1058,7 @@ namespace IMDPanel {
             let curTable = progressState.currentTable;
             XcalarUnpublishTable(curTable, true)
             .then(() => {
-                hideTable(curTable);
+                moveTableToInactive(curTable);
             });
         });
 
@@ -1306,8 +1304,6 @@ namespace IMDPanel {
                 filterString: filterString
             });
         }
-
-        console.log(tables);
 
         hideUpdatePrompt();
 
@@ -1594,7 +1590,6 @@ namespace IMDPanel {
         $imdPanel.find(".inactiveTablesList").find(".checkbox").removeClass("checked");
         $imdPanel.find(".inactiveTablesList").find(".iconSection").removeClass("active");
         iCheckedTables = [];
-        //$imdPanel.find(".checkAllInactive").removeClass("checked");
     }
 
     function restoreTableOrder(): XDPromise<void> {
@@ -1699,7 +1694,6 @@ namespace IMDPanel {
     function restoreTables(tables: PublishTable[]) {
         const promises = [];
         let inactiveCount: number = 0;
-
         tables.forEach(function(table) {
             if (!table.active) {
                 promises.push(function() {
@@ -1743,8 +1737,11 @@ namespace IMDPanel {
                 restoreErrors.push(ret);
             }
             progressCircle.increment();
+
+            moveTableToActiveList(tableName);
+
             deferred.resolve();
-             XcSocket.Instance.sendMessage("refreshIMD", {
+            XcSocket.Instance.sendMessage("refreshIMD", {
                 "action": "activate",
                 "tableName": tableName
             }, null);
@@ -1822,7 +1819,7 @@ namespace IMDPanel {
         };
     }
 
-    function hideTable(tableName: string): void {
+    function moveTableToInactive(tableName: string): void {
         const $listItem: JQuery = $imdPanel.find('.tableListItem[data-name="' + tableName + '"]');
         $listItem.remove();
         $listItem.removeClass("active selected");
@@ -1861,7 +1858,7 @@ namespace IMDPanel {
         return kvStore.put(JSON.stringify(imdInfo), true);
     }
 
-    function showTable(tableName: string): void {
+    function moveTableToActiveList(tableName: string): void {
         const $listItem: JQuery = $imdPanel.find('.tableListItem[data-name="' + tableName + '"]');
         $listItem.remove();
         $listItem.removeClass("active selected");
