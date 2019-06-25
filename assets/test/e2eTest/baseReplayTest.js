@@ -136,6 +136,12 @@ function replay(testConfig, tags) {
             for (const tabName of Object.keys(testTabs)) {
                 const newTabName = testTabMapping.get(tabName);
                 const numOfNodes = testTabs[tabName].nodes.length;
+                // used for checking completed nodes
+                const numOfCustomNodes = testTabs[tabName].nodes.filter((node) => {
+                    return node.type === "custom";
+                }).length;
+
+
 
                 const linkOutNode = testTabs[tabName].nodes.find((node) => {
                     return node.subType === "link out Optimized";
@@ -163,14 +169,14 @@ function replay(testConfig, tags) {
                             browser.assert.equal(result.value.length, 1); // link out optimized not executed
                         })
                         .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
-                            browser.assert.equal(result.value.length, numOfNodes - 1);
+                            browser.assert.equal(result.value.length - numOfCustomNodes, numOfNodes - 1);
                         });
                     } else {
                         browser.elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
                             browser.assert.equal(result.value.length, 0); // link out optimized not executed
                         })
                         .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
-                            browser.assert.equal(result.value.length, numOfNodes);
+                            browser.assert.equal(result.value.length - numOfCustomNodes, numOfNodes);
                         });
                     }
 
