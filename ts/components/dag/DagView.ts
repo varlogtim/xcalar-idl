@@ -2829,7 +2829,7 @@ class DagView {
         graph: DagGraph,
         node: DagNode,
         $dfArea: JQuery,
-        skewInfos,
+        skewInfos: any[],
         times: number[],
         state: DgDagStateT
     ): void {
@@ -2844,6 +2844,25 @@ class DagView {
         let tip: HTML = this._nodeProgressTemplate(graph, node, pos.x, pos.y, skewInfos, times, state);
         const $tip = $(tip)
         $dfArea.append($tip);
+        console.log(skewInfos);
+        let maxSkew: number = 0;
+        let skewData = {};
+        skewInfos.forEach(skewInfo => {
+            const skew: number = skewInfo.value;
+            if (!(skew == null || isNaN(skew))) {
+                if (skew >= maxSkew) {
+                    maxSkew = skew;
+                    skewData = {
+                        rows: skewInfo.rows,
+                        totalRows: skewInfo.totalRows,
+                        size: skewInfo.size,
+                        skewValue: skewInfo.value,
+                        skewColor: skewInfo.color
+                    };
+                }
+            }
+        });
+        $tip.data("skewinfo", skewData);
         const width = Math.max($tip[0].getBoundingClientRect().width, 92);
         const nodeCenter = graph.getScale() * (pos.x + (DagView.nodeWidth / 2));
         $tip.css("left", nodeCenter - (width / 2));
@@ -2929,19 +2948,23 @@ class DagView {
             // show 0 even though there are actually rows
         }
         let stateClass: string = DgDagStateTStr[state];
+        let skewClass: string = "";
+        if (skewRows === "N/A") {
+            skewClass = "skewUnavailable";
+        }
 
         let html = `<div data-id="${nodeId}" class="runStats dagTableTip ${stateClass}" style="left:${x}px;top:${y}px;">`;
         html += `<table>
                  <thead>
                     <th>Rows</th>
                     <th>Time</th>
-                    <th>Skew</th>
+                    <th class="skewTh ${skewClass}">Skew</th>
                 </thead>
                 <tbody>
                     <tr>
                         <td>${skewRows}</td>
                         <td>${totalTimeStr}</td>
-                        <td><span class="value" style="${colorStyle}">${maxSkew}</span></td>
+                        <td class="skewTd ${skewClass}" ><span class="value" style="${colorStyle}">${maxSkew}</span></td>
                     </tr>
                 </tbody>
                 </table>

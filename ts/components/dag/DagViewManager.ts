@@ -1093,6 +1093,26 @@ class DagViewManager {
             }
         });
 
+        // add classes to skewTh and skewTd because we can't use
+        // css to control their hover states together
+        this.$dfWrap.on("mouseenter", ".skewTh, .skewTd", function() {
+            $(this).closest(".runStats").addClass("hoveringSkew");
+        });
+
+        this.$dfWrap.on("mouseleave", ".skewTh", function() {
+            $(this).closest(".runStats").removeClass("hoveringSkew");
+        });
+
+        this.$dfWrap.on("mouseleave", ".skewTd", function() {
+            $(this).closest(".runStats").removeClass("hoveringSkew");
+        });
+
+        this.$dfWrap.on("click", ".skewTh, .skewTd", function() {
+            let $runStats = $(this).closest(".runStats");
+            let skewInfo = $runStats.data("skewinfo");
+            SkewInfoModal.Instance.show(null, {tableInfo: skewInfo});
+        });
+
         function _drawRect(
             bound: ClientRect,
             selectTop: number,

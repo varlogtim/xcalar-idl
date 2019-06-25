@@ -991,6 +991,19 @@
             th {
                 color: @color-bg-cardHeader;
             }
+
+            .skewTh, .skewTd {
+                pointer-events: initial;
+                cursor: pointer;
+            }
+            .skewUnavailable {
+                pointer-events: none;
+            }
+            &.hoveringSkew {
+                .skewTh, .skewTd {
+                    background-color: @color-bg-hover-blue-dark;
+                }
+            }
         }
 
         &.error {
