@@ -14,6 +14,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var session = require('express-session');
     var FileStore = require('session-file-store')(session);
     var xcConsole = require('./utils/expServerXcConsole.js');
+    var cookieFilter = require('./utils/cookieFilter.js');
 
     var xlrRoot = null;
 
@@ -34,6 +35,12 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         store: new FileStore(fileStoreOptions),
         secret: fileStoreOptions.secret,
         cookie: { maxAge: sessionAges[defaultSessionAge] }
+    };
+
+    var cookieFilterOptions = {
+        paths: [ '/login',
+                 '/auth/serviceSession' ],
+        cookieNames: [ 'connect.sid', 'jwt_token' ]
     };
 
     var express = require('express');
@@ -66,6 +73,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var app = express();
     var appJupyter = express();
 
+    app.use(cookieFilter(cookieFilterOptions));
     app.use(serverCookieParser);
     app.use(serverSession);
 
