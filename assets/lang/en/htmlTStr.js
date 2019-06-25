@@ -1003,7 +1003,7 @@ module.exports = {
         "tableName": "Table Name",
         "createPublish": "Create Table",
         "publishIMD": "Publish Table",
-        "publishInstr": "Publish an IMD Table for the input.",
+        "publishInstr": "Publish a Table for the input.",
         "name": "Published Table Name",
         "key": "Primary Key",
         "addKey": "Add Primary Key",
@@ -1063,8 +1063,8 @@ module.exports = {
     },
 
     "IMDTableOp": {
-        "IMDTable": "IMD Table",
-        "IMDTableInstr": "Utilize a published IMD Table as the source for data",
+        "IMDTable": "Table",
+        "IMDTableInstr": "Use a published table as the source of data",
         "table": "Published Table",
         "tableInstr": "Select a published table to use as a source.",
         "tableVersion": "Select table version",
