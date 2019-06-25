@@ -241,6 +241,9 @@ class DagGraphExecutor {
             if (numLinkOutNodes === 1) {
                 this._isOptimizedActiveSession = true;
                 this._optimizedLinkOutNode = linkOutNode;
+            } else if (numLinkOutNodes === 0 && numExportNodes === 0) {
+                errorResult.hasError = true;
+                errorResult.type = DagNodeErrorType.InvalidOptimizedOutNode;
             } else {
                 this._isOptimizedActiveSession = false;
                 this._optimizedExportNodes = exportNodes;
@@ -1049,23 +1052,28 @@ class DagGraphExecutor {
 
         this._graph.getOptimizedQuery(nodeIds, this._isNoReplaceParam)
         .then((ret) => {
-            let { queryStr, destTables } = ret;
-            // retina name will be graph id + outNode Id, prefixed by gRetinaPrefix
-            const parentTabId: string = this._graph.getTabId();
-            let outNodeId: DagNodeId;
-            if (this._isOptimizedActiveSession) {
-                outNodeId = this._optimizedLinkOutNode.getId();
-            } else {
-                // XXX arbitrarily storing retina in the last export nodes
-                outNodeId = this._optimizedExportNodes[this._optimizedExportNodes.length - 1].getId();
-            }
-            const retinaName = gRetinaPrefix + parentTabId + "_" + outNodeId;
-            this._queryName = retinaName;
-            const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTables);
-            if (retinaParameters == null) {
-                deferred.reject('Invalid retina args');
-            } else {
-                deferred.resolve(retinaParameters);
+            try {
+                let { queryStr, destTables } = ret;
+                // retina name will be graph id + outNode Id, prefixed by gRetinaPrefix
+                const parentTabId: string = this._graph.getTabId();
+                let outNodeId: DagNodeId;
+                if (this._isOptimizedActiveSession) {
+                    outNodeId = this._optimizedLinkOutNode.getId();
+                } else {
+                    // XXX arbitrarily storing retina in the last export nodes
+                    outNodeId = this._optimizedExportNodes[this._optimizedExportNodes.length - 1].getId();
+                }
+                const retinaName = gRetinaPrefix + parentTabId + "_" + outNodeId;
+                this._queryName = retinaName;
+                const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTables);
+                if (retinaParameters == null) {
+                    deferred.reject('Invalid retina args');
+                } else {
+                    deferred.resolve(retinaParameters);
+                }
+            } catch (e) {
+                console.error(e);
+                deferred.reject(e.message);
             }
         })
         .fail(deferred.reject);
