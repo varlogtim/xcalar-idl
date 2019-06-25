@@ -117,6 +117,9 @@ describe("DagNodeFactory Test", () => {
         }, {
             "type": DagNodeType.SQLFuncOut,
             "expect": DagNodeSQLFuncOut
+        }, {
+            "type": DagNodeType.Deskew,
+            "expect": DagNodeDeskew
         }];
 
         tests.forEach((test) => {

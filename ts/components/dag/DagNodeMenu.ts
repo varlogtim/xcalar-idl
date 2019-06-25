@@ -490,6 +490,9 @@ namespace DagNodeMenu {
             case (DagNodeType.Synthesize):
                 SynthesizeOpPanel.Instance.show(node, options);
                 break;
+            case (DagNodeType.Deskew):
+                DeskewOpPanel.Instance.show(node, options);
+                break;
             default:
                 unlock(tabId);
                 StatusBox.show("No panels available. To edit, copy node and paste into a text editor. Then copy the edited JSON and paste it here.",

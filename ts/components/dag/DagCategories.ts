@@ -162,6 +162,9 @@ class DagCategories {
             new DagCategoryNodeRowOps(DagNodeFactory.create({
                 type: DagNodeType.Explode
             })),
+            new DagCategoryNodeRowOps(DagNodeFactory.create({
+                type: DagNodeType.Deskew
+            })),
         ]);
 
         const joinCategory = new DagCategory(DagCategoryType.Join, [

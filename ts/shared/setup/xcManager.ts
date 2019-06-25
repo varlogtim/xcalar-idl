@@ -78,26 +78,22 @@ namespace xcManager {
             return XVM.initializeMode();
         })
         .then(function() {
-            $("#topMenuBarTabs").removeClass("xc-hidden");
-            MainMenu.setup();
-            setupModeArea();
-            ExtensionManager.loadEnabledExtension(); // async load of extnesion
-            XDFManager.Instance.setup();
-            setupOpPanels();
-            WorkbookPanel.initialize();
-            window["ajv"] = new Ajv(); // json schema validator
-
-            // const $sqlPanel = $("#monitor-query-history");
-            // SqlQueryHistoryPanel.Card.getInstance().setup({
-            //     $container: $sqlPanel,
-            //     checkContainerVisible: () => {
-            //         return $sqlPanel.hasClass('active');
-            //     }
-            // });
-            SQLWorkSpace.Instance.setup();
+            try {
+                $("#topMenuBarTabs").removeClass("xc-hidden");
+                MainMenu.setup();
+                setupModeArea();
+                ExtensionManager.loadEnabledExtension(); // async load of extnesion
+                XDFManager.Instance.setup();
+                setupOpPanels();
+                WorkbookPanel.initialize();
+                window["ajv"] = new Ajv(); // json schema validator
+                SQLWorkSpace.Instance.setup();
+            } catch (e) {
+                return PromiseHelper.reject(e.message);
+            }
             return isTutorialWorkbook();
         })
-        .then(function(res) {
+        .then(function(res: boolean) {
             isTutorial = res;
             if (isTutorial || loadAll) {
                 // if it's tutorial or loadAll is true

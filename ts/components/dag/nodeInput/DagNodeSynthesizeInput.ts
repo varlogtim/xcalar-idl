@@ -1,5 +1,5 @@
 class DagNodeSynthesizeInput extends DagNodeInput {
-    protected input: DagNodeIndexInputStruct;
+    protected input: DagNodeSynthesizeInputStruct;
 
     public static readonly schema = {
         "definitions": {},

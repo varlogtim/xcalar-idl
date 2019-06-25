@@ -10,7 +10,7 @@ class SynthesizeOpPanel extends BaseOpPanel {
     public show(dagNode: DagNodeSynthesize, options: {exitCallback?: Function}) {
         this._dagNode = dagNode;
         // Show panel
-        super.showPanel(null, options)
+        super.showPanel("Synthesize", options)
         .then(() => {
             this._updateMode(true);
             let param = this._dagNode.getParam();

@@ -819,6 +819,43 @@ describe("DagNodeExecutor Test", () => {
         });
     });
 
+    it("should work for deskew", (done) => {
+        const node = createNode(DagNodeType.Deskew);
+        const parentNode = createNode();
+        let progCol = ColManager.newPullCol("testCol", "testCol", ColumnType.integer);
+        parentNode.getLineage().setColumns([progCol]);
+        parentNode.setTable("testTable");
+        node.setParam({
+            column: "testCol"
+        });
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldIndex = XIApi.index;
+
+        XIApi.index = (txId, colNames, tableName, newTableName, newKeys) => {
+            expect(txId).to.equal(1);
+            expect(colNames.length).to.equal(1);
+            expect(colNames[0]).to.equal("testCol");
+            expect(tableName).to.equal("testTable");
+            expect(newKeys.length).to.equal(1);
+            expect(newKeys[0]).to.equal("testCol");
+            return PromiseHelper.resolve({});
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.index = oldIndex;
+        });
+    });
+
     it("should work for placeholder", (done) => {
         const node = createNode(DagNodeType.Placeholder);
         const executor = new DagNodeExecutor(node, txId);

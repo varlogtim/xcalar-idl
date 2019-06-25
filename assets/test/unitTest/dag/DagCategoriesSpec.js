@@ -59,10 +59,11 @@ describe("DagCategories Test", function() {
             expect(categories[3].operators[4].node instanceof DagNodeRowNum).to.be.true;
             expect(categories[3].operators[5].node instanceof DagNodeProject).to.be.true;
 
-            expect(categories[4].operators.length).to.equal(3);
+            expect(categories[4].operators.length).to.equal(4);
             expect(categories[4].operators[0].node instanceof DagNodeSort).to.be.true;
             expect(categories[4].operators[1].node instanceof DagNodeFilter).to.be.true;
             expect(categories[4].operators[2].node instanceof DagNodeExplode).to.be.true;
+            expect(categories[4].operators[3].node instanceof DagNodeDeskew).to.be.true;
 
             expect(categories[5].operators.length).to.equal(3);
             expect(categories[5].operators[0].node instanceof DagNodeJoin).to.be.true;
@@ -133,10 +134,11 @@ describe("DagCategories Test", function() {
             expect(categories[3].operators[4].node instanceof DagNodeRowNum).to.be.true;
             expect(categories[3].operators[5].node instanceof DagNodeProject).to.be.true;
 
-            expect(categories[4].operators.length).to.equal(3);
+            expect(categories[4].operators.length).to.equal(4);
             expect(categories[4].operators[0].node instanceof DagNodeSort).to.be.true;
             expect(categories[4].operators[1].node instanceof DagNodeFilter).to.be.true;
             expect(categories[4].operators[2].node instanceof DagNodeExplode).to.be.true;
+            expect(categories[4].operators[3].node instanceof DagNodeDeskew).to.be.true;
 
             expect(categories[5].operators.length).to.equal(3);
             expect(categories[5].operators[0].node instanceof DagNodeJoin).to.be.true;

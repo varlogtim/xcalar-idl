@@ -174,6 +174,8 @@ class DagNodeExecutor {
                     return this._sqlFuncIn();
                 case DagNodeType.SQLFuncOut:
                     return this._sqlFuncOut();
+                case DagNodeType.Deskew:
+                    return this._deskew();
                 default:
                     throw new Error(type + " not supported!");
             }
@@ -358,7 +360,7 @@ class DagNodeExecutor {
         //Update eval string with correct aggregates
         XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
         .then((ret) => {
-            const {value , aggName} = ret;
+            const {value} = ret;
             node.setAggVal(value);
             if (!Transaction.isSimulate(this.txId) && !optimized && value) {
                 // We don't want to add if optimized or ran as a query
@@ -1187,6 +1189,23 @@ class DagNodeExecutor {
         const srcTable: string = this._getParentNodeTable(0);
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         XIApi.index(this.txId, colNames, srcTable, undefined, newKeys, params.dhtName)
+        .then((ret) => {
+            deferred.resolve(ret.newTableName);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    private _deskew(): XDPromise<string> {
+        const colNames: string[] = [];
+        const newKeys: string[] = [];
+        const node: DagNodeDeskew = <DagNodeDeskew>this.node;
+        const params: DagNodeDeskewInputStruct = node.getParam();
+        colNames.push(params.column);
+        newKeys.push(node.updateNewKey(params.newKey));
+        const srcTable: string = this._getParentNodeTable(0);
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        XIApi.index(this.txId, colNames, srcTable, undefined, newKeys)
         .then((ret) => {
             deferred.resolve(ret.newTableName);
         })

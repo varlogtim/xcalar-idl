@@ -100,6 +100,9 @@ class DagNodeFactory {
             case DagNodeType.SQLFuncOut:
                 node = new DagNodeSQLFuncOut(options, runtime);
                 break;
+            case DagNodeType.Deskew:
+                node = new DagNodeDeskew(options, runtime);
+                break;
             default:
                 throw new Error("node type " + options.type + " not supported");
         }
@@ -174,6 +177,8 @@ class DagNodeFactory {
                 return DagNodeSQLFuncIn;
             case DagNodeType.SQLFuncOut:
                 return DagNodeSQLFuncOut;
+            case DagNodeType.Deskew:
+                return DagNodeDeskew;
             default:
                 throw new Error("node type " + options.type + " not supported");
         }
