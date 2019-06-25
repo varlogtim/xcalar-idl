@@ -1520,9 +1520,11 @@
             }
         }
         &.viewOnly {
-            .resetNode, .resetAllNodes, .lockNodeTable, .pasteNodes,
-            .restoreAllDataset, .download, .duplicateDf {
+            li {
                 display: none;
+            }
+            .selectAllNodes, .autoAlign, .download {
+                display: list-item;
             }
         }
         &.published {

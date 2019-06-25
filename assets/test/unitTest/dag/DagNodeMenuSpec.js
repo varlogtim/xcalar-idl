@@ -321,18 +321,20 @@ describe("DagNodeMenu Test", function() {
             var cachedFn = DagViewManager.Instance.isViewOnly;
             DagViewManager.Instance.isViewOnly = () => true;
 
-            DagView.selectNode($dfArea.find(".operator.map"));
+            DagViewManager.Instance.deselectNodes();
             $dfWrap.contextmenu();
 
-            expect($menu.find("li:visible").length).to.equal(2);
-            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(2);
+            expect($menu.find("li:visible").length).to.equal(3);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(3);
             let classes = [];
             $menu.find("li:visible").each(function() {
                 classes.push($(this).attr("class"));
             });
+
             expect(classes).to.deep.equal([
                 "selectAllNodes",
-                "autoAlign"
+                "autoAlign",
+                "download"
             ]);
 
             DagViewManager.Instance.isViewOnly = cachedFn;
