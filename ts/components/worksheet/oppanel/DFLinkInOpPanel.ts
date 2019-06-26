@@ -93,6 +93,22 @@ class DFLinkInOpPanel extends BaseOpPanel {
             if (!(tab instanceof DagTabUser) && !(tab instanceof DagTabPublished)) {
                 return;
             }
+            let hasLinkOutNode: boolean = false;
+            try {
+                const nodes: Map<DagNodeId, DagNode> = tab.getGraph().getAllNodes();
+                nodes.forEach((node) => {
+                    if (node.getType() === DagNodeType.DFOut) {
+                        hasLinkOutNode = true;
+                        return false; // stop loop
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+            }
+            if (!hasLinkOutNode) {
+                // exclude dataflow that don't have link out node
+                return;
+            }
             const name: string = tab.getName();
             const shared: boolean = (tab instanceof DagTabPublished);
             const displayName: string = shared ? (<DagTabPublished>tab).getPath() : name;
