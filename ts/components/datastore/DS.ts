@@ -198,7 +198,7 @@ namespace DS {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let oldDSName = dagNodes[0].getDSName();
         let newDSName = getNewDSName(oldDSName);
-        let loadArgs = dagNodes[0].getLoadArgs();
+        let loadArgs: string = dagNodes[0].getLoadArgs();
         loadArgs = loadArgsAdapter(loadArgs);
         if (loadArgs == null) {
             return PromiseHelper.reject({"error": "Invalid load args"});
@@ -216,6 +216,11 @@ namespace DS {
                 error: error
             };
         });
+        // replace parameters
+        loadArgs = DagNodeInput.replaceParameters(
+            loadArgs,
+            DagParamManager.Instance.getParamMap()
+        );
         restoreDatasetFromLoadArgs(newDSName, loadArgs)
         .then((dsObj) => {
             if (share) {
