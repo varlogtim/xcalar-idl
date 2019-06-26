@@ -99,7 +99,6 @@ module.exports = {
         "TableName": "Table name",
         "Tables": "Tables",
         "TableMenu": "Menu",
-        "Target": "Target",
         "Tutorials": "Tutorials",
         "Learn": "Learning Xcalar",
         "Type": "Type",
@@ -182,11 +181,11 @@ module.exports = {
         "CPColNames": "Copy column names",
         "CreateDF": "Create batch dataflow",
         "CreateParamQuery": "Customize operation",
-        "CreateTarget": "Create new target",
+        "CreateTarget": "Create new connector",
         "Del": "Delete",
         "DelCol": "Delete column",
         "DelColPlura": "Delete columns",
-        "DelTarget": "Delete Target",
+        "DelTarget": "Delete connector",
         "DelTbl": "Drop table",
         "ExamCell": "Examine",
         "ExceedsSize": "Image exceeds size limit",
@@ -356,7 +355,7 @@ module.exports = {
         "RawDSXMLDelimiter": "The delimiter character for a list of text nodes or attributes. (Default is |)",
         "RawDSDatabaseDSN": "Data source name",
         "RawDSDatabaseQuery": "SQL query",
-        "RawDSAdvMeta": "To apply an external metadata file to this dataset, enter the complete path to the metadata file, starting from the data target name. For example: Default Shared Root:/tmp/metadata.json",
+        "RawDSAdvMeta": "To apply an external metadata file to this dataset, enter the complete path to the metadata file, starting from the connector name. For example: Default Shared Root:/tmp/metadata.json",
         "RawDSAdvFile": "Add an extra field with the file name to each record",
         "RawDSAdvRow": "Add a field containing the record number to each record. Record number restarts at 1 for each file.",
         "RawDSAdvTerm": "When to stop processing records",
@@ -668,8 +667,8 @@ module.exports = {
         "Datasets": "Datasets",
         "Import": "Create Dataset",
         "DSIn": "DATASETS",
-        "Target": "Data Target",
-        "Targets": "Data Targets",
+        "Target": "Connector",
+        "Targets": "Connectors",
         "Retry": "Retry",
         "RetryPoint": "Please try to import data with different parameters.",
         "TableInstr": "Dataset has been created. Click on the \"Create Dataflow\" button below or the \"Dataflow\" button in the sidebar to start using it.",
@@ -679,13 +678,13 @@ module.exports = {
     },
 
     "dsTarget": {
-        "Create": "Create Data Target",
-        "CreateInstr": "Enter your data target name and select a target type. Provide any additional information as needed.",
-        "Type": "Target Type",
-        "TargetInfo": "Data Target Information",
-        "TargetInfoInstr": "Details about the selected data target are provided below. To create a new target, click the button on the top left corner of the left panel.",
-        "TargetParams": "Target Configuration",
-        "DELETETARGET": "DELETE TARGET"
+        "Create": "Create Connector",
+        "CreateInstr": "Enter your connector name and select a connector type. Provide any additional information as needed.",
+        "Type": "Connector Type",
+        "TargetInfo": "Connector Information",
+        "TargetInfoInstr": "Details about the selected connector are provided below. To create a new connector, click the button on the top left corner of the left panel.",
+        "TargetParams": "Connector Configuration",
+        "DELETETARGET": "DELETE CONNECTOR"
     },
 
     // keep in sync with the FileProtocol in enums.js
@@ -701,7 +700,7 @@ module.exports = {
     },
 
     "dsForm": {
-        "PathInstr": "Select data target, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button. When importing multiple files, they must use the same schema and file format.",
+        "PathInstr": "Select a connector, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button. When importing multiple files, they must use the same schema and file format.",
         "filePath": "Data Source Path",
         "DSName": "Dataset Name",
         "fileNameTitle": "A valid name with no special characters",

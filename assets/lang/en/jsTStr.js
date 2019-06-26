@@ -228,7 +228,7 @@ ErrTStr = {
     'InvalidTableName': 'Table name should start with a letter and contain only letters, digits, hyphens(-)(not for publish tables) or underscores(_)',
     'InvalidPublishedTableName': 'Table name should start with a letter and contain only letters, digits, or underscores(_)',
     'InvalidWBName': 'Workbook name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
-    'InvalidTargetName': 'Target name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
+    'InvalidTargetName': 'Connector name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
     'NoHashTag': 'Please input a valid name with no # symbols.',
     'NoSpecialChar': 'Please input a valid name with no special characters.',
     'NoSpecialCharOrSpace': 'Please input a valid name with no special characters or spaces.',
@@ -276,8 +276,7 @@ ErrTStr = {
     'NoMultiCol': 'This field only accepts one column.',
     'NoBucketOnStr': 'Column type is string, cannot bucket into range.',
     'ParamInUse': 'Cannot delete, this parameter is in use.',
-    'MVFolderConflict': 'Cannot move. Name conflicts with files in target ' +
-                        'folder.',
+    'MVFolderConflict': 'Cannot move. Name conflicts with files in target folder.',
     'MakrForDel': 'Cannot preview dataset that is marked for deletion',
     'InactivateDS': 'Cannot preview dataset that is deactivated',
     'InactivatedDS2': 'Selected dataset is deactivated',
@@ -601,7 +600,7 @@ SuccessTStr = {
     "Sched": "Schedule Added!",
     "StopCluster": "Cluster Stopped!",
     "SubmitTicket": "Ticket Submitted!",
-    "Target": "Target Added!",
+    "Target": "Connector Added!",
     "RetrieveLogs": "Logs Retrieved!",
     "RmSched": "Schedule Successfully Deleted!",
     "PauseSched": "Schedule Successfully Paused!",
@@ -627,7 +626,7 @@ FailTStr = {
     "SaveSettings": "Settings Save Failed.",
     "RmSched": "Delete Schedule Failed.",
     "FlushLog": "Flush Log Failed.",
-    "Target": "Add Target Failed",
+    "Target": "Add connector Failed",
     "RmPublishedTable": "Published Table Removal Failed."
 };
 
@@ -838,12 +837,12 @@ ExportTStr = {
     'DisableHeader': 'Not available when appending to existing',
     'LocationNotFound': 'Export location not found',
     'FolderName': 'Export As',
-    'TargetName': 'Target Name',
+    'TargetName': 'Connector Name',
     'ColumnsToExport': 'Columns to Export',
     'NoColumns': 'No columns available for export',
     "CurrentColName": "Current Name",
     "NewColName": "New Name",
-    'ListTargFail': 'List Targets Failed',
+    'ListTargFail': 'List connectors Failed',
     'LocalFS': 'File System',
     'DriverNotFound': 'Prior Driver does not exist: ',
 };
@@ -1040,7 +1039,6 @@ DFTStr = {
     "OptimizedDFUnavailable": "Optimized Dataflow Unavailable",
     "OptimizedDFNotExist": "Optimized Dataflow does not exit",
     "CannotCreate": "Cannot Create Dataflow",
-    "Default": "Export to export target",
     "DelDF": "Permanently Delete Dataflow",
     "DelDF2": "Delete dataflow",
     'DelDFErr': "Cannot delete the dataflow",
@@ -1069,7 +1067,6 @@ DFTStr = {
     'DownloadDF': 'Download dataflow',
     'ExportFileExists': 'Export file or directory already exists.',
     'InvalidExportPath': 'Cannot contain / in the export file name',
-    'InvalidTarget': 'Target not found.',
     'DFDrawError': 'Invalid dataflow structure',
     'NoDF1': 'No dataflows added',
     'NoDF2': 'Add a dataflow from the Dataflow Graph',
@@ -1109,8 +1106,6 @@ DFTStr = {
     "ParamCorrect": "Please correct before proceeding.",
     "ParamBasicInstructions": "To convert this operation into a parameterized operation, drag and drop the parameter into its appropriate place.",
     "AdvFilterInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: gt(<paramName>, 0). To return to basic mode, all values must be valid.",
-    "AdvDatastoreInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: /root/<paramName>.csv. Only the targetName, path, and fileNamePattern values can be parameterized. To return to basic mode, all values must be valid.",
-    "AdvExportInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: <paramName>.csv. Only the fileName and targetName values can be parameterized. To return to basic mode, all values must be valid.",
     "SynthInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: <paramName>.csv. Only the source value can be parameterized. To return to basic mode, all values must be valid.",
     "Name": "Name",
     "PreviousValue": "Previous Value",
@@ -1150,8 +1145,7 @@ DSTStr = {
     'UnknownId': 'Unknown Id',
     'DS': 'Datasets',
     'IN': 'DATASETS',
-    'OUT': 'EXPORT TARGETS',
-    'TARGET': 'DATA TARGETS',
+    'TARGET': 'CONNECTORS',
     'Export': 'EXPORT FORM',
     'DeactivateDS': 'Deactivate Dataset(s)',
     'DeactivateDSMsg': 'Are you sure you want to deactivate the selected dataset(s)?',
@@ -1169,7 +1163,7 @@ DSTStr = {
     'NoColumns': 'No Columns Selected',
     'NoRecrodsHint': 'Please check the validation of path, pattern, and UDF, and try again.',
     'CancelPoint': 'Cancel import data source',
-    'DSSourceHint': 'Please try another path or use another data target.',
+    'DSSourceHint': 'Please try another path or use another connector.',
     'FileOversize': 'Too many files in the folder, cannot read, please import with the url directly',
     'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"',
     'Excel': "EXCEL",
@@ -1266,7 +1260,7 @@ DSFormTStr = {
     'NoQuoteWarn': 'No Quote Character',
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
     'UDFHint': 'Please select a UDF module and UDF function then click \"Apply UDF\" button to apply the UDF.',
-    'GeneratedTargetHint': 'The path for this target should be the number of rows desired in the dataset',
+    'GeneratedTargetHint': 'The path for this connector should be the number of rows desired in the dataset',
     'ImportMultiple': 'Importing Multiple Datasets',
     'ParseError': 'Your file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
     'UDFError': 'UDF generated errors while running your file.',
@@ -1274,7 +1268,7 @@ DSFormTStr = {
     'NoFileInFolder': 'No data source files in this directory',
     'ResucriveErr': 'No data source files in directory <path>. Please import with \"recursive\" option to include files in subdirectories.',
     'TooManyPreview': 'You are importing <num> datasets. This will take a while. Do you want to proceed?',
-    'SlowTargetPreview': 'You are importing datasets from data target \"<target>\". This will take a while. Do you want to proceed?'
+    'SlowTargetPreview': 'You are importing datasets from connector \"<target>\". This will take a while. Do you want to proceed?'
 };
 
 DSParserTStr = {
@@ -1288,14 +1282,14 @@ DSParserTStr = {
 };
 
 DSTargetTStr = {
-    "Create": "Create data target",
-    "AdminOnly": "Only admins can create new import targets",
-    "DEL": "DELETE TARGET",
-    "DelFail": "Target Deletion Failed",
-    "NoDelete": "Cannot delete default target",
+    "Create": "Create connector",
+    "AdminOnly": "Only admins can create new connector",
+    "DEL": "DELETE CONNECTOR",
+    "DelFail": "Connector Deletion Failed",
+    "NoDelete": "Cannot delete the default connector",
     // with replace
     "DelConfirmMsg": "Are you sure you want to delete <target>?",
-    "TargetExists": "Data target <target> already exists",
+    "TargetExists": "Connector <target> already exists",
     "MountpointNoExists": "Mount point <mountpoint> does not exist. Please choose a valid mount point",
 };
 
