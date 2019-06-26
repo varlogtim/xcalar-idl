@@ -1,18 +1,19 @@
-import { OperatorService as ApiOperator, XceClient as ApiClient } from 'xcalar';
+import { DataSetService as ApiDataset, XceClient as ApiClient } from 'xcalar';
 import { parseError } from '../ServiceError';
-import { XcalarApiDfLoadArgs as BulkLoadArgs } from './XcalarProtoQueryInput';
+import { SCOPE, ScopeInfo, createScopeMessage } from '../Common/Scope';
+import { XcalarApiDfLoadArgs as LoadArgs, DataSourceArgs, ParseArgs, ColumnArgs } from '../Operator/XcalarProtoQueryInput';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
-class OperatorService {
+class DatasetService {
     private _apiClient: ApiClient;
 
     constructor(apiClient: ApiClient) {
         this._apiClient = apiClient;
     }
 
-    public async opBulkLoad(param: {
+    async create(param: {
         datasetName: string,
-        loadArgs?: BulkLoadArgs,
+        loadArgs?: LoadArgs,
         scope: SCOPE,
         scopeInfo: ScopeInfo
     }): Promise<{}> {
@@ -63,71 +64,14 @@ class OperatorService {
             }
             request.setScope(createScopeMessage({ scope: scope, scopeInfo: scopeInfo }));
 
-            const opService = new ApiOperator(this._apiClient);
-            const response = await opService.opBulkLoad(request);
+            const dsService = new ApiDataset(this._apiClient);
+            await dsService.create(request);
 
             return {};
         } catch(e) {
-            throw parseError(e, (resp: Object): BulkLoadErrorResponse => {
-                if (resp != null && (resp instanceof ProtoTypes.Operator.BulkLoadResponse)) {
-                    return {
-                        errorString: resp.getErrorString() || '',
-                        errorFile: resp.getErrorFile() || ''
-                    };
-                } else {
-                    return null;
-                }
-            });
+            throw parseError(e);
         }
     }
 }
 
-type BulkLoadErrorResponse = {
-    errorString: string, errorFile: string
-};
-function isBulkLoadErrorResponse(errorResp: Object): errorResp is BulkLoadErrorResponse {
-    return errorResp != null &&
-        errorResp.hasOwnProperty('errorString') &&
-        errorResp.hasOwnProperty('errorFile');
-}
-
-// Temporary solution for scope, will be removed once Common/Scope.ts is in
-type ScopeInfo = {
-    userName: string,
-    workbookName: string
-};
-
-enum SCOPE {
-    GLOBAL = ProtoTypes.Workbook.ScopeType.GLOBALSCOPETYPE,
-    WORKBOOK = ProtoTypes.Workbook.ScopeType.WORKBOOKSCOPETYPE
-};
-
-/**
- * Create xcrpc WorkbookScope message
- * @param param
- */
-function createScopeMessage(param: {
-    scope: SCOPE, scopeInfo: ScopeInfo
-}): ProtoTypes.Workbook.WorkbookScope {
-
-    const { scope, scopeInfo } = param;
-    const { userName = null, workbookName = null } = scopeInfo || {};
-
-    const scopeObj = new ProtoTypes.Workbook.WorkbookScope();
-    if (scope === SCOPE.GLOBAL) {
-        scopeObj.setGlobl(new ProtoTypes.Workbook.GlobalSpecifier());
-    } else if (scope === SCOPE.WORKBOOK) {
-        const nameInfo = new ProtoTypes.Workbook.WorkbookSpecifier.NameSpecifier();
-        nameInfo.setUsername(userName);
-        nameInfo.setWorkbookname(workbookName);
-        const workbookInfo = new ProtoTypes.Workbook.WorkbookSpecifier();
-        workbookInfo.setName(nameInfo);
-        scopeObj.setWorkbook(workbookInfo);
-    } else {
-        throw new Error(`Invalid Scope: ${scope}`);
-    }
-
-    return scopeObj;
-}
-
-export { OperatorService, SCOPE as LOADSCOPE, ScopeInfo as LoadScopeInfo, isBulkLoadErrorResponse };
+export { DatasetService, SCOPE, ScopeInfo, LoadArgs, DataSourceArgs, ParseArgs, ColumnArgs }

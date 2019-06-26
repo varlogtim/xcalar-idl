@@ -60,6 +60,11 @@ declare module 'xcalar' {
         execute(request: proto.xcalar.compute.localtypes.Dataflow.ExecuteRequest): Promise<proto.xcalar.compute.localtypes.Dataflow.ExecuteResponse>;
     }
 
+    export class DataSetService {
+        constructor(client: XceClient);
+        create(request: proto.xcalar.compute.localtypes.Operator.BulkLoadRequest): Promise<proto.google.protobuf.Empty>;
+    }
+
     export class TableService {
         constructor(client: XceClient);
         addIndex(request: proto.xcalar.compute.localtypes.Table.IndexRequest): Promise<proto.google.protobuf.Empty>;

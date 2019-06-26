@@ -37,15 +37,10 @@ export declare class KeyArgs {
         ordering?: string,
     });
 }
-export declare class ColumnArgs {
+export declare type ColumnArgs = {
     sourceColumn: string;
     destColumn: string;
     columnType: number;
-    constructor(args?: {
-        sourceColumn?: string,
-        destColumn?: string,
-        columnType?: string,
-    });
 }
 export declare type DataSourceArgs = {
 	targetName: string;

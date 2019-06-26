@@ -475,6 +475,45 @@ function parseLoadError(error: object): object | string {
 
     return res;
 }
+
+function convertToXcrpcLoadArgs(loadArgs: {
+    sourceArgsList: DataSourceArgsT[],
+    parseArgs: ParseArgsT,
+    size: number
+}): Xcrpc.Dataset.LoadArgs {
+    const xcrpcLoadArgs: Xcrpc.Dataset.LoadArgs = { sourceArgsList: null, parseArgs: null, size: null };
+
+    try {
+        const { sourceArgsList, parseArgs, size } = loadArgs;
+
+        xcrpcLoadArgs.sourceArgsList = sourceArgsList.map((sourceArgs) => ({
+            targetName: sourceArgs.targetName,
+            path: sourceArgs.path,
+            fileNamePattern: sourceArgs.fileNamePattern || '',
+            recursive: sourceArgs.recursive || false
+        }));
+
+        xcrpcLoadArgs.parseArgs = {
+            parserFnName: parseArgs.parserFnName,
+            parserArgJson: parseArgs.parserArgJson,
+            allowRecordErrors: parseArgs.allowRecordErrors,
+            allowFileErrors: parseArgs.allowFileErrors,
+            fileNameFieldName: parseArgs.fileNameFieldName,
+            recordNumFieldName: parseArgs.recordNumFieldName,
+            schema: parseArgs.schema.map((col) => ({
+                sourceColumn: col.sourceColumn,
+                destColumn: col.destColumn,
+                columnType: Xcrpc.EnumMap.DfFieldTypeToInt[col.columnType]
+            }))
+        };
+
+        xcrpcLoadArgs.size = size;
+    } catch(_) {
+        // Do nothing, so that return the default structure with null values
+    }
+
+    return xcrpcLoadArgs;
+}
 // ======================== ERROR INJECTION TESTING =========================//
 function getFailPercentage(funcName: string): number {
     if (funcFailPercentage.hasOwnProperty(funcName)) {
@@ -812,9 +851,7 @@ XcalarParseDSLoadArgs = function(options: XcalarLoadInputOptions): {
     }
 };
 
-
-
-XcalarDatasetCreate = function(
+XcalarDatasetCreateThrift = function(
     datasetName: string,
     options: XcalarLoadInputOptions
 ) {
@@ -839,7 +876,41 @@ XcalarDatasetCreate = function(
     return deferred.promise();
 };
 
-XcalarDatasetRestore = function(
+XcalarDatasetCreate = function(
+    datasetName: string,
+    options: XcalarLoadInputOptions,
+    scopeInfo?: Xcrpc.Dataset.ScopeInfo
+) {
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    const args = XcalarParseDSLoadArgs(options);
+    if (args == null) {
+        return PromiseHelper.reject({error: "Error Parse Args"});
+    }
+
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDatasetService().create({
+            datasetName: datasetName,
+            loadArgs: convertToXcrpcLoadArgs(args),
+            scope: Xcrpc.Dataset.SCOPE.WORKBOOK,
+            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+        })
+    )
+    .then(deferred.resolve)
+    .fail(function(error) {
+        if (Xcrpc.Error.isXcalarError(error)) {
+            const thriftError: ThriftError = thriftLog("XcalarDatasetCreate", {
+                status: error.status
+            });
+            deferred.reject(thriftError);
+        } else {
+            deferred.reject(error);
+        }
+    });
+
+    return deferred.promise();
+};
+
+XcalarDatasetRestoreThrift = function(
     datasetName: string,
     args: any
 ) {
@@ -883,6 +954,44 @@ XcalarDatasetRestore = function(
     .fail(function(error) {
         const thriftError: ThriftError = thriftLog("XcalarDatasetRestore", error);
        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarDatasetRestore = function(
+    datasetName: string,
+    args: any,
+    scopeInfo?: Xcrpc.Dataset.ScopeInfo
+) {
+    const maxSampleSize: number = gMaxSampleSize;
+    if (maxSampleSize > 0) {
+        console.log("Max sample size set to: ", maxSampleSize);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDatasetService().create({
+            datasetName: datasetName,
+            loadArgs: convertToXcrpcLoadArgs({
+                sourceArgsList: args.sourceArgsList,
+                parseArgs: args.parseArgs,
+                size: maxSampleSize
+            }),
+            scope: Xcrpc.Dataset.SCOPE.WORKBOOK,
+            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+        })
+    )
+    .then(deferred.resolve)
+    .fail(function(error) {
+        if (Xcrpc.Error.isXcalarError(error)) {
+            const thriftError: ThriftError = thriftLog("XcalarDatasetRestore", {
+                status: error.status
+            });
+            deferred.reject(thriftError);
+        } else {
+            deferred.reject(error);
+        }
     });
 
     return deferred.promise();
@@ -1005,7 +1114,7 @@ XcalarDatasetLoad = function(
         // def = xcalarLoad(tHandle, dsName, args.sourceArgsList, args.parseArgs, args.size);
         def = PromiseHelper.convertToJQuery(
             Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getOperatorService().opBulkLoad({
-                datasetName: dsName, loadArgs: args,
+                datasetName: dsName, loadArgs: convertToXcrpcLoadArgs(args),
                 scope: Xcrpc.Operator.LOADSCOPE.WORKBOOK,
                 scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
             })
@@ -1031,28 +1140,27 @@ XcalarDatasetLoad = function(
             // Just pretend like nothing happened and quietly listDatasets
             // in intervals until the load is complete. Then do the ack/fail
             checkForDatasetLoad(deferred, query, datasetName, txId);
-        } else if (Xcrpc.Error.isXcalarLoadError(error)) {
-            console.error("error in import", error.errorString, error.errorFile);
-            let loadError = xcStringHelper.replaceMsg(DSTStr.LoadErr, {
-                "error": parseLoadError({ errorString: error.errorString })
-            });
-
-            if (error.errorFile != null) {
-                loadError = xcStringHelper.replaceMsg(DSTStr.LoadErrFile, {
-                    "file": error.errorFile
-                }) + "\n" + loadError;
-            }
-
-            const thriftError: ThriftError = thriftLog('XcalarLoad', {
-                status: error.status
-            });
-            thriftError.error = loadError;
-            deferred.reject(thriftError);
         } else if (Xcrpc.Error.isXcalarError(error)) {
             const thriftError: ThriftError = thriftLog('XcalarLoad', {
                 status: error.status
             });
-            thriftError.error = error.error;
+            if (Xcrpc.Operator.isBulkLoadErrorResponse(error.response)) {
+                const { errorString, errorFile } = error.response;
+                console.error("error in import", errorString, errorFile);
+                let loadError = xcStringHelper.replaceMsg(DSTStr.LoadErr, {
+                    "error": parseLoadError({ errorString: errorString })
+                });
+
+                if (errorFile.length > 0) {
+                    loadError = xcStringHelper.replaceMsg(DSTStr.LoadErrFile, {
+                        "file": errorFile
+                    }) + "\n" + loadError;
+                }
+
+                thriftError.error = loadError;
+            } else {
+                thriftError.error = error.error;
+            }
             deferred.reject(thriftError);
         } else {
             deferred.reject(error);

@@ -33,6 +33,8 @@ import * as Dataflow from './Dataflow/DataflowService';
 export { Dataflow };
 import * as GetQuery from './Operator/GetQueryService';
 export { GetQuery };
+import * as Dataset from './Dataset/DatasetService';
+export { Dataset };
 import * as Operator from './Operator/OperatorService';
 export { Operator };
 import * as Target from './Target/TargetService';

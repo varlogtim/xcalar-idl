@@ -7,6 +7,7 @@ import { PublishedTableService } from './PublishedTable/PublishedTableService';
 import { TableService } from './Table/TableService';
 import { DataflowService } from './Dataflow/DataflowService';
 import { GetQueryService } from './Operator/GetQueryService';
+import { DatasetService } from './Dataset/DatasetService';
 import { OperatorService } from './Operator/OperatorService';
 import { TargetService } from './Target/TargetService';
 
@@ -47,6 +48,10 @@ class ServiceClient {
 
     public getDataflowService(): DataflowService {
         return new DataflowService(this._apiClient);
+    }
+
+    public getDatasetService(): DatasetService {
+        return new DatasetService(this._apiClient);
     }
 
     public getOperatorService(): OperatorService {

@@ -1,15 +1,10 @@
-import ProtoTypes = proto.xcalar.compute.localtypes;
-
-type ServiceError = NetworkError | XcalarError | XcalarLoadError | UnknownError;
+type ServiceError = NetworkError | XcalarError | UnknownError;
 
 interface NetworkError {
     type: ErrorType, httpStatus: number
 }
 interface XcalarError {
-    type: ErrorType, status: number, error: string
-}
-interface XcalarLoadError extends XcalarError {
-    errorString: string, errorFile?: string
+    type: ErrorType, status: number, error: string, response?: Object
 }
 interface UnknownError {
     type: ErrorType, error: string
@@ -17,27 +12,23 @@ interface UnknownError {
 
 enum ErrorType {
     SERVICE, // Deprecated, will be replaced by UNKNOWN
-    UNKNOWN, XCALAR, XCALARLOAD, NETWORK
+    UNKNOWN, XCALAR, NETWORK
 }
 
-function parseError(err: any): ServiceError {
+/**
+ * Parse the error from jsClient, and create service error object
+ * @param err The error thrown from jsClient
+ * @param responseParser Api specific function extracting extra error information from response message
+ */
+function parseError(err: any, responseParser?: (resp: Object) => Object): ServiceError {
     try {
         if (rawErrorCheck.isApiError(err)) {
-            const serviceError = {
+            const respParser = responseParser || (() => null);
+            return {
                 type: ErrorType.XCALAR,
                 status: err.status, error: err.error,
+                response: respParser(err.response)
             };
-            if (rawErrorCheck.isApiLoadError(err)) {
-                const [errorString, errorFile] =
-                    [err.response.getErrorString(), err.response.getErrorFile()];
-                if (errorString != null && errorString.length > 0) {
-                    serviceError['errorString'] = errorString;
-                }
-                if (errorFile != null && errorFile.length > 0) {
-                    serviceError['errorFile'] = errorFile;
-                }
-            }
-            return serviceError;
         } else if (rawErrorCheck.isNetworkError(err)) {
             return { type: ErrorType.NETWORK, httpStatus: err.statusCode };
         } else {
@@ -49,13 +40,8 @@ function parseError(err: any): ServiceError {
 }
 
 const rawErrorCheck = {
-    isApiError: function(err: Object): err is { status: number, error: string } {
+    isApiError: function(err: Object): err is { status: number, error: string, response?: Object } {
         return err != null && err.hasOwnProperty('status') && err.hasOwnProperty('error');
-    },
-    isApiLoadError: function(err: Object): err is { response: ProtoTypes.Operator.BulkLoadResponse } {
-        return err != null &&
-            err.hasOwnProperty('response') &&
-            (err['response'] instanceof ProtoTypes.Operator.BulkLoadResponse);
     },
     isNetworkError: function(err: Object): err is { statusCode: number } {
         return err != null &&
@@ -72,8 +58,4 @@ function isXcalarError(error: ServiceError): error is XcalarError {
     return error != null && error.type === ErrorType.XCALAR;
 }
 
-function isXcalarLoadError(error: ServiceError): error is XcalarLoadError {
-    return error != null && error.type === ErrorType.XCALAR && error.hasOwnProperty('errorString');
-}
-
-export { ServiceError, UnknownError, ErrorType, parseError, isNetworkError, isXcalarError, isXcalarLoadError };
+export { ServiceError, UnknownError, ErrorType, parseError, isNetworkError, isXcalarError };
