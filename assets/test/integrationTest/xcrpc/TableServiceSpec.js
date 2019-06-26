@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-exports.testSuit = function(TableService) {
+exports.testSuite = function(TableService) {
     describe("tableService test: ", function () {
         it("addIndex() should handle invalid input", async function(){
             try {

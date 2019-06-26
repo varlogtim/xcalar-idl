@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-exports.testSuit = function(UDFService) {
+exports.testSuite = function(UDFService) {
      describe("UDFService test: ", function () {
         //TODO backend not implement yet
         it("getRes() should work", async function () {

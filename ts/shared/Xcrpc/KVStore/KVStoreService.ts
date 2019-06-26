@@ -4,7 +4,7 @@ import {
     ScopeInfo as KvScopeInfo,
     createScopeMessage
 } from '../Common/Scope';
-import { ServiceError, ErrorType } from '../ServiceError';
+import {parseError} from '../ServiceError';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
 class KVStoreService {
@@ -49,9 +49,9 @@ class KVStoreService {
             return value;
         } catch (e) {
             // XXX TODO: API error handling)
-            if(this._parseError(e, "lookup")){
-                return null;
-            }
+            this._parseError(e, "lookup"))
+            return null;
+
 
         }
     }
@@ -126,14 +126,13 @@ class KVStoreService {
             await kvService.append(request);
 
         } catch(e) {
-            if(this._parseError(e, "append")){
-                try {
-                    const { keyName, kvScope, scopeInfo,persist,kvSuffix} = param;
-                    await this.addOrReplace({key: keyName, value: kvSuffix, persist: persist,
-                        kvScope: kvScope, scopeInfo: scopeInfo});
-                } catch(e) {
-                    this._parseError(e, "addOrReplace")
-                }
+            this._parseError(e, "append");
+            try {
+                const { keyName, kvScope, scopeInfo,persist,kvSuffix} = param;
+                await this.addOrReplace({key: keyName, value: kvSuffix, persist: persist,
+                    kvScope: kvScope, scopeInfo: scopeInfo});
+            } catch(e) {
+                this._parseError(e, "addOrReplace")
             }
         }
     }
@@ -161,10 +160,8 @@ class KVStoreService {
                 await kvService.setIfEqual(request);
                 return {noKV:false};
             } catch (e) {
-                if(this._parseError(e, "setIfEqual")){
-                    return {noKV:true};
-                }
-
+                this._parseError(e, "setIfEqual")
+                return {noKV:true};
             }
 
     }
@@ -192,40 +189,36 @@ class KVStoreService {
 
 
         } catch(e) {
-            if(this._parseError(e, "list")){
-                return null;
-            }
+            this._parseError(e, "list");
+            return null;
         }
     }
 
-    private _parseError(error:any, method:string):boolean {
+    private _parseError(error:any, method:string):void {
         switch(method) {
             case "lookup":
             case "deleteKey":
             case "setIfEqual": {
-                if (error.status === Status.StatusKvEntryNotFound) {
+                if (error.status === ProtoTypes.XcalarEnumType.Status.STATUS_KV_ENTRY_NOT_FOUND) {
                     console.warn("Status", error.error, "Key, not found");
-                    return true;
-                } else if (error.status === Status.StatusKvStoreNotFound) {
+                    return;
+                } else if (error.status === ProtoTypes.XcalarEnumType.Status.STATUS_KV_STORE_NOT_FOUND) {
                     console.warn(error.error, "kvStore, not found");
-                    return true;
+                    return;
                 }
                 break;
             }
             case "append": {
-                if (error.status === Status.StatusKvEntryNotFound ||
-                    error.status === Status.StatusKvStoreNotFound)
+                if (error.status === ProtoTypes.XcalarEnumType.Status.STATUS_KV_ENTRY_NOT_FOUND ||
+                    error.status === ProtoTypes.XcalarEnumType.Status.STATUS_KV_STORE_NOT_FOUND)
                 {
                     console.info("Append fails as key or kvStore not found, put key instead");
-                    return true;
+                    return;
                 }
                 break;
             }
         }
-        const e: ServiceError = {
-            type: ErrorType.SERVICE, error: error
-        };
-        throw e;
+        throw parseError(error);
     }
 }
 

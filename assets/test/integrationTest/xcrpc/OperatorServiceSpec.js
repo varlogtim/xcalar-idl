@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 const ProtoTypes = require('xcalar');
-exports.testSuit = function(OperatorService) {
+exports.testSuite = function(OperatorService) {
     describe("OperatorService test: ", function () {
         it("export should work", async function(){
             // XXX TODO: test target service

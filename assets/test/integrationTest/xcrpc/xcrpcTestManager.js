@@ -4,6 +4,7 @@
  * export NODE_APIEP = "https://skywalker:8443/app/service/xce"
  */
 const Xcrpc = require('xcalarsdk');
+
 //import the test suit for each services
 const KVstoreServiceTest = require('./KVStoreServiceSpec');
 const LicenseServiceTest = require('./LicenseServiceSpec');
@@ -33,17 +34,19 @@ let TableService = client.getTableService();
 let GetQueryService = client.getGetQueryService();
 const dataflowService = client.getDataflowService();
 let TargetService = client.getTargetService();
+let STATUS = Xcrpc.Error.status;
+
 
 describe("xcrpc integration test: ", function () {
     // run the testSuit for each services
-    KVstoreServiceTest.testSuit(KVstoreService, Xcrpc.KVStore.KVSCOPE);
-    LicenseServiceTest.testSuit(LicenseService);
-    PublishedTableServiceTest.testSuit(PublishedTableService);
-    QueryServiceTest.testSuit(QueryService);
-    OperatorServiceTest.testSuit(OperatorService);
-    UDFServiceTest.testSuit(UDFService);
-    TableServiceTest.testSuit(TableService);
-    DataflowServiceTest.testSuit(dataflowService);
-    GetQueryServiceTest.testSuit(GetQueryService);
-    TargetServiceTest.testSuit(TargetService);
+    KVstoreServiceTest.testSuite(KVstoreService, Xcrpc.KVStore.KVSCOPE, STATUS);
+    LicenseServiceTest.testSuite(LicenseService);
+    PublishedTableServiceTest.testSuite(PublishedTableService);
+    QueryServiceTest.testSuite(QueryService);
+    OperatorServiceTest.testSuite(OperatorService);
+    UDFServiceTest.testSuite(UDFService);
+    TableServiceTest.testSuite(TableService);
+    DataflowServiceTest.testSuite(dataflowService);
+    GetQueryServiceTest.testSuite(GetQueryService);
+    TargetServiceTest.testSuite(TargetService);
 });

@@ -4648,7 +4648,8 @@ XcalarResumeSched = function(scheduleKey: string): XDPromise<boolean> {
 
 XcalarKeyLookup = function(
     key: string,
-    scope: number
+    scope: number,
+    scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<Xcrpc.KVStore.Value> {
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
@@ -4656,21 +4657,22 @@ XcalarKeyLookup = function(
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
-    const scopeInfo = {userName: userIdName, workbookName: sessionName};
+    scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().lookup({keyName: key,kvScope: Xcrpc_scope, scopeInfo: scopeInfo});
     return PromiseHelper.convertToJQuery(promise);
 };
 
 XcalarKeyList = function(
     keyRegex: string,
-    scope: number
+    scope: number,
+    scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<Xcrpc.KVStore.keyListResponse> {
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
-    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName}
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().list({kvScope:Xcrpc_scope, scopeInfo: scopeInfo, kvKeyRegex: keyRegex})
     return PromiseHelper.convertToJQuery(promise);
 };
@@ -4679,7 +4681,8 @@ XcalarKeyPut = function(
     key: string,
     value: string,
     persist: boolean,
-    scope: number
+    scope: number,
+    scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<void> {
     if (key == null) {
         return PromiseHelper.reject("key is not defined");
@@ -4696,14 +4699,15 @@ XcalarKeyPut = function(
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
-    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().addOrReplace({key: key, value: value, kvScope: Xcrpc_scope, persist:persist, scopeInfo: scopeInfo});
     return PromiseHelper.convertToJQuery(promise);
 };
 
 XcalarKeyDelete = function(
     key: string,
-    scope: number
+    scope: number,
+    scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<void> {
 
     if (scope == null) {
@@ -4712,7 +4716,7 @@ XcalarKeyDelete = function(
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
-    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().deleteKey({keyName: key, kvScope: Xcrpc_scope, scopeInfo: scopeInfo});
     return PromiseHelper.convertToJQuery(promise);
 };
@@ -4722,11 +4726,12 @@ XcalarKeySetIfEqual = function(
     persist: boolean,
     keyCompare: string,
     oldValue: string,
-    newValue: string
+    newValue: string,
+    scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<{noKV: boolean}> {
 
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
-    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
     persist: persist, kvKeyCompare:keyCompare, kvValueCompare: oldValue, kvValueReplace: newValue, countSecondaryPairs: 0,
     kvKeySecondary: null, kvValueSecondary: null });
@@ -4741,10 +4746,11 @@ XcalarKeySetBothIfEqual = function(
     oldValue: string,
     newValue: string,
     otherKey: string,
-    otherValue: string
+    otherValue: string,
+    scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<{noKV: boolean}> {
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
-    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
     persist: persist, kvKeyCompare:keyCompare, kvValueCompare: oldValue, kvValueReplace: newValue, countSecondaryPairs: 1,
     kvKeySecondary: otherKey, kvValueSecondary: otherValue});
@@ -4756,14 +4762,15 @@ XcalarKeyAppend = function(
     key: string,
     stuffToAppend: string,
     persist: boolean,
-    scope: number
+    scope: number,
+    scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<void> {
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
     //for now, we use a global value for that.Then we need to figure out a way to pass these value in.
-    const scopeInfo = {userName: userIdName, workbookName: sessionName}
+    scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().append({keyName: key, kvScope: Xcrpc_scope,
         persist: persist, kvSuffix: stuffToAppend, scopeInfo: scopeInfo});
     return PromiseHelper.convertToJQuery(promise);

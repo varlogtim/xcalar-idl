@@ -174,7 +174,7 @@ class Concurrency {
                 }
             })
             .fail((tError) => {
-                if (tError.error.status === StatusT.StatusKvEntryNotEqual) {
+                if (tError.status === Xcrpc.Error.status.STATUS_KV_ENTRY_NOT_EQUAL) {
                     // Locked state. Exp backoff until time limit, and then ask the
                     // user for force / give up
                     console.log("Retrying with timeout: " + timeout / 1000);

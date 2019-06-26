@@ -15,6 +15,8 @@ enum ErrorType {
     UNKNOWN, XCALAR, NETWORK
 }
 
+import status = proto.xcalar.compute.localtypes.XcalarEnumType.Status;
+
 /**
  * Parse the error from jsClient, and create service error object
  * @param err The error thrown from jsClient
@@ -58,4 +60,4 @@ function isXcalarError(error: ServiceError): error is XcalarError {
     return error != null && error.type === ErrorType.XCALAR;
 }
 
-export { ServiceError, UnknownError, ErrorType, parseError, isNetworkError, isXcalarError };
+export { ServiceError, UnknownError, ErrorType, parseError, isNetworkError, isXcalarError, status };

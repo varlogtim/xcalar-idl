@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 const ProtoTypes = require('xcalar');
-exports.testSuit = function(TargetService) {
+exports.testSuite = function(TargetService) {
      describe("TargetService test: ", function () {
         it("run should work", function () {
             // XXX TODO: test target service

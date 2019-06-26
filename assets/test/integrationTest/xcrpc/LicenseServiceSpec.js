@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-exports.testSuit = function(LicenseService) {
+exports.testSuite = function(LicenseService) {
     describe("LicenseService: ", function () {
         it("getLicense() should work", async function () {
             try {

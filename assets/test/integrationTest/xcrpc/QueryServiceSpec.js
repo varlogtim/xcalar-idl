@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-exports.testSuit = function(QueryService) {
+exports.testSuite = function(QueryService) {
      describe("QueryService test: ", function () {
         it("list() should work", async function () {
             try {

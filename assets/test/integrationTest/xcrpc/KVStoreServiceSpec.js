@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-exports.testSuit = function(KVstoreService, KVSCOPE) {
+exports.testSuite = function(KVstoreService, KVSCOPE, STATUS) {
     let newKey = new Set()
     describe("KVStoreService Test: ", function () {
 
@@ -177,7 +177,7 @@ exports.testSuit = function(KVstoreService, KVSCOPE) {
                     persist:false, countSecondaryPairs: 0, kvKeyCompare: keyName, kvValueCompare: keyValue, kvValueReplace: keyValueSet});
                 expect.fail("when keyValue does not match, shoul throw error")
             } catch(err) {
-                expect(err.error.error).to.equal("failed to set-if-equal key '" + keyName + "' from kvstore 1");
+                expect(err.status).to.equal(STATUS.STATUS_KV_ENTRY_NOT_EQUAL);
             }
         });
 

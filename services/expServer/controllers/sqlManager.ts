@@ -682,8 +682,8 @@ class SqlManager {
                     status: SQLStatus.Cancelled,
                     endTime: new Date()
                 };
-                this.SqlUtil.setSessionInfo(userName, userId, sessionName);
-                SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
+                let info = this.SqlUtil.setSessionInfo(userName, userId, sessionName);
+                SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj, {userName: info.userName, workbookName: info.sessionName});
                 deferred.resolve();
             })
             .fail((error) => {
@@ -723,9 +723,10 @@ class SqlManager {
             sessionInfo.sessionName)
         .then(() => {
             sqlHistoryObj["startTime"] = new Date();
-            this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
+            let info = this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
                                         sessionInfo.sessionName);
-            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
+            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
+                {userName: info.userName, workbookName: info.sessionName});
             return this.collectTablesMetaInfo(params.queryString, tablePrefix,
                                                         type, sessionInfo);
         })
@@ -821,10 +822,11 @@ class SqlManager {
             // To show better performance, we only display duration of execution
             sqlHistoryObj["startTime"] = new Date();
             sqlHistoryObj["status"] = SQLStatus.Running;
-            this.SqlUtil.setSessionInfo(
+            let info = this.SqlUtil.setSessionInfo(
                 sessionInfo.userName, sessionInfo.userId, sessionInfo.sessionName
             );
-            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
+            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
+                 {userName: info.userName, workbookName: info.sessionName});
             return SQLExecutor.execute(sqlQueryObj, {
                 userName: sessionInfo.userName,
                 workbookName: sessionInfo.sessionName
@@ -835,9 +837,10 @@ class SqlManager {
             sqlHistoryObj["status"] = SQLStatus.Done;
             sqlHistoryObj["endTime"] = new Date();
             sqlHistoryObj["tableName"] = sqlQueryObj.newTableName;
-            this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
+            let info = this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
                                             sessionInfo.sessionName);
-            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
+            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
+                {userName: info.userName, workbookName: info.sessionName});
             // Drop schemas and nuke session on planner
             let requestStruct: RequestInput = {
                 type: "schemasdrop",
@@ -878,9 +881,10 @@ class SqlManager {
                 sqlHistoryObj["status"] = SQLStatus.Failed;
                 sqlHistoryObj["errorMsg"] = err;
             }
-            this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
+            let info = this.SqlUtil.setSessionInfo(sessionInfo.userName, sessionInfo.userId,
                                             sessionInfo.sessionName);
-            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
+            SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
+                {userName: info.userName, workbookName: info.sessionName});
             deferred.reject(retObj);
         })
         .always((): void => {

@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-exports.testSuit = function(PublishedTableService) {
+exports.testSuite = function(PublishedTableService) {
     describe("PublishedTableService test: ", function () {
         //TODO backend not implement yet
         it("select() should work with normal case", async function () {

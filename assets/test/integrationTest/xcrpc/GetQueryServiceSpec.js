@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 const ProtoTypes = require('xcalar');
-exports.testSuit = function(GetQueryService) {
+exports.testSuite = function(GetQueryService) {
      describe("GetQueryService test: ", function () {
         it("getAggregate should work", function () {
             try {

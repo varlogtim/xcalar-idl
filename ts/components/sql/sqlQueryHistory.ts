@@ -117,18 +117,20 @@ class SqlQueryHistory {
      */
     public writeQueryStore(
         queryId: string,
-        updateInfo: SqlQueryHistory.QueryInfo
+        updateInfo: SqlQueryHistory.QueryInfo,
+        scopeInfo?:{userName:string, workbookName:string}
     ): XDPromise<void> {
         const queryKvStore = this._getKVStoreFromQueryId(queryId);
-        return queryKvStore.put(JSON.stringify(updateInfo), true);
+        return queryKvStore.put(JSON.stringify(updateInfo), true, false, scopeInfo);
     }
 
     /**
      * Add/Set a query in queryMap, and persist in KV Store
-     * @param updateInfo 
+     * @param updateInfo
      */
     public upsertQuery(
-        updateInfo: SqlQueryHistory.QueryUpdateInfo
+        updateInfo: SqlQueryHistory.QueryUpdateInfo,
+        scopeInfo?: {userName:string, workbookName: string}
     ): XDPromise<{isNew: boolean, queryInfo: SqlQueryHistory.QueryInfo}> {
         let queryInfo = this.getQuery(updateInfo.queryId);
         const isNewQuery = (queryInfo == null);
@@ -147,7 +149,7 @@ class SqlQueryHistory {
         this.setQuery(queryInfo);
 
         // update KVStore
-        return this.writeQueryStore(queryInfo.queryId, queryInfo)
+        return this.writeQueryStore(queryInfo.queryId, queryInfo, scopeInfo)
         .then( () => ({
             isNew: isNewQuery,
             queryInfo: queryInfo

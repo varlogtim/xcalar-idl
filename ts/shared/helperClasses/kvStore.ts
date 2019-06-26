@@ -344,7 +344,8 @@ class KVStore {
     public put(
         value: string,
         persist: boolean,
-        noCommitCheck: boolean = false
+        noCommitCheck: boolean = false,
+        scopeInfo?:{userName:string, workbookName: string}
     ): XDPromise<void> {
         const key: string = this.key;
         const scope: number = this.scope;
@@ -355,7 +356,7 @@ class KVStore {
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
             this.commitCheck(noCommitCheck)
             .then(function() {
-                return XcalarKeyPut(key, value, persist, scope);
+                return XcalarKeyPut(key, value, persist, scope, scopeInfo);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
