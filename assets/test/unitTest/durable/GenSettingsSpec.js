@@ -15,7 +15,7 @@ describe("GenSettings Constructor Test", function() {
         var genSettings = new GenSettings();
         var baseSettings = genSettings.getBaseSettings();
 
-        expect(Object.keys(baseSettings).length).to.equal(4);
+        expect(Object.keys(baseSettings).length).to.equal(5);
         expect(baseSettings).to.have.property("hideDataCol")
         .and.to.be.false;
         expect(baseSettings).to.have.property("monitorGraphInterval")
@@ -23,6 +23,7 @@ describe("GenSettings Constructor Test", function() {
         expect(baseSettings).to.have.property("commitInterval")
         .and.to.equal(120);
         expect(baseSettings).to.have.property("hideSysOps").and.to.be.false;
+        expect(baseSettings).to.have.property("showIMD").and.to.be.false;
     });
 
     it("GenSettings heirarchy should work", function() {
@@ -45,11 +46,12 @@ describe("GenSettings Constructor Test", function() {
         expect(Object.keys(adminAndXc.xcSettings)).to.have.length(1);
 
         var baseSettings = genSettings.getBaseSettings();
-        expect(Object.keys(baseSettings)).to.have.length(4);
+        expect(Object.keys(baseSettings)).to.have.length(5);
         expect(baseSettings["hideDataCol"]).to.be.false;
         expect(baseSettings["monitorGraphInterval"]).to.equal(9);
         expect(baseSettings["commitInterval"]).to.equal(600);
         expect(baseSettings["hideSysOps"]).to.be.false;
+        expect(baseSettings["showIMD"]).to.be.false;
     });
 
     it("Should update adminSettings", function() {

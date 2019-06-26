@@ -221,6 +221,17 @@ describe("UserSettings Test", function() {
             expect(UserSettings.getPref("hideSysOps")).to.equal(hideSysOps);
         });
 
+        it("should toggle showIMD", function() {
+            var showIMD = UserSettings.getPref("showIMD") || false;
+            var $btn = $("#showIMD");
+            // case 1
+            $btn.click();
+            expect(UserSettings.getPref("showIMD")).to.equal(!showIMD);
+            // case 2
+            $btn.click();
+            expect(UserSettings.getPref("showIMD")).to.equal(showIMD);
+        });
+
         it("should reveal the right value on the slider", function() {
             var $bar = $("#commitIntervalSlider").find(".ui-resizable-e").eq(0);
             var pageX = $bar.offset().left;

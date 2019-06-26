@@ -332,6 +332,18 @@ namespace MainMenu {
         }, 0);
     }
 
+    export function toggleIMDPanel(show: boolean): void {
+        let $icon = $("#datastoreMenu .iconSection .imd");
+        $icon.add($("#imdTab"));
+        if (show) {
+            $("#dataStoresTab").removeClass("wkbkMenuBarTabs");
+            $icon.removeClass("xc-hidden");
+        } else {
+            $("#dataStoresTab").addClass("wkbkMenuBarTabs");
+            $icon.addClass("xc-hidden");
+        }
+    }
+
     function sizeRightPanel() {
         $resizableRightPanels.css("margin-left", rightPanelMargin);
         $statusBar.css("margin-left", rightPanelMargin);

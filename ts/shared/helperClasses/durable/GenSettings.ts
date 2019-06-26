@@ -22,7 +22,8 @@ class GenSettings extends Durable {
             "hideDataCol": false,
             "monitorGraphInterval": 3, // in seconds
             "commitInterval": 120, // in seconds
-            "hideSysOps": false
+            "hideSysOps": false,
+            "showIMD": false,
         };
         defaultSettings = $.extend({}, defaultSettings, userConfigParms);
         this.baseSettings = $.extend({}, defaultSettings, 

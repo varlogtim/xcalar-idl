@@ -310,6 +310,18 @@ namespace UserSettings {
             }
         });
 
+        $("#showIMD").click(function() {
+            let $checkbox = $(this);
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                UserSettings.setPref("showIMD", true, true);
+                MainMenu.toggleIMDPanel(true);
+            } else {
+                UserSettings.setPref("showIMD", false, true);
+                MainMenu.toggleIMDPanel(false);
+            }
+        });
+
         $("#disableDSShare").click(function() {
             let $checkbox = $(this);
             $checkbox.toggleClass("checked");
@@ -367,6 +379,7 @@ namespace UserSettings {
         let graphInterval = UserSettings.getPref("monitorGraphInterval");
         let commitInterval = UserSettings.getPref("commitInterval");
         let hideSysOps = UserSettings.getPref("hideSysOps");
+        let showIMD = UserSettings.getPref("showIMD");
         let disableDSShare = UserSettings.getPref("disableDSShare");
         let logOutInterval = UserSettings.getPref("logOutInterval");
 
@@ -380,6 +393,14 @@ namespace UserSettings {
             $("#hideSysOps").addClass("checked");
         } else {
             $("#hideSysOps").removeClass("checked");
+        }
+
+        if (showIMD) {
+            $("#showIMD").addClass("checked");
+            MainMenu.toggleIMDPanel(true);
+        } else {
+            $("#showIMD").removeClass("checked");
+            MainMenu.toggleIMDPanel(false);
         }
 
         if (disableDSShare) {
