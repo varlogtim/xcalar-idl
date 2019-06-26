@@ -654,6 +654,16 @@ class FileManagerPanel {
             } else {
                 $(elem).removeClass("disabled");
             }
+            if (action === FileManagerAction.CopyTo) {
+                let $elem = $(elem);
+                if (WorkbookManager.getActiveWKBK() == null) {
+                    $elem.addClass("unavailable");
+                    xcTooltip.add($elem, {title: TooltipTStr.MustBeInWorkbook});
+                } else {
+                    $elem.removeClass("unavailable");
+                    xcTooltip.remove($elem);
+                }
+            }
         });
     }
 
@@ -691,7 +701,8 @@ class FileManagerPanel {
             case FileManagerAction.CopyTo:
                 return (
                     this.selectedPathNodes.size === 1 &&
-                    this._getSelectedDirPathNodesArray().length === 0
+                    this._getSelectedDirPathNodesArray().length === 0 &&
+                    WorkbookManager.getActiveWKBK() != null
                 );
             case FileManagerAction.Share:
                 return (

@@ -232,8 +232,9 @@
                         background-color: @color-border-softGray;
                     }
 
-                    &.disabled {
-                        cursor: not-allowed;
+                    &.disabled, &.unavailable {
+                        cursor: not-allowed !important;
+                        opacity: 1;
 
                         .label {
                             opacity: 0.5;
