@@ -715,16 +715,18 @@ namespace xcUIHelper {
         noRefresh: boolean
     ): void {
         const $icon: JQuery = $btn.hasClass('icon') ? $btn : $btn.find('.icon');
+        const listIcon: string = "xi-view-as-list-2";
+        const gridIcon: string = "xi-grid-view";
         if (toListView) {
             // toggle to list view
             $btn.removeClass('gridView').addClass('listView');
-            $icon.removeClass('xi-list-view').addClass('xi-grid-view');
+            $icon.removeClass(listIcon).addClass(gridIcon);
             // suggest become 'to grid view'
             xcTooltip.changeText($btn, TooltipTStr.ToGridView, false);
         } else {
             // toggle to grid view
             $btn.removeClass("listView").addClass("gridView");
-            $icon.removeClass("xi-grid-view").addClass("xi-list-view");
+            $icon.removeClass(gridIcon).addClass(listIcon);
             xcTooltip.changeText($btn, TooltipTStr.ToListView, false);
         }
         // refresh tooltip

@@ -299,32 +299,34 @@ describe("xcUIHelper Test", function() {
         var $btn = $('<button class="gridView">' +
                         '<i class="icon"></i>' +
                      '</button>');
+        var listIcon = "xi-view-as-list-2";
+        var gridIcon = "xi-grid-view";
         var $icon = $btn.find(".icon");
         xcUIHelper.toggleListGridBtn($btn, true);
         expect($btn.hasClass("gridView")).to.be.false;
         expect($btn.hasClass("listView")).to.be.true;
-        expect($icon.hasClass("xi-grid-view")).to.be.true;
-        expect($icon.hasClass("xi-list-view")).to.be.false;
+        expect($icon.hasClass(gridIcon)).to.be.true;
+        expect($icon.hasClass(listIcon)).to.be.false;
 
         xcUIHelper.toggleListGridBtn($btn, false, false);
         expect($btn.hasClass("gridView")).to.be.true;
         expect($btn.hasClass("listView")).to.be.false;
-        expect($icon.hasClass("xi-grid-view")).to.be.false;
-        expect($icon.hasClass("xi-list-view")).to.be.true;
+        expect($icon.hasClass(gridIcon)).to.be.false;
+        expect($icon.hasClass(listIcon)).to.be.true;
 
         // case 2
         $btn = $('<button class="gridView icon"></button>');
         xcUIHelper.toggleListGridBtn($btn, true);
         expect($btn.hasClass("gridView")).to.be.false;
         expect($btn.hasClass("listView")).to.be.true;
-        expect($btn.hasClass("xi-grid-view")).to.be.true;
-        expect($btn.hasClass("xi-list-view")).to.be.false;
+        expect($btn.hasClass(gridIcon)).to.be.true;
+        expect($btn.hasClass(listIcon)).to.be.false;
 
         xcUIHelper.toggleListGridBtn($btn, false, false);
         expect($btn.hasClass("gridView")).to.be.true;
         expect($btn.hasClass("listView")).to.be.false;
-        expect($btn.hasClass("xi-grid-view")).to.be.false;
-        expect($btn.hasClass("xi-list-view")).to.be.true;
+        expect($btn.hasClass(gridIcon)).to.be.false;
+        expect($btn.hasClass(listIcon)).to.be.true;
     });
 
     it("xcUIHelper.showRefreshIcon should work", function(done) {
