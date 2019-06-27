@@ -901,10 +901,13 @@ class SqlManager {
         })
         .always((): void => {
             if (type == "odbc" || optimizations.dropAsYouGo) {
-                this.SqlUtil.setSessionInfo(params.userName, params.userId,
-                                                params.sessionName);
+                const sessionInfo = this.SqlUtil.setSessionInfo(params.userName,
+                                                                params.userId,
+                                                                params.sessionName);
                 var deleteCompletely = true;
-                XIApi.deleteTable(1, tablePrefix + "*", undefined, deleteCompletely);
+                XcalarDeleteTable(tablePrefix + "*", -1, undefined, deleteCompletely,
+                                  {userName: sessionInfo.userName,
+                                   workbookName: sessionInfo.sessionName});
             }
         });
 
@@ -1081,9 +1084,12 @@ class SqlManager {
             }
         })
         .then((): JQueryPromise<void> => {
-            this.SqlUtil.setSessionInfo(userName, userId, sessionName);
             let deleteCompletely: boolean = true;
-            return XIApi.deleteTable(1, tableName, undefined, deleteCompletely);
+            const sessionInfo = this.SqlUtil.setSessionInfo(userName, userId,
+                                                            sessionName);
+            return XcalarDeleteTable(tableName, -1, undefined, deleteCompletely,
+                                     {userName: sessionInfo.userName,
+                                      workbookName: sessionInfo.sessionName});
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

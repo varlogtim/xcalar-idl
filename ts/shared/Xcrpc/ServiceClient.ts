@@ -10,6 +10,7 @@ import { GetQueryService } from './Operator/GetQueryService';
 import { DatasetService } from './Dataset/DatasetService';
 import { OperatorService } from './Operator/OperatorService';
 import { TargetService } from './Target/TargetService';
+import { DagNodeService} from './DagNode/DagNodeService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -60,6 +61,10 @@ class ServiceClient {
 
     public getTargetService(): TargetService {
         return new TargetService(this._apiClient);
+    }
+
+    public getDagNodeService(): DagNodeService {
+        return new DagNodeService(this._apiClient);
     }
 }
 

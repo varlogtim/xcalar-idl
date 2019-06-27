@@ -12,8 +12,8 @@
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
-var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 var dagNode = require("./xcalar/compute/localtypes/DagNode_pb");
+var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,32 @@ function DagNodeService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 DagNodeService.prototype = {
+    deleteObjects: async function(deleteRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(deleteRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.DeleteRequest");
+        //anyWrapper.pack(deleteRequest.serializeBinary(), "DeleteRequest");
+
+        try {
+            var responseData = await this.client.execute("DagNode", "DeleteObjects", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var deleteResponse =
+            //    responseData.unpack(dagNode.DeleteResponse.deserializeBinary,
+            //                        "DeleteResponse");
+            var deleteResponse = dagNode.DeleteResponse.deserializeBinary(specificBytes);
+            return deleteResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = dagNode.DeleteResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
     tag: async function(tagRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2

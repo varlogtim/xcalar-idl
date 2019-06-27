@@ -39,3 +39,5 @@ import * as Operator from './Operator/OperatorService';
 export { Operator };
 import * as Target from './Target/TargetService';
 export { Target }
+import * as DagNode from './DagNode/DagNodeService';
+export { DagNode };

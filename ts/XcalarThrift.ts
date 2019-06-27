@@ -574,14 +574,14 @@ XcalarGetVersion = function(
 };
 
 XcalarGetLicense = function(): XDPromise<proto.xcalar.compute.localtypes.License.GetResponse> {
-    return PromiseHelper.convertToJQuery(Xcrpc.getClient("DEFAULT")
+    return PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
                                               .getLicenseService().getLicense());
 };
 
 XcalarUpdateLicense = function(
     newLicense: string
 ): XDPromise<void> {
-    return PromiseHelper.convertToJQuery(Xcrpc.getClient("DEFAULT")
+    return PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
                         .getLicenseService().updateLicense({newLicense: newLicense}));
 };
 
@@ -1172,7 +1172,8 @@ XcalarDatasetLoad = function(
 
 XcalarDatasetDeactivate = function(
     datasetname: string,
-    txId: number
+    txId: number,
+    scopeInfo?: Xcrpc.DagNode.DagScopeInfo
 ): XDPromise<void> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1188,8 +1189,14 @@ XcalarDatasetDeactivate = function(
 
     releaseAllResultsets()
     .then(function() {
-        const promise = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
-        return PromiseHelper.alwaysResolve(promise);
+        const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
+                             .delete({namePattern: dsName,
+                                      srcType: SourceTypeT.SrcDataset,
+                                      dagScope: Xcrpc.DagNode.DAGSCOPE.WORKBOOK,
+                                      scopeInfo: scopeInfo ||
+                                                 {userName: userIdName,
+                                                  workbookName: sessionName}});
+        return PromiseHelper.alwaysResolve(PromiseHelper.convertToJQuery(promise));
     })
     .then(function() {
         return xcalarDatasetUnload(tHandle, dsName);
@@ -1291,7 +1298,11 @@ XcalarDatasetGetLoadArgs = function(datasetName: string) {
     return deferred.promise();
 }
 
-XcalarDatasetDeleteLoadNode = function(datasetName: string, wkbkName: string): XDPromise<void> {
+XcalarDatasetDeleteLoadNode = function(
+    datasetName: string,
+    wkbkName: string,
+    scopeInfo?: Xcrpc.DagNode.DagScopeInfo
+): XDPromise<void> {
     const deferred: XDDeferred<void> = PromiseHelper.deferred();
     const currentSession: string = sessionName;
     setSessionName(wkbkName);
@@ -1304,9 +1315,15 @@ XcalarDatasetDeleteLoadNode = function(datasetName: string, wkbkName: string): X
             res.nodeInfo.forEach((nodeInfo) => {
                 if (nodeInfo.name === datasetName) {
                     setSessionName(wkbkName);
-                    let promise = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+                    let promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
+                                       .delete({namePattern: dsName,
+                                                srcType: SourceTypeT.SrcDataset,
+                                                dagScope: Xcrpc.DagNode.DAGSCOPE.WORKBOOK,
+                                                scopeInfo: scopeInfo ||
+                                                           {userName: userIdName,
+                                                            workbookName: sessionName}});
                     setSessionName(currentSession);
-                    promises.push(promise);
+                    promises.push(PromiseHelper.convertToJQuery(promise));
                 }
             });
             return PromiseHelper.when(...promises);
@@ -1691,7 +1708,8 @@ XcalarDeleteTable = function(
     tableName: string,
     txId?: number,
     isRetry?: boolean,
-    deleteCompletely?: boolean
+    deleteCompletely?: boolean,
+    scopeInfo?: Xcrpc.DagNode.DagScopeInfo
 ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
     const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
 
@@ -1707,8 +1725,15 @@ XcalarDeleteTable = function(
         if (tHandle == null) {
             return PromiseHelper.resolve(null);
         }
-        def = xcalarDeleteDagNodes(tHandle, tableName, SourceTypeT.SrcTable,
-                                   deleteCompletely);
+        const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
+                             .delete({namePattern: tableName,
+                                      srcType: SourceTypeT.SrcTable,
+                                      deleteCompletely: deleteCompletely,
+                                      dagScope: Xcrpc.DagNode.DAGSCOPE.WORKBOOK,
+                                      scopeInfo: scopeInfo ||
+                                                 {userName: userIdName,
+                                                  workbookName: sessionName}});
+        def = PromiseHelper.convertToJQuery(promise);
     }
 
     const query = XcalarGetQuery(workItem);
@@ -1735,7 +1760,7 @@ XcalarDeleteTable = function(
         if (!isRetry && thriftError.status === StatusT.StatusDgNodeInUse) {
             forceReleaseTable(error.output)
             .then(function() {
-                return XcalarDeleteTable(tableName, txId, true);
+                return XcalarDeleteTable(tableName, txId, true, deleteCompletely);
             })
             .then(deferred.resolve)
             .fail(function() {
@@ -1754,7 +1779,8 @@ XcalarDeleteTable = function(
 
 XcalarDeleteConstants = function(
     constantPattern: string,
-    txId: number
+    txId: number,
+    scopeInfo?: Xcrpc.DagNode.DagScopeInfo
 ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
     const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
 
@@ -1767,11 +1793,17 @@ XcalarDeleteConstants = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        if (tHandle == null) {
+        if (!userIdName || !sessionName) {
             return PromiseHelper.resolve(null);
         }
-        def = xcalarDeleteDagNodes(tHandle, constantPattern,
-                                    SourceTypeT.SrcConstant);
+        const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
+                             .delete({namePattern: constantPattern,
+                                      srcType: SourceTypeT.SrcConstant,
+                                      dagScope: Xcrpc.DagNode.DAGSCOPE.WORKBOOK,
+                                      scopeInfo: scopeInfo ||
+                                                 {userName: userIdName,
+                                                  workbookName: sessionName}});
+        def = PromiseHelper.convertToJQuery(promise);
     }
 
     const query = XcalarGetQuery(workItem);
@@ -4569,7 +4601,7 @@ XcalarKeyLookup = function(
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
     const scopeInfo = {userName: userIdName, workbookName: sessionName};
-    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().lookup({keyName: key,kvScope: Xcrpc_scope, scopeInfo: scopeInfo});
+    const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().lookup({keyName: key,kvScope: Xcrpc_scope, scopeInfo: scopeInfo});
     return PromiseHelper.convertToJQuery(promise);
 };
 
@@ -4583,7 +4615,7 @@ XcalarKeyList = function(
 
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
     const scopeInfo = {userName: userIdName, workbookName: sessionName}
-    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().list({kvScope:Xcrpc_scope, scopeInfo: scopeInfo, kvKeyRegex: keyRegex})
+    const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().list({kvScope:Xcrpc_scope, scopeInfo: scopeInfo, kvKeyRegex: keyRegex})
     return PromiseHelper.convertToJQuery(promise);
 };
 
@@ -4609,7 +4641,7 @@ XcalarKeyPut = function(
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
     const scopeInfo = {userName: userIdName, workbookName: sessionName}
-    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().addOrReplace({key: key, value: value, kvScope: Xcrpc_scope, persist:persist, scopeInfo: scopeInfo});
+    const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().addOrReplace({key: key, value: value, kvScope: Xcrpc_scope, persist:persist, scopeInfo: scopeInfo});
     return PromiseHelper.convertToJQuery(promise);
 };
 
@@ -4625,7 +4657,7 @@ XcalarKeyDelete = function(
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
     const scopeInfo = {userName: userIdName, workbookName: sessionName}
-    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().deleteKey({keyName: key, kvScope: Xcrpc_scope, scopeInfo: scopeInfo});
+    const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().deleteKey({keyName: key, kvScope: Xcrpc_scope, scopeInfo: scopeInfo});
     return PromiseHelper.convertToJQuery(promise);
 };
 
@@ -4639,7 +4671,7 @@ XcalarKeySetIfEqual = function(
 
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
     const scopeInfo = {userName: userIdName, workbookName: sessionName}
-    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
+    const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
     persist: persist, kvKeyCompare:keyCompare, kvValueCompare: oldValue, kvValueReplace: newValue, countSecondaryPairs: 0,
     kvKeySecondary: null, kvValueSecondary: null });
     return PromiseHelper.convertToJQuery(promise);
@@ -4657,7 +4689,7 @@ XcalarKeySetBothIfEqual = function(
 ): XDPromise<{noKV: boolean}> {
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
     const scopeInfo = {userName: userIdName, workbookName: sessionName}
-    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
+    const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
     persist: persist, kvKeyCompare:keyCompare, kvValueCompare: oldValue, kvValueReplace: newValue, countSecondaryPairs: 1,
     kvKeySecondary: otherKey, kvValueSecondary: otherValue});
     return PromiseHelper.convertToJQuery(promise);
@@ -4676,7 +4708,7 @@ XcalarKeyAppend = function(
     const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
     //for now, we use a global value for that.Then we need to figure out a way to pass these value in.
     const scopeInfo = {userName: userIdName, workbookName: sessionName}
-    const promise = Xcrpc.getClient("DEFAULT").getKVStoreService().append({keyName: key, kvScope: Xcrpc_scope,
+    const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().append({keyName: key, kvScope: Xcrpc_scope,
         persist: persist, kvSuffix: stuffToAppend, scopeInfo: scopeInfo});
     return PromiseHelper.convertToJQuery(promise);
 };
@@ -5622,7 +5654,7 @@ XcalarListPublishedTables = function(
     getUpdates: boolean = true,
     updateStartBatchId: number = -1
 ): XDPromise<Xcrpc.PublishedTable.listTableOutput> {
-    const promise = Xcrpc.getClient("DEFAULT").getPublishedTableService().listTables(
+    const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getPublishedTableService().listTables(
         {patternStr:pubPatternMatch, updateStartBatchId: updateStartBatchId, getUpdates:getUpdates, getSelects:getSelects})
     return PromiseHelper.convertToJQuery(promise)
 };

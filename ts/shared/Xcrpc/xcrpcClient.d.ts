@@ -74,6 +74,11 @@ declare module 'xcalar' {
         constructor(client: XceClient);
         run(request: proto.xcalar.compute.localtypes.Target.TargetRequest): proto.xcalar.compute.localtypes.Target.TargetResponse;
     }
+
+    export class DagNodeService {
+        constructor(client: XceClient);
+        deleteObjects(request: proto.xcalar.compute.localtypes.DagNode.DeleteRequest): Promise<proto.xcalar.compute.localtypes.DagNode.DeleteResponse>;
+    }
 }
 // === Service definitions: End ===
 
@@ -763,7 +768,7 @@ declare namespace proto.xcalar.compute.localtypes {
 
     export namespace DagNode {
         export class XcalarApiDagNodeInfo {
-            getNname(): string;
+            getName(): string;
             getDagNodeId(): string;
             getState(): string;
             getSize(): number;
