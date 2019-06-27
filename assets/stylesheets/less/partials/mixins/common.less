@@ -307,17 +307,17 @@
     .textOverflowOneLine;
     text-align: center;
     .size(150px, @height-btn);
-    background-color: @color-bg-cardHeader;
+    background-color: @color-font-link-blue;
     cursor: pointer;
     .transition(background-color 0.1s);
     border-radius: 4px;
 
     &:hover, &:focus {
-        opacity: 0.65;
+        background-color: @color-font-button-hover;
     }
 
-    &:active, &:focus {
-        box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.2);
+    &:active {
+        box-shadow: inset 0 0.5px 3px 0 @color-font-form-gray;
     }
 }
 
@@ -350,60 +350,26 @@
     .size(@width: 230px);
 }
 
-.btn-submit {
-    background-color: @color-bg-green-submit;
-    &:hover, &:focus {
-        opacity: 1;
-        background-color: @color-bg-green-submit-hover;
-    }
-
-    &:active {
-        opacity: 1;
-        background-color: @color-bg-green-submit-hover;
-        box-shadow: inset 0 0.5px 3px 0 rgba(0, 0, 0, 0.39);
-    }
-}
-
-.btn-next {
-    .btn-submit;
-}
-
-.btn-next-secondary {
+.btn-cancel, .btn-secondary, .btn-back, .btn-clear  {
     background-color: @color-white;
-    color: @color-bg-green-submit;
-    border: 1px solid;
-}
-
-
-.btn-clear {
-    background-color: @color-white;
-    color: @color-bg-cancel-gray;
+    color: @color-font-link-blue;
 
     border: 1px solid @color-bg-cancel-gray;
 
     &.iconBtn {
         .icon {
-            color: @color-bg-cancel-gray;
+            color:@color-font-link-blue;
         }
     }
 
     &:hover, &:focus, &:active {
-        background-color: @color-bg-cancel-gray-hover;
-        color: @color-white;
-        border-color: @color-bg-cancel-gray-hover;
-
-        .icon {
-            color: @color-white;
-        }
+        background-color: @color-font-seconday-button-hover;
+        border-color: @color-font-seconday-button-hover;
     }
 
     &:active {
-        box-shadow: inset 0 0.5px 3px 0 rgba(0, 0, 0, 0.43);
+        box-shadow: inset 0 0.5px 3px 0 @color-font-edge;
     }
-}
-
-.btn-cancel, .btn-secondary, .btn-back  {
-    .btn-clear;
 }
 
 .btn-disabled {
