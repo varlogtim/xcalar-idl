@@ -984,7 +984,7 @@ class DagTabManager {
 
         $dagTabArea.on("dblclick", ".dragArea", (event) => {
             let $dragArea: JQuery = $(event.currentTarget);
-            let $tab_name: JQuery = $dragArea.next();
+            let $tab_name: JQuery = $dragArea.siblings(".name");
             if ($tab_name.hasClass('nonedit')) {
                 return;
             }
