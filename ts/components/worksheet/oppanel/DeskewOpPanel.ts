@@ -15,6 +15,9 @@ class DeskewOpPanel extends BaseOpPanel {
         super.showPanel("Deskew", options)
         .then(() => {
             this._restorePanel(this._dagNode.getParam());
+            if (BaseOpPanel.isLastModeAdvanced) {
+                this._startInAdvancedMode();
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);

@@ -532,8 +532,6 @@ class GeneralOpPanel extends BaseOpPanel {
             }
             this._operatorName = this._dagNode.getType().toLowerCase().trim();
 
-
-
             this._resetForm();
             this._operationsViewShowListeners();
 
@@ -2028,16 +2026,19 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     protected _checkPanelOpeningError() {
-        if (this.model.modelError) {
+        if (this.model.modelError || BaseOpPanel.isLastModeAdvanced) {
             this._startInAdvancedMode();
             MainMenu.checkMenuAnimFinish()
             .then(() => {
-                StatusBox.show(this.model.modelError,
+                if (this.model.modelError) {
+                    StatusBox.show(this.model.modelError,
                             this._$panel.find(".advancedEditor"),
                             false, {'side': 'right'});
+                }
             });
-
-            this._dagNode.beErrorState(this.model.modelError);
+            if (this.model.modelError) {
+                this._dagNode.beErrorState(this.model.modelError);
+            }
         }
     }
 

@@ -255,7 +255,6 @@ describe("DatasetColRenamePanel Test", function() {
             $renameSection.find(".confirmRename").click();
             expect($renameSection.is(":visible")).to.be.false;
         });
-
     });
 
     after(function() {

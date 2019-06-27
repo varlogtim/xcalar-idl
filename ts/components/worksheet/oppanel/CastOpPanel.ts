@@ -31,15 +31,23 @@ class CastOpPanel extends BaseOpPanel {
         .then(() => {
             const curColumns = this.updateColumns();
             const param = dagNode.getParam();
-
+            let hasError: boolean;
+            let error;
             try {
                 const selectedCols = this._paramToSelectedCols(param);
                 this.dataModel = this.colRenameSection.show([curColumns], [selectedCols]);
                 this._modifyColRenameSection();
-                this._autoResizeView(false);
+
             } catch (e) {
-                this._startInAdvancedMode(e);
+                error = e;
+                hasError = true;
+
             }
+            if (hasError || BaseOpPanel.isLastModeAdvanced) {
+                this._startInAdvancedMode(error);
+                return;
+            }
+            this._autoResizeView(false);
         });
     }
 

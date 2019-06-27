@@ -547,6 +547,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     ): void {
         this._loadArgs = this._parseLoadArgs(input.loadArgs);
         if (input == null || input.source == "") {
+            if (atStart && BaseOpPanel.isLastModeAdvanced) {
+                this._startInAdvancedMode(input);
+                return;
+            }
             this._fileLister.goToRootPath();
             $("#datasetOpPanel .datasetPrefix input").val("");
             this._toggleSynthesize(false, []);
@@ -573,8 +577,11 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
                 $("#datasetOpPanel .datasetPrefix input").val(input.prefix);
                 this._fileLister.goToRootPath();
-                return;
             } else {
+                if (atStart  && BaseOpPanel.isLastModeAdvanced) {
+                    this._startInAdvancedMode(input);
+                    return;
+                }
                 const path: string = ds.path;
                 this._fileLister.goToPath(path);
                 $("#dsOpListSection").find("[data-id='" + input.source +"']").eq(0).addClass("active");

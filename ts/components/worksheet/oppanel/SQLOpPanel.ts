@@ -704,6 +704,9 @@ class SQLOpPanel extends BaseOpPanel {
             this._sqlEditor.refresh();
             if (error) {
                 this._startInAdvancedMode(error);
+            } else if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
             }
         });
     }

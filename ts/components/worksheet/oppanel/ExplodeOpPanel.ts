@@ -31,9 +31,9 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
 
         super.showPanel(null, options)
         .then(() => {
-              // GeneralOpPanel has its own columnPicker, so dont move the setup function call to BaseOpPanel
-              this._setupColumnPicker(dagNode.getType());
-            if (error) {
+            // GeneralOpPanel has its own columnPicker, so dont move the setup function call to BaseOpPanel
+            this._setupColumnPicker(dagNode.getType());
+            if (error || BaseOpPanel.isLastModeAdvanced) {
                 this._startInAdvancedMode(error);
             }
         });

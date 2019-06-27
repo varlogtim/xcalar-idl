@@ -50,6 +50,10 @@ class PublishIMDOpPanel extends BaseOpPanel {
             })[0] || [];
             this._setupColumnHints();
             this._restorePanel(dagNode.getParam());
+            if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);

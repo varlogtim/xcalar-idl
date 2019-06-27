@@ -19,6 +19,9 @@ class ExtensionOpPanel extends BaseOpPanel {
             this._formHelper.setup({});
             try {
                 this._restorePanel();
+                if (BaseOpPanel.isLastModeAdvanced) {
+                    this._startInAdvancedMode();
+                }
             } catch (e) {
                 console.error(e);
             }

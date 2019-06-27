@@ -242,6 +242,7 @@ describe("Export Operator Panel Test", function() {
         it("Should show statusbox error if columns isnt a field", function() {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            $("#exportOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({}, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
@@ -250,6 +251,7 @@ describe("Export Operator Panel Test", function() {
 
         it("Should show statusbox error if driver is null", function() {
             exportOpPanel.show(node);
+            $("#exportOpPanel .bottomSection .xc-switch").click();
             $("#exportOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({
                     "columns": []
@@ -262,6 +264,7 @@ describe("Export Operator Panel Test", function() {
         it("Should show statusbox error if driver is not real", function() {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            $("#exportOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({
                     "columns": [],
                     "driver": "unreal"
@@ -273,6 +276,7 @@ describe("Export Operator Panel Test", function() {
 
         it("Should show statusbox error if there arent enough arguments specified", function() {
             exportOpPanel.show(node);
+            $("#exportOpPanel .bottomSection .xc-switch").click();
             $("#exportOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({
                     "columns": [],
@@ -287,6 +291,7 @@ describe("Export Operator Panel Test", function() {
         it("Should show statusbox error if driver arguments don't match up", function() {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            $("#exportOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({
                     "columns": [],
                     "driver": "test1",
@@ -299,6 +304,7 @@ describe("Export Operator Panel Test", function() {
 
         it("Should show statusbox error if integer argument is invalid", function() {
             exportOpPanel.show(node);
+            $("#exportOpPanel .bottomSection .xc-switch").click();
             $("#exportOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({
                     "columns": [],
@@ -313,6 +319,7 @@ describe("Export Operator Panel Test", function() {
         it ("Should show statusbox error if a non optional param isn't filled", function () {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            $("#exportOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({
                     "columns": [],
                     "driver": "test1",
@@ -325,6 +332,7 @@ describe("Export Operator Panel Test", function() {
 
         it ("Should save correctly if JSON is correct", function () {
             exportOpPanel.show(node);
+            $("#exportOpPanel .bottomSection .xc-switch").click();
             $("#exportOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({
                     "columns": [],

@@ -28,6 +28,10 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
                 // if not configured, auto config it
                 this._autoDetectSchema();
             }
+            if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
+            }
         });
     }
 

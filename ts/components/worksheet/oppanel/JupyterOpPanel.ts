@@ -22,6 +22,9 @@ class JupyterOpPanel extends BaseOpPanel implements IOpPanel {
         this._dataModel = JupyterOpPanelModel.fromDag(dagNode);
         this._updateUI();
         super.showPanel(null, options);
+        if (BaseOpPanel.isLastModeAdvanced) {
+            this._startInAdvancedMode();
+        }
     }
 
     /**

@@ -26,7 +26,9 @@ describe('SplitOpPanel Test', () => {
 
         MainMenu.openPanel("dagPanel");
         SplitOpPanel.Instance.show(splitNode, {});
-
+        if ($("#splitOpPanel").find(".advancedEditor").is(":visible")) {
+            $("#splitOpPanel .bottomSection .xc-switch").click();
+        }
         opPanel = SplitOpPanel.Instance;
     });
 

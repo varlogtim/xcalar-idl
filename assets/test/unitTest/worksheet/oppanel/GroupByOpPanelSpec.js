@@ -715,6 +715,7 @@ describe("GroupByOpPanel Test", function() {
         it ("final node should have correct input", function() {
             node = new DagNodeGroupBy({});
             groupByOpPanel.show(node, openOptions);
+            $("#groupByOpPanel .bottomSection .xc-switch").click();
             expect(JSON.stringify(node.getParam())).to.equal('{"groupBy":[""],"aggregate":[{"operator":"","sourceColumn":"","destColumn":"","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""}');
             $functionsInput.val('count').trigger("input").trigger(fakeEvent.enterKeydown);
             $groupByOpPanel.find(".gbOnArg").val("test1").trigger("change");

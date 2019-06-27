@@ -40,6 +40,9 @@ describe('PublishIMDOpPanel Test', () => {
                 $columns = $("#publishIMDColumns");
                 opPanel = PublishIMDOpPanel.Instance;
                 editor = opPanel.getEditor();
+                if ($panel.find(".advancedEditor").is(":visible")) {
+                    $("#publishIMDOpPanel .bottomSection .xc-switch").click();
+                }
                 done();
             });
         });
@@ -216,13 +219,15 @@ describe('PublishIMDOpPanel Test', () => {
         it ("final node should have correct input", function() {
             opPanel.show(node, {});
             expect(JSON.stringify(node.getParam())).to.equal('{"pubTableName":"","primaryKeys":[],"operator":"","columns":[]}');
-            $("#publishIMDOpPanel .bottomSection .xc-switch").click();
             var input = JSON.stringify(
                 {"pubTableName": "TEST", "primaryKeys": [], "operator": "", "columns": ["col#1"]},
                 null, 4);
             editor.setValue(input);
             $panel.find(".submit").click();
             expect(JSON.stringify(node.getParam())).to.equal('{"pubTableName":"TEST","primaryKeys":[],"operator":"","columns":["col#1"]}');
+
+            opPanel.show(node, {});
+            $("#publishIMDOpPanel .bottomSection .btn-submit").click();
         });
     });
 

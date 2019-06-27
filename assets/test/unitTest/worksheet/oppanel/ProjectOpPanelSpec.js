@@ -20,7 +20,9 @@ describe('ProjectOpPanel Test', () => {
 
         MainMenu.openPanel("dagPanel");
         ProjectOpPanel.Instance.show(projectNode, {});
-
+        if ($("#projectOpPanel").find(".advancedEditor").is(":visible")) {
+            $("#projectOpPanel .bottomSection .xc-switch").click();
+        }
         opPanel = ProjectOpPanel.Instance;
         $derivedContainer = ProjectOpPanel.findXCElement(opPanel._$elemPanel, 'derivedContainer');
         $prefixedContainer = ProjectOpPanel.findXCElement(opPanel._$elemPanel, 'prefixContainer');

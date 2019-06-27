@@ -29,7 +29,7 @@ class RowNumOpPanel extends BaseOpPanel implements IOpPanel {
         }
         super.showPanel(null, options)
         .then(() => {
-            if (error) {
+            if (error || BaseOpPanel.isLastModeAdvanced) {
                 this._startInAdvancedMode(error);
             }
         });

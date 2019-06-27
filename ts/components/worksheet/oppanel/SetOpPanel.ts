@@ -16,6 +16,7 @@ class SetOpPanel extends BaseOpPanel {
         this._dagNode = dagNode;
         super.showPanel(null, options)
         .then(() => {
+            let hasError;
             try {
                 this._initialize(dagNode);
                 this.updateColumns();
@@ -27,7 +28,12 @@ class SetOpPanel extends BaseOpPanel {
                     }, 1);
                 }
             } catch (e) {
+                hasError = true;
                 this._startInAdvancedMode(e);
+            }
+            if (!hasError && BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
             }
 
             this._formHelper.setup({});

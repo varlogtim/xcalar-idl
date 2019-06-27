@@ -162,6 +162,7 @@ class BaseOpPanel {
 
 
     public static counter = 0; // used to give is panel a unique id
+    public static isLastModeAdvanced = false; // used to store last mode
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -320,6 +321,9 @@ class BaseOpPanel {
             // when form is closed without submitting, we remove the node if it
             // was generate by the preview table column menu
             this._exitCallback();
+        }
+        if (!(this instanceof DFLinkOutOpPanel)) {
+            BaseOpPanel.isLastModeAdvanced = this.advancedMode;
         }
         return true;
     }
@@ -724,7 +728,7 @@ class BaseOpPanel {
     }
 
     // currently used when opening model with invalid args
-    protected _startInAdvancedMode(error) {
+    protected _startInAdvancedMode(error?) {
         // the error may be a syntax error but that error is most likely caused
         // by an invalid struct so validate the input and report that error
         // instead
@@ -735,18 +739,21 @@ class BaseOpPanel {
                 errorStr = inputError.error;
             }
         }
-        if (!errorStr) {
+        if (error && !errorStr) {
             errorStr = xcHelper.parseJSONError(error).error;
         }
 
         MainMenu.checkMenuAnimFinish()
         .then(() => {
-            StatusBox.show(errorStr,
+            if (error) {
+                StatusBox.show(errorStr,
                         this.$panel.find(".advancedEditor"),
                         false, {'side': 'right'});
+            }
         });
-
-        this._dagNode.beErrorState(errorStr);
+        if (error) {
+            this._dagNode.beErrorState(errorStr);
+        }
         this._updateMode(true);
         const paramStr = JSON.stringify(this._dagNode.getParam(), null, 4);
         this._cachedBasicModeParam = paramStr;

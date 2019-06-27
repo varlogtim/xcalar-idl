@@ -173,6 +173,9 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 this._startInAdvancedMode(e);
                 return;
             }
+            if (BaseOpPanel.isLastModeAdvanced) {
+                this._startInAdvancedMode();
+            }
 
             if (this._dataModel.loadedName == "") {
                 this._currentDriver = "";
@@ -194,11 +197,13 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                         false, {'side': 'right'});
             })
             .always(() => {
+
                 MainMenu.setFormOpen();
                 this._$elemPanel.find(".searchBox .searchInput").val("");
                 this._$elemPanel.find(".columnsToExport .filterHint").addClass("xc-hidden");
                 this.panelResize();
                 xcUIHelper.enableScreen($waitIcon);
+
             });
         });
     }

@@ -58,6 +58,9 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             // gets setup
             if (error) {
                 this._startInAdvancedMode(error);
+            } else if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
             }
         });
     }

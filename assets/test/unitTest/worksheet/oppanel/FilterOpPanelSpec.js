@@ -454,6 +454,7 @@ describe("FilterOpPanel Test", function() {
     describe("Final output", function() {
         it ("final node should have correct input", function() {
             filterOpPanel.show(node, openOptions);
+            $("#filterOpPanel .bottomSection .xc-switch").click();
             expect(JSON.stringify(node.getParam())).to.equal('{"evalString":""}');
 
             $functionsInput.val('eq').trigger(fakeEvent.enterKeydown);

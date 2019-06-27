@@ -282,7 +282,7 @@ describe("Dataset Operator Panel Test", function() {
             res = datasetOpPanel._getFileHTML(file);
             expect(res).not.to.contains("inActivated");
         });
-        
+
         it("_getFolderHTML should work", function() {
             let res = datasetOpPanel._getFolderHTML("test");
             expect(res).to.contains("folderName");

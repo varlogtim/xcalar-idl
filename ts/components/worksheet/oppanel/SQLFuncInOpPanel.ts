@@ -27,6 +27,10 @@ class SQLFuncInOpPanel extends BaseOpPanel {
                 schema: this._dagNode.getSchema()
             });
             this._restorePanel(model);
+            if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
+            }
         });
     }
 

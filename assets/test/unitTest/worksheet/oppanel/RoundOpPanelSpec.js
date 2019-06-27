@@ -2,7 +2,7 @@ describe('RoundOpPanel Test', () => {
     let roundNode;
     let opPanel;
 
-    before(() => {
+    before((done) => {
         const inputColumns = genProgCols('fcol', 5, ColumnType.float).concat(genProgCols('scol', 4, ColumnType.string));
         const parentNode = {
             getLineage: () => ({
@@ -23,10 +23,17 @@ describe('RoundOpPanel Test', () => {
             getTitle: () => "Node 1"
         };
 
-        MainMenu.openPanel("dagPanel");
-        RoundOpPanel.Instance.show(roundNode, {});
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            MainMenu.openPanel("dagPanel");
+            RoundOpPanel.Instance.show(roundNode, {});
+            if ($("#roundOpPanel").find(".advancedEditor").is(":visible")) {
+                $("#roundOpPanel .bottomSection .xc-switch").click();
+            }
 
-        opPanel = RoundOpPanel.Instance;
+            opPanel = RoundOpPanel.Instance;
+            done();
+        });
     });
 
     it('_getArgs() should work', () => {
@@ -96,7 +103,7 @@ describe('RoundOpPanel Test', () => {
                 opPanel._dataModel.setNumDecimals(1);
                 opPanel._updateUI();
                 done();
-            }, 0);
+            }, 1);
         });
 
         it('Advanced from', () => {

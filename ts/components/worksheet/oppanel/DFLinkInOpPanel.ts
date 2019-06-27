@@ -24,6 +24,10 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 // Already linked to a source, so we update the panel to pick up any possible lineage change
                 this._autoDetectSchema(false);
             }
+            if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
+            }
         });
     }
 

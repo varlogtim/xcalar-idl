@@ -39,6 +39,9 @@ describe('ColAssignmentView Test', function() {
         it("Should show the Cast View", function() {
             expect($castOpPanel.is(":visible")).to.be.false;
             CastOpPanel.Instance.show(node, {});
+            if ($castOpPanel.find(".advancedEditor").is(":visible")) {
+                $castOpPanel.find(".xc-switch").click();
+            }
             expect($castOpPanel.is(":visible")).to.be.true;
             expect($castOpPanel.find(".resultSection .lists.newTable").length).to.equal(1);
             expect($castOpPanel.find(".resultSection .inputCol").length).to.equal(0);

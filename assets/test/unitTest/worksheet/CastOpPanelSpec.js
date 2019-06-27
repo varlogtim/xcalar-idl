@@ -8,36 +8,40 @@ describe('CastOpPanel Test', function() {
     var prefix = "prefix";
     var node;
 
-    before(function(){
+    before(function(done){
         console.clear();
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        if ($(".dataflowWrapBackground .newTab").is(":visible")) {
-            $(".dataflowWrapBackground .newTab").click();
-        }
-        console.log("Cast panel test");
-        MainMenu.openPanel("dagPanel");
-        node = new DagNodeMap({subType: "cast"});
-        const parentNode = new DagNodeFilter({});
-        parentNode.getLineage = function() {
-            return {getColumns: function() {
-                return [new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
-                    type: "integer"
-                }), new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'stringCol'),
-                    type: "string"
-                })]
-            }}
-        };
-        node.getParents = function() {
-            return [parentNode];
-        };
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            if ($(".dataflowWrapBackground .newTab").is(":visible")) {
+                $(".dataflowWrapBackground .newTab").click();
+            }
+            console.log("Cast panel test");
+            MainMenu.openPanel("dagPanel");
+            node = new DagNodeMap({subType: "cast"});
+            const parentNode = new DagNodeFilter({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
+                        type: "integer"
+                    }), new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'stringCol'),
+                        type: "string"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            };
 
-        xcTooltip.hideAll();
-        $castOpPanel = $("#castOpPanel");
-        $castSection = $("#castOpPanel .opSection");
+            xcTooltip.hideAll();
+            $castOpPanel = $("#castOpPanel");
+            $castSection = $("#castOpPanel .opSection");
+            done();
+        });
     });
 
     describe("Basic Function Test", function() {
@@ -252,7 +256,6 @@ describe('CastOpPanel Test', function() {
 
         it("should detect invalid type", function() {
             CastOpPanel.Instance.show(node, {});
-            $castOpPanel.find(".switch").click();
             CastOpPanel.Instance._editor.setValue(JSON.stringify({
                 "eval": [
                     {
@@ -295,6 +298,17 @@ describe('CastOpPanel Test', function() {
             CastOpPanel.Instance._submit();
             expect($castOpPanel.is(":visible")).to.be.true;
             UnitTest.hasStatusBoxWithError("eval[0].newField should NOT be shorter than 1 characters");
+
+            CastOpPanel.Instance._editor.setValue(JSON.stringify({
+                "eval": [
+                    {
+                        "evalString": "string(prefix::average_stars)",
+                        "newField": "a"
+                    }
+                ],
+                "icv": false
+            }));
+            $castOpPanel.find(".switch").click();
             CastOpPanel.Instance.close();
         });
     });

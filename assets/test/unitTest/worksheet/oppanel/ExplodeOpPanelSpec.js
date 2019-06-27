@@ -24,7 +24,9 @@ describe('ExplodeOpPanel Test', () => {
 
         MainMenu.openPanel("dagPanel");
         ExplodeOpPanel.Instance.show(explodeNode, {});
-
+        if ($("#explodeOpPanel").find(".advancedEditor").is(":visible")) {
+            $("#explodeOpPanel .bottomSection .xc-switch").click();
+        }
         opPanel = ExplodeOpPanel.Instance;
     });
 

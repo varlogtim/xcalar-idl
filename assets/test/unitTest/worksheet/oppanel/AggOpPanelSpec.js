@@ -341,6 +341,7 @@ describe("AggOpPanel Test", function() {
     describe("Final output", function() {
         it ("final node should have correct input", function() {
             aggOpPanel.show(node, openOptions);
+            $("#aggOpPanel .bottomSection .xc-switch").click();
             expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"","dest":""}');
             let aggName = "^a" + Date.now();
             $functionsInput.val('count').trigger(fakeEvent.enterKeydown);

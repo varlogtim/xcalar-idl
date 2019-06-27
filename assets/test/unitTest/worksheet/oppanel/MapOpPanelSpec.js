@@ -926,8 +926,8 @@ describe("MapOpPanel Test", function() {
         it ("final node should have correct input", function() {
             node = new DagNodeMap({});
             mapOpPanel.show(node, openOptions);
+            $("#mapOpPanel .bottomSection .xc-switch").click();
             expect(JSON.stringify(node.getParam())).to.equal('{"eval":[{"evalString":"","newField":""}],"icv":false}');
-
             $functionsInput.val('eq').trigger("input").trigger(fakeEvent.enterKeydown);
             $argSection.find('.arg').eq(0).val(1).trigger("change");
             $argSection.find('.arg').eq(1).val(2).trigger("change");

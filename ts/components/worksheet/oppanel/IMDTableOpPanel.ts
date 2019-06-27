@@ -57,6 +57,10 @@ class IMDTableOpPanel extends BaseOpPanel {
             this._tables = PTblManager.Instance.getAvailableTables();
             this._updateTableList();
             this._restorePanel(this._dagNode.getParam());
+            if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
+            }
         });
     }
 

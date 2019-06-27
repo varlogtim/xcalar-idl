@@ -45,6 +45,10 @@ class UpdateIMDOpPanel extends BaseOpPanel {
             this._updateTableList();
             this._setupColumnHints();
             this._restorePanel(this._dagNode.getParam());
+            if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
+            }
         });
     }
 

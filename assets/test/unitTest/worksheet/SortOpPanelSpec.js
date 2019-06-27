@@ -302,6 +302,9 @@ describe('Sort Op Panel Test', function() {
                 ],
                 "newKeys": ["test"]
             });
+            SortOpPanel.Instance.show(node, {});
+            $sortOpPanel.find(".switch").click();
+            SortOpPanel.Instance.close();
         });
     });
 });

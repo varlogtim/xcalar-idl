@@ -19,6 +19,9 @@ describe('RowNumOpPanel Test', () => {
 
         MainMenu.openPanel("dagPanel");
         RowNumOpPanel.Instance.show(rowNumNode, {});
+        if ($("#rownumOpPanel").find(".advancedEditor").is(":visible")) {
+            $("#rownumOpPanel .bottomSection .xc-switch").click();
+        }
 
         opPanel = RowNumOpPanel.Instance;
     });
