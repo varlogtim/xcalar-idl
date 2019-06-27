@@ -40,7 +40,7 @@ namespace DSPreview {
     let componentJsonFormat;
     let componentXmlFormat;
     let componentParquetFileFormat;
-    let dataSourceSchema;
+    let dataSourceSchema: DataSourceSchema;
 
     let tableName: string = null;
     let rawData = null;
@@ -762,16 +762,20 @@ namespace DSPreview {
         try {
             if (autoDetect) {
                 dataSourceSchema.setAutoSchema();
-            } else {
+            } else if (loadArgs.getFormat() === formatMap.CSV) {
                 let sourceIndex = loadArgs.getPreivewIndex();
                 let headers = loadArgs.getPreviewHeaders(sourceIndex);
-                var schema;
+                let schema;
                 if (headers) {
                     schema = getSchemaFromHeader(headers);
                 } else {
                     schema = getSchemaFromPreviewTable();
                 }
                 dataSourceSchema.setSchema(schema);
+            } else {
+                let schema = getHintSchmea();
+                dataSourceSchema.setSchema(schema);
+                applySchemaChangetoPreview(schema, false);
             }
         } catch (e) {
             console.error(e);
@@ -4100,6 +4104,7 @@ namespace DSPreview {
             format === formatMap.PARQUETFILE
         ) {
             getJSONTable(rawData);
+            autoFillDataSourceSchema(false);
             return;
         }
 
@@ -4117,14 +4122,16 @@ namespace DSPreview {
             isSuccess = getJSONTable(rawData);
         } else {
             isSuccess = getCSVTable(rawData, format);
-
-            if (isSuccess && format === formatMap.CSV) {
-                initialSuggest();
-            }
         }
 
         if (!isSuccess) {
             return;
+        } else {
+            if (format === formatMap.CSV) {
+                initialSuggest();
+            } else {
+                autoFillDataSourceSchema(false);
+            }
         }
 
         addAdvancedRows();

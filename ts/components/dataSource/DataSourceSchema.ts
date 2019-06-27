@@ -2,11 +2,13 @@ class DataSourceSchema {
     private _$container: JQuery;
     private _events: object;
     private _caseInSensitive: boolean;
+    private _isAutoDetect: boolean;
 
     public constructor($section: JQuery) {
         this._$container = $section;
         this._events = {};
         this._caseInSensitive = false;
+        this._isAutoDetect = false;
         this._addEventListeners();
     }
 
@@ -19,16 +21,16 @@ class DataSourceSchema {
     }
 
     public setAutoSchema(): void {
-        this._toggleSchemaCheckbox(true);
+        this._toggleAutoDetect(true);
     }
 
     public setSchema(schema: ColSchema[]): void {
-        this._toggleSchemaCheckbox(false);
+        this._toggleAutoDetect(false);
         this._addSchema(schema);
     }
 
     public reset(): void {
-        this._toggleSchemaCheckbox(false);
+        this._toggleAutoDetect(false);
         this._showSchemaError(null);
     }
 
@@ -47,11 +49,7 @@ class DataSourceSchema {
     }
 
     private _getContainer(): JQuery {
-        return this._$container
-    }
-
-    private _getCheckboxEl(): JQuery {
-        return this._getContainer().find(".checkboxSection .checkbox");
+        return this._$container;
     }
 
     private _getSchemaTextAreaEl(): JQuery {
@@ -72,28 +70,14 @@ class DataSourceSchema {
         }
     }
 
-    private _toggleSchemaCheckbox(check: boolean): void {
-        let $checkbox = this._getCheckboxEl();
-        if ($checkbox.length === 0) {
-            return; // has no checkbox
-        }
+    private _toggleAutoDetect(autoDetect: boolean): void {
+        this._isAutoDetect = autoDetect;
         let $schemaPart = this._getSchemaTextAreaEl().add(this._getSchemaWizardEl());
-        if (check == null) {
-            check = !$checkbox.hasClass("checked");
-        }
-        
-        if (check) {
-            $checkbox.addClass("checked");
+        if (autoDetect) {
             $schemaPart.addClass("xc-disabled");
         } else {
-            $checkbox.removeClass("checked");
             $schemaPart.removeClass("xc-disabled");
         }
-    }
-
-    private _isAutoDetect(): boolean {
-        let $checkbox = this._getCheckboxEl();
-        return $checkbox.length && $checkbox.hasClass("checked");
     }
 
     private _addSchema(colSchema: ColSchema[]): void {
@@ -122,7 +106,7 @@ class DataSourceSchema {
         pkOrders: {name: string, order: number}[],
         error: string
     } {
-        if (this._isAutoDetect()) {
+        if (this._isAutoDetect) {
             return {
                 schema: null,
                 schemaToSuggest: null,
@@ -269,7 +253,7 @@ class DataSourceSchema {
 
     private _changeSchema(): void {
         let schema: ColSchema[] = this._checkSchema();
-        let isAutoDetect: boolean = this._isAutoDetect();
+        let isAutoDetect: boolean = this._isAutoDetect;
         this._triggerEvent(DataSourceSchemaEvent.ChangeSchema, {
             autoDetect: isAutoDetect,
             schema: schema
@@ -326,12 +310,6 @@ class DataSourceSchema {
     }
 
     private _addEventListeners(): void {
-        let $container = this._getContainer();
-        $container.find(".checkboxSection").on("click", () => {
-            this._toggleSchemaCheckbox(null);
-            this._changeSchema();
-        });
-
         this._getSchemaWizardEl().click(() => {
             let initialSchema: ColSchema[] = this._triggerEvent(DataSourceSchemaEvent.GetHintSchema);
             let res = this._validateSchema(true);
