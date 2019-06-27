@@ -555,12 +555,18 @@ describe("Admin Test", function() {
         it("get status should work", function(done) {
             var cached = adminTools.clusterStatus;
             adminTools.clusterStatus = function() {
-                return PromiseHelper.resolve({});
+                return PromiseHelper.resolve({logs: "test"});
             };
             var getStatus = Admin.__testOnly__.getStatus;
+            var oldFunc = ClusterStatusModal.Instance.show;
+            var called = false;
+            ClusterStatusModal.Instance.show = function() {
+                called = true;
+            };
+            
             getStatus()
             .then(function() {
-                expect(title).to.equal(MonitorTStr.ClusterStatus);
+                expect(called).to.equal(true);
                 done();
             })
             .fail(function() {
@@ -568,6 +574,7 @@ describe("Admin Test", function() {
             })
             .always(function() {
                 adminTools.clusterStatus = cached;
+                ClusterStatusModal.Instance.show = oldFunc;
             });
         });
 

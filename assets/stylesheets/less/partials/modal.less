@@ -4362,6 +4362,50 @@ html.microsoft {
 }
 /* ========== End of SQL Func Setting ============= */
 
+#clusterStatusModal {
+    .size(@width: 640px, @height: 800px, @min-height: 300px, @max-height: 800px);
+
+    .modalMain {
+        height: ~"calc(100% - 150px)";
+        padding: 10px;
+        overflow-y: auto;
+    }
+    
+    .modalInstruction {
+        b {
+            color: @color-font-link-blue;
+        }
+    }
+
+    .section {
+        padding: 15px;
+        border-bottom: 1px solid @color-border-softGray;
+        font-size: 14px;
+        color: @color-font-form-gray;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .row {
+            margin-top: 5px;
+        }
+
+        .key {
+            font-weight: bold;
+        }
+
+        .val {
+            font-weight: normal;
+
+            &.row {
+                padding-left: 15px;
+                white-space: pre;
+            }
+        }
+    }
+}
+
 /* Login Config Modal */
 #loginConfigModal {
     .size(@width: 800px, @height:650px);

@@ -905,14 +905,9 @@ namespace Admin {
         .then(function(ret) {
             let logs = ret.logs;
             if (!logs) {
-                logs = "No logs available.";
+                return PromiseHelper.reject({logs: "No logs available."});
             }
-            Alert.show({
-                "title": MonitorTStr.ClusterStatus,
-                "msg": logs,
-                "isAlert": true,
-                "sizeToText": true
-            });
+            ClusterStatusModal.Instance.show(logs);
             deferred.resolve();
         })
         .fail(function(err) {
