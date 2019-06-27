@@ -200,7 +200,7 @@ abstract class DagTabProgress extends DagTab {
                         DagTopBar.Instance.setState(this);
                     }
                 }
-                DagViewManager.Instance.updateOptimizedDFProgress(this._id, queryStateOutput);
+                DagViewManager.Instance.updateProgressDataflow(this._id, queryStateOutput);
             }
             deferred.resolve(queryStateOutput);
         })

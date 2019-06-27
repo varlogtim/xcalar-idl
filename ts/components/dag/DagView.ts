@@ -2666,7 +2666,8 @@ class DagView {
     }
 
     // move this to DagViewSubGraph subclass
-    public updateOptimizedDFProgress(queryStateOutput) {
+    // used to update progress on ViewOnly dataflows - optimized / abandoned
+    public updateProgressDataflow(queryStateOutput) {
         let completedNodeIds: Set<DagNodeId> = new Set();
         this.graph.getAllNodes().forEach((node) => {
             if (node.getState() === DagNodeState.Complete || node.getState() ===
@@ -2674,7 +2675,7 @@ class DagView {
                 completedNodeIds.add(node.getId());
             }
         });
-        (<DagSubGraph>this.graph).updateSubGraphProgress(queryStateOutput.queryGraph.node);
+        (<DagSubGraph>this.graph).updateSubGraphProgress(queryStateOutput.queryGraph.node, !(this.dagTab instanceof DagTabOptimized));
 
         this.graph.getAllNodes().forEach((node, nodeId) => {
             if (completedNodeIds.has(nodeId)) {
@@ -2844,7 +2845,6 @@ class DagView {
         let tip: HTML = this._nodeProgressTemplate(graph, node, pos.x, pos.y, skewInfos, times, state);
         const $tip = $(tip)
         $dfArea.append($tip);
-        console.log(skewInfos);
         let maxSkew: number = 0;
         let skewData = {};
         skewInfos.forEach(skewInfo => {

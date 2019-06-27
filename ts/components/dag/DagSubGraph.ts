@@ -165,21 +165,25 @@ class DagSubGraph extends DagGraph {
     //  *
     //  * @param nodeInfos queryState info
     // */
-    public updateSubGraphProgress(nodeInfos: any[]) {
-        const nodeIdInfos = {};
+    // only being used for optimized dataflows
+    public updateSubGraphProgress(
+        queryNodeInfos: XcalarApiDagNodeT[],
+        storeTablesToNode: boolean
+    ): void {
+        const nodeIdInfos: Map<DagNodeId, object>  = new Map();
 
-        nodeInfos.forEach((nodeInfo) => {
-            let tableName: string = nodeInfo.name.name;
+        queryNodeInfos.forEach((queryNodeInfo) => {
+            let tableName: string = queryNodeInfo.name.name;
             let nodeId = this._tableNameToDagIdMap[tableName];
 
             // optimized datasets name gets prefixed with xcalarlrq and an id
             // so we strip this to find the corresponding UI dataset name
-            if (!nodeId && nodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
+            if (!nodeId && queryNodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
                 tableName.startsWith(".XcalarLRQ.") &&
                 tableName.indexOf(gDSPrefix) > -1) {
                 tableName = tableName.slice(tableName.indexOf(gDSPrefix));
                 nodeId = this._tableNameToDagIdMap[tableName];
-            } else if (nodeInfo.api === XcalarApisT.XcalarApiAggregate &&
+            } else if (queryNodeInfo.api === XcalarApisT.XcalarApiAggregate &&
                 !tableName.startsWith(gAggVarPrefix)) {
                 tableName = gAggVarPrefix + tableName;
                 nodeId = this._tableNameToDagIdMap[tableName];
@@ -188,19 +192,45 @@ class DagSubGraph extends DagGraph {
             if (!nodeId) {// could be a drop table node
                 return;
             }
-            if (!nodeIdInfos.hasOwnProperty(nodeId)) {
-                nodeIdInfos[nodeId] = {}
+            let nodeIdInfo = nodeIdInfos.get(nodeId);
+            if (!nodeIdInfo) {
+                nodeIdInfo = {};
+                nodeIdInfos.set(nodeId, nodeIdInfo);
             }
-            const nodeIdInfo = nodeIdInfos[nodeId];
-            nodeIdInfo[tableName] = nodeInfo;
+            nodeIdInfo[tableName] = queryNodeInfo;
             // _dagIdToTableNamesMap has operations in the correct order
-            nodeInfo.index = this._dagIdToTableNamesMap[nodeId].indexOf(tableName);
+            queryNodeInfo["index"] = this._dagIdToTableNamesMap[nodeId].indexOf(tableName);
         });
 
-        for (let nodeId in nodeIdInfos) {
+        for (let [nodeId, queryNodesBelongingToDagNode] of nodeIdInfos) {
             let node: DagNode = this.getNode(nodeId);
             if (node != null) {
-                node.updateProgress(nodeIdInfos[nodeId], true, true);
+                node.updateProgress(queryNodesBelongingToDagNode, true, true);
+
+                if (node.getState() === DagNodeState.Complete) {
+                    if (storeTablesToNode) {
+                        let destTable: string = this._dagIdToTableNamesMap[nodeId][this._dagIdToTableNamesMap[nodeId].length - 1];
+                        if (destTable) {
+                            node.setTable(destTable, true);
+                        }
+                    } else if (node.getChildren().length === 0 && node instanceof DagNodeSynthesize) {
+                        // look for the last synthesize node. It's parent node
+                        // should store the outputTableName in a comment
+                        let parentNode = node.getParents()[0];
+                        let parentId = parentNode.getId();
+                        let targetTable = this._dagIdToTableNamesMap[parentId];
+                        let nodeInfo = nodeIdInfos.get(parentId)[targetTable];
+                        let destTable: string;
+                        try {
+                            destTable = JSON.parse(nodeInfo.comment).outputTableName;
+                        } catch (e) {
+                            // do nothing
+                        }
+                        if (destTable) {
+                            node.setTable(destTable, true);
+                        }
+                    }
+                }
             }
         }
     }

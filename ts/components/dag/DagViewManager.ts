@@ -366,18 +366,18 @@ class DagViewManager {
             return;
         }
 
-        this.updateOptimizedDFProgress(queryName, queryStateOutput);
+        this.updateProgressDataflow(queryName, queryStateOutput);
         tab.getGraph().endProgress(queryStateOutput.queryState, queryStateOutput.elapsed.milliseconds);
     }
 
-
-    public updateOptimizedDFProgress(queryName, queryStateOutput): void {
+    // for view only dataflows: i.e. optimized dataflow or abandoned dataflow
+    public updateProgressDataflow(queryName, queryStateOutput): void {
         const dagView: DagView = this.dagViewMap.get(queryName);
         if (!dagView) {
             return;
         }
 
-        dagView.updateOptimizedDFProgress(queryStateOutput);
+        dagView.updateProgressDataflow(queryStateOutput);
     }
 
     public updateDFProgress(tabId: string, queryStateOutput: XcalarApiQueryStateOutputT, nodeIds: DagNodeId[]): void {

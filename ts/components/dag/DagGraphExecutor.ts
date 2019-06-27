@@ -804,7 +804,6 @@ class DagGraphExecutor {
         .fail(deferred.reject);
 
         return deferred.promise();
-
     }
 
     private _updateIMDProgress(node) {
@@ -1082,9 +1081,14 @@ class DagGraphExecutor {
 
     // given retinaParameters, we create the retina, then create a tab which
     // becomes focused and checks and updates node progress
-    private _executeOptimizedDataflow(retinaParameters): XDPromise<any> {
+    private _executeOptimizedDataflow(retinaParameters: {
+        destTables: any[],
+        retinaName: string,
+        retina: string,
+        sessionName: string,
+        userName: string
+    }): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
-        let outputTableName: string = "";
         // retina name will be the same as the graph/tab's ID
         let retinaName: string = retinaParameters.retinaName;
         let subGraph: DagSubGraph;
@@ -1100,6 +1104,15 @@ class DagGraphExecutor {
             udfSessionName: udfContext.udfSessionName
         });
 
+        const parentTabId: string = this._graph.getTabId();
+        let outputTableName: string = this._isOptimizedActiveSession ?
+                                "table_" + parentTabId + "_" +
+                                this._optimizedLinkOutNode.getId() +
+                                Authentication.getHashId() : "";
+        if (this._isOptimizedActiveSession) {
+            this._storeOutputTableNameInNode(outputTableName, retinaParameters);
+        }
+
         this._currentTxId = txId;
         this._createRetina(retinaParameters)
         .then((retina) => {
@@ -1108,14 +1121,10 @@ class DagGraphExecutor {
             DagTabManager.Instance.removeTab(retinaName);
 
              // create tab and pass in nodes to store for progress updates
-            const parentTabId: string = this._graph.getTabId();
+
             tab = DagTabManager.Instance.newOptimizedTab(retinaName,
                                                 tabName, retina.query, this);
             subGraph = tab.getGraph();
-            outputTableName = this._isOptimizedActiveSession ?
-                                "table_" + parentTabId + "_" +
-                                this._optimizedLinkOutNode.getId() +
-                                Authentication.getHashId() : "";
 
             this._optimizedExecuteInProgress = true;
             const udfContext = this._getUDFContext();
@@ -1390,6 +1399,26 @@ class DagGraphExecutor {
             } catch (e) {
                 return Promise.resolve();
             }
+        }
+    }
+
+    private _storeOutputTableNameInNode(outputTableName: string, retinaParameters: {
+        destTables: any[],
+        retinaName: string,
+        retina: string,
+        sessionName: string,
+        userName: string
+    }) {
+        try {
+            // store outputTableName in last operator
+            const retinaStruct = JSON.parse(retinaParameters.retina);
+            const operators = JSON.parse(retinaStruct.query);
+            const lastNode = operators[operators.length - 1];
+            lastNode.comment = JSON.stringify({outputTableName: outputTableName});
+            retinaStruct.query = JSON.stringify(operators);
+            retinaParameters.retina = JSON.stringify(retinaStruct);
+        } catch (e) {
+            // ok to fail
         }
     }
 }

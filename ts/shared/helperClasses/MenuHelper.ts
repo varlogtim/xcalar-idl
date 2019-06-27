@@ -907,6 +907,10 @@ class MenuHelper {
         if (!noFilterReason && (node != null && node.getMaxChildren() === 0)) {
             noFilterReason = "Cannot filter or exclude values on terminal nodes.";
         }
+        if (!noFilterReason && DagViewManager.Instance.getActiveDagView() &&
+            DagViewManager.Instance.getActiveDagView().isViewOnly()) {
+            noFilterReason = "Table is view only.";
+        }
         if (!noFilterReason && options.isMultiCol) {
             noFilterReason = "Cannot filter or exclude values on multiple columns.";
         }
