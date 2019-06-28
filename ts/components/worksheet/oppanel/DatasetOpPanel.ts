@@ -351,6 +351,15 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._advMode = true;
     }
 
+    private _getSchema(source: string): ColSchema[] {
+        if (this._synthesize) {
+            return this._schemaSection.getSchema(false);
+        } else {
+            const res = DS.getSchema(source);
+            return res.error ? [] : res.schema;
+        }
+    }
+
     private _autoDetectSchema(userOldSchema: boolean): {error: string} {
         const source: string = this._getSource();
         const oldParam: DagNodeDatasetInputStruct = this._dagNode.getParam();
@@ -386,6 +395,15 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 '<button class="btn btn-submit btn-rounded submit">' +
                     CommonTxtTstr.Save +
                 '</button>';
+        } else if (!this._synthesize) {
+            btnHTML =
+                '<button class="btn btn-submit btn-rounded submit">' +
+                    CommonTxtTstr.Save +
+                '</button>';
+            $section.find(".step1").removeClass("xc-hidden")
+                .end()
+                .find(".step2").addClass("xc-hidden");
+            this.$panel.find(".refreshDatasetList").removeClass("xc-hidden");
         } else if (this._currentStep === 1) {
             $section.find(".step1").removeClass("xc-hidden")
                     .end()
@@ -426,7 +444,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             return;
         }
 
-        this._renderPrefixHint(prefix);
         this._fetchLoadArgs(id)
         .then((loadArgs) => {
             this._loadArgs = this._parseLoadArgs(loadArgs);
@@ -446,19 +463,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         .always(() => {
             xcUIHelper.enableSubmit($nextBtn);
         });
-    }
-
-    private _renderPrefixHint(prefix: string) {
-        const $schemaSection: JQuery = this._getSchemaSection();
-        prefix = this._normalizePrefix(prefix);
-        $schemaSection.find(".prefixSection").remove();
-        if (prefix != null) {
-            const html: HTML = '<div class="prefixSection">' +
-                                    'Prefix: ' + prefix +
-                                '</div>';
-            $schemaSection.find(".buttonSection").prepend(html);
-        }
-
     }
 
     private _addEventListeners() {
@@ -707,7 +711,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         } else {
             prefix = this._getPrefix();
             id = this._getSource();
-            schema = this._schemaSection.getSchema(false);
+            schema = this._getSchema(id);
         }
         if (schema == null || !this._checkOpArgs(prefix, id)) {
             return;

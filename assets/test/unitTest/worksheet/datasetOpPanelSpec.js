@@ -214,7 +214,7 @@ describe("Dataset Operator Panel Test", function() {
         it("Should not submit empty dataset", function() {
             datasetOpPanel.show(node);
             $("#datasetOpPanel #dsOpListSection .folderName").eq(0).click();
-            $('#datasetOpPanel .bottomSection .next').click();
+            $('#datasetOpPanel .bottomSection .submit').click();
             UnitTest.hasStatusBoxWithError(OpPanelTStr.SelectDSSource);
         });
 
@@ -222,26 +222,26 @@ describe("Dataset Operator Panel Test", function() {
             datasetOpPanel.show(node);
             $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
             $("#datasetOpPanel .datasetPrefix .arg").val("@test");
-            $('#datasetOpPanel .bottomSection .next').click();
+            $('#datasetOpPanel .bottomSection .submit').click();
             UnitTest.hasStatusBoxWithError(ErrTStr.PrefixStartsWithLetter);
             datasetOpPanel.close();
         });
 
-        it("Should not submit with inactivated dataset", function() {
-            var oldFunc = DS.getDSObj;
-            DS.getDSObj = function() {
-                return {
-                    activatted: false
-                };
-            };
-            datasetOpPanel.show(node);
-            $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
-            $("#datasetOpPanel .datasetPrefix .arg").val("test");
-            $('#datasetOpPanel .bottomSection .next').click();
-            UnitTest.hasStatusBoxWithError(ErrTStr.InactivatedDS2);
-            datasetOpPanel.close();
-            DS.getDSObj = oldFunc;
-        });
+        // it("Should not submit with inactivated dataset", function() {
+        //     var oldFunc = DS.getDSObj;
+        //     DS.getDSObj = function() {
+        //         return {
+        //             activatted: false
+        //         };
+        //     };
+        //     datasetOpPanel.show(node);
+        //     $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
+        //     $("#datasetOpPanel .datasetPrefix .arg").val("test");
+        //     $('#datasetOpPanel .bottomSection .submit').click();
+        //     UnitTest.hasStatusBoxWithError(ErrTStr.InactivatedDS2);
+        //     datasetOpPanel.close();
+        //     DS.getDSObj = oldFunc;
+        // });
 
         it("_sortListObj should sort files by name", function() {
             let file = {name: "B"};
@@ -287,29 +287,13 @@ describe("Dataset Operator Panel Test", function() {
             let res = datasetOpPanel._getFolderHTML("test");
             expect(res).to.contains("folderName");
         });
-
-        // it("Should submit valid arguments", function() {
-        //     var oldFunc = DS.getDSObj;
-        //     DS.getDSObj = function() {
-        //         return {
-        //             activated: true
-        //         };
-        //     };
-        //     datasetOpPanel.show(node);
-        //     $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
-        //     $("#datasetOpPanel .datasetPrefix .arg").val("test");
-        //     $('#datasetOpPanel .bottomSection .next').click();
-        //     expect($("#statusBox").hasClass("active")).to.be.false;
-        //     expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.true;
-        //     DS.getDSObj = oldFunc;
-        // });
     });
 
     describe("Advanced Dataset Panel Tests", function() {
         it("Should switch from advanced panel correctly", function() {
             datasetOpPanel.show(node);
             expect($("#datasetOpPanel .refreshDatasetList").is(":visible")).to.be.true;
-            JSON.parse = function(obj) {
+            JSON.parse = function() {
                 return {
                     source: "support@ds1",
                     prefix: "pref"
@@ -323,46 +307,6 @@ describe("Dataset Operator Panel Test", function() {
             expect($("#datasetOpPanel #dsOpListSection .fileName.active").text()).to.equal("ds1");
             datasetOpPanel.close();
         });
-
-        // it("Should not submit invalid dataset", function() {
-        //     datasetOpPanel.show(node);
-        //     JSON.parse = function(obj) {
-        //         return {
-        //             source: null,
-        //             prefix: "pref"
-        //         };
-        //     };
-        //     $('#datasetOpPanel .submit').click();
-        //     expect($("#statusBox").hasClass("active")).to.be.true;
-        //     datasetOpPanel.close();
-        // });
-
-        // it("Should not submit invalid prefix", function() {
-        //     datasetOpPanel.show(node);
-        //     JSON.parse = function(obj) {
-        //         return {
-        //             source: "support@ds1",
-        //             prefix: "@pref"
-        //         };
-        //     };
-        //     $('#datasetOpPanel .submit').click();
-        //     expect($("#statusBox").hasClass("active")).to.be.true;
-        //     datasetOpPanel.close();
-        // });
-
-        // it("Should submit valid arguments", function() {
-        //     datasetOpPanel.show(node);
-        //     JSON.parse = function(obj) {
-        //         return {
-        //             source: "support@ds1",
-        //             prefix: "pref"
-        //         };
-        //     };
-        //     $("#datasetOpPanel .bottomSection .xc-switch").click();
-        //     $('#datasetOpPanel .btn-submit.confirm').click();
-        //     expect($("#statusBox").hasClass("active")).to.be.false;
-        //     expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.true;
-        // });
     });
 
     /**
