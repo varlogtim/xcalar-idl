@@ -556,7 +556,8 @@ SQLErrTStr = {
     "NoRightRowNumTableName": "Can't find right row number column name in right outer join",
     "NoRightRowNumCol": "No right row number column in right outer join",
     "Warning": "SQL Warning",
-    "MultiQueries": "Multi-queries not supported in advanced mode."
+    "MultiQueries": "Multi-queries not supported in advanced mode.",
+    "InvalidColName": "Invalid column name found. A name can only begin with a letter or underscore(_), not contain the following characters: ^.',\":()[]{}\\ or space, and use fewer than 255 characters. Please rename before sql node: "
 };
 
 SQLInfoTStr = {

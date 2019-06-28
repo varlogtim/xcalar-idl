@@ -695,6 +695,9 @@ class DagNodeSQL extends DagNode {
             colName.endsWith("_boolean") || colName.endsWith("_string")) {
             colName = colName.substring(0, colName.lastIndexOf("_"));
         }
+        if (xcHelper.validateColName(colName, true, true, false)) {
+            throw SQLErrTStr.InvalidColName + colName;
+        }
         colName = xcHelper.cleanseSQLColName(colName);
         return colName;
     }
