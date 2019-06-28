@@ -620,8 +620,16 @@ namespace DSPreview {
             return PromiseHelper.resolve(null);
         } else {
             createTableMode = null;
+            cancelRunningPreview();
             return clearPreviewTable(tableName);
         }
+    }
+
+    /**
+     * DSPreview.cancelRunningPreview
+     */
+    export function cancelLaod(): void {
+        cancelRunningPreview();
     }
 
     function positionAndShowCastDropdown($div: JQuery): void {
@@ -864,10 +872,8 @@ namespace DSPreview {
         // back button
         $form.on("click", ".cancel", function() {
             let targetName = loadArgs.getTargetName();
-            if ($previewWrap.find(".cancelLoad").length) {
-                $previewWrap.find(".cancelLoad").click();
-                // cancels udf load
-            }
+            // cancels udf load
+            cancelRunningPreview();
             resetForm();
             clearPreviewTable(tableName);
             createTableMode = null;
@@ -3056,6 +3062,18 @@ namespace DSPreview {
         }
     }
 
+    function cancelRunningPreview() {
+        try {
+            let $cancelLoad = $previewWrap.find(".cancelLoad");
+            if ($cancelLoad.length) {
+                let txId: number = $cancelLoad.data("txid");
+                QueryManager.cancelQuery(txId);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     // prevTableName is optional, if not provided will default to tableName
     // if provided, then will not reset tableName
     function clearPreviewTable(prevTableName: string): XDPromise<boolean> {
@@ -3066,7 +3084,6 @@ namespace DSPreview {
         previewOffset = 0;
         resetPreviewRows();
         resetPreviewId();
-
         if (prevTableName) {
             let dsName: string = prevTableName;
             if (prevTableName === tableName) {

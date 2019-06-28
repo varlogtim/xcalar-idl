@@ -62,6 +62,7 @@ namespace DSForm {
      */
     export function switchView(view: DSForm.View): void {
         let $cardToSwitch: JQuery = null;
+        let wasInPreview = !$("#dsForm-preview").hasClass("xc-hidden");
         switch (view) {
             case DSForm.View.Path:
                 $cardToSwitch = $pathCard;
@@ -75,6 +76,10 @@ namespace DSForm {
             default:
                 console.error("invalid view");
                 return;
+        }
+
+        if (wasInPreview) {
+            DSPreview.cancelLaod();
         }
 
         $cardToSwitch.removeClass("xc-hidden")
