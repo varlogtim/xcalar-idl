@@ -54,6 +54,11 @@ declare module 'xcalar' {
         opBulkLoad(request: proto.xcalar.compute.localtypes.Operator.BulkLoadRequest): Promise<proto.xcalar.compute.localtypes.Operator.BulkLoadResponse>;
     }
 
+    export class DataflowService {
+        constructor(client: XceClient);
+        execute(request: proto.xcalar.compute.localtypes.Dataflow.ExecuteRequest): Promise<proto.xcalar.compute.localtypes.Dataflow.ExecuteResponse>;
+    }
+
     export class TableService {
         constructor(client: XceClient);
         addIndex(request: proto.xcalar.compute.localtypes.Table.IndexRequest): Promise<proto.google.protobuf.Empty>;
@@ -781,6 +786,29 @@ declare namespace proto.xcalar.compute.localtypes {
         export class DeleteResponse {
             getNumNodes(): number;
             getStatusesList(): XcalarApiDeleteDagNodeStatus[];
+        }
+    }
+
+    export namespace Dataflow {
+        export class Parameter {
+            setName(value: string): void;
+            setValue(value: string): void;
+        }
+        export class ExecuteRequest {
+            setDataflowName(value: string): void;
+            setQueryName(value: string): void;
+            setScope(value: proto.xcalar.compute.localtypes.Workbook.WorkbookScope): void;
+            setUdfUserName(value: string): void;
+            setUdfSessionName(value: string): void;
+            setIsAsync(value: boolean): void;
+            setSchedName(value: string): void;
+            setParametersList(value: Array<proto.xcalar.compute.localtypes.Dataflow.Parameter>): void;
+            setExportToActiveSession(value: boolean): void;
+            setDestTable(value: string): void;
+        }
+
+        export class ExecuteResponse {
+            getQueryName(): string;
         }
     }
 

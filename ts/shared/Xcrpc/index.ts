@@ -29,6 +29,8 @@ import * as PublishedTable from './PublishedTable/PublishedTableService';
 export { PublishedTable };
 import * as Table from './Table/TableService';
 export { Table };
+import * as Dataflow from './Dataflow/DataflowService';
+export { Dataflow };
 import * as GetQuery from './Operator/GetQueryService';
 export { GetQuery };
 import * as Operator from './Operator/OperatorService';

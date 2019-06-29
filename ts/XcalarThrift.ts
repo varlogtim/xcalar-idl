@@ -3881,7 +3881,8 @@ XcalarExecuteRetina = function(
         udfUserName?: string,
         udfSessionName?: string
     },
-    txId: number
+    txId: number,
+    scopeInfo?: Xcrpc.Dataflow.ScopeInfo
 ): XDPromise<any> {
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
@@ -3911,8 +3912,25 @@ XcalarExecuteRetina = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        def = xcalarExecuteRetina(tHandle, retName, params, activeSession,
-            newTableName, queryName, schedName, udfUserName, udfSessionName);
+        def = PromiseHelper.convertToJQuery(
+            Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDataflowService().executeOptimized({
+                dataflowName: retName,
+                parameters: params.reduce((paramMap, param) => {
+                    paramMap.set(param.paramName, param.paramValue);
+                    return paramMap;
+                }, new Map<string, string>()),
+                scope: Xcrpc.Dataflow.SCOPE.WORKBOOK, // Hard code to workbook scope, as we don't have a use case in global scope for now
+                scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName },
+                options: {
+                    scheduledName: schedName,
+                    queryName: queryName,
+                    udfUserName: udfUserName,
+                    udfSessionName: udfSessionName,
+                    isExportToActiveSession: activeSession,
+                    destTableName: newTableName
+                }
+            })
+        );
     }
 
     const query = XcalarGetQuery(workItem);
@@ -3932,9 +3950,15 @@ XcalarExecuteRetina = function(
             deferred.resolve(ret);
         }
     })
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarExecuteRetina", error);
-        deferred.reject(thriftError);
+    .fail(function(error: Xcrpc.Error.ServiceError) {
+        if (Xcrpc.Error.isXcalarError(error)) {
+            const thriftError = thriftLog("XcalarExecuteRetina", {
+                status: error.status
+            });
+            deferred.reject(thriftError);
+        } else {
+            deferred.reject(error);
+        }
     });
     return (deferred.promise());
 };

@@ -5,6 +5,7 @@ import { QueryService } from './Query/QueryService';
 import { UDFService} from './UDF/UDFService';
 import { PublishedTableService } from './PublishedTable/PublishedTableService';
 import { TableService } from './Table/TableService';
+import { DataflowService } from './Dataflow/DataflowService';
 import { GetQueryService } from './Operator/GetQueryService';
 import { OperatorService } from './Operator/OperatorService';
 
@@ -41,6 +42,10 @@ class ServiceClient {
 
     public getGetQueryService(): GetQueryService {
         return new GetQueryService();
+    }
+
+    public getDataflowService(): DataflowService {
+        return new DataflowService(this._apiClient);
     }
 
     public getOperatorService(): OperatorService {

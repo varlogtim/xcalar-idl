@@ -1,4 +1,4 @@
-import { QueryService as ApiQuery, XceClient as ApiClient } from 'xcalar';
+import { QueryService as ApiQuery, XceClient as ApiClient, EnumMap } from 'xcalar';
 import {
     ScopeInfo as QueryScopeInfo,
     SCOPE as QUERYSCOPE,
@@ -42,8 +42,7 @@ class QueryService {
                 return {
                     name: queryInfo.getName(),
                     millisecondsElapsed: queryInfo.getMillisecondsElapsed(),
-                    // TODO: Use proto version maps instead when we have them in package
-                    state: QueryStateTStr[queryInfo.getState()]
+                    state: EnumMap.QueryStateToStr[queryInfo.getState()]
                 };
             });
         } catch (e) {

@@ -257,20 +257,20 @@ export declare class SynthesizeArgs {
         columns?: ColumnArgs[],
     });
 }
-export declare class ExecuteRetinaArgs {
-    retinaName: string;
-    queryName: string;
-    dest: string;
-    parameters: XcalarApiParameterT[];
-    schedName: string;
-    constructor(args?: {
-        retinaName?: string,
-        queryName?: string,
-        dest?: string,
-        parameters?: XcalarApiParameterT[],
-        schedName?: string,
-    });
-}
+// export declare class ExecuteRetinaArgs {
+//     retinaName: string;
+//     queryName: string;
+//     dest: string;
+//     parameters: XcalarApiParameterT[];
+//     schedName: string;
+//     constructor(args?: {
+//         retinaName?: string,
+//         queryName?: string,
+//         dest?: string,
+//         parameters?: XcalarApiParameterT[],
+//         schedName?: string,
+//     });
+// }
 export declare class ExportArgs {
     source: string;
     driverName: string;
