@@ -15,6 +15,7 @@ class SQLEditorSpace {
         this._isDocked = true;
         this._minWidth = 200;
         this._executers = [];
+        this._updateExecutor();
     }
 
     public setup(): void {
@@ -203,6 +204,10 @@ class SQLEditorSpace {
 
     private _getTopBarEl(): JQuery {
         return this._getEditorSpaceEl().find(".topBarSection");
+    }
+
+    private _getFileNameEl(): JQuery {
+        return this._getEditorSpaceEl().find("header .fileName");
     }
 
     private _executeAction(): void {
@@ -429,14 +434,25 @@ class SQLEditorSpace {
 
     private _addExecutor(executor: SQLDagExecutor): void {
         this._executers.push(executor);
+        this._updateExecutor();
     }
 
     private _removeExecutor(executor: SQLDagExecutor): void {
         for (let i = 0; i< this._executers.length; i++) {
             if (this._executers[i] === executor) {
                 this._executers.splice(i, 1);
-                return;
+                break;
             }
+        }
+        this._updateExecutor();
+    }
+
+    private _updateExecutor() {
+        let $cancelButton = $("#sqlWorkSpacePanel .selQueryHistCard .selCancelQueryHist").addClass("xc-disabled");
+        if (this._executers.length === 0) {
+            $cancelButton.addClass("xc-disabled");
+        } else {
+            $cancelButton.removeClass("xc-disabled");
         }
     }
 
@@ -464,7 +480,7 @@ class SQLEditorSpace {
     }
 
     private _setFileName(name: string): void {
-        let $el: JQuery = this._getTopBarEl().find(".fileName");
+        let $el: JQuery = this._getFileNameEl();
         $el.text(name);
         xcTooltip.add($el, {
             title: name
@@ -668,7 +684,8 @@ class SQLEditorSpace {
             this._goToSQLFunc();
         });
 
-        $topBar.on("dblclick", ".fileName", (event) => {
+        let $fileName = this._getFileNameEl();
+        $fileName.on("click", (event) => {
             let $snippet_name: JQuery = $(event.currentTarget);
             $snippet_name.removeClass("untitled");
             let editingName = $snippet_name.attr("data-original-title");
@@ -682,16 +699,17 @@ class SQLEditorSpace {
             document.execCommand('selectAll', false, null);
         });
 
-        $topBar.on("keypress", ".fileName .xc-input", (event) => {
+        $fileName.on("keypress", ".xc-input", (event) => {
             if (event.which === keyCode.Enter || event.which === 10) {
                 event.preventDefault();
                 $(event.currentTarget).blur();
             }
         });
 
-       $topBar.on("focusout", ".fileName .xc-input", (event) => {
+       $fileName.on("focusout", ".xc-input", (event) => {
             let $nameInput: JQuery = $(event.currentTarget);
             this._renameSnippet($nameInput);
+            xcUIHelper.removeSelectionRange();
         });
 
         let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;
@@ -712,6 +730,10 @@ class SQLEditorSpace {
         }).setupListeners();
 
         $topBar.on("mouseenter", ".tooltipOverflow", (event) => {
+            xcTooltip.auto(<any>event.currentTarget);
+        });
+
+        this._getEditorSpaceEl().find("header").on("mouseenter", ".tooltipOverflow", (event) => {
             xcTooltip.auto(<any>event.currentTarget);
         });
     }

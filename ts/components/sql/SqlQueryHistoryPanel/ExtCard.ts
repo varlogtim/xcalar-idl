@@ -127,7 +127,7 @@ namespace SqlQueryHistoryPanel {
                     queryInfo.status === SQLStatus.Failed;
                     if (isValidStatus) {
                         text = SQLTStr.queryTableBodyTextPreview;
-                        iconClass = 'xi-search';
+                        iconClass = 'xi-viewprogress';
                     } else if (queryInfo.status === SQLStatus.Running) {
                         text = SQLTStr.queryTableBodyTextProgress;
                         iconClass = 'xi-viewprogress';

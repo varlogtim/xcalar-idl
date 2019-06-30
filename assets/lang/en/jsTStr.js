@@ -1558,7 +1558,7 @@ SQLTStr = {
     "queryTableColumnTable": "Results",
     "queryTableColumnNumRows": "Rows",
     "queryTableColumnSkew": "Skew",
-    "queryTableColumnAction": "Action",
+    "queryTableColumnAction": "Dataflow",
     "queryTableBodyTextPreview": "Preview",
     "queryTableBodyTextProgress": "View Progress",
     "EnterSnippetName": "Enter snippet name",

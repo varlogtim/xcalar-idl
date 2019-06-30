@@ -1,13 +1,15 @@
 <div id="sqlEditorSpace">
   <header class="draggable">
-    <%= dicts.SQL.Editor %>
+    <div class="title">
+      <%= dicts.SQL.Editor %>
+    </div>
+    <div class="divider"></div>
+    <div class="fileName tooltipOverflow"></div>
   </header>
   <i class="icon xi_popout fa-18 undock" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.bottomMenu.popOutBtn %>"></i>
-
   <section class="topBarSection">
-    <div class="fileName tooltipOverflow"></div>
     <div class="fileOption dropDownList">
-      <div class="text"><%= dicts.fileManager.Actions %></div>
+      <div class="text">File</div>
       <div class="iconWrapper">
         <i class="icon xi-arrow-down"></i>
       </div>
@@ -22,12 +24,10 @@
         </ul>
       </div>
     </div>
-    <button class="btn btn-clear iconBtn sqlFunc" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.SQLFunc.SwitchToUse %>">
-      <i class="icon xi-SQLfunction"></i>
+    <button class="btn btn-secondary sqlFunc" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.SQLFunc.SwitchToUse %>">
       <%= dicts.SQLFunc.Title %>
     </button>
-    <button class="btn btn-submit iconBtn showTables">
-      <i class="icon xi-table-2 fa-15"></i>
+    <button class="btn btn-secondary showTables">
       <%= dicts.Table.Show %>
     </button>
   </section>

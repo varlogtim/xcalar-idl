@@ -650,7 +650,7 @@ describe("SqlQueryHistoryPanel Test", function() {
             expect(columnProps).to.deep.equal({
                 category: 'ACTION',
                 text: SQLTStr.queryTableBodyTextPreview,
-                iconClass: 'xi-search'
+                iconClass: 'xi-viewprogress'
             });
             // Action: Running
             queryInfo.status = 'Running';
