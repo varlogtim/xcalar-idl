@@ -8,33 +8,38 @@ describe('Sort Op Panel Test', function() {
     var prefix = "prefix";
     var node;
 
-    before(function(){
+    before(function(done){
         console.clear();
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
         console.log("Sort panel test");
-        MainMenu.openPanel("dagPanel");
-        node = new DagNodeSort({});
-        const parentNode = new DagNodeMap({});
-        parentNode.getLineage = function() {
-            return {getColumns: function() {
-                return [new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
-                    type: "number"
-                }), new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'stringCol'),
-                    type: "string"
-                })]
-            }}
-        };
-        node.getParents = function() {
-            return [parentNode];
-        };
 
-        xcTooltip.hideAll();
-        $sortOpPanel = $("#sortOpPanel");
-        $sortTable = $("#sortOpPanel .opSection");
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            MainMenu.openPanel("dagPanel");
+            node = new DagNodeSort({});
+            const parentNode = new DagNodeMap({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
+                        type: "number"
+                    }), new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'stringCol'),
+                        type: "string"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            };
+
+            xcTooltip.hideAll();
+            $sortOpPanel = $("#sortOpPanel");
+            $sortTable = $("#sortOpPanel .opSection");
+            done();
+        });
     });
 
     describe("Basic Function Test", function() {
