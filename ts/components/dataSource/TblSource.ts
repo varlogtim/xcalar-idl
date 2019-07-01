@@ -96,6 +96,7 @@ class TblSource {
             funcName: string,
             udfQuery: object,
             schema: ColSchema[],
+            newNames: string[],
             primaryKeys: string[],
         }
     ): XDPromise<string> {

@@ -198,6 +198,7 @@ class PTblManager {
             funcName: string,
             udfQuery: object,
             schema: ColSchema[],
+            newNames: string[],
             primaryKeys: string[]
         }
     ): XDPromise<string> {
@@ -220,6 +221,7 @@ class PTblManager {
 
         let hasDataset: boolean = false;
         let schema: ColSchema[] = args.schema;
+        let newNames: string[] = args.newNames || [];
         let primaryKeys: string[] = args.primaryKeys;
         this._loadingTables[tableName] = tableInfo;
         tableInfo.state = PbTblState.Loading;
@@ -240,7 +242,7 @@ class PTblManager {
             currentStep = 3;
             currentMsg = TblTStr.Creating;
             this._refreshTblView(tableInfo, currentMsg, currentStep, totalStep);
-            return this._createTable(txId, dsName, tableName, finalSchema, primaryKeys);
+            return this._createTable(txId, dsName, tableName, finalSchema, newNames, primaryKeys);
         })
         .then(() => {
             return PTblManager.Instance.addTable(tableName);
@@ -314,7 +316,7 @@ class PTblManager {
         this._loadingTables[tableName] = tableInfo;
         this._refreshTblView(tableInfo, TblTStr.Creating, 1, 1);
 
-        this._createTable(txId, dsName, tableName, schema, primaryKeys, noDatasetDeletion)
+        this._createTable(txId, dsName, tableName, schema, [], primaryKeys, noDatasetDeletion)
         .then(() => {
             return PTblManager.Instance.addTable(tableName);
         })
@@ -954,6 +956,7 @@ class PTblManager {
         dsName: string,
         tableName: string,
         schema: ColSchema[],
+        newNames: string[].
         primaryKeys: string[],
         noDatasetDeletion?: boolean
     ): XDPromise<void> {
@@ -965,9 +968,10 @@ class PTblManager {
 
         const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(schema);
         const pbColInfos: ColRenameInfo[] = [];
-        colInfos.forEach((colInfo) => {
+        colInfos.forEach((colInfo, index) => {
+            let newName = newNames[index] || colInfo.new;
             // make sure column is uppercase
-            let upperCaseCol: string = colInfo.new.toUpperCase();
+            let upperCaseCol: string = newName.toUpperCase();
             colInfo.new = upperCaseCol;
             pbColInfos.push({
                 orig: upperCaseCol,

@@ -34,7 +34,9 @@ class DataSourceSchema {
         this._showSchemaError(null);
     }
 
-    public validate(): {schema: ColSchema[], primaryKeys: string[]} | null {
+    public validate(): {
+        schema: ColSchema[], primaryKeys: string[], newNames: string[]
+    } | null {
         let res = this._validateSchema(false);
         return res.error ? null : res;
     }
@@ -102,6 +104,7 @@ class DataSourceSchema {
     private _validateSchema(ignoreError: boolean): {
         schema: ColSchema[],
         schemaToSuggest: ColSchema[],
+        newNames: string[],
         primaryKeys: string[],
         pkOrders: {name: string, order: number}[],
         error: string
@@ -110,6 +113,7 @@ class DataSourceSchema {
             return {
                 schema: null,
                 schemaToSuggest: null,
+                newNames: null,
                 primaryKeys: null,
                 pkOrders: null,
                 error: null
@@ -131,6 +135,7 @@ class DataSourceSchema {
     private _parseSchema(val: string): {
         schema: ColSchema[],
         schemaToSuggest: ColSchema[],
+        newNames: string[],
         primaryKeys: string[],
         pkOrders: {name: string, order: number}[],
         error: string
@@ -139,6 +144,7 @@ class DataSourceSchema {
             return {
                 schema: null,
                 schemaToSuggest: [],
+                newNames: [],
                 primaryKeys: null,
                 pkOrders: null,
                 error: ErrTStr.NoEmpty
@@ -148,6 +154,7 @@ class DataSourceSchema {
         let validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes();
         let schema: ColSchema[] = [];
         let schemaToSuggest: ColSchema[] = [];
+        let newNames: string[] = [];
         let pkOrders: {name: string, order: number}[] = [];
         let usedPkOrders: Set<number> = new Set();
         let error: string = null;
@@ -174,6 +181,7 @@ class DataSourceSchema {
                 let name: string = null;
                 let type: ColumnType = null;
                 let pk: string = null;
+                let newName: string = null;
 
                 for (let key in column) {
                     let trimmedKey = key.trim();
@@ -183,6 +191,8 @@ class DataSourceSchema {
                         type = column[key];
                     } else if (trimmedKey === "pk") {
                         pk = column[key];
+                    } else if (trimmedKey === "newName") {
+                        newName = column[key];
                     }
                 }
 
@@ -200,16 +210,18 @@ class DataSourceSchema {
                 } else if (!validTypes.includes(type)) {
                     error = error || "Invalid type: " + type;
                 } else {
-                    let nameError = xcHelper.validateColName(name);
+                    let finalName = newName || name;
+                    let nameError = xcHelper.validateColName(finalName);
                     if (nameError) {
                         error = error || nameError;
                         name = null;
                     } else {
-                        nameCache[name] = true;
+                        nameCache[finalName] = true;
                         schema.push({
                             name: name,
                             type: type
                         });
+                        newNames.push(newName);
                     }
                 }
 
@@ -245,6 +257,7 @@ class DataSourceSchema {
         return {
             schema: schema,
             schemaToSuggest: schemaToSuggest,
+            newNames: newNames,
             primaryKeys: primaryKeys,
             pkOrders: pkOrders,
             error: error

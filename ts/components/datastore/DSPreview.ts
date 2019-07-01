@@ -1667,6 +1667,7 @@ namespace DSPreview {
             "udfQuery": udfQuery,
             "advancedArgs": advancedArgs,
             "schema": res.schema,
+            "newNames": res.newNames,
             "primaryKeys": res.primaryKeys
         };
         let curPreviewId = previewId;
@@ -2647,7 +2648,7 @@ namespace DSPreview {
         }
 
         let schemaArgs = isCreateTableMode() ?
-        dataSourceSchema.validate() : {schema: null, primaryKeys: null};
+        dataSourceSchema.validate() : {schema: null, primaryKeys: null, newNames: null};
         if (schemaArgs == null) {
             // error case
             return null;
@@ -2671,6 +2672,7 @@ namespace DSPreview {
             "quote": quote,
             "skipRows": skipRows,
             "schema": schema,
+            "newNames": schemaArgs.newNames,
             "primaryKeys": schemaArgs.primaryKeys
         };
 
