@@ -76,7 +76,7 @@ describe("Tooltip Walkthrough Test", function() {
         var startErr = TooltipWalkthroughs.startWalkthrough("SQL Mode");
         expect(started).to.be.false;
         expect(startErr).to.equal("A workbook must be opened in order to start a walkthrough");
-        WorkbookPanel.hide(true);
+        $("#homeBtn").click();
     });
 
     after(function(done) {

@@ -3,6 +3,8 @@ namespace TooltipWalkthroughs {
     let SQLModeName = "SQL Mode";
     let ADVModeName = "Advanced Mode";
 
+    // TODO: Add flight tests for whenever this file has added walkthroughs.
+
     export function newUserPopup(): void {
         TooltipManager.start({
                 tooltipTitle: DemoTStr.title,
@@ -45,9 +47,9 @@ namespace TooltipWalkthroughs {
         );
     }
 
-    // XXX TODO: add something that enters a workbook if not in one.
 
     export function SQLModeWalkthrough(): void {
+        // NOTE: If this is changed, please change the associated unit test
         TooltipManager.start({
                 tooltipTitle: "SQL Mode",
                 background: true,
@@ -65,7 +67,7 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: "#sqlTab",
-                text: "SQL querie statements can be created and executed within the SQL workspace.",
+                text: "SQL query statements can be created and executed within the SQL workspace.",
                 type: TooltipType.Text
             },
             {
@@ -97,37 +99,22 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: "#filePath",
-                interact_div: "#filePath",
-                text: "The file path is the path to your data source, in relation to the target. " +
-                    "Type in /netstore/datasets/countries.csv",
-                type: TooltipType.Value,
-                value: "/netstore/datasets/countries.csv"
-            },
-            {
-                highlight_div: "#dsForm-path .btn-submit",
-                interact_div: "#dsForm-path .btn-submit",
-                text: "To load the dataset at the path, click this button.",
-                type: TooltipType.Click,
-            },
-            {
-                highlight_div: "#dsPreviewWrap",
-                text: "Here we can see a preview of the data we're importing.",
+                text: "The file path is the path to your data source, in relation to the target. ",
                 type: TooltipType.Text
             },
             {
-                highlight_div: "#importDataForm",
-                interact_div: "#importDataForm .createTable",
-                text: "This screen lets you modify how the data is imported. For now, click Create Table.",
-                type: TooltipType.Click,
-            },// XXX TODO: Add a way to wait for a screen
+                highlight_div: "#dsForm-path .cardMain .browse",
+                text: "Clicking this browse button allows you to browse the location at the file path for your file(s).",
+                type: TooltipType.Text
+            },
             {
-                highlight_div: "#pTblView .cardHeader",
-                text: "Xcalar Design is currently loading your data. Click next when you see a preview show up.",
+                highlight_div: "#dsForm-path .btn-submit",
+                text: "To load the dataset at the path, click this button.",
                 type: TooltipType.Text,
             },
             {
-                highlight_div: "#pTblView .writeSQL",
-                interact_div: "#pTblView .writeSQL",
+                highlight_div: "#sqlWorkSpace",
+                interact_div: "#sqlWorkSpace",
                 text: "Let's go back to the SQL Workspace. Click this button to go there instantly.",
                 type: TooltipType.Click,
             },
@@ -155,6 +142,7 @@ namespace TooltipWalkthroughs {
     }
 
     export function AdvModeWalkthrough(): void {
+        // NOTE: If this is changed, please change the associated unit test
         TooltipManager.start({
                 tooltipTitle: "Advanced Mode",
                 background: true,
