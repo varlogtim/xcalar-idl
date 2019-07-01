@@ -11,7 +11,14 @@ class OpenOpPanel extends EventEmitter {
             .moveToElement("#dagNodeMenu li.configureNode", 10, 1)
             .mouseButtonClick('left')
             .waitForElementNotPresent("#formWaitingBG")
-        this.emit('complete');
+
+            this.api.isVisible(".opPanel:not(.xc-hidden) .advancedEditor", results => {
+                console.log(results.value);
+                if (results.value) {
+                    this.api.click(".opPanel:not(.xc-hidden) .xc-switch");
+                }
+                this.emit('complete');
+            });
 
         return this;
     }
