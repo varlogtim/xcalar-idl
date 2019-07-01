@@ -90,7 +90,7 @@ class DataSourceSchema {
         this._getContainer().find(".schemaError").text(error || "");
     }
 
-    private _checkSchema(): ColSchema[] {
+    private _checkSchema(): {schema: ColSchema[], newNames: string[]} {
         let res = this._validateSchema(true);
         let error: string = res.error;
         if (error === ErrTStr.NoEmpty) {
@@ -98,7 +98,10 @@ class DataSourceSchema {
             error = null;
         }
         this._showSchemaError(error);
-        return res.schema;
+        return {
+            schema: res.schema,
+            newNames: res.newNames
+        };
     } 
 
     private _validateSchema(ignoreError: boolean): {
@@ -265,11 +268,12 @@ class DataSourceSchema {
     }
 
     private _changeSchema(): void {
-        let schema: ColSchema[] = this._checkSchema();
+        let {schema, newNames} = this._checkSchema();
         let isAutoDetect: boolean = this._isAutoDetect;
         this._triggerEvent(DataSourceSchemaEvent.ChangeSchema, {
             autoDetect: isAutoDetect,
-            schema: schema
+            schema: schema,
+            newNames: newNames
         });
     }
 
@@ -334,7 +338,8 @@ class DataSourceSchema {
                 this._addSchema(schema);
                 this._triggerEvent(DataSourceSchemaEvent.ChangeSchema, {
                     autoDetect: false,
-                    schema: schema
+                    schema: schema,
+                    newNames: []
                 });
             };
             SchemaSelectionModal.Instance.show(initialSchema, currentSchema, callback);

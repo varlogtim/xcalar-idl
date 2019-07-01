@@ -664,7 +664,7 @@ namespace DSPreview {
             return getHintSchmea();
         })
         .registerEvent(DataSourceSchemaEvent.ChangeSchema, function(arg){
-            applySchemaChangetoPreview(arg.schema, arg.autoDetect);
+            applySchemaChangetoPreview(arg.schema, arg.newNames, arg.autoDetect);
         })
         .registerEvent(DataSourceSchemaEvent.ValidateSchema, function(schema) {
             return validateMatchOfSchemaAndHeaders(schema);
@@ -698,13 +698,15 @@ namespace DSPreview {
     }
 
     function getHeadersFromSchema(
-        schema: ColSchema[]
+        schema: ColSchema[],
+        newNames: string[],
     ): {colName: string, colType: ColumnType}[] | null {
+        newNames = newNames || [];
         let headers: {colName: string, colType: ColumnType}[] = null;
         if (schema && schema.length) {
-            headers = schema.map((colInfo) => {
+            headers = schema.map((colInfo, index) => {
                 return {
-                    colName: colInfo.name,
+                    colName: newNames[index] || colInfo.name,
                     colType: colInfo.type
                 };
             });
@@ -736,6 +738,7 @@ namespace DSPreview {
 
     function applySchemaChangetoPreview(
         schema: ColSchema[],
+        newNames: string[],
         autoDetect: boolean
     ): void {
         let isCSV: boolean = (loadArgs.getFormat() === formatMap.CSV);
@@ -752,7 +755,7 @@ namespace DSPreview {
         if (autoDetect) {
             headers = loadArgs.getSuggestHeaders(sourceIndex);
         } else {
-            headers = getHeadersFromSchema(schema);
+            headers = getHeadersFromSchema(schema, newNames);
         }
 
         if (headers != null) {
@@ -783,7 +786,7 @@ namespace DSPreview {
             } else {
                 let schema = getHintSchmea();
                 dataSourceSchema.setSchema(schema);
-                applySchemaChangetoPreview(schema, false);
+                applySchemaChangetoPreview(schema, [], false);
             }
         } catch (e) {
             console.error(e);
@@ -2660,7 +2663,7 @@ namespace DSPreview {
             return null;
         }
 
-        let schema = addExtrColToSchema(schemaArgs.schema, advanceArgs)
+        let schema = addExtrColToSchema(schemaArgs.schema,  advanceArgs)
         let args = {
             "dsNames": dsNames,
             "format": format,
