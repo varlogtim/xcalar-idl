@@ -449,7 +449,8 @@ class UDFFileManager extends BaseFileManager {
     public upload(
         uploadPath: string,
         entireString: string,
-        absolutePath?: boolean
+        absolutePath?: boolean,
+        overwiteShareUDF?: boolean
     ): XDPromise<any> {
         const uploadPathSplit: string[] = uploadPath.split("/");
         uploadPathSplit[uploadPathSplit.length - 1] = uploadPathSplit[
@@ -469,6 +470,13 @@ class UDFFileManager extends BaseFileManager {
             xcUIHelper.disableSubmit($fnUpload);
 
             XcalarUploadPython(uploadPath, entireString, absolutePath, true)
+            .then(() => {
+                if (overwiteShareUDF) {
+                    let shareUDFPath = this.getSharedUDFPath() + uploadPath;
+                    let promise = XcalarUploadPython(shareUDFPath, entireString, true, true)
+                    return promise;
+                }
+            })
             .then(() => {
                 xcUIHelper.showSuccess(SuccessTStr.UploadUDF);
 
@@ -532,6 +540,8 @@ class UDFFileManager extends BaseFileManager {
 
         let uploadPath: string = displayPath;
         let absolutePath: boolean = true;
+        let isLocalUDF: boolean = false;
+
         if (displayPath.startsWith(this.getCurrWorkbookDisplayPath())) {
             displayPath = displayPath
             .split("/")
@@ -539,10 +549,18 @@ class UDFFileManager extends BaseFileManager {
             .toLowerCase()
             .replace(/ /g, "");
             absolutePath = false;
+            isLocalUDF = true;
         }
 
         uploadPath = displayPath.substring(0, displayPath.lastIndexOf("."));
-        this.upload(uploadPath, entireString, absolutePath)
+        let def = isLocalUDF
+        ? this._warnDatasetUDF(uploadPath, entireString)
+        : PromiseHelper.resolve();
+
+        def
+        .then((overwiteShareUDF: boolean) => {
+            return this.upload(uploadPath, entireString, absolutePath, overwiteShareUDF);
+        })
         .then(() => {
             deferred.resolve();
         })
@@ -1028,6 +1046,68 @@ class UDFFileManager extends BaseFileManager {
         XcUser.resetUserSession();
 
         return deferred.promise();
+    }
+
+    private _warnDatasetUDF(udfPath: string, entireString: string): XDPromise<boolean> {
+        let shareUDFPath = this.getSharedUDFPath() + udfPath;
+        if (shareUDFPath === this.getDefaultUDFPath()) {
+            // when it's shared UDF, xcalar will handle it, no need to warn
+            return PromiseHelper.resolve(false);
+        }
+
+        if (!this.storedUDF.has(shareUDFPath)) {
+            // when there is no share version of it, no need to warn
+            return PromiseHelper.resolve(false);
+        }
+
+        let sharedUDFString: string = this.storedUDF.get(shareUDFPath);
+        if (sharedUDFString != null && sharedUDFString === entireString) {
+            // when we have a shared cache and there is no change of the ones going to save
+            return PromiseHelper.resolve(false);
+        }
+
+        if (this._hasDatasetWithUDF(udfPath)) {
+            let deferred: XDDeferred<boolean> = PromiseHelper.deferred();
+            Alert.show({
+                title: "Overwrite import UDF",
+                msg: "The UDF you are editing has a copy in the shared folder, which is used during the import. Do you want to apply the changes to the UDF in the shared folder too?",
+                buttons: [{
+                    name: "No",
+                    func: () => { deferred.resolve(false); }
+                }, {
+                    name: "Yes",
+                    func: () => { deferred.resolve(true); }
+                }],
+                onCancel: () => { deferred.reject(); },
+                hideButtons: ["cancel"]
+            });
+            return deferred.promise();
+        } else {
+            return PromiseHelper.resolve(false);
+        }
+    }
+
+    private _hasDatasetWithUDF(udfPath: string): boolean {
+        try {
+            udfPath = this.getCurrWorkbookPath() + udfPath;
+            let homeDir = DS.getHomeDir(false);
+            let queue: any[] = [homeDir];
+            while (queue.length > 0) {
+                let folder: DSObj = queue.shift();
+                for (let i = 0; i < folder.eles.length; i++) {
+                    let dsObj = folder.eles[i];
+                    if (dsObj.beFolder()) {
+                        queue.push(dsObj);
+                    } else if (dsObj.moduleName === udfPath) {
+                        return true;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+        return false;
     }
 
     /* Unit Test Only */

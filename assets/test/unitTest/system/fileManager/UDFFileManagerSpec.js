@@ -840,6 +840,142 @@ describe("UDFFileManager Test", function() {
             expect(res.reason).to.equal("invalid syntax");
             expect(res.line).to.equal(12);
         });
+
+        it("_hasDatasetWithUDF should work", function() {
+            let udf = "test";
+            let dsObj = new DSObj();
+            dsObj.moduleName = UDFFileManager.Instance.getCurrWorkbookPath() + udf;
+            let oldFunc = DS.getHomeDir;
+            DS.getHomeDir = () => {
+                return {eles: [dsObj]};
+            };
+            expect(UDFFileManager.Instance._hasDatasetWithUDF(udf)).to.be.true;
+            // case 2
+            DS.getHomeDir = () => {
+                return {eles: []};
+            };
+            expect(UDFFileManager.Instance._hasDatasetWithUDF(udf)).to.be.false;
+            // case 3
+            DS.getHomeDir = () => null;
+            expect(UDFFileManager.Instance._hasDatasetWithUDF(udf)).to.be.false;
+
+            DS.getHomeDir = oldFunc;
+        });
+    });
+
+    describe("_warnDatasetUDF test", function() {
+        let testUDF;
+        let testUDFPath;
+
+        before(function() {
+            testUDF = xcHelper.randName("test");
+            testUDFPath = UDFFileManager.Instance.getSharedUDFPath() + testUDF;
+            UDFFileManager.Instance.storedUDF.set(testUDFPath, null);
+        });
+
+        it("should resolve if it's shared UDF", function(done) {
+            UDFFileManager.Instance._warnDatasetUDF("default", "test")
+            .then(function(res) {
+                expect(res).to.equal(false);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should resolve if UDF not exist in shared space", function(done) {
+            let udf = xcHelper.randName("nonExistTest");
+            UDFFileManager.Instance._warnDatasetUDF(udf, "test")
+            .then(function(res) {
+                expect(res).to.equal(false);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should resolve if no dataset UDF", function(done) {
+            let oldFunc = UDFFileManager.Instance._hasDatasetWithUDF;
+            UDFFileManager.Instance._hasDatasetWithUDF = () => false;
+
+            UDFFileManager.Instance._warnDatasetUDF(testUDF, "test")
+            .then(function(res) {
+                expect(res).to.equal(false);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                UDFFileManager.Instance._hasDatasetWithUDF = oldFunc;
+            });
+        });
+
+        it("should resolve true if has Dataset UDF and apply", function(done) {
+            let oldFunc = UDFFileManager.Instance._hasDatasetWithUDF;
+            let oldAlert = Alert.show;
+            UDFFileManager.Instance._hasDatasetWithUDF = () => true;
+            Alert.show = (options) => { options.buttons[1].func(); }
+
+            UDFFileManager.Instance._warnDatasetUDF(testUDF, "test")
+            .then(function(res) {
+                expect(res).to.equal(true);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                Alert.show = oldAlert;
+                UDFFileManager.Instance._hasDatasetWithUDF = oldFunc;
+            });
+        });
+
+        it("should resolve false if has Dataset UDF and not apply", function(done) {
+            let oldFunc = UDFFileManager.Instance._hasDatasetWithUDF;
+            let oldAlert = Alert.show;
+            UDFFileManager.Instance._hasDatasetWithUDF = () => true;
+            Alert.show = (options) => { options.buttons[0].func(); }
+
+            UDFFileManager.Instance._warnDatasetUDF(testUDF, "test")
+            .then(function(res) {
+                expect(res).to.equal(false);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                Alert.show = oldAlert;
+                UDFFileManager.Instance._hasDatasetWithUDF = oldFunc;
+            });
+        });
+
+        it("should reject if has Dataset UDF but cancel by user", function(done) {
+            let oldFunc = UDFFileManager.Instance._hasDatasetWithUDF;
+            let oldAlert = Alert.show;
+            UDFFileManager.Instance._hasDatasetWithUDF = () => true;
+            Alert.show = (options) => { options.onCancel(); }
+
+            UDFFileManager.Instance._warnDatasetUDF(testUDF, "test")
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.undefined;
+                done();
+            })
+            .always(function() {
+                Alert.show = oldAlert;
+                UDFFileManager.Instance._hasDatasetWithUDF = oldFunc;
+            });
+        });
+
+        after(function() {
+            UDFFileManager.Instance.storedUDF.delete(testUDFPath); 
+        });
     });
 
     after(function(done) {
