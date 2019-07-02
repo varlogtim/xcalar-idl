@@ -41,7 +41,8 @@
     "google-protobuf": "^3.6.1",
     "express-http-proxy": "1.2.0",
     "xcalar": "file:xcalar-0.0.1.tgz",
-    "xcalarsdk": "file:xcalarsdk-0.0.1.tgz"
+    "xcalarsdk": "file:xcalarsdk-0.0.1.tgz",
+    "console-stamp": "^0.2.9"
   },
   "license": "UNLICENSED",
   "devDependencies": {}

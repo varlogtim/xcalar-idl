@@ -14,6 +14,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var session = require('express-session');
     var FileStore = require('session-file-store')(session);
     var xcConsole = require('./utils/expServerXcConsole.js');
+    require('console-stamp')(console, { pattern: "yyyy/mm/dd'T'HH:MM:ss.l'Z'o" });
     var cookieFilter = require('./utils/cookieFilter.js');
 
     var xlrRoot = null;
