@@ -1,6 +1,8 @@
 import { PublishedTableService as ApiPublishedTable, XceClient as ApiClient } from 'xcalar';
-import { ServiceError, ErrorType } from '../ServiceError';
+import {parseError} from '../ServiceError';
 import ProtoTypes = proto.xcalar.compute.localtypes ;
+import {ColumnArgs} from '../Operator/XcalarProtoQueryInput';
+import { ScopeInfo, SCOPE, createScopeMessage } from '../Common/Scope';
 
 class PublishedTableService {
     private _apiClient: ApiClient;
@@ -16,57 +18,37 @@ class PublishedTableService {
 
     public async select (param:{
         srcTable: string, destTable: string, minBatchId: number, maxBatchId: number, filterString: string,
-        MapEvalArray: EvalObj[], GroupByEvalArray: EvalObj[],
-        GroupKeyArray: string[], columnArray: ColumnObj[]
+        limitRows:number, columnArray:  Array<ColumnArgs>, scopeInfo:ScopeInfo
     }): Promise<string> {
         try {
             const {srcTable, destTable, minBatchId, maxBatchId,
-                filterString, MapEvalArray, GroupByEvalArray, GroupKeyArray, columnArray } = param;
+                filterString, columnArray, scopeInfo } = param;
             const request = new ProtoTypes.PublishedTable.SelectRequest();
-            const MapsList = MapEvalArray.map(function(obj){
-                let MapEval = new ProtoTypes.Operator.XcalarApiEval()
-                MapEval.setEvalString(obj.evalString);
-                MapEval.setNewField(obj.newField);
-                return MapEval;
-            });
-            request.setMapsList(MapsList);
-
-            const GroupbysList = GroupByEvalArray.map(function(obj){
-                let GroupByEval = new ProtoTypes.Operator.XcalarApiEval();
-                GroupByEval.setEvalString(obj.evalString);
-                GroupByEval.setNewField(obj.newField);
-                return GroupByEval;
-            });
-            request.setGroupbysList(GroupbysList);
-
-            const GroupkeysList = GroupKeyArray.map(function(str){
-                return str
-            });
-            request.setGroupkeysList(GroupkeysList);
-
+            const evalMessage: ProtoTypes.PublishedTable.SelectEvalArgs
+                = new ProtoTypes.PublishedTable.SelectEvalArgs();
+            evalMessage.setFilter(filterString);
+            request.setEval(evalMessage);
             const ColumnsList = columnArray.map(function(obj){
                 let Column = new ProtoTypes.Operator.XcalarApiColumn();
-                Column.setSourceColumn(obj.sourceName);
-                Column.setDestColumn(obj.destName);
+                Column.setSourceColumn(obj.sourceColumn);
+                Column.setDestColumn(obj.destColumn);
                 Column.setColumnType(obj.columnType);
                 return Column;
             });
             request.setColumnsList(ColumnsList);
-
             request.setSource(srcTable);
             request.setDest(destTable);
             request.setMinBatchId(minBatchId);
             request.setMaxBatchId(maxBatchId);
-            request.setFilterString(filterString);
+            request.setScope(createScopeMessage({ scope: SCOPE.WORKBOOK, scopeInfo: scopeInfo}));
+            let limitRows: number = param.limitRows || 0;
+            request.setLimitRows(limitRows);
 
             const publishedTableService = new ApiPublishedTable(this._apiClient);
             const response = await publishedTableService.select(request);
             return response.getTableName()
         } catch (e) {
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
         }
 
     }
@@ -195,26 +177,12 @@ class PublishedTableService {
 
             return output;
         } catch(e) {
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
         }
     }
-
-
-
-}
-type EvalObj = {
-    evalString: string,
-    newField: string
 }
 
-type ColumnObj = {
-    sourceName: string,
-    destName: string
-    columnType: string
-}
+
 type ColumnAttribute = {
     name: string,
     type: string,
@@ -277,7 +245,5 @@ type listTableOutput = {
     tables : Array<TableInfo>
 }
 
-
-
-export {PublishedTableService, EvalObj, ColumnAttribute, Time,
-    UpdateInfo, SelectInfo, IndexInfo, Source, TableInfo, listTableOutput}
+export {PublishedTableService, ColumnAttribute, Time,
+    UpdateInfo, SelectInfo, IndexInfo, Source, TableInfo, listTableOutput, ScopeInfo, ColumnArgs}

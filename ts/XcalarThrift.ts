@@ -5749,19 +5749,24 @@ XcalarRefreshTable = function(
     txId: number,
     filterString: string,
     columnInfo: RefreshColInfo[],
-    limitRows?: number
+    limitRows?: number,
+    scopeInfo?:Xcrpc.PublishedTable.ScopeInfo
 ): XDPromise<XcalarApiNewTableOutputT> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
     let columns: XcalarApiColumnT[] = null;
+    let xcrpcColumns:Xcrpc.PublishedTable.ColumnArgs[] = null;
     if (columnInfo != null) {
         columns = [];
+        xcrpcColumns = []
         columnInfo.forEach((col) => {
             columns.push(new XcalarApiColumnT(col));
+            let xcrpcColType:number = Xcrpc.EnumMap.DfFieldTypeFromStr[col.columnType];
+            xcrpcColumns.push({sourceColumn: col.sourceColumn,
+                destColumn: col.destColumn,
+                columnType: xcrpcColType});
         });
     }
+
+    scopeInfo = scopeInfo || {userName:userIdName, workbookName: sessionName};
 
     const workItem = xcalarApiSelectWorkItem(pubTableName, dstTableName,
         minBatch, maxBatch, filterString, columns, limitRows);
@@ -5771,11 +5776,11 @@ XcalarRefreshTable = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        if (tHandle == null) {
-            return PromiseHelper.resolve(null);
-        }
-        def = xcalarApiSelect(tHandle, pubTableName, dstTableName, maxBatch, minBatch,
-            filterString, columns, limitRows)
+        def =PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
+                                    .getPublishedTableService().select({ srcTable:pubTableName,
+                                            destTable: dstTableName, minBatchId:minBatch,maxBatchId: maxBatch,
+                                            filterString: filterString, limitRows:limitRows, columnArray:xcrpcColumns,
+                                            scopeInfo}));
     }
 
     const query = XcalarGetQuery(workItem);
@@ -5787,9 +5792,8 @@ XcalarRefreshTable = function(
         Transaction.log(txId, query, dstTableName, (ret as any).timeElapsed);
         deferred.resolve.apply(this, arguments);
     })
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarRefreshTable", error);
-        deferred.reject(thriftError);
+    .fail(function(error:Xcrpc.Error.ServiceError) {
+        deferred.reject(error);
     });
 
     return deferred.promise();
