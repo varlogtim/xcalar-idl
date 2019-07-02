@@ -52,6 +52,66 @@ class SQLOpPanel extends BaseOpPanel {
         this._refreshEllipsis();
     }
 
+        /**
+     * Show the panel with information from dagNode
+     * @param dagNode DagNode object
+     */
+    public show(dagNode: DagNodeSQL, options?): void {
+        this._dagNode = dagNode;
+        this._dataModel = new SQLOpPanelModel(dagNode);
+        let error: string;
+        try {
+            this._updateUI();
+        } catch (e) {
+            // handle error after we call showPanel so that the rest of the form
+            // gets setup
+            error = e;
+        }
+
+        super.showPanel(null, options)
+        .then(() => {
+            this._sqlEditor.refresh();
+            if (error) {
+                this._startInAdvancedMode(error);
+            } else if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
+            }
+        });
+    }
+
+    public hasUnsavedChange(): boolean {
+        if (!this.isOpen()) return false;
+        const curSQL = this._sqlEditor.getValue().replace(/;+$/, "");
+        const curIdentifiers = this._extractIdentifiers();
+        const preSQL = this._dagNode.getParam().sqlQueryStr;
+        const preIdentifiers = this._dagNode.getIdentifiers();
+        let hasChange = false;
+        if (curSQL !== preSQL) {
+            hasChange = true;
+        } else if (curIdentifiers.size !== preIdentifiers.size) {
+            hasChange = true;
+        } else {
+            const curIterator = curIdentifiers.entries();
+            const preIterator = preIdentifiers.entries();
+            for (let i = 0; i < curIdentifiers.size; i++) {
+                let curEntry = curIterator.next().value;
+                let preEntry = preIterator.next().value;
+                if (curEntry[0] !== preEntry[0] || curEntry[1] !== preEntry[1]) {
+                    hasChange = true;
+                    break;
+                }
+            }
+        }
+        return hasChange;
+    }
+    /**
+     * Hide the panel
+     */
+    public close(isSubmit?: boolean): void {
+        super.hidePanel(isSubmit);
+    }
+
     private _loadSnippets(): void {
         this._isLoading = true;
         SQLSnippet.Instance.listSnippetsAsync()
@@ -107,65 +167,10 @@ class SQLOpPanel extends BaseOpPanel {
     //     curQueryId = txId;
     // }
 
-    public fakeCompile(numSteps: number): XDPromise<any> {
-        const deferred = PromiseHelper.deferred();
-        SQLUtil.lockProgress();
-        this._$sqlButton.html("Compiling... 0/" + numSteps);
-
-        const numMilSeconds = 1500;
-        // update once every 100ms
-        const frequency = 100;
-
-        const amtPerTick = numSteps/(numMilSeconds/frequency);
-        for (let i = 0; i < numMilSeconds/frequency; i++) {
-            setTimeout(function() {
-                const buttonText = this._$sqlButton.html();
-                let numCurSteps = parseInt(buttonText.substring(13,
-                                                      buttonText.indexOf("/")));
-                const backPart = buttonText.substring(buttonText.indexOf("/"));
-                numCurSteps += Math.ceil(Math.random() * amtPerTick * 2);
-                if (numCurSteps > parseInt(backPart.substring(1))) {
-                    numCurSteps = parseInt(backPart.substring(1));
-                }
-                this._$sqlButton.html("Compiling... " + numCurSteps
-                                                                    + backPart);
-            }, i*frequency);
-        }
-
-        setTimeout(function() {
-            deferred.resolve();
-        }, numMilSeconds);
-        return deferred.promise();
-    };
-
-    public startCompile(numSteps: number): void {
-        SQLUtil.lockProgress();
-        if (numSteps === 0) {
-            this._$sqlButton.html("Compiling...");
-        } else {
-            const buttonText = this._$sqlButton.html();
-            if (buttonText === "Compiling...") {
-                return;
-            }
-            this._$sqlButton.html("Compiling... 0/" + numSteps);
-        }
-    };
 
     // public startExecution(): void {
     //     this._$sqlButton.html("Executing... ");
     // };
-
-    public updateProgress(): void {
-        const buttonText = this._$sqlButton.html();
-        if (buttonText.indexOf("/") === -1) {
-            return;
-        }
-        let numCurSteps = parseInt(buttonText.substring(13,
-                                                      buttonText.indexOf("/")));
-        const backPart = buttonText.substring(buttonText.indexOf("/"));
-        numCurSteps++;
-        this._$sqlButton.html("Compiling... " + numCurSteps + backPart);
-    };
 
     private _setupSQLEditor(): void {
         const self = this;
@@ -682,66 +687,6 @@ class SQLOpPanel extends BaseOpPanel {
         }
         return deferred.promise();
     };
-
-    /**
-     * Show the panel with information from dagNode
-     * @param dagNode DagNode object
-     */
-    public show(dagNode: DagNodeSQL, options?): void {
-        this._dagNode = dagNode;
-        this._dataModel = new SQLOpPanelModel(dagNode);
-        let error: string;
-        try {
-            this._updateUI();
-        } catch (e) {
-            // handle error after we call showPanel so that the rest of the form
-            // gets setup
-            error = e;
-        }
-
-        super.showPanel(null, options)
-        .then(() => {
-            this._sqlEditor.refresh();
-            if (error) {
-                this._startInAdvancedMode(error);
-            } else if (BaseOpPanel.isLastModeAdvanced) {
-                this._switchMode(true);
-                this._updateMode(true);
-            }
-        });
-    }
-
-    public hasUnsavedChange(): boolean {
-        if (!this.isOpen()) return false;
-        const curSQL = this._sqlEditor.getValue().replace(/;+$/, "");
-        const curIdentifiers = this._extractIdentifiers();
-        const preSQL = this._dagNode.getParam().sqlQueryStr;
-        const preIdentifiers = this._dagNode.getIdentifiers();
-        let hasChange = false;
-        if (curSQL !== preSQL) {
-            hasChange = true;
-        } else if (curIdentifiers.size !== preIdentifiers.size) {
-            hasChange = true;
-        } else {
-            const curIterator = curIdentifiers.entries();
-            const preIterator = preIdentifiers.entries();
-            for (let i = 0; i < curIdentifiers.size; i++) {
-                let curEntry = curIterator.next().value;
-                let preEntry = preIterator.next().value;
-                if (curEntry[0] !== preEntry[0] || curEntry[1] !== preEntry[1]) {
-                    hasChange = true;
-                    break;
-                }
-            }
-        }
-        return hasChange;
-    }
-    /**
-     * Hide the panel
-     */
-    public close(isSubmit?: boolean): void {
-        super.hidePanel(isSubmit);
-    }
 
     private _updateUI() {
         this._refreshSnippet();

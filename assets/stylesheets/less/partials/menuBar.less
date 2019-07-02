@@ -563,11 +563,11 @@
     }
 
     &.jsonModalOpen {
-        z-index: @z-index-modal;
         > .ui-resizable-handle {
             display: none !important;
         }
         &.open {
+            z-index: @z-index-modal;
            > .ui-resizable-handle.ui-resizable-e {
                 display: none !important;
                 z-index: -1;
