@@ -1840,6 +1840,16 @@ namespace xcHelper {
             if (colName === 'DATA' ||
                 preservedNames.indexOf(colName.toLowerCase()) > -1) {
                 error = ErrTStr.PreservedName;
+            } else {
+                const preservedChars: string[] = ['--'];
+                for (const preservedChar of preservedChars) {
+                    if (colName.includes(preservedChar)) {
+                        error = xcStringHelper.replaceMsg(ErrWRepTStr.PreservedString, {
+                            "char": preservedChar
+                        });
+                        break;
+                    }
+                }
             }
         }
         return error;

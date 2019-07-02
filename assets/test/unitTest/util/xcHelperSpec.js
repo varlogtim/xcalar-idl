@@ -1080,6 +1080,12 @@ describe("xcHelper Test", function() {
                 "res": ErrTStr.PreservedName
             },
             {
+                "str": "test--test",
+                "res": xcStringHelper.replaceMsg(ErrWRepTStr.PreservedString, {
+                    "char": '--'
+                })
+            },
+            {
                 "str": "data",
                 "res": null
             },

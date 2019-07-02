@@ -409,6 +409,7 @@ ErrWRepTStr = {
                         ' and followed by the name',
     'InvalidSampleSize': 'Maximum data source size is <size>.',
     'LargeFileUpload': 'Files larger than <size> may slow down the browser. Do you still want to continue?',
+    'PreservedString': '"<char>" is a reserved string and cannot be included in the column name.',
 };
 
 SQLErrTStr = {
