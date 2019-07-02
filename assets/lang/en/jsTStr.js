@@ -213,8 +213,8 @@ CommonTxtTstr = {
 };
 
 ModeTStr = {
-    "SQL": "SQL mode",
-    "Advanced": "Dataflow mode"
+    "SQL": "SQL Mode",
+    "Advanced": "Dataflow Mode"
 };
 
 ErrTStr = {
