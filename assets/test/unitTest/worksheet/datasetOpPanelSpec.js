@@ -253,8 +253,8 @@ describe("Dataset Operator Panel Test", function() {
         it("_sortListObj should sort files by type", function() {
             let file = {name: "B"};
             let res = datasetOpPanel._sortListObj([file], ["a"], "type");
-            expect(res[0].obj).to.equal(file);
-            expect(res[1].obj).to.equal("a");
+            expect(res[0].obj).to.equal("a");
+            expect(res[1].obj).to.equal(file);
         });
 
         it("_sortListObj should sort files by size", function() {
@@ -268,8 +268,8 @@ describe("Dataset Operator Panel Test", function() {
         it("_sortListObj should sort files by none", function() {
             let file = {name: "B"};
             let res = datasetOpPanel._sortListObj([file], ["a"]);
-            expect(res[0].obj).to.equal(file);
-            expect(res[1].obj).to.equal("a");
+            expect(res[0].obj).to.equal("a");
+            expect(res[1].obj).to.equal(file);
         });
 
         it("_getFileHTML should work", function() {

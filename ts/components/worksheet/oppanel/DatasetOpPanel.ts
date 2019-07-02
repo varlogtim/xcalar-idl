@@ -124,11 +124,23 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
         if (sortKey === "name") {
             let listObjs = this._getListObjs(files, folders);
+            let sharedFolder = null;
+            listObjs = listObjs.filter((obj) => {
+                if (obj.isFolder && obj.obj === DSObjTerm.SharedFolder) {
+                    sharedFolder = obj;
+                    return false;
+                } else {
+                    return true;
+                }
+            });
             listObjs.sort((obj1, obj2) => {
                 let name1 = obj1.isFolder ? obj1.obj : obj1.obj.name;
                 let name2 = obj2.isFolder ? obj2.obj : obj2.obj.name;
                 return sortByName(name1, name2);
             });
+            if (sharedFolder != null) {
+                listObjs = [sharedFolder, ...listObjs];
+            }
             return listObjs;
         } else if (sortKey === "type") {
             files = [...files].sort((file1, file2) => sortByName(file1.name, file2.name));
@@ -151,18 +163,31 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         files: any[],
         folders: string[],
     ): {obj: any, isFolder: boolean}[] {
+        // make the order identical to the one in dataset panel
         let listObjs: {obj: any, isFolder: boolean}[] = [];
-        files.forEach((file) => {
-            listObjs.push({
-                obj: file,
-                isFolder: false
-            });
+        folders = folders.filter((folder) => {
+            if (folder === DSObjTerm.SharedFolder) {
+                listObjs.push( {
+                    obj: folder,
+                    isFolder: true
+                });
+                return false;
+            } else {
+                return true;
+            }
         });
 
         folders.forEach((folder) => {
             listObjs.push({
                 obj: folder,
                 isFolder: true
+            });
+        });
+
+        files.forEach((file) => {
+            listObjs.push({
+                obj: file,
+                isFolder: false
             });
         });
 
