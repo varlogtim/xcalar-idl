@@ -127,7 +127,8 @@ class JoinOpPanelStep1 {
         const $elemAddClause = BaseOpPanel.findXCElement(this._$elem, 'addClauseBtn');
         $elemAddClause.off();
         if (this._isEnableAddClause()) {
-            $elemAddClause.on('click', () => {
+            $elemAddClause.on('click', (e) => {
+                $(e.currentTarget).blur();
                 this._addColumnPair();
                 this._onDataChange();
             });

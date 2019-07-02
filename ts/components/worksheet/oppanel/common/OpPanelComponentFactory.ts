@@ -29,7 +29,7 @@ class OpPanelComponentFactory {
 
         addMoreButtonSecondary:
         `<div class="addArgWrap addArgWrapLarge {{cssClass}}">
-            <button class="btn btn-rounded addArg focusable" (click)="onClick">
+            <button class="btn btn-secondary addArg focusable" (click)="onClick">
                 <span class="text">{{btnText}}</span>
             </button>
         </div>`,

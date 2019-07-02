@@ -416,7 +416,7 @@ class IMDTableOpPanel extends BaseOpPanel {
             // when only has prefix change
             oldSchema = this._schemaSection.getSchema(true);
         }
-        let schema: ColSchema[] = this._selectedTable.columns;
+        let schema: ColSchema[] = this._selectedTable.getSchema();
         this._schemaSection.setInitialSchema(schema);
         this._schemaSection.render(oldSchema || schema);
         return null;

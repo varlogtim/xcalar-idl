@@ -8,6 +8,9 @@ describe('IMDTableOpPanel Test', () => {
         };
         UnitTest.onMinMode();
         UnitTest.testFinish(() => DagPanel.hasSetup())
+        .then(function() {
+            return XDFManager.Instance.waitForSetup();
+        })
         .always(function() {
             done();
         });
@@ -24,7 +27,7 @@ describe('IMDTableOpPanel Test', () => {
         before(() => {
             oldGetTables = PTblManager.Instance.getAvailableTables;
             PTblManager.Instance.getAvailableTables = function() {
-                return [{
+                return [new PbTblInfo({
                     name: "A",
                     columns: [{
                         name: "COL",
@@ -36,7 +39,8 @@ describe('IMDTableOpPanel Test', () => {
                         batchId: 0,
                     }],
                     active: true
-                }, {
+                }),
+                new PbTblInfo({
                     name: "B",
                     columns: [{
                         name: "COL",
@@ -51,7 +55,8 @@ describe('IMDTableOpPanel Test', () => {
                         batchId: 1,
                     }],
                     active: true
-                }, {
+                }),
+                new PbTblInfo({
                     name: "C",
                     columns: [{
                         name: "COL",
@@ -60,7 +65,7 @@ describe('IMDTableOpPanel Test', () => {
                     keys: ["COL"],
                     updates: [],
                     active: false
-                }];
+                })];
             };
             node = new DagNodeIMDTable({});
             MainMenu.openPanel("dagPanel");

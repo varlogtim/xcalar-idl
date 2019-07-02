@@ -334,6 +334,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         );
 
         this._$elemPanel.on("click", ".addKeyArg", function() {
+            $(this).blur();
             self._addKeyField();
         });
 
