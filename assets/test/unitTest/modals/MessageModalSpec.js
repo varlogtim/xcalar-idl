@@ -1,4 +1,4 @@
-describe("MessageModla Test", function() {
+describe("MessageModal Test", function() {
     let messageModal;
     let $modal;
     

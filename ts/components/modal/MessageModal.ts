@@ -1,3 +1,7 @@
+interface MessageModalOptions extends Alert.AlertOptions {
+    isInfo?: boolean;
+}
+
 class MessageModal {
     private static _instance: MessageModal;
     public static get Instance() {
@@ -17,8 +21,8 @@ class MessageModal {
     /**
      * MessageModal.Instance.show
      */
-    public show(options: Alert.AlertOptions): void {
-        this._setTitle(options.title);
+    public show(options: MessageModalOptions): void {
+        this._setTitle(options.title, options.isInfo);
         this._setMessage(options.msg);
         this._setCheckBox(options.isCheckBox);
         this._setButtons(options);
@@ -38,7 +42,7 @@ class MessageModal {
         let hasChecked: boolean = $checkbox.hasClass("checked")
 
         this._modalHelper.clear();
-        this._setTitle("");
+        this._setTitle("", false);
         $checkbox.removeClass("checked");
         this._getModal().off(".messageModal");
 
@@ -47,8 +51,18 @@ class MessageModal {
         }
     }
 
-    private _setTitle(title: string): void {
-        this._getModal().find(".title .text").text(title);
+    private _setTitle(title: string, isInfo: boolean): void {
+        let $title = this._getModal().find(".title");
+        $title.find(".text").text(title);
+        if (isInfo) {
+            $title.find(".icon")
+                .addClass("xi-info-circle")
+                .removeClass("xi-warning");
+        } else {
+            $title.find(".icon")
+                .removeClass("xi-info-circle")
+                .addClass("xi-warning");
+        }
     }
 
     private _setMessage(message: string): void {

@@ -20,6 +20,7 @@ class ModeAlertModal {
         MessageModal.Instance.show({
             title: this._getTitle(),
             msg: this._getMessage(),
+            isInfo: true,
             isAlert: true,
             isCheckBox: true,
             onCancel: (notShow) => {
@@ -30,11 +31,12 @@ class ModeAlertModal {
 
     private _getTitle(): string {
         let modeTitle: string = XVM.isSQLMode() ? ModeTStr.SQL : ModeTStr.Advanced;
-        return `Alert! You are switching to ${modeTitle}`;
+        return `You are switching to the ${modeTitle}`;
     }
 
     private _getMessage(): string {
-        return 'To switch between SQL and Dataflow mode, use the <b>blue</b> toggle button at the top right hand corner of the screen.';
+        let backMode: string = XVM.isSQLMode() ? ModeTStr.Advanced : ModeTStr.SQL;
+        return `To switch back to the ${backMode}, click on the <b>blue</b> toggle button again.`;
     }
 
     private _isNotShow(): boolean {
