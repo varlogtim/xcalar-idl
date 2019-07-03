@@ -44,12 +44,6 @@ namespace xcHelper {
         onErr: Function;
     }
 
-    interface UDFListModule {
-        name: string,
-        displayName: string,
-        hasMain: boolean
-    }
-
     /**
      * xcHelper.parseError
      * @param error
@@ -1781,8 +1775,6 @@ namespace xcHelper {
         if (wkbkPrefix == null) {
             return filteredArray;
         }
-        const functionNameMap: Map<string, XcalarEvalFnDescT> = new Map();
-
         for (const op of fns) {
             if (op.fnName.indexOf("/") === -1) {
                 filteredArray.push(op);
@@ -1790,18 +1782,9 @@ namespace xcHelper {
                 op.fnName.startsWith(wkbkPrefix) ||
                 op.fnName.startsWith(sharedPathPrefix)
             ) {
-                const functionName: string = op.fnName.split("/").pop();
-                if (
-                    !functionNameMap.has(functionName) ||
-                    (functionNameMap.has(functionName) &&
-                        op.fnName.startsWith(wkbkPrefix))
-                ) {
-                    functionNameMap.set(functionName, op);
-                }
+                filteredArray.push(op);
             }
         }
-
-        filteredArray = filteredArray.concat(...functionNameMap.values());
         return filteredArray;
     }
 
@@ -2289,13 +2272,9 @@ namespace xcHelper {
     /**
      * xcHelper.getUDFList
      * @param listXdfsObj
-     * @param mainOnly
      * @returns {moduleLis: htmlStr, fnLis: htmlStr}
      */
-    export function getUDFList(
-        listXdfsObj: any,
-        mainOnly: boolean
-    ): {moduleLis: HTML, fnLis: HTML} {
+    export function getUDFList(listXdfsObj: any): {moduleLis: HTML, fnLis: HTML} {
         let modules: string[] = [];
         let moduleDisplayedNames: string[] = [];
         let moduleObjs: XcalarEvalFnDescT[] = [];
@@ -2303,14 +2282,13 @@ namespace xcHelper {
 
         const privateModules: string[] = [];
         const privateModulesDisplayed: string[] = [];
-        const udfs: XcalarEvalFnDescT[] = listXdfsObj.fnDescs;
         const sortUDFName = (a: XcalarEvalFnDescT, b: XcalarEvalFnDescT): number => {
             const aName: string = a.displayName;
             const bName: string = b.displayName;
             return (aName < bName ? -1 : (aName > bName ? 1 : 0));
         }
 
-        udfs.forEach((udf) => {
+        listXdfsObj.fnDescs.forEach((udf) => {
             const fnName: string = udf.displayName;
             if (fnName.startsWith("_")) {
                 privateObjs.push(udf);
@@ -2336,62 +2314,31 @@ namespace xcHelper {
 
         let moduleLi: string = "";
         let fnLi: string = "";
-        let mainFound: boolean = false;
-        let prevModule: string = null;
-        let prevDisplayModule: string = null;
-        const moduleNames: UDFListModule[] = [];
         const moduleMap: object = {};
         const len: number = listXdfsObj.numXdfs;
-
+        let sharePathPrefix: string = UDFFileManager.Instance.getSharedUDFPath();
+        let defaultPath: string = UDFFileManager.Instance.getDefaultUDFPath();
         for (let i = 0; i < len; i++) {
             const udf: string[] = modules[i].split(":");
             const udfDisplayedName: string[] = moduleDisplayedNames[i].split(":");
             const moduleName: string = udf[0];
-            const moduleDisplayedName: string = udfDisplayedName[0];
+            let moduleDisplayedName: string = udfDisplayedName[0];
             const fnName: string = udf[1];
             if (!moduleMap.hasOwnProperty(moduleName)) {
                 moduleMap[moduleName] = true;
-                moduleLi += '<li data-module="' +
-                                moduleName + '">' +
+                if (moduleName.startsWith(sharePathPrefix) &&
+                    moduleName !== defaultPath
+                ) {
+                    moduleDisplayedName += " (shared)";
+                }
+                moduleLi += '<li data-module="' + moduleName + '">' +
                                 moduleDisplayedName +
                             "</li>";
-                if (prevModule != null) {
-                    moduleNames.push({name: prevModule,
-                        displayName: prevDisplayModule, hasMain: mainFound});
-                }
-
-                prevModule = moduleName;
-                prevDisplayModule = moduleDisplayedName;
-                mainFound = false;
-            }
-
-            if (mainOnly && fnName === "main") {
-                mainFound = true;
             }
 
             fnLi += '<li data-module="' + moduleName + '">' +
                         fnName +
                     '</li>';
-        }
-
-        if (mainOnly) {
-            if (prevModule != null) {
-                moduleNames.push({name: prevModule, displayName: prevDisplayModule,
-                     hasMain: mainFound});
-            }
-            moduleLi = "";
-            for (let i = 0; i < moduleNames.length; i++) {
-                const name: string = moduleNames[i].name;
-                const displayName: string = moduleNames[i].displayName;
-                let liClass: string = "";
-                if (moduleNames[i].hasMain) {
-                    liClass += "hasMain";
-                } else {
-                    liClass += "noMain unavailable";
-                }
-                moduleLi += '<li class="' + liClass + '" data-module="' +
-                            name + '">' + displayName + '</li>';
-            }
         }
 
         return {

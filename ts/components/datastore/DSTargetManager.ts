@@ -211,7 +211,7 @@ namespace DSTargetManager {
      * @param listXdfsObj
      */
     export function updateUDF(listXdfsObj: any): void {
-        listUDFSection(listXdfsObj);
+        updateUDFList(listXdfsObj);
     }
 
     function addEventListeners(): void {
@@ -491,12 +491,14 @@ namespace DSTargetManager {
         });
     }
 
+    // XXX TODO: combine with the one in DSPreview.ts
     function selectUDFModule(moduleName: string): void {
         moduleName = moduleName || "";
-        moduleName = moduleName.split("/").pop(); // use relative module name
-
-        udfModuleHint.setInput(moduleName);
-
+        let displayedModuleName = $udfModuleList.find("li").filter((_index, el) => {
+            return $(el).data("module") === moduleName;
+        }).text() || "";
+        $udfModuleList.find("input").data("module", moduleName);
+        udfModuleHint.setInput(displayedModuleName);
         if (moduleName === "") {
             $udfFuncList.addClass("disabled");
             selectUDFFunc("");
@@ -504,8 +506,7 @@ namespace DSTargetManager {
             $udfFuncList.removeClass("disabled");
             let $funcLis = $udfFuncList.find(".list li").addClass("hidden")
             .filter(function() {
-                let relativeModule = $(this).data("module").split("/").pop();
-                return relativeModule === moduleName;
+                return $(this).data("module") === moduleName;
             }).removeClass("hidden");
             if ($funcLis.length === 1) {
                 selectUDFFunc($funcLis.eq(0).text());
@@ -524,10 +525,10 @@ namespace DSTargetManager {
         }
     }
 
-    function validateUDF(): boolean {
+    function validateUDF(): string {
         let $moduleInput = $udfModuleList.find("input");
         let $funcInput = $udfFuncList.find("input");
-        let moduleName = $moduleInput.val();
+        let udfModule = $moduleInput.data("module");
         let func = $funcInput.val();
 
         let isValid = xcHelper.validate([
@@ -541,7 +542,7 @@ namespace DSTargetManager {
                 "check": function() {
                     let inValid: boolean = true;
                     $udfModuleList.find(".list li").each(function() {
-                    if (moduleName === $(this).text()){
+                    if (udfModule === $(this).data("module")){
                         inValid = false;
                         return false;
                     }
@@ -559,11 +560,11 @@ namespace DSTargetManager {
                 "check": function() {
                     let inValid: boolean = true;
                     $udfFuncList.find(".list li").each(function() {
-                        let relativeModule = $(this).data("module").split("/").pop();
-                    if (relativeModule === moduleName && $(this).text() === func){
-                        inValid = false;
-                        return false;
-                    }
+                        let relativeModule = $(this).data("module");
+                        if (relativeModule === udfModule && $(this).text() === func){
+                            inValid = false;
+                            return false;
+                        }
                     });
                     return inValid;
                 }
@@ -571,10 +572,10 @@ namespace DSTargetManager {
         ]);
 
         if (!isValid) {
-            return false;
+            return null;
         }
 
-        return true;
+        return udfModule + ":" + func;
     }
 
     function selectTargetType(typeId: string): void {
@@ -612,7 +613,7 @@ namespace DSTargetManager {
 
         let moduleMenuHelper = new MenuHelper($udfModuleList, {
                 "onSelect": function($li) {
-                    let moduleName = $li.text();
+                    let moduleName = $li.data("module");
                     selectUDFModule(moduleName);
                 },
                 "container": "#dsTarget-create-card",
@@ -736,12 +737,8 @@ namespace DSTargetManager {
         return html;
     }
 
-    function listUDFSection(listXdfsObj): void {
-        updateUDFList(listXdfsObj);
-    }
-
     function updateUDFList(listXdfsObj): void {
-        let udfObj = xcHelper.getUDFList(listXdfsObj, false);
+        let udfObj = xcHelper.getUDFList(listXdfsObj);
         udfModuleListItems = udfObj.moduleLis;
         udfFuncListItems = udfObj.fnLis;
     }
@@ -889,25 +886,15 @@ namespace DSTargetManager {
 
         let args = validateForm($form);
         if (!args) {
-            deferred.reject();
-            return deferred.promise();
+            return PromiseHelper.reject();
         }
-        let params = args[2]
+        let params = args[2];
         if (params.listUdf) {
-            // need to create abspolute path for the udfModule
-            if (params.listUdf === "default") {
-                params.listUdf = UDFFileManager.Instance.getDefaultUDFPath();
-            } else {
-                params.listUdf = UDFFileManager.Instance.getCurrWorkbookPath() + params.listUdf;
+            let udfPath = validateUDF();
+            if (udfPath == null) {
+                return PromiseHelper.reject();
             }
-
-            let funVal: string = $udfFuncList.find("input").val();
-
-            params.listUdf += ":" + funVal;
-            if(!validateUDF()) {
-                deferred.reject();
-                return deferred.promise();
-            }
+            params.listUdf = udfPath;
         }
         xcUIHelper.toggleBtnInProgress($submitBtn, true);
         let errorParser = function(log) {

@@ -1257,7 +1257,7 @@ namespace DSPreview {
     }
 
     function updateUDFList(listXdfsObj: any): void {
-        let udfObj: any = xcHelper.getUDFList(listXdfsObj, false);
+        let udfObj: any = xcHelper.getUDFList(listXdfsObj);
         $udfModuleList.find("ul").html(udfObj.moduleLis);
         $udfFuncList.find("ul").html(udfObj.fnLis);
     }
