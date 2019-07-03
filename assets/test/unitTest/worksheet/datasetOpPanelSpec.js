@@ -227,21 +227,22 @@ describe("Dataset Operator Panel Test", function() {
             datasetOpPanel.close();
         });
 
-        // it("Should not submit with inactivated dataset", function() {
-        //     var oldFunc = DS.getDSObj;
-        //     DS.getDSObj = function() {
-        //         return {
-        //             activatted: false
-        //         };
-        //     };
-        //     datasetOpPanel.show(node);
-        //     $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
-        //     $("#datasetOpPanel .datasetPrefix .arg").val("test");
-        //     $('#datasetOpPanel .bottomSection .submit').click();
-        //     UnitTest.hasStatusBoxWithError(ErrTStr.InactivatedDS2);
-        //     datasetOpPanel.close();
-        //     DS.getDSObj = oldFunc;
-        // });
+        it("Should not submit with inactivated dataset", function() {
+            var oldFunc = DS.getDSObj;
+            DS.getDSObj = function() {
+                return {
+                    activatted: false,
+                    getColumns: () => []
+                };
+            };
+            datasetOpPanel.show(node);
+            $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
+            $("#datasetOpPanel .datasetPrefix .arg").val("test");
+            $('#datasetOpPanel .bottomSection .submit').click();
+            UnitTest.hasStatusBoxWithError(ErrTStr.InactivatedDS2);
+            datasetOpPanel.close();
+            DS.getDSObj = oldFunc;
+        });
 
         it("_sortListObj should sort files by name", function() {
             let file = {name: "B"};

@@ -463,12 +463,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             return;
         }
         const $nextBtn: JQuery = this.$panel.find(".bottomSection .next");
-        const dsObj = DS.getDSObj(id);
-        if (dsObj && !dsObj.activated) {
-            StatusBox.show(ErrTStr.InactivatedDS2, $nextBtn, false);
-            return;
-        }
-
         this._fetchLoadArgs(id)
         .then((loadArgs) => {
             this._loadArgs = this._parseLoadArgs(loadArgs);
@@ -618,11 +612,15 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const $panel: JQuery = this.$panel;
         let error: string = null;
         let $location: JQuery = null;
+        let dsObj: DSObj = DS.getDSObj(id);
         if (prefix == null || id == null) {
             error = OpPanelTStr.SelectDSSource;
             $location = $panel.find(".btn-submit");
-        } else if (DS.getDSObj(id) == null && !DagNodeInput.checkValidParamBrackets(id)) {
+        } else if (dsObj == null && !DagNodeInput.checkValidParamBrackets(id)) {
             error = OpPanelTStr.InvalidDSSource;
+            $location = $("#dsOpListSection");
+        } else if (dsObj && !dsObj.activated) {
+            error = ErrTStr.InactivatedDS2;
             $location = $("#dsOpListSection");
         } else {
             error = xcHelper.validatePrefixName(DagNodeInput.replaceParamForValidation(prefix));
@@ -726,12 +724,9 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 const newModel = this._convertAdvConfigToModel();
                 prefix = newModel.prefix;
                 id = newModel.source;
-                schema = newModel.schema;
+                schema = newModel.schema || [];
                 this._loadArgs = newModel.loadArgs;
                 this._synthesize = newModel.synthesize;
-                if (schema == null || schema.length === 0) {
-                    error = ErrTStr.NoEmptySchema;
-                }
             } catch (e) {
                 error = e;
             }
