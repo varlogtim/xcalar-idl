@@ -2,8 +2,81 @@ namespace TooltipWalkthroughs {
 
     let SQLModeName = "SQL Mode";
     let ADVModeName = "Advanced Mode";
+    let WorkbookTutorialName = "Tutorial Workbook Walkthrough";
+    let storedWorkbookWalkthrough: {info: WalkthroughInfo, walkthrough: TooltipInfo[], options: any};
+    let tempName = "Temporary Walkthrough";
+    let storedTempWalkthrough: {info: WalkthroughInfo, walkthrough: TooltipInfo[], options: any};
 
     // TODO: Add flight tests for whenever this file has added walkthroughs.
+
+    function readWalkthrough(file: File) {
+        if (file == null) {
+            return PromiseHelper.reject();
+        }
+        const deferred: XDDeferred<any> = PromiseHelper.deferred(); //string or array buffer
+        const reader: FileReader = new FileReader();
+
+        reader.onload = function(event: any) {
+            deferred.resolve(event.target.result);
+        };
+
+        reader.onloadend = function(event: any) {
+            const error: DOMException = event.target.error;
+            if (error != null) {
+                deferred.reject(error);
+            }
+        };
+
+        reader.readAsBinaryString(file);
+
+        return deferred.promise();
+    }
+
+    function processWalkthrough(e: Event) {
+        let file = (<HTMLInputElement>e.target).files[0];
+        readWalkthrough(file)
+        .then((res) => {
+            try {
+                storedTempWalkthrough = JSON.parse(res);
+            } catch (err) {
+                console.log(err);
+                return;
+            }
+            TooltipManager.start(storedTempWalkthrough.info,
+                storedTempWalkthrough.walkthrough,
+                0,
+                storedTempWalkthrough.options
+            );
+        })
+    }
+
+    /**
+     * To be called exclusively with chrome dev console, allows a user to upload
+     * a temporary tooltip walkthrough
+     */
+    export function uploadWalkthrough() {
+        let fileInput: HTMLInputElement = document.createElement('input');
+        fileInput.addEventListener("change", processWalkthrough, false);
+        fileInput.type = 'file';
+        fileInput.click();
+        fileInput.remove();
+    }
+
+    /**
+     * Saves the current temporary walkthrough into the kvstore.
+     */
+    export function storeTemporaryWalkthrough() {
+        if (!storedTempWalkthrough) {
+            return;
+        }
+        let walkthroughKey: string = KVStore.getKey("gStoredWalkthroughKey");
+        let _walkthroughKVStore: KVStore = new KVStore(walkthroughKey, gKVScope.WKBK);
+        return _walkthroughKVStore.put(JSON.stringify(storedTempWalkthrough), true);
+    }
+
+    export function setWorkbookWalkthrough(walkthrough) {
+        storedWorkbookWalkthrough = walkthrough;
+    }
 
     export function newUserPopup(): void {
         TooltipManager.start({
@@ -173,6 +246,18 @@ namespace TooltipWalkthroughs {
             name: ADVModeName,
             description: "Tour of the Advanced Mode UI"
         }];
+        if (storedTempWalkthrough) {
+            builtInWalkthroughs.push({
+                name: storedTempWalkthrough.info.tooltipTitle,
+                description: storedTempWalkthrough.info.description || "Temporary Test Walkthrough"
+            });
+        }
+        if (storedWorkbookWalkthrough) {
+            builtInWalkthroughs.push({
+                name: storedWorkbookWalkthrough.info.tooltipTitle,
+                description: storedWorkbookWalkthrough.info.description
+            });
+        }
         return builtInWalkthroughs;
     }
 
@@ -198,7 +283,19 @@ namespace TooltipWalkthroughs {
                 AdvModeWalkthrough();
                 break;
             default:
-                // XXX TODO: Case for tutorial walkthrough
+                if (storedWorkbookWalkthrough && storedWorkbookWalkthrough.info.tooltipTitle == name) {
+                    TooltipManager.start(storedWorkbookWalkthrough.info,
+                        storedWorkbookWalkthrough.walkthrough,
+                        0,
+                        storedWorkbookWalkthrough.options
+                    );
+                } else if (storedTempWalkthrough && storedTempWalkthrough.info.tooltipTitle == name) {
+                    TooltipManager.start(storedTempWalkthrough.info,
+                        storedTempWalkthrough.walkthrough,
+                        0,
+                        storedTempWalkthrough.options
+                    );
+                }
                 break;
         }
         return "";

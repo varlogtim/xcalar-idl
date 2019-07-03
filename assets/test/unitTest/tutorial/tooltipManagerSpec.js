@@ -105,7 +105,7 @@ describe("Tooltip Manager Test", function(done) {
     describe("Switch screens", function() {
         it("Should be able to switch to sql mode from adv mode", function() {
             if (XVM.isSQLMode()) {
-                $("#modeArea").click();
+                XVM.setMode("Advanced", true);
             }
             expect($("#sqlTab").hasClass("active")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.SQLWorkspace;
@@ -116,7 +116,7 @@ describe("Tooltip Manager Test", function(done) {
 
         it("Should be able to switch to adv mode from sql mode", function() {
             if (!XVM.isSQLMode()) {
-                $("#modeArea").click();
+                XVM.setMode("SQL", true);
             }
             expect($("#modelingDataflowTab").hasClass("active")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.ADVModeDataflow;

@@ -3,6 +3,7 @@ describe("Tooltip Walkthrough Test", function() {
     var oldStart;
 
     before(function() {
+        console.log("Tooltip Walkthrough Test");
         oldGetActiveWKBK = WorkbookManager.getActiveWKBK;
         oldStart = TooltipManager.start;
 
@@ -18,6 +19,30 @@ describe("Tooltip Walkthrough Test", function() {
         var walkthroughs = TooltipWalkthroughs.getAvailableWalkthroughs();
         expect(walkthroughs.length).to.equal(2);
         expect(walkthroughs[0].name).to.equal("SQL Mode");
+    });
+
+    it("Should add a walkthrough for the workbook", function() {
+        var wlk = {
+            "info": {
+                          "tooltipTitle": "Example",
+                          "background": true,
+                          "startScreen": "Adv Mode Dataflow",
+                          "description": "test desc"
+                      },
+            "walkthrough":            [{
+                            "highlight_div": "#dagButton",
+                            "text": "testing",
+                            "type": "text"
+                        }],
+            "options":           {
+                            "closeOnModalClick": true,
+                            "includeNumbering": true
+                        }
+            };
+        TooltipWalkthroughs.setWorkbookWalkthrough(wlk);
+        var walkthroughs = TooltipWalkthroughs.getAvailableWalkthroughs();
+        expect(walkthroughs.length).to.equal(3);
+        expect(walkthroughs[2].name).to.equal("Example");
     });
 
     it("Should 'start' a SQL walkthrough", function() {

@@ -943,6 +943,7 @@ namespace WorkbookManager {
         const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
         const gTutorialKey: string = generateKey("gTutorialKey", version);
         const gStoredDatasetsKey: string = generateKey("gStoredDatasetsKey", version);
+        const gStoredWalkthroughKey: string = generateKey("gStoredWalkthroughKey", version);
         const gStartingSnippetKey: string = generateKey("gStartingSnippetKey", version);
 
         return {
@@ -966,6 +967,7 @@ namespace WorkbookManager {
             "gSQLSnippetQuery": gSQLSnippetQueryKey,
             "gTutorialKey": gTutorialKey,
             "gStoredDatasetsKey": gStoredDatasetsKey,
+            "gStoredWalkthroughKey": gStoredWalkthroughKey,
             "gStartingSnippetKey": gStartingSnippetKey,
         };
     }

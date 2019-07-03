@@ -1253,6 +1253,8 @@ namespace xcManager {
         let datasetSources: Set<string> = new Set<string>();
         let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
         let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
+        let walkthroughKey: string = KVStore.getKey("gStoredWalkthroughKey");
+        let _walkthroughKVStore: KVStore = new KVStore(walkthroughKey, gKVScope.WKBK);
         let snipKey: string = KVStore.getKey("gStartingSnippetKey");
         let _snipKVStore: KVStore = new KVStore(snipKey, gKVScope.WKBK);
         let pubTables: StoredPubInfo[] = [];
@@ -1392,6 +1394,17 @@ namespace xcManager {
         .then((snippetName: string) => {
             if (snippetName) {
                 SQLEditorSpace.Instance.setSnippet(snippetName);
+            }
+            return PromiseHelper.alwaysResolve(_walkthroughKVStore.get());
+        })
+        .then((walkthrough: string) => {
+            if (walkthrough) {
+                try {
+                    TooltipWalkthroughs.setWorkbookWalkthrough(JSON.parse(walkthrough));
+                } catch (e) {
+                    console.error(e);
+                    // Although we hit an error, this is a non-issue and could be rectified on reload.
+                }
             }
             return PromiseHelper.resolve();
         })

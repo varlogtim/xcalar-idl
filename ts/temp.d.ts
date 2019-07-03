@@ -145,6 +145,7 @@ interface WkbkKVKeySet {
     gSQLSnippetQueryKey: string;
     gTutorialKey: string;
     gStoredDatasetsKey: string;
+    gStoredWalkthroughKey: string;
 }
 
 interface XcalarEvalFnDescT {

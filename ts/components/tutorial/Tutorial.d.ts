@@ -11,4 +11,5 @@ interface WalkthroughInfo {
     background: boolean;
     startScreen: TooltipStartScreen;
     isSingleTooltip?: boolean;
+    description?: string;
 }
