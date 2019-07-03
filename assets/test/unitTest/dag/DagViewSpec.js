@@ -6,6 +6,13 @@ describe("DagView Test", () => {
     let oldPut;
     let cachedUserPref;
 
+    // Still needs tests:
+    // addbacknodes with comment
+    // getExpandPositions - comments
+    // sharecustomoperator
+    // editCustomOperator
+
+
     before(function(done) {
         console.clear();
         console.log("DagView Test");
@@ -226,8 +233,9 @@ describe("DagView Test", () => {
 
     describe("delete nodes", function() {
         let idCache = [];
+        let dag;
         before(function() {
-            const dag = DagViewManager.Instance.getActiveDag();
+            dag = DagViewManager.Instance.getActiveDag();
             const nodes = dag.getAllNodes();
             nodes.forEach((node) => {
                 idCache.push(node.getId());
@@ -265,6 +273,39 @@ describe("DagView Test", () => {
                     nodeIds.push(node.getId());
                 });
                 expect(nodeIds.length).to.equal(2);
+                done();
+            });
+        });
+        it("sql node connections should work", function(done) {
+            let dagView = DagViewManager.Instance.getActiveDagView();
+
+            let dag = DagViewManager.Instance.getActiveDag();
+            let nodes = dag.getAllNodes();
+            let nodeIds = [];
+            nodes.forEach((node) => {
+                nodeIds.push(node.getId());
+            });
+            let sqlNode = DagViewManager.Instance.autoAddNode(DagNodeType.SQL);
+
+            dagView.connectNodes(nodeIds[0], sqlNode.getId(), 0);
+            dagView.connectNodes(nodeIds[1], sqlNode.getId(), 1);
+            expect($dfArea.find(".edge").length).to.equal(2);
+            expect($dfArea.find(".edge").eq(0).data("parentnodeid")).to.equal(nodeIds[0]);
+            expect($dfArea.find(".edge").eq(0).data("connectorindex")).to.equal(0);
+            expect($dfArea.find(".edge").eq(0).text()).to.equal("#1");
+            expect($dfArea.find(".edge").eq(1).data("parentnodeid")).to.equal(nodeIds[1]);
+            expect($dfArea.find(".edge").eq(1).data("connectorindex")).to.equal(1);
+            expect($dfArea.find(".edge").eq(1).text()).to.equal("#2");
+
+            //disconnect first edge
+            dagView.disconnectNodes(nodeIds[0], sqlNode.getId(), 0);
+            expect($dfArea.find(".edge").length).to.equal(1);
+            expect($dfArea.find(".edge").eq(0).data("parentnodeid")).to.equal(nodeIds[1]);
+            expect($dfArea.find(".edge").eq(0).data("connectorindex")).to.equal(0);
+            expect($dfArea.find(".edge").eq(0).text()).to.equal("#1");
+
+            DagViewManager.Instance.removeNodes([sqlNode.getId()], dag.getTabId())
+            .always(function() {
                 done();
             });
         });
@@ -422,7 +463,8 @@ describe("DagView Test", () => {
         let nodeId;
         let $node;
         let tabId;
-
+        let nodeId2;
+        let filterNode;
         before(() => {
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             const newNodeInfo = {
@@ -433,6 +475,7 @@ describe("DagView Test", () => {
                 }
             };
             const node = DagViewManager.Instance.newNode(newNodeInfo);
+            filterNode = node;
             nodeId = node.getId();
             $node = DagViewManager.Instance.getNode(nodeId);
         });
@@ -463,8 +506,47 @@ describe("DagView Test", () => {
             expect($node.find(".opProgress").length).to.equal(0);
         });
 
+        describe("updateSubGraphProgress", function() {
+            it("function should work", function() {
+                let dagView = DagViewManager.Instance.getActiveDagView();
+                const newNodeInfo = {
+                    type: DagNodeType.SQL,
+                    display: {
+                        x: 20,
+                        y: 20
+                    }
+                };
+                let called = false;
+                const node = DagViewManager.Instance.newNode(newNodeInfo);
+                nodeId2 = node.getId();
+                node.getSubGraph = () => {
+                    return {
+                        getTabId: () => "testId",
+                        updateSQLSubGraphProgress: () => {
+                            called = true;
+                        },
+                        getAllNodes: () => {
+                            let map = new Map();
+                            map.set(filterNode.getId(), filterNode)
+                            return map;
+                        }
+                    }
+                }
+                let cache = dagView.updateNodeProgress;
+                called2 = false;
+                dagView.updateNodeProgress = () => {
+                    called2 = true;
+                }
+                dagView._updateSubGraphProgress(node, {queryGraph: {node: null}});
+                expect(called).to.be.true;
+                expect(called2).to.be.true;
+
+                dagView.updateNodeProgress = cache;
+            });
+        });
+
         after(() => {
-            DagViewManager.Instance.removeNodes([nodeId], tabId);
+            DagViewManager.Instance.removeNodes([nodeId, nodeId2], tabId);
         });
     });
 
@@ -1503,6 +1585,40 @@ describe("DagView Test", () => {
             });
         });
 
+        it("newSQLFunc should work", function() {
+            let cache = DagTabManager.Instance.newSQLFunc;
+            let called = false;
+            DagTabManager.Instance.newSQLFunc = () => {
+                called = true;
+            }
+            let count = 0;
+            let cache2 = DagViewManager.Instance.autoAddNode;
+            DagViewManager.Instance.autoAddNode = (type, a, b, c, x, y) => {
+                count++;
+                if (count === 1) {
+                    expect(type).to.equal(DagNodeType.SQLFuncIn);
+                    expect(x).to.equal(40);
+                    expect(y).to.equal(40);
+                }
+                if (count === 2) {
+                    expect(type).to.equal(DagNodeType.SQLFuncIn);
+                    expect(x).to.equal(40);
+                    expect(y).to.equal(120);
+                }
+                if (count === 3) {
+                    expect(type).to.equal(DagNodeType.SQLFuncOut);
+                    expect(x).to.equal(840);
+                    expect(y).to.equal(80);
+                }
+            }
+            DagView.newSQLFunc(2);
+            expect(count).to.equal(3);
+            expect(called).to.be.true;
+
+            DagTabManager.Instance.newSQLFunc = cache;
+            DagViewManager.Instance.autoAddNode = cache2;
+        });
+
     });
 
     describe("connecting/disconnecting from sql node", function() {
@@ -1580,28 +1696,6 @@ describe("DagView Test", () => {
     });
 
 
-    after(function(done) {
-        UserSettings.getPref = cachedUserPref;
-        UnitTest.offMinMode();
-        const dag = DagViewManager.Instance.getActiveDag();
-        const nodes = dag.getAllNodes();
-        let nodeIds = [];
-        nodes.forEach((node) => {
-            nodeIds.push(node.getId());
-        });
-
-        let dagTab =  DagTabManager.Instance.getTabById(tabId);
-        DagViewManager.Instance.removeNodes(nodeIds, dag.getTabId())
-        .then(function() {
-            DagTabManager.Instance.removeTab(tabId);
-            return dagTab.delete();
-        })
-        .always(function() {
-            XcalarKeyPut = oldPut;
-            done();
-        });
-    });
-
     it("_convertInNodeForSQLFunc should work", function() {
         let dagView = new DagView(null, new DagGraph(), new DagTabUser());
         // case 1
@@ -1665,4 +1759,463 @@ describe("DagView Test", () => {
         expect(called2).to.be.true;
         XcalarQueryList = cache1;
     });
+
+    describe("run", function() {
+        it("should not autopreview if multiple nodes", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            graph.execute = () => {
+                called = true;
+                sqlNode.getState = () => DagNodeState.Complete;
+                return PromiseHelper.resolve();
+            };
+            let cache2 = UserSettings.getPref;
+            UserSettings.getPref = () => true;
+
+            let cache3 = DagViewManager.Instance.viewResult;
+            let called2 = false;
+            DagViewManager.Instance.viewResult = () => {
+                called2 = true;
+            };
+
+
+            dagView.run([...graph.getAllNodes().keys()])
+            .then(() => {
+                expect(called).to.be.true;
+                expect(called2).to.be.false;
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            })
+            .always(() => {
+                graph.execute = cache;
+                UserSettings.getPref  = cache2;
+                DagViewManager.Instance.viewResult = cache3;
+            });
+
+        });
+
+        it("should handle autopreview", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            graph.execute = () => {
+                called = true;
+                sqlNode.getState = () => DagNodeState.Complete;
+                return PromiseHelper.resolve();
+            };
+            let cache2 = UserSettings.getPref;
+            UserSettings.getPref = () => true;
+
+            let cache3 = DagViewManager.Instance.viewResult;
+            let called2 = false;
+            DagViewManager.Instance.viewResult = () => {
+                called2 = true;
+            };
+
+
+            dagView.run([nodeId])
+            .then(() => {
+                expect(called).to.be.true;
+                expect(called2).to.be.true;
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            })
+            .always(() => {
+                graph.execute = cache;
+                UserSettings.getPref  = cache2;
+                DagViewManager.Instance.viewResult = cache3;
+            });
+        });
+
+        it("should handle cancel failure", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            graph.execute = () => {
+                called = true;
+                return PromiseHelper.reject({error: "cancel"});
+            };
+
+            let cache2 = DagTabManager.Instance.switchTab;
+            let called2 = false;
+            DagTabManager.Instance.switchTab = () => {
+                called2 = true;
+            }
+
+            dagView.run([nodeId])
+            .then(() => {
+               done("fail");
+            })
+            .fail(() => {
+                expect($("#statusBox").is(":visible")).to.be.false;
+                expect(called).to.be.true;
+                expect(called2).to.be.false;
+                done();
+            })
+            .always(() => {
+                graph.execute = cache;
+                DagTabManager.Instance.switchTab = cache2;
+            });
+        });
+
+        it("should handle node failure", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            graph.execute = () => {
+                called = true;
+                return PromiseHelper.reject({hasError: true, node:sqlNode, type: DagNodeErrorType.Unconfigured});
+            };
+
+            let cache2 = DagTabManager.Instance.switchTab;
+            let called2 = false;
+            DagTabManager.Instance.switchTab = () => {
+                called2 = true;
+            }
+
+            dagView.run([nodeId])
+            .then(() => {
+               done("fail");
+            })
+            .fail(() => {
+                UnitTest.hasStatusBoxWithError(DagNodeErrorType.Unconfigured);
+                expect(called).to.be.true;
+                expect(called2).to.be.true;
+                done();
+            })
+            .always(() => {
+                graph.execute = cache;
+                DagTabManager.Instance.switchTab = cache2;
+            });
+        });
+
+
+        it("should handle other failure", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            graph.execute = () => {
+                called = true;
+                return PromiseHelper.reject({hasError: true, error: "faaail", type: DagNodeErrorType.Unconfigured});
+            };
+
+            let cache2 = DagTabManager.Instance.switchTab;
+            let called2 = false;
+            DagTabManager.Instance.switchTab = () => {
+                called2 = true;
+            }
+
+            dagView.run([nodeId])
+            .then(() => {
+               done("fail");
+            })
+            .fail(() => {
+                UnitTest.hasAlertWithText(DagNodeErrorType.Unconfigured);
+                expect(called).to.be.true;
+                expect(called2).to.be.true;
+                done();
+            })
+            .always(() => {
+                graph.execute = cache;
+                DagTabManager.Instance.switchTab = cache2;
+            });
+        });
+
+        it("should run validation with optimized node", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            let isOptimized = false;
+            graph.execute = (nodeIds, optimized) => {
+                called = true;
+                sqlNode.getState = () => DagNodeState.Complete;
+                isOptimized = optimized;
+                return PromiseHelper.resolve();
+            };
+            let cache2 = graph.executionPrecheck;
+            graph.executionPrecheck = () => null;
+
+            let called2 = false;
+            let cache3 = DagViewManager.Instance.hasOptimizedNode;
+            DagViewManager.Instance.hasOptimizedNode = () => {
+                called2 = true;
+                return true;
+            }
+
+            setTimeout(() => {
+                UnitTest.hasAlertWithText("The dataflow contains an optimized node and can only be executed in optimized mode. " +
+                "Would you like to execute all nodes in optimized mode?", {confirm: true});
+            }, 0);
+
+            dagView.run()
+            .then(() => {
+                expect(isOptimized).to.be.true;
+                expect(called).to.be.true;
+                expect(called2).to.be.true;
+                done();
+            })
+            .fail(() => {
+               done("fail");
+            })
+            .always(() => {
+                graph.execute = cache;
+                graph.executionPrecheck = cache2;
+                DagViewManager.Instance.hasOptimizedNode = cache3;
+            });
+        });
+
+        it("should run validation with optimized node - alert canceled", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            let isOptimized = false;
+            graph.execute = (nodeIds, optimized) => {
+                called = true;
+                sqlNode.getState = () => DagNodeState.Complete;
+                isOptimized = optimized;
+                return PromiseHelper.resolve();
+            };
+            let cache2 = graph.executionPrecheck;
+            graph.executionPrecheck = () => null;
+
+            let called2 = false;
+            let cache3 = DagViewManager.Instance.hasOptimizedNode;
+            DagViewManager.Instance.hasOptimizedNode = () => {
+                called2 = true;
+                return true;
+            }
+
+            setTimeout(() => {
+                UnitTest.hasAlertWithText("The dataflow contains an optimized node and can only be executed in optimized mode. " +
+                "Would you like to execute all nodes in optimized mode?");
+            }, 0);
+
+            dagView.run()
+            .then(() => {
+                done("fail");
+            })
+            .fail(() => {
+                expect(isOptimized).to.be.false;
+                expect(called).to.be.false;
+                expect(called2).to.be.true;
+                done();
+            })
+            .always(() => {
+                graph.execute = cache;
+                graph.executionPrecheck = cache2;
+                DagViewManager.Instance.hasOptimizedNode = cache3;
+            });
+        });
+
+        it("should run validation without optimized node - alert canceled", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            let isOptimized = false;
+            graph.execute = (nodeIds, optimized) => {
+                called = true;
+                sqlNode.getState = () => DagNodeState.Complete;
+                isOptimized = optimized;
+                return PromiseHelper.resolve();
+            };
+            let cache2 = graph.executionPreCheck;
+            graph.executionPreCheck = () => {
+                return {status: "confirm", msg: "Test"}
+            };
+
+            setTimeout(() => {
+                UnitTest.hasAlertWithText("Test\n Do you wish to continue?");
+            }, 0);
+
+            dagView.run()
+            .then(() => {
+                done("fail");
+            })
+            .fail(() => {
+                expect(isOptimized).to.be.false;
+                expect(called).to.be.false;
+                done();
+            })
+            .always(() => {
+                graph.execute = cache;
+                graph.executionPreCheck = cache2;
+            });
+        });
+
+        it("should run validation without optimized node - alert accepted", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            let isOptimized = false;
+            graph.execute = (nodeIds, optimized) => {
+                called = true;
+                sqlNode.getState = () => DagNodeState.Complete;
+                isOptimized = optimized;
+                return PromiseHelper.resolve();
+            };
+            let cache2 = graph.executionPreCheck;
+            graph.executionPreCheck = () => {
+                return {status: "confirm", msg: "Test"}
+            };
+
+            setTimeout(() => {
+                UnitTest.hasAlertWithText("Test\n Do you wish to continue?", {confirm: true});
+            }, 0);
+
+            dagView.run()
+            .then(() => {
+                expect(isOptimized).to.be.undefined;
+                expect(called).to.be.true;
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            })
+            .always(() => {
+                graph.execute = cache;
+                graph.executionPreCheck = cache2;
+            });
+        });
+
+        it("canRun should work", function(done) {
+            let graph = DagViewManager.Instance.getActiveDag();
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            let nodeId = sqlNode.getId();
+
+            let cache = graph.execute;
+            let called = false;
+            let isOptimized = false;
+            graph.execute = (nodeIds, optimized) => {
+                called = true;
+                sqlNode.getState = () => DagNodeState.Complete;
+                isOptimized = optimized;
+                return PromiseHelper.resolve();
+            };
+
+            let cache2 = DagSharedActionService.Instance.checkExecuteStatus;
+            let called2 = false;
+            DagSharedActionService.Instance.checkExecuteStatus = () => {
+                called2 = true;
+                return PromiseHelper.resolve(false);
+            }
+
+            let oldTab = dagView.dagTab;
+            dagView.dagTab = new DagTabPublished();
+
+            dagView.run()
+            .then(() => {
+                expect(isOptimized).to.be.undefined;
+                expect(called).to.be.true;
+                expect(called2).to.be.true;
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            })
+            .always(() => {
+                graph.execute = cache;
+                DagSharedActionService.Instance.checkExecuteStatus = cache2;
+                dagView.dagTab = oldTab;
+            });
+        })
+
+    });
+
+    describe("optimized dataflow", () => {
+        it("viewing should work", function(done) {
+            let cache1 = DagTabManager.Instance.loadTab;
+            let called = false;
+            DagTabManager.Instance.loadTab = (tab) => {
+                expect(tab instanceof DagTabOptimized).to.be.true;
+                called = true;
+                return PromiseHelper.resolve();
+            }
+            let dagView = DagViewManager.Instance.getActiveDagView();
+
+            const newNodeInfo = {
+                type: DagNodeType.DFOut,
+                subType: DagNodeSubType.DFOutOptimized,
+                display: {
+                    x: 20,
+                    y: 20
+                }
+            };
+            const node = DagViewManager.Instance.newNode(newNodeInfo);
+
+            dagView.viewOptimizedDataflow(node)
+            .then(() => {
+                expect(called).to.be.true;
+                DagTabManager.Instance.loadTab = cache1;
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
+        });
+    });
+
+    after(function(done) {
+        UserSettings.getPref = cachedUserPref;
+        UnitTest.offMinMode();
+        const dag = DagViewManager.Instance.getActiveDag();
+        const nodes = dag.getAllNodes();
+        let nodeIds = [];
+        nodes.forEach((node) => {
+            nodeIds.push(node.getId());
+        });
+
+        let dagTab =  DagTabManager.Instance.getTabById(tabId);
+        DagViewManager.Instance.removeNodes(nodeIds, dag.getTabId())
+        .then(function() {
+            DagTabManager.Instance.removeTab(tabId);
+            return dagTab.delete();
+        })
+        .always(function() {
+            XcalarKeyPut = oldPut;
+            done();
+        });
+    });
+
 });

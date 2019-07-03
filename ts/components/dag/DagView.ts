@@ -139,14 +139,14 @@ class DagView {
         const inc: number = 80;
         for (let i = 0; i < numInput; i++) {
             let x: number = base;
-            let y: number = base + i * inc;
+            let y: number = base + (i * inc);
             DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncIn, null, null, null, x, y);
         }
 
         // add output
         const numIncSpace = 10;
-        let x = base + inc * numIncSpace;
-        let y = base + inc * (numInput - 1) / 2;
+        let x = base + (inc * numIncSpace);
+        let y = base + (inc * (numInput - 1) / 2);
         DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
     }
 
