@@ -54,7 +54,7 @@ class DagAggManager {
                 }
             }
             if (toDelete.length != 0) {
-                return this._deleteAgg(toDelete);
+                return this._deleteAgg(toDelete, true);
             }
             new DagAggPopup($("#modelingDagPanel"), $("#dagViewBar").find(".aggregates"));
             return PromiseHelper.resolve();
@@ -225,7 +225,7 @@ class DagAggManager {
         return this.kvStore.put(JSON.stringify(this.aggregates), true, true);
     }
 
-    private _deleteAgg(aggNames: string[]): XDPromise<void> {
-        return DagNodeAggregate.deleteAgg(aggNames);
+    private _deleteAgg(aggNames: string[], ignoreError?: boolean): XDPromise<void> {
+        return DagNodeAggregate.deleteAgg(aggNames, ignoreError);
     }
 }

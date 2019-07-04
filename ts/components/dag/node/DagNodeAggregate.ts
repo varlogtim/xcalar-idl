@@ -61,7 +61,7 @@ class DagNodeAggregate extends DagNode {
         }
     };
 
-    public static deleteAgg(aggNames: string[]): XDPromise<void> {
+    public static deleteAgg(aggNames: string[], ignoreError?: boolean): XDPromise<void> {
         if (aggNames.length == 0) {
             return PromiseHelper.resolve();
         }
@@ -78,7 +78,7 @@ class DagNodeAggregate extends DagNode {
         });
 
         for (let i = 0; i < aggNames.length; i++) {
-            promises.push(XIApi.deleteTable(txId, aggNames[i]));
+            promises.push(XIApi.deleteTable(txId, aggNames[i], ignoreError));
         }
 
         PromiseHelper.when(...promises)

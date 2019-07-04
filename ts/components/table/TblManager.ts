@@ -209,20 +209,31 @@ class TblManager {
     /**
      * TblManager.refreshOrphanList
      */
-    public static refreshOrphanList(): XDPromise<void> {
+    public static refreshOrphanList(onlyInGTables?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         TblManager.getBackTableSet()
-        .then(function(backTableSet) {
-            var tableMap = backTableSet;
-
+        .then(function(backTableMap) {
+            // if onlyInGTables is true, we start with blank map and
+            // add orphaned tables to it
+            // otherwise we have a map of backTableNames and we remove
+            // tables that are not active so all we're left with is orphaned tables
+            let tableMap;
+            if (onlyInGTables) {
+                tableMap = {};
+            } else {
+                tableMap = backTableMap;
+            }
             for (var tableId in gTables) {
                 var table = gTables[tableId];
                 var tableName = table.getName();
                 var tableType = table.getType();
                 if (tableType === TableType.Active) {
                     delete tableMap[tableName];
+                } else if (onlyInGTables && backTableMap[tableName]) {
+                    tableMap[tableName] = true;
                 }
             }
+
             TblManager.setOrphanedList(tableMap);
             deferred.resolve();
         })
