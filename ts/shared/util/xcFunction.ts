@@ -15,7 +15,7 @@ namespace xcFunction {
     }
 
     /**
-     * xcFunction.sort
+     * xcFunction.sort called by table column dropdown menu
      * @param tableId
      * @param colInfo
      * @param options

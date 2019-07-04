@@ -504,6 +504,7 @@ class DagTblManager {
         let cacheTableNames: string[] = Object.keys(this.cache);
         let removedTables: string[] = cacheTableNames.filter(x => !backObject[x]);
         let addedTables: string[] = backTableNames.filter(x => !this.cache[x]);
+        this._synchGTables(backTableNames);
         removedTables.forEach((name: string) => {
             if (!this.cache[name].markedForDelete) {
                 console.error("The table " + name + " was deleted in a way that XD does not support.");
@@ -521,6 +522,18 @@ class DagTblManager {
             };
         });
         return;
+    }
+
+    // removes tables from gTables that are not in backend
+    private _synchGTables(backTableNames) {
+        if (!gTables) return;
+        let tableNames = new Set(backTableNames);
+        for (let tableId in gTables) {
+            let tableName = gTables[tableId].getName();
+            if (!tableNames.has(tableName)) {
+                delete gTables[tableId];
+            }
+        }
     }
 
     private _getNodeId(name: string): string {

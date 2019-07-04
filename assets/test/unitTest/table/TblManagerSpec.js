@@ -289,41 +289,6 @@ describe("TableManager Test", function() {
             $wrap.remove();
         });
 
-        it("TblManager.freeAllResultSets should work", function(done) {
-            var oldFunc = XcalarSetFree;
-            var test = false;
-            XcalarSetFree = function() {
-                test = true;
-                return PromiseHelper.resolve();
-            };
-            var oldTables = gTables;
-            var id = xcHelper.randName("testTable");
-            var table = new TableMeta({
-                tableName: id,
-                tableId: id
-            });
-            table.resultSetId = 1;
-
-            gTables = {};
-            gTables[id] = table;
-
-            TblManager.freeAllResultSets();
-            UnitTest.testFinish(function() {
-                return test;
-            })
-            .then(function() {
-                expect(table.resultSetId).to.equal(null);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                gTables = oldTables;
-                XcalarSetFree = oldFunc;
-            });
-        });
-
         it("TblManager.freeAllResultSetsSync should work", function(done) {
             var oldTables = gTables;
             gTables = {};

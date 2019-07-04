@@ -246,7 +246,7 @@ class TblManager {
      * TblManager.setOrphanedList
      * @param tableMap
      */
-    public static setOrphanedList(tableMap: object): void {
+    private static setOrphanedList(tableMap: object): void {
         const tables: string[] = [];
         for (let table in tableMap) {
             tables.push(table);
@@ -920,27 +920,6 @@ class TblManager {
                         "type is", currentTableType,
                         "expected type is", expectTableType);
             return false;
-        }
-    }
-
-    /**
-     * TblManager.addUntrackedTable
-     * @param tableName
-     */
-    public static addUntrackedTable(tableName: string): TableMeta {
-        const tableId: TableId = xcHelper.getTableId(tableName);
-        if (tableId != null && !gTables.hasOwnProperty(tableId)) {
-            const table: TableMeta = new TableMeta({
-                tableId: tableId,
-                tableName: tableName,
-                tableCols: [ColManager.newDATACol()],
-                status: TableType.Orphan
-            });
-            gTables[tableId] = table;
-            return table;
-        } else {
-            // XXX no id, handle this by renaming?
-            return null;
         }
     }
 
@@ -1962,13 +1941,6 @@ class TblManager {
      */
     public static removeWaitingCursor(tableId: TableId): void {
         $('#xcTableWrap-' + tableId).find('.tableCoverWaiting').remove();
-    }
-
-    public static freeAllResultSets(): void {
-        // Note: use promise is not reliable to send all reqeust to backend
-        for (let tableId in gTables) {
-            gTables[tableId].freeResultset();
-        }
     }
 
     /**

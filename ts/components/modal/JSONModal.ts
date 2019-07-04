@@ -16,6 +16,7 @@ class JSONModal {
     private _lastMode;
     private _selectedCols = []; // holds arrays of cols selected by user, 1 array per
                         // split json panel
+    private _table: TableMeta;
 
     // constant
     private readonly _jsonAreaMinWidth: number = 340;
@@ -39,7 +40,7 @@ class JSONModal {
             "noTabFocus": true,
             "noEsc": true
         });
-       
+
         this._addEventListeners();
         this._addMenuActions();
     }
@@ -47,7 +48,7 @@ class JSONModal {
     /**
      * JSONModal.Instance.show
      * @param $jsonTd
-     * @param options 
+     * @param options
      */
     public show(
         $jsonTd: JQuery,
@@ -60,6 +61,8 @@ class JSONModal {
             return;
         }
         options = options || {};
+        let tableId = TblManager.parseTableId($jsonTd.closest('table'));
+        this._table = gTables[tableId];
         let type: ColumnType = options.type;
         this._isSaveModeOff = options.saveModeOff || false;
 
@@ -188,6 +191,7 @@ class JSONModal {
         this._comparisonObjs = {};
         this._$lastKeySelected = null;
         this._selectedCols = [];
+        this._table = null;
     }
 
     private _selectTab($tab: JQuery): void {
@@ -447,7 +451,7 @@ class JSONModal {
             }
         } else {
             let tableId: TableId = $jsonWrap.data('tableid');
-            let table: TableMeta = gTables[tableId];
+            let table: TableMeta = this._table;
             let colNum: number = $jsonWrap.data('colnum');
             let isArray: boolean = $jsonWrap.data('isarray');
 
@@ -645,7 +649,7 @@ class JSONModal {
             }
         }
     }
-   
+
     private _searchText(): void {
         let $jsonText = this._getJSONText();
         $jsonText.find('.highlightedText').contents().unwrap();
@@ -780,7 +784,7 @@ class JSONModal {
         if (this._isDataCol) {
             let tableId: TableId = TblManager.parseTableId($jsonTd.closest('table'));
             this._removeHiddenSortedColumns(jsonObj, tableId);
-            let groups = this._splitJsonIntoGroups(jsonObj, tableId);
+            let groups = this._splitJsonIntoGroups(jsonObj);
             for (let i = 0; i < groups.length; i++) {
                 if (groups[i].prefix === gPrefixSign) {
                     dataObj.immediates = groups[i].objs;
@@ -895,7 +899,7 @@ class JSONModal {
             }
 
             if (this._isDataCol) {
-                groups = this._splitJsonIntoGroups(jsonObj, tableId);
+                groups = this._splitJsonIntoGroups(jsonObj);
                 prettyJson += this._getJsonHtmlForDataCol(groups);
             } else {
                 prettyJson += this._getJsonHtmlForNonDataCol(jsonObj, isArray);
@@ -916,7 +920,7 @@ class JSONModal {
         }
 
         let location: string;
-        let table: TableMeta = gTables[tableId];
+        let table: TableMeta = this._table;
         if (this._isDataCol) {
             location = table.getName();
         } else {
@@ -1016,7 +1020,7 @@ class JSONModal {
     }
 
     private _removeHiddenSortedColumns(jsonObj: object, tableId: TableId): void {
-        let table: TableMeta = gTables[tableId];
+        let table: TableMeta = this._table;
         let hiddenSortCols = table.getHiddenSortCols();
         for (let colName in hiddenSortCols){
             delete jsonObj[colName];
@@ -1025,14 +1029,13 @@ class JSONModal {
 
     // splits json into array, grouped by prefix
     private _splitJsonIntoGroups(
-        jsonObj: object,
-        tableId: TableId
+        jsonObj: object
     ): {
         prefix: string,
         objs: object
     }[] {
         let groups = {};
-        let table: TableMeta = gTables[tableId];
+        let table: TableMeta = this._table;
         let knownImmediatesArray = table.getImmediates();
         let hiddenSortCols = table.getHiddenSortCols();
         let knownImmediates = {};
@@ -1341,7 +1344,7 @@ class JSONModal {
     ): void {
         let $jsonWrap: JQuery = $jsonArea.find('.jsonWrap:last');
         let tableId: TableId = TblManager.parseTableId($jsonTd.closest('table'));
-        let table: TableMeta = gTables[tableId];
+        let table: TableMeta = this._table;
         let cols: ProgCol[] = table.getAllCols(true);
         $jsonWrap.find(".jsonCheckbox").each((_index, el) => {
             let $checkbox = $(el);
@@ -1679,7 +1682,7 @@ class JSONModal {
         if (!rowExists) {
             // the table is scrolled past the selected row, so we just
             // take the jsonData from the first visibile row
-            let rowManager = new RowManager(gTables[tableId], $("#xcTableWrap-" + tableId));
+            let rowManager = new RowManager(this._table, $("#xcTableWrap-" + tableId));
             rowNum = rowManager.getFirstVisibleRowNum() - 1;
         }
         let colNames = [];
@@ -1896,6 +1899,7 @@ class JSONModal {
     }
 
     private _addJSONAreaEvents(): void {
+        let self = this;
         let $jsonArea = this._getJSONArea();
         $jsonArea.on({
             "click": (event) => {
@@ -1935,7 +1939,7 @@ class JSONModal {
             if (!rowExists) {
                 // the table is scrolled past the selected row, so we just
                 // take the jsonData from the first visibile row
-                let rowManager = new RowManager(gTables[tableId], $("#xcTableWrap-" + tableId));
+                let rowManager = new RowManager(self._table, $("#xcTableWrap-" + tableId));
                 rowNum = rowManager.getFirstVisibleRowNum() - 1;
             }
 

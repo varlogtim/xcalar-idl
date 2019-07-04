@@ -59,6 +59,12 @@ class MetaInfo extends Durable {
         let persistTables = xcHelper.deepCopy(gTables);
         for (var tableId in persistTables) {
             var table = persistTables[tableId];
+            if (table.status === TableType.Active) {
+                // only store undone/dropped tables and they
+                // will be dropped on page refresh
+                delete persistTables[tableId];
+                continue;
+            }
             delete table.currentRowNumber;
             delete table.keyName;
             delete table.keys;
@@ -75,9 +81,10 @@ class MetaInfo extends Durable {
             }
             delete table.colTypeCache;
             delete table.hiddenSortCols;
+            table.tableCols = [];
         }
 
         $.extend(persistTables, gDroppedTables);
         return persistTables;
     }
-} 
+}
