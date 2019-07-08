@@ -206,8 +206,17 @@ namespace DSForm {
 
     function getFilePath(targetName: string): string {
         let path: string = $filePath.val().trim();
-        if (!path.startsWith("/") && !DSTargetManager.isGeneratedTarget(targetName)) {
-            path = "/" + path;
+
+        if (!DSTargetManager.isGeneratedTarget(targetName)) {
+            if (!path.startsWith("/")) {
+                path = "/" + path;
+            }
+
+            let parts:string[] = path.split("/");
+            if (parts[parts.length-1].indexOf(".") == -1 &&
+                !path.endsWith("/")) {
+                path = path + "/";
+            }
         }
         if (DSTargetManager.isDatabaseTarget(targetName)) {
             path = `/${targetName}`;

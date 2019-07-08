@@ -364,7 +364,7 @@ ErrTStr = {
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
                       ' choose another name.',
     'InvalidColumn': 'Invalid column name: <name>',
-    'LicenseExpire': 'Your license has expired on \"<date>\"',
+    'LicenseExpire': 'Your license has expired on \"<date>\". Please contact us at (408)471-1711 or info@xcalar.com.',
     'ExtNotFound': 'Extension <module>::<fn> was not found.',
     'MaxPayload': 'Request size limit exceeded. Please select fewer files or ' +
                   'recursively load the directory or use regex.',

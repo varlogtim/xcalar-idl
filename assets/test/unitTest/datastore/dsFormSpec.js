@@ -66,15 +66,45 @@ describe("Dataset-DSForm Test", function() {
         it("Should get file path", function() {
             $filePath.val("testPath");
             var val = DSForm.__testOnly__.getFilePath();
-            expect(val).to.equal("/testPath");
+            expect(val).to.equal("/testPath/");
 
-            // case to
+            $filePath.val("/testPath");
+            var val = DSForm.__testOnly__.getFilePath();
+            expect(val).to.equal("/testPath/");
+
+            $filePath.val("/testPath/a/b.csv");
+            var val = DSForm.__testOnly__.getFilePath();
+            expect(val).to.equal("/testPath/a/b.csv");
+
+            $filePath.val("testPath/a/b.csv");
+            var val = DSForm.__testOnly__.getFilePath();
+            expect(val).to.equal("/testPath/a/b.csv");
+
+            $filePath.val("/testPath.csv");
+            var val = DSForm.__testOnly__.getFilePath();
+            expect(val).to.equal("/testPath.csv");
+
+            $filePath.val("testPath.csv");
+            var val = DSForm.__testOnly__.getFilePath();
+            expect(val).to.equal("/testPath.csv");
+
+            $filePath.val("/testPath/a/b");
+            var val = DSForm.__testOnly__.getFilePath();
+            expect(val).to.equal("/testPath/a/b/");
+            
+
+            $filePath.val("testPath/a/b");
+            var val = DSForm.__testOnly__.getFilePath();
+            expect(val).to.equal("/testPath/a/b/");
+
+            // case two
             var oldFunc = DSTargetManager.isGeneratedTarget;
             DSTargetManager.isGeneratedTarget = function() {
                 return true;
             };
             val = DSForm.__testOnly__.getFilePath();
-            expect(val).to.equal("testPath");
+            expect(val).to.equal("testPath/a/b"); // Should be same as input
+            // Cannot have / prepended and appended
             DSTargetManager.isGeneratedTarget = oldFunc;
         });
 
@@ -162,7 +192,7 @@ describe("Dataset-DSForm Test", function() {
             //  then second click to fill history list
             $filePath.click();
             $filePath.click();
-            expect($filePath.closest(".dropDownList").find("li").eq(0).text()).to.equal("/test");
+            expect($filePath.closest(".dropDownList").find("li").eq(0).text()).to.equal("/test/");
         });
 
         after(function() {
