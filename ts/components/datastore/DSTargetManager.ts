@@ -492,6 +492,13 @@ namespace DSTargetManager {
     }
 
     // XXX TODO: combine with the one in DSPreview.ts
+    function selectUDFModuleOnEnter(displayedModuleName: string): void {
+        let moduleName = $udfModuleList.find("li").filter(function() {
+            return $(this).text() === displayedModuleName;
+        }).data("module") || "";
+        selectUDFModule(moduleName);
+    }
+
     function selectUDFModule(moduleName: string): void {
         moduleName = moduleName || "";
         let displayedModuleName = $udfModuleList.find("li").filter((_index, el) => {
@@ -631,7 +638,7 @@ namespace DSTargetManager {
 
         udfModuleHint = new InputDropdownHint($udfModuleList, {
             "menuHelper": moduleMenuHelper,
-            "onEnter": selectUDFModule
+            "onEnter": selectUDFModuleOnEnter
         });
 
         udfFuncHint = new InputDropdownHint($udfFuncList, {

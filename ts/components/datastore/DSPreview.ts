@@ -945,7 +945,7 @@ namespace DSPreview {
 
         udfModuleHint = new InputDropdownHint($udfModuleList, {
             "menuHelper": moduleMenuHelper,
-            "onEnter": selectUDFModule
+            "onEnter": selectUDFModuleOnEnter
         });
 
         udfFuncHint = new InputDropdownHint($udfFuncList, {
@@ -1320,6 +1320,13 @@ namespace DSPreview {
             selectUDFModule("");
             selectUDFFunc("");
         }
+    }
+
+    function selectUDFModuleOnEnter(displayedModuleName: string): void {
+        let moduleName = $udfModuleList.find("li").filter(function() {
+            return $(this).text() === displayedModuleName;
+        }).data("module") || "";
+        selectUDFModule(moduleName);
     }
 
     function selectUDFModule(moduleName: string): void {
