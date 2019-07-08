@@ -7,7 +7,7 @@ describe("DagComment Test", function() {
     let cachedUserPref;
     let node;
 
-    before(function() {
+    before(function(done) {
         console.log("DagComment Test");
         UnitTest.onMinMode();
         $dagView = $("#dagView");
@@ -19,18 +19,22 @@ describe("DagComment Test", function() {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        DagTabManager.Instance.newTab();
-        tabId = DagViewManager.Instance.getActiveDag().getTabId();
-        $dfArea = $dfWrap.find(".dataflowArea.active");
-        MainMenu.openPanel("dagPanel", null);
-        cachedUserPref = UserSettings.getPref;
-        UserSettings.getPref = function(val) {
-            if (val === "dfAutoExecute" || val === "dfAutoPreview") {
-                return false;
-            } else {
-                return cachedUserPref(val);
-            }
-        };
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            DagTabManager.Instance.newTab();
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            $dfArea = $dfWrap.find(".dataflowArea.active");
+            MainMenu.openPanel("dagPanel", null);
+            cachedUserPref = UserSettings.getPref;
+            UserSettings.getPref = function(val) {
+                if (val === "dfAutoExecute" || val === "dfAutoPreview") {
+                    return false;
+                } else {
+                    return cachedUserPref(val);
+                }
+            };
+            done();
+        });
     });
 
     it("should draw new comment", function() {
@@ -68,7 +72,7 @@ describe("DagComment Test", function() {
         expect($dfArea.find(".comment").find("textarea").val()).to.equal("something");
         expect($dfArea.find(".comment").hasClass("selected")).to.be.true;
         expect($dfArea.find(".tempCommentArea").length).to.equal(1);
-        expect($dfArea.find(".tempCommentArea .comment").attr("style")).to.equal("left: 100px; top: 100px; width: 200px; height: 200px; transform: scale(1);");
+        expect($dfArea.find(".tempCommentArea .comment").attr("style")).to.equal("left:100px;top:100px;width:200px;height:200px;");
     });
 
     it("edit comment should work", function() {

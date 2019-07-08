@@ -134,6 +134,9 @@ class DagComment {
         $comment.addClass("focused");
         $comment.find("textarea").prop("readonly", false).focus();
         const scale = DagViewManager.Instance.getActiveDag().getScale();
-        $comment.css("transform", "scale(" + (1 / scale) + ")");
+        if (scale < 1) {
+            // zoom in to the comment area if zoomed out
+            $comment.css("transform", "scale(" + (1 / scale) + ")");
+        }
     }
 }
