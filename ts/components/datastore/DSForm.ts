@@ -249,7 +249,7 @@ namespace DSForm {
 
         $filePath.on("keydown", function(event) {
             if (event.which === keyCode.Enter) {
-                goToBrowse();
+                $pathCard.find(".browse").click();
             }
         });
     }
