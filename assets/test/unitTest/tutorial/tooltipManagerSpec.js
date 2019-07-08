@@ -77,6 +77,29 @@ describe("Tooltip Manager Test", function(done) {
             TooltipManager.closeWalkthrough();
         });
 
+        it("Should support doubleclick-interaction tooltips", function() {
+            let html = "<div id='hiddentooltipobject' class='xc-hidden'></div>"
+            $("#container").append(html);
+            let textTest = [{
+                highlight_div: "#dataStoresTab",
+                interact_div: "#hiddentooltipobject",
+                text: "test",
+                type: "doubleclick"
+            },{
+                highlight_div: "#homeBtn",
+                text: "test2",
+                type: "text"
+            }];
+            TooltipManager.start(basicInfo, textTest, 0);
+            expect($("#intro-popover .textContainer").text()).to.equal("test");
+            expect($("#intro-popover .next").hasClass("unavailable")).to.be.true;
+            var e = jQuery.Event("dblclick.tooltip");
+            $("#hiddentooltipobject").trigger(e);
+            expect($("#intro-popover .textContainer").text()).to.equal("test2");
+            $("#hiddentooltipobject").remove();
+            TooltipManager.closeWalkthrough();
+        });
+
         it("Should support value-interaction tooltips", function() {
             $('body').append("<input id='tooltipSpecTestInput' type='text'></input>");
             let textTest = [{

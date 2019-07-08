@@ -1,7 +1,7 @@
 namespace TooltipWalkthroughs {
 
     let SQLModeName = "SQL Mode";
-    let ADVModeName = "Advanced Mode";
+    let ADVModeName = "Dataflow Mode";
     let WorkbookTutorialName = "Tutorial Workbook Walkthrough";
     let storedWorkbookWalkthrough: {info: WalkthroughInfo, walkthrough: TooltipInfo[], options: any};
     let tempName = "Temporary Walkthrough";
@@ -217,13 +217,83 @@ namespace TooltipWalkthroughs {
     export function AdvModeWalkthrough(): void {
         // NOTE: If this is changed, please change the associated unit test
         TooltipManager.start({
-                tooltipTitle: "Advanced Mode",
+                tooltipTitle: "Dataflow Mode",
                 background: true,
                 startScreen: TooltipStartScreen.ADVModeDataflow
             },
             [{
-                highlight_div: "#dagButton",
-                text: "Temporary placeholder Text",
+                highlight_div: "#modeArea",
+                text: "Welcome to Dataflow Mode. This user interface provides" +
+                    " you with a powerful visual design framework to analyze your" +
+                    " data, and augments SQL Mode by providing features and fuctions" +
+                    " for monitoring and troubleshooting your queries.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#tabButton",
+                interact_div: "#tabButton",
+                text: "The basis of Dataflow Mode is a dataflow. Click this button to create a new dataflow at any time. " +
+                    "Depending on context, this panel may change to display node information or its configure panel.",
+                type: TooltipType.Click
+            },
+            {
+                highlight_div: "#dataflowMenu",
+                text: "The Dataflows panel is a visual directory structure for storing and managing your dataflows.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: ".dataflowMainArea",
+                text: "This is the dataflow canvas. Dataflow nodes can be connected in this area to create an executable dataflow.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#dagView .categoryBar",
+                text: "This is the category bar for selecting various types of nodes.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#dagView .operatorBar",
+                text: "The Dataflow Mode toolbar is where you can find the operator nodes you'll use to build dataflows.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#dagView .operatorBar",
+                text: "Nodes can be dragged and dropped from this bar into the dataflow canvas. Nodes can be connected to eachother " +
+                    "by dragging from a node's input or output anchor to any part of another node.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#dagView .operatorWrap .active .operator",
+                interact_div: "#dagView .operatorWrap .active .operator .main",
+                text: "Double clicking can also bring a node into the canvas.",
+                type: TooltipType.DoubleClick
+            },
+            {
+                highlight_div: "#dagView",
+                text: "Try creating and connecting nodes now. Click the arrow when you're ready to continue.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#dagView",
+                text: "Once a node is in the canvas, it can be configured by clicking on it and selecting 'configure' from the menu.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#dagViewBar",
+                text: "The left buttons allow you to undo, redo, zoom, execute, and stop execution of the current dataflow. " +
+                "The right buttons allow you to create parameters, manage aggregates, and manage dataflow settings.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#bottomMenuBarTabs",
+                interact_div: "#bottomMenuBarTabs #helpMenuTab.sliderBtn",
+                text: "Click the ? icon to open up the help and support panel.",
+                type: TooltipType.Click
+            }
+            ,
+            {
+                highlight_div: "#tutorialResource",
+                text: " This concludes the tour of the Dataflow Mode UI. Tutorial Workbooks provide a wealth of information on how to use Xcalar Design efficiently and effectively.",
                 type: TooltipType.Text
             }],
             0,
@@ -244,7 +314,7 @@ namespace TooltipWalkthroughs {
             description: "Tour of the SQL Mode UI"
         }, {
             name: ADVModeName,
-            description: "Tour of the Advanced Mode UI"
+            description: "Tour of the Dataflow Mode UI"
         }];
         if (storedTempWalkthrough) {
             builtInWalkthroughs.push({

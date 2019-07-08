@@ -276,7 +276,7 @@ namespace TooltipManager {
      * This ensures that some hardcoded interactive elements open respective panels.
      * In the future this function could be removed entirely, but for now there are some
      * behaviors that may need to be hardcoded.
-     * @param interact_div 
+     * @param interact_div
      */
     function ensureOpenScreen(interact_div) {
         if (!interact_div) {
@@ -286,8 +286,9 @@ namespace TooltipManager {
             case (hardcodedInteractives.DatasetCreateTablePanel):
             case (hardcodedInteractives.SQLCreateTablePanel):
                 DSForm.show();
-            default:
                 MainMenu.open(true);
+                break;
+            default:
                 break;
         }
         return;
@@ -295,8 +296,7 @@ namespace TooltipManager {
 
     function clearListeners() {
         if ($clickEle) {
-            $clickEle.off("click.tooltip");
-            $clickEle.off("keyup.tooltip");
+            $clickEle.off(".tooltip");
         }
     }
 
@@ -464,8 +464,8 @@ namespace TooltipManager {
 
         if (currentStep.type != TooltipType.Text) {
             $popover.find(".next").addClass("unavailable");
+            $clickEle = $(currentStep.interact_div).eq(0);
             if (currentStep.type == TooltipType.Click) {
-                $clickEle = $(currentStep.interact_div);
                 $clickEle.on("click.tooltip", (e) => {
                     $clickEle.off("click.tooltip");
                     e.stopPropagation();
@@ -473,13 +473,19 @@ namespace TooltipManager {
                     nextStep();
                 });
             } else if (currentStep.type == TooltipType.Value) {
-                $clickEle = $(currentStep.interact_div);
                 $clickEle.on("keyup.tooltip", () => {
                     if ($clickEle.val() == currentStep.value) {
                         $clickEle.off("keyup.tooltip");
                         nextStep();
                     }
                 })
+            } else if (currentStep.type == TooltipType.DoubleClick) {
+                $clickEle.on("dblclick.tooltip", (e) => {
+                    $clickEle.off("dblclick.tooltip");
+                    e.stopPropagation();
+                    $clickEle.dblclick();
+                    nextStep();
+                });
             }
         } else {
             $popover.find(".next").removeClass("unavailable");
@@ -605,6 +611,7 @@ namespace TooltipManager {
 
 enum TooltipType {
     Click = "click",
+    DoubleClick = "doubleclick",
     Text = "text",
     Value = "value"
 }

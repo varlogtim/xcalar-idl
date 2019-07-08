@@ -57,15 +57,15 @@ describe("Tooltip Walkthrough Test", function() {
         expect(started).to.be.true;
     });
 
-    it("Should 'start' a Advanced walkthrough", function() {
+    it("Should 'start' a Dataflow walkthrough", function() {
         var started = false;
         TooltipManager.start = function(obj, list, num) {
-            if (obj.tooltipTitle == "Advanced Mode") {
+            if (obj.tooltipTitle == "Dataflow Mode") {
                 started = true;
             }
             return;
         }
-        TooltipWalkthroughs.startWalkthrough("Advanced Mode");
+        TooltipWalkthroughs.startWalkthrough("Dataflow Mode");
         expect(started).to.be.true;
     });
 

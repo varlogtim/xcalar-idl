@@ -1,10 +1,87 @@
 describe("Tooltip Flight Test", function(done) {
+
+    before((done) => {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(() => {
+            done();
+        });
+    });
+
     // flight tests for the built in tooltip walkthroughs
+    it("should do the entire dataflow mode walkthrough successfully", function() {
+        XVM.setMode(XVM.Mode.Advanced);
+        TooltipWalkthroughs.startWalkthrough("Dataflow Mode");
+
+        //mode tip
+        expect($("#modeArea").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //tab tip click
+        expect($("#tabButton").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#tabButton").click();
+
+        // panel tip
+        expect($("#dataflowMenu").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // canvas tip
+        expect($(".dataflowMainArea").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // category bar tip
+        expect($("#dagView .categoryBar").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // operator bar tip 1
+        expect($("#dagView .operatorBar").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // operator bar tip 2
+        expect($("#dagView .operatorBar").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // node tip doubleclick
+        expect($("#dagView .operatorWrap .active .operator").eq(0).hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#dagView .operatorWrap .active .operator .main").eq(0).dblclick();
+
+        // view tip
+        expect($("#dagView").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // view tip2
+        expect($("#dagView").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // topbar tip
+        expect($("#dagViewBar").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // help button tip
+        expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+
+        // help walkthrough tip
+        expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+    });
 
     it("should do the entire Sql mode walkthrough successfully", function() {
         TooltipWalkthroughs.startWalkthrough("SQL Mode")
             //MenuBar tip
-        var e = jQuery.Event("click.tooltip");
 
         expect($("#menuBar").hasClass("intro-highlightedElement")).to.be.true;
         expect($("#intro-popover").is(":visible")).to.be.true;
