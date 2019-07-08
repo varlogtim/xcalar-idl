@@ -3,8 +3,8 @@
  */
 class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     private _$elemPanel: JQuery = null; // $('#exportOpPanel');
-    private _$exportDest: JQuery = null; // $("#exportDest");
-    private _$exportDestList: JQuery = null; // $("#exportDestList");
+    private _$exportDest: JQuery = null; // $("#exportDriver");
+    private _$exportDestList: JQuery = null; // $("#exportDriverList");
     private _$exportColList: JQuery = null; // $("#exportOpColumns .cols");
     private _$exportArgSection: JQuery = null; // $("#exportOpPanel .argsSection");
     private _$exportSearchSection: JQuery = null; //$("#exportOpColumns .dropDownList")
@@ -34,7 +34,18 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         this._$exportSearchSection = $("#exportOpColumns .dropDownList");
         super.setup(this._$elemPanel);
 
-        this._activateDropDown(this._$exportDestList, "#exportDriverList");
+        let dropdownHelper: MenuHelper = new MenuHelper(this._$exportDestList, {
+            "container": "#exportDriverList"
+        });
+        dropdownHelper.setupListeners();
+        new InputDropdownHint(self._$exportDestList, {
+            "menuHelper": dropdownHelper,
+            "preventClearOnBlur": true,
+            "onEnter": function (val, $input) {
+                self._changeDriver(null, val);
+            },
+            "order": false
+        });
 
         let expList: MenuHelper = new MenuHelper($("#exportDriverList"), {
             "onSelect": function($li) {
@@ -46,12 +57,10 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                     return true; // return true to keep dropdown open
                 }
 
-                self._$exportDest.val($li.text());
-                self.renderDriverArgs();
-                const driver: ExportDriver = self._dataModel.exportDrivers.find((driver) => {
-                    return driver.name == self._currentDriver;
-                });
-                self._dataModel.setUpParams(driver);
+                let name = $li.data("name");
+                let text = $li.text();
+
+                self._changeDriver(name, text);
             }
         });
         expList.setupListeners();
@@ -63,6 +72,20 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         });
 
         this._setupEventListener();
+    }
+
+    private _changeDriver(driverName: string, driverText: string) {
+        if (!driverName) {
+            driverName = ExportOpPanelModel.convertPrettyName(driverText) || driverText;
+        }
+        this._$exportDest.val(driverText);
+        this._$exportDest.data("name", driverName);
+        this.renderDriverArgs();
+        const driver: ExportDriver = this._dataModel.exportDrivers.find((driver) => {
+            return driver.name == driverName;
+        });
+        this._currentDriver = driverName;
+        this._dataModel.setUpParams(driver, this._$elemPanel);
     }
 
     private _filterColumns(keyword: string) {
@@ -93,6 +116,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _activateDropDown($list: JQuery, container: string) {
+        const self = this;
         let dropdownHelper: MenuHelper = new MenuHelper($list, {
             "onOpen": function() {
                 var $lis = $list.find('li').sort(xcUIHelper.sortHTML);
@@ -143,8 +167,10 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 const newModel: ExportOpPanelModel = this._convertAdvConfigToModel();
                 newModel.setAdvMode(false);
                 this._dataModel = newModel;
-                this._$exportDest.val(this._dataModel.currentDriver.name);
-                this._currentDriver = "Switching to: " + this._dataModel.currentDriver.name;
+                let driverName: string = this._dataModel.currentDriver.name;
+                this._$exportDest.data("name",driverName);
+                this._$exportDest.val(ExportOpPanelModel.getDriverDisplayName(driverName));
+                this._currentDriver = driverName;
                 this._updateUI();
                 this.panelResize();
                 return;
@@ -224,7 +250,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             this._dagNode.beErrorState(ExportTStr.DriverNotFound + inputDriverName);
             return;
         }
-        this._dataModel.setUpParams(driver);
+        this._dataModel.setUpParams(driver, this._$elemPanel);
     }
 
     private _renderColumns(): void {
@@ -275,10 +301,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         let $list: JQuery = $("#exportDriverList .exportDrivers");
         $list.empty();
         const drivers: ExportDriver[] = this._dataModel.exportDrivers;
-        let html: string = "";
-        drivers.forEach(driver => {
-            html += '<li class="exportDriver">' + driver.name + '</li>';
-        });
+        let html: string = this._dataModel.createDriverListHtml(drivers);
         $list.append(html);
     }
 
@@ -287,9 +310,11 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public renderDriverArgs(force?: boolean): void {
         let driverName: string = this._$exportDest.val();
+        driverName = ExportOpPanelModel.convertPrettyName(driverName) || driverName;
         if (driverName == "") {
-            driverName = $("#exportDriverList .exportDriver").eq(0).text();
-            this._$exportDest.val(driverName);
+            driverName = "fast_csv";
+            this._$exportDest.val("Multiple CSV files using only ASCII delimiters");
+            this._$exportDest.data("name", "fast_csv");
         } else if (driverName == this._currentDriver && !force) {
             return;
         }
@@ -298,7 +323,9 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         });
         if (driver == null) {
             // restore input value to last saved driver
-            this._$exportDest.val(this._currentDriver);
+            this._$exportDest.data(this._currentDriver);
+            // todo val
+            this._$exportDest.val(ExportOpPanelModel.getDriverDisplayName(this._currentDriver));
             return;
         }
         this._currentDriver = driverName;
@@ -415,18 +442,12 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             }
         }, '#exportDriverList .list li');
 
-        this._$exportDest.keypress(function(event) {
-            if ((event.keyCode || event.which) == keyCode.Enter) {
-                $(this).change();
-            }
-        });
-
         this._$exportDest.change(function() {
             self.renderDriverArgs();
             const driver: ExportDriver = self._dataModel.exportDrivers.find((driver) => {
                 return driver.name == self._currentDriver;
             });
-            self._dataModel.setUpParams(driver);
+            self._dataModel.setUpParams(driver, self._$elemPanel);
         });
 
         $('#exportOpColumns .selectAllWrap').click(function(event) {

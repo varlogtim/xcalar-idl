@@ -34,6 +34,7 @@ interface BackTraceInfo {
 interface ExportParam {
     description: string,
     name: string,
+    pretty_print: string,
     optional: boolean,
     secret: boolean,
     type: string,
@@ -42,6 +43,7 @@ interface ExportParam {
 
 interface ExportDriver {
     name: string,
+    pretty_name?: string,
     description: string
     params: ExportParam[]
 }

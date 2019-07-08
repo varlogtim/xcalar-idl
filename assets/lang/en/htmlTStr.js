@@ -925,7 +925,7 @@ module.exports = {
     "exportView": {
         "header": "Export",
         "ExportTbl": "Export Table",
-        "instr": "Please select columns you wish to export, export driver you'd like to use, and fill in driver parameters.",
+        "instr": "Configure the export options.",
         "ExportAs": "Export As",
 
         "Columns": "Columns",
@@ -942,7 +942,7 @@ module.exports = {
         "DoNotOverwrite": "Do Not Overwrite",
         "OverwriteExisting": "Overwrite Existing",
         "AppendExisting": "Append To Existing",
-        "colInstr": "Select the columns to export by checking the box next to the column name.",
+        "colInstr": "Select the columns to export by checking the box next to the column name or Select All.",
         "tableToExport": "Table to Export",
         "location": "Export Location",
         "exportFilename": "Export As",

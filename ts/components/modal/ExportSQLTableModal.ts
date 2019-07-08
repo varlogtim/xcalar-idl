@@ -27,7 +27,18 @@ class ExportSQLTableModal {
             noEnter: true
         });
         self._dataModel = new ExportOpPanelModel();
-        this._activateDropDown(this._$exportDestList, "#exportSQLTableDriverList");
+        let dropdownHelper: MenuHelper = new MenuHelper(this._$exportDestList, {
+            "container": "#exportSQLTableDriverList"
+        });
+        dropdownHelper.setupListeners();
+        new InputDropdownHint(self._$exportDestList, {
+            "menuHelper": dropdownHelper,
+            "preventClearOnBlur": true,
+            "onEnter": function (val, $input) {
+                self._changeDriver(null, val);
+            },
+            "order": false
+        });
 
         let expList: MenuHelper = new MenuHelper($("#exportSQLTableDriverList"), {
             "onSelect": function($li) {
@@ -39,16 +50,14 @@ class ExportSQLTableModal {
                     return true; // return true to keep dropdown open
                 }
 
-                self._$exportDest.val($li.text());
-                self.renderDriverArgs();
-                const driver: ExportDriver = self._dataModel.exportDrivers.find((driver) => {
-                    return driver.name == $li.text();
-                });
-                self._selectedDriver = $li.text();
-                self._dataModel.setUpParams(driver);
+                let name = $li.data("name");
+                let text = $li.text();
+
+                self._changeDriver(name, text);
             }
         });
         expList.setupListeners();
+
 
         $("#exportSQLTableColumns .searchInput").on("input", (event)  => {
             const $searchInput: JQuery = $(event.currentTarget);
@@ -57,6 +66,20 @@ class ExportSQLTableModal {
         });
 
         this._addEventListeners();
+    }
+
+    private _changeDriver(driverName: string, driverText: string) {
+        if (!driverName) {
+            driverName = ExportOpPanelModel.convertPrettyName(driverText) || driverText;
+        }
+        this._$exportDest.val(driverText);
+        this._$exportDest.data("name", driverName);
+        this.renderDriverArgs();
+        const driver: ExportDriver = this._dataModel.exportDrivers.find((driver) => {
+            return driver.name == driverName;
+        });
+        this._selectedDriver = driverName;
+        this._dataModel.setUpParams(driver, this._$modal);
     }
 
     private _filterColumns(keyword: string) {
@@ -125,7 +148,9 @@ class ExportSQLTableModal {
         $("#exportSQLTableColumns .searchBox .searchInput").val("");
         this._dataModel.loadDrivers()
         .then(() => {
-            this._updateUI();
+            this._renderColumns();
+            this._renderDriverList();
+            this.renderDriverArgs();
         })
         .fail((error) => {
             console.error(error);
@@ -141,9 +166,11 @@ class ExportSQLTableModal {
      */
     public renderDriverArgs(): void {
         let driverName: string = this._$exportDest.val();
+        driverName = ExportOpPanelModel.convertPrettyName(driverName) || driverName;
         if (driverName == "") {
-            driverName = $("#exportDriverList .exportDriver").eq(0).text();
-            this._$exportDest.val(driverName);
+            driverName = "fast_csv";
+            this._$exportDest.val("Multiple CSV files using only ASCII delimiters");
+            this._$exportDest.data("name", "fast_csv");
         } else if (driverName == this._selectedDriver) {
             return;
         }
@@ -154,6 +181,7 @@ class ExportSQLTableModal {
             return;
         }
         this._selectedDriver = driverName;
+        this._dataModel.constructParams(driver);
         let html: string = "";
         if (driver.description) {
             html = "<div class='exportDescription'>" + driver.description + "</div>";
@@ -192,12 +220,6 @@ class ExportSQLTableModal {
             expList.setupListeners();
         });
         $("#exportSQLTableModal .argsSectionBox").removeClass("xc-hidden");
-    }
-
-    protected _updateUI(): void {
-        this._renderColumns();
-        this._renderDriverList();
-        this.renderDriverArgs();
     }
 
     private _getTypeIcon(type: ColumnType): string {
@@ -258,10 +280,7 @@ class ExportSQLTableModal {
         let $list: JQuery = $("#exportSQLTableDriverList .exportDrivers");
         $list.empty();
         const drivers: ExportDriver[] = this._dataModel.exportDrivers;
-        let html: string = "";
-        drivers.forEach(driver => {
-            html += '<li class="exportDriver">' + driver.name + '</li>';
-        });
+        let html: string = this._dataModel.createDriverListHtml(drivers);
         $list.append(html);
     }
 

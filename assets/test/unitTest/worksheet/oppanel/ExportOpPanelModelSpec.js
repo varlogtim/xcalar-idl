@@ -176,7 +176,7 @@ describe("ExportOpPanelModel Test", function() {
     });
 
     it("Should set up params correctly", function() {
-        model.setUpParams(drivers[2]);
+        model.setUpParams(drivers[2], $("#exportSQLTableModal"));
         expect(model.driverArgs.length).to.equal(5);
         expect(model.driverArgs[0]).to.deep.equal({
             "name": "str param",
@@ -187,7 +187,7 @@ describe("ExportOpPanelModel Test", function() {
     });
 
     it("Should set a parameters value correctly", function () {
-        model.setUpParams(drivers[2]);
+        model.setUpParams(drivers[2], $("#exportSQLTableModal"));
         expect(model.driverArgs[0]).to.deep.equal({
             "name": "str param",
             "type": "string",

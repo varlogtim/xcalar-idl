@@ -221,6 +221,7 @@ describe("Export Operator Panel Test", function() {
             .then(function() {
                 $("#exportOpPanel .col").eq(0).click();
                 $("#exportDriver").val("test1");
+                $("#exportDriver").change();
                 exportOpPanel.renderDriverArgs();
                 $("#exportOpPanel .exportArg").eq(0).find('input').val("demo");
                 $("#exportOpPanel .exportArg").eq(0).find('input').change();
@@ -239,10 +240,33 @@ describe("Export Operator Panel Test", function() {
     });
 
     describe("Advanced View Driver related Export Panel Tests", function() {
+        before(function() {
+            node = new DagNodeExport({});
+            const parentNode = new DagNodeMap({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName(null, 'a'),
+                        type: "number"
+                    }),
+                    new ProgCol({
+                        backName: xcHelper.getPrefixColName(null, 'b'),
+                        type: "number"
+                    }),
+                    new ProgCol({
+                        backName: xcHelper.getPrefixColName(null, 'c'),
+                        type: "number"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            };
+        })
         it("Should show statusbox error if columns isnt a field", function() {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
-            $("#exportOpPanel .bottomSection .xc-switch").click();
+            exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({}, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
@@ -252,9 +276,12 @@ describe("Export Operator Panel Test", function() {
         it("Should show statusbox error if driver is null", function() {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
-            $("#exportOpPanel .bottomSection .xc-switch").click();
+            exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
-                    "columns": []
+                    "columns": [{
+                        "sourceColumn": "a",
+                        "destColumn": "a"
+                    }]
                 }, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
@@ -264,9 +291,12 @@ describe("Export Operator Panel Test", function() {
         it("Should show statusbox error if driver is not real", function() {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
-            $("#exportOpPanel .bottomSection .xc-switch").click();
+            exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
-                    "columns": [],
+                    "columns": [{
+                        "sourceColumn": "a",
+                        "destColumn": "a"
+                    }],
                     "driver": "unreal"
                 }, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
@@ -277,9 +307,12 @@ describe("Export Operator Panel Test", function() {
         it("Should show statusbox error if there arent enough arguments specified", function() {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
-            $("#exportOpPanel .bottomSection .xc-switch").click();
+            exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
-                    "columns": [],
+                    "columns": [{
+                        "sourceColumn": "a",
+                        "destColumn": "a"
+                    }],
                     "driver": "test1",
                     "driverArgs": {}
                 }, null, 4));
@@ -291,9 +324,12 @@ describe("Export Operator Panel Test", function() {
         it("Should show statusbox error if driver arguments don't match up", function() {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
-            $("#exportOpPanel .bottomSection .xc-switch").click();
+            exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
-                    "columns": [],
+                    "columns": [{
+                        "sourceColumn": "a",
+                        "destColumn": "a"
+                    }],
                     "driver": "test1",
                     "driverArgs": {"invalidArg": null}
                 }, null, 4));
@@ -305,9 +341,12 @@ describe("Export Operator Panel Test", function() {
         it("Should show statusbox error if integer argument is invalid", function() {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
-            $("#exportOpPanel .bottomSection .xc-switch").click();
+            exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
-                    "columns": [],
+                    "columns": [{
+                        "sourceColumn": "a",
+                        "destColumn": "a"
+                    }],
                     "driver": "test2",
                     "driverArgs": {"param1": "123a"}
                 }, null, 4));
@@ -319,9 +358,12 @@ describe("Export Operator Panel Test", function() {
         it ("Should show statusbox error if a non optional param isn't filled", function () {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
-            $("#exportOpPanel .bottomSection .xc-switch").click();
+            exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
-                    "columns": [],
+                    "columns": [{
+                        "sourceColumn": "a",
+                        "destColumn": "a"
+                    }],
                     "driver": "test1",
                     "driverArgs": {"param1": null}
                 }, null, 4));
@@ -333,9 +375,12 @@ describe("Export Operator Panel Test", function() {
         it ("Should save correctly if JSON is correct", function () {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
-            $("#exportOpPanel .bottomSection .xc-switch").click();
+            exportOpPanel._switchMode(true);
             editor.setValue(JSON.stringify({
-                    "columns": [],
+                    "columns": [{
+                        "sourceColumn": "a",
+                        "destColumn": "a"
+                    }],
                     "driver": "test1",
                     "driverArgs": {"param1": "demo"}
                 }, null, 4));
@@ -351,6 +396,7 @@ describe("Export Operator Panel Test", function() {
 
     describe("Column Filtering related Export Panel Tests", function() {
         before(function() {
+            node = new DagNodeExport({});
             const parentNode = new DagNodeMap({});
             parentNode.getLineage = function() {
                 return {getColumns: function() {
@@ -385,7 +431,7 @@ describe("Export Operator Panel Test", function() {
         it("should only select all of the filtered columns", function() {
             exportOpPanel.show(node);
             $('#exportOpColumns .searchInput').val("a").trigger("input");
-            $('#exportOpColumns .selectAllWrap').trigger("mouseDown");
+            $('#exportOpColumns .selectAllWrap').click();
             expect($('#exportOpColumns .col.checked').length).to.equal(1);
             exportOpPanel.close(node);
         })
@@ -393,7 +439,7 @@ describe("Export Operator Panel Test", function() {
         it("should change the select all checkbox depending on what's selected", function() {
             exportOpPanel.show(node);
             $('#exportOpColumns .searchInput').val("a").trigger("input");
-            $('#exportOpColumns .selectAllWrap').trigger("mouseDown");
+            $('#exportOpColumns .selectAllWrap').click();
             expect($('#exportOpColumns .selectAllWrap .checkbox').hasClass("checked")).to.be.true;
             $('#exportOpColumns .searchInput').val("").trigger("input");
             expect($('#exportOpColumns .selectAllWrap .checkbox').hasClass("checked")).to.be.false;

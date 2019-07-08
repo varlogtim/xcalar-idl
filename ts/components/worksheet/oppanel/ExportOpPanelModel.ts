@@ -6,6 +6,31 @@ class ExportOpPanelModel extends BaseOpPanelModel {
     public driverArgs: ExportDriverArg[];
     private _advMode: boolean;
 
+    private suggestedOrder =
+        ["fast_csv", "multiple_csv", "single_csv", "legacy_udf"]
+
+    private static XDPrettyNames: {[key: string]: string} = {
+        "single_csv": "Single CSV file",
+        "multiple_csv": "Multiple CSV files",
+        "fast_csv": "Multiple CSV files using only ASCII delimiters",
+        "legacy_udf": "Custom export using a UDF (deprecated)"
+    }
+
+    private static DriverFromPretty: {[key: string]: string} = {
+        "Single CSV file": "single_csv",
+        "Multiple CSV files": "multiple_csv",
+        "Multiple CSV files using only ASCII delimiters": "fast_csv",
+        "Custom export using a UDF (deprecated)": "legacy_udf"
+    }
+
+    public static convertPrettyName(name: string) {
+        return this.DriverFromPretty[name];
+    }
+
+    public static getDriverDisplayName(name: string) {
+        return (this.XDPrettyNames[name] || name);
+    }
+
     /**
      * Create ExportOpPanelModel instance from input configuration and column meta
      * @param dagInput
@@ -78,7 +103,8 @@ class ExportOpPanelModel extends BaseOpPanelModel {
             });
         }
 
-        $("#exportDriver").val(dagInputInfo.driver);
+        $("#exportDriver").data("name",dagInputInfo.driver);
+        $("#exportDriver").val(this.getDriverDisplayName(dagInputInfo.driver));
         model.loadedName = dagInputInfo.driver || "";
 
         model._advMode = false;
@@ -136,10 +162,10 @@ class ExportOpPanelModel extends BaseOpPanelModel {
     }
 
     /**
-     * Restores prior saved parameters. Only used for op panel
+     * Restores prior saved parameters
      */
-    private _restoreParams(): void {
-        let $params: JQuery = $("#exportOpPanel .argsSection .exportArg");
+    private _restoreParams($panel: JQuery): void {
+        let $params: JQuery = $panel.find(".argsSection .exportArg");
         let $param: JQuery = null;
         this.driverArgs.forEach((arg: ExportDriverArg, index: number) => {
             if (arg.value == null) {
@@ -189,16 +215,16 @@ class ExportOpPanelModel extends BaseOpPanelModel {
      * Assembles driver parameter list for driver
      * @param driver
      */
-    public setUpParams(driver: ExportDriver): void {
+    public setUpParams(driver: ExportDriver, $panel: JQuery): void {
         if (this.currentDriver != null && driver.name == this.currentDriver.name) {
-            this._restoreParams();
+            this._restoreParams($panel);
             return;
         } else if (driver == null) {
             return;
         }
         this.currentDriver = driver;
         this.driverArgs = this.constructParams(driver);
-        this._restoreParams();
+        this._restoreParams($panel);
     }
 
     /**
@@ -407,6 +433,27 @@ class ExportOpPanelModel extends BaseOpPanelModel {
         return this._advMode;
     }
 
+    createDriverListHtml(drivers: ExportDriver[]): string {
+        let html: string = "";
+        drivers = drivers.sort((d1, d2) => {
+            let d1Ind = this.suggestedOrder.indexOf(d1.name);
+            if (d1Ind == -1) {
+                d1Ind = this.suggestedOrder.length;
+            }
+            let d2Ind = this.suggestedOrder.indexOf(d2.name);
+            if (d2Ind == -1) {
+                d2Ind = this.suggestedOrder.length;
+            }
+            return d1Ind - d2Ind;
+        });
+        drivers.forEach(driver => {
+            let displayName = ExportOpPanelModel.getDriverDisplayName(driver.name);
+            html += '<li class="exportDriver" data-name="' + driver.name +
+            '">' + displayName + '</li>';
+        });
+        return html;
+    }
+
 
     public createParamHtml(param: ExportParam): string {
         let argHtml: string = "";
@@ -427,11 +474,12 @@ class ExportOpPanelModel extends BaseOpPanelModel {
             default:
                 break;
         }
+        let labelName = param.pretty_print || param.name;
         type = param.secret ? "password" : type;
         argHtml = '';
         argHtml = '<div class="exportArg formRow ' + param.name.replace(/ /g,"_") + ' ' + type + 'Arg">' +
             '<div class="subHeading clearfix">' +
-                '<div class="label">' + param.name
+                '<div class="label">' + labelName
         if (param.optional) {
             argHtml += ' (optional)'
         }
