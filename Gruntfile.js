@@ -1659,7 +1659,7 @@ module.exports = function(grunt) {
                 const config = require('./webpack.config.js')({
                     production: true,
                     buildroot: BLDROOT,
-                    srcmap: BLDTYPE === INSTALLER
+                    srcmap: BLDTYPE !== INSTALLER
                 });
                 return config;
             },
