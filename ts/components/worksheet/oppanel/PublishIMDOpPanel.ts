@@ -48,6 +48,11 @@ class PublishIMDOpPanel extends BaseOpPanel {
             this._columns = dagNode.getParents().map((parentNode) => {
                 return parentNode.getLineage().getColumns();
             })[0] || [];
+            // hide xcalar imd columns
+            this._columns = this._columns.filter((col: ProgCol) => {
+                let name = col.getFrontColName();
+                return !PTblManager.InternalColumns.includes(name);
+            });
             this._setupColumnHints();
             this._restorePanel(dagNode.getParam());
             if (BaseOpPanel.isLastModeAdvanced) {

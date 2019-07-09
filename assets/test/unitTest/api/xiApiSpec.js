@@ -937,6 +937,208 @@ describe('XIApi Test', () => {
         });
     });
 
+    describe('Publish functionality should work', () => {
+        let oldPubTables;
+        let oldPublish;
+        let oldDelete;
+        let oldRowNum;
+        let oldMap;
+        let oldSynthesize;
+        let oldIndex;
+        let oldQuery;
+        let deletedTables;
+        let basicCols;
+
+        before(() => {
+            oldPubTables = PTblManager.Instance.getTables;
+            PTblManager.Instance.getTables = function() {
+                return [];
+            }
+            oldPublish = XcalarPublishTable;
+            XcalarPublishTable = function(indexTable, pubTableName, txId) {
+                return PromiseHelper.resolve();
+            }
+            oldDelete = XIApi.deleteTable;
+            XIApi.deleteTable = function(txId, tableToDelete) {
+                deletedTables.push(tableToDelete);
+                return PromiseHelper.resolve();
+            }
+            oldRowNum = XIApi.genRowNum;
+            XIApi.genRowNum = function(txId, srcTableName, roColName, rowNumTableName) {
+                return PromiseHelper.resolve("RowNumTable");
+            }
+            oldMap = XIApi.map;
+            XIApi.map = function(txId, mapStr, table, opCode, opCodeTableName) {
+                return PromiseHelper.resolve("mapTable");
+            }
+            oldSynthesize = XIApi.synthesize;
+            XIApi.synthesize = function(txId, colInfo, table) {
+                return PromiseHelper.resolve("synthTable");
+            }
+            oldIndex = XcalarIndexFromTable;
+            XcalarIndexFromTable = function(tableName, keyInfos, newTableName, dhtName, simuldateTxId) {
+                return PromiseHelper.resolve("indexedTable");
+            }
+            oldQuery = XIApi.query;
+            XIApi.query = function(txId, queryName, query) {
+                return PromiseHelper.resolve("indexedTable");
+            }
+
+            basicCols = [{
+                orig: "old",
+                new: "new",
+                type: DfFieldTypeT.DfString
+            },
+            {
+                orig: "old2",
+                new: "new2",
+                type: DfFieldTypeT.DfString
+            }];
+        });
+
+        it("should execute XIApi.publishTable without failing", (done) => {
+            deletedTables = [];
+            XIApi.publishTable(0, [], "source", "dest",basicCols)
+            .then(() => {
+                expect(deletedTables[0]).to.equal("RowNumTable");
+                expect(deletedTables[1]).to.equal("mapTable");
+                expect(deletedTables[2]).to.equal("synthTable");
+                expect(deletedTables.length).to.equal(4);
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            });
+        });
+
+        it("should execute XIApi.publishTable with specifying primary keys", (done) => {
+            deletedTables = [];
+            XIApi.publishTable(0, ["old"], "source", "dest", basicCols)
+            .then(() => {
+                console.log(deletedTables);
+                expect(deletedTables[0]).to.equal(null);
+                expect(deletedTables[1]).to.equal("mapTable");
+                expect(deletedTables[2]).to.equal("synthTable");
+                expect(deletedTables.length).to.equal(4);
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            });
+        });
+
+        describe("Publish Fail Tests", () => {
+            it("should fail under null txid", (done) => {
+                XIApi.publishTable(null, ["old"], "source", "dest", basicCols)
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal("Invalid args in publish");
+                    done();
+                });
+            });
+
+            it("should fail under null primaryKey", (done) => {
+                XIApi.publishTable(0, null, "source", "dest", basicCols)
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal("Invalid args in publish");
+                    done();
+                });
+            });
+
+            it("should fail under null sourceTable", (done) => {
+                XIApi.publishTable(0, ["old"], null, "dest", basicCols)
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal("Invalid args in publish");
+                    done();
+                });
+            });
+
+            it("should fail under null destTable", (done) => {
+                XIApi.publishTable(0, ["old"], "source", null, basicCols)
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal("Invalid args in publish");
+                    done();
+                });
+            });
+
+            it("should fail under null cols", (done) => {
+                XIApi.publishTable(0, ["old"], "source", "dest", null)
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal("Invalid args in publish");
+                    done();
+                });
+            });
+
+            it("should fail under invalid table name", (done) => {
+                XIApi.publishTable(0, ["old"], "source", "de-st", basicCols)
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal("Table name cannot have hyphen");
+                    done();
+                });
+            });
+            
+            it("should fail under invalid primary key", (done) => {
+                XIApi.publishTable(0, ["nonexist"], "source", "dest", basicCols)
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal("Primary Key not in Table");
+                    done();
+                });
+            });
+
+            it("should fail under existing published table", (done) => {
+                PTblManager.Instance.getTables = function() {
+                    return [{
+                                active: true,
+                                name: "existing",
+                                keys: [],
+                                updates: [],
+                                oldestBatchId: 0,
+                                values: [{name: "testCol", type: 0}]
+                        }];
+                }
+                XIApi.publishTable(0, [], "source", "existing", basicCols)
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal("Published Table already exists: EXISTING");
+                    done();
+                });
+            });
+        });
+
+        after(() => {
+            PTblManager.Instance.getTables = oldPubTables;
+            XcalarPublishTable = oldPublish;
+            XIApi.deleteTable = oldDelete;
+            XIApi.genRowNum = oldRowNum;
+            XIApi.map = oldMap;
+            XIApi.synthesize = oldSynthesize;
+            XcalarIndexFromTable = oldIndex;
+            XIApi.query = oldQuery;
+        });
+    });
+
     describe('Public Function Test', () => {
         it('XIApi.filter should work', (done) => {
             const oldFunc = XIApi.query;

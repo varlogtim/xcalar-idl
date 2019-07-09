@@ -2932,14 +2932,7 @@ namespace XIApi {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const primaryKeyList: {name: string, ordering: XcalarOrderingT}[] =
-            keyNames.map((primaryKey) => {
-                primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
-                return {
-                    name: primaryKey.toUpperCase(),
-                    ordering: XcalarOrderingT.XcalarOrderingUnordered
-                };
-        });
+
 
         colInfo.forEach((colInfo) => {
             // make sure column is uppercase
@@ -2947,6 +2940,30 @@ namespace XIApi {
             upperCaseCol = xcHelper.cleanseSQLColName(upperCaseCol);
             colInfo.new = upperCaseCol;
         });
+
+        // Remove duplicate Xcalar columns
+        colInfo = colInfo.filter((colInfo) => {
+            return (colInfo.new !== "XCALARRANKOVER"
+                && colInfo.new !== "XCALAROPCODE"
+                && colInfo.new !== "XCALARBATCHID");
+        });
+
+        const roColName = "XcalarRankOver";
+        const primaryKeyList: {name: string, ordering: XcalarOrderingT}[] =
+        keyNames.map((primaryKey) => {
+            primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
+            if (primaryKey === roColName) {
+                colInfo.push({
+                    orig: roColName,
+                    new: roColName,
+                    type: DfFieldTypeT.DfInt64
+                });
+            }
+            return {
+                name: primaryKey.toUpperCase(),
+                ordering: XcalarOrderingT.XcalarOrderingUnordered
+            };
+    });
 
         pubTableName = pubTableName.toUpperCase();
 
