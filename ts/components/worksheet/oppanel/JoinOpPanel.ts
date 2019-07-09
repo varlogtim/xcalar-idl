@@ -368,6 +368,35 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         if (prefixCollisionLeft.size > 0 || prefixCollisionRight.size > 0) {
             throw new Error(JoinOpError.PrefixConflict);
         }
+
+        // Validate prefix name
+        const { left: prefixNameLeft = [], right: prefixNameRight = [] } = dataModel.getResolvedNames(true);
+        for (const name of prefixNameLeft) {
+            const error = xcHelper.validatePrefixName(name.dest || name.source);
+            if (error != null) {
+                throw new Error(error);
+            }
+        }
+        for (const name of prefixNameRight) {
+            const error = xcHelper.validatePrefixName(name.dest || name.source);
+            if (error != null) {
+                throw new Error(error);
+            }
+        }
+        // Validate derived name
+        const { left: colNameLeft = [], right: colNameRight = [] } = dataModel.getResolvedNames(false);
+        for (const name of colNameLeft) {
+            const error = xcHelper.validateColName(name.dest || name.source);
+            if (error != null) {
+                throw new Error(error);
+            }
+        }
+        for (const name of colNameRight) {
+            const error = xcHelper.validateColName(name.dest || name.source);
+            if (error != null) {
+                throw new Error(error);
+            }
+        }
     }
 
     private _getErrorMessage(e: Error): string {

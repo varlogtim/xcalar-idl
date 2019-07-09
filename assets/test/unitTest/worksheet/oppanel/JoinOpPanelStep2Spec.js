@@ -269,7 +269,7 @@ describe('JoinOpPanelStep2 Test', () => {
             const sectionProps = elemProps.get(JoinOpPanelStep2._templateIds.renameSection);
             expect(sectionProps != null).to.be.true;
             expect(sectionProps[0]['APP-PREFIXRENAME'] != null).to.be.true;
-            expect(sectionProps[0]['APP-DERIVEDRENAME'] != null).to.be.true;            
+            expect(sectionProps[0]['APP-DERIVEDRENAME'] != null).to.be.true;
         });
     });
 
@@ -339,6 +339,40 @@ describe('JoinOpPanelStep2 Test', () => {
             expect(tableProps[0].oldColTitle).to.equal(OpPanelTStr.JoinPanelRenameColOldLeft);
             expect(tableProps[0].newColTitle).to.equal(OpPanelTStr.JoinPanelRenameColNew);
             expect(tableProps[0]['APP-RENAMES'] != null).to.be.true;
+        });
+
+        it('Case: prefixed with invalid name', () => {
+            const prefixedList = [{
+                source: 'left', dest: 'left--new', isPrefix: true
+            }]
+            // The List element shoudld not be null
+            expect(component._createRenameList({
+                isLeft: true, isPrefix: true,
+                renameInfoList: prefixedList,
+                collisionNames: new Set()
+            }) != null).to.be.true;
+            // Check what's in the rename list
+            const rowProps = elemProps.get(JoinOpPanelStep2._templateIds.renameRow);
+            expect(rowProps != null).to.be.true;
+            expect(rowProps.length).to.equal(1);
+            expect(rowProps[0]['APP-ERRMSG'] != null).to.be.true;
+        });
+
+        it('Case: derived with invalid name', () => {
+            const derivedList = [{
+                source: 'lcol#1', dest: 'lcol--new', isPrefix: false
+            }]
+            // The List element shoudld not be null
+            expect(component._createRenameList({
+                isLeft: true, isPrefix: false,
+                renameInfoList: derivedList,
+                collisionNames: new Set()
+            }) != null).to.be.true;
+            // Check what's in the rename list
+            const rowProps = elemProps.get(JoinOpPanelStep2._templateIds.renameRow);
+            expect(rowProps != null).to.be.true;
+            expect(rowProps.length).to.equal(1);
+            expect(rowProps[0]['APP-ERRMSG'] != null).to.be.true;
         });
     });
 

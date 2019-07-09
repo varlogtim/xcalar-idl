@@ -246,7 +246,19 @@ class JoinOpPanelStep2 {
                 ? (this._modelRef.isPrefixDetached(renameInfo.source, isLeft))
                 : (this._modelRef.isColumnDetached(renameInfo.source, isLeft));
 
-                const renameRow = this._templateMgr.createElements(
+            // Validate dest name
+            const newName = renameInfo.dest || renameInfo.source;
+            const nameValidationError = isPrefix
+                ? xcHelper.validatePrefixName(newName)
+                : xcHelper.validateColName(newName);
+            // Check name collision
+            const collisionError = collisionNames.has(renameInfo.source)
+                ? ( isPrefix ? ErrTStr.PrefixConflict : ErrTStr.ColumnConflict)
+                : null;
+            // Show error message if name collision or invalid name
+            const errorMessage = collisionError || nameValidationError;
+
+            const renameRow = this._templateMgr.createElements(
                 JoinOpPanelStep2._templateIds.renameRow,
                 {
                     oldName: renameInfo.source,
@@ -260,11 +272,9 @@ class JoinOpPanelStep2 {
                         this._renameColumn(renameInfo, e.target.value.trim());
                         this._onDataChange();
                     },
-                    'APP-ERRMSG': collisionNames.has(renameInfo.source)
+                    'APP-ERRMSG': errorMessage != null
                         ? this._componentFactory.createErrorMessage({
-                            msgText: isPrefix
-                                ? ErrTStr.PrefixConflict
-                                : ErrTStr.ColumnConflict,
+                            msgText: errorMessage,
                             onElementMountDone: (elem) => {
                                 this._registerErrorElement(elem);
                                 this._onError(this._getFirstErrorElement());

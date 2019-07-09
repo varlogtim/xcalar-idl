@@ -341,7 +341,7 @@ describe('JoinOpPanel Test', () => {
         it('Case: invalid eval string', () => {
             const model = createDefaultModel();
             model.setEvalString('abc');
-            
+
             let error = null;
             try {
                 component._validateJoinClauses(model);
@@ -397,6 +397,45 @@ describe('JoinOpPanel Test', () => {
             expect(error != null).to.be.true;
             expect(error.message).to.equal(JoinOpError.ColumnNameConflict);
         });
+
+        it('Case: invalid prefix name', () => {
+            const model = createDefaultModel(false, false);
+            model._buildRenameInfo({
+                colDestLeft: {}, colDestRight: {},
+                prefixDestLeft: {'left': 'left--new'}, prefixDestRight: {}
+            });
+
+            let error = null;
+            try {
+                component._validateRenames(model);
+            } catch(e) {
+                error = e;
+            }
+
+            expect(error != null).to.be.true;
+            expect(error.message).to.equal(ErrTStr.PrefixNoDoubleHyphen);
+        });
+
+        it('Case: invalid derived name', () => {
+            const model = createDefaultModel(false, false);
+            model._buildRenameInfo({
+                colDestLeft: {'lcol#1': 'lcol--new'}, colDestRight: {},
+                prefixDestLeft: {}, prefixDestRight: {}
+            });
+
+            let error = null;
+            try {
+                component._validateRenames(model);
+            } catch(e) {
+                error = e;
+            }
+
+            expect(error != null).to.be.true;
+            console.log(error.message);
+            expect(error.message).to.equal(xcStringHelper.replaceMsg(ErrWRepTStr.PreservedString, {
+                "char": '--'
+            }));
+        })
     });
 
     describe('_getErrorMessage() should work', () => {
@@ -434,7 +473,7 @@ describe('JoinOpPanel Test', () => {
             component._dagNode = createDefaultNode();
             component._updateAllColumns();
             expect(component.allColumns.length).to.equal(10);
-            expect((new Set(component.allColumns.map((v) => v.getBackColName()))).size).to.equal(10);    
+            expect((new Set(component.allColumns.map((v) => v.getBackColName()))).size).to.equal(10);
         });
     });
 
@@ -491,7 +530,7 @@ describe('JoinOpPanel Test', () => {
             },
             evalString: 'eq(lcol2, 1)',
             keepAllColumns: false,
-            nullSafe: false    
+            nullSafe: false
         };
         return config;
     }
