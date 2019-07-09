@@ -141,7 +141,39 @@ class XcDatasetViewer extends XcViewer {
                 }
             }
         });
-        return schema;
+        return this._getOrderedSchema(schema);
+    }
+
+    // XXX TODO: remove this temp fix when XC-270 is fixed
+    private _getOrderedSchema(schema: ColSchema[]): ColSchema[] {
+        try {
+            let typedColumns = this.dataset.typedColumns;
+            if (!typedColumns) {
+                return schema;
+            }
+            let map: Map<string, ColSchema> = new Map();
+            schema.forEach((col) => map.set(col.name, col));
+            let orderedSchema: ColSchema[] = [];
+            // use typedColumns as a reference of order
+            typedColumns.forEach((col) => {
+                let name: string = col.colName;
+                if (map.has(name)) {
+                    orderedSchema.push(map.get(name));
+                    map.delete(name);
+                }
+            });
+            // add any remaining columns
+            schema.forEach((col) => {
+                if (map.has(col.name)) {
+                    orderedSchema.push(col);
+                }
+            });
+
+            return orderedSchema;
+        } catch (e) {
+            console.error(e);
+            return schema;
+        }
     }
 
     private _getSampleTable(jsonKeys: string[], jsons: object[]): void {
