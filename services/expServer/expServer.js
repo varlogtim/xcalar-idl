@@ -9,6 +9,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     }
     jQuery = require("jquery")(window);
     var fs = require("fs");
+    var dns = require("dns");
+    var dgram = require('dgram');
     var path = require("path");
 
     var session = require('express-session');
@@ -251,8 +253,72 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         return ca;
     }
 
-    getOperatingSystem()
-    .always(function(data) {
+    async function getNodeID() {
+        var cfgLocation = process.env.XCE_CONFIG ? process.env.XCE_CONFIG :
+                            'etc/xcalar/default.cfg'
+        var buf = fs.readFileSync(cfgLocation, 'utf-8');
+        var lines = buf.split('\n');
+        var rePattern = new RegExp(/^Node.(\d+).IpAddr=(.*)$/);
+        for (var line of lines) {
+            var regRes = line.match(rePattern);
+            if (regRes != null) {
+                var num = regRes[1];
+                var ip = regRes[2];
+                var port = Math.floor(Math.random() * (20000-1000))+1000;
+                while (true) {
+                    try{
+                        await verifyAddress(ip, port);
+                        return num;
+                    } catch(err) {
+                        if (err.message.includes("bind EADDRINUSE")){
+                            // Port already in use
+                            port++;
+                        } else {
+                            // Failed to bind to this address
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        const error = Error("Can't find the node id where the expServer " +
+                            "resides in the cfg file: " + cfgLocation)
+        throw error;
+    }
+
+    function verifyAddress(ip, port) {
+        var deferred = jQuery.Deferred();
+        const options = {
+            verbatim: true
+        }
+        dns.lookup(ip, options, (err, addr, family) => {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+            if (family == 0) {
+                deferred.reject("Failed to lookup the address: " + addr);
+                return;
+            }
+            const server = dgram.createSocket(`udp${family}`);
+
+            server.on('error', (err) => {
+                deferred.reject(err);
+                server.close();
+            });
+
+            server.on('listening', () => {
+                const address = server.address();
+                deferred.resolve(`listening on address ${address}`);
+                server.close();
+            });
+            server.bind(port, addr);
+        })
+        return deferred.promise();
+    }
+
+    function startTheServer(data) {
         data = data.toLowerCase();
         // This is helpful for test and variable can be used in future development
         var ca = getCertificate(data);
@@ -289,6 +355,21 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             xcConsole.log('ws upgrade request', req.url);
             proxyServer.ws(req, socket, head);
         });
+    }
+
+    getOperatingSystem()
+    .always(function(data) {
+        getNodeID()
+        .then((nodeId) => {
+            xcConsole.log(`expServer runs on node ${nodeId}`);
+            process.env.NODE_ID = nodeId;
+            startTheServer(data);
+        })
+        .catch((err) => {
+            xcConsole.error(err);
+            xcConsole.error("============start expServer failed===============");
+            process.exit();
+        })
     });
 
     process.on('uncaughtException', function(err) {
