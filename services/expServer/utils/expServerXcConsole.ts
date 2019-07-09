@@ -2,22 +2,6 @@ export function verbose(): boolean {
     return true;
 }
 
-export function log(...arg: any[]): void {
-    if (verbose()) {
-        var args = Array.prototype.slice.call(arg);
-        args.unshift(getTimeStamp() + ":Xcalar ExpServer:");
-        console.log.apply(console, args);
-    }
-}
-
-export function error(...arg: any[]): void {
-    if (verbose()) {
-        var args = Array.prototype.slice.call(arg);
-        args.unshift(getTimeStamp() + ":Xcalar ExpServer ERROR:");
-        console.log.apply(console, args);
-    }
-}
-
 export function getTimeStamp(): string {
     var date = new Date();
     return toISOString(date) + getTimezone(date);
@@ -45,3 +29,27 @@ export function getTimeStamp(): string {
         return pattern.exec(date.toTimeString());
     }
 }
+
+var log, error;
+if (process.env.NODE_ENV === "test") {
+    log = function(...arg: any[]): void {
+        if (verbose()) {
+            var args = Array.prototype.slice.call(arg);
+            args.unshift(getTimeStamp() + ":Xcalar ExpServer:");
+            console.log.apply(console, args);
+        }
+    }
+
+    error = function(...arg: any[]): void {
+        if (verbose()) {
+            var args = Array.prototype.slice.call(arg);
+            args.unshift(getTimeStamp() + ":Xcalar ExpServer ERROR:");
+            console.log.apply(console, args);
+        }
+    }
+} else {
+    log = console.log.bind(console);
+    error = console.error.bind(console);
+}
+
+export { log, error };

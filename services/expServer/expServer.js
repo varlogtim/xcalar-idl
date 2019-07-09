@@ -13,8 +13,10 @@ require("jsdom/lib/old-api").env("", function(err, window) {
 
     var session = require('express-session');
     var FileStore = require('session-file-store')(session);
-    require('console-stamp')(console, { pattern: "yyyy/mm/dd'T'HH:MM:ss.l'Z'o", labelPrefix: "[Xcalar ExpServer ", labelSuffix: "]" });
-    var xcConsole = console;
+    if (process.env.NODE_ENV !== "test") {
+        require('console-stamp')(console, { pattern: "yyyy/mm/dd'T'HH:MM:ss.l'Z'o", labelPrefix: "[Xcalar ExpServer ", labelSuffix: "]" });
+    }
+    var xcConsole = require('./utils/expServerXcConsole.js');
     var cookieFilter = require('./utils/cookieFilter.js');
 
     var xlrRoot = null;
