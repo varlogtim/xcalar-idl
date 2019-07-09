@@ -10,70 +10,76 @@ describe("GeneralOpPanel Test", function() {
     var $functionsMenu;
     var openOptions = {};
 
-    before(function() {
+    before(function(done) {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        MainMenu.openPanel("dagPanel");
-        node = new DagNodeMap({});
-        const parentNode = new DagNodeMap({});
-        parentNode.getLineage = function() {
-            return {getColumns: function() {
-                return [new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'col1'),
-                    type: "integer"
-                }),
-                new ProgCol({
-                    backName: 'col2',
-                    type: "string"
-                })]
-            }}
-        };
-        node.getParents = function() {
-            return [parentNode];
-        }
-        openOptions = {
-            udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
-        };
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            MainMenu.openPanel("dagPanel");
+            node = new DagNodeMap({});
+            const parentNode = new DagNodeMap({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'col1'),
+                        type: "integer"
+                    }),
+                    new ProgCol({
+                        backName: 'col2',
+                        type: "string"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            }
+            openOptions = {
+                udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
+            };
 
 
-        oldJSONParse = JSON.parse;
-        mapOpPanel = MapOpPanel.Instance;
-        editor = mapOpPanel.getEditor();
-        $mapOpPanel = $('#mapOpPanel');
-        $categoryMenu = $mapOpPanel.find('.categoryMenu');
-        $functionsMenu = $mapOpPanel.find('.functionsMenu');
-        $functionsInput = $mapOpPanel.find('.mapFilter');
-        $functionsList = $functionsInput.siblings('.list');
-        $argSection = $mapOpPanel.find('.argsSection').eq(0);
+            oldJSONParse = JSON.parse;
+            mapOpPanel = MapOpPanel.Instance;
+            editor = mapOpPanel.getEditor();
+            $mapOpPanel = $('#mapOpPanel');
+            $categoryMenu = $mapOpPanel.find('.categoryMenu');
+            $functionsMenu = $mapOpPanel.find('.functionsMenu');
+            $functionsInput = $mapOpPanel.find('.mapFilter');
+            $functionsList = $functionsInput.siblings('.list');
+            $argSection = $mapOpPanel.find('.argsSection').eq(0);
+            done();
+        });
 
     });
 
     describe("Basic General Panel Tests", function() {
-        it ("mouseup on argument should produce hint list", function () {
-            mapOpPanel.show(node, openOptions);
+        it ("mouseup on argument should produce hint list", function(done) {
+            mapOpPanel.show(node, openOptions)
+            .always(() => {
+                $categoryMenu.find('li').filter(function() {
+                    return ($(this).text() === "arithmetic");
+                }).trigger(fakeEvent.click);
+                expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
 
-            $categoryMenu.find('li').filter(function() {
-                return ($(this).text() === "arithmetic");
-            }).trigger(fakeEvent.click);
-            expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
+                $functionsMenu.find('li').filter(function() {
+                    return ($(this).text() === "add");
+                }).trigger(fakeEvent.click);
 
-            $functionsMenu.find('li').filter(function() {
-                return ($(this).text() === "add");
-            }).trigger(fakeEvent.click);
-
-            expect($argSection.hasClass('inactive')).to.be.false;
-            expect($argSection.find('.arg').eq(0).val()).to.equal("");
-            $argSection.find(".arg").eq(0).trigger("mouseup");
-            const $list = $argSection.find(".list.hint");
-            expect($list.is(":visible")).to.be.true;
-            expect($list.find("li").length).to.equal(2);
-            expect($list.find("li").eq(0).text()).to.equal("col2");
-            expect($list.find("li").eq(0).find(".typeIcon.type-string").length).to.equal(1);
-            expect($list.find("li").eq(1).text()).to.equal("prefix::col1");
-            expect($list.find("li").eq(1).find(".typeIcon.type-integer").length).to.equal(1);
-            mapOpPanel._hideDropdowns();
-            expect($list.is(":visible")).to.be.false;
+                expect($argSection.hasClass('inactive')).to.be.false;
+                expect($argSection.find('.arg').eq(0).val()).to.equal("");
+                $argSection.find(".arg").eq(0).trigger("mouseup");
+                const $list = $argSection.find(".list.hint");
+                expect($list.is(":visible")).to.be.true;
+                expect($list.find("li").length).to.equal(2);
+                expect($list.find("li").eq(0).text()).to.equal("col2");
+                expect($list.find("li").eq(0).find(".typeIcon.type-string").length).to.equal(1);
+                expect($list.find("li").eq(1).text()).to.equal("prefix::col1");
+                expect($list.find("li").eq(1).find(".typeIcon.type-integer").length).to.equal(1);
+                mapOpPanel._hideDropdowns();
+                expect($list.is(":visible")).to.be.false;
+                done();
+            });
         });
 
         it("applyArgSuggest should work", function() {

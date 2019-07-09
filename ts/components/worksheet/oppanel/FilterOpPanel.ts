@@ -25,7 +25,9 @@ class FilterOpPanel extends GeneralOpPanel {
     // restore: boolean, if true, will not clear the form from it's last state
     // restoreTime: time when previous operation took place
     // triggerColNum: colNum that triggered the opmodal
-    public show(node: DagNodeFilter, options: ShowPanelInfo) {
+    public show(node: DagNodeFilter, options: ShowPanelInfo): XDPromise<void> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+
         super.show(node, options)
         .then(() => {
             this.model = new FilterOpPanelModel(node, () => {
@@ -34,7 +36,12 @@ class FilterOpPanel extends GeneralOpPanel {
             super._panelShowHelper(this.model);
             this._render();
             this._checkPanelOpeningError();
+            deferred.resolve();
+        })
+        .fail(() => {
+            deferred.reject();
         });
+        return deferred.promise();
     }
 
     protected _render(): void {
@@ -591,6 +598,45 @@ class FilterOpPanel extends GeneralOpPanel {
         return (strPreview);
     }
 
+    protected _getExistingTypes(groupNum: number): any {
+        const self = this;
+        const existingTypes = {};
+        let arg;
+        let $input;
+        let type;
+        const $group = this._$panel.find('.group').eq(groupNum);
+
+        $group.find(".arg").each(function() {
+            $input = $(this);
+            arg = $input.val().trim();
+            type = null;
+
+            // col name field, do not add quote
+            if ($input.closest(".dropDownList").hasClass("colNameSection")) {
+                return;
+            } else if (!$input.data("nofunc") && self._hasFuncFormat(arg)) {
+                // skip
+            } else if (xcHelper.hasValidColPrefix(arg)) {
+                arg = self._parseColPrefixes(arg);
+                type = self._getColumnTypeFromArg(arg);
+            } else if (arg[0] === gAggVarPrefix) {
+                // skip
+            } else {
+                const isString = self._formatArgumentInput(arg,
+                                                $input.data('typeid'),
+                                                existingTypes).isString;
+                if (isString) {
+                    type = "string";
+                }
+            }
+
+            if (type != null) {
+                existingTypes[type] = true;
+            }
+        });
+        return (existingTypes);
+    }
+
     protected _updateStrPreview(noHighlight?: boolean, andOrSwitch?: boolean) {
         const self = this;
         const $description = this._$panel.find(".strPreview");
@@ -777,52 +823,7 @@ class FilterOpPanel extends GeneralOpPanel {
     //     // return (tempText);
     // }
 
-    protected _getExistingTypes(groupNum) {
-        const self = this;
-        const existingTypes = {};
-        let arg;
-        let $input;
-        let type;
-        const $group = this._$panel.find('.group').eq(groupNum);
-        const funcName = $group.find('.functionsInput').val().trim();
-
-        if (funcName !== "eq" && funcName !== "neq") {
-            return existingTypes;
-        }
-
-        $group.find(".arg").each(function() {
-            $input = $(this);
-            arg = $input.val().trim();
-            type = null;
-
-            // col name field, do not add quote
-            if ($input.closest(".dropDownList").hasClass("colNameSection")) {
-                return;
-            } else if (!$input.data("nofunc") && self._hasFuncFormat(arg)) {
-                // skip
-            } else if (xcHelper.hasValidColPrefix(arg)) {
-                arg = self._parseColPrefixes(arg);
-                type = self._getColumnTypeFromArg(arg);
-            } else if (arg[0] === gAggVarPrefix) {
-                // skip
-            } else {
-                const isString = self._formatArgumentInput(arg,
-                                                $input.data('typeid'),
-                                                existingTypes).isString;
-                if (isString) {
-                    type = "string";
-                }
-            }
-
-            if (type != null) {
-                existingTypes[type] = true;
-            }
-        });
-        return (existingTypes);
-    }
-
     protected _validate(isSubmit?: boolean): boolean {
-        const self = this;
         if (this._isAdvancedMode()) {
             const error: {error: string} = this.model.validateAdvancedMode(this._editor.getValue(), isSubmit);
             if (error != null) {
@@ -838,23 +839,24 @@ class FilterOpPanel extends GeneralOpPanel {
                 const $input = $group.find(".arg").eq(error.arg);
                 switch (error.type) {
                     case ("function"):
-                        self._showFunctionsInputErrorMsg(error.group);
+                        this._showFunctionsInputErrorMsg(error.group);
                         break;
                     case ("blank"):
-                        self._handleInvalidBlanks([$input]);
+                        this._handleInvalidBlanks([$input]);
                         break;
                     case ("other"):
-                        self._statusBoxShowHelper(error.error, $input);
+                        this._statusBoxShowHelper(error.error, $input);
                         break;
                     case ("columnType"):
+                    case ("mismatchType"):
                         let allColTypes = [];
                         let inputNums = [];
                         const group = groups[error.group];
                         for (var i = 0; i < group.args.length; i++) {
                             let arg = group.args[i];
                             if (arg.getType() === "column") {
-                                let colType = self.model.getColumnTypeFromArg(arg.getFormattedValue());
-                                let requiredTypes = self._parseType(arg.getTypeid());
+                                let colType = this.model.getColumnTypeFromArg(arg.getFormattedValue());
+                                let requiredTypes = this._parseType(arg.getTypeid());
                                 allColTypes.push({
                                     inputTypes: [colType],
                                     requiredTypes: requiredTypes,
@@ -862,13 +864,15 @@ class FilterOpPanel extends GeneralOpPanel {
                                 });
                                 if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
                                     inputNums.push(i);
+                                } else if (error.type === "mismatchType") {
+                                    inputNums.push(i);
                                 }
                             }
                         }
-                        self._handleInvalidArgs(true, $input, error.error, error.group, allColTypes, inputNums);
+                        this._handleInvalidArgs(true, $input, error.error, error.group, allColTypes, inputNums);
                         break;
                     case ("valueType"):
-                        self._handleInvalidArgs(false, $input, error.error);
+                        this._handleInvalidArgs(false, $input, error.error);
                         break;
                     case ("missingFields"):
                     default:

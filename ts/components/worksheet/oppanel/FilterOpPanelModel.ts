@@ -94,7 +94,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
 
         for (let i = 0; i < argGroups.length; i++) {
             let argGroup = argGroups[i];
-            let args = [];
+            let args: OpPanelArg[] = [];
             const opInfo = this._getOperatorObj(argGroup.fnName);
             let lastArg;
             let hasVariableArg = false;
@@ -144,7 +144,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                                                            isOptional, true);
                 args.push(argInfo);
             }
-            args.forEach((arg, index) => {
+            args.forEach((arg: OpPanelArg, index) => {
                 const rawValue = arg.getValue();
                 let value = self.formatArgToUI(rawValue);
                 if (argGroup.fnName === "regex" && args.length === 2 &&
@@ -161,6 +161,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
 
                 arg.setValue(value);
                 arg.setFormattedValue(rawValue);
+                self._formatArg(arg);
                 self._validateArg(arg);
             });
 

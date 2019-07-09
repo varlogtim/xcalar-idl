@@ -516,7 +516,7 @@ class GeneralOpPanel extends BaseOpPanel {
         });
     }
 
-    public show(node: DagNode, options?: ShowPanelInfo): XDPromise<void>  {
+    public show(node: DagNode, options?: ShowPanelInfo): XDPromise<void> {
         const self = this;
         this._dagNode = node;
         if (this._formHelper.isOpen()) {
@@ -1260,7 +1260,7 @@ class GeneralOpPanel extends BaseOpPanel {
         }
     }
 
-    protected _getExistingTypes(_groupNum: number): any {
+    protected _getExistingTypes(groupNum: number): any {
         return {};
     }
 
@@ -1365,10 +1365,10 @@ class GeneralOpPanel extends BaseOpPanel {
             this._showCastRow(allColTypes, groupNum, inputsToCast)
             .then(function() {
                 if (!castIsVisible) {
-                    const $castDropdown: JQuery = $errorInput.closest('.inputWrap')
-                                        .siblings('.cast')
-                                        .find('.dropDownList:visible');
-                    if ($castDropdown.length) {
+                    const $cast: JQuery = $errorInput.closest('.inputWrap')
+                                                     .siblings('.cast');
+                    const $castDropdown: JQuery = $cast.find('.dropDownList:visible');
+                    if ($castDropdown.length && $cast.height() > 0) {
                         $errorInput = $castDropdown.find('input');
                     }
                     self._statusBoxShowHelper(errorText, $errorInput, 500);
@@ -1378,7 +1378,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 const $cast: JQuery = $errorInput.closest(".inputWrap").siblings(".cast");
                 $cast.addClass("noAnim");
                 const $castDropdown: JQuery = $cast.find('.dropDownList:visible');
-                if ($castDropdown.length) {
+                if ($castDropdown.length && $cast.height() > 0) {
                     $errorInput = $castDropdown.find('input');
                 }
                 self._statusBoxShowHelper(errorText, $errorInput, 500);

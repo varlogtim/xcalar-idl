@@ -2847,11 +2847,13 @@ class DagView {
         $dfArea.append($tip);
         let maxSkew: number = 0;
         let skewData = {};
-        skewInfos.forEach(skewInfo => {
+        skewInfos.forEach(((skewInfo, i) => {
             const skew: number = skewInfo.value;
-            if (!(skew == null || isNaN(skew))) {
-                if (skew >= maxSkew) {
-                    maxSkew = skew;
+            if (i === 0 || !(skew == null || isNaN(skew))) {
+                if (i === 0 || skew >= maxSkew) {
+                    if (!(skew == null || isNaN(skew))) {
+                        maxSkew = skew;
+                    }
                     skewData = {
                         rows: skewInfo.rows,
                         totalRows: skewInfo.totalRows,

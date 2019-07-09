@@ -7,9 +7,10 @@ class OpPanelArg {
     private isNone: boolean = false;
     private isEmptyString: boolean = false;
     private isRegex: boolean = false;
-    private type: string; // ("value" | "column" | "function" | "regex")
+    private type: string; // ("value" | "column" | "function" | "regex" | "aggregate")
     private error: string;
     private isOptional: boolean = false;
+    private valueType: string; // "string" | "number" | "money" | "timestamp" | "boolean"
 
     constructor(
         value: string,
@@ -83,6 +84,14 @@ class OpPanelArg {
 
     public getType(): string {
         return this.type;
+    }
+
+    public setValueType(valueType: string): void {
+        this.valueType = valueType;
+    }
+
+    public getValueType(): string {
+        return this.valueType;
     }
 
     public setIsNone(isNone: boolean): void {

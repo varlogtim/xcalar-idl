@@ -30,8 +30,10 @@ class MapOpPanel extends GeneralOpPanel {
 
     // options
     // restore: boolean, if true, will not clear the form from it's last state
-    public show(node: DagNodeMap, options: ShowPanelInfo) {
+    public show(node: DagNodeMap, options: ShowPanelInfo): XDPromise<void> {
         const self = this;
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+
         super.show(node, options)
         .then(() => {
             this._updateOpCategories();
@@ -66,7 +68,12 @@ class MapOpPanel extends GeneralOpPanel {
             });
 
             this._checkPanelOpeningError();
+            deferred.resolve();
+        })
+        .fail(() => {
+            deferred.reject();
         });
+        return deferred.promise();
     }
 
     public close(isSubmit?) {
@@ -698,52 +705,6 @@ class MapOpPanel extends GeneralOpPanel {
                                     FunctionCategoryT.FunctionCategoryUdf;
     }
 
-
-    protected _getExistingTypes(groupNum) {
-        const self = this;
-        const existingTypes = {};
-        let arg;
-        let $input;
-        let type;
-        const $group = this._$panel.find('.group').eq(groupNum);
-        const funcName = this._$panel.find(".group").eq(groupNum)
-                        .find(".functionsMenu").find('.active').text().trim();
-
-        if (funcName !== "eq" && funcName !== "neq") {
-            return existingTypes;
-        }
-
-        $group.find('.arg').each(function() {
-            $input = $(this);
-            arg = $input.val().trim();
-            type = null;
-
-            // col name field, do not add quote
-            if ($input.closest(".dropDownList").hasClass("colNameSection")) {
-                return;
-            } else if (!$input.data("nofunc") && self._hasFuncFormat(arg)) {
-                // skip
-            } else if (xcHelper.hasValidColPrefix(arg)) {
-                arg = self._parseColPrefixes(arg);
-                type = self._getColumnTypeFromArg(arg);
-            } else if (arg[0] === gAggVarPrefix) {
-                // skip
-            } else {
-                const isString = self._formatArgumentInput(arg,
-                                                $input.data('typeid'),
-                                               existingTypes).isString;
-                if (isString) {
-                    type = "string";
-                }
-            }
-
-            if (type != null) {
-                existingTypes[type] = true;
-            }
-        });
-        return (existingTypes);
-    }
-
     protected _validate(isSubmit?: boolean): boolean {
         const self = this;
         if (this._isAdvancedMode()) {
@@ -773,6 +734,7 @@ class MapOpPanel extends GeneralOpPanel {
                         self._statusBoxShowHelper(error.error, $input);
                         break;
                     case ("columnType"):
+                    case ("mismatchType"):
                         let allColTypes = [];
                         let inputNums = [];
                         const group = groups[error.group];
@@ -787,6 +749,8 @@ class MapOpPanel extends GeneralOpPanel {
                                     inputNum: i
                                 });
                                 if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
+                                    inputNums.push(i);
+                                } else if (error.type === "mismatchType") {
                                     inputNums.push(i);
                                 }
                             }
@@ -1047,5 +1011,51 @@ class MapOpPanel extends GeneralOpPanel {
                 this._opCategories.push(parseInt(i));
             }
         }
+    }
+
+    protected _getExistingTypes(groupNum: number): any {
+        const self = this;
+        const existingTypes = {};
+        let arg;
+        let $input;
+        let type;
+        const $group = this._$panel.find('.group').eq(groupNum);
+
+        const category: Number = this._$panel.find(".group").eq(groupNum)
+                    .find(".categoryMenu").find('.active').data("category");
+
+        if (category !== FunctionCategoryT.FunctionCategoryCondition) {
+            return existingTypes;
+        }
+
+        $group.find(".arg").each(function() {
+            $input = $(this);
+            arg = $input.val().trim();
+            type = null;
+
+            // col name field, do not add quote
+            if ($input.closest(".dropDownList").hasClass("colNameSection")) {
+                return;
+            } else if (!$input.data("nofunc") && self._hasFuncFormat(arg)) {
+                // skip
+            } else if (xcHelper.hasValidColPrefix(arg)) {
+                arg = self._parseColPrefixes(arg);
+                type = self._getColumnTypeFromArg(arg);
+            } else if (arg[0] === gAggVarPrefix) {
+                // skip
+            } else {
+                const isString = self._formatArgumentInput(arg,
+                                                $input.data('typeid'),
+                                                existingTypes).isString;
+                if (isString) {
+                    type = "string";
+                }
+            }
+
+            if (type != null) {
+                existingTypes[type] = true;
+            }
+        });
+        return (existingTypes);
     }
 }

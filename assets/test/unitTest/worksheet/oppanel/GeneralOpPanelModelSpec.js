@@ -14,6 +14,9 @@ describe("GeneralOpPanelModel Test", function() {
         columns = [new ProgCol({
             backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
             type: "number"
+        }), new ProgCol({
+            backName: xcHelper.getPrefixColName(prefix, 'mixed'),
+            type: "mixed"
         })];
         parentNode.getLineage = function() {
             return {getColumns: function() {
@@ -62,7 +65,7 @@ describe("GeneralOpPanelModel Test", function() {
         });
 
         it("function isBoolInQuotes", function() {
-            var fn = model._isBoolInQuotes;
+            var fn = model._isBoolInQuotes.bind(model);
             expect(fn("'true'")).to.be.true;
             expect(fn("'true")).to.be.false;
             expect(fn("\"true\"")).to.be.true;
@@ -362,6 +365,165 @@ describe("GeneralOpPanelModel Test", function() {
                     arg: 1,
                     type: "valueType"});
             });
+
+            it("should check type mismatch error: string-number", function() {
+                model.groups = [
+                    {operator: "gt",
+                        args: [{checkIsValid:()=>true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "test",
+                            getFormattedValue: () => '"test"',
+                            isCast:() => false
+                        },
+                            {checkIsValid: () => true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "3",
+                            getFormattedValue: () => "3",
+                            isCast:() => false,
+                        }
+                        ]
+                    }
+                ];
+
+                expect(fn()).to.deep.equal({error: "Arguments should be of the same type. Expected test (string) to match 3 (number).",
+                    group: 0,
+                    arg: 1,
+                    type: "mismatchType"});
+            });
+            it("should check type mismatch error: number-string", function() {
+                model.groups = [
+                    {operator: "gt",
+                        args: [{checkIsValid:()=>true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "3",
+                            getFormattedValue: () => "3",
+                            isCast:() => false
+                        },
+                            {checkIsValid: () => true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "test",
+                            getFormattedValue: () => '"test"',
+                            isCast:() => false,
+                        }
+                        ]
+                    }
+                ];
+                expect(fn()).to.deep.equal({error: "Arguments should be of the same type. Expected 3 (number) to match test (string).",
+                    group: 0,
+                    arg: 1,
+                    type: "mismatchType"});
+            });
+
+            it("should check type mismatch error: boolean-string", function() {
+                model.groups = [
+                    {operator: "gt",
+                        args: [{checkIsValid:()=>true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "false",
+                            getFormattedValue: () => "false",
+                            isCast:() => false
+                        },
+                            {checkIsValid: () => true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "test",
+                            getFormattedValue: () => '"test"',
+                            isCast:() => false,
+                        }
+                        ]
+                    }
+                ];
+                expect(fn()).to.deep.equal({error: "Arguments should be of the same type. Expected false (boolean) to match test (string).",
+                    group: 0,
+                    arg: 1,
+                    type: "mismatchType"});
+            });
+
+            it("should ignore type mismatch error: boolean-string if casted", function() {
+                model.groups = [
+                    {operator: "gt",
+                        args: [{checkIsValid:()=>true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "false",
+                            getFormattedValue: () => "false",
+                            isCast:() => false
+                        },
+                            {checkIsValid: () => true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "test",
+                            getFormattedValue: () => '"test"',
+                            isCast:() => true,
+                            getCast:() => "boolean"
+                        }
+                        ]
+                    }
+                ];
+                expect(fn()).to.deep.equal(null);
+            });
+
+
+            it("should ignore type mismatch error: boolean-mixed-string", function() {
+                model.groups = [
+                    {operator: "gt",
+                        args: [{checkIsValid:()=>true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "false",
+                            getFormattedValue: () => "false",
+                            isCast:() => false
+                        },
+                        {checkIsValid: () => true,
+                            getType: () => "column",
+                            getError: ()=>null,
+                            getValue: () => "$prefix::mixed",
+                            getFormattedValue: () => 'prefix::mixed',
+                            isCast:() => false,
+                        },
+                            {checkIsValid: () => true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "test",
+                            getFormattedValue: () => '"test"',
+                            isCast:() => false,
+                        }
+                        ]
+                    }
+                ];
+                expect(fn()).to.deep.equal(null);
+            });
+
+            it("should check type mismatch error: column:number-string", function() {
+                model.groups = [
+                    {operator: "gt",
+                        args: [{checkIsValid:()=>true,
+                            getType: () => "column",
+                            getError: ()=>null,
+                            getValue: () => "$prefix::average_stars",
+                            getFormattedValue: () => "prefix::average_stars",
+                            isCast:() => false
+                        },
+                            {checkIsValid: () => true,
+                            getType: () => "value",
+                            getError: ()=>null,
+                            getValue: () => "test",
+                            getFormattedValue: () => '"test"',
+                            isCast:() => false,
+                        }
+                        ]
+                    }
+                ];
+                expect(fn()).to.deep.equal({error: "Arguments should be of the same type. Expected $prefix::average_stars (number) to match test (string).",
+                    group: 0,
+                    arg: 1,
+                    type: "mismatchType"});
+            });
         });
 
         describe('function hasUnescapedParens', function() {
@@ -393,37 +555,44 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("invalid input should be caught by parser", function() {
-                expect(fn("a")).to.equal("line 1:1 no viable alternative at input \'a\'");
+                const parsedEval = XDParser.XEvalParser.parseEvalStr("a");
+                expect(fn(parsedEval)).to.equal("line 1:1 no viable alternative at input \'a\'");
             });
 
             it("invalid function should be caught", function() {
-                expect(fn("xx(a)")).to.equal("Function not found");
+                const parsedEval = XDParser.XEvalParser.parseEvalStr("xx(a)");
+                expect(fn(parsedEval)).to.equal("Function not found");
             });
 
             it("invalid string type should be caught", function() {
                 model._parseType = () => ["integer", "float", "boolean"]; // the type that the eval string should output
                 // output type === "float"
-                expect(fn("add(1, 'a')")).to.equal("Data type is invalid. Expected: integer/float/boolean, Entered: string.");
+                const parsedEval = XDParser.XEvalParser.parseEvalStr("add(1, 'a')");
+                expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: integer/float/boolean, Entered: string.");
             });
 
             it("invalid string type should be caught", function() {
                 model._parseType = () => ["integer", "float", "boolean"];
-                expect(fn("add(1, add(2,'a'))")).to.equal("Data type is invalid. Expected: integer/float/boolean, Entered: string.");
+                const parsedEval = XDParser.XEvalParser.parseEvalStr("add(1, add(2,'a'))");
+                expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: integer/float/boolean, Entered: string.");
             });
 
             it("invalid integer type should be caught", function() {
                 model._parseType = () => ["string"];
-                expect(fn("concat(1, 3)")).to.equal("Data type is invalid. Expected: string, Entered: integer.");
+                const parsedEval = XDParser.XEvalParser.parseEvalStr("concat(1, 3)");
+                expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: string, Entered: integer.");
             });
 
             it("invalid float type should be caught", function() {
                 model._parseType = () => ["string"];
-                expect(fn("concat(3.2, 1)")).to.equal("Data type is invalid. Expected: string, Entered: float.");
+                const parsedEval = XDParser.XEvalParser.parseEvalStr("concat(3.2, 1)");
+                expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: string, Entered: float.");
             });
 
             it("invalid colArg(int) type should be caught", function() {
                 model._parseType = () => ["string"];
-                expect(fn("concat(prefix::average_stars, 3)", null, columns)).to.equal("Data type is invalid. Expected: string, Entered: integer.");
+                const parsedEval = XDParser.XEvalParser.parseEvalStr("concat(prefix::average_stars, 3)");
+                expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: string, Entered: number.");
             });
 
             after(function() {

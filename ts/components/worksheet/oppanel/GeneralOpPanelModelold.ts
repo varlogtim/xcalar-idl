@@ -293,16 +293,10 @@ abstract class GeneralOpPanelModel {
                 arg.setError(error);
             }
         } else if (arg.getType() === "function") {
-            const parsedEval: ParsedEval = XDParser.XEvalParser.parseEvalStr(val);
-            const error = this._validateEval(parsedEval, arg.getTypeid());
+            const error = this._validateEval(trimmedVal, arg.getTypeid(),
+                                            this.tableColumns);
             if (error) {
                 arg.setError(error);
-            } else {
-                let operatorInfo = self._getFnOperatorInfo(parsedEval.fnName);
-                if (operatorInfo) {
-                    let outputType = xcHelper.convertFieldTypeToColType(operatorInfo.outputType);
-                    arg.setValueType(outputType);
-                }
             }
         }
     }
@@ -311,8 +305,9 @@ abstract class GeneralOpPanelModel {
     // example - if the operator is "add", and the first argument is "sub(3,4)"
     // we evaluate that sub(3,4) is formatted correctly and that it's output type
     // matches the expect input type of the first argument for "add"
-    private _validateEval(func: ParsedEval, expectedTypeid: number) {
+    private _validateEval(val, expectedTypeid: number, columns: ProgCol[]) {
         const self = this;
+        const func = XDParser.XEvalParser.parseEvalStr(val);
         const errorObj = {error: null};
         if (func.error) {
             errorObj.error = func.error;
@@ -352,10 +347,16 @@ abstract class GeneralOpPanelModel {
         }
 
         function validateFnName(operator, expectedTypeid: number, errorObj) {
-            let operatorInfo = self._getFnOperatorInfo(operator);
-            let outputType: ColumnType;
-            if (operatorInfo) {
-                outputType = xcHelper.convertFieldTypeToColType(operatorInfo.outputType);
+            const opsMap = XDFManager.Instance.getOperatorsMap();
+            let outputType: ColumnType = null;
+            let operatorInfo = null;
+            for (let category in opsMap) {
+                const ops = opsMap[category];
+                if (ops[operator]) {
+                    operatorInfo = ops[operator];
+                    outputType = xcHelper.convertFieldTypeToColType(operatorInfo.outputType);
+                    break;
+                }
             }
             if (outputType == null) {
                 errorObj.error = "Function not found";
@@ -377,7 +378,7 @@ abstract class GeneralOpPanelModel {
                 outputType = ColumnType.float;
             }
             if (outputType === "columnArg") {
-                outputType = self.getColumnTypeFromArg(value);
+                outputType = getColumnType(value);
             }
             if (outputType == null) {
                 return false; // XXX column was not found, we just pass for now
@@ -393,20 +394,25 @@ abstract class GeneralOpPanelModel {
                 });
             }
         }
+
+        function getColumnType(colName) {
+            let colType = null;
+            const progCol: ProgCol = columns.find((progCol) => {
+                return progCol.getBackColName() === colName;
+            });
+            if (progCol != null) { // if cannot find column, pass
+                let colType: string = progCol.getType();
+                if (colType === ColumnType.integer && !progCol.isKnownType()) {
+                    // for fat potiner, we cannot tell float or integer
+                    // so for integer, we mark it
+                    colType = ColumnType.number;
+                }
+            }
+            return colType;
+        }
     }
 
-    private _getFnOperatorInfo(operator) {
-        const opsMap = XDFManager.Instance.getOperatorsMap();
-        let operatorInfo = null;
-        for (let category in opsMap) {
-            const ops = opsMap[category];
-            if (ops[operator]) {
-                operatorInfo = ops[operator];
-                break;
-            }
-        }
-        return operatorInfo;
-    }
+
 
      // checks to see if value has at least one parentheses that's not escaped
     // or inside quotes
@@ -456,14 +462,15 @@ abstract class GeneralOpPanelModel {
     }
 
     public getColumnTypeFromArg(value): string {
+        const self = this;
         let colType: string;
 
-        const progCol: ProgCol = this.tableColumns.find((progCol) => {
+        const progCol: ProgCol = self.tableColumns.find((progCol) => {
             return progCol.getBackColName() === value;
         });
         if (progCol == null) {
             console.error("cannot find col", value);
-            return null;
+            return;
         }
 
         colType = progCol.getType();
@@ -597,7 +604,8 @@ abstract class GeneralOpPanelModel {
         let canBeBooleanOrNumber: boolean = false;
 
         // boolean is a subclass of number
-        if (this._isBoolean(tmpArg) || isNumber)
+        if (tmpArg === "true" || tmpArg === "false" ||
+            tmpArg === "t" || tmpArg === "f" || isNumber)
         {
             canBeBooleanOrNumber = true;
             argType = "string/boolean/integer/float";
@@ -610,7 +618,6 @@ abstract class GeneralOpPanelModel {
                 return null;
             } else {
                 return {
-                    "error": true,
                     "validType": types,
                     "currentType": argType
                 };
@@ -622,7 +629,6 @@ abstract class GeneralOpPanelModel {
 
         if (!isNumber) {
             return {
-                "error": true,
                 "validType": types,
                 "currentType": argType
             };
@@ -636,7 +642,6 @@ abstract class GeneralOpPanelModel {
         if (types.indexOf(ColumnType.integer) > -1) {
             if (tmpArg % 1 !== 0) {
                 return {
-                    "error": true,
                     "validType": types,
                     "currentType": ColumnType.float
                 };
@@ -647,7 +652,6 @@ abstract class GeneralOpPanelModel {
 
         if (types.length === 1 && types[0] === ColumnType.undefined) {
             return {
-                "error": true,
                 "validType": types,
                 "currentType": argType
             };
@@ -706,7 +710,7 @@ abstract class GeneralOpPanelModel {
                 }
             } else if (shouldBeBoolean) {
                 const valLower = ("" + value).toLowerCase();
-                if (this._isBoolean(valLower)) {
+                if (valLower === "true" || valLower === "false") {
                     shouldBeString = false;
                 }
             }
@@ -780,8 +784,8 @@ abstract class GeneralOpPanelModel {
             const quote: string = arg[0];
             arg = arg.slice(1);
             if (arg.length > 1 && arg[arg.length - 1] === quote) {
-                arg = arg.slice(0, arg.length - 1);
-                if (this._isBoolean(arg)) {
+                arg = arg.slice(0, arg.length - 1).toLowerCase();
+                if (arg === "true" || arg === "false") {
                     return true;
                 } else {
                     return false;
@@ -857,8 +861,9 @@ abstract class GeneralOpPanelModel {
 
     protected _isArgAColumn(arg: string) {
         return (isNaN(<any>arg) &&
-                arg.indexOf("(") === -1 && !this._isBoolean(arg) &&
-                arg !== "None");
+                arg.indexOf("(") === -1 &&
+                arg !== "true" && arg !== "false" &&
+                arg !== "t" && arg !== "f" && arg !== "None");
     }
 
     protected _isOperationValid(groupNum): boolean {
@@ -867,21 +872,7 @@ abstract class GeneralOpPanelModel {
         return this._getOperatorObj(operator) != null;
     }
 
-    protected _getOperatorObj(operatorName: string): {
-        argDescs: {
-            argDesc: string,
-            argType: number,
-            isSingletonValue: true,
-            maxArgs: number,
-            minArgs: number,
-            typesAccepted: number
-        }[],
-        category: number,
-        displayName: string,
-        fnDesc: string,
-        numArgs: number,
-        outputType: number
-    } {
+    protected _getOperatorObj(operatorName: string): any {
         for (let i = 0; i < this._opCategories.length; i++) {
             let ops = GeneralOpPanel.getOperatorsMap()[this._opCategories[i]];
             const op = ops[operatorName];
@@ -1033,79 +1024,7 @@ abstract class GeneralOpPanelModel {
                 }
             }
         }
-
-        // arguments in the Conditional Category should have matching types
-        for (let i = 0; i < groups.length; i++) {
-            const group = groups[i];
-            const opInfo = this._getOperatorObj(group.operator);
-            if (opInfo && opInfo.category === FunctionCategoryT.FunctionCategoryCondition) {
-                let colTypes = BaseOpPanel.getBasicColTypes();
-                colTypes.push(ColumnType.number);
-                let baseType = null;
-                let baseValue = null;
-                let diffType = null;
-                let diffTypeValue = null;
-                let diffTypeArgNum = null;
-                let hasMixed = false;
-                for (let j = 0; j < group.args.length; j++) {
-                    const arg = group.args[j];
-                    let type = arg.getType();
-                    let valueType;
-                    let value = arg.getValue();
-                    let formattedValue = arg.getFormattedValue();
-                    if (arg.isCast()) {
-                        valueType = arg.getCast();
-                    } else if (type === "column") {
-                        valueType = this.getColumnTypeFromArg(this._parseColPrefixes(value));
-                    } else if (type === "value") {
-                        let lowerVal = formattedValue.toLowerCase();
-                        if (lowerVal.startsWith("\"") || lowerVal.startsWith("'")) {
-                            valueType = ColumnType.string;
-                        } else if (this._isBoolean(formattedValue)) {
-                            valueType = ColumnType.boolean;
-                        } else {
-                            valueType = ColumnType.number;
-                        }
-                    } else if (type === "regex") {
-                        valueType = ColumnType.string;
-                    } else if (type === "aggregate") {
-                        //XXX could be number or string so ignore for now
-                    } else if (type === "function") {
-                        valueType = arg.getValueType();
-                    }
-                    if (valueType === ColumnType.integer || valueType === ColumnType.float) {
-                        valueType = ColumnType.number;
-                    }
-                    if (valueType === ColumnType.mixed) {
-                        hasMixed = true;
-                        break;
-                    }
-                    // ignores mixed
-                    if (!baseType && colTypes.includes(valueType)) {
-                        baseType = valueType;
-                        baseValue = value;
-                    } else if (!diffType && baseType && colTypes.includes(valueType) && valueType !== baseType) {
-                        diffType = valueType;
-                        diffTypeValue = value;
-                        diffTypeArgNum = j;
-                    }
-                }
-                if (!hasMixed && diffType) {
-                    return {
-                        error: `Arguments should be of the same type. Expected ${baseValue} (${baseType}) to match ${diffTypeValue} (${diffType}).`,
-                        group: i,
-                        arg: diffTypeArgNum,
-                        type: "mismatchType"
-                    };
-                }
-            }
-        }
         return null;
-    }
-
-    private _isBoolean(arg) {
-        arg = ("" + arg).toLowerCase();
-        return (arg === "true" || arg === "false" || arg === "t" || arg === "f");
     }
 
     protected _translateAdvancedErrorMessage(error) {
@@ -1136,9 +1055,6 @@ abstract class GeneralOpPanelModel {
                 const arg = groups[error.group].args[error.arg].getValue();
                 text = "Value: " + arg + ". " + error.error;
                 break;
-            case ("mismatchType"):
-                text = error.error;
-                break;
             case ("newField"):
                 text = "New field name is invalid: " + error.error;
                 break;
@@ -1149,9 +1065,9 @@ abstract class GeneralOpPanelModel {
         return {error: text};
     }
 
-    protected _isOptional(opInfo, argIndex): boolean {
+    protected _isOptional(opInfo, index): boolean {
         return (opInfo.category !== FunctionCategoryT.FunctionCategoryUdf) &&
-                opInfo.argDescs[argIndex] != null &&
-                (opInfo.argDescs[argIndex].argType === XcalarEvalArgTypeT.OptionalArg);
+                opInfo.argDescs[index] != null &&
+                (opInfo.argDescs[index].argType === XcalarEvalArgTypeT.OptionalArg);
     }
 }
