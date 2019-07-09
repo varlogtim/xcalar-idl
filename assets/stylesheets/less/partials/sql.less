@@ -299,8 +299,11 @@
 
 
                 .sqlQueryHist {
-                    .size(@min-width: 775px, @height: 100%);
+                    .size(@height: 100%);
                     margin-bottom: 0px;
+                    .cardMain {
+                        min-width: 775px;
+                    }
                 }
             }
 
@@ -528,7 +531,7 @@
             font-weight: bold;
             line-height: @topSectionHeight;
             pointer-events: none;
-            .flex(0 0 auto);
+            .flex(0 1 auto);
         }
 
         .divider {
