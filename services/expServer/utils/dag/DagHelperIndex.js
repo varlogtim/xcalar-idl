@@ -23,6 +23,9 @@ class DagHelper {
             parameterMap = new Map();
         }
         try {
+            // Create xcrpc client
+            const url = "https://localhost/app/service/xce";
+            Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, url);
             var dagRuntime = new DagRuntime();
             var targetDag;
             // Register all dataflows for linkin/out lookup
