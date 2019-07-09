@@ -213,10 +213,17 @@ class JoinOpPanelStep2 {
             $(this).find("input").focus();
         });
 
+        const duration = 800; // Stop typing after <duration> ms, apply the suffix to prefix/column names
+        let timer = null;
         $container.on("input", ".copyAppend input", (event) => {
-            const suffix = $(event.target).val();
-            this._batchRename({ isLeft: isLeft, isPrefix: isPrefix, suffix: suffix});
-            this._onDataChange();
+            if (timer != null) {
+                clearTimeout(timer);
+            }
+            timer = setTimeout(() => {
+                const suffix = $(event.target).val();
+                this._batchRename({ isLeft: isLeft, isPrefix: isPrefix, suffix: suffix});
+                this._onDataChange();
+            }, duration);
         });
     }
 
