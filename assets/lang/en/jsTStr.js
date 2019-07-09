@@ -118,6 +118,7 @@ TooltipTStr = {
     'RestoreDS': "Dataset used for this node is not found, click the button to restore the dataset",
     'twodp': '2 decimal places',
     "MustBeInWorkbook": "You must be inside a workbook to perform this action.",
+    "SelectToViewSchema": "Select a table to view schema",
     // Sync with htmlTStr
     "IcvRestriction": "Erroneous rows(ER) result only available for Map and Group By",
     "OnlyInOpMode": "Feature only available in Operational Cluster",

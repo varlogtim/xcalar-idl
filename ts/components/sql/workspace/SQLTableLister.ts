@@ -329,9 +329,12 @@ class SQLTableLister extends AbstractSQLResultView {
 
         if (!tableOnFocus) {
             // no table
-            $btns.addClass("xc-disabled");
+            $btns.addClass("xc-disabled"); 
+            xcTooltip.add($btns.parent(".tooltipWrapper"),
+                { "title": TooltipTStr.SelectToViewSchema});
         } else {
             $btns.removeClass("xc-disabled");
+            xcTooltip.remove($btns.parent(".tooltipWrapper"));
         }
     }
 
