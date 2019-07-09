@@ -15,10 +15,6 @@ describe("MonitorPanel Test", function() {
             $("#settingsButton").click();
             expect($("#monitor-settings").hasClass("active")).to.be.true;
         });
-        it("extensionSettingButton should work", function() {
-            $("#extensionSettingButton").click();
-            expect($("#monitor-extension").hasClass("active")).to.be.true;
-        });
     });
 
     describe("toggling graph switches", function() {

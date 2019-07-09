@@ -146,13 +146,6 @@ namespace MonitorPanel {
                     $menu.find(".menuSection.settings").removeClass("xc-hidden");
                     title += MonitorTStr.Settings;
                     break;
-                case ("extensionSettingButton"):
-                    $("#monitor-extension").addClass("active");
-                    $extSearch.removeClass("xc-hidden");
-                    $menu.find(".menuSection.extension").removeClass("xc-hidden");
-                    ExtensionManager.renderPanels();
-                    title += MonitorTStr.Ext;
-                    break;
                 case ("fileManagerButton"):
                     $("#monitor-file-manager").addClass("active");
                     $menu.find(".menuSection.fileManager").removeClass("xc-hidden");

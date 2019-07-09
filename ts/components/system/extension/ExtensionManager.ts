@@ -5,8 +5,6 @@ namespace ExtensionManager {
     let hasInitialLoad: boolean = false;
     let hasRenderPanels: boolean = false;
     let extensionLoader: ExtensionLoader;
-    let extensionPanel: ExtensionPanel;
-    let extensionUploadCard: ExtensionUploadCard;
 
     /**
      * ExtensionManager.setup
@@ -27,19 +25,6 @@ namespace ExtensionManager {
         return ExtensionManager.install();
     }
 
-    /**
-     * ExtensionManager.renderPanels
-     */
-    export function renderPanels(): void {
-        if (hasRenderPanels) {
-            return;
-        }
-        extensionPanel = new ExtensionPanel(extensionLoader);
-        extensionUploadCard = new ExtensionUploadCard("extension-upload", extensionLoader);
-        addPanelEventListeners();
-
-        extensionPanel.render();
-    }
 
     /**
      * ExtensionManager.install
@@ -59,16 +44,6 @@ namespace ExtensionManager {
         return cachedExts;
     }
 
-    /**
-     * ExtensionManager.imageError
-     * @param ele
-     */
-    export function imageError(ele) {
-        let imgSrc = paths.XCExt;
-        ele.src = imgSrc;
-        let ext = extensionPanel.getExtensionFromEle($(ele).closest(".item"));
-        ext.setImage(imgSrc);
-    }
 
     function setupExtensionLoaderEvents(): void {
         extensionLoader
@@ -322,10 +297,4 @@ namespace ExtensionManager {
         }
     }
 
-    function addPanelEventListeners(): void {
-        $("#uploadExtension").click(() => {
-            extensionUploadCard.show();
-            $("#monitorPanel").find(".mainContent").scrollTop(0);
-        });
-    }
 }
