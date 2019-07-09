@@ -58,7 +58,7 @@ namespace FileBrowser {
         "GIF": "xi-gif-big-file",
         "BMP": "xi-bmp-big-file"
     };
-    const gridFormatMap = {
+    export const gridFormatMap = {
         "JSON": "xi-json-file",
         "CSV": "xi-csv-file",
         "Excel": "xi-xls-file",
@@ -107,8 +107,6 @@ namespace FileBrowser {
                     .html(xcUIHelper.getLockIconHtml(undefined, undefined, false,
                                                    false, true));
 
-        FilePreviewer.setup();
-
         if (!window["isBrowserChrome"]) {
             lowerFileLimit = 600;
             upperFileLimit = subUpperFileLimit;
@@ -119,6 +117,7 @@ namespace FileBrowser {
         addPathSectionEvents();
         addSearchSectionEvents();
         addInfoContainerEvents();
+        setupRightClickMenu();
 
         fileBrowserScrolling();
     }
@@ -232,8 +231,8 @@ namespace FileBrowser {
             cleanContainer({keepPicked: true});
         });
 
-        $("#fileInfoContainer, #fileBrowserPreview").on("click", function(event) {
-            // Click on infoContainer or filePreviewer should not clean container
+        $("#fileInfoContainer").on("click", function(event) {
+            // Click on infoContainer should not clean container
             event.stopPropagation();
         });
 
@@ -381,16 +380,17 @@ namespace FileBrowser {
     }
 
     function addInfoContainerEvents(): void {
-        $infoContainer.find(".infoTitle .close").on("click", "span, i", function() {
+        $infoContainer.find(".clearAll").on("click", function() {
             // Clear all
             cleanContainer(null);
             $fileBrowser.find(".pickedFileList").empty();
         });
 
-        $infoContainer.find(".pickedFiles .addRegex").on("click", "span", function() {
+        $infoContainer.find(".addRegex").on("click", function() {
             // Add a regex pattern to list
+            $(this).blur();
             let html = createListElement(null, false);
-            let $span = $(html).appendTo($pickedFileList).find("span");
+            let $span = $(html).appendTo($pickedFileList).find(".text");
             refreshFileListEllipsis($span, true);
             updateButtons();
         });
@@ -460,11 +460,6 @@ namespace FileBrowser {
                 $label.siblings(".switchLabel").removeClass("highlighted");
                 $label.addClass("highlighted");
             }
-        });
-
-        $infoContainer.on("click", ".fileRawData .btn", function() {
-            let $grid = getFocusedGridEle();
-            previewDS($grid);
         });
 
         // confirm to open a ds
@@ -675,8 +670,85 @@ namespace FileBrowser {
     }
 
     function hideBrowserMenu(): void {
-        $("#fileBrowserMenu").hide();
+        getRightClickMenu().hide();
         $("#fileBrowserSortMenu").hide();
+    }
+
+    function getRightClickMenu(): JQuery {
+        return $("#fileBrowserMenu");
+    }
+
+    function setupRightClickMenu(): void {
+        let $menu = getRightClickMenu();
+        xcMenu.add($menu);
+        // set up click right menu
+        let el: HTMLElement = <HTMLElement>$container[0];
+        el.oncontextmenu = function(event) {
+            let $target = $(event.target);
+            let $grid = $target.closest(".grid-unit");
+            $menu.removeData();
+            if ($grid.length === 0) {
+                return false;
+            }
+            let classes: string[] = ["style-white"];
+            let $rawDataLi = $menu.find(".rawData");
+            if ($grid.hasClass("folder")) {
+                $rawDataLi.addClass("unavailable");
+                xcTooltip.add($rawDataLi, {title: "Cannot view raw data of a folder"});
+            } else {
+                $rawDataLi.removeClass("unavailable");
+                xcTooltip.remove($rawDataLi);
+            }
+
+            $menu.data("file", getGridUnitName($grid))
+                .data("index", Number($grid.data("index")));
+
+            MenuHelper.dropdownOpen($target, $menu, {
+                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
+                "classes": classes.join(" "),
+                "floating": true
+            });
+            return false;
+        };
+
+        setupRightClickMenuActions();
+    }
+
+    function setupRightClickMenuActions(): void {
+        let $menu = getRightClickMenu();
+        $menu.on("mouseup", ".rawData", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            previewDS($menu.data("file"));
+        });
+
+        $menu.on("mouseup", ".copyPath", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            copyFilePath($menu.data("file"));
+        });
+
+        $menu.on("mouseup", ".getInfo", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            let index: number = $menu.data("index");
+            if (index != null) {
+                showFileInfo(curFiles[index]);
+            }
+        });
+    }
+
+    function copyFilePath(fileName: string): void {
+        let path = getCurrentPath() + fileName;
+        xcUIHelper.copyToClipboard(path);
+        xcUIHelper.showSuccess("File path has copied to clipboard");
+    }
+
+    function showFileInfo(file) {
+        FileInfoModal.Instance.show(file);
     }
 
     function fileBrowserScrolling(): void {
@@ -762,7 +834,6 @@ namespace FileBrowser {
         noRefreshTooltip: boolean
     ): void {
         let $btn: JQuery = $("#fileBrowserGridView");
-        FilePreviewer.close();
         if (toListView == null) {
             // if current is gridView, change to listView;
             toListView = $fileBrowserMain.hasClass("gridView");
@@ -872,8 +943,6 @@ namespace FileBrowser {
         $fileBrowser.removeClass("loadMode errorMode");
         $fileBrowserMain.find(".searchLoadingSection").hide();
         fileBrowserId = null;
-
-        FilePreviewer.close();
     }
 
     function cleanContainer(
@@ -1052,7 +1121,6 @@ namespace FileBrowser {
                     return;
                 }
                 cleanContainer({keepPicked: true});
-                FilePreviewer.close();
                 allFiles = dedupFiles(targetName, listFilesOutput.files);
                 checkPicked(allFiles, path);
                 addFileExtensionAttr(allFiles);
@@ -1118,8 +1186,6 @@ namespace FileBrowser {
         if ($pathSection.hasClass("open")) {
             pathDropdownMenu.toggleList($pathSection);
         }
-
-        FilePreviewer.close();
 
         var oldPath = getCurrentPath();
         var path = $newPath.text();
@@ -1258,7 +1324,6 @@ namespace FileBrowser {
         // for unit test, use promise
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let $input = $("#fileBrowserSearch input").removeClass("error");
-        FilePreviewer.close();
         if (type == null) {
             $searchDropdown.find("li").removeClass("selected");
         }
@@ -1375,7 +1440,6 @@ namespace FileBrowser {
         let grid = getFocusGrid();
         let key: string = $option.data("sortkey");
 
-        FilePreviewer.close();
         $option.siblings(".select").each(function() {
             let $currOpt = $(this);
             $currOpt.removeClass("select");
@@ -1843,8 +1907,8 @@ namespace FileBrowser {
         $fileName: JQuery,
         hasRegex: boolean
     ): void {
-        const maxChar: number = hasRegex? 20 : 38;
-        const maxWidth: number = hasRegex? 170 : 280;
+        const maxChar: number = hasRegex? 20 : 30;
+        const maxWidth: number = hasRegex? 160 : 240;
         let canvas = document.createElement('canvas');
         let ctx = canvas.getContext('2d');
         ctx.font = '700 13px Open Sans';
@@ -1904,10 +1968,6 @@ namespace FileBrowser {
         $(document).on("keydown.fileBrowser", function(event) {
             // up to parent folder
             let $target = $(event.target);
-            if ($target.closest("#fileBrowserPreview").length > 0) {
-                return;
-            }
-
             let code = event.which;
             let $lastTarget = gMouseEvents.getLastMouseDownTarget();
             let $lastTargParents = gMouseEvents.getLastMouseDownParents();
@@ -2190,14 +2250,14 @@ namespace FileBrowser {
         return $grid.hasClass("ds");
     }
 
-    function previewDS($grid: JQuery): void {
-        if ($grid.length === 0) {
+    function previewDS(fileName): void {
+        if (!fileName) {
             return;
         }
-        FilePreviewer.show({
+        RawFileModal.Instance.show({
             targetName: getCurrentTarget(),
-            path: getCurrentPath() + getGridUnitName($grid),
-            isFolder: $grid.hasClass("folder")
+            path: getCurrentPath(),
+            fileName
         });
     }
 
@@ -2219,14 +2279,6 @@ namespace FileBrowser {
 
     function updateActiveFileInfo($grid: JQuery): void {
         if (!$grid) {
-            $infoContainer.find(".fileName").text("--");
-            $infoContainer.find(".fileType").text("--");
-            $infoContainer.find(".mdate .content").text("--");
-            // $infoContainer.find(".cdate .content").text("--");
-            $infoContainer.find(".fileSize .content").text("--");
-            $infoContainer.find(".fileIcon").removeClass()
-                          .addClass("icon fileIcon xi-folder");
-            $infoContainer.find(".fileRawData .btn").addClass("xc-disabled");
             $container.find(".filePathBottom .content").text(searchInfo);
             return;
         }
@@ -2234,45 +2286,6 @@ namespace FileBrowser {
         let file = curFiles[index];
         let name = file.name;
         let path = getCurrentPath() + name;
-        let mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
-
-        let isFolder = file.attr.isDirectory;
-        let size: string = isFolder ? "--" : <string>xcHelper.sizeTranslator(file.attr.size);
-        let fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
-        let $fileIcon = $infoContainer.find(".fileIcon").eq(0);
-
-        // Update file name & type
-        if (name.length > 30) {
-            name = name.substring(0, 30) + "...";
-        }
-        $infoContainer.find(".fileName").text(name);
-        if (!fileType) {
-            // Unknown type
-            fileType = "File";
-        }
-        $infoContainer.find(".fileType").text(fileType);
-
-        // Update file icon
-        $fileIcon.removeClass();
-        if (isFolder) {
-            $fileIcon.addClass("xi-folder");
-            $infoContainer.find(".fileRawData .btn").addClass("xc-disabled");
-        } else {
-            $infoContainer.find(".fileRawData .btn").removeClass("xc-disabled");
-            if (fileType &&
-                listFormatMap.hasOwnProperty(fileType) &&
-                gridFormatMap.hasOwnProperty(fileType)
-            ) {
-                $fileIcon.addClass(gridFormatMap[fileType]);
-            } else {
-                $fileIcon.addClass("xi-documentation-paper");
-            }
-        }
-        $fileIcon.addClass("icon fileIcon");
-
-        // Update file info
-        $infoContainer.find(".mdate .content").text(mTime);
-        $infoContainer.find(".fileSize .content").text(size);
         // Update bottom file path
         $container.find(".filePathBottom .content").text(path);
         refreshFilePathEllipsis(true);
@@ -2331,16 +2344,20 @@ namespace FileBrowser {
             return '<li data-name="' + escName + '"' +
                    ' data-fullpath="' + fullPath + '"' +
                    ' data-type="' + fileType + '">' +
-                        '<i class="icon xi-close close"></i>' +
-                        '<i class="icon ' + ckBoxClass + '"></i>' +
-                        '<span>' + displayPath + '</span>' +
+                        '<span class="close xc-action">' +
+                            '<i class="icon xi-trash"></i>' +
+                        '</span>' +
+                        '<i class="icon checkbox ' + ckBoxClass + '"></i>' +
+                        '<span class="text">' + displayPath + '</span>' +
                     '</li>';
         } else {
             // For the case where we add input box for regex
             return '<li class="regex" data-path="' + escDir + '">' +
-                        '<i class="icon xi-close close"></i>' +
-                        '<i class="icon xi-ckbox-empty"></i>' +
-                        '<span>' + curDir + '</span>' +
+                        '<span class="close xc-action">' +
+                            '<i class="icon xi-trash"></i>' +
+                        '</span>' +
+                        '<i class="icon checkbox xi-ckbox-empty"></i>' +
+                        '<span class="text">' + curDir + '</span>' +
                         '<input class="xc-input" value=".*$"></input>' +
                    '</li>';
         }
@@ -2371,7 +2388,7 @@ namespace FileBrowser {
                 } else if ($pickedFileList.find('li[data-fullpath="' + fullpath + '"]').length === 0) {
                     // If it doesn't exist, append the file
                     let html = createListElement($ele, false);
-                    let $span = $(html).appendTo($pickedFileList).find("span");
+                    let $span = $(html).appendTo($pickedFileList).find(".text");
                     refreshFileListEllipsis($span, false);
                 }
             });
@@ -2386,7 +2403,7 @@ namespace FileBrowser {
             } else if ($pickedFileList.find('li[data-fullpath="' + fullpath + '"]').length === 0) {
                 // If it doesn't exist, append the file
                 let html = createListElement($grid, false);
-                let $span = $(html).appendTo($pickedFileList).find("span");
+                let $span = $(html).appendTo($pickedFileList).find(".text");
                 refreshFileListEllipsis($span, false);
             }
         }
@@ -2420,10 +2437,6 @@ namespace FileBrowser {
         if ($grid.data("index") != null) {
             curFiles[$grid.data("index")].isSelected = true;
             updateActiveFileInfo($grid);
-        }
-
-        if (FilePreviewer.isOpen()) {
-            previewDS($grid);
         }
     }
 

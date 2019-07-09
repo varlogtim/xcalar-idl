@@ -49,7 +49,7 @@ module.exports = {
         "FunctionName": "Function Name",
         "Header": "Header",
         "Help": "Help",
-        "ImportInto": "Import as:",
+        "ImportInto": "Import as",
         "Generate": "Generate",
         "Hostname": "Hostname",
         "LastUpdated": "Last updated",

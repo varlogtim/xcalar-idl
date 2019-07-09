@@ -168,24 +168,21 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it("previewDS() should work", function() {
-            var oldFunc = FilePreviewer.show;
+            var oldFunc = RawFileModal.Instance.show;
             var previewDS = FileBrowser.__testOnly__.previewDS;
-            var $grid = $("#notExistGrid");
             var test = null;
 
-            FilePreviewer.show = function(options) {
-                test = options.path;
+            RawFileModal.Instance.show = function(options) {
+                test = options;
             };
 
-            previewDS($grid);
+            previewDS("");
             expect(test).to.be.null;
             // case 2
-            $grid = $('<div><div class="label" data-name="test"></div></div>');
-            previewDS($grid);
-            expect(test).not.to.be.null;
-            expect(test).to.contain("test");
+            previewDS("test");
+            expect(test.fileName).to.equal("test");
 
-            FilePreviewer.show = oldFunc;
+            RawFileModal.Instance.show = oldFunc;
         });
 
         it("findVerticalIcon should work", function() {
@@ -312,7 +309,7 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it("add regex should work", function() {
-            $infoContainer.find(".addRegex span").click();
+            $infoContainer.find(".addRegex").click();
             expect($pickedFileList.find("li").last().hasClass("regex"));
         })
 
@@ -396,7 +393,7 @@ describe("Dataset-File Browser Test", function() {
             expect($swtich.hasClass("on")).to.be.false;
         })
         it("clearAll should work", function() {
-            $infoContainer.find(".infoTitle .xi-close").click();
+            $infoContainer.find(".clearAll").click();
             expect($fileBrowser.find(".pickedFileList li").length).to.equal(0);
         });
         after(function() {
@@ -1067,16 +1064,6 @@ describe("Dataset-File Browser Test", function() {
             .fail(function() {
                 done("fail");
             });
-        });
-
-        it("Should have nothing happen if target is wrong", function() {
-            var target = $("#fileBrowserPreview").get(0);
-
-            gMouseEvents.setMouseDownTarget(null);
-            triggerKeyBoradEvent(78, target); // 78 = "n"
-
-            var $grids = $fileBrowser.find(".grid-unit.active");
-            expect($grids.length).to.equal(0);
         });
 
         it("Should have nothing happen if has invalid last target", function() {

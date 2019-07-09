@@ -3744,6 +3744,153 @@ html.microsoft {
     }
 }
 
+#rawFileModal {
+    @normalSectionWidth: 340px;
+
+    width: 800px;
+    height: 500px;
+
+    &.loading, &.error {
+        .toggleHex {
+            .xc-disabled;
+        }
+    }
+
+    &.hexMode {
+        .hexDump {
+            display: block;
+            float: left;
+            .size(@width: ~"calc(100% - @{normalSectionWidth})");
+        }
+
+        .normal {
+            .size(@width: @normalSectionWidth);
+            border-left: none;
+            margin: 0;
+            float: right;
+        }
+    }
+
+    .hexDump {
+        display: none;
+        padding: 0 0 0 10px;
+    }
+
+    .normal {
+        width: @normalSectionWidth;
+        margin: 0 auto;
+        padding: 0 5px;
+    }
+
+    .loadingSection {
+        width: 120px;
+        height: 30px;
+        .center-align;
+    }
+
+    .modalInstruction {
+        .fileName {
+            font-weight: bold;
+        }
+    }
+
+    .modalMain {
+        @top-h: 30px;
+        @bottom-h: 50px;
+        @topAndBottom-h: @top-h + @bottom-h;
+
+        height: ~"calc(100% - 92px)";
+        padding: 15px;
+        overflow-x: auto;
+        position: relative;
+        text-transform: none;
+
+        .topSection {
+            margin-left: 10px;
+    
+            .size(@height: @top-h);
+        }
+
+        .contentSection {
+            .size(@width: 100%, @height: ~"calc(100% - @{topAndBottom-h})");
+
+            .preview {
+                .size(@height: 100%);
+                overflow: auto;
+
+                .line {
+                    font-family: monospace;
+                    font-size: 11px;
+                    text-align: center;
+
+                    .cell {
+                        .size(@height: 20px);
+                        .vertical-align;
+                        text-transform: none;
+                        white-space: pre;
+                        line-height: 20px;
+
+                        &.active {
+                            outline: 1px solid @color-border-softBlue;
+                            background-color: @color-bg-highlight-blue-trans;
+                        }
+                    }
+                }
+
+                &.hexDump {
+                    text-align: center;
+
+                    .cell {
+                        margin: 0 1px;
+                        padding: 0 3px;
+                    }
+                }
+            }
+        }
+    
+    
+        .bottomSection {
+            .size(@width: 100%, @height: @bottom-h);
+            padding: 5px 10px;
+            .flex-display;
+            .flex-wrap(wrap);
+            .justify-content(flex-end);
+    
+            > div {
+                .size(@height: 30px);
+                .input-box(@w: 60px, @h: 30px);
+                .font(@line-height: 30px);
+                float: right;
+                clear: right;
+                text-transform: none;
+    
+                span {
+                    display: inline-block;
+                }
+    
+                .text {
+                    margin-left: 10px;
+                }
+    
+                .offsetNum {
+                    padding-left: 3px;
+                    .size(@min-width: 60px, @max-width: ~"calc(100% - 50px)");
+                }
+    
+                .qMark {
+                    position: relative;
+                    bottom: 2px;
+                }
+    
+                input {
+                    margin-left: 3px;
+                    padding: 0 3px;
+                }
+            }
+        }
+    }
+}
+
 #dsInfoModal {
     .size(@width: 205px, @height: 200px);
     border: 1px solid @color-border-softGray;
@@ -3821,6 +3968,77 @@ html.microsoft {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+#fileInfoModal {
+    .size(@width: 320px, @height: 160px);
+
+    .modalHeader {
+        .size(@height: 25px);
+
+        .text {
+            font-size: 14px;
+            line-height: 25px;
+            text-transform: none;
+        }
+
+        .close {
+            top: 2px;
+            right: 7px;
+
+            .icon {
+                font-size: 14px;
+            }
+        }
+    }
+
+    .modalMain {
+        .font(@size: 12px);
+        .size(@height: ~"calc(100% - 25px)");
+        padding: 10px 25px;
+
+        .fileName {
+            text-transform: none;
+        }
+
+        .fileInfoDetails {
+            display: flex;
+            > div {
+                display: flex;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .fileInfoText {
+                margin-left: 30px;
+                margin-top: 3px;
+                > div {
+                    margin-bottom: 2px;
+                }
+            }
+            .size(@width: 100%, @height: 88px);
+            padding: 8px 0;
+            .icon {
+                color: @color-font-greyish-brown;
+                font-size: 16px;
+            }
+            .fileIcon {
+                font-size: 65px;
+                color: @color-bg-cardHeader;
+                align-self: center;
+                margin-bottom: 11px;
+            }
+            span {
+                display: inline-block;
+                &.content {
+                    display: block;
+                }
+            }
+            .contentWrapper {
+                margin-left: 30px;
+                margin-top: -21px;
             }
         }
     }

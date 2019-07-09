@@ -136,83 +136,37 @@
         </section>
         <!-- File Info -->
         <section id="fileInfoContainer" class="fileInfoContainer">
-          <div id="fileInfoTop" class="fileInfoTop">
-            <div>
-              <span class="fileName"></span>
-              <span> | </span>
-              <span class="fileType content"></span>
-            </div>
-            <div class="fileInfoDetails">
-              <div class="fileInfoIcon">
-                <i class="icon fileIcon"></i>
-              </div>
-              <div class="fileInfoText">
-                <div class="fileDate fileInfo mdate">
-                  <i class="icon xi-menu-scheduler"></i>
-                  <div class="contentWrapper">
-                    <span><%= dicts.common.DateModified %>:</span>
-                    <span class="content"></span>
-                  </div>
-                </div>
-                <!-- <div class="fileDate fileInfo cdate">
-                  <i class="icon xi-menu-add-scheduler"></i>
-                  <div class="contentWrapper">
-                    <span><%= dicts.common.DateCreated %>:</span>
-                    <span class="content"></span>
-                  </div>
-                </div> -->
-                <div class="fileSize fileInfo">
-                  <i class="icon xi-compare"></i>
-                  <div class="contentWrapper">
-                    <span><%= dicts.common.Size %>:</span>
-                    <span class="content"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="fileRawData">
-              <button id="fileRawData" class="btn btn-clear iconBtn xc-disabled">
-                <i class="icon xi-show"></i>
-                <span><%= dicts.common.ViewRawData %></span>
-              </button>
-            </div>
-          </div>
           <div id="fileInfoMid" class="fileInfoMid">
             <div class="infoTitle">
               <span><%= dicts.common.SelectedFiles %></span>
-              <div class="close">
-                <span><%= dicts.common.ClearAll %></span>
-                <i class="icon xi-close"></i>
-              </div>
             </div>
             <div class="pickedFiles">
-              <span class="selectAll"><%= dicts.dsForm.Recursive %></span>
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="Import all folders recursively" data-placement="top" data-original-title="" title="">
-              </i>
-              <div class="addRegex">
-                <span><%= dicts.common.AddRegex %></span>
-              </div>
+              <span class="clearAll xc-action">
+                <%= dicts.common.ClearAll %>
+              </span>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="Import folders recursively" data-placement="top"></i>
+              <span class="selectAll xc-action"><%= dicts.dsForm.Recursive %></span>
+              <button class="addRegex btn btn-secondary">
+                <%= dicts.common.AddRegex %>
+              </button>
             </div>
             <div class="fileList">
-              <ul class="pickedFileList">
-              </ul>
+              <ul class="pickedFileList"></ul>
             </div>
           </div>
           <div id="fileInfoBottom" class="fileInfoBottom">
-            <div class="bottomWrapper">
-              <div class="infoTitle">
-                <span><%= dicts.common.ImportInto %></span>
+            <div class="infoTitle">
+              <span><%= dicts.common.ImportInto %>:</span>
+            </div>              
+            <div class="switchWrap">
+              <div class="switchLabel highlighted">
+                <%= dicts.common.OneDataset %>
               </div>
-              <div class="switchWrap">
-                <div class="switchLabel highlighted">
-                  <%= dicts.common.OneDataset %>
-                </div>
-                <div class="xc-switch switch">
-                  <div class="slider"></div>
-                </div>
-                <div class="switchLabel">
-                  <%= dicts.common.MultiDatasets %>
-                </div>
+              <div class="xc-switch switch">
+                <div class="slider"></div>
+              </div>
+              <div class="switchLabel">
+                <%= dicts.common.MultiDatasets %>
               </div>
             </div>
             <div class="buttonSection">
@@ -221,9 +175,7 @@
           </div>
         </section>
     </div>
-    <div id="fileBrowserPreview" class="rightMain xc-hidden">
-      include "filePreviewer.html"
-    </div>
   </section>
+  include "fileBrowserMenu.html"
 </div>
 <!-- End File Browser -->
