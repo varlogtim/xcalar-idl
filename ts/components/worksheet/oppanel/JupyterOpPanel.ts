@@ -1,7 +1,8 @@
 class JupyterOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
     protected _dagNode: DagNodeJupyter = null;
-    private _dataModel: JupyterOpPanelModel;
+    protected _dataModel: JupyterOpPanelModel;
+    protected codeMirrorOnlyColumns = true;
 
     /**
      * @override
@@ -10,6 +11,7 @@ class JupyterOpPanel extends BaseOpPanel implements IOpPanel {
     public setup(): void {
         const panelHtmlSelector = '#jupyterOpPanel';
         this._componentFactory = new OpPanelComponentFactory(panelHtmlSelector);
+        this._mainModel = JupyterOpPanelModel;
         super.setup($(panelHtmlSelector));
     }
 
@@ -19,7 +21,7 @@ class JupyterOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeJupyter, options?): void {
         this._dagNode = dagNode;
-        this._dataModel = JupyterOpPanelModel.fromDag(dagNode);
+        this._dataModel = this._mainModel.fromDag(dagNode);
         this._updateUI();
         super.showPanel(null, options);
         if (BaseOpPanel.isLastModeAdvanced) {
@@ -34,7 +36,7 @@ class JupyterOpPanel extends BaseOpPanel implements IOpPanel {
         super.hidePanel(isSubmit);
     }
 
-    private _updateUI(): void {
+    protected _updateUI(): void {
         this._clearValidationList();
 
         const $header = this._getPanel().find('header');
@@ -181,7 +183,7 @@ class JupyterOpPanel extends BaseOpPanel implements IOpPanel {
         }
 
         const colMap = this._dataModel.getColumnMap();
-        const model = JupyterOpPanelModel.fromDagInput(colMap, advConfig);
+        const model = this._mainModel.fromDagInput(colMap, advConfig);
         model.validateInputData();
 
         return model;

@@ -372,7 +372,8 @@ namespace DagNodeMenu {
             return;
         }
         const nodeId: string = node.getId();
-        if (DagViewManager.Instance.isNodeLocked(nodeId)) {
+        if (DagViewManager.Instance.isNodeLocked(nodeId) ||
+            DagViewManager.Instance.isNodeConfigLocked(nodeId)) {
             return;
         }
         const $node = DagViewManager.Instance.getNode(nodeId);
@@ -384,7 +385,7 @@ namespace DagNodeMenu {
 
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
-        const tabId: string = DagViewManager.Instance.lockNode(nodeId);
+        const tabId: string = DagViewManager.Instance.lockConfigNode(nodeId);
         const dagTab: DagTab = DagViewManager.Instance.getActiveTab();
 
         options = options || {};
@@ -501,7 +502,7 @@ namespace DagNodeMenu {
         }
 
         function unlock(tabId: string) {
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             Log.unlockUndoRedo();
             DagTopBar.Instance.unlock();
             DagTabManager.Instance.unlockTab(tabId);
@@ -635,7 +636,8 @@ namespace DagNodeMenu {
         }
 
         for (let i = 0; i < nodeIds.length; i++) {
-            if (DagViewManager.Instance.isNodeLocked(nodeIds[i])) {
+            if (DagViewManager.Instance.isNodeLocked(nodeIds[i]) ||
+                DagViewManager.Instance.isNodeConfigLocked(nodeIds[i])) {
                 $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".executeNodeOptimized, .executeAllNodesOptimized, " +
                       ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom, .createCustom")
@@ -667,7 +669,8 @@ namespace DagNodeMenu {
         // then open the form
         const enableConfig = (!DagViewManager.Instance.isLocked($dfArea) &&
                               nodeIds.length === 1 &&
-                              !DagViewManager.Instance.isNodeLocked(nodeIds[0]));
+                              !DagViewManager.Instance.isNodeLocked(nodeIds[0]) &&
+                              !DagViewManager.Instance.isNodeConfigLocked(nodeIds[0]) );
         adjustMenuForOpenForm(enableConfig);
 
         position = {x: event.pageX, y: event.pageY};
@@ -818,7 +821,8 @@ namespace DagNodeMenu {
             classes += ' SQLOpMenu';
         }
 
-        if (DagViewManager.Instance.isNodeLocked(nodeId)) {
+        if (DagViewManager.Instance.isNodeLocked(nodeId) ||
+            DagViewManager.Instance.isNodeConfigLocked(nodeId) ) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".executeNodeOptimized, .executeAllNodesOptimized, " +
                       ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")

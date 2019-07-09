@@ -43,7 +43,7 @@ class JoinOpPanelStep2 {
         this._updateUI();
     }
 
-    private _updateUI() {
+    protected _updateUI() {
         if (this._modelRef.getCurrentStep() !== 2 || this._modelRef.isAdvMode()) {
             this._$elem.hide();
             return;

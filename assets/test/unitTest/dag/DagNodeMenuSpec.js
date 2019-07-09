@@ -217,6 +217,35 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.deselectNodes();
         });
 
+        it("locked config node", function() {
+            DagView.selectNode($dfArea.find(".operator.map"));
+            DagViewManager.Instance.lockConfigNode($dfArea.find(".operator.map").data("nodeid"));
+            $dfArea.find(".operator.map .main").contextmenu();
+
+            expect($menu.find("li:visible").length).to.equal(10);
+            expect($menu.find("li:visible:not(.unavailable)").length).to.equal(3);
+            let classes = [];
+            $menu.find("li:visible").each(function() {
+                classes.push($(this).attr("class"));
+            });
+            expect(classes).to.deep.equal([
+                "configureNode unavailable",
+                "executeNode unavailable",
+                "viewResult unavailable",
+                "resetNode unavailable",
+                "copyNodes",
+                "cutNodes unavailable",
+                "viewSchema",
+                "createCustom unavailable",
+                "description",
+                "removeNode unavailable"
+            ]);
+
+            $("#container").trigger(fakeEvent.mousedown);
+            DagViewManager.Instance.unlockConfigNode($dfArea.find(".operator.map").data("nodeid"), tabId);
+            DagViewManager.Instance.deselectNodes();
+        });
+
         it("config panel open", function() {
             DagView.selectNode($dfArea.find(".operator.map"));
             $dfArea.find(".operator.map .main").contextmenu();
@@ -498,7 +527,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             DatasetOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -517,7 +546,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             AggOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -535,7 +564,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             ExportOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -553,7 +582,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             FilterOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -571,7 +600,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             JoinOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -589,7 +618,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             MapOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -607,7 +636,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             CastOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -625,7 +654,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             SplitOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -643,7 +672,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             RoundOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -661,7 +690,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             GroupByOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -679,7 +708,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             ProjectOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -697,7 +726,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             ExplodeOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -715,7 +744,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             SetOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -733,7 +762,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             DFLinkInOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -751,7 +780,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             DFLinkOutOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -769,7 +798,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             PublishIMDOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -787,7 +816,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             UpdateIMDOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -805,7 +834,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             JupyterOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -823,7 +852,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             ExtensionOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -841,7 +870,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             IMDTableOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -859,7 +888,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             SQLOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -877,7 +906,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             RowNumOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -895,7 +924,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             SortOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -913,7 +942,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             SQLFuncInOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -931,7 +960,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             SQLFuncOutOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -949,7 +978,7 @@ describe("DagNodeMenu Test", function() {
             });
             expect(called).to.be.true;
             SynthesizeOpPanel.Instance.show = cacheFn;
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             DagViewManager.Instance.removeNodes([node.getId()], tabId);
         });
 
@@ -1290,7 +1319,7 @@ describe("DagNodeMenu Test", function() {
             expect(called).to.be.true;
             DatasetOpPanel.Instance.show = cachedFn;
 
-            DagViewManager.Instance.unlockNode(node.getId(), tabId);
+            DagViewManager.Instance.unlockConfigNode(node.getId(), tabId);
             Log.unlockUndoRedo();
             DagTopBar.Instance.unlock();
             DagTabManager.Instance.unlockTab(tabId);

@@ -59,7 +59,7 @@ class JoinOpPanelStep1 {
         this._updateUI();
     }
 
-    private _updateUI(): void {
+    protected _updateUI(): void {
         const joinType = this._modelRef.getJoinType();
         if (this._modelRef.getCurrentStep() !== 1 || this._modelRef.isAdvMode()) {
             this._$elem.hide();

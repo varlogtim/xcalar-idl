@@ -1908,8 +1908,6 @@ namespace ColManager {
                                      .closest('.xcTableWrap')
                                      .find('.tblTitleSelected')
                                      .removeClass('tblTitleSelected');
-                $('.dagWrap.selected').removeClass('selected')
-                                      .addClass('notSelected');
                 if (initialTableId && initialTableId === gActiveTableId) {
                     TblFunc.focusTable(initialTableId);
                 } else {
@@ -1949,8 +1947,6 @@ namespace ColManager {
                              .closest('.xcTableWrap')
                              .find('.tblTitleSelected')
                              .removeClass('tblTitleSelected');
-        $('.dagWrap.selected').removeClass('selected')
-                              .addClass('notSelected');
 
         TableComponent.empty();
         if (numMatches !== 0) {

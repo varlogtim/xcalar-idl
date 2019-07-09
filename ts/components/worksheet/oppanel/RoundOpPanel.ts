@@ -1,7 +1,7 @@
 class RoundOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
     protected _dagNode: DagNodeRound = null;
-    private _dataModel: RoundOpPanelModel;
+    protected _dataModel: RoundOpPanelModel;
 
     /**
      * @override
@@ -9,6 +9,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public setup(): void {
         this._componentFactory = new OpPanelComponentFactory('#roundOpPanel');
+        this._mainModel = RoundOpPanelModel;
         super.setup($('#roundOpPanel'));
     }
 
@@ -18,7 +19,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeRound, options?): void {
         this._dagNode = dagNode;
-        this._dataModel = RoundOpPanelModel.fromDag(dagNode);
+        this._dataModel = this._mainModel.fromDag(dagNode);
         let error: string;
         try {
             this._updateUI();
@@ -43,7 +44,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         super.hidePanel(isSubmit);
     }
 
-    private _updateUI(): void {
+    protected _updateUI(): void {
         this._clearValidationList();
         this._clearColumnPickerTarget();
 
@@ -228,7 +229,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         }
 
         const colMap = this._dataModel.getColumnMap();
-        const model = RoundOpPanelModel.fromDagInput(colMap, advConfig);
+        const model = this._mainModel.fromDagInput(colMap, advConfig);
         model.validateInputData();
         return model;
     }

@@ -29,7 +29,7 @@ class CastOpPanel extends BaseOpPanel {
         this._dagNode = dagNode;
         super.showPanel("cast", options)
         .then(() => {
-            const curColumns = this.updateColumns();
+            const curColumns = this._updateColumns();
             const param = dagNode.getParam();
             let hasError: boolean;
             let error;
@@ -62,14 +62,8 @@ class CastOpPanel extends BaseOpPanel {
     }
 
     public refreshColumns(): void {
-        const cols = this.updateColumns();
+        const cols = this._updateColumns();
         this.dataModel.refreshColumns([cols]);
-    }
-
-    public updateColumns(): ProgCol[] {
-        return this._dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        })[0] || [];
     }
 
     // converts result of colAssignmentPanel into the mapInput struct
@@ -268,7 +262,7 @@ class CastOpPanel extends BaseOpPanel {
                     }
                 }
                 const selectedCols = this._paramToSelectedCols(param);
-                const curColumns = this.updateColumns();
+                const curColumns = this._updateColumns();
                 this.dataModel = this.colRenameSection.show([curColumns], [selectedCols]);
                 this._modifyColRenameSection();
             } catch (e) {

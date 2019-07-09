@@ -1,7 +1,7 @@
 class SortOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
     protected _dagNode: DagNodeSort = null;
-    private _dataModel: SortOpPanelModel;
+    protected _dataModel: SortOpPanelModel;
     protected codeMirrorOnlyColumns = true;
 
     /**
@@ -11,6 +11,7 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
     public setup(): void {
         const panelSelector = '#sortOpPanel';
         this._componentFactory = new OpPanelComponentFactory(panelSelector);
+        this._mainModel = SortOpPanelModel;
         super.setup($(panelSelector));
     }
 
@@ -20,7 +21,7 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeSort, options?: ShowPanelInfo): void {
         this._dagNode = dagNode;
-        this._dataModel = SortOpPanelModel.fromDag(dagNode);
+        this._dataModel = this._mainModel.fromDag(dagNode);
         let error: string;
         try {
             this._updateUI();
@@ -28,7 +29,6 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
             error = e;
         }
 
-        this._updateColumns();
         super.showPanel(null, options)
         .then(() => {
             this._setupColumnPicker(dagNode.getType());
@@ -45,17 +45,7 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
         super.hidePanel(isSubmit);
     }
 
-    /**
-     * refetch source columns
-     * @param info
-     */
-    public refreshColumns(): void {
-        this._dataModel = SortOpPanelModel.refreshColumns(this._dataModel, this._dagNode);
-        this._updateColumns();
-        this._updateUI();
-    }
-
-    private _updateUI(): void {
+    protected _updateUI(): void {
         this._clearValidationList();
         this._clearColumnPickerTarget();
 
@@ -81,22 +71,6 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
         const $submitBtn = this._getPanel().find('.btn.submit');
         $submitBtn.off();
         $submitBtn.on('click', () => this._submitForm());
-    }
-
-    private _updateColumns(): void {
-        this.allColumns = [];
-        const colSets = this._dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        }) || [];
-        const seen = {};
-        colSets.forEach(cols => {
-            cols.forEach(progCol => {
-                if (!seen[progCol.getBackColName()]) {
-                    seen[progCol.getBackColName()] = true;
-                    this.allColumns.push(progCol);
-                }
-            });
-        });
     }
 
     private _getArgs(): AutogenSectionProps[] {
@@ -249,7 +223,7 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
         }
 
         const colMap = this._dataModel.getColumnMap();
-        const model = SortOpPanelModel.fromDagInput(colMap, advConfig);
+        const model = this._mainModel.fromDagInput(colMap, advConfig);
         model.validateInputData();
         return model;
     }

@@ -10,6 +10,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
     private _currentKeys: string[];
     private _currentOpCode: string;
     private _selectedCols: Set<string>;
+    protected codeMirrorOnlyColumns = true;
 
     // *******************
     // Constants
@@ -70,6 +71,32 @@ class PublishIMDOpPanel extends BaseOpPanel {
      */
     public close(isSubmit?: boolean): void {
         super.hidePanel(isSubmit);
+    }
+
+    public refreshColumns(): void {
+        let param: DagNodePublishIMDInputStruct = this._getParams();
+
+        let columns: string[] = [];
+        let $cols = this._$publishColList.find(".col.checked");
+        let checkedColumnsSet = new Set();
+        for (let i = 0; i < $cols.length; i++) {
+            let col: ProgCol = this._columns[$cols.eq(i).data("colnum") - 1];
+            checkedColumnsSet.add(col.getBackColName());
+        }
+        this._columns = this._dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        })[0] || []
+
+        this._columns.forEach(progCol => {
+            let colName = progCol.getBackColName()
+            if (checkedColumnsSet.has(colName)) {
+                columns.push(progCol.getFrontColName());
+            }
+        });
+
+        param.columns = columns;
+        this._setupColumnHints();
+        this._restorePanel(param);
     }
 
     private _convertAdvConfigToModel() {

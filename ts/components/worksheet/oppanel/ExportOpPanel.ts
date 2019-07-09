@@ -9,8 +9,9 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     private _$exportArgSection: JQuery = null; // $("#exportOpPanel .argsSection");
     private _$exportSearchSection: JQuery = null; //$("#exportOpColumns .dropDownList")
     protected _dagNode: DagNodeExport = null;
-    private _dataModel: ExportOpPanelModel = null;
+    protected _dataModel: ExportOpPanelModel = null;
     private _currentDriver: string = "";
+    protected codeMirrorOnlyColumns = true;
 
     // *******************
     // Constants
@@ -24,6 +25,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     public setup(): void {
         // HTML elements binding
         let self = this;
+        this._mainModel = ExportOpPanelModel;
         this._$elemPanel = $("#exportOpPanel");
         this._$exportDest = $("#exportDriver");
         this._$exportDestList = $("#exportDriverList");
@@ -117,12 +119,12 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
      */
     private _convertAdvConfigToModel(): ExportOpPanelModel {
         const dagInput: DagNodeExportInputStruct = <DagNodeExportInputStruct>JSON.parse(this._editor.getValue());
-        const allColMap: Map<string, ProgCol> = ExportOpPanelModel.getColumnsFromDag(this._dagNode);
+        const allColMap: Map<string, ProgCol> = this._mainModel.getColumnsFromDag(this._dagNode);
         const error = this._dataModel.verifyDagInput(dagInput);
         if (error != "") {
             throw new Error(error);
         }
-        return ExportOpPanelModel.fromDagInput(dagInput, allColMap, this._dataModel.exportDrivers);
+        return this._mainModel.fromDagInput(dagInput, allColMap, this._dataModel.exportDrivers);
     }
 
     /**
@@ -166,7 +168,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         super.showPanel(null, options)
         .then(() => {
             try {
-                this._dataModel = ExportOpPanelModel.fromDag(dagNode);
+                this._dataModel = this._mainModel.fromDag(dagNode);
             } catch (e) {
                 this._dataModel = new ExportOpPanelModel();
                 MainMenu.setFormOpen();
@@ -208,7 +210,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         });
     }
 
-    private _updateUI(): void {
+    protected _updateUI(): void {
         this._renderColumns();
         this._renderDriverList();
         this.renderDriverArgs(true);

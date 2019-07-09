@@ -1,7 +1,4 @@
-class SortOpPanelModel {
-    private _title: string = '';
-    private _instrStr: string = '';
-    private _allColMap: Map<string, ProgCol> = new Map();
+class SortOpPanelModel extends BaseOpPanelModel {
     private _sortedColumns: {columnName: string, ordering: string}[];
     private _newKeys: string[];
 
@@ -46,11 +43,6 @@ class SortOpPanelModel {
         }
 
         return model;
-    }
-
-    public static refreshColumns(oldModel, dagNode: DagNodeSort) {
-        oldModel._allColMap = this._createColMap(dagNode);
-        return oldModel;
     }
 
     /**
@@ -102,14 +94,6 @@ class SortOpPanelModel {
         return new Set(this.getColumnMap().keys());
     }
 
-    public getTitle(): string {
-        return this._title;
-    }
-
-    public getInstrStr(): string {
-        return this._instrStr;
-    }
-
     public getSortedColumns() {
         return this._sortedColumns;
     }
@@ -136,32 +120,5 @@ class SortOpPanelModel {
 
     public removeColumn(idx: number) {
         this._sortedColumns.splice(idx, 1);
-    }
-
-    public getColumnMap(): Map<string, ProgCol> {
-        return this._allColMap;
-    }
-
-    private static _createColMap(dagNode: DagNodeSort): Map<string, ProgCol> {
-        const colMap: Map<string, ProgCol> = new Map();
-        const parents = dagNode.getParents();
-        if (parents != null) {
-            for (const parent of parents) {
-                if (parent == null) {
-                    continue;
-                }
-                for (const col of parent.getLineage().getColumns()) {
-                    colMap.set(
-                        col.getBackColName(),
-                        ColManager.newPullCol(
-                            col.getFrontColName(),
-                            col.getBackColName(),
-                            col.getType()
-                        )
-                    );
-                }
-            }
-        }
-        return colMap;
     }
 }

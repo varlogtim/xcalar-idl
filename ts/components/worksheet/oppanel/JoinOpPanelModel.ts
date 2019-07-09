@@ -1,4 +1,4 @@
-class JoinOpPanelModel {
+class JoinOpPanelModel extends BaseOpPanelModel {
     // UI states
     private _currentStep: number = 1;
     private _isAdvMode: boolean = false;

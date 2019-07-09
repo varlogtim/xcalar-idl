@@ -380,7 +380,7 @@ window.TestSuite = (function($, TestSuite) {
                 $("#createDF").click();
                 // should automatically switch from dataset panel to dataflow panel
                 // and have a dataset node visible
-                let visibleDatasetNode = ".dataflowArea.active.rendered .operator.dataset.locked.state-Unused:visible";
+                let visibleDatasetNode = ".dataflowArea.active.rendered .operator.dataset.configLocked.state-Unused:visible";
                 return self.checkExists(visibleDatasetNode);
             })
             .then(() => {

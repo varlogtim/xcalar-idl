@@ -8,7 +8,7 @@ class ExportSQLTableModal {
     private _modalHelper: ModalHelper;
     private _columns: ProgCol[];
     private _selectedDriver: string;
-    private _dataModel: ExportOpPanelModel;
+    protected _dataModel: ExportOpPanelModel;
     private _tableName: string;
 
     public static get Instance() {
@@ -81,7 +81,7 @@ class ExportSQLTableModal {
                 == this._$exportColList.find('.checkbox').not(".xc-hidden").length) {
                 this._$modal.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
         } else {
-            this._$modal.find(".selectAllWrap .checkbox").eq(0).removeClass("checked"); 
+            this._$modal.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
         }
     }
 
@@ -194,7 +194,7 @@ class ExportSQLTableModal {
         $("#exportSQLTableModal .argsSectionBox").removeClass("xc-hidden");
     }
 
-    private _updateUI(): void {
+    protected _updateUI(): void {
         this._renderColumns();
         this._renderDriverList();
         this.renderDriverArgs();

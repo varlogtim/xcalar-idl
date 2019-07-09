@@ -1,38 +1,17 @@
-class SplitOpPanelModel {
-    private _title: string = '';
-    private _instrStr: string = '';
+class SplitOpPanelModel extends BaseOpPanelModel {
     private _delimiter: string = '';
     private _sourceColName: string = '';
     private _destColNames: string[] = [];
     private _includeErrRow: boolean = false;
-    private _allColMap: Map<string, ProgCol> = new Map();
     private static _funcName = 'cut';
 
     /**
      * Create data model instance from DagNode
-     * @param dagNode 
+     * @param dagNode
      */
     public static fromDag(dagNode: DagNodeSplit): SplitOpPanelModel {
         try {
-            const colMap: Map<string, ProgCol> = new Map();
-            const parents = dagNode.getParents();
-            if (parents != null) {
-                for (const parent of parents) {
-                    if (parent == null) {
-                        continue;
-                    }
-                    for (const col of parent.getLineage().getColumns()) {
-                        colMap.set(
-                            col.getBackColName(),
-                            ColManager.newPullCol(
-                                col.getFrontColName(),
-                                col.getBackColName(),
-                                col.getType()
-                            )
-                        );
-                    }
-                }
-            }
+            const colMap: Map<string, ProgCol> = this._createColMap(dagNode);
             return this.fromDagInput(colMap, dagNode.getParam());
         } catch(e) {
             console.error(e);
@@ -42,8 +21,8 @@ class SplitOpPanelModel {
 
     /**
      * Create data model instance from column list & DagNodeInput
-     * @param colMap 
-     * @param dagInput 
+     * @param colMap
+     * @param dagInput
      * @description use case: advanced from
      */
     public static fromDagInput(
@@ -70,12 +49,12 @@ class SplitOpPanelModel {
                     continue;
                 }
                 const evalFunc = XDParser.XEvalParser.parseEvalStr(evalObj.evalString);
-    
+
                 // Function name should be 'cut'
                 if (evalFunc.fnName !== this._funcName) {
                     throw new Error(`Invalid function name(${evalFunc.fnName})`);
                 }
-    
+
                 // Source column
                 let evalParam = evalFunc.args[0];
                 if (!isTypeEvalArg(evalParam)) {
@@ -88,7 +67,7 @@ class SplitOpPanelModel {
                     // The rest column name should match the first one
                     throw new Error('Multiple source columns');
                 }
-    
+
                 // Index
                 // The index of dest column depends on the arg in the cut function
                 // Ex. cut(books::title, 2, 'title2') => _destColNames[1] = 'title2'
@@ -114,7 +93,7 @@ class SplitOpPanelModel {
                 } else if (delimiter !== dem) {
                     throw new Error('Multiple delimiters');
                 }
-    
+
                 // Dest column
                 maxIndex = Math.max(maxIndex, index);
                 destColumns.set(`${index}`, evalObj.newField);
@@ -224,24 +203,12 @@ class SplitOpPanelModel {
         });
     }
 
-    public getTitle(): string {
-        return this._title;
-    }
-
-    public getInstrStr(): string {
-        return this._instrStr;
-    }
-
     public getDelimiter(): string {
         return this._delimiter;
     }
 
     public setDelimiter(dem: string): void {
         this._delimiter = dem;
-    }
-
-    public getColumnMap(): Map<string, ProgCol> {
-        return this._allColMap;
     }
 
     public getSourceColName(): string {
@@ -348,7 +315,7 @@ class SplitOpPanelModel {
                 break;
             }
         }
-        
+
         return result;
     }
 }

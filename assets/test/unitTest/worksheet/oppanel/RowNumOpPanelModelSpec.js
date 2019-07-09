@@ -1,4 +1,11 @@
 describe('RowNumOpPanelModel Test', () => {
+    before((done) => {
+        UnitTest.testFinish(() => {
+            return DagTabManager.Instance._setup;
+        }).then(() => {
+            done();
+        });
+    });
     describe('fromDag() should work', () => {
         it('Case: invalid input', () => {
             let error = null;
@@ -38,7 +45,7 @@ describe('RowNumOpPanelModel Test', () => {
             try {
                 const testModel = RowNumOpPanelModel.fromDagInput(
                     createDefaultColumnMap(), {}
-                );    
+                );
             } catch(e) {
                 error = e;
             }
@@ -188,7 +195,7 @@ describe('RowNumOpPanelModel Test', () => {
         const model = new RowNumOpPanelModel();
         model._destColumn = destColumn;
         model._allColMap = createDefaultColumnMap();
-        return model;                           
+        return model;
     }
 
     function createDefaultDagInput(destColumn = 'rowNumColumn') {

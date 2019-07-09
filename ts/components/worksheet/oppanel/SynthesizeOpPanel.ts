@@ -1,5 +1,6 @@
 class SynthesizeOpPanel extends BaseOpPanel {
     protected _dagNode: DagNodeSynthesize;
+    protected codeMirrorOnlyColumns = true;
 
     public constructor() {
         super();
@@ -25,6 +26,10 @@ class SynthesizeOpPanel extends BaseOpPanel {
         this._clear();
         super.hidePanel(isSubmit);
         return true;
+    }
+
+    public refreshColumns(): void {
+        this._updateColumns();
     }
 
     private _clear(): void {

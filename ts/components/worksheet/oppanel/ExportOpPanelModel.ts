@@ -1,23 +1,10 @@
-class ExportOpPanelModel {
+class ExportOpPanelModel extends BaseOpPanelModel {
     public columnList: ExportOpPanelModelColumnInfo[] = [];
     public exportDrivers: ExportDriver[] = [];
     public currentDriver: ExportDriver;
     public loadedName: string;
     public driverArgs: ExportDriverArg[];
     private _advMode: boolean;
-
-    public static getColumnsFromDag(dagNode: DagNodeExport): Map<string, ProgCol> {
-        const allColsList: ProgCol[][] = dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        });
-        const allColMap: Map<string, ProgCol> = new Map();
-        for (const cols of allColsList) {
-            for (const col of cols) {
-                allColMap.set(col.getBackColName(), col);
-            }
-        }
-        return allColMap;
-    }
 
     /**
      * Create ExportOpPanelModel instance from input configuration and column meta
@@ -88,7 +75,7 @@ class ExportOpPanelModel {
                 isSelected: isSelected,
                 type: colInfo.type,
                 isHidden: false
-              });
+            });
         }
 
         $("#exportDriver").val(dagInputInfo.driver);
@@ -393,7 +380,7 @@ class ExportOpPanelModel {
 
     /**
      * Hides the columns not including the keyword
-     * @param keyword 
+     * @param keyword
      */
     public hideCols(keyword: string): void {
         this.columnList.forEach((column: ExportOpPanelModelColumnInfo) => {
@@ -468,6 +455,45 @@ class ExportOpPanelModel {
         }
         argHtml += '</div>'
         return argHtml;
+    }
+
+    public static refreshColumns(model, dagNode: DagNodeJoin) {
+        const allColMap: Map<string, ProgCol> = this.getColumnsFromDag(dagNode);
+        let selectedColumns = [];
+        let takenHeaderNames = {};
+        for (const colInfo of model.columnList) {
+            if (colInfo.isSelected) {
+                selectedColumns.push({
+                    sourceColumn: colInfo.sourceColumn,
+                    destColumn: colInfo.destColumn
+                });
+            }
+        }
+
+        selectedColumns = selectedColumns.reduce( (res, col) => {
+            takenHeaderNames[col.destColumn] = true;
+            res[col.sourceColumn] = {
+                selected: true,
+                destColumn: col.destColumn
+            };
+            return res;
+        }, {});
+
+        model.columnList = [];
+
+        for (const [sourceColumn, colInfo] of allColMap.entries()) {
+            const isSelected: boolean = selectedColumns[sourceColumn] ? true : false;
+            // Derived column
+            model.columnList.push({
+                sourceColumn: sourceColumn,
+                destColumn: isSelected ? selectedColumns[sourceColumn].destColumn : this._createHeaderName(sourceColumn, takenHeaderNames),
+                isSelected: isSelected,
+                type: colInfo.type,
+                isHidden: false
+            });
+        }
+
+        return model;
     }
 
     private _createTargetListHtml(): string {

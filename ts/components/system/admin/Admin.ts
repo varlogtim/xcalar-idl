@@ -580,7 +580,7 @@ namespace Admin {
     // xcalar put by default, or append if append param is true
     function storeUsername(
         kvStore: KVStore,
-        username: string, 
+        username: string,
         append: boolean
     ) {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();

@@ -183,7 +183,6 @@ class TblManager {
         for (let i = 0; i < tablesToRemove.length; i++) {
             const tableId: TableId = tablesToRemove[i];
             $("#xcTableWrap-" + tableId).remove();
-            $("#dagWrap-" + tableId).remove();
         }
     }
 
@@ -194,7 +193,6 @@ class TblManager {
 
         tablesToRemove.forEach((tableId) => {
             $("#xcTableWrap-" + tableId).addClass("tableToRemove");
-            $("#dagrap-" + tableId).addClass("dagWrapToRemove");
         });
     }
 

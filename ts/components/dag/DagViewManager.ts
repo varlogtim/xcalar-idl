@@ -556,6 +556,25 @@ class DagViewManager {
         }
     }
 
+    public lockConfigNode(nodeId: DagNodeId, tabId?: string): string {
+        if (!tabId) {
+            tabId = this.activeDagTab.getId();
+        }
+        if (this.dagViewMap.has(tabId)) {
+            return this.dagViewMap.get(tabId).lockConfigNode(nodeId);
+        }
+    }
+
+    /**
+     * DagViewManager.Instance.unlockNode
+     * @param nodeId
+     */
+    public unlockConfigNode(nodeId: DagNodeId, tabId: string): void {
+        if (this.dagViewMap.has(tabId)) {
+            this.dagViewMap.get(tabId).unlockConfigNode(nodeId);
+        }
+    }
+
      /**
      * DagViewManager.Instance.isNodeLocked
      * @param nodeId
@@ -568,6 +587,20 @@ class DagViewManager {
         }
         return false;
     }
+
+    /**
+     * DagViewManager.Instance.isNodeLocked
+     * @param nodeId
+     * @param tabId
+     */
+    public isNodeConfigLocked(nodeId: DagNodeId, tabId?: string): boolean {
+        tabId = tabId || this.activeDagTab.getId();
+        if (this.dagViewMap.has(tabId)) {
+            return this.dagViewMap.get(tabId).isNodeConfigLocked(nodeId);
+        }
+        return false;
+    }
+
 
     public deselectNodes(): void {
         if (this.activeDagView) {

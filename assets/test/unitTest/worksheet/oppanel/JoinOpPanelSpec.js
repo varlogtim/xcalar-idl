@@ -1,20 +1,26 @@
 describe('JoinOpPanel Test', () => {
     let component;
-    before(() => {
+    before((done) => {
         component = JoinOpPanel.Instance;
+        UnitTest.testFinish(() => {
+            return DagTabManager.Instance._setup;
+        })
+        .then(() => {
+            done();
+        });
     });
 
     describe('show()/close() should work', () => {
         const oldFunc = {};
         const called = {
-            _updateAllColumns: false,
+            _updateColumns: false,
             _updateUI: false,
         };
         before(() => {
-            oldFunc._updateAllColumns = component._updateAllColumns;
-            component._updateAllColumns = () => {
-                called._updateAllColumns = true;
-                return oldFunc._updateAllColumns.bind(component)();
+            oldFunc._updateColumns = component._updateColumns;
+            component._updateColumns = () => {
+                called._updateColumns = true;
+                return oldFunc._updateColumns.bind(component)();
             };
             oldFunc._updateUI = component._updateUI;
             component._updateUI = () => {
@@ -23,7 +29,7 @@ describe('JoinOpPanel Test', () => {
             };
         });
         after(() => {
-            component._updateAllColumns = oldFunc._updateAllColumns;
+            component._updateColumns = oldFunc._updateColumns;
             component._updateUI = oldFunc._updateUI;
         });
         afterEach(() => {
@@ -37,7 +43,7 @@ describe('JoinOpPanel Test', () => {
             component.show(node);
             expect(component._dataModel != null).to.be.true;
             expect(component._dagNode).to.equal(node);
-            expect(called._updateAllColumns).to.be.true;
+            expect(called._updateColumns).to.be.true;
             expect(called._updateUI).to.be.true;
         });
 
@@ -468,10 +474,10 @@ describe('JoinOpPanel Test', () => {
         })
     });
 
-    describe('_updateAllColumns() should work', () => {
+    describe('_updateColumns() should work', () => {
         it('test', () => {
             component._dagNode = createDefaultNode();
-            component._updateAllColumns();
+            component._updateColumns();
             expect(component.allColumns.length).to.equal(10);
             expect((new Set(component.allColumns.map((v) => v.getBackColName()))).size).to.equal(10);
         });

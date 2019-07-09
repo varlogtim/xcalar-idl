@@ -331,10 +331,6 @@ class ParamPopup {
 
     // to be overwritten
     protected checkIsDisabled(): boolean {
-        const $dagWrap: JQuery = this.$panel.find('.cardMain').find(".dagWrap:visible");
-        if (!$dagWrap.length || $dagWrap.hasClass("deleting")) {
-            return true;
-        }
         return false;
     }
 

@@ -1,17 +1,13 @@
-class JupyterOpPanelModel {
-    private _title: string;
-    private _instrStr: string;
+class JupyterOpPanelModel extends BaseOpPanelModel {
     private _numExportRows: number;
     private _numMaxRows: number;
     private _numMinRows: number;
     private _renames: { sourceColumn: string, destColumn: string }[];
     private _fixedNames: string[];
-    private _allColMap: Map<string, ProgCol>;
 
     public constructor() {
+        super();
         const maxRows = 1000;
-        this._title = '';
-        this._instrStr = '';
         this._numMaxRows = maxRows;
         this._numMinRows = 1;
         this._numExportRows = maxRows;
@@ -22,29 +18,11 @@ class JupyterOpPanelModel {
 
     /**
      * Create data model instance from DagNode
-     * @param dagNode 
+     * @param dagNode
      */
     public static fromDag(dagNode: DagNodeJupyter): JupyterOpPanelModel {
         try {
-            const colMap: Map<string, ProgCol> = new Map();
-            const parents = dagNode.getParents();
-            if (parents != null) {
-                for (const parent of parents) {
-                    if (parent == null) {
-                        continue;
-                    }
-                    for (const col of parent.getLineage().getColumns()) {
-                        colMap.set(
-                            col.getBackColName(),
-                            ColManager.newPullCol(
-                                col.getFrontColName(),
-                                col.getBackColName(),
-                                col.getType()
-                            )
-                        );
-                    }
-                }
-            }
+            const colMap: Map<string, ProgCol> = this._createColMap(dagNode);
             return this.fromDagInput(colMap, dagNode.getParam());
         } catch(e) {
             console.error(e);
@@ -54,8 +32,8 @@ class JupyterOpPanelModel {
 
     /**
      * Create data model instance from column list & DagNodeInput
-     * @param colMap 
-     * @param dagInput 
+     * @param colMap
+     * @param dagInput
      * @description use case: advanced from
      */
     public static fromDagInput(
@@ -132,7 +110,7 @@ class JupyterOpPanelModel {
             numExportRows: this.getNumExportRows(),
             renames: allRenames
         };
-        
+
         return param;
     }
 
@@ -184,14 +162,6 @@ class JupyterOpPanelModel {
         }
     }
 
-    public getTitle(): string {
-        return this._title;
-    }
-
-    public getInstrStr(): string {
-        return this._instrStr;
-    }
-
     public getNumMaxRows(): number {
         return this._numMaxRows;
     }
@@ -213,7 +183,7 @@ class JupyterOpPanelModel {
         return this._fixedNames.map((colName) => ({
             name: colName, type: colMap.get(colName).getType()
         }));
-    } 
+    }
 
     public getRenames(): {
         sourceColumn: { name: string, type: ColumnType },
@@ -236,10 +206,6 @@ class JupyterOpPanelModel {
         this._renames[idx].destColumn = destName;
     }
 
-    public getColumnMap(): Map<string, ProgCol> {
-        return this._allColMap;
-    }
-
     public getColNameSet(): Set<string> {
         return new Set(this.getColumnMap().keys());
     }
@@ -257,6 +223,65 @@ class JupyterOpPanelModel {
             }
         });
         return colNameSet;
+    }
+
+    public static refreshColumns(model, dagNode: DagNode) {
+        model._allColMap = this._createColMap(dagNode);
+
+        // Figure out columns can/cannot be renamed, according to the current lineage
+        const colsCanRename = new Set<string>();
+        const existingNameCount = new Map<string, number>();
+        model._fixedNames = [];
+        for (const [colName, colInfo] of model._allColMap.entries()) {
+            if (!model._canRename(colInfo)) {
+                model._fixedNames.push(colName);
+                existingNameCount.set(colName, 1);
+            } else {
+                colsCanRename.add(colName);
+            }
+        }
+        const allRenames: { sourceColumn: string, destColumn: string }[] = [];
+        for (const colName of model._fixedNames) {
+            allRenames.push({ sourceColumn: colName, destColumn: colName });
+        }
+        for (const rename of model._renames) {
+            allRenames.push({
+                sourceColumn: rename.sourceColumn, destColumn: rename.destColumn
+            });
+        }
+
+        // Apply renames
+        const renameMap = new Map<string, string>();
+        for (const { sourceColumn, destColumn } of allRenames) {
+            renameMap.set(sourceColumn, destColumn);
+        }
+        model._renames = [];
+        for (const origName of colsCanRename) {
+            const newName = renameMap.get(origName)
+                || xcHelper.parsePrefixColName(origName).name;
+            model._renames.push({
+                sourceColumn: origName, destColumn: newName
+            });
+            const nameCount = existingNameCount.get(newName);
+            if (nameCount == null) {
+                existingNameCount.set(newName, 1);
+            } else {
+                existingNameCount.set(newName, nameCount + 1);
+            }
+        }
+        for (let i = 0; i < model._renames.length; i ++) {
+            const rename = model._renames[i];
+            const nameCount = existingNameCount.get(rename.destColumn);
+            if (nameCount > 1) {
+                const newName = model._genColumnName(
+                    rename.destColumn, new Set(existingNameCount.keys()));
+                existingNameCount.set(rename.destColumn, nameCount - 1);
+                existingNameCount.set(newName, 1);
+                rename.destColumn = newName;
+            }
+        }
+
+        return model;
     }
 
     private _genColumnName(

@@ -31,6 +31,7 @@ class DagView {
     private static titleLineHeight = 11;
     public static inConnectorWidth = 6;
     private lockedNodeIds = {};
+    private configLockedNodeIds = new Set();
     private static dagEventNamespace = 'DagView';
 
     private isSqlPreview = false;
@@ -1025,14 +1026,8 @@ class DagView {
     public unlockNode(nodeId: DagNodeId): void {
         this._getNode(nodeId).removeClass("locked");
         delete this.lockedNodeIds[nodeId];
-        let hasLockedSiblings = false;
-        if (Object.keys(this.lockedNodeIds).length) {
-            hasLockedSiblings = true;
-        }
-        if (!hasLockedSiblings) {
-            if (this.graph != null) {
-                this.graph.unsetGraphNoDelete();
-            }
+        if (this.graph != null && (Object.keys(this.lockedNodeIds).length || this.configLockedNodeIds.size) ) {
+            this.graph.unsetGraphNoDelete();
         }
         DagNodeInfoPanel.Instance.update(nodeId, "lock");
     }
@@ -1049,6 +1044,31 @@ class DagView {
         return this.tabId;
     }
 
+
+    /**
+     * DagView.lockConfigNode
+     * @param nodeId
+     */
+    public lockConfigNode(nodeId: DagNodeId): string {
+        this._getNode(nodeId).addClass("configLocked");
+        this.configLockedNodeIds.add(nodeId);
+        this.graph.setGraphNoDelete();
+        return this.tabId;
+    }
+
+
+           /**
+     * DagView.unlockConfigNode
+     * @param nodeId
+     */
+    public unlockConfigNode(nodeId: DagNodeId): void {
+        this._getNode(nodeId).removeClass("configLocked");
+        this.configLockedNodeIds.delete(nodeId);
+        if (this.graph != null && (Object.keys(this.lockedNodeIds).length || this.configLockedNodeIds.size) ) {
+            this.graph.unsetGraphNoDelete();
+        }
+    }
+
     /**
      * DagView.isNodeLocked
      * @param nodeId
@@ -1056,6 +1076,15 @@ class DagView {
      */
     public isNodeLocked(nodeId: DagNodeId): boolean {
         return this.lockedNodeIds[nodeId];
+    }
+
+    /**
+     * DagView.isNodeConfigLocked
+     * @param nodeId
+     * @param tabId
+     */
+    public isNodeConfigLocked(nodeId: DagNodeId): boolean {
+        return this.configLockedNodeIds.has(nodeId);
     }
 
     /**

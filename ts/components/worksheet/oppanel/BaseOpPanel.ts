@@ -202,6 +202,8 @@ class BaseOpPanel {
         target: HTMLElement; // The column name input box element
         setData: (colName: string) => void; // The callback function, which will be called when clicking a column in preview table
     } = { target: null, setData: null };
+    protected _mainModel;
+    protected _dataModel: BaseOpPanelModel;
 
     protected constructor() {
         this.allColumns = [];
@@ -295,6 +297,7 @@ class BaseOpPanel {
             this._setupOperationsMap(options.udfDisplayPathPrefix);
             this._setupAggMap();
             this.$panel.find(".subTitle").text(this._dagNode.getTitle());
+            this._updateColumns();
             deferred.resolve();
         });
         return deferred.promise();
@@ -342,9 +345,16 @@ class BaseOpPanel {
         return this.$panel;
     }
 
-
+    /**
+     * refetch source columns
+     */
     public refreshColumns(_options?): void {
-        // implemented by inheritor
+        // implemented by inheritor if inheritor doesn't have this._mainModel
+        if (this._mainModel && this._mainModel.prototype instanceof BaseOpPanelModel) {
+            this._dataModel = this._mainModel.refreshColumns(this._dataModel, this._dagNode);
+            this._updateColumns();
+            this._updateUI();
+        }
     }
 
     protected _updateMode(toAdvancedMode: boolean) {
@@ -773,4 +783,25 @@ class BaseOpPanel {
         }
     }
 
+    protected _updateColumns(): ProgCol[] {
+        const seen: Set<string> = new Set();
+        this.allColumns = [];
+        const colSets = this._dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        }) || [];
+
+        colSets.forEach(cols => {
+            cols.forEach(progCol => {
+                if (!seen.has(progCol.getBackColName())) {
+                    seen.add(progCol.getBackColName());
+                    this.allColumns.push(progCol);
+                }
+            });
+        });
+        return this.allColumns;
+    }
+
+    protected _updateUI(): void {
+        // implemented by inheritor
+    }
 }

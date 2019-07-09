@@ -1,6 +1,7 @@
 class DeskewOpPanel extends BaseOpPanel {
     protected _dagNode: DagNodeDeskew;
     private _newKey: string;
+    protected codeMirrorOnlyColumns = true;
 
     public constructor() {
         super();
@@ -141,17 +142,20 @@ class DeskewOpPanel extends BaseOpPanel {
         keyword: string = ""
     ): void {
         let html: HTML = "";
+        let parent = this._dagNode.getParents()[0];
         try {
-            this._dagNode.getParents()[0].getLineage().getColumns().forEach((progCol) => {
-                const colName = progCol.getBackColName();
-                const type = progCol.getType();
-                if (!keyword || colName.toLowerCase().includes(keyword)) {
-                    html +=
-                    '<li data-type="' + type + '">' +
-                        BaseOpPanel.craeteColumnListHTML(type, colName) +
-                    '</li>';
-                }
-            });
+            if (parent) {
+                parent.getLineage().getColumns().forEach((progCol) => {
+                    const colName = progCol.getBackColName();
+                    const type = progCol.getType();
+                    if (!keyword || colName.toLowerCase().includes(keyword)) {
+                        html +=
+                        '<li data-type="' + type + '">' +
+                            BaseOpPanel.craeteColumnListHTML(type, colName) +
+                        '</li>';
+                    }
+                });
+            }
         } catch (e) {
             console.error(e);
         }

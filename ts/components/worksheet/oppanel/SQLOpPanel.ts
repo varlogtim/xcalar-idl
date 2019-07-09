@@ -3,7 +3,7 @@
  */
 class SQLOpPanel extends BaseOpPanel {
     private _$elemPanel: JQuery; // The DOM element of the panel
-    private _dataModel: SQLOpPanelModel; // The key data structure
+    protected _dataModel: SQLOpPanelModel; // The key data structure
     protected _dagNode: DagNodeSQL;
 
     private _sqlEditor: SQLEditor;
@@ -110,7 +110,6 @@ class SQLOpPanel extends BaseOpPanel {
             }
         }
         this._sqlEditor = new SQLEditor("sqlEditor", callbacks);
-
         CodeMirror.commands.autocompleteSQLInDF = function(cmeditor) {
             const acTables = {};
             for(const tableName in self._sqlTables) {
@@ -407,7 +406,7 @@ class SQLOpPanel extends BaseOpPanel {
         return deferred.promise();
     };
 
-    private _updateUI() {
+    protected _updateUI() {
         this._renderSqlQueryString();
         this._renderIdentifiers();
         this._renderDropAsYouGo();
@@ -531,6 +530,7 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
+
     /**
      * @override BaseOpPanel._switchMode
      * @param toAdvancedMode
@@ -557,7 +557,9 @@ class SQLOpPanel extends BaseOpPanel {
                 identifiersOrder: identifiersOrder,
                 dropAsYouGo: this._isDropAsYouGo()
             };
-            this._editor.setValue(JSON.stringify(advancedParams, null, 4));
+            const paramStr = JSON.stringify(advancedParams, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            this._editor.setValue(paramStr);
         } else {
             try {
                 const advancedParams = JSON.parse(this._editor.getValue());
@@ -620,16 +622,6 @@ class SQLOpPanel extends BaseOpPanel {
             return true;
         }
         return false;
-    }
-
-    protected _restoreBasicModeParams() {
-        const identifiers = {};
-        this._dataModel.getIdentifiers().forEach(function(value, key) {
-            identifiers[key] = value;
-        });
-        const sqlQueryString = this._dataModel.getSqlQueryString();
-        const advancedParams = {identifiers: identifiers, sqlQueryString: sqlQueryString};
-        this._editor.setValue(JSON.stringify(advancedParams, null, 4));
     }
 
     private _validateAdvancedParams(advancedParams): any {
@@ -720,6 +712,11 @@ class SQLOpPanel extends BaseOpPanel {
                 return SQLErrTStr.InvalidParams;
             }
         }
+    }
+
+    protected _updateColumns(): ProgCol[] {
+        this.allColumns = [];
+        return this.allColumns;
     }
 }
 

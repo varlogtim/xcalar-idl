@@ -6,7 +6,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
     private _$elemPanel: JQuery = null; // The DOM element of the panel
     private _$elemDeriveSelectAllWrap: JQuery = null;
     private _$elemDeriveSelectAllCheckbox: JQuery = null;
-    private _dataModel: ProjectOpPanelModel = new ProjectOpPanelModel() ; // The key data structure
+    protected _dataModel: ProjectOpPanelModel = new ProjectOpPanelModel() ; // The key data structure
     protected _dagNode: DagNodeProject = null;
     protected codeMirrorOnlyColumns = true;
 
@@ -24,6 +24,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
     public setup(): void {
         // HTML elements binding
         this._$elemPanel = $('#projectOpPanel');
+        this._mainModel = ProjectOpPanelModel;
         this._$elemDeriveSelectAllWrap =
             ProjectOpPanel.findXCElement(this._$elemPanel, 'selAllDerive');
         this._$elemDeriveSelectAllCheckbox =
@@ -56,7 +57,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeProject, options?): void {
         this._dagNode = dagNode;
-        this._dataModel = ProjectOpPanelModel.fromDag(dagNode);
+        this._dataModel = this._mainModel.fromDag(dagNode);
         let error: string;
         try {
             this._updateUI();
@@ -65,7 +66,6 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             // gets setup
             error = e;
         }
-        this._updateColumns();
         super.showPanel(null, options)
         .then(() => {
             if (error || BaseOpPanel.isLastModeAdvanced) {
@@ -81,17 +81,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
         super.hidePanel(isSubmit);
     }
 
-    /**
-     * refetch source columns
-     * @param info
-     */
-    public refreshColumns(): void {
-        this._dataModel = ProjectOpPanelModel.refreshColumns(this._dataModel, this._dagNode);
-        this._updateColumns();
-        this._updateUI();
-    }
-
-    private _updateUI() {
+    protected _updateUI() {
         this._renderDerivedColumns();
         this._renderPrefixedColumns();
 
@@ -325,22 +315,6 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
         }
     }
 
-    private _updateColumns(): void {
-        this.allColumns = [];
-        const colSets = this._dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        }) || [];
-        const seen = {};
-        colSets.forEach(cols => {
-            cols.forEach(progCol => {
-                if (!seen[progCol.getBackColName()]) {
-                    seen[progCol.getBackColName()] = true;
-                    this.allColumns.push(progCol);
-                }
-            });
-        });
-    }
-
     /**
      * @override BaseOpPanel._switchMode
      * @param toAdvancedMode
@@ -374,6 +348,6 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
         }
 
         const colMap = this._dataModel.columnMap;
-        return ProjectOpPanelModel.fromDagInput(colMap, dagInput);
+        return this._mainModel.fromDagInput(colMap, dagInput);
     }
 }

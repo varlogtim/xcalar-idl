@@ -1,34 +1,13 @@
-class RowNumOpPanelModel {
-    private _title: string = '';
-    private _instrStr: string = '';
+class RowNumOpPanelModel extends BaseOpPanelModel {
     private _destColumn: string = '';
-    private _allColMap: Map<string, ProgCol> = new Map();
 
     /**
      * Create data model instance from DagNode
-     * @param dagNode 
+     * @param dagNode
      */
     public static fromDag(dagNode: DagNodeRowNum): RowNumOpPanelModel {
         try {
-            const colMap: Map<string, ProgCol> = new Map();
-            const parents = dagNode.getParents();
-            if (parents != null) {
-                for (const parent of parents) {
-                    if (parent == null) {
-                        continue;
-                    }
-                    for (const col of parent.getLineage().getColumns()) {
-                        colMap.set(
-                            col.getBackColName(),
-                            ColManager.newPullCol(
-                                col.getFrontColName(),
-                                col.getBackColName(),
-                                col.getType()
-                            )
-                        );
-                    }
-                }
-            }
+            const colMap: Map<string, ProgCol> = this._createColMap(dagNode);
             return this.fromDagInput(colMap, dagNode.getParam());
         } catch(e) {
             console.error(e);
@@ -38,8 +17,8 @@ class RowNumOpPanelModel {
 
     /**
      * Create data model instance from column list & DagNodeInput
-     * @param colMap 
-     * @param dagInput 
+     * @param colMap
+     * @param dagInput
      * @description use case: advanced from
      */
     public static fromDagInput(
@@ -87,20 +66,8 @@ class RowNumOpPanelModel {
         }
     }
 
-    public getTitle(): string {
-        return this._title;
-    }
-
-    public getInstrStr(): string {
-        return this._instrStr;
-    }
-
     public getColNameSet(): Set<string> {
         return new Set(this._allColMap.keys());
-    }
-
-    public getColumnMap(): Map<string, ProgCol> {
-        return this._allColMap;
     }
 
     public getDestColumn(): string {

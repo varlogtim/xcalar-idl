@@ -4,7 +4,7 @@
 class SplitOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
     protected _dagNode: DagNodeSplit = null;
-    private _dataModel: SplitOpPanelModel;
+    protected _dataModel: SplitOpPanelModel;
 
     /**
      * @override
@@ -12,6 +12,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public setup(): void {
         this._componentFactory = new OpPanelComponentFactory('#splitOpPanel');
+        this._mainModel = SplitOpPanelModel;
         super.setup($('#splitOpPanel'));
     }
 
@@ -21,7 +22,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeSplit, options?): void {
         this._dagNode = dagNode;
-        this._dataModel = SplitOpPanelModel.fromDag(dagNode);
+        this._dataModel = this._mainModel.fromDag(dagNode);
         let error: string;
         try {
             this._updateUI();
@@ -46,7 +47,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         super.hidePanel(isSubmit);
     }
 
-    private _updateUI(): void {
+    protected _updateUI(): void {
         this._clearValidationList();
         this._clearColumnPickerTarget();
 
@@ -258,7 +259,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         }
 
         const colMap = this._dataModel.getColumnMap();
-        const model = SplitOpPanelModel.fromDagInput(colMap, advConfig);
+        const model = this._mainModel.fromDagInput(colMap, advConfig);
         model.validateInputData();
         return model;
     }

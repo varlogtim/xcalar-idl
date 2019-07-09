@@ -19,7 +19,7 @@ class SetOpPanel extends BaseOpPanel {
             let hasError;
             try {
                 this._initialize(dagNode);
-                this.updateColumns();
+                this._updateColumns();
                 if (gMinModeOn) {
                     this._autoResizeView(false);
                 } else {
@@ -55,7 +55,7 @@ class SetOpPanel extends BaseOpPanel {
 
     public refreshColumns(info): void {
         this.setOpData.refreshColumns(info);
-        this.updateColumns();
+        this._updateColumns();
     }
 
     protected _reset(): void {
@@ -66,9 +66,13 @@ class SetOpPanel extends BaseOpPanel {
         $panel.find(".highlight").removeClass("highlight");
     }
 
-    private updateColumns(): void {
+    protected _updateColumns(): ProgCol[] {
         this.allColumns = [];
         const seen = {};
+        if (!this.setOpData) {
+            // baseOpPanel calls before initialize
+            return;
+        }
         this.setOpData.getModel().all.forEach(colSet => {
             colSet.forEach(progCol => {
                 if (!seen[progCol.getBackColName()]) {
@@ -77,6 +81,7 @@ class SetOpPanel extends BaseOpPanel {
                 }
             });
         });
+        return this.allColumns;
     }
 
     private _setup(): void {

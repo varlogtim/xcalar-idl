@@ -3,7 +3,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFirstStep: JoinOpPanelStep1 = null;
     private _componentSecondStep: JoinOpPanelStep2 = null;
     private _templateMgr = new OpPanelTemplateManager();
-    private _dataModel: JoinOpPanelModel = null;
+    protected _dataModel: JoinOpPanelModel = null;
     protected _dagNode: DagNodeJoin = null;
     private static _templateIDs = { navButton: 'navButton' };
     private static _templates = {
@@ -13,6 +13,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
 
     public setup(): void {
         this._$elemPanel = $('#joinOpPanel');
+        this._mainModel = JoinOpPanelModel;
         this._componentFirstStep = new JoinOpPanelStep1({
             container: this._$elemPanel
         });
@@ -35,7 +36,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         const { isNoCast = true } = (options || {});
         this._dagNode = dagNode;
         // Setup data model
-        this._dataModel = JoinOpPanelModel.fromDag(dagNode, {
+        this._dataModel = this._mainModel.fromDag(dagNode, {
             currentStep: 1,
             isAdvMode: false,
             isNoCast: isNoCast
@@ -43,7 +44,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         if (this._dataModel.getColumnPairsLength() === 0) {
             this._dataModel.addColumnPair();
         }
-        this._updateAllColumns();
+        this._updateColumns();
 
         // Update UI according to the data model
         let error: string;
@@ -72,17 +73,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._cachedBasicModeParam = null;
     }
 
-    /**
-     * @description
-     * when graph lineage is changed, update the columns in the model and ui
-     */
-    public refreshColumns(): void {
-        this._updateAllColumns();
-        this._dataModel = JoinOpPanelModel.refreshColumns(this._dataModel, this._dagNode);
-        this._updateUI();
-    }
-
-    private _updateUI() {
+    protected _updateUI() {
         this._clearColumnPickerTarget();
         // Event handlers for the container panel
         this._$elemPanel.off();
@@ -114,7 +105,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._updateUINavButtons(() => errorElement);
     }
 
-    private _updateUINavButtons(getErrorElement: () => HTMLElement): void {
+    protected _updateUINavButtons(getErrorElement: () => HTMLElement): void {
         const findXCElement = BaseOpPanel.findXCElement;
 
         const $bottomSection = findXCElement(this._$elemPanel, 'bottomSection');
@@ -301,12 +292,12 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         const {
             left: leftCols,
             right: rightCols
-        } = JoinOpPanelModel.getColumnsFromDag(this._dagNode);
+        } = this._mainModel.getColumnsFromDag(this._dagNode);
         const {
             left: leftTableName,
             right: rightTableName
-        } = JoinOpPanelModel.getPreviewTableNamesFromDag(this._dagNode);
-        const newModel = JoinOpPanelModel.fromDagInput(
+        } = this._mainModel.getPreviewTableNamesFromDag(this._dagNode);
+        const newModel = this._mainModel.fromDagInput(
             leftCols, rightCols, dagInput, leftTableName, rightTableName,
             {
                 currentStep: oldModel.getCurrentStep(),
@@ -421,21 +412,5 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             default:
                 return e.message;
         }
-    }
-
-    private _updateAllColumns() {
-        this.allColumns = [];
-        const colSets = this._dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        }) || [];
-        const seen = {};
-        colSets.forEach(cols => {
-            cols.forEach(progCol => {
-                if (!seen[progCol.getBackColName()]) {
-                    seen[progCol.getBackColName()] = true;
-                    this.allColumns.push(progCol);
-                }
-            });
-        });
     }
 }

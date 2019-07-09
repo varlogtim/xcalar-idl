@@ -1,38 +1,17 @@
-class RoundOpPanelModel {
-    private _title: string = '';
-    private _instrStr: string = '';
+class RoundOpPanelModel extends BaseOpPanelModel {
     private _sourceColumn: string = '';
     private _destColumn: string = '';
     private _numDecimals: number = 0;
     private _includeErrRow: boolean = false;
-    private _allColMap: Map<string, ProgCol> = new Map();
     private static _funcName = 'round';
 
     /**
      * Create data model instance from DagNode
-     * @param dagNode 
+     * @param dagNode
      */
     public static fromDag(dagNode: DagNodeRound): RoundOpPanelModel {
         try {
-            const colMap: Map<string, ProgCol> = new Map();
-            const parents = dagNode.getParents();
-            if (parents != null) {
-                for (const parent of parents) {
-                    if (parent == null) {
-                        continue;
-                    }
-                    for (const col of parent.getLineage().getColumns()) {
-                        colMap.set(
-                            col.getBackColName(),
-                            ColManager.newPullCol(
-                                col.getFrontColName(),
-                                col.getBackColName(),
-                                col.getType()
-                            )
-                        );
-                    }
-                }
-            }
+            const colMap: Map<string, ProgCol> = this._createColMap(dagNode);
             return this.fromDagInput(colMap, dagNode.getParam());
         } catch(e) {
             console.error(e);
@@ -42,8 +21,8 @@ class RoundOpPanelModel {
 
     /**
      * Create data model instance from column list & DagNodeInput
-     * @param colMap 
-     * @param dagInput 
+     * @param colMap
+     * @param dagInput
      * @description use case: advanced from
      */
     public static fromDagInput(
@@ -60,7 +39,7 @@ class RoundOpPanelModel {
         model._instrStr = OpPanelTStr.RoundPanelInstr;
         model._allColMap = colMap;
 
-        try { 
+        try {
             const evalObj = dagInput.eval[0];
             const evalFunc = XDParser.XEvalParser.parseEvalStr(evalObj.evalString);
 
@@ -116,7 +95,7 @@ class RoundOpPanelModel {
             }],
             icv: this.isIncludeErrRow()
         };
-        
+
         return param;
     }
 
@@ -166,14 +145,6 @@ class RoundOpPanelModel {
         return new Set(this.getColumnMap().keys());
     }
 
-    public getTitle(): string {
-        return this._title;
-    }
-
-    public getInstrStr(): string {
-        return this._instrStr;
-    }
-
     public getSourceColumn(): string {
         return this._sourceColumn;
     }
@@ -204,10 +175,6 @@ class RoundOpPanelModel {
 
     public isIncludeErrRow(): boolean {
         return this._includeErrRow;
-    }
-
-    public getColumnMap(): Map<string, ProgCol> {
-        return this._allColMap;
     }
 
     // private _genColName(prefix: string) {

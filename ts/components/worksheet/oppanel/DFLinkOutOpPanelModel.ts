@@ -11,25 +11,9 @@ class DFLinkOutOpPanelModel {
         BaseOpPanel.getBasicColTypes(true).forEach((type) => {
                 this.validTypes.push(type);
         });
-        this.tableColumns = this.dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        })[0] || [];
-
-        this.tableColumns = this.tableColumns.filter((col) => {
-            const colType = col.getType();
-            return (this.validTypes.includes(colType));
-        });
         const param: DagNodeDFOutInputStruct = this.dagNode.getParam();
         const columns = param.columns;
-        this.columnList = this.tableColumns.map(col => {
-            return {
-                name: col.getBackColName(),
-                isSelected: columns.find((column) => {
-                    return column.sourceName === col.getBackColName();
-                }) != null,
-                type: col.getType()
-            }
-        });
+        this._updateColumns(columns);
     }
 
     public getColumns(): ProgCol[] {
@@ -58,5 +42,34 @@ class DFLinkOutOpPanelModel {
         let col: DFLinkOutOpPanelModelColumnInfo = this.columnList[colIndex];
         col.isSelected = !col.isSelected;
         return;
+    }
+
+    private _updateColumns(columns) {
+        this.tableColumns = this.dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        })[0] || [];
+
+        this.tableColumns = this.tableColumns.filter((col) => {
+            const colType = col.getType();
+            return (this.validTypes.includes(colType));
+        });
+
+        this.columnList = this.tableColumns.map(col => {
+            return {
+                name: col.getBackColName(),
+                isSelected: columns.find((column) => {
+                    return column.sourceName === col.getBackColName() ||
+                           column.name === col.getBackColName();
+                }) != null,
+                type: col.getType()
+            }
+        });
+    }
+
+    public refreshColumns() {
+        const selectedCols = this.columnList.filter(col => {
+            return col.isSelected;
+        });
+        this._updateColumns(selectedCols);
     }
 }

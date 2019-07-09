@@ -18,6 +18,8 @@ describe('RowManager Test', function() {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
+
+
         cachedUserPref = UserSettings.getPref;
         UserSettings.getPref = function(val) {
             if (val === "dfAutoExecute" || val === "dfAutoPreview") {
@@ -26,7 +28,12 @@ describe('RowManager Test', function() {
                 return cachedUserPref(val);
             }
         };
-        UnitTest.addAll(testDSObj, "unitTestFakeYelp")
+        UnitTest.testFinish(() => {
+            return DagTabManager.Instance._setup;
+        })
+        .then(() => {
+            return UnitTest.addAll(testDSObj, "unitTestFakeYelp");
+        })
         .then(function(ds, tName, tPrefx, _nodeId, _tabId) {
             testDs = ds;
             tableName = tName;

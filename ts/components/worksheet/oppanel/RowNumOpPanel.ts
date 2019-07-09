@@ -1,7 +1,8 @@
 class RowNumOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
     protected _dagNode: DagNodeRowNum = null;
-    private _dataModel: RowNumOpPanelModel;
+    protected _dataModel: RowNumOpPanelModel;
+    protected codeMirrorOnlyColumns = true;
 
     /**
      * @override
@@ -9,6 +10,7 @@ class RowNumOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public setup(): void {
         this._componentFactory = new OpPanelComponentFactory('#rownumOpPanel');
+        this._mainModel = RowNumOpPanelModel;
         super.setup($('#rownumOpPanel'));
     }
 
@@ -18,7 +20,7 @@ class RowNumOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeRowNum, options?): void {
         this._dagNode = dagNode;
-        this._dataModel = RowNumOpPanelModel.fromDag(dagNode);
+        this._dataModel = this._mainModel.fromDag(dagNode);
         let error: string;
         try {
             this._updateUI();
@@ -42,7 +44,7 @@ class RowNumOpPanel extends BaseOpPanel implements IOpPanel {
         super.hidePanel(isSubmit);
     }
 
-    private _updateUI(): void {
+    protected _updateUI(): void {
         this._clearValidationList();
 
         const $header = this._getPanel().find('header');
@@ -149,9 +151,14 @@ class RowNumOpPanel extends BaseOpPanel implements IOpPanel {
         }
 
         const colMap = this._dataModel.getColumnMap();
-        const model = RowNumOpPanelModel.fromDagInput(colMap, advConfig);
+        const model = this._mainModel.fromDagInput(colMap, advConfig);
         model.validateInputData();
 
         return model;
+    }
+
+    protected _updateColumns(): ProgCol[] {
+        this.allColumns = [];
+        return this.allColumns;
     }
 }

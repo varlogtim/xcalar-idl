@@ -18,9 +18,7 @@ abstract class GeneralOpPanelModel {
         this.event = event;
         this.groups = [];
         this.andOrOperator = "and";
-        this.tableColumns = this.dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        })[0] || [];
+        this.tableColumns = this.refreshColumns();
         this._opCategories = [];
         const autofillColumnNames = options.autofillColumnNames;
         if (autofillColumnNames) {
@@ -61,13 +59,10 @@ abstract class GeneralOpPanelModel {
         return this.tableColumns;
     }
 
-    public refreshColumns(update) {
+    public refreshColumns(): ProgCol[] {
         this.tableColumns = this.dagNode.getParents().map((parentNode) => {
             return parentNode.getLineage().getColumns();
         })[0] || [];
-        if (update) {
-            this._update();
-        }
         return this.tableColumns;
     }
 

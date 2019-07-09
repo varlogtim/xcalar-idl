@@ -1,7 +1,7 @@
 class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
     protected _dagNode: DagNodeExplode = null;
-    private _dataModel: ExplodeOpPanelModel;
+    protected _dataModel: ExplodeOpPanelModel;
 
     /**
      * @override
@@ -10,6 +10,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
     public setup(): void {
         const panelSelector = '#explodeOpPanel';
         this._componentFactory = new OpPanelComponentFactory(panelSelector);
+        this._mainModel = ExplodeOpPanelModel;
         super.setup($(panelSelector));
     }
 
@@ -19,7 +20,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public show(dagNode: DagNodeExplode, options?): void {
         this._dagNode = dagNode;
-        this._dataModel = ExplodeOpPanelModel.fromDag(dagNode);
+        this._dataModel = this._mainModel.fromDag(dagNode);
         let error: string;
         try {
             this._updateUI();
@@ -46,7 +47,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         super.hidePanel(isSubmit);
     }
 
-    private _updateUI(): void {
+    protected _updateUI(): void {
         this._clearValidationList();
         this._clearColumnPickerTarget();
 
@@ -230,7 +231,7 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
         }
 
         const colMap = this._dataModel.getColumnMap();
-        const model = ExplodeOpPanelModel.fromDagInput(colMap, advConfig);
+        const model = this._mainModel.fromDagInput(colMap, advConfig);
         model.validateInputData();
         return model;
     }

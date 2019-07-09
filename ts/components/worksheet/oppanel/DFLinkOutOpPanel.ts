@@ -29,6 +29,11 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         super.hidePanel(isSubmit);
     }
 
+    public refreshColumns(): void {
+        this.model.refreshColumns();
+        this._renderColumns();
+    }
+
     private _setup(): void {
         super.setup($("#dfLinkOutPanel"));
         this._$colList = this._getPanel().find(".cols");

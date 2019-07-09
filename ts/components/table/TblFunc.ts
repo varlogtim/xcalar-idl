@@ -240,8 +240,6 @@ class TblFunc {
                                                    .removeClass('selectedCell');
         gActiveTableId = tableId;
         TableComponent.update();
-        $('.dagWrap').addClass('notSelected').removeClass('selected');
-        $('#dagWrap-' + tableId).addClass('selected').removeClass('notSelected');
     }
 
     /**
@@ -637,7 +635,6 @@ class TblFunc {
         $tableWrap.find('.lockedTableIcon').remove();
         $tableWrap.find('.tableCover').remove();
         $tableWrap.removeClass('tableLocked tableLockedDisplayed');
-        $('#dagWrap-' + tableId).removeClass('locked');
 
         const $tbody: JQuery = $tableWrap.find('.xcTbodyWrap');
         $tbody.off('scroll.preventScrolling');
