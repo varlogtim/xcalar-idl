@@ -1,11 +1,12 @@
 #mainMenu {
     @title-height: 40px;
+    @header-height: 66px;
     .opPanel {
         display: flex;
         flex-direction: column;
         > header {
             flex: 1 0 auto;
-            min-height: @title-height;
+            min-height:  @header-height;
             height: auto;
 
             .row {
@@ -24,6 +25,7 @@
     font-weight: 600;
 
     @title-height: 40px;
+    @header-height: 66px;
     @listHeight: 26px;
     @headingHeight: 30px;
     @standardFontSize: 12px;
@@ -49,7 +51,7 @@
     }
 
     > header {
-        height: @title-height;
+        height: @header-height;
         line-height: @title-height;
         font-size: 22px;
 
@@ -124,7 +126,7 @@
     .mainContent {
         font-size: @standardFontSize;
         overflow: auto;
-        height: ~"calc(100% - 40px)";
+        height: ~"calc(100% - @{header-height})";
         .flex-display;
         .flex-direction(column);
     }
@@ -2616,10 +2618,6 @@
         .flex(1 1 auto);
         overflow: hidden;
         height: 100%;
-    }
-
-    .bottomSection {
-        .flex(0 0 auto);
     }
 
     .btnWrap {
