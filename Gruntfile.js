@@ -5237,7 +5237,9 @@ module.exports = function(grunt) {
                 deployTargets.push(WATCH_PLUGIN + ':' + target);
             }
         }
-        if (grunt.option(WATCH_TARGET_JS) || grunt.option(WATCH_TARGET_TYPESCRIPT)) {
+        if (grunt.option(WATCH_TARGET_JS) ||
+            grunt.option(WATCH_TARGET_TYPESCRIPT) ||
+            grunt.option(WATCH_FLAG_ALL)) {
             // In case of watching JS/TS files, we launch webpack:watch to monitor the files in its interest
             // webpack:watch will rebuild browser bundle files if any of interested files change(after TS compilation)
             deployTargets.push("webpack:watch");
