@@ -119,6 +119,7 @@ class AdvancedModeState extends State {
     private async addDatasetNode() {
         this.log(`Adding dataset node.. in WKBK ${this.currentWKBKId}`);
         let datasetsLoaded = DS.listDatasets();
+        console.log("************* Num datasets: " + datasetsLoaded.length);
         let ds = Util.pickRandom(datasetsLoaded);
         let dsNode = this.dagViewManager.newNode({type:DagNodeType.Dataset});
         let dsArgs = await DS.getLoadArgsFromDS(ds.id);
@@ -771,6 +772,9 @@ class AdvancedModeState extends State {
         } catch (error) {
             // XXX: Ignoring all errors. Might want to rethrow some errors;
             this.log(`Run DF Error`);
+            if (error && error.node) {
+                delete error.node;
+            }
             this.logError(error);
         }
         this.run++;

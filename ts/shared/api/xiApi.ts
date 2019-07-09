@@ -2973,7 +2973,7 @@ namespace XIApi {
                 console.error(e);
             }
             if (pubTable != null) {
-                return PromiseHelper.reject("Published Table already exists");
+                return PromiseHelper.reject("Published Table already exists: " + pubTableName);
             }
             const indexTableName: string = xcHelper.randName("publish") + Authentication.getHashId();
             return assemblePubTable(txId, primaryKeyList, srcTableName, indexTableName, colInfo, imdCol);
