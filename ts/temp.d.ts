@@ -722,6 +722,7 @@ declare enum StatusT {
     StatusAlreadyIndexed,
     StatusCannotReplaceKey,
     StatusSessionUsrAlreadyExists,
+    StatusDgDagAlreadyExists,
     StatusDsODBCTableExists,
     StatusExist,
     StatusExportSFFileExists,

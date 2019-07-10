@@ -189,6 +189,11 @@ function thriftLog(
             msg = title + " failed: " + error;
         }
 
+        if (error === StatusTStr[StatusT.StatusDgDagAlreadyExists]) {
+            // 'DAG name already exists'
+            error += ". Rename the aggregate or DAG and try again."
+        }
+
         if (status !== StatusT.StatusCanceled) {
             console.error('(╯°□°）╯︵ ┻━┻', msg);
         }
