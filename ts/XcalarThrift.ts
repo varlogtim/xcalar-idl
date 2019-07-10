@@ -476,6 +476,29 @@ function parseLoadError(error: object): object | string {
     return res;
 }
 
+function createXcrpcScopeInput(param: {
+    scopeInfo?: { userName: string, workbookName: string }, // This is the one passed in API function arguments
+    xdScopeInfo?: { userName: string, sessionName: string },
+    xcrpcScopeEnum: { global: number, workbook: number } // Assuming xcrpc services may have different scope values
+}): { scope: number, scopeInfo: { userName: string, workbookName: string } } {
+    const {
+        scopeInfo = { userName: null, workbookName: null },
+        xdScopeInfo = { userName: userIdName, sessionName: sessionName}, // Default to XD global values
+        xcrpcScopeEnum
+    } = param;
+    // If scopeInfo is not explicitly specified, fallback to use the XD userName & sessionName
+    const xcrpcScopeInfo = {
+        userName: scopeInfo.userName || xdScopeInfo.userName,
+        workbookName: scopeInfo.workbookName || xdScopeInfo.sessionName
+    };
+    return {
+        // If there is no sessionName specified, use global scope
+        scope: (xcrpcScopeInfo.workbookName == null || xcrpcScopeInfo.workbookName.length === 0)
+            ? xcrpcScopeEnum.global : xcrpcScopeEnum.workbook,
+        scopeInfo: xcrpcScopeInfo
+    };
+}
+
 function convertToXcrpcLoadArgs(loadArgs: {
     sourceArgsList: DataSourceArgsT[],
     parseArgs: ParseArgsT,
@@ -1189,13 +1212,18 @@ XcalarDatasetDeactivate = function(
 
     releaseAllResultsets()
     .then(function() {
+        const xcrpcScope = createXcrpcScopeInput({
+            scopeInfo: scopeInfo,
+            xcrpcScopeEnum: {
+                global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
+                workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
+            }
+        });
         const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
                              .delete({namePattern: dsName,
                                       srcType: SourceTypeT.SrcDataset,
-                                      dagScope: Xcrpc.DagNode.DAGSCOPE.WORKBOOK,
-                                      scopeInfo: scopeInfo ||
-                                                 {userName: userIdName,
-                                                  workbookName: sessionName}});
+                                      dagScope: xcrpcScope.scope,
+                                      scopeInfo: xcrpcScope.scopeInfo});
         return PromiseHelper.alwaysResolve(PromiseHelper.convertToJQuery(promise));
     })
     .then(function() {
@@ -1314,15 +1342,24 @@ XcalarDatasetDeleteLoadNode = function(
             const dsName: string = parseDS(datasetName);
             res.nodeInfo.forEach((nodeInfo) => {
                 if (nodeInfo.name === datasetName) {
-                    setSessionName(wkbkName);
+                    // setSessionName(wkbkName);
+                    const xcrpcScope = createXcrpcScopeInput({
+                        scopeInfo: scopeInfo,
+                        xdScopeInfo: {
+                            userName: userIdName, sessionName: wkbkName
+                        },
+                        xcrpcScopeEnum: {
+                            global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
+                            workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
+                        }
+                    });
+
                     let promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
                                        .delete({namePattern: dsName,
                                                 srcType: SourceTypeT.SrcDataset,
-                                                dagScope: Xcrpc.DagNode.DAGSCOPE.WORKBOOK,
-                                                scopeInfo: scopeInfo ||
-                                                           {userName: userIdName,
-                                                            workbookName: sessionName}});
-                    setSessionName(currentSession);
+                                                dagScope: xcrpcScope.scope,
+                                                scopeInfo: xcrpcScope.scopeInfo});
+                    // setSessionName(currentSession);
                     promises.push(PromiseHelper.convertToJQuery(promise));
                 }
             });
@@ -1732,17 +1769,20 @@ XcalarDeleteTable = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        if (tHandle == null) {
-            return PromiseHelper.resolve(null);
-        }
+        const xcrpcScope = createXcrpcScopeInput({
+            scopeInfo: scopeInfo,
+            xcrpcScopeEnum: {
+                global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
+                workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
+            }
+        });
+
         const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
                              .delete({namePattern: tableName,
                                       srcType: SourceTypeT.SrcTable,
                                       deleteCompletely: deleteCompletely,
-                                      dagScope: Xcrpc.DagNode.DAGSCOPE.WORKBOOK,
-                                      scopeInfo: scopeInfo ||
-                                                 {userName: userIdName,
-                                                  workbookName: sessionName}});
+                                      dagScope: xcrpcScope.scope,
+                                      scopeInfo: xcrpcScope.scopeInfo});
         def = PromiseHelper.convertToJQuery(promise);
     }
 
@@ -1803,16 +1843,22 @@ XcalarDeleteConstants = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        if (!userIdName || !sessionName) {
+        if (scopeInfo == null && (!userIdName || !sessionName)) {
             return PromiseHelper.resolve(null);
         }
+        const xcrpcScope = createXcrpcScopeInput({
+            scopeInfo: scopeInfo,
+            xcrpcScopeEnum: {
+                global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
+                workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
+            }
+        });
+
         const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
                              .delete({namePattern: constantPattern,
                                       srcType: SourceTypeT.SrcConstant,
-                                      dagScope: Xcrpc.DagNode.DAGSCOPE.WORKBOOK,
-                                      scopeInfo: scopeInfo ||
-                                                 {userName: userIdName,
-                                                  workbookName: sessionName}});
+                                      dagScope: xcrpcScope.scope,
+                                      scopeInfo: xcrpcScope.scopeInfo});
         def = PromiseHelper.convertToJQuery(promise);
     }
 

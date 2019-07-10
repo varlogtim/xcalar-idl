@@ -59,10 +59,6 @@ class ServiceClient {
         return new DatasetService(this._apiClient);
     }
 
-    public getOperatorService(): OperatorService {
-        return new OperatorService(this._apiClient);
-    }
-
     public getTargetService(): TargetService {
         return new TargetService(this._apiClient);
     }
