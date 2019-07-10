@@ -110,16 +110,19 @@ describe("XcalarThrift Test", function() {
 
     it("XcalarGetLicense should handle xcalar error", function(done) {
         const oldApiCall = Xcrpc.License.LicenseService.prototype.getLicense;
-        var errorMsg = {"xcalarStatus": 1, "log": "1234"};
+        const errorMsg = "license error";
+        const statusCode = 1;
         Xcrpc.License.LicenseService.prototype.getLicense = async function() {
-            throw { type: Xcrpc.Error.ErrorType.SERVICE, error: errorMsg };
+            throw Xcrpc.Error.parseError({ status: statusCode, error: errorMsg });
         };
         XcalarGetLicense()
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.error).to.deep.equal(errorMsg);
+            expect(Xcrpc.Error.isXcalarError(error)).to.be.true;
+            expect(error.status).to.equal(statusCode)
+            expect(error.error).to.equal(errorMsg);
             done();
         })
         .always(function() {
@@ -129,16 +132,20 @@ describe("XcalarThrift Test", function() {
 
     it("XcalarGetLicense should handle error by proxy", function(done) {
         const oldApiCall = Xcrpc.License.LicenseService.prototype.getLicense;
-        var errorMsg = {"httpStatus": 500};
+        const httpStatus = 500;
         Xcrpc.License.LicenseService.prototype.getLicense = async function() {
-            throw { type: Xcrpc.Error.ErrorType.SERVICE, error: errorMsg };
+            throw Xcrpc.Error.parseError({
+                name: 'statusCode',
+                statusCode: httpStatus
+            });
         };
         XcalarGetLicense()
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.error).to.deep.equal(errorMsg);
+            expect(Xcrpc.Error.isNetworkError(error)).to.be.true;
+            expect(error.httpStatus).to.equal(httpStatus);
             done();
         })
         .always(function() {
@@ -193,16 +200,21 @@ describe("XcalarThrift Test", function() {
 
     it("XcalarUpdateLicense should handle xcalar error", function(done) {
         const oldApiCall = Xcrpc.License.LicenseService.prototype.updateLicense;
-        var errorMsg = {"xcalarStatus": 1, "log": "1234"};
+        const statusCode = 1;
+        const errorMsg = "update fail";
         Xcrpc.License.LicenseService.prototype.updateLicense = async function() {
-            throw { type: Xcrpc.Error.ErrorType.SERVICE, error: errorMsg};
+            throw Xcrpc.Error.parseError({
+                status: statusCode, error: errorMsg
+            });
         }
         XcalarUpdateLicense()
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.error).to.deep.equal(errorMsg);
+            expect(Xcrpc.Error.isXcalarError(error)).to.be.true;
+            expect(error.status).to.equal(statusCode)
+            expect(error.error).to.equal(errorMsg);
             done();
         })
         .always(function() {
@@ -212,16 +224,20 @@ describe("XcalarThrift Test", function() {
 
     it("XcalarUpdateLicense should handle error by proxy", function(done) {
         const oldApiCall = Xcrpc.License.LicenseService.prototype.updateLicense;
-        var errorMsg = {"httpStatus": 500};
+        const httpStatus = 500;
         Xcrpc.License.LicenseService.prototype.updateLicense = async function() {
-            throw { type: Xcrpc.Error.ErrorType.SERVICE, error: errorMsg};
+            throw Xcrpc.Error.parseError({
+                name: 'statusCode',
+                statusCode: httpStatus
+            });
         }
         XcalarUpdateLicense()
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.error).to.deep.equal(errorMsg);
+            expect(Xcrpc.Error.isNetworkError(error)).to.be.true;
+            expect(error.httpStatus).to.equal(httpStatus);
             done();
         })
         .always(function() {

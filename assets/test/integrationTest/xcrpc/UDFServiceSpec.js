@@ -1,3 +1,4 @@
+const ApiStatus = require('xcalarsdk').Error.status;
 const expect = require('chai').expect;
 exports.testSuite = function(UDFService) {
      describe("UDFService test: ", function () {
@@ -16,8 +17,7 @@ exports.testSuite = function(UDFService) {
                 await UDFService.getRes({udfScope: 0,moduleName: ""});
                 expect.fail("getRes cannot handle the invalid input");
             } catch(err) {
-                //after we have error handler for xcrpc, we should change it
-                expect(err.error.error.includes("The specified user-defined module/application was not found")).to.be.true;
+                expect(err.status).to.equal(ApiStatus.STATUS_UDF_MODULE_NOT_FOUND);
             }
         })
         it("get() should work", async function () {

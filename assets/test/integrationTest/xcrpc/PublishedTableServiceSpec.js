@@ -6,16 +6,21 @@ exports.testSuite = function(PublishedTableService) {
             expect(true).to.be.true;
         });
 
-        //TODO only test empty case util create table implemented
         it("listTables() should work", async function () {
-            const emptyList = { numTables: 0, tables: [] };
+            let response = {};
+            let error = null;
             try {
-                const listInfo = await PublishedTableService.listTables({ patternStr: "*" });
-                expect(listInfo).to.deep.equal(emptyList);
+                response = await PublishedTableService.listTables({ patternStr: "*" });
             } catch (err) {
-                console.log("listTable should return an empty table array");
-                expect.fail(err);
+                error = err;
             }
+
+            expect(error == null).to.be.true;
+
+            const { numTables, tables } = response;
+            expect(Number.isInteger(numTables)).to.be.true;
+            expect(Array.isArray(tables)).to.be.true;
+            expect(tables.length).to.equal(numTables);
         });
 
     });

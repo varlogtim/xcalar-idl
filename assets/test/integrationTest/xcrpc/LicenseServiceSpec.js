@@ -1,3 +1,4 @@
+const ApiStatus = require('xcalarsdk').Error.status;
 const expect = require('chai').expect;
 exports.testSuite = function(LicenseService) {
     describe("LicenseService: ", function () {
@@ -17,7 +18,7 @@ exports.testSuite = function(LicenseService) {
                 await LicenseService.updateLicense({ newLicense: null });
                 expect.fail("updateLicense cannot handle invalid input");
             } catch(err) {
-                expect(err.error.error).to.equal("The signature of the Xcalar license is invalid");
+                expect(err.status).to.equal(ApiStatus.STATUS_LIC_SIGNATURE_INVALID);
             }
         });
     });

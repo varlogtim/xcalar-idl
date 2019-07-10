@@ -1,6 +1,6 @@
 
 import { UserDefinedFunctionService as ApiUDF, XceClient as ApiClient } from 'xcalar';
-import { ServiceError, ErrorType } from '../ServiceError';
+import { parseError } from '../ServiceError';
 import { SCOPE as UDFSCOPE, ScopeInfo, createScopeMessage } from '../Common/Scope';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
@@ -31,11 +31,7 @@ class UDFService {
 
             return response.getFqModName().getText();
         } catch (e) {
-            // XXX TODO: API error handling
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
         }
     }
     /**
@@ -57,11 +53,7 @@ class UDFService {
 
             return response.getUdfModuleSrc().getSource();
         } catch (e) {
-            // XXX TODO: API error handling
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
         }
     }
 
@@ -80,15 +72,9 @@ class UDFService {
             const request = new ProtoTypes.UDF.AddUpdateRequest();
             request.setUdfModule(udfModule);
             const udfService = new ApiUDF(this._apiClient);
-            const response = await udfService.add(request);
-
-            return response;
+            await udfService.add(request);
         } catch (e) {
-            // XXX TODO: API error handling
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
         }
     }
 
@@ -107,15 +93,9 @@ class UDFService {
             const request = new ProtoTypes.UDF.AddUpdateRequest();
             request.setUdfModule(udfModule);
             const udfService = new ApiUDF(this._apiClient);
-            const response = await udfService.update(request);
-
-            return response;
+            await udfService.update(request);
         } catch (e) {
-            // XXX TODO: API error handling
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
         }
     }
 
@@ -134,15 +114,9 @@ class UDFService {
             const request = new ProtoTypes.UDF.DeleteRequest();
             request.setUdfModule(udfModule);
             const udfService = new ApiUDF(this._apiClient);
-            const response = await udfService.delete(request);
-
-            return response;
+            await udfService.delete(request);
         } catch (e) {
-            // XXX TODO: API error handling
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
         }
     }
 

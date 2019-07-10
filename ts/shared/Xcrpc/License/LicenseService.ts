@@ -1,5 +1,5 @@
 import { LicenseService as ApiLicense, XceClient as ApiClient } from 'xcalar';
-import { ServiceError, ErrorType } from '../ServiceError';
+import { parseError } from '../ServiceError';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
 class LicenseService {
@@ -22,11 +22,7 @@ class LicenseService {
 
             return response;
         } catch (e) {
-            // XXX TODO: API error handling
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
         }
     }
 
@@ -50,11 +46,7 @@ class LicenseService {
 
             return response;
         } catch (e) {
-            // XXX TODO: API error handling
-            const error: ServiceError = {
-                type: ErrorType.SERVICE, error: e
-            };
-            throw error;
+            throw parseError(e);
         }
     }
 }

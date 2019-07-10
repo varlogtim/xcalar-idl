@@ -48,11 +48,8 @@ class KVStoreService {
             }
             return value;
         } catch (e) {
-            // XXX TODO: API error handling)
-            this._parseError(e, "lookup"))
+            this._parseError(e, "lookup");
             return null;
-
-
         }
     }
 
@@ -78,8 +75,7 @@ class KVStoreService {
             request.setValue(keyValue);
 
             const kvService = new ApiKVStore(this._apiClient);
-            return await kvService.addOrReplace(request);
-
+            await kvService.addOrReplace(request);
         } catch (e) {
             this._parseError(e, "addOrReplace");
         }
@@ -124,7 +120,6 @@ class KVStoreService {
 
             const kvService = new ApiKVStore(this._apiClient);
             await kvService.append(request);
-
         } catch(e) {
             this._parseError(e, "append");
             try {
@@ -186,8 +181,6 @@ class KVStoreService {
                 keys: keys
             }
             return keysList;
-
-
         } catch(e) {
             this._parseError(e, "list");
             return null;
@@ -200,10 +193,10 @@ class KVStoreService {
             case "deleteKey":
             case "setIfEqual": {
                 if (error.status === ProtoTypes.XcalarEnumType.Status.STATUS_KV_ENTRY_NOT_FOUND) {
-                    console.warn("Status", error.error, "Key, not found");
+                    // console.warn("Status", error.error, "Key, not found");
                     return;
                 } else if (error.status === ProtoTypes.XcalarEnumType.Status.STATUS_KV_STORE_NOT_FOUND) {
-                    console.warn(error.error, "kvStore, not found");
+                    // console.warn(error.error, "kvStore, not found");
                     return;
                 }
                 break;
@@ -212,7 +205,7 @@ class KVStoreService {
                 if (error.status === ProtoTypes.XcalarEnumType.Status.STATUS_KV_ENTRY_NOT_FOUND ||
                     error.status === ProtoTypes.XcalarEnumType.Status.STATUS_KV_STORE_NOT_FOUND)
                 {
-                    console.info("Append fails as key or kvStore not found, put key instead");
+                    // console.info("Append fails as key or kvStore not found, put key instead");
                     return;
                 }
                 break;
@@ -225,16 +218,6 @@ class KVStoreService {
 type Value = {
     value: string
 };
-
-//For now, we use the internal error status for kvstore service
-//to handle some error.
-//In the future, we will add error status for xcrpc, then we
-//can remove it.
-enum Status {
-    StatusKvEntryNotFound = 294,
-    StatusKvStoreNotFound = 355
-}
-
 
 type keyListResponse = {
     numKeys: number,
