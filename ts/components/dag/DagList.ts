@@ -123,6 +123,7 @@ class DagList extends Durable {
             path: string,
             id: string,
             options: {isOpen: boolean, createdTime: number, isSDK: boolean, state: string}}[] = [];
+
         this._dags.forEach((dagTab) => {
             let path = "";
             let tabId = dagTab.getId();
@@ -562,7 +563,8 @@ class DagList extends Durable {
             let html: HTML = "";
             let publishedPath = DagTabPublished.PATH.substring(1, DagTabPublished.PATH.length - 1);
             let isInPublishedFolder = path.startsWith(publishedPath);
-            let isAbandonedQuery = path.startsWith(DagTabQuery.PATH.substring(0, DagTabQuery.PATH.length - 1));
+            let isAbandonedQuery = path.startsWith(DagTabQuery.PATH.substring(0, DagTabQuery.PATH.length - 1)) ||
+                                    path.startsWith(DagTabQuery.SDKPATH.substring(0, DagTabQuery.SDKPATH.length - 1));
             // Add folders
             folders.forEach((folder) => {
                 let icon = "xi-folder";

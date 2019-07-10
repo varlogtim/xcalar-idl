@@ -1,5 +1,6 @@
 class DagTabQuery extends DagTabProgress {
     public static readonly PATH = "Abandoned executions/";
+    public static readonly SDKPATH = "SDK Dataflows/";
     private static _abandonedQueryPrefix;
     private _createdTime: number = null;
     private _isSDK: boolean;
@@ -40,7 +41,11 @@ class DagTabQuery extends DagTabProgress {
     }
 
     public getPath(): string {
-        return DagTabQuery.PATH + this.getName();
+        if (this._isSDK) {
+            return DagTabQuery.SDKPATH + this.getName();
+        } else {
+            return DagTabQuery.PATH + this.getName();
+        }
     }
 
     public getCreatedTime(): number {
