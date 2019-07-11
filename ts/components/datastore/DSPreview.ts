@@ -632,6 +632,44 @@ namespace DSPreview {
         cancelRunningPreview();
     }
 
+    /**
+     * DSPreview.getFormatFromParserFnName
+     * @param parserFnName
+     */
+    export function getFormatFromParserFnName(parserFnName: string): string {
+        let format = null;
+        switch (parserFnName) {
+            case "default:parseCsv":
+                format = formatMap.CSV;
+                break;
+            case "default:parseJson":
+            case "default:extractJsonRecords":
+                format = formatMap.JSON;
+                break;
+            case "default:openExcel":
+                format = formatMap.EXCEL;
+                break;
+            case "default:xmlToJsonWithExtraKeys":
+                format = formatMap.XML;
+                break;
+            case "default:parseParquet":
+                format = formatMap.PARQUET;
+                break;
+            case "default:ingestFromDatabase":
+                format = formatMap.DATABASE;
+                break;
+            default:
+                break;
+        }
+        if (format == null &&
+            parserFnName &&
+            !parserFnName.startsWith("default:")
+        ) {
+            format = formatMap.UDF;
+        }
+        return format;
+    }
+
     function positionAndShowCastDropdown($div: JQuery): void {
         let $menu = $previewCard.find(".castDropdown");
         const topMargin: number = 1;

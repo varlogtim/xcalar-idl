@@ -255,6 +255,65 @@ describe("Dataset-DS Test", function() {
             verifyCurrentNum(originNum);
         });
 
+        it("DS.getFormatFromDS should work", function(done) {
+            let oldGet = DS.getLoadArgsFromDS;
+            let oldCommit = UserSettings.commit;
+            let ds = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "parentId": DSObjTerm.homeParentId
+            });
+            let loadArgs = JSON.stringify({
+                "args": {
+                    "loadArgs": {
+                        "parseArgs": {
+                            "parserFnName": "default:parseCsv"
+                        }
+                    }
+                }
+            });
+            DS.getLoadArgsFromDS = () => PromiseHelper.resolve(loadArgs);
+
+            UserSettings.commit = () => {};
+
+            DS.getFormatFromDS(ds)
+            .then(function(format) {
+                expect(format).to.equal("CSV");
+                expect(ds.getFormat()).to.equal("CSV");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                DS.getLoadArgsFromDS = oldGet;
+                UserSettings.commit = oldCommit;
+            });
+        });
+
+        it("DS.getFormatFromDS should handle error case", function(done) {
+            let oldGet = DS.getLoadArgsFromDS;
+            let ds = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "parentId": DSObjTerm.homeParentId
+            });
+
+            DS.getLoadArgsFromDS = () => PromiseHelper.resolve(null);
+
+            DS.getFormatFromDS(ds)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).not.to.be.empty;
+                expect(ds.getFormat()).to.equal(undefined);
+                done();
+            })
+            .always(function() {
+                DS.getLoadArgsFromDS = oldGet;
+            });
+        });
     });
 
     describe('share ds Test', () => {

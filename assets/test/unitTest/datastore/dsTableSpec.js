@@ -307,6 +307,47 @@ describe("Dataset-DSTable Test", function() {
             $dsTableContainer.data(oldId);
             DSPreview.show = oldPreview;
         });
+
+        it("should update format info", function(done) {
+            $("#dsInfo-format").text("");
+            let dsObj = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "format": "CSV",
+                "parentId": DSObjTerm.homeParentId
+            });
+            DSTable._updateFormatInfo(dsObj)
+            .then(() => {
+                expect($("#dsInfo-format").text()).to.equal("CSV");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should update format info case2", function(done) {
+            let oldFunc = DS.getFormatFromDS;
+            DS.getFormatFromDS = () => PromiseHelper.resolve("JSON");
+
+            $("#dsInfo-format").text("");
+            let dsObj = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "parentId": DSObjTerm.homeParentId
+            });
+            DSTable._updateFormatInfo(dsObj)
+            .then(() => {
+                expect($("#dsInfo-format").text()).to.equal("JSON");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                DS.getFormatFromDS = oldFunc;
+            });
+        });
     });
 
     after(function(done) {

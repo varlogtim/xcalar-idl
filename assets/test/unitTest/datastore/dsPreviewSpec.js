@@ -814,6 +814,45 @@ describe("Dataset-DSPreview Test", function() {
             });
         });
 
+        it("DSPReview.getFormatFromParserFnName should work", function() {
+            let tests = [{
+                fn: "default:parseCsv",
+                expect: "CSV"
+            }, {
+                fn: "default:parseJson",
+                expect: "JSON"
+            }, {
+                fn: "default:extractJsonRecords",
+                expect: "JSON"
+            }, {
+                fn: "default:openExcel",
+                expect: "Excel"
+            }, {
+                fn: "default:xmlToJsonWithExtraKeys",
+                expect: "XML"
+            }, {
+                fn: "default:parseParquet",
+                expect: "PARQUET"
+            }, {
+                fn: "default:ingestFromDatabase",
+                expect: "DATABASE"
+            }, {
+                fn: "test:test",
+                expect: "UDF"
+            }, {
+                fn: "",
+                expect: null
+            }];
+
+            tests.forEach((test) => {
+                let res = DSPreview.getFormatFromParserFnName(test.fn);
+                if (res !== test.expect) {
+                    console.error("fail test", test);
+                }
+                expect(res).to.equal(test.expect);
+            });
+        });
+
         after(function() {
             DSPreview.__testOnly__.resetForm();
         });

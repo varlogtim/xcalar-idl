@@ -144,6 +144,10 @@ class DSObj extends Durable {
         return this.format;
     }
 
+    public setFormat(format: string): void {
+        this.format = format;
+    }
+
     public getPathWithPattern(): string {
         let firstSource = this.sources[0];
         if (firstSource == null) {

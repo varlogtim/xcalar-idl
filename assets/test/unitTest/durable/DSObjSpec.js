@@ -102,6 +102,17 @@ describe("DSObj Constructor Test", function() {
         expect(dsObj.getFormat()).to.equal("CSV");
     });
 
+    it("Should set format", function() {
+        var dsObj = new DSObj({
+            "id": "testId",
+            "name": "testName",
+            "format": "CSV",
+            "parentId": DSObjTerm.homeParentId
+        });
+        dsObj.setFormat("JSON")
+        expect(dsObj.getFormat()).to.equal("JSON");
+    });
+
     it("should get target name", function() {
         var dsObj = new DSObj({
             "id": "testId",

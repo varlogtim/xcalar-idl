@@ -365,8 +365,7 @@ class DSTable {
         $("#dsInfo-size").text(dsObj.getDisplaySize());
         $("#dsInfo-date").text(dsObj.getDate());
 
-        var format = dsObj.getFormat() || CommonTxtTstr.NA;
-        $("#dsInfo-format").text(format);
+        this._updateFormatInfo(dsObj);
         var $dsInfoUdf = $("#dsInfo-udf");
         if (dsObj.moduleName && dsObj.moduleName.trim() !== "") {
             var titleJSON = {
@@ -393,6 +392,8 @@ class DSTable {
         let numColumnsStr: string;
         if (dsObj.getColumns() != null) {
             numColumnsStr = xcStringHelper.numToStr(dsObj.getColumns().length);
+        } else {
+            numColumnsStr = CommonTxtTstr.NA;
         }
 
         this._getDSInfoColEl().text(numColumnsStr);
@@ -401,6 +402,27 @@ class DSTable {
             this._toggleErrorIcon(dsObj);
         } else {
             this._getDSInfoErrorEl().addClass("xc-hidden");
+        }
+    }
+
+    private static _updateFormatInfo(dsObj: DSObj): XDPromise<void> {
+        let format = dsObj.getFormat();
+        if (format != null) {
+            $("#dsInfo-format").text(format);
+            return PromiseHelper.resolve();
+        } else {
+            $("#dsInfo-format").text(CommonTxtTstr.NA);
+            let deferred: XDDeferred<void> = PromiseHelper.deferred();
+            DS.getFormatFromDS(dsObj)
+            .then((format) => {
+                if (format != null) {
+                    $("#dsInfo-format").text(format);
+                }
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         }
     }
 

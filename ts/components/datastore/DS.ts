@@ -434,6 +434,31 @@ namespace DS {
         return deferred.promise();
     }
 
+    /**
+     * DS.getFormatFromDS
+     * @param dsObj
+     */
+    export function getFormatFromDS(dsObj: DSObj): XDPromise<string> {
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
+        DS.getLoadArgsFromDS(dsObj.getFullName())
+        .then((res) => {
+            try {
+                let loadArgs = JSON.parse(res);
+                let parserFnName = loadArgs.args.loadArgs.parseArgs.parserFnName;
+                let format = DSPreview.getFormatFromParserFnName(parserFnName);
+                dsObj.setFormat(format);
+                UserSettings.commit(false, true);
+                deferred.resolve(format);
+            } catch (e) {
+                console.error(e);
+                deferred.reject(e.message);
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function removeNonpersistDSObjAttributes(folder: DSObj): DSDurable {
         let folderCopy = xcHelper.deepCopy(folder);
         let cache = [folderCopy];
@@ -1504,6 +1529,13 @@ namespace DS {
         return deferred.promise();
     }
 
+    function updateDSMetaHelper(dsMeta, ds) {
+        dsMeta = dsMeta || {};
+        ds.setSize(dsMeta.size);
+        ds.setColumns(dsMeta.columns);
+        ds.setNumErrors(dsMeta.totalNumErrors);
+    }
+
     function importHelper(
         dsObj: DSObj,
         sql: object,
@@ -1513,10 +1545,7 @@ namespace DS {
         let dsName = dsObj.getName();
         let $grid = DS.getGrid(dsObj.getId());
         let updateDSMeta = function(dsMeta, ds, $ds) {
-            dsMeta = dsMeta || {};
-            ds.setSize(dsMeta.size);
-            ds.setColumns(dsMeta.columns);
-            ds.setNumErrors(dsMeta.totalNumErrors);
+            updateDSMetaHelper(dsMeta, ds);
             $ds.find(".size").text(ds.getDisplaySize());
         };
         let datasetName = dsObj.getFullName();
@@ -3311,8 +3340,7 @@ namespace DS {
             return DS.getDSBasicInfo(datasetName);
         })
         .then((dsMeta) => {
-            let dsInfo = dsMeta[datasetName] || {};
-            dsObj.setColumns(dsInfo.columns);
+            updateDSMetaHelper(dsMeta[datasetName], dsObj);
             datasets.push(dsId);
             if (txId != null) {
                 Transaction.done(txId, {});
