@@ -209,8 +209,8 @@ describe("SQLUtil Test", function() {
 
     it("should lock and reset progress", function() {
         SQLUtil.lockProgress();
-        expect($("#sqlSnippetsList").hasClass("xc-disabled")).to.be.true;
+        expect($("#sqlOpPanel").find(".btn-submit").hasClass("btn-disabled")).to.be.true;
         SQLUtil.resetProgress();
-        expect($("#sqlSnippetsList").hasClass("xc-disabled")).to.be.false;
+        expect($("#sqlOpPanel").find(".btn-submit").hasClass("btn-disabled")).to.be.false;
     });
 });

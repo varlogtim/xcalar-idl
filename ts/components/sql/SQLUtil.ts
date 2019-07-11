@@ -109,7 +109,6 @@ class SQLUtil {
      */
     public static lockProgress(): void {
         $("#sqlOpPanel").find(".btn-submit").addClass("btn-disabled");
-        $("#sqlSnippetsList").addClass("xc-disabled");
     }
 
     /**
@@ -117,7 +116,6 @@ class SQLUtil {
      */
     public static resetProgress(): void {
         $("#sqlOpPanel").find(".btn-submit").removeClass("btn-disabled");
-        $("#sqlSnippetsList").removeClass("xc-disabled");
     }
 
     private static _parseError(error: any): string {

@@ -23,6 +23,8 @@
     background-color: @color-white;
     color: @color-font-form-gray;
     font-weight: 600;
+    border-left: 1px solid @color-border-menubar-grey;
+    border-top: 1px solid @color-border-menubar-grey;
 
     @title-height: 40px;
     @header-height: 66px;
@@ -47,7 +49,7 @@
     }
 
     .qMark {
-        background-color: @color-bg-cardHeader;
+        background-color: @color-bg-cancel-gray-hover;
     }
 
     > header {
@@ -112,6 +114,7 @@
             .textOverflowOneLine;
             margin-left: 10px;
             margin-right: 15px;
+            color: @color-font-link-blue;
         }
     }
 
@@ -3453,10 +3456,14 @@
 
 #sqlOpPanel {
     @bottom-h: 85px;
-    @table-h: 180px;
-    @snippet-h: 45px;
+    @table-h: 220px;
     @title-h: 40px;
     @dropAsYouGo-h: 40px;
+    @instr-h: 44px;
+
+    .mainInstructions {
+        height: @instr-h;
+    }
 
     .list {
         text-transform: none;
@@ -3470,8 +3477,8 @@
     }
     .tableSection {
         @instruct-h: 34px;
-        @add-id-h: 30px;
-        @add-id-margin-bot: 5px;
+        @add-id-h: 24px;
+        @add-id-margin: 8px;
         @instruct-margin-bot: 13px;
         @instruct-margin-top: 5px;
         @source-header-w: 60px;
@@ -3501,9 +3508,10 @@
             width: ~"calc(100% - @{source-header-w})";
         }
         .identifiers {
+            @rest-h: @instruct-h + @add-id-h + @add-id-margin * 2 + @instruct-margin-bot + @instruct-margin-top + @source-header-h;
             display: flex;
             flex-wrap: wrap;
-            max-height: ~"calc(100% - @{instruct-h} - @{add-id-h} - @{add-id-margin-bot} - @{instruct-margin-bot} - @{instruct-margin-top} - @{source-header-h})";
+            height: ~"calc(100% - @{rest-h})";
             overflow-y: auto;
             margin-right: -@padding-l;
             #sqlIdentifiers {
@@ -3522,6 +3530,13 @@
                 .source {
                     max-width: @source-w;
                     margin-right: 11px;
+
+                    &:hover {
+                        .icon {
+                            color: @color-font-checkbox-hover;
+                        }
+                    }
+
                     .iconWrapper {
                         @icon-h: 10px;
                         @icon-r: 3px;
@@ -3576,101 +3591,24 @@
                 }
             }
         }
-        .addIdentifier button {
-            width: 30px;
+
+        .addIdentifier {
             height: @add-id-h;
-            margin-bottom: @add-id-margin-bot;
-            margin-left: 1px;
-            border-radius: 4px;
-            background-color: @color-bg-cardHeader;
-            .icon {
-                font-size: 14px;
-                margin-left: 2px;
-            }
+            line-height: @add-id-h;
+            width: 160px;
+            margin-top: @add-id-margin;
+            margin-bottom: @add-id-margin;
+            border-color: @color-font-link-blue;
         }
     }
-    .snippetSection, .saveSection, .confirmSection {
-        @saveIcon-w: 26px;
-        @header-w: 45px;
-        @margin-l: 6px;
-        @margin-r: 10px;
-        @editor-w: (@saveIcon-w + @header-w + @margin-l + @margin-r);
-        height: @snippet-h;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: @color-xpe-docker-starter-bg;
-        border-top: solid 1px @color-border-softGray;
-        padding: 10px 15px 10px 15px;
-        .header {
-            width: @header-w;
-        }
-        .snippetsList {
-            width: ~"calc(100% - @{editor-w})";
-            margin-left: 6px;
-            margin-right: 10px;
-            border-color: @color-border-softGray;
-            .iconWrapper {
-                background-color: @color-white;
-                border: solid 1px @color-border-softGray;
-                .icon {
-                    font-size: 9px;
-                    margin-top: 1px;
-                    color: @color-bg-cardHeader;
-                }
-            }
-            .list {
-                .size(@width: 100%);
-                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
-                li {
-                    box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
-                    display: flex;
-                    align-items: center;
-                    span {
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        width: ~"calc(100% - 50px)";
-                    }
-                    .icon {
-                        font-size: 15px;
-                        margin-right: 6px;
-                        color: @color-bg-cardHeader;
-                        cursor: pointer;
-                    }
-                    .xi-trash{
-                        margin-left: auto;
-                    }
-                    &.noResultHint {
-                        color: @color-text-lightGray;
-                    }
-                }
-            }
-            input {
-                text-transform: none;
-            }
-        }
-        .save, .cancel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            .size(@saveIcon-w, @saveIcon-w);
-            border: solid 1px @color-border-softGray;
-            background-color: @color-white;
-            .icon {
-                font-size: 13px;
-                color: @color-bg-cardHeader;
-            }
-        }
-        .btn {
-            width: ~"calc(50% - 10px)";
-        }
-        .snippetName {
-            width: ~"calc(100% - 62px)";
-        }
+
+    .editorWrapper {
+        @rest-h: @table-h + @dropAsYouGo-h + @title-h * 2 + @instr-h;
+        height: ~"calc(100% - @{rest-h})";
     }
+
     .editSection {
-        .size(100%, ~"calc(100% - @{snippet-h})");
+        .size(100%, 100%);
         .position(relative);
         overflow: hidden;
         font-size: 14px;
@@ -3681,29 +3619,52 @@
             .position(relative);
         }
     }
-    .editorWrapper {
-        height: ~"calc(100% - @{table-h} - @{dropAsYouGo-h} - @{title-h} * 2)";
-    }
+
     .tableTitle, .editorTitle {
         height: @title-h;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0px 15px;
-        border-top: solid 1px @color-xpe-docker-starter-bg;
-        border-bottom: solid 1px @color-xpe-docker-starter-bg;
+        border-top: 1px solid @color-border-softGray;
+        font-weight: bold;
     }
+
+    .tableTitle {
+        position: relative;
+
+        .qMark {
+            position: absolute;
+            left: 112px;
+        }
+    }
+
     .dropAsYouGo {
         height: @dropAsYouGo-h;
         padding: 0 15px 10px 15px;
 
         .checkbox {
             float: left;
-            top: 7px;
+            top: 5px;
+
+            .icon {
+                color: @color-font-link-blue;
+            }
+
+            &:hover {
+                .icon {
+                    color: @color-font-checkbox-hover;
+                }
+            }
         }
 
         .text {
             margin-right: 5px;
+        }
+
+        .qMark {
+            position: relative;
+            top: -1px;
         }
     }
     .maximize {
@@ -3722,20 +3683,9 @@
             height: 0px;
         }
     }
-    .xi-trash {
-        opacity: 0.6;
-        &:hover {
-            opacity: 1;
-        }
-    }
-    .CodeMirror-gutters {
-        background-color: @color-xpe-docker-starter-bg;
-    }
 
-    #sqlSnippetEditWrapper {
-        .CodeMirror {
-            height: 100%;
-        }
+    .CodeMirror {
+        height: 100%;
     }
 }
 

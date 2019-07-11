@@ -88,9 +88,6 @@ describe("SQLOpPanel Test", function() {
             it("drop as you go should be checked", function() {
                 expect($sqlOpPanel.find(".dropAsYouGo .checkbox.checked").length).to.equal(1);
             });
-            it("snippet dropdown should be default", function() {
-                expect($("#sqlSnippetsList").find("input").val()).to.equal("Default Snippet")
-            });
             it("editor should be blank", function() {
                 expect(sqlEditor.getValue()).to.equal("");
             });
@@ -99,7 +96,7 @@ describe("SQLOpPanel Test", function() {
         describe("table mapping", function() {
             it("should add identifier", function() {
                 expect($sqlOpPanel.find("#sqlIdentifiers").find("input").length).to.equal(1);
-                $sqlOpPanel.find(".addIdentifier button").click();
+                $sqlOpPanel.find(".addIdentifier").click();
                 expect($sqlOpPanel.find("#sqlIdentifiers").find("input").length).to.equal(2);
             });
 
@@ -144,67 +141,12 @@ describe("SQLOpPanel Test", function() {
         });
 
         describe("resizing", function() {
-            it("top section should expand and shrink", function() {
-                expect($("#sqlSnippetEditWrapper").height()).to.be.gt(10);
-                $sqlOpPanel.find(".tableTitle .maximize").click();
-                expect($("#sqlSnippetEditWrapper").height()).to.equal(0);
-                $sqlOpPanel.find(".tableTitle .maximize").click();
-                expect($("#sqlSnippetEditWrapper").height()).to.be.gt(10);
-            });
             it("bottom section should expand and shrink", function() {
                 expect($("#sqlIdentifiers").is(":visible")).to.be.true;
                 $sqlOpPanel.find(".editorTitle .maximize").click();
                 expect($("#sqlIdentifiers").is(":visible")).to.be.false;
                 $sqlOpPanel.find(".editorTitle .maximize").click();
                 expect($("#sqlIdentifiers").is(":visible")).to.be.true;
-            });
-        });
-        describe("sql snippet dropdown", function() {
-            it("should show correct list", function() {
-                let cacheFn = SQLSnippet.Instance.listSnippets;
-
-                SQLSnippet.Instance.listSnippets = () => {
-                    return [{name:"test", snippet:"something"}]
-                };
-                SQLOpPanel.Instance._refreshSnippet();
-                expect($("#sqlSnippetMenu").is(":visible")).to.be.false;
-                $("#sqlSnippetsList").find(".iconWrapper").click();
-                expect($("#sqlSnippetMenu").is(":visible")).to.be.true;
-                expect($("#sqlSnippetMenu").find("li").length).to.equal(2);
-                expect($("#sqlSnippetMenu").find("li").eq(0).text()).to.equal("Default Snippet");
-                expect($("#sqlSnippetMenu").find("li").eq(1).text()).to.equal("test");
-                SQLSnippet.Instance.listSnippets = cacheFn;
-
-            });
-            it("should populate sql editor", function() {
-                let cacheFn = SQLSnippet.Instance.getSnippet;
-                SQLSnippet.Instance.getSnippet = () => "something";
-                let cacheFn2 = SQLSnippet.Instance.hasSnippet;
-                SQLSnippet.Instance.hasSnippet = () => true;
-
-                expect(sqlEditor.getValue()).to.equal("");
-                $("#sqlSnippetMenu").find("li").eq(1).trigger(fakeEvent.mouseup);
-                expect(sqlEditor.getValue()).to.equal("something");
-                SQLSnippet.Instance.getSnippet = cacheFn;
-                SQLSnippet.Instance.hasSnippet = cacheFn2;
-            });
-            it("should save/overwrite snippet", function() {
-                let cache = SQLSnippet.Instance.writeSnippet;
-                called = false;
-                SQLSnippet.Instance.writeSnippet = () => {
-                    called = true;
-                }
-                expect(sqlEditor.getValue()).to.equal("something");
-                sqlEditor.setValue("newText");
-                expect($sqlOpPanel.find(".overwriteSnippet").is(":visible")).to.be.false;
-                $sqlOpPanel.find(".snippetSection .save:not(.confirm)").click();
-                expect($sqlOpPanel.find(".overwriteSnippet").is(":visible")).to.be.true;
-                expect($sqlOpPanel.find(".confirmSection").is(":visible")).to.be.false;
-                $sqlOpPanel.find(".overwriteSnippet").click();
-                expect($sqlOpPanel.find(".confirmSection").is(":visible")).to.be.true;
-                $sqlOpPanel.find(".confirmSection .confirm.save").click();
-                expect(called).to.be.true;
-                SQLSnippet.Instance.writeSnippet = cache;
             });
         });
     });

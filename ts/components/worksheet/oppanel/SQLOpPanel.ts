@@ -7,18 +7,10 @@ class SQLOpPanel extends BaseOpPanel {
     protected _dagNode: DagNodeSQL;
 
     private _sqlEditor: SQLEditor;
-    private _$sqlButton: JQuery;
-    private _$sqlSnippetDropdown = $("#sqlSnippetsList");
     private _$sqlIdentifiers = $("#sqlIdentifiers");
-    private _$snippetSave: JQuery;
-    private _$snippetConfirm: JQuery;
     private _$tableWrapper: JQuery;
     private _$editorWrapper: JQuery;
     private _sqlTables = {};
-    private _defaultSnippet: string;
-    private _curSnippet : string;
-    private _dropdownHint: InputDropdownHint;
-    private _isLoading: boolean;
     private _alertOff: boolean = false;
 
     /**
@@ -27,20 +19,11 @@ class SQLOpPanel extends BaseOpPanel {
     public setup(): void {
         // HTML elements binding
         this._$elemPanel = $('#sqlOpPanel');
-        this._$snippetSave = this._$elemPanel.find(".saveSection").eq(0);
-        this._$snippetConfirm = this._$elemPanel.find(".confirmSection").eq(0);
-        this._$sqlButton = this._$elemPanel.find(".btn-submit").eq(0);
         this._$tableWrapper = this._$elemPanel.find(".tableWrapper").eq(0);
         this._$editorWrapper = this._$elemPanel.find(".editorWrapper").eq(0);
         super.setup(this._$elemPanel);
 
-        this._defaultSnippet = SQLSnippet.Default;
-        this._curSnippet = this._defaultSnippet;
-
-        this._loadSnippets();
-
         this._setupSQLEditor();
-        this._setupSnippetsList();
         this._setupDropAsYouGo();
     }
 
@@ -112,66 +95,6 @@ class SQLOpPanel extends BaseOpPanel {
         super.hidePanel(isSubmit);
     }
 
-    private _loadSnippets(): void {
-        this._isLoading = true;
-        SQLSnippet.Instance.listSnippetsAsync()
-        .then(() => {
-            this._isLoading = false;
-            this._refreshSnippet();
-        })
-        .fail(() => {
-            this._isLoading = false;
-            Alert.show({
-                title: "SQLEditor Error",
-                msg: "Failed to get SQL snippets",
-                isAlert: true
-            });
-        });
-    }
-
-    private _refreshSnippet(): void {
-        if (this._isLoading) {
-            return;
-        }
-
-        let snippets: {name: string, snippet: string}[] = SQLSnippet.Instance.listSnippets();
-        try {
-            // only populate dropdown
-            const $ul = this._$sqlSnippetDropdown.find("ul");
-            let list: HTML = snippets.map((snippet) => {
-                let html =
-                    '<li data-name="' + snippet.name +
-                    '" data-toggle="tooltip" data-container="body"' +
-                    ' data-placement="top">' + snippet.name +
-                        '<i class="icon xi-trash"></i>' +
-                    '</li>';
-                return html
-            }).join("");
-            list = '<li>' +
-                        '<span>' +
-                            SQLTStr.DefaultSnippet +
-                        '</span>' +
-                    '</li>' +
-                    list;
-            $ul.html(list);
-        } catch(e) {
-            Alert.show({
-                title: "SQLEditor Error",
-                msg: SQLErrTStr.InvalidSnippetMeta,
-                isAlert: true
-            });
-        }
-    }
-
-    // SQLEditor.setCurId = function(txId) {
-    //     curQueryId = txId;
-    // }
-
-
-    // public startExecution(): void {
-    //     this._$sqlButton.html("Executing... ");
-    // };
-
     private _setupSQLEditor(): void {
         const self = this;
         const callbacks = {
@@ -240,7 +163,7 @@ class SQLOpPanel extends BaseOpPanel {
                      '  </div>' +
                      '  <i class="icon xi-equal"></i>' +
                      '  <input class="dest text" spellcheck="false"></input>' +
-                     '  <i class="icon xi-trash"></i>' +
+                     '  <i class="icon xi-trash xc-action"></i>' +
                      '</li>';
         const $li = $(html);
         if (key) {
@@ -266,95 +189,6 @@ class SQLOpPanel extends BaseOpPanel {
         $source.find(".text").text(sourceId);
         const tableIdentifier = $source.siblings(".dest.text").val().trim();
         this._sqlTables[tableIdentifier] = sourceId;
-    }
-
-    private _toggleSnippetSave(): void {
-        const $icon = this._$elemPanel.find(".snippetSection .save:not(.confirm) .icon");
-        const editorHeight = this._$elemPanel.find(".editSection").outerHeight();
-        let adjustHeight = this._$elemPanel.find(".snippetSection").outerHeight();
-        if (this._$snippetSave.hasClass("xc-hidden") &&
-            this._$snippetConfirm.hasClass("xc-hidden")) {
-            $icon.removeClass("xi-save");
-            $icon.addClass("xi-close");
-            this._$elemPanel.find(".editSection").outerHeight(editorHeight - adjustHeight);
-            if (this._$snippetConfirm.hasClass("xc-hidden")) {
-                this._$snippetSave.removeClass("xc-hidden");
-            } else {
-                this._$snippetConfirm.addClass("xc-hidden");
-            }
-            // if it's default snippet, disable overwriting
-            if (this._curSnippet === this._defaultSnippet) {
-                this._$snippetSave.find(".overwriteSnippet").addClass("xc-disabled");
-            } else {
-                this._$snippetSave.find(".overwriteSnippet").removeClass("xc-disabled");
-            }
-        } else {
-            $icon.removeClass("xi-close");
-            $icon.addClass("xi-save");
-            this._$elemPanel.find(".editSection").outerHeight(editorHeight + adjustHeight);
-            this._$snippetSave.addClass("xc-hidden");
-            this._$snippetConfirm.addClass("xc-hidden");
-        }
-    }
-
-    private _toggleSnippetConfirmation(newSnippet?: boolean): void {
-        if (this._$snippetConfirm.hasClass("xc-hidden")) {
-            this._$snippetConfirm.removeClass("xc-hidden");
-            this._$snippetSave.addClass("xc-hidden");
-            if (newSnippet) {
-                this._$snippetConfirm.find(".snippetName").val("");
-                this._$snippetConfirm.addClass("newSnippet");
-            } else {
-                this._$snippetConfirm.find(".snippetName").val(this._curSnippet);
-                this._$snippetConfirm.removeClass("newSnippet");
-            }
-        } else {
-            this._$snippetConfirm.addClass("xc-hidden");
-            this._$snippetConfirm.removeClass("newSnippet");
-            this._$snippetSave.removeClass("xc-hidden");
-        }
-    }
-
-    private _updateSnippet(snippetName: string): boolean {
-        if (!snippetName || !xcHelper.checkNamePattern(PatternCategory.SQLSnippet,
-                                                   PatternAction.Check,
-                                                   snippetName)) {
-            StatusBox.show(SQLErrTStr.InvalidEditorName,
-                           this._$elemPanel.find("input.snippetName"));
-            return true;
-        }
-        if (this._$snippetConfirm.hasClass("newSnippet")) {
-            // saving as a new snippet
-            if (SQLSnippet.Instance.hasSnippet(snippetName)) {
-                StatusBox.show(SQLErrTStr.SnippetNameExists,
-                               this._$elemPanel.find("input.snippetName"));
-                return true;
-            } else {
-                this._appendSnippet(snippetName);
-                this._curSnippet = snippetName;
-                SQLSnippet.Instance.writeSnippet(snippetName, this._sqlEditor.getValue(), false);
-            }
-        } else {
-            // overwriting snippet
-            if (!SQLSnippet.Instance.hasSnippet(snippetName)) {
-                this._appendSnippet(snippetName);
-            }
-            this._curSnippet = snippetName;
-            SQLSnippet.Instance.writeSnippet(snippetName, this._sqlEditor.getValue(), true);
-        }
-        this._selectSnippetByName(snippetName);
-        return false;
-    }
-
-    private _appendSnippet(snippetName: string): void {
-        const $ul = this._$sqlSnippetDropdown.find("ul");
-        const html =
-            '<li data-name="' + snippetName + '" data-toggle="tooltip" ' +
-            'data-container="body" data-placement="top">' +
-                snippetName +
-                '<i class="icon xi-trash"></i>' +
-            '</li>';
-        $ul.append(html);
     }
 
     private _getDropAsYouGoSection(): JQuery {
@@ -388,35 +222,9 @@ class SQLOpPanel extends BaseOpPanel {
 
     private _addEventListeners(): void {
         const self = this;
-        // Snippet section listeners
-        self._$sqlSnippetDropdown.on("mouseup", ".xi-trash", function() {
-            const $li = $(this).closest("li");
-            self._deleteSnippet($li);
-        });
-        self._$elemPanel.on("click", ".snippetSection .save:not(.confirm)", function() {
-            self._toggleSnippetSave();
-        });
-
-        self._$elemPanel.on("click", ".saveSection .btn", function() {
-            const newSnippet = $(this).hasClass("newSnippet");
-            self._toggleSnippetConfirmation(newSnippet);
-        })
-
-        self._$elemPanel.on("click", ".confirmSection .confirm", function() {
-            const confirm = $(this).hasClass("save");
-            if (confirm) {
-                const newSnippetName = self._$elemPanel.find(".snippetName").val().trim();
-                let hasError = self._updateSnippet(newSnippetName);
-                if (!hasError) {
-                    self._toggleSnippetSave();
-                }
-            } else {
-                self._toggleSnippetConfirmation();
-            }
-        })
-
         // Identifier section listeners
-        self._$elemPanel.on("click", ".addIdentifier button", function() {
+        self._$elemPanel.on("click", ".addIdentifier", function() {
+            $(this).blur();
             self._addTableIdentifier();
         });
         self._$elemPanel.find(".identifiers").scroll(function() {
@@ -457,29 +265,6 @@ class SQLOpPanel extends BaseOpPanel {
             $li.remove();
         });
 
-        // XXX Disabling multi-queries for now
-        // $("#sqlExecute").click(function() {
-        //     const promiseArray = [];
-        //     let sql = self._sqlEditor.getSelection();
-        //     if (sql === "") {
-        //         sql = self._sqlEditor.getValue();
-        //     }
-        //     let allQueries;
-        //     if (sql.indexOf(";") === -1) {
-        //         allQueries = [sql];
-        //     } else {
-        //         allQueries = XDParser.SqlParser.getMultipleQueriesViaParser(sql);
-        //     }
-        //     if (allQueries.length > 1) {
-        //         self.startCompile(0);
-        //     }
-        //     for (const query of allQueries) {
-        //         const promise = self.executeSQL(query);
-        //         promiseArray.push(promise);
-        //     }
-        //     PromiseHelper.when.apply(window, promiseArray);
-        // });
-
         self._$elemPanel.on("click", ".maximize", function() {
             const $title = $(this).parent();
             const restore = $(this).find(".icon").hasClass("xi-exit-fullscreen");
@@ -495,72 +280,6 @@ class SQLOpPanel extends BaseOpPanel {
         const $ul = $li.find("ul");
         const topOff = $li.offset().top + $li.height();
         $ul.html(content).css({top: topOff + "px"});
-    }
-
-    private _deleteSnippet($li: JQuery): void {
-        const snippetName = $li.text();
-        SQLSnippet.Instance.deleteSnippet(snippetName);
-        $li.remove();
-        if (this._curSnippet === snippetName) {
-            this._selectSnippetByName(this._defaultSnippet);
-        }
-    }
-
-    private _setupSnippetsList(): void {
-        const menuHelper = new MenuHelper(this._$sqlSnippetDropdown, {
-            "onSelect": this._selectSnippet.bind(this),
-            "container": "#sqlSnippetEditWrapper",
-            "bounds": "#sqlSnippetEditWrapper",
-            "bottomPadding": 2
-        });
-
-        this._dropdownHint = new InputDropdownHint(this._$sqlSnippetDropdown, {
-            "menuHelper": menuHelper,
-            "onEnter": this._selectSnippetByName.bind(this),
-            "noBold": true
-        });
-    }
-
-    private _selectSnippet($li: JQuery): any {
-        if (!this._$snippetSave.hasClass("xc-hidden") ||
-            !this._$snippetConfirm.hasClass("xc-hidden")) {
-                this._toggleSnippetSave();
-        }
-        if ($li.length > 1) {
-            $li = $li.eq(0);
-        }
-        $li.parent().find("li").removeClass("selected");
-        $li.addClass("selected");
-
-        const $snippetListInput = this._$sqlSnippetDropdown.find("input").eq(0);
-        const snippetName = $li.text().trim();
-
-        StatusBox.forceHide();
-        this._dropdownHint.setInput(snippetName);
-
-        xcTooltip.changeText($snippetListInput, snippetName);
-        this._curSnippet = snippetName;
-
-        if (snippetName !== this._defaultSnippet &&
-            !SQLSnippet.Instance.hasSnippet(snippetName)) {
-            this._selectSnippetByName(this._defaultSnippet);
-        } else {
-            this._sqlEditor.setValue(SQLSnippet.Instance.getSnippet(snippetName));
-            this._sqlEditor.refresh();
-        }
-    }
-
-    private _selectSnippetByName(snippetName: string): boolean {
-        const $li = $("#sqlSnippetMenu").find("li").filter(function() {
-            return $(this).text().trim() === snippetName;
-        });
-        if ($li.length === 0) {
-            StatusBox.show(SQLErrTStr.NoSnippet, this._$sqlSnippetDropdown);
-            return true;
-        } else {
-            this._selectSnippet($li);
-            return false;
-        }
     }
 
     private _maximizeSection($title: JQuery, restore: boolean): void {
@@ -689,7 +408,6 @@ class SQLOpPanel extends BaseOpPanel {
     };
 
     private _updateUI() {
-        this._refreshSnippet();
         this._renderSqlQueryString();
         this._renderIdentifiers();
         this._renderDropAsYouGo();
@@ -700,9 +418,6 @@ class SQLOpPanel extends BaseOpPanel {
     private _renderSqlQueryString(): void {
         const sqlQueryString = this._dataModel.getSqlQueryString();
         this._sqlEditor.setValue(sqlQueryString);
-        SQLSnippet.Instance.writeSnippet(this._defaultSnippet, sqlQueryString, true);
-        // select default snippet
-        this._selectSnippetByName(this._defaultSnippet);
     }
 
     private _renderIdentifiers(): void {
@@ -862,10 +577,6 @@ class SQLOpPanel extends BaseOpPanel {
                 }
                 const sqlQueryString = advancedParams.sqlQueryString;
                 this._sqlEditor.setValue(sqlQueryString);
-                SQLSnippet.Instance.writeSnippet(this._defaultSnippet, sqlQueryString, true);
-                // select default snippet
-                this._selectSnippetByName(this._defaultSnippet);
-
                 this._$sqlIdentifiers.html("");
                 this._sqlTables = {};
                 if (Object.keys(identifiers).length > 0) {
