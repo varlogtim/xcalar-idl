@@ -109,7 +109,8 @@
           <!-- top section -->
           <section class="topSection">
             <div class="row title">
-              <label><%= dicts.dsForm.DSName %>:</label>
+              <label class="prevFileLabel"><%= dicts.dsForm.FileName %>:</label>
+              <label class="prevFileLabel right"><%= dicts.dsTable.DSName %>:</label>
             </div>
             <div class="inputPart">
               <div class="row">
@@ -132,8 +133,7 @@
           <section class="middleSection">
             <!-- format menu -->
             <div class="row">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSFormat %>" data-placement="top"></i>
-              <label><%= dicts.dsForm.Format %>:</label>
+              <label class="formatLabel"><%= dicts.dsForm.Format %>:</label>
                <div id="fileFormat" class="dropDownList rowContent">
                 <input class="text" type="text" spellcheck="false" disabled>
                 <div class="iconWrapper">
@@ -154,8 +154,9 @@
                   include "../../util/menuScrollArea.html"
                 </div>
               </div>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSFormat %>" data-placement="top"></i>
               <!-- Refresh icon -->
-              <div class="refresh xc-action btn-clear" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSPreviewRefresh %>" data-xcid="format.refresh">
+              <div class="refresh xc-action" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSPreviewRefresh %>" data-xcid="format.refresh">
                   <i class="icon xi-refresh"></i>
               </div>
               <!-- New XPath button -->
@@ -163,15 +164,16 @@
                   <button class="btn btn-secondary" data-xcid="xml.newXPath"><%= dicts.dsForm.NEWXPATH %></button>
               </div>
             </div>
+            <div class="thinDivider divider"></div>
             <!-- promote header -->
             <div class="row format csv text excel checkboxRow">
               <div id="promoteHeaderCheckbox" class="checkboxSection rowContent">
                 <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSCSVPromote %>" data-placement="top"></i>
-                <div class="text"><%= dicts.dsForm.Header %></div>
                 <div class="checkbox">
                   <i class="icon xi-ckbox-empty"></i>
                   <i class="icon xi-ckbox-selected"></i>
                 </div>
+                <div class="text"><%= dicts.dsForm.Header %></div>
               </div>
             </div>
             <!-- line delimiter -->
@@ -309,22 +311,22 @@
                         <div class="xpath_info">
                             <!-- XPath -->
                             <div class="row xml_row xml_row-xpath">
-                              <i class="col icon xi-cancel xi-cancel-grey" data-placement="top" data-xcid="xpath.close"></i>
+                              <i class="col icon xi-trash" data-placement="top" data-xcid="xpath.close"></i>
                               <div class="col xpath_col xpath_col-left">
                                 <div class="row">
-                                  <i class="col qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPath %>" data-placement="top"></i>
                                   <!-- <label class="col xpathLabel"><%= dicts.dsForm.xPath %>:</label> -->
                                   <div class="col xpathInputWrap">
                                     <input class="text text-xpath" type="text" spellcheck="false" data-xcid="xpath.xpath" placeholder="<%= dicts.dsForm.xPath %>">
                                   </div>
+                                  <i class="col qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPath %>" data-placement="top"></i>
                                 </div>
                               </div>
                               <div class="col xpath_col">
                                 <div class="row">
-                                  <i class="col qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPathName %>" data-placement="top"></i>
                                   <div class="col xpathInputWrap">
                                     <input class="text text-xpath" type="text" spellcheck="false" data-xcid="xpath.name" placeholder="<%= dicts.dsForm.xPathName %>">
                                   </div>
+                                  <i class="col qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPathName %>" data-placement="top"></i>
                                 </div>
                               </div>
                             </div>
@@ -342,24 +344,25 @@
 
                 <!-- Extrakey section template -->
                 <div class="xtrakey_template" style="display:none;">
+                    <div class="divider xpath_divider"></div>
                     <div class="row xml_row">
-                        <i class="col icon xi-cancel xi-cancel-grey" data-placement="top" data-xcid="xtrakey.close"></i>
+                        <i class="col icon xi-trash" data-placement="top" data-xcid="xtrakey.close"></i>
                         <div class="col key_col key_col-left">
                             <div class="row">
-                                <i class="col qMark icon xi-unknown" data-xcid="xtrakey.tooltip" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLExtraKeyValue %>" data-placement="top"></i>
                                 <!-- <label class="col"><%= dicts.dsForm.extraKeyValue %>:</label> -->
                                 <div class="col keyInputWrap">
                                   <input class="text" type="text" spellcheck="false" data-xcid="xtrakey.value" placeholder="<%= dicts.dsForm.extraKeyValue %>">
                                 </div>
+                                <i class="col qMark icon xi-unknown" data-xcid="xtrakey.tooltip" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLExtraKeyValue %>" data-placement="top"></i>
                             </div>
                         </div>
                         <div class="col key_col">
                             <div class="row">
-                                <i class="col qMark icon xi-unknown" data-xcid="xtrakey.tooltip" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLExtraKeyName %>" data-placement="top"></i>
                                 <!-- <label class="col"><%= dicts.dsForm.extraKeyName %>:</label> -->
                                 <div class="col keyInputWrap">
                                   <input class="text" type="text" spellcheck="false" data-xcid="xtrakey.name" placeholder="<%= dicts.dsForm.extraKeyName %>">
                                 </div>
+                                <i class="col qMark icon xi-unknown" data-xcid="xtrakey.tooltip" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLExtraKeyName %>" data-placement="top"></i>
                             </div>
                         </div>
                     </div>
@@ -373,35 +376,35 @@
                 <!-- Matched XPath -->
                 <div class="row format xml checkboxRow matchedXPath">
                   <div class="checkboxSection rowContent">
+                    <div class="checkbox" data-xcid="xml.matchedPath">
+                        <i class="icon xi-ckbox-empty"></i>
+                        <i class="icon xi-ckbox-selected"></i>
+                    </div>
                     <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLMatched %>" data-placement="top"></i>
                     <div class="text"><%= dicts.dsForm.MatchedXPath %></div>
-                    <div class="checkbox" data-xcid="xml.matchedPath">
-                      <i class="icon xi-ckbox-empty"></i>
-                      <i class="icon xi-ckbox-selected"></i>
-                    </div>
                   </div>
                 </div>
 
                 <!-- xml element xPath -->
                 <div class="row format xml checkboxRow elementXPath">
                   <div class="checkboxSection rowContent">
-                    <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLElement %>" data-placement="top"></i>
-                    <div class="text"><%= dicts.dsForm.ElementXPath %></div>
                     <div class="checkbox" data-xcid="xml.withPath">
                       <i class="icon xi-ckbox-empty"></i>
                       <i class="icon xi-ckbox-selected"></i>
                     </div>
+                    <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLElement %>" data-placement="top"></i>
+                    <div class="text"><%= dicts.dsForm.ElementXPath %></div>
                   </div>
                 </div>
 
                 <!-- xml delimiter -->
-                <div class="row format xml checkboxRow xmlDelimiter">
-                  <div class="checkboxSection rowContent">
-                    <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLDelimiter %>" data-placement="top"></i>
-                    <div class="text"><%= dicts.dsForm.LabelXmlDelimiter %></div>
+                <div class="row format xml xmlDelimiter">
+                  <div class="rowContent">
+                    <label class="delimLabel"><%= dicts.dsForm.LabelXmlDelimiter %>:</label>
                     <div class="inputWrap">
                       <input class="text" type="text" spellcheck="false" data-xcid="xml.delimiter" placeholder="<%= dicts.dsForm.PlaceholderXmlDelimiter %>" />
                     </div>
+                    <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLDelimiter %>" data-placement="top"></i>
                   </div>
                 </div>
             </div>
@@ -437,11 +440,12 @@
               </div>
             </div>
             <div id="dsForm-tblSchema" class="row schema">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="Use Schema Wizard to generate the table schema or edit the auto-detected schema in the text box below." data-placement="top"></i>
+              
               <label><%= dicts.Table.Schema %>:</label>
               <div class="multiLine">
-                <div class="rowContent">
+                <div class="rowContent schemaDesc">
                   Use <span class="schemaWizard xc-wizard">Schema Wizard</span> to generate the table schema or edit the auto-detected schema in the text box below.
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="Use Schema Wizard to generate the table schema or edit the auto-detected schema in the text box below." data-placement="top"></i>
                 </div>
                 <div class="textSection rowContent">
                   <div class="schemaError"></div>
@@ -452,6 +456,7 @@
             </div>
           </section>
           <!-- end of middle section -->
+          <div class="divider"></div>
           <!-- advance section-->
           <section class="advanceSection">
             <div class="listWrap xc-expand-list">
@@ -473,7 +478,9 @@
             <!-- table schema -->
             <!-- extra columns -->
             <div class="row extraCols">
-              <label><%= dicts.dsForm.ExtraCols %>:</label>
+              <label><%= dicts.dsForm.ExtraCols %>:
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvAddCols %>" data-placement="top"></i>
+              </label>
               <div class="multiLine">
                 <!-- file name -->
                 <div class="part fileName">
@@ -519,50 +526,46 @@
             </div> -->
             <!-- termination -->
             <div class="row termination">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTerm %>" data-placement="top"></i>
-              <label><%= dicts.dsForm.Termination %>:</label>
-              <div class="multiLine">
-                <!-- When chrome fixes their glitchy bug, we can stop doing this weird thing -->
-                <div class="qMarkHeight">
-                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopAll %>" data-placement="top"></i>
-                </div>
-                <div class="qMarkHeight">
-                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopRecord %>" data-placement="top"></i>
-                </div>
-                <div class="qMarkHeight">
-                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermAllow %>" data-placement="top"></i>
-                </div>
-              </div>
-              <div class="multiLine termOptions">
-                <!-- radio buttons -->
-                <div class="radioButtonGroup">
-                  <div class="radioButton xc-action" data-option="stop">
-                    <div class="radio">
-                      <i class="icon xi-radio-selected"></i>
-                      <i class="icon xi-radio-empty"></i>
+              <div class="divider advancedDivider"></div>
+              <label>
+                <%= dicts.dsForm.Termination %>:
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTerm %>" data-placement="top"></i>
+              </label>
+              <div>
+                <div class="multiLine termOptions">
+                  <!-- radio buttons -->
+                  <div class="radioButtonGroup">
+                    <div class="radioButton xc-action" data-option="stop">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <span><%= dicts.dsForm.TerminateOnError %></span>
+                      <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopAll %>" data-placement="top"></i>
                     </div>
-                    <span><%= dicts.dsForm.TerminateOnError %></span>
-                  </div>
-<!--                   <div class="radioButton xc-action" data-option="stopfile">
-                    <div class="radio">
-                      <i class="icon xi-radio-selected"></i>
-                      <i class="icon xi-radio-empty"></i>
+  <!--                   <div class="radioButton xc-action" data-option="stopfile">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <span><%= dicts.dsForm.StopFile %></span>
+                    </div> -->
+                    <div class="radioButton xc-action" data-option="stoprecord">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <span><%= dicts.dsForm.StopRecord %></span>
+                      <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopRecord %>" data-placement="top"></i>
                     </div>
-                    <span><%= dicts.dsForm.StopFile %></span>
-                  </div> -->
-                  <div class="radioButton xc-action" data-option="stoprecord">
-                    <div class="radio">
-                      <i class="icon xi-radio-selected"></i>
-                      <i class="icon xi-radio-empty"></i>
+                    <div class="radioButton xc-action" data-option="continue">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <span><%= dicts.dsForm.ContinueOnError %></span>
+                      <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermAllow %>" data-placement="top"></i>
                     </div>
-                    <span><%= dicts.dsForm.StopRecord %></span>
-                  </div>
-                  <div class="radioButton xc-action" data-option="continue">
-                    <div class="radio">
-                      <i class="icon xi-radio-selected"></i>
-                      <i class="icon xi-radio-empty"></i>
-                    </div>
-                    <span><%= dicts.dsForm.ContinueOnError %></span>
                   </div>
                 </div>
               </div>

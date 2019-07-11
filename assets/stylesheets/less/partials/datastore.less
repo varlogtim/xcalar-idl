@@ -1483,6 +1483,7 @@ table.datasetTable {
         #importDataForm {
             .dsName {
                 text-transform: uppercase;
+                width: 100%;
             }
 
             .buttonSection {
@@ -1513,6 +1514,13 @@ table.datasetTable {
         }
     }
 
+    .cardHeader {
+        background-color: @color-bg-topBarGray2;
+        .title {
+            color: @color-font-form-gray;
+        }
+    }
+
     .cardWrap {
         .position(relative);
         .size(@height: ~"calc(100% - 36px)", @width: 100%);
@@ -1535,13 +1543,14 @@ table.datasetTable {
         padding: 0;
         position: absolute;
         background: @color-white;
-        border-top: 1px solid @color-border-pinkish-grey2;
+        border-top: 1px solid @color-border-bar;
         overflow: hidden;
         z-index: 1;
 
         .ui-resizable-n {
             top: 0px;
             z-index: 2 !important;
+            border-bottom: 1px solid @color-border-bar;
         }
 
         .pulloutTab {
@@ -1557,10 +1566,12 @@ table.datasetTable {
 
     #importDataForm-content > .topSection > .inputPart > .row {
         position: relative;
+        margin-right: 0px;
         min-width: 0px;
         label {
             .textOverflowOneLine;
             cursor: pointer;
+            margin-right: 0px;
         }
 
         label:hover~.xi-copy-clipboard {
@@ -2229,6 +2240,11 @@ table.datasetTable {
 
     .qMark {
         cursor: help;
+        width: 15px;
+        height: 15px;
+        font-size: 9px;
+        margin-top: 8px;
+        line-height: 16px;
     }
 
     .contentSection {
@@ -2246,6 +2262,7 @@ table.datasetTable {
                 &:not(:first-child) {
                     display: none;
                 }
+
             }
 
             .inputPart {
@@ -2272,16 +2289,18 @@ table.datasetTable {
             @take-width: @large-input + 22;
 
             .inputWrap {
-                .size(@max-width: ~"calc(100% - 320px)");
+                .size(@width: 48%);
+                margin-left: 30px;
             }
 
             input {
-                width: @large-input !important;
+                width: 100%;
+                background-color: @color-white;
             }
 
             label {
-                text-align: right;
-                .size(@min-width: 20px, @max-width: 300px);
+                text-align: left;
+                .size(@width: ~"calc(48% - 30px)", @max-width: ~"calc(48% - 30px)");
             }
         }
 
@@ -2307,10 +2326,19 @@ table.datasetTable {
     .middleSection {
         padding-top: 15px;
         padding-bottom: 15px;
+
+        #dsForm-tblSchema {
+            .multiLine {
+                margin-top: 5px;
+                .qMark {
+                    margin-left: 10px;
+                    top: 8px;
+                }
+            }
+        }
     }
 
     .advanceSection {
-        background-color: @color-bg-white-seven;
         padding-top: 15px;
         padding-bottom: 15px;
 
@@ -2334,9 +2362,6 @@ table.datasetTable {
 
             &.extraCols {
                 .size(@height: 70px);
-                label {
-                    margin-left: 22px;
-                }
                 .part {
                     &:not(.active) {
                         input {
@@ -2362,6 +2387,10 @@ table.datasetTable {
                     .radioButton {
                         margin-top: 5px;
 
+                        .radio {
+                            top: 15px;
+                        }
+
                         &:first-child {
                             margin-top: 0;
                         }
@@ -2379,8 +2408,9 @@ table.datasetTable {
             }
 
             > label {
-                .size(@width: 100px);
+                .size(@width: 100%);
             }
+
         }
 
         .part {
@@ -2593,7 +2623,41 @@ table.datasetTable {
             margin-top: 0;
         }
 
-        > label, > div, .qMark {
+        &.format {
+            padding-left: 45px;
+            > div {
+                width: ~"calc(100% - 170px - 5px)";
+            }
+
+            &.checkboxRow {
+                > div {
+                    width: 240px;
+                    .qMark {
+                        margin-left: 0;
+                    }
+                }
+
+                .checkbox {
+                    margin-left: 0px;
+                }
+            }
+        }
+
+        .formatLabel {
+            width: 55px;
+        }
+
+        #fileFormat {
+             // 100% - format + refresh + qmark - xpath button
+            width:  ~"calc(100% - 125px - 170px)";
+        }
+
+        .qMark {
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        > label, > div {
             display: inline-block;
             float: left;
             margin-right: 10px;
@@ -2614,14 +2678,15 @@ table.datasetTable {
             }
         }
 
-        .qMark {
-            .vertical-align;
-        }
 
         > label {
             .size(@width: @row-width, @height: 30px);
             .font(@size: 14px, @line-height: 30px);
             text-align: left;
+            &.prevFileLabel, &.prevTableLabel {
+                width: 48%;
+                margin-right: 0px;
+            }
         }
 
         .inputWrap {
@@ -2629,6 +2694,7 @@ table.datasetTable {
             // max-width: ~"calc(100% - 370px)";s
 
             input {
+                width: 100%;
                 max-width: 100%;
             }
         }
@@ -2672,8 +2738,6 @@ table.datasetTable {
         }
 
         &.checkboxRow {
-            margin-left: @row-width + 10px;
-
             .qMark {
                 margin-left: 20px;
                 margin-right: 0;
@@ -2681,6 +2745,7 @@ table.datasetTable {
 
             .text {
                 margin-right: 5px;
+                margin-left: 8px;
             }
 
             .checkbox {
@@ -2691,6 +2756,7 @@ table.datasetTable {
         .xml {
             &.add_xpath {
                 position: relative;
+                float: right;
                 .btn {
                     .size(@height: 30px);
                     line-height: 30px;
@@ -2702,11 +2768,13 @@ table.datasetTable {
         &.xml {
             float: none;
             margin-top: 0;
+            padding-left: 0px;
+            padding-right: 0px;
             .size(@height: auto);
             .clearfix();
             @close-width: 21px;
             @qmark-width: 22px;
-            @keycol-space: 20px;
+            @keycol-space: 10px;
             @xpath-label-space: 10px;
             @newkey-width: 170px;
 
@@ -2714,6 +2782,17 @@ table.datasetTable {
                 float: none;
                 display: block;
                 margin-right: 0;
+            }
+
+            .xi-trash {
+                cursor: pointer;
+                color: @color-font-edge;
+                padding: 0 12px;
+                font-size: 15px;
+                margin-top: 5px;
+                &:hover {
+                    color: @color-bg-cardHeader;
+                }
             }
 
             .col {
@@ -2737,14 +2816,14 @@ table.datasetTable {
                 display: flex;
                 flex-flow: row nowrap;
                 align-items: flex-end;
-                margin-top: 8px;
+                justify-content: flex-end;
             }
 
-            .xpath_section {
-                padding-top: 15px;
-            }
             .extrakey_list {
                 .size(@width: 100%);
+                .xml_row {
+                    margin-bottom: 10px;
+                }
             }
 
             .xml_newkey {
@@ -2757,18 +2836,22 @@ table.datasetTable {
 
             .newKey_wrap {
                 .size(@width: @newkey-width);
-                padding-left: 20px;
+                padding: 10px 10px;
             }
 
             .divider {
                 margin: 0;
             }
             .xpath_divider {
+                width: 100%;
                 margin-bottom: 0px;
+                opacity: .5;
             }
             .section_divider {
-                margin-top: 15px;
+                margin-top: 5px;
                 margin-bottom: 5px;
+                width: 100%;
+                opacity: .5;
             }
 
             .xml_row {
@@ -2792,16 +2875,23 @@ table.datasetTable {
                 margin-right: @xpath-label-space;
             }
 
+            .xpath_container {
+                width: 100%;
+            }
+
             .key_col, .xpath_col {
                 margin: 0;
-                .size(@width: ~"calc((100% - @{close-width} - @{keycol-space})/2)");
+                .size(@width: ~"calc((100% - @{close-width} - @{keycol-space} - 20px)/2)");
                 .row {
                     padding: 0;
                 }
                 .keyInputWrap, .xpathInputWrap {
-                    .size(@width: ~"calc(100% - @{qmark-width})");
+                    .size(@width: ~"calc(100% - @{qmark-width} - 3px)");
                     .input-box(@w: 100%, @h: 30px);
                     margin: 0;
+                    .text {
+                        background-color: @color-white;
+                    }
                 }
                 .xpathInputWrap input {
                     background-color: @color-white;
@@ -2809,7 +2899,7 @@ table.datasetTable {
             }
 
             .xpath_col {
-                .size(@width: ~"calc((100% - @{close-width} - @{keycol-space} - @{newkey-width})/2)");
+                .size(@width: ~"calc((100% - @{close-width} - @{keycol-space} - 24px)/2)");
             }
 
             .key_col-left, .xpath_col-left {
@@ -2828,8 +2918,27 @@ table.datasetTable {
 
             .checkboxSection {
                 float: left;
+                padding-left: 45px;
                 .text {
                     .size(@width: 100px);
+                }
+            }
+
+            .xmlDelimiter {
+                padding-top: 20px;
+                padding-left: 45px;
+                .delimLabel {
+                    float: left;
+                    margin-top: 3px;
+                    padding-right: 63px;
+                }
+                .inputWrap {
+                    float: left;
+                    padding-left: 10px;
+                    width: 100px;
+                    .text {
+                        background-color: @color-white;
+                    }
                 }
             }
 
@@ -2859,10 +2968,15 @@ table.datasetTable {
 
             .inputWrap-large {
                 .size(@width: ~"calc(100% - 172px)");
+                margin-top: -15px;
             }
 
             .textarea {
                 .size(@width: 100%);
+            }
+
+            .qMark {
+                float: right;
             }
         }
 
@@ -2877,6 +2991,7 @@ table.datasetTable {
         }
 
         &.schema {
+            padding-left: 45px;
             height: 130px;
 
             .qMark {
@@ -2885,6 +3000,7 @@ table.datasetTable {
 
             .multiLine {
                 .size(@width: ~"calc(100% - 172px)");
+                margin-top: -9px;
             }
 
             .textSection {
@@ -2904,25 +3020,47 @@ table.datasetTable {
                     outline: none;
                 }
             }
+
+            .schemaDesc {
+                font-size: 12px;
+            }
         }
 
         .refresh {
             padding: 0 4px;
+            margin-right: 0px;
+            margin-top: 3px;
+            width: 25px;
+            height: 25px;
+            background-color: @color-bg-topBarGray2;
             position: relative;
             .icon {
                 line-height: 1.4;
+                padding-top: 2px;
+                padding-left: 1px;
+                font-size: 15px;
             }
         }
     }
 
     .dropDownList {
-        .styleDropDownList(@w: 310px, @h: 30px);
+        .styleDropDownList(@w: 100%, @h: 30px);
     }
 
     .divider {
         margin-top: 10px;
         .size(@width: 100%, @height: 1px, @min-height: 1px);
         background-color: @color-font-pinkish-grey2;
+    }
+
+    .thinDivider {
+        margin-top: 10px;
+        .size(@width: 100%, @height: 1px, @min-height: 1px);
+        background-color: @color-bg-list-hover-blue;
+    }
+
+    .advancedDivider {
+        background-color: @color-bg-topBarGray2;
     }
 
     .inputable {

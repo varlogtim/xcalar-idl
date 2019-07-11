@@ -3475,9 +3475,9 @@ namespace DSPreview {
     function setDefaultDSName(): string[] {
         let $title = $form.find(".row.title label");
         if (isCreateTableMode()) {
-            $title.text(DSTStr.TableName + ":")
+            $title.eq(1).text(DSTStr.TableName + ":")
         } else {
-            $title.text(DSTStr.DSName + ":");
+            $title.eq(1).text(DSTStr.DSName + ":");
         }
 
         let files = loadArgs.files;
@@ -3520,19 +3520,7 @@ namespace DSPreview {
     function autoResizeLabels($inputPart: JQuery): void {
         let $labels = $inputPart.find("label");
         let $label = $labels.eq(0);
-        let width: number = parseInt($label.css("minWidth"));
-        let maxWidth: number = parseInt($label.css("maxWidth"));
-
-        $labels.each(function() {
-            var $ele = $(this);
-            width = Math.max(width, xcUIHelper.getTextWidth($ele, $ele.text()));
-            width = Math.min(width, maxWidth);
-        });
-
-        $labels.width(width);
-        // positions clipboard/checkmark icons at the end of the label
-        let $icons = $inputPart.find(".icon");
-        $icons.css("left", width - 5);
+        let maxWidth: number = $label.width();
 
         let canvas = document.createElement("canvas");
         let ctx = canvas.getContext("2d");
