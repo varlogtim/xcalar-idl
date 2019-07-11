@@ -1261,11 +1261,11 @@ table.datasetTable {
             }
         }
         .fileInfoContainer {
-            @fileInfoBottomHeight: 139px;
-
             .size(@width: @fileInfoWidth, @height: 100%);
             float: left;
             border-left: 1px solid @color-border-pinkish-grey2;
+            .flex-display;
+            .flex-direction(column);
 
             .infoTitle {
                 font-size: 16px;
@@ -1275,7 +1275,8 @@ table.datasetTable {
             }
 
             .fileInfoMid {
-                .size(@width: 100%, @height: ~"calc(100% - @{fileInfoBottomHeight})");
+                .size(@width: 100%);
+                .flex(1 0 auto);
                 padding: 16px;
                 border-bottom: 1px solid @color-border-softGray;
 
@@ -1365,7 +1366,8 @@ table.datasetTable {
             }
 
             .fileInfoBottom {
-                .size(@width: 100%, @height: @fileInfoBottomHeight);
+                .size(@width: 100%);
+                .flex(0 1 auto);
                 padding: 16px;
 
                 .buttonSection {

@@ -80,7 +80,8 @@ class DataSourceManager {
             }
             let $panel: JQuery = this._getPanel();
             let $menu: JQuery = this._getMenu();
-
+            let wasInDatasetScreen: boolean = $panel.hasClass("in");
+            let wasInTableScreen: boolean = $panel.hasClass("table");
             $panel.removeClass("in")
                 .removeClass("table")
                 .removeClass("imd")
@@ -96,10 +97,10 @@ class DataSourceManager {
                     this._switchToViewTarget(isAdmin);
                     break;
                 case "inButton":
-                    this._switchToViewDatasetSource();
+                    this._switchToViewDatasetSource(wasInTableScreen);
                     break;
                 case "sourceTblButton":
-                    this._switchToViewTableSource();
+                    this._switchToViewTableSource(wasInDatasetScreen);
                     break;
                 case "imdTab":
                     this._switchToViewIMD();
@@ -166,7 +167,7 @@ class DataSourceManager {
         return isAdmin;
     }
 
-    private static _switchToViewDatasetSource(): void {
+    private static _switchToViewDatasetSource(wasInTableScreen: boolean): void {
         let $panel = this._getPanel();
         let $menu = this._getMenu();
         let $title = this._getTitleEl();
@@ -176,9 +177,13 @@ class DataSourceManager {
 
         DSTable.refresh();
         DS.resize();
+
+        if (wasInTableScreen) {
+            DSForm.show(false);
+        }
     }
 
-    private static _switchToViewTableSource(): void {
+    private static _switchToViewTableSource(wasInDatasetScreen: boolean): void {
         let $panel = this._getPanel();
         let $menu = this._getMenu();
         let $title = this._getTitleEl();
@@ -191,6 +196,10 @@ class DataSourceManager {
         if (this._isMenOpen) {
             MainMenu.open(true);
             this._isMenOpen = null;
+        }
+
+        if (wasInDatasetScreen) {
+            DSForm.show(true);
         }
     }
 
