@@ -4113,6 +4113,13 @@ XcalarExecuteRetina = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        const xcrpcScope = createXcrpcScopeInput({
+            scopeInfo: scopeInfo,
+            xcrpcScopeEnum: {
+                global: Xcrpc.Dataflow.SCOPE.GLOBAL,
+                workbook: Xcrpc.Dataflow.SCOPE.WORKBOOK
+            }
+        });
         def = PromiseHelper.convertToJQuery(
             Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDataflowService().executeOptimized({
                 dataflowName: retName,
@@ -4120,8 +4127,8 @@ XcalarExecuteRetina = function(
                     paramMap.set(param.paramName, param.paramValue);
                     return paramMap;
                 }, new Map<string, string>()),
-                scope: Xcrpc.Dataflow.SCOPE.WORKBOOK, // Hard code to workbook scope, as we don't have a use case in global scope for now
-                scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName },
+                scope: xcrpcScope.scope,
+                scopeInfo: xcrpcScope.scopeInfo,
                 options: {
                     scheduledName: schedName,
                     queryName: queryName,
