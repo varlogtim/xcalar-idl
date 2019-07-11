@@ -1048,6 +1048,7 @@ class DagViewManager {
                 !$target.closest(".operator").length &&
                 !$target.closest(".selection").length &&
                 !$target.closest(".comment").length &&
+                !$target.closest(".edge").length &&
                 !$target.closest(".editableNodeTitle").length &&
                 !$target.closest(".ui-resizable-handle").length) {
                 new RectSelection(event.pageX, event.pageY, {
