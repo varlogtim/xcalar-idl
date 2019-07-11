@@ -309,7 +309,11 @@ class ListScroller {
             if (ulWidth > listElWidth) {
                 $list.find('.scrollArea').show();
                 $list.find('.scrollArea.bottom').addClass('active');
-                this._scrollAmount = Math.round(Math.min(this._maxScrollAmount, this._baseScrollAmount * (ulWidth / listElWidth)));
+                if (ulWidth > 500) {
+                    this._scrollAmount = this._maxScrollAmount;
+                } else {
+                    this._scrollAmount = Math.round(Math.min(this._maxScrollAmount, this._baseScrollAmount * (ulWidth / listElWidth)));
+                }
             } else {
                 $list.find('.scrollArea').hide();
             }

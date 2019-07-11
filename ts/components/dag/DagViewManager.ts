@@ -1147,6 +1147,11 @@ class DagViewManager {
             SkewInfoModal.Instance.show(null, {tableInfo: skewInfo});
         });
 
+        this.$dfWrap.on("mousedown", ".runStats", function() {
+            const $tip = $(this);
+            $tip.parent().append($tip);
+        });
+
         function _drawRect(
             bound: ClientRect,
             selectTop: number,

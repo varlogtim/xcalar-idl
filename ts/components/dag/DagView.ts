@@ -4324,6 +4324,9 @@ class DagView {
         if (isDagNode) {
             const node: DagNode = this.graph.getNode(nodeId);
             DagNodeInfoPanel.Instance.show(node, false);
+            const $tip = this.$dfArea.find('.runStats[data-id="' + nodeId + '"]');
+            this.$dfArea.append($tip);
+            this.$dfArea.find(".operatorSvg").append($operator);
         }
 
         if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
