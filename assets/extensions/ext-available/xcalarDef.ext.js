@@ -115,7 +115,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             var keyColName = ext.getArgs().rankOverCol.getName();
 
             roGenRowNum(self, ext.getTriggerTable().getName(), "orig_order_")
-            .then(function(tableWithRowNum, oriRowNumColName) {
+            .then(function(ret) {
                 const tableWithRowNum = ret.tableAfterGenRowNum;
                 const oriRowNumColName = ret.newColName;
                 return roSortTable(self, tableWithRowNum, [keyColName, oriRowNumColName]);
