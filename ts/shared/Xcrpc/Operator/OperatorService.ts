@@ -1,20 +1,5 @@
-// Note about Promise:
-// We are using native JS promise(async/await) in the Xcrpc code.
-// However, in order to incorporate with other code which still use JQuery promise,
-// we need to convert promises between different types.
-// 1. xcrpc JS client returns JQuery promise, which can be converted to native promise by PromiseHelper.convertToNative()
-//
-// 2. The code invoking Xcrpc may expect JQuery promise, so use PromiseHelper.convertToJQuery() as needed.
-// import ApiQuery = xce.QueryService;
-// import ApiClient = xce.XceClient;
-// import ProtoTypes = proto.xcalar.compute.localtypes;
-// import ServiceError = Xcrpc.ServiceError;
-
 import { OperatorService as ApiOperator, XceClient as ApiClient } from 'xcalar';
-import {
-    ScopeInfo as OperatorScopeInfo,
-    SCOPE as OPERATORSCOPE
-} from '../Common/Scope';
+import { ScopeInfo, SCOPE, createScopeMessage } from '../Common/Scope';
 import { parseError } from '../ServiceError';
 import * as queryInput from './XcalarProtoQueryInput';
 import { XcalarApiDfLoadArgs as BulkLoadArgs } from './XcalarProtoQueryInput';
@@ -81,7 +66,7 @@ class OperatorService {
             request.setScope(createScopeMessage({ scope: scope, scopeInfo: scopeInfo }));
 
             const opService = new ApiOperator(this._apiClient);
-            const response = await opService.opBulkLoad(request);
+            await opService.opBulkLoad(request);
 
             return {};
         } catch(e) {
@@ -111,9 +96,9 @@ class OperatorService {
         driverParams: {},
         columns: queryInput.XcalarApiExportColumn[],
         exportName: string,
-        scope: OPERATORSCOPE,
-        scopeInfo?: OperatorScopeInfo
-    }): Promise<any> {
+        scope: SCOPE,
+        scopeInfo?: ScopeInfo
+    }): Promise<{}> {
         try {
             // Deconstruct arguments
             const { tableName, driverName, driverParams, columns, exportName, scope, scopeInfo } = param;
@@ -139,11 +124,10 @@ class OperatorService {
 
             // Step #2: Call xcrpc service
             const operatorService = new ApiOperator(this._apiClient);
-            const response = await operatorService.opExport(request);
+            await operatorService.opExport(request);
 
             // Step #3: Parse xcrpc service response
-            // For export there is no response value, just need to get status
-            return {status: ProtoTypes.XcalarEnumType.Status.STATUS_OK};
+            return {}; // XXX TODO: return timeElapsed once backend is ready
         } catch (e) {
             throw parseError(e);
         }
@@ -159,43 +143,4 @@ function isBulkLoadErrorResponse(errorResp: Object): errorResp is BulkLoadErrorR
         errorResp.hasOwnProperty('errorFile');
 }
 
-// Temporary solution for scope, will be removed once Common/Scope.ts is in
-type ScopeInfo = {
-    userName: string,
-    workbookName: string
-};
-
-enum SCOPE {
-    GLOBAL = ProtoTypes.Workbook.ScopeType.GLOBALSCOPETYPE,
-    WORKBOOK = ProtoTypes.Workbook.ScopeType.WORKBOOKSCOPETYPE
-};
-
-/**
- * Create xcrpc WorkbookScope message
- * @param param
- */
-function createScopeMessage(param: {
-    scope: SCOPE, scopeInfo: ScopeInfo
-}): ProtoTypes.Workbook.WorkbookScope {
-
-    const { scope, scopeInfo } = param;
-    const { userName = null, workbookName = null } = scopeInfo || {};
-
-    const scopeObj = new ProtoTypes.Workbook.WorkbookScope();
-    if (scope === SCOPE.GLOBAL) {
-        scopeObj.setGlobl(new ProtoTypes.Workbook.GlobalSpecifier());
-    } else if (scope === SCOPE.WORKBOOK) {
-        const nameInfo = new ProtoTypes.Workbook.WorkbookSpecifier.NameSpecifier();
-        nameInfo.setUsername(userName);
-        nameInfo.setWorkbookname(workbookName);
-        const workbookInfo = new ProtoTypes.Workbook.WorkbookSpecifier();
-        workbookInfo.setName(nameInfo);
-        scopeObj.setWorkbook(workbookInfo);
-    } else {
-        throw new Error(`Invalid Scope: ${scope}`);
-    }
-
-    return scopeObj;
-}
-
-export { OperatorService, SCOPE as OPERATORSCOPE, ScopeInfo as OperatorScopeInfo, isBulkLoadErrorResponse };
+export { OperatorService, SCOPE, ScopeInfo, isBulkLoadErrorResponse };

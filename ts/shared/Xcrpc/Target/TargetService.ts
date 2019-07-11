@@ -1,21 +1,5 @@
-// Note about Promise:
-// We are using native JS promise(async/await) in the Xcrpc code.
-// However, in order to incorporate with other code which still use JQuery promise,
-// we need to convert promises between different types.
-// 1. xcrpc JS client returns JQuery promise, which can be converted to native promise by PromiseHelper.convertToNative()
-//
-// 2. The code invoking Xcrpc may expect JQuery promise, so use PromiseHelper.convertToJQuery() as needed.
-// import ApiQuery = xce.QueryService;
-// import ApiClient = xce.XceClient;
-// import ProtoTypes = proto.xcalar.compute.localtypes;
-// import ServiceError = Xcrpc.ServiceError;
-
 import { TargetService as ApiTarget, XceClient as ApiClient } from 'xcalar';
-import {
-    ScopeInfo as TargetScopeInfo,
-    SCOPE as TARGETSCOPE,
-    createScopeMessage
-} from '../Common/Scope';
+import { ScopeInfo, SCOPE, createScopeMessage } from '../Common/Scope';
 import { parseError } from '../ServiceError';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
@@ -35,8 +19,8 @@ class TargetService {
      */
     public async run(param: {
         inputJson: TargetCreateObject | TargetDeleteObject | TargetListObject | TargetTypeListObject,
-        scope: TARGETSCOPE,
-        scopeInfo?: TargetScopeInfo
+        scope: SCOPE,
+        scopeInfo?: ScopeInfo
     }): Promise<string> {
         try {
             // Deconstruct arguments
@@ -83,4 +67,4 @@ interface TargetTypeListObject {
     func: string
 }
 
-export { TargetService, TARGETSCOPE, TargetScopeInfo, TargetCreateObject, TargetDeleteObject, TargetListObject, TargetTypeListObject };
+export { TargetService, SCOPE, ScopeInfo, TargetCreateObject, TargetDeleteObject, TargetListObject, TargetTypeListObject };

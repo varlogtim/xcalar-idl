@@ -1,5 +1,5 @@
 class SQLExecutor {
-    static execute(sqlQueryObj: SQLQuery, scopeInfo: Xcrpc.Query.QueryScopeInfo): XDPromise<any> {
+    static execute(sqlQueryObj: SQLQuery, scopeInfo: Xcrpc.Query.ScopeInfo): XDPromise<any> {
         if (!sqlQueryObj.fromExpServer) {
             // Currently SQLExecutor is only used by expServer
             return PromiseHelper.reject(SQLErrTStr.NeedSQLMode);

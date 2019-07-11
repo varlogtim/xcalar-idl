@@ -2331,7 +2331,7 @@ namespace XIApi {
             udfUserName?: string,
             udfSessionName?: string
         },
-        scopeInfo?: Xcrpc.Query.QueryScopeInfo
+        scopeInfo?: Xcrpc.Query.ScopeInfo
     ): XDPromise<XcalarApiQueryStateOutputT> {
         if (txId == null || queryName == null || queryStr == null) {
             return PromiseHelper.reject("Invalid args in query");

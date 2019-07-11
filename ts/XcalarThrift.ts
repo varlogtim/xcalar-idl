@@ -915,12 +915,20 @@ XcalarDatasetCreate = function(
         return PromiseHelper.reject({error: "Error Parse Args"});
     }
 
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Dataset.SCOPE.GLOBAL,
+            workbook: Xcrpc.Dataset.SCOPE.WORKBOOK
+        }
+    });
+
     PromiseHelper.convertToJQuery(
         Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDatasetService().create({
             datasetName: datasetName,
             loadArgs: convertToXcrpcLoadArgs(args),
-            scope: Xcrpc.Dataset.SCOPE.WORKBOOK,
-            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+            scope: xcrpcScope.scope,
+            scopeInfo: xcrpcScope.scopeInfo
         })
     )
     .then(deferred.resolve)
@@ -997,6 +1005,14 @@ XcalarDatasetRestore = function(
         console.log("Max sample size set to: ", maxSampleSize);
     }
 
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Dataset.SCOPE.GLOBAL,
+            workbook: Xcrpc.Dataset.SCOPE.WORKBOOK
+        }
+    });
+
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     PromiseHelper.convertToJQuery(
         Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDatasetService().create({
@@ -1006,8 +1022,8 @@ XcalarDatasetRestore = function(
                 parseArgs: args.parseArgs,
                 size: maxSampleSize
             }),
-            scope: Xcrpc.Dataset.SCOPE.WORKBOOK,
-            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+            scope: xcrpcScope.scope,
+            scopeInfo: xcrpcScope.scopeInfo
         })
     )
     .then(deferred.resolve)
@@ -1028,7 +1044,7 @@ XcalarDatasetRestore = function(
 XcalarDatasetActivate = function(
     datasetName: string,
     txId: number,
-    scopeInfo?: Xcrpc.Operator.OperatorScopeInfo
+    scopeInfo?: Xcrpc.Operator.ScopeInfo
 ): XDPromise<any> {
     return XcalarDatasetLoad(datasetName, null, txId, scopeInfo);
 };
@@ -1115,7 +1131,7 @@ XcalarDatasetLoad = function(
     datasetName: string,
     options: XcalarLoadInputOptions,
     txId: number,
-    scopeInfo?: Xcrpc.Operator.OperatorScopeInfo
+    scopeInfo?: Xcrpc.Operator.ScopeInfo
 ): XDPromise<any> {
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
@@ -1136,15 +1152,19 @@ XcalarDatasetLoad = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        if (tHandle == null) {
-            return PromiseHelper.resolve(null);
-        }
-        // def = xcalarLoad(tHandle, dsName, args.sourceArgsList, args.parseArgs, args.size);
+        const xcrpcScope = createXcrpcScopeInput({
+            scopeInfo: scopeInfo,
+            xcrpcScopeEnum: {
+                global: Xcrpc.Operator.SCOPE.GLOBAL,
+                workbook: Xcrpc.Operator.SCOPE.WORKBOOK
+            }
+        });
+
         def = PromiseHelper.convertToJQuery(
             Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getOperatorService().opBulkLoad({
                 datasetName: dsName, loadArgs: convertToXcrpcLoadArgs(args),
-                scope: Xcrpc.Operator.OPERATORSCOPE.WORKBOOK,
-                scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+                scope: xcrpcScope.scope,
+                scopeInfo: xcrpcScope.scopeInfo
             })
         );
     }
@@ -1513,7 +1533,7 @@ XcalarExport = function(
     columns: XcalarApiExportColumnT[],
     exportName: string,
     txId?: number,
-    scopeInfo?: Xcrpc.Operator.OperatorScopeInfo
+    scopeInfo?: Xcrpc.Operator.ScopeInfo
 ): XDPromise<any> {
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -1524,9 +1544,14 @@ XcalarExport = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        if (tHandle == null) {
-            return PromiseHelper.resolve(null);
-        }
+        const xcrpcScope = createXcrpcScopeInput({
+            scopeInfo: scopeInfo,
+            xcrpcScopeEnum: {
+                global: Xcrpc.Operator.SCOPE.GLOBAL,
+                workbook: Xcrpc.Operator.SCOPE.WORKBOOK
+            }
+        });
+
         def = PromiseHelper.convertToJQuery(
             Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getOperatorService().export({
                 tableName: tableName,
@@ -1534,8 +1559,8 @@ XcalarExport = function(
                 driverParams: driverParams,
                 columns: columns,
                 exportName: exportName,
-                scope: Xcrpc.Operator.OPERATORSCOPE.WORKBOOK,
-                scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+                scope: xcrpcScope.scope,
+                scopeInfo: xcrpcScope.scopeInfo
             })
         );
     }
@@ -3313,7 +3338,7 @@ XcalarQuery = function(
         udfUserName?: string,
         udfSessionName?: string
     },
-    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+    scopeInfo?: Xcrpc.Query.ScopeInfo
 ): XDPromise<void> {
     const deferred: XDDeferred<void> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
@@ -3331,12 +3356,19 @@ XcalarQuery = function(
     const schedName:string = ""; // New backend flag
     const udfUserName: string = options.udfUserName;
     const udfSessionName: string = options.udfSessionName;
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Query.SCOPE.GLOBAL,
+            workbook: Xcrpc.Query.SCOPE.WORKBOOK
+        }
+    });
     PromiseHelper.convertToJQuery(
         Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getQueryService().execute({
             queryName: queryName, queryString: queryString,
             scheduledName: schedName,
-            scope: Xcrpc.Query.QUERYSCOPE.WORKBOOK, // Hard code to workbook scope, as we don't have a use case execute xcalar query in global scope
-            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }, // If no scopeInfo passed in, use global info
+            scope: xcrpcScope.scope,
+            scopeInfo: xcrpcScope.scopeInfo,
             options: {
                 udfUserName: udfUserName,
                 udfSessionName: udfSessionName,
@@ -3506,7 +3538,7 @@ XcalarQueryWithCheck = function(
         udfUserName: string,
         udfSessionName: string
     },
-    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+    scopeInfo?: Xcrpc.Query.ScopeInfo
 ): XDPromise<XcalarApiQueryStateOutputT> {
     const deferred: XDDeferred<XcalarApiQueryStateOutputT> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
@@ -5600,22 +5632,26 @@ XcalarTargetCreate = function(
     targetType: string,
     targetName: string,
     targetParams: object,
-    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+    scopeInfo?: Xcrpc.Target.ScopeInfo
 ): XDPromise<any> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     const inputObj = {"func": "addTarget",
                       "targetTypeId": targetType,
                       "targetName": targetName,
                       "targetParams": targetParams};
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Target.SCOPE.GLOBAL,
+            workbook: Xcrpc.Target.SCOPE.WORKBOOK
+        }
+    });
+
     PromiseHelper.convertToJQuery(
         Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTargetService().run({
             inputJson: inputObj,
-            scope: Xcrpc.Target.TARGETSCOPE.WORKBOOK,
-            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+            scope: xcrpcScope.scope,
+            scopeInfo: xcrpcScope.scopeInfo
         })
     )
     .then(function(outputJson) {
@@ -5636,20 +5672,24 @@ XcalarTargetCreate = function(
 
 XcalarTargetDelete = function(
     targetName: string,
-    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+    scopeInfo?: Xcrpc.Target.ScopeInfo
 ): XDPromise<any> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     const inputObj = {"func": "deleteTarget",
                       "targetName": targetName};
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Target.SCOPE.GLOBAL,
+            workbook: Xcrpc.Target.SCOPE.WORKBOOK
+        }
+    });
+
     PromiseHelper.convertToJQuery(
         Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTargetService().run({
             inputJson: inputObj,
-            scope: Xcrpc.Target.TARGETSCOPE.WORKBOOK,
-            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+            scope: xcrpcScope.scope,
+            scopeInfo: xcrpcScope.scopeInfo
         })
     )
     .then(function(outputJson) {
@@ -5669,19 +5709,22 @@ XcalarTargetDelete = function(
 };
 
 XcalarTargetList = function(
-    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+    scopeInfo?: Xcrpc.Target.ScopeInfo
 ): XDPromise<any[]> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
     const inputObj = {"func": "listTargets"};
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Target.SCOPE.GLOBAL,
+            workbook: Xcrpc.Target.SCOPE.WORKBOOK
+        }
+    });
     PromiseHelper.convertToJQuery(
         Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTargetService().run({
             inputJson: inputObj,
-            scope: Xcrpc.Target.TARGETSCOPE.WORKBOOK,
-            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+            scope: xcrpcScope.scope,
+            scopeInfo: xcrpcScope.scopeInfo
         })
     )
     .then(function(outputJson) {
@@ -5700,19 +5743,22 @@ XcalarTargetList = function(
 };
 
 XcalarTargetTypeList = function(
-    scopeInfo?: Xcrpc.Query.QueryScopeInfo
+    scopeInfo?: Xcrpc.Target.ScopeInfo
 ): XDPromise<any[]> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
     const inputObj = {"func": "listTypes"};
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Target.SCOPE.GLOBAL,
+            workbook: Xcrpc.Target.SCOPE.WORKBOOK
+        }
+    });
     PromiseHelper.convertToJQuery(
         Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getTargetService().run({
             inputJson: inputObj,
-            scope: Xcrpc.Target.TARGETSCOPE.WORKBOOK,
-            scopeInfo: scopeInfo || { userName: userIdName, workbookName: sessionName }
+            scope: xcrpcScope.scope,
+            scopeInfo: xcrpcScope.scopeInfo
         })
     )
     .then(function(outputJson) {
@@ -5849,8 +5895,6 @@ XcalarRefreshTable = function(
         });
     }
 
-    scopeInfo = scopeInfo || {userName:userIdName, workbookName: sessionName};
-
     const workItem = xcalarApiSelectWorkItem(pubTableName, dstTableName,
         minBatch, maxBatch, filterString, columns, limitRows);
 
@@ -5859,11 +5903,19 @@ XcalarRefreshTable = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        const xcrpcScope = createXcrpcScopeInput({
+            scopeInfo: scopeInfo,
+            xcrpcScopeEnum: {
+                global: Xcrpc.PublishedTable.SCOPE.GLOBAL,
+                workbook: Xcrpc.PublishedTable.SCOPE.WORKBOOK
+            }
+        });
+
         def =PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
                                     .getPublishedTableService().select({ srcTable:pubTableName,
                                             destTable: dstTableName, minBatchId:minBatch,maxBatchId: maxBatch,
                                             filterString: filterString, limitRows:limitRows, columnArray:xcrpcColumns,
-                                            scopeInfo}));
+                                            scope: xcrpcScope.scope, scopeInfo: xcrpcScope.scopeInfo}));
     }
 
     const query = XcalarGetQuery(workItem);

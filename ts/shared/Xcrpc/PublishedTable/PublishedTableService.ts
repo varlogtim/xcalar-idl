@@ -18,11 +18,11 @@ class PublishedTableService {
 
     public async select (param:{
         srcTable: string, destTable: string, minBatchId: number, maxBatchId: number, filterString: string,
-        limitRows:number, columnArray:  Array<ColumnArgs>, scopeInfo:ScopeInfo
+        limitRows:number, columnArray:  Array<ColumnArgs>, scopeInfo:ScopeInfo, scope: SCOPE
     }): Promise<string> {
         try {
             const {srcTable, destTable, minBatchId, maxBatchId,
-                filterString, columnArray, scopeInfo } = param;
+                filterString, columnArray, scopeInfo, scope } = param;
             const request = new ProtoTypes.PublishedTable.SelectRequest();
             const evalMessage: ProtoTypes.PublishedTable.SelectEvalArgs
                 = new ProtoTypes.PublishedTable.SelectEvalArgs();
@@ -40,7 +40,7 @@ class PublishedTableService {
             request.setDest(destTable);
             request.setMinBatchId(minBatchId);
             request.setMaxBatchId(maxBatchId);
-            request.setScope(createScopeMessage({ scope: SCOPE.WORKBOOK, scopeInfo: scopeInfo}));
+            request.setScope(createScopeMessage({ scope: scope, scopeInfo: scopeInfo}));
             let limitRows: number = param.limitRows || 0;
             request.setLimitRows(limitRows);
 
@@ -246,4 +246,4 @@ type listTableOutput = {
 }
 
 export {PublishedTableService, ColumnAttribute, Time,
-    UpdateInfo, SelectInfo, IndexInfo, Source, TableInfo, listTableOutput, ScopeInfo, ColumnArgs}
+    UpdateInfo, SelectInfo, IndexInfo, Source, TableInfo, listTableOutput, ScopeInfo, SCOPE, ColumnArgs}

@@ -1,7 +1,7 @@
 
 import { UserDefinedFunctionService as ApiUDF, XceClient as ApiClient } from 'xcalar';
 import { parseError } from '../ServiceError';
-import { SCOPE as UDFSCOPE, ScopeInfo, createScopeMessage } from '../Common/Scope';
+import { SCOPE, ScopeInfo, createScopeMessage } from '../Common/Scope';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
 class UDFService {
@@ -17,7 +17,7 @@ class UDFService {
      * @description This function returns native promise
      */
     public async getRes(param: {
-        udfScope: number,
+        udfScope: SCOPE,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<string> {
@@ -40,7 +40,7 @@ class UDFService {
      * @description This function returns native promise
      */
     public async get(param: {
-        udfScope: number,
+        udfScope: SCOPE,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<string> {
@@ -63,7 +63,7 @@ class UDFService {
      * @description This function returns native promise
      */
     public async add(param: {
-        udfScope: number,
+        udfScope: SCOPE,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<void> {
@@ -84,7 +84,7 @@ class UDFService {
      * @description This function returns native promise
      */
     public async update(param: {
-        udfScope: number,
+        udfScope: SCOPE,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<void> {
@@ -105,7 +105,7 @@ class UDFService {
      * @description This function returns native promise
      */
     public async delete(param: {
-        udfScope: number,
+        udfScope: SCOPE,
         moduleName: string,
         scopeInfo?: ScopeInfo
     }): Promise<void> {
@@ -121,7 +121,7 @@ class UDFService {
     }
 
     private __createUdfModule(param: {
-        udfScope: number,
+        udfScope: SCOPE,
         type?: UdfTypeT,
         moduleName: string,
         sourceCode?: string,
@@ -142,4 +142,4 @@ class UDFService {
     }
 }
 
-export { UDFService, ScopeInfo, UDFSCOPE };
+export { UDFService, ScopeInfo, SCOPE };

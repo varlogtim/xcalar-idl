@@ -1,9 +1,5 @@
 import { QueryService as ApiQuery, XceClient as ApiClient, EnumMap } from 'xcalar';
-import {
-    ScopeInfo as QueryScopeInfo,
-    SCOPE as QUERYSCOPE,
-    createScopeMessage
-} from '../Common/Scope';
+import { ScopeInfo, SCOPE, createScopeMessage } from '../Common/Scope';
 import { parseError } from '../ServiceError';
 import { perfAsync } from '../Common/Debug';
 import ProtoTypes = proto.xcalar.compute.localtypes;
@@ -55,8 +51,8 @@ class QueryService {
         queryName: string,
         queryString: string,
         scheduledName?: string,
-        scope: QUERYSCOPE,
-        scopeInfo?: QueryScopeInfo,
+        scope: SCOPE,
+        scopeInfo?: ScopeInfo,
         options?: {
             udfUserName?: string,
             udfSessionName?: string,
@@ -103,4 +99,4 @@ type QueryInfo = {
     state: string
 }
 
-export { QueryService, QueryInfo, QUERYSCOPE, QueryScopeInfo };
+export { QueryService, QueryInfo, SCOPE, ScopeInfo };
