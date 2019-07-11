@@ -624,27 +624,28 @@
     }
 
     .iconWrapper {
-        background-color: @color-bg-list-hover-blue;
+        background-color: @color-white;
         border: 1px solid @color-border-softGray;
         cursor: pointer;
         float: right;
         .size(30px, 30px);
 
         &:hover {
-            background-color: darken(@color-bg-list-hover-blue, 5%);
+            background-color: @color-bg-dropdown-hover-gray;
             .icon {
                 opacity: @opacity-hover;
             }
         }
 
         .icon {
-            .size(@width: 8px, @height: 8px);
+            @size: 10px;
+            .size(@width: @size, @height: @size);
             .center-align;
             display: block;
             top: 50%;
             opacity: @opacity-unhover;
-            font-size: 8px;
-            color: @color-bg-cardHeader;
+            font-size: @size;
+            color: @color-font-link-blue;
 
             &:before {
                 display: inline-block;
@@ -717,10 +718,16 @@
     display: inline-block;
     cursor: pointer;
 
+    &:hover {
+        .icon {
+            color: @color-font-checkbox-hover;
+        }
+    }
+
     .icon {
         .size(@width: 16px, @height: 16px);
         font-size: 15px;
-        color: @color-font-dropdown-gray;
+        color: @color-font-link-blue;
         .vertical-align;
     }
 

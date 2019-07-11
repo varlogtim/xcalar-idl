@@ -50,11 +50,11 @@
         }
 
         #bottomMenuBarTabs {
-            border-color: @color-border-menubar-grey;
+            border-color: @color-border-bar;
         }
 
         .topMenuBarTab, .bottomMenuBarTab {
-            border-color: @color-border-menubar-grey;
+            border-color: @color-border-bar;
 
 
             .mainTab {
@@ -233,6 +233,7 @@
 
     &.open {
         .position(@left: @width-homeBtn);
+        border-top: 1px solid @color-border-bar;
         border-right: 1px solid @color-border-bar;
 
         &::after { // used for darkening menu when json modal is open
@@ -829,13 +830,7 @@ ul.CodeMirror-hints {
         }
 
         .iconWrapper {
-            background-color: @color-white;
-            border: 1px solid @color-border-softGray;
             border-left: none;
-
-            .icon {
-                color: @color-bg-cardHeader;
-            }
         }
     }
 

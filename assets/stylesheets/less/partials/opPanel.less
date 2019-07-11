@@ -23,8 +23,8 @@
     background-color: @color-white;
     color: @color-font-form-gray;
     font-weight: 600;
-    border-left: 1px solid @color-border-menubar-grey;
-    border-top: 1px solid @color-border-menubar-grey;
+    border-left: 1px solid @color-border-bar;
+    border-top: 1px solid @color-border-bar;
 
     @title-height: 40px;
     @header-height: 66px;
@@ -32,9 +32,7 @@
     @headingHeight: 30px;
     @standardFontSize: 12px;
     @commonMargin: 10px; // margin left used on text and input padding
-    @checkbox-color: @color-bg-cardHeader;
     @functionsListZindex: 10;
-
 
     section {
         color: @color-font-form-gray;
@@ -3645,16 +3643,6 @@
         .checkbox {
             float: left;
             top: 5px;
-
-            .icon {
-                color: @color-font-link-blue;
-            }
-
-            &:hover {
-                .icon {
-                    color: @color-font-checkbox-hover;
-                }
-            }
         }
 
         .text {
