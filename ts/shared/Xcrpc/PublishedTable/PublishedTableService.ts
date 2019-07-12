@@ -63,10 +63,10 @@ class PublishedTableService {
             request.setUpdateStartBatchId(updateStartBatchId);
             let maxUpdateCount = 128;
             let maxSelectCount = 128;
-            if(getUpdates){
+            if(!getUpdates){
                 maxUpdateCount = 0;
             }
-            if(getSelects){
+            if(!getSelects){
                 maxSelectCount = 0;
             }
             request.setMaxUpdateCount(maxUpdateCount);
