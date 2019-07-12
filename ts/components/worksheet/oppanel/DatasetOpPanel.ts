@@ -749,7 +749,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const $bg: JQuery = $("#initialLoadScreen");
         $bg.show();
         const oldSchema: ColSchema[] = dagNode.getSchema();
-        const oldColumns: ProgCol[] = dagNode.getLineage().getColumns();
+        const oldColumns: ProgCol[] = dagNode.getLineage().getColumns(false, true);
         const dagGraph: DagGraph = this._dagGraph;
         dagNode.setSchema(schema);
         const isSameSource: boolean = (oldParam.source === id);
@@ -791,7 +791,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 dagGraph.applyColumnMapping(dagNode.getId(), renameMap);
                 dagNode.confirmSetParam();
                 this.close();
-            } else if (!dagNode.hasNoChildren() && (oldColumns.length || !dagNode.getLineage().getColumns().length)) {
+            } else if (!dagNode.hasNoChildren() && (oldColumns.length || !dagNode.getLineage().getColumns(false, true).length)) {
                 this._$elemPanel.find(".opSection, .mainContent > .bottomSection").hide();
                 // advancedEditor has a styling of display: block !important
                 this._$elemPanel.find(".advancedEditor").addClass("xc-hidden");

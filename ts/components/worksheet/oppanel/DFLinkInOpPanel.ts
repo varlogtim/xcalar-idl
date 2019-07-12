@@ -352,7 +352,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 source: ""
             });
             const dfOutNode: DagNodeDFOut = fakeLinkInNode.getLinkedNodeAndGraph().node;
-            const progCols: ProgCol[] = dfOutNode.getLineage().getColumns();
+            const progCols: ProgCol[] = dfOutNode.getLineage().getColumns(false, true);
             const schema: ColSchema[] = progCols.map((progCol) => {
                 return {
                     name: progCol.getBackColName(),
@@ -419,7 +419,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
                     let nodeId: string = tableName.substring(nodeIndex);
                     let node = tab.getGraph().getNode(nodeId);
                     if (node != null) {
-                        colSchema = node.getLineage().getColumns(true).map((progCol) => {
+                        colSchema = node.getLineage().getColumns(true, true).map((progCol) => {
                             return {
                                 name: progCol.getBackColName(),
                                 type: progCol.getType()

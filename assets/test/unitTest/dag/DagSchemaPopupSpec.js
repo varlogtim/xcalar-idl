@@ -242,7 +242,7 @@ describe("DagSchemaPopup Test", function() {
         expect($popup.find("li").eq(0).text()).to.equal("+integerclasses::class_id");
         expect($popup.find("li").eq(1).attr("class")).to.equal("changeType-replace");
         expect($popup.find("li").eq(1).text()).to.equal("+moneyclass_id");
-        expect($popup.find("li").eq(2).attr("class")).to.equal("changeType-hidden");
+        expect($popup.find("li").eq(2).attr("class")).to.equal("changeType-hidden hidden");
         expect($popup.find("li").eq(2).text()).to.equal("stringclasses::class_name");
         DagSchemaPopup.Instance._close();
     });

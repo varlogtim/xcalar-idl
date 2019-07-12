@@ -46,7 +46,7 @@ class DFLinkOutOpPanelModel {
 
     private _updateColumns(columns) {
         this.tableColumns = this.dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
+            return parentNode.getLineage().getColumns(false, true);
         })[0] || [];
 
         this.tableColumns = this.tableColumns.filter((col) => {

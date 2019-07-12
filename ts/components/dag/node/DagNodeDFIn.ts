@@ -83,8 +83,15 @@ class DagNodeDFIn extends DagNodeIn {
             return ColManager.newPullCol(fontName, col.name, col.type);
         });
 
+        let hiddenColumns = this.lineage.getHiddenColumns();
+        let allCols = [];
+        columns.forEach((col) => {
+            if (!hiddenColumns.has(col.getBackColName())) {
+                allCols.push(col);
+            }
+        })
         return {
-            columns: columns,
+            columns: allCols,
             changes: []
         };
     }

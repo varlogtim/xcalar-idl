@@ -47,7 +47,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         .then(() => {
             this._advMode = false;
             this._columns = dagNode.getParents().map((parentNode) => {
-                return parentNode.getLineage().getColumns();
+                return parentNode.getLineage().getColumns(false, true);
             })[0] || [];
             // hide xcalar imd columns
             this._columns = this._columns.filter((col: ProgCol) => {
@@ -84,8 +84,13 @@ class PublishIMDOpPanel extends BaseOpPanel {
             checkedColumnsSet.add(col.getBackColName());
         }
         this._columns = this._dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        })[0] || []
+            return parentNode.getLineage().getColumns(false, true);
+        })[0] || [];
+        // hide xcalar imd columns
+        this._columns = this._columns.filter((col: ProgCol) => {
+            let name = col.getFrontColName();
+            return !PTblManager.InternalColumns.includes(name);
+        });
 
         this._columns.forEach(progCol => {
             let colName = progCol.getBackColName()

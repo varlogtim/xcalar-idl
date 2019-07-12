@@ -36,7 +36,7 @@ class DatasetColRenamePanel {
         this.sourceNode = dagNode;
         this.viewOptions = options || {};
 
-        const newColumns: ProgCol[] = dagNode.getLineage().getColumns();
+        const newColumns: ProgCol[] = dagNode.getLineage().getColumns(false, true);
         this.noSourceCols = newColumns.length === 0;
 
         // if no columns, allow the ability to add candidate columns

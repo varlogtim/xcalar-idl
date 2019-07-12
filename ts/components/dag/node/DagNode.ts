@@ -1583,7 +1583,7 @@ abstract class DagNode extends Durable {
     private _validateLineage(): {error: string} {
         const colMaps: {[key: string]: ProgCol} = {};
         this.getParents().forEach((parentNode) => {
-            parentNode.lineage.getColumns().forEach((progCol) => {
+            parentNode.lineage.getColumns(false, true).forEach((progCol) => {
                 colMaps[progCol.getBackColName()] = progCol;
             });
         });

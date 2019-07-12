@@ -67,25 +67,41 @@ class DagNodeJoin extends DagNode {
             const param: DagNodeJoinInputStruct = this.input.getInput(replaceParameters);
             const parents: DagNode[] = this.getParents();
             const lCols: ProgCol[] = parents[0].getLineage()
-                .getColumns(replaceParameters);
+                .getColumns(replaceParameters, true);
             const lChanges: DagLineageChange = this._getColAfterJoin(
                 lCols,
                 param.left,
                 param.keepAllColumns,
                 0);
+            const hiddenCols = this.getLineage().getHiddenColumns();
             if (this._isSkipRightTable(param.joinType)) {
+                lChanges.changes.forEach((change) => {
+                    if (change.from && change.to == null) {
+                        hiddenCols.delete(change.from.getBackColName());
+                    }
+                });
                 return {
                     columns: lChanges.columns,
                     changes: lChanges.changes
                 };
             } else {
                 const rCols: ProgCol[] = parents[1].getLineage()
-                    .getColumns(replaceParameters);
+                    .getColumns(replaceParameters, true);
                 const rChanges: DagLineageChange = this._getColAfterJoin(
                     rCols,
                     param.right,
                     param.keepAllColumns,
                     1);
+                lChanges.changes.forEach((change) => {
+                    if (change.from && change.to == null) {
+                        hiddenCols.delete(change.from.getBackColName());
+                    }
+                });
+                rChanges.changes.forEach((change) => {
+                    if (change.from && change.to == null) {
+                        hiddenCols.delete(change.from.getBackColName());
+                    }
+                });
                 return {
                     columns: lChanges.columns.concat(rChanges.columns),
                     changes: lChanges.changes.concat(rChanges.changes)
@@ -271,7 +287,7 @@ class DagNodeJoin extends DagNode {
         parentIndex: number
     ): DagLineageChange {
         const changes: DagColumnChange[] = [];
-
+        const hiddenColumns = this.lineage.getHiddenColumns();
         const colMap: Map<string, ProgCol> = new Map();
         allColumns.forEach((progCol) => {
             colMap.set(progCol.getBackColName(), progCol);
@@ -279,16 +295,28 @@ class DagNodeJoin extends DagNode {
 
         // 1. Get columns should be in the resultant table
         const finalCols: ProgCol[] = [];
+        const finalHiddenCols: ProgCol[] = [];
         const removeCols: ProgCol[] = [];
         if (isKeepAllColumns) {
-            allColumns.forEach((col) => { finalCols.push(col) });
+            allColumns.forEach((col) => {
+                if (hiddenColumns.has(col.getBackColName())) {
+                    finalHiddenCols.push(col);
+                } else {
+                    finalCols.push(col);
+                }
+            });
         } else {
             const keepColNameSet = new Set(joinInput.keepColumns.filter(
                 (colName) => colMap.has(colName)
             ));
             allColumns.forEach((progCol) => {
                 if (keepColNameSet.has(progCol.getBackColName())) {
-                    finalCols.push(progCol);
+                    if (hiddenColumns.has(progCol.getBackColName())) {
+                        finalHiddenCols.push(progCol);
+                    } else {
+                        finalCols.push(progCol);
+                    }
+
                 } else {
                     removeCols.push(progCol);
                 }
@@ -332,21 +360,40 @@ class DagNodeJoin extends DagNode {
             }
         }
 
-        // 3. remove columns
-        for (const progCol of removeCols) {
-            changes.push({ from: progCol, to: null, parentIndex: parentIndex });
+        // 2.b rename hidden columns
+        for (let i = 0; i < finalHiddenCols.length; i++) { // Apply rename to every columns
+            const progCol: ProgCol = finalHiddenCols[i];
+            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(progCol.getBackColName());
+            if (parsed.prefix.length > 0) {
+                // Prefixed column
+                const prefixAfterRename = prefixRenameMap.get(parsed.prefix);
+                if (prefixAfterRename != null) {
+                    const newName = xcHelper.getPrefixColName(prefixAfterRename, parsed.name);
+                    const newProgCol: ProgCol = ColManager.newPullCol(parsed.name, newName, progCol.getType());
+                    finalHiddenCols[i] = newProgCol;
+                    changes.push({ from: progCol, to: newProgCol, hidden: true, parentIndex: parentIndex });
+                    hiddenColumns.set(newName, newProgCol);
+                }
+            } else {
+                // Derived column
+                const newName = columnRenameMap.get(parsed.name);
+                if (newName != null) {
+                    const newProgCol: ProgCol = ColManager.newPullCol(newName, newName, progCol.getType());
+                    finalHiddenCols[i] = newProgCol;
+                    changes.push({ from: progCol, to: newProgCol, hidden: true, parentIndex: parentIndex });
+                    hiddenColumns.set(newName, newProgCol);
+                }
+            }
         }
 
-        // 4. remove hidden columns
-        let hiddenColumns = this.lineage.getHiddenColumns();
-        hiddenColumns.forEach((progCol, colName) => {
-            hiddenColumns.delete(colName);
-            changes.push({
-                from: progCol,
-                to: null,
-                hidden: true
-            });
-        });
+        // 3. remove columns
+        for (const progCol of removeCols) {
+            let hidden = false;
+            if (hiddenColumns.has(progCol.getBackColName())) {
+                hidden = true;
+            }
+            changes.push({ from: progCol, to: null, hidden: hidden, parentIndex: parentIndex });
+        }
 
         return {
             columns: finalCols,

@@ -1,7 +1,7 @@
 describe("DagNodeExecutor Test", () => {
     const txId = 1;
     let cachedTransactionGet;
-    before(function(){
+    before(function(done){
         cachedTransactionGet = Transaction.get;
         Transaction.get = () => {
             return {
@@ -9,6 +9,10 @@ describe("DagNodeExecutor Test", () => {
                 setParentNodeId: ()=>{},
             }
         }
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            done();
+        });
     });
     let createNode = (type, tableName, subType) => {
         return DagNodeFactory.create({
@@ -471,9 +475,10 @@ describe("DagNodeExecutor Test", () => {
         const parentNode = createNode();
         let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
         parentNode.getLineage().setColumns([progCol]);
+        parentNode.getLineage().columnsWithParamsReplaced = [progCol];
         parentNode.setTable("parentTable");
         node.setParam({
-            pubTableName: "testTable",
+            pubTableName: "testTable2",
             primaryKeys: ["pk"],
             operator: "testCol",
             columns: ["test"]
@@ -488,7 +493,7 @@ describe("DagNodeExecutor Test", () => {
             expect(primaryKeys.length).to.equal(1);
             expect(primaryKeys[0]).to.equal("pk");
             expect(srcTableName).to.equal("parentTable");
-            expect(pubTableName).to.equal("testTable");
+            expect(pubTableName).to.equal("testTable2");
             expect(colInfo.length).to.equal(1);
             expect(colInfo[0]).to.deep.include({
                 orig: "test",
@@ -517,9 +522,10 @@ describe("DagNodeExecutor Test", () => {
         const parentNode = createNode();
         let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
         parentNode.getLineage().setColumns([progCol]);
+        parentNode.getLineage().columnsWithParamsReplaced = [progCol];
         parentNode.setTable("parentTable");
         node.setParam({
-            pubTableName: "testTable",
+            pubTableName: "testTable2",
             operator: "testCol"
         });
         node.connectToParent(parentNode);
@@ -530,7 +536,7 @@ describe("DagNodeExecutor Test", () => {
         XIApi.updatePubTable = (txId, srcTableName, pubTableName, colInfo, imdCol) => {
             expect(txId).to.equal(1);
             expect(srcTableName).to.equal("parentTable");
-            expect(pubTableName).to.equal("testTable");
+            expect(pubTableName).to.equal("testTable2");
             expect(colInfo.length).to.equal(1);
             expect(colInfo[0]).to.deep.include({
                 orig: "test",
@@ -656,6 +662,7 @@ describe("DagNodeExecutor Test", () => {
         const parentNode = createNode();
         let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
         parentNode.getLineage().setColumns([progCol]);
+        parentNode.getLineage().columnsWithParamsReplaced = [progCol];
         parentNode.setTable("testTable");
         node.setParam({
             numExportRows: 1,
@@ -778,6 +785,7 @@ describe("DagNodeExecutor Test", () => {
         const parentNode = createNode();
         let progCol = ColManager.newPullCol("testCol", "testCol", ColumnType.integer);
         parentNode.getLineage().setColumns([progCol]);
+        parentNode.getLineage().columnsWithParamsReplaced = [progCol];
         parentNode.setTable("testTable");
         node.setParam({
             columns: [{

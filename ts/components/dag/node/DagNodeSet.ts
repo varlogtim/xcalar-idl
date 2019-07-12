@@ -60,7 +60,10 @@ class DagNodeSet extends DagNode {
         const changes: DagColumnChange[] = [];
         let finalCols: ProgCol[] = [];
         const input = this.input.getInput(replaceParameters);
+        const hiddenColsToDelete = new Set();
+        const hiddenColumns = this.lineage.getHiddenColumns();
         if (input.columns && input.columns.length > 0) {
+            // 1. get output cols
             finalCols = input.columns[0].map((colInfo) => {
                 const colName: string = colInfo.destColumn;
                 const colType: ColumnType = colInfo.columnType;
@@ -69,13 +72,14 @@ class DagNodeSet extends DagNode {
                 }
                 return ColManager.newPullCol(colName, colName, colType);
             });
-
+            // 2. get changes
             const parents: DagNode[] = this.getParents();
             input.columns.forEach((colLists, i) => {
                 const colMap: Map<string, ProgCol> = new Map();
-                parents[i].getLineage().getColumns(replaceParameters).forEach((prgoCol) => {
-                    colMap.set(prgoCol.getBackColName(), prgoCol);
+                parents[i].getLineage().getColumns(replaceParameters, true).forEach((progCol) => {
+                    colMap.set(progCol.getBackColName(), progCol);
                 });
+
                 colLists.forEach((colInfo, j) => {
                     const colName: string = colInfo.sourceColumn;
                     const oldProgCol: ProgCol = colMap.get(colName);
@@ -84,26 +88,22 @@ class DagNodeSet extends DagNode {
                         to: finalCols[j]
                     });
                     colMap.delete(colName);
+                    hiddenColsToDelete.add(colName);
                 });
 
-                for (let prgoCol of colMap.values()) {
+                for (let progCol of colMap.values()) {
                     changes.push({
-                        from: prgoCol,
-                        to: null
+                        from: progCol,
+                        to: null,
+                        hidden: hiddenColumns.has(progCol.getBackColName())
                     });
+                    hiddenColsToDelete.add(progCol.getBackColName());
                 }
             });
-        }
 
-        let hiddenColumns = this.lineage.getHiddenColumns();
-        hiddenColumns.forEach((progCol, colName) => {
-            hiddenColumns.delete(colName);
-            changes.push({
-                from: progCol,
-                to: null,
-                hidden: true
-            });
-        });
+            // 3. delete hidden columns
+            hiddenColumns.clear();
+        }
 
         return {
             columns: finalCols,

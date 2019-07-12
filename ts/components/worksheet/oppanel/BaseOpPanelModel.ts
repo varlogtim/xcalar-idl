@@ -20,7 +20,7 @@ abstract class BaseOpPanelModel {
                 if (parent == null) {
                     continue;
                 }
-                for (const col of parent.getLineage().getColumns()) {
+                for (const col of parent.getLineage().getColumns(false, true)) {
                     colMap.set(
                         col.getBackColName(),
                         ColManager.newPullCol(
@@ -41,7 +41,7 @@ abstract class BaseOpPanelModel {
             if (parentNode == null) {
                 return [];
             }
-            return parentNode.getLineage().getColumns();
+            return parentNode.getLineage().getColumns(false, true);
         });
         const allColMap: Map<string, ProgCol> = new Map();
         for (const cols of allColsList) {

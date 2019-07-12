@@ -122,7 +122,7 @@ class SQLOpPanel extends BaseOpPanel {
                 if (idx) {
                     const parent = self._dagNode.getParents()[idx - 1];
                     if (parent) {
-                        parent.getLineage().getColumns().forEach((parentCol) => {
+                        parent.getLineage().getColumns(false, true).forEach((parentCol) => {
                             let colName = xcHelper.cleanseSQLColName(parentCol.name);
                             let upperName = colName.toUpperCase();
                             if (colName != "DATA" &&

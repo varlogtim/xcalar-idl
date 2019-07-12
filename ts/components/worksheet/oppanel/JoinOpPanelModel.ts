@@ -1086,7 +1086,7 @@ class JoinOpPanelModel extends BaseOpPanelModel {
         const colList: ProgCol[] = [];
         try {
             if (dagNode != null) {
-                for (const col of dagNode.getLineage().getColumns()) {
+                for (const col of dagNode.getLineage().getColumns(false, true)) {
                     colList.push(col);
                 }
             }

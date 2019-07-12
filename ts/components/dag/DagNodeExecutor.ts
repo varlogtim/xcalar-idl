@@ -487,7 +487,7 @@ class DagNodeExecutor {
             newKeys.forEach((newKey) => {
                 takenNames[newKey] = true;
             });
-            self.node.getParents()[0].getLineage().getColumns().forEach((col) => {
+            self.node.getParents()[0].getLineage().getColumns(false, true).forEach((col) => {
                 takenNames[col.getBackColName()] = true;
             });
             const mapStrs: string[] = [];
@@ -593,7 +593,7 @@ class DagNodeExecutor {
         } = options || {};
         const colNamesToKeep = keepAllColumns
             ? parentNode.getLineage()
-                .getColumns().map((col) => col.getBackColName())
+                .getColumns(this.replaceParam, true).map((col) => col.getBackColName())
             : joinTableInfo.keepColumns;
         const rename = DagNodeJoin.joinRenameConverter(colNamesToKeep, joinTableInfo.rename);
         return {
@@ -813,7 +813,7 @@ class DagNodeExecutor {
         const node: DagNodeExport = <DagNodeExport>this.node;
         const exportInput: DagNodeExportInputStruct = node.getParam(this.replaceParam);
         const columns: {sourceColumn: string, destColumn: string}[] = exportInput.columns;
-        const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns();
+        const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns(this.replaceParam, true);
         const backCols: string[] = columns.map((column) => {
             let col: ProgCol = progCols.find((col: ProgCol) => {
                 return col.name == column.sourceColumn || col.getBackColName() == column.sourceColumn;
@@ -989,7 +989,7 @@ class DagNodeExecutor {
         // what the linkOutOptimized node store is the schema after synthesize
         // which is destColName and colType
         const colMap: Map<string, ColumnType> = new Map();
-        node.getLineage().getColumns().forEach((progCol) => {
+        node.getLineage().getColumns(this.replaceParam, true).forEach((progCol) => {
             colMap.set(progCol.getBackColName(), progCol.getType());
         });
 
@@ -1021,11 +1021,12 @@ class DagNodeExecutor {
         const node: DagNodePublishIMD = <DagNodePublishIMD>this.node;
         const params: DagNodePublishIMDInputStruct = node.getParam(this.replaceParam);
         let columns: ProgCol[] = node.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
+            return parentNode.getLineage().getColumns(this.replaceParam, true);
         })[0] || [];
         columns = columns.filter((col: ProgCol) => {
             return params.columns.includes(col.getFrontColName());
         });
+
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
         let tableName: string = params.pubTableName;
 
@@ -1055,7 +1056,7 @@ class DagNodeExecutor {
         const node: DagNodeUpdateIMD = <DagNodeUpdateIMD>this.node;
         const params: DagNodeUpdateIMDInputStruct = node.getParam(this.replaceParam);
         let columns: ProgCol[] = node.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
+            return parentNode.getLineage().getColumns(this.replaceParam, true);
         })[0] || [];
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
         const txLog = Transaction.get(this.txId);
@@ -1142,7 +1143,7 @@ class DagNodeExecutor {
         const node: DagNodeJupyter = <DagNodeJupyter>this.node;
         const params: DagNodeJupyterInputStruct = node.getParam();
         const colMap: Map<string, ProgCol> = new Map();
-        for (const colInfo of node.getParents()[0].getLineage().getColumns()) {
+        for (const colInfo of node.getParents()[0].getLineage().getColumns(this.replaceParam, true)) {
             colMap.set(colInfo.getBackColName(), colInfo);
         }
 
@@ -1218,7 +1219,7 @@ class DagNodeExecutor {
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
         const params: DagNodeSortInputStruct = node.getParam(this.replaceParam);
-        const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns();
+        const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns(this.replaceParam, true);
         const newKeys: string[] = node.updateNewKeys(params.newKeys);
 
         const sortedColumns = params.columns.map((column, i) => {

@@ -57,13 +57,41 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
             const allCols = [];
             const changes = [];
             const selectedCols = this.input.getInput(replaceParameters).columns;
+            let hiddenColumns = this.lineage.getHiddenColumns();
             columns.forEach((col) => {
                 const colName = col.getBackColName();
                 const selectedCol = selectedCols.find((selCol) => {
                     return selCol.sourceName === colName;
                 });
                 if (selectedCol != null) {
-                    if (selectedCol.destName !== col.getBackColName()) {
+                    if (selectedCol.destName !== colName) {
+                        const progCol = ColManager.newPullCol(selectedCol.destName, selectedCol.destName, col.getType());
+                        allCols.push(progCol);
+                        changes.push({
+                            from: col,
+                            to: progCol,
+                            hidden: hiddenColumns.has(colName)
+                        });
+                    } else {
+                        if (!hiddenColumns.has(colName)) {
+                            allCols.push(col);
+                        }
+                    }
+                } else {
+                    changes.push({
+                        from: col,
+                        to: null,
+                        hidden: hiddenColumns.has(col.getBackColName())
+                    });
+                }
+            });
+            hiddenColumns.forEach((col) => {
+                const colName = col.getBackColName();
+                const selectedCol = selectedCols.find((selCol) => {
+                    return selCol.sourceName === colName;
+                });
+                if (selectedCol != null) {
+                    if (selectedCol.destName !== colName) {
                         const progCol = ColManager.newPullCol(selectedCol.destName, selectedCol.destName, col.getType());
                         allCols.push(progCol);
                         changes.push({
@@ -76,26 +104,26 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
                 } else {
                     changes.push({
                         from: col,
-                        to: null
+                        to: null,
+                        hidden: true
                     });
                 }
             });
-            let hiddenColumns = this.lineage.getHiddenColumns();
-            hiddenColumns.forEach((progCol, colName) => {
-                hiddenColumns.delete(colName);
-                changes.push({
-                    from: progCol,
-                    to: null,
-                    hidden: true
-                });
-            });
+            hiddenColumns.clear();
             return {
                 columns: allCols,
                 changes: changes
             }
         } else {
+            let hiddenColumns = this.lineage.getHiddenColumns();
+            let allCols = [];
+            columns.forEach((col) => {
+                if (!hiddenColumns.has(col.getBackColName())) {
+                    allCols.push(col);
+                }
+            })
             return {
-                columns: columns,
+                columns: allCols,
                 changes: []
             };
         }

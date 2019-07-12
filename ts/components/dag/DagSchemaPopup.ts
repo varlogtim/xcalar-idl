@@ -100,6 +100,7 @@ class DagSchemaPopup {
     private _fillColumns(): void {
         const lineage = this._dagNode.getLineage()
         this._tableColumns = lineage.getColumns() || [];
+        let hiddenColumns = lineage.getHiddenColumns();
         const changes = lineage.getChanges();
         let numCols = changes.length;
         let html: HTML = "<ul>";
@@ -109,15 +110,16 @@ class DagSchemaPopup {
         let hides = {html: ""};
         let changeIcon;
         let seenColumns: Set<string> = new Set();
+
         // list changes first
         for (let i = 0; i < changes.length; i++) {
             const change = changes[i];
-            let changeType;
+            let changeType = "";
             let progCol;
             let destCol;
             let otherProgCol;
             let htmlType;
-            let isHidden = false
+            let isHidden = change.hidden || false;
 
             if (change.to) {
                 progCol = change.to;
@@ -128,10 +130,16 @@ class DagSchemaPopup {
                     changeType = "replace";
                     htmlType = replaces;
                     changeIcon = "+";
+                    if (hiddenColumns.has(otherProgCol.getBackColName())) {
+                        isHidden = true;
+                    }
                 } else {
                     changeType = "add";
                     htmlType = adds;
                     changeIcon = "+";
+                    if (hiddenColumns.has(progCol.getBackColName())) {
+                        isHidden = true;
+                    }
                 }
             } else if (change.from) {
                 progCol = change.from;
@@ -139,30 +147,32 @@ class DagSchemaPopup {
 
                 destCol = change.from;
                 changeType = "remove";
-                if (change.hidden) {
-                    changeType += " hidden";
-                    isHidden = true;
-                }
                 htmlType = removes;
                 changeIcon = "-";
             } else if (change.hiddenCol) {
                 progCol = change.hiddenCol;
                 seenColumns.add(progCol.getBackColName());
                 destCol = progCol;
-                changeType = "hidden";
-                isHidden = true;
                 htmlType = hides;
                 changeIcon = "";
+                changeType = "hidden";
             }
 
             if (changeType === "replace") {
                 htmlType.html += '<ul class="replaceSection">';
+
                 let liClass = 'changeType-' + changeType + ' changeType-remove';
+                if (isHidden) {
+                    liClass += " hidden";
+                }
                 htmlType.html += this._liTemplate(otherProgCol, changeIcon,
-                                                  liClass, progCol);
+                                                  liClass, progCol, isHidden);
             }
 
             let liClass = 'changeType-' + changeType;
+            if (isHidden) {
+                liClass += " hidden";
+            }
             htmlType.html += this._liTemplate(progCol, changeIcon,
                                              liClass, destCol, isHidden);
             if (changeType === "replace") {
@@ -190,7 +200,7 @@ class DagSchemaPopup {
             html += this._liTemplate(progCol, "", "");
         }
 
-        let hiddenColumns = lineage.getHiddenColumns();
+
         hiddenColumns.forEach((progCol, colName) => {
             if (seenColumns.has(colName)) {
                 return;

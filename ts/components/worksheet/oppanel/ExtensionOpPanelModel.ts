@@ -86,7 +86,7 @@ class ExtensionOpPanelModel {
      */
     public getColumns(index): ProgCol[] {
         const parentNode: DagNode = this.dagNode.getParents()[index];
-        return parentNode ? parentNode.getLineage().getColumns() : [];
+        return parentNode ? parentNode.getLineage().getColumns(false, true) : [];
     }
 
     /**

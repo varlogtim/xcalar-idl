@@ -35,7 +35,7 @@ class SetOpPanelModel {
 
     public getColData() {
         const allCols = this.dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
+            return parentNode.getLineage().getColumns(false, true);
         });
         return {
             allColSets: allCols,
@@ -150,7 +150,7 @@ class SetOpPanelModel {
 
     public refreshColumns(refreshInfo): void {
         const allCols = this.dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
+            return parentNode.getLineage().getColumns(false, true);
         });
         const removedSets = [];
         if (allCols.length < this.colModel.getModel().all.length) {
@@ -169,7 +169,7 @@ class SetOpPanelModel {
         if (this.colModel) {
             // colModel not set during the first time
             const allCols = this.dagNode.getParents().map((parentNode) => {
-                return parentNode.getLineage().getColumns();
+                return parentNode.getLineage().getColumns(false, true);
             });
 
             this.colModel.initialize(allCols, param.columns);

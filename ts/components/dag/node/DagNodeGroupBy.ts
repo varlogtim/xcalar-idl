@@ -66,6 +66,7 @@ class DagNodeGroupBy extends DagNode {
         const changes: DagColumnChange[] = [];
         const aggCols: ProgCol[] = [];
         let finalCols: ProgCol[] = [];
+        const hiddenCols = this.lineage.getHiddenColumns();
         const input = this.input.getInput(replaceParameters);
         input.aggregate.forEach((aggInfo) => {
             const colName: string = aggInfo.destColumn;
@@ -86,6 +87,10 @@ class DagNodeGroupBy extends DagNode {
         } else {
             const colMap: Map<string, ProgCol> = new Map();
             columns.forEach((progCol) => {
+                const colName: string = progCol.getBackColName();
+                colMap.set(colName, progCol);
+            });
+            hiddenCols.forEach(progCol => {
                 const colName: string = progCol.getBackColName();
                 colMap.set(colName, progCol);
             });
@@ -120,25 +125,17 @@ class DagNodeGroupBy extends DagNode {
             finalCols = aggCols.concat(groupCols);
             for (let progCol of colMap.values()) {
                 if (input.joinBack) {
-                    finalCols.push(progCol);
+                    if (!hiddenCols.has(progCol.getBackColName())) {
+                        finalCols.push(progCol);
+                    }
                 } else {
                     changes.push({
                         from: progCol,
-                        to: null
-                    });
-                }
-            }
-
-            if (!input.joinBack) {
-                let hiddenColumns = this.lineage.getHiddenColumns();
-                hiddenColumns.forEach((progCol, colName) => {
-                    hiddenColumns.delete(colName);
-                    changes.push({
-                        from: progCol,
                         to: null,
-                        hidden: true
+                        hidden: hiddenCols.has(progCol.getBackColName())
                     });
-                });
+                    hiddenCols.delete(progCol.getBackColName());
+                }
             }
         }
 

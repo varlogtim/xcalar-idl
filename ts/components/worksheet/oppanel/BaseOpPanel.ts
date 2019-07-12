@@ -787,7 +787,7 @@ class BaseOpPanel {
         const seen: Set<string> = new Set();
         this.allColumns = [];
         const colSets = this._dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
+            return parentNode.getLineage().getColumns(false, true);
         }) || [];
 
         colSets.forEach(cols => {

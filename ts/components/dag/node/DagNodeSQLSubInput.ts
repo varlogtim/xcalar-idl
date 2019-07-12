@@ -34,6 +34,14 @@ class DagNodeSQLSubInput extends DagNode {
         };
     }
 
+    public getHiddenColumns() {
+        const inputParent = this._container.getInputParent(this);
+        if (inputParent == null || inputParent.getLineage() == null) {
+            return new Map();
+        }
+        return new Map(inputParent.getLineage().getHiddenColumns());
+    }
+
     /**
      * Get input node's name for display
      */

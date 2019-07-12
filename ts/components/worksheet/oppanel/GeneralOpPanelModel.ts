@@ -61,7 +61,7 @@ abstract class GeneralOpPanelModel {
 
     public refreshColumns(): ProgCol[] {
         this.tableColumns = this.dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
+            return parentNode.getLineage().getColumns(false, true);
         })[0] || [];
         return this.tableColumns;
     }

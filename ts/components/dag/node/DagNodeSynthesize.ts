@@ -43,10 +43,11 @@ class DagNodeSynthesize extends DagNode {
         const columns: ProgCol[] = [];
         const changes: DagColumnChange[] = [];
         // there should be only one parent
+        let hiddenColumns = this.lineage.getHiddenColumns();
         const parents: DagNode[] = this.getParents();
         const parentColMap = {};
         parents.forEach((parent) => {
-            parent.getLineage().getColumns(replaceParameters).forEach((parentCol) => {
+            parent.getLineage().getColumns(replaceParameters, true).forEach((parentCol) => {
                 parentColMap[parentCol.backName] = parentCol;
             })
         })
@@ -63,34 +64,36 @@ class DagNodeSynthesize extends DagNode {
                             parentColMap[origColName] &&
                             parentColMap[origColName].type;
             const column = ColManager.newPullCol(newColName, newColName, colType);
-            columns.push(column);
+            if (!hiddenColumns.has(origColName)) {
+                columns.push(column);
+            }
+
             if (colType !==
                 (parentColMap[origColName] && parentColMap[origColName].type) ||
                 newColName !== origColName) {
                 // only push when the column indeed changed
                 changes.push({
                     from: parentColMap[origColName],
-                    to: column
+                    to: column,
+                    hidden: hiddenColumns.has(origColName)
                 });
+                if (hiddenColumns.has(origColName)) {
+                    hiddenColumns.delete(origColName);
+                    hiddenColumns.set(column.getBackColName(), column);
+                }
             }
         });
         for (let key in parentColMap) {
             if (renamedColNames.indexOf(key) === -1) {
                 changes.push({
                     from: parentColMap[key],
-                    to: null
+                    to: null,
+                    hidden: hiddenColumns.has(key)
                 });
+                hiddenColumns.delete(key);
             }
         }
-        let hiddenColumns = this.lineage.getHiddenColumns();
-        hiddenColumns.forEach((progCol, colName) => {
-            hiddenColumns.delete(colName);
-            changes.push({
-                from: progCol,
-                to: null,
-                hidden: true
-            });
-        });
+
         return {
             columns: columns,
             changes: changes

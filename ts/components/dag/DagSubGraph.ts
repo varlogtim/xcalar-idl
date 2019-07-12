@@ -314,7 +314,7 @@ class DagSubGraph extends DagGraph {
             if (leftParentNode) {
                 const leftColNamesToKeep = keepAllColumns
                     ? leftParentNode.getLineage()
-                        .getColumns().map((col) => col.getBackColName())
+                        .getColumns(false, true).map((col) => col.getBackColName())
                     : params.left.keepColumns;
                 const leftRename  = DagNodeJoin.joinRenameConverter(leftColNamesToKeep, params.left.rename, true);
                 params.left.rename = leftRename;
@@ -323,7 +323,7 @@ class DagSubGraph extends DagGraph {
             if (rightParentNode) {
                const rightColNamesToKeep = keepAllColumns
                 ? rightParentNode.getLineage()
-                    .getColumns().map((col) => col.getBackColName())
+                    .getColumns(false, true).map((col) => col.getBackColName())
                 : params.right.keepColumns;
                 const rightRename  = DagNodeJoin.joinRenameConverter(rightColNamesToKeep, params.right.rename, true);
                 params.right.rename = rightRename;

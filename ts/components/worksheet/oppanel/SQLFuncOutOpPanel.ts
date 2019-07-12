@@ -100,7 +100,7 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
             const parents: DagNode[] = this._dagNode.getParents();
             if (parents && parents[0]) {
                 const parent: DagNode = parents[0];
-                schema = parent.getLineage().getColumns().map((progCol) => {
+                schema = parent.getLineage().getColumns(false, true).map((progCol) => {
                     return {
                         name: progCol.getBackColName(),
                         type: progCol.getType()

@@ -369,6 +369,7 @@ class DagNodeSQL extends DagNode {
         const finalColumnMap = {}; // {finalColName: [finalProgColumn,
                                    //  changedFlag]}
         const finalCols: ProgCol[] = [];
+        let hiddenColumns = this.lineage.getHiddenColumns();
         this.columns.forEach((column) => {
             const finalColumn = ColManager.newPullCol(column.name,
                                                       column.backName,
@@ -387,7 +388,7 @@ class DagNodeSQL extends DagNode {
         const changes: DagColumnChange[] = [];
         const parents: DagNode[] = this.getParents();
         parents.forEach((parent) => {
-            parent.getLineage().getColumns(replaceParameters).forEach((parentCol) => {
+            parent.getLineage().getColumns(replaceParameters, true).forEach((parentCol) => {
                 const finalColStruct = columnMap[parentCol.backName];
                 if (finalColStruct) {
                     const finalCol = columnMap[parentCol.backName][0];
@@ -395,14 +396,16 @@ class DagNodeSQL extends DagNode {
                     if (hasChanged) {
                         changes.push({
                             from: parentCol,
-                            to: finalCol
+                            to: finalCol,
+                            hidden: hiddenColumns.has(parentCol.getBackColName())
                         });
                     }
                     delete finalColumnMap[finalCol.backName];
                 } else {
                     changes.push({
                         from: parentCol,
-                        to: null
+                        to: null,
+                        hidden: hiddenColumns.has(parentCol.getBackColName())
                     });
                 }
             });
@@ -414,16 +417,6 @@ class DagNodeSQL extends DagNode {
                 to: finalColumnMap[colName][0]
             });
         }
-
-        let hiddenColumns = this.lineage.getHiddenColumns();
-        hiddenColumns.forEach((progCol, colName) => {
-            hiddenColumns.delete(colName);
-            changes.push({
-                from: progCol,
-                to: null,
-                hidden: true
-            });
-        });
 
         return {
             columns: finalCols,
@@ -817,7 +810,7 @@ class DagNodeSQL extends DagNode {
                     pubTableName = srcTable.getSource().toUpperCase();
                 }
                 destTableName = srcTableName;
-                cols = srcTable.getLineage().getColumns();
+                cols = srcTable.getLineage().getColumns(false, true);
             }
         } else {
             destTableName = srcTableName;

@@ -61,21 +61,31 @@ class DagLineage {
      * @param {boolean} replaceParameters
      * @return {ProgCol[]} get a list of columns
      */
-    public getColumns(replaceParameters?): ProgCol[] {
+    public getColumns(
+        replaceParameters: boolean = false,
+        includeHiddenCols: boolean = false
+    ): ProgCol[] {
+        let columns: ProgCol[];
         if (replaceParameters) {
             if (this.columnsWithParamsReplaced == null) {
                 const updateRes = this._update(replaceParameters);
                 this.columnsWithParamsReplaced = updateRes.columns;
             }
-            return this.columnsWithParamsReplaced;
+            columns = this.columnsWithParamsReplaced;
         } else {
             if (this.columns == null) {
                 const updateRes = this._update(replaceParameters);
                 this.columns = updateRes.columns;
                 this.changes = updateRes.changes;
             }
-            return this.columns;
+            columns = this.columns;
         }
+        if (includeHiddenCols) {
+            let hiddenColsMap = this.getHiddenColumns();
+            let hiddenCols = hiddenColsMap.values();
+            columns = [...columns, ...hiddenCols];
+        }
+        return columns;
     }
 
 
@@ -126,6 +136,13 @@ class DagLineage {
                 } catch (e) {
 
                 }
+            } else if (node instanceof DagNodeSQLSubInput) {
+                hiddenColumns = node.getHiddenColumns();
+                pulledColumns.forEach(colName => {
+                    if (hiddenColumns.has(colName)) {
+                        hiddenColumns.delete(colName);
+                    }
+                });
             }
             this.hiddenColumns = hiddenColumns;
         }
@@ -546,7 +563,7 @@ class DagLineage {
         hiddenCols.forEach((column) => {
             let name = column.getBackColName();
             if (!changedColumnsSet.has(name)) {
-                let change = {to: null, from: null, hidden: true};
+                let change: DagColumnChange = {to: null, from: null, hidden: true};
                 if (colsHiddenInThisNode.has(name)) {
                     change.hiddenCol = column;
                     updatedChanges.push(change);

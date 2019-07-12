@@ -38,7 +38,7 @@ class UpdateIMDOpPanel extends BaseOpPanel {
         super.showPanel("IMD Table", options)
         .then(() => {
             this._columns = dagNode.getParents().map((parentNode) => {
-                return parentNode.getLineage().getColumns();
+                return parentNode.getLineage().getColumns(false, true);
             })[0] || [];
 
             this._tables = PTblManager.Instance.getAvailableTables();

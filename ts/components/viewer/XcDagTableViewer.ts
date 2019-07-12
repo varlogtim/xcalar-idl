@@ -21,7 +21,7 @@ class XcDagTableViewer extends XcTableViewer {
         }
         let columns: ProgCol[] = dagNode.getLineage().getColumns(true);
         let hiddenColumns: Map<string, ProgCol> = dagNode.getLineage().getHiddenColumns();
-        if (columns != null && columns.length > 0) {
+        if (columns != null && (columns.length > 0 || hiddenColumns.size)) {
             columns = columns.concat(ColManager.newDATACol());
             table.addAllCols(columns);
         }

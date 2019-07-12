@@ -145,7 +145,7 @@ class DeskewOpPanel extends BaseOpPanel {
         let parent = this._dagNode.getParents()[0];
         try {
             if (parent) {
-                parent.getLineage().getColumns().forEach((progCol) => {
+                parent.getLineage().getColumns(false, true).forEach((progCol) => {
                     const colName = progCol.getBackColName();
                     const type = progCol.getType();
                     if (!keyword || colName.toLowerCase().includes(keyword)) {
