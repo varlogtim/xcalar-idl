@@ -87,6 +87,12 @@ declare module 'xcalar' {
         constructor(client: XceClient);
         deleteObjects(request: proto.xcalar.compute.localtypes.DagNode.DeleteRequest): Promise<proto.xcalar.compute.localtypes.DagNode.DeleteResponse>;
     }
+
+    export class VersionService {
+        constructor(client:XceClient);
+        GetVersion(): Promise<proto.xcalar.compute.localtypes.Version.GetVersionResponse>;
+
+    }
 }
 // === Service definitions: End ===
 
@@ -1623,6 +1629,16 @@ declare namespace proto.xcalar.compute.localtypes {
 
         export class TargetResponse {
             getOutputJson(): string;
+        }
+    }
+
+    export namespace Version {
+        export class GetVersionResponse {
+            getVersion(): string;
+            getThriftVersionSignatureFull(): string;
+            getThriftVersionSignatureShort(): number;
+            getXcrpcVersionSignatureFull(): string;
+            getXcrpcVersionSignatureShort(): number;
         }
     }
 }

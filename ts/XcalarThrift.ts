@@ -577,19 +577,14 @@ function insertError(
 // ========================= MAIN FUNCTIONS  =============================== //
 XcalarGetVersion = function(
     connectionCheck: boolean
-): XDPromise<XcalarApiGetVersionOutputT | {}> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
-    const deferred: XDDeferred<XcalarApiGetVersionOutputT> = PromiseHelper.deferred();
+): XDPromise<Xcrpc.Version.VersionOutput | {}> {
+    const deferred: XDDeferred<Xcrpc.Version.VersionOutput> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-
-    xcalarGetVersion(tHandle)
+    PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getVersionService().getVersion())
     .then(deferred.resolve)
-    .fail(function(error: XcalarApiError) {
+    .fail(function(error) {
         if (connectionCheck) {
             // don't call thriftLog or else it may call XcalarGetVersion again
             deferred.reject("ConnectionCheck Failed", error);

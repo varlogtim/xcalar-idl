@@ -13,9 +13,11 @@ describe("XcalarThrift Test", function() {
 
     // String must be resolved for this call
     it("XcalarGetVersion should handle xcalar error", function(done) {
-        var oldApiCall = xcalarGetVersion;
-        xcalarGetVersion = function() {
-            return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
+        var oldApiCall= Xcrpc.Version.VersionService.prototype.getVersion;
+        var errorMsg = "version error"
+        const statusCode = 1;
+        Xcrpc.Version.VersionService.prototype.getVersion = async function() {
+            throw Xcrpc.Error.parseError({ status: statusCode, error: errorMsg });
         };
         XcalarGetVersion(true)
         .then(function() {
@@ -23,20 +25,24 @@ describe("XcalarThrift Test", function() {
         })
         .fail(function(error1, error2) {
             expect(error1).to.equal("ConnectionCheck Failed");
-            expect(error2.xcalarStatus).to.equal(1);
-            expect(error2.log).to.equal("1234");
-            expect(error2.httpStatus).to.equal(undefined);
+            expect(Xcrpc.Error.isXcalarError(error2)).to.be.true;
+            expect(error2.status).to.equal(statusCode)
+            expect(error2.error).to.equal(errorMsg);
             done();
         })
         .always(function() {
-            xcalarGetVersion = oldApiCall;
+            Xcrpc.Version.VersionService.prototype.getVersion = oldApiCall;
         });
     });
 
     it("XcalarGetVersion should handle error by proxy", function(done) {
-        var oldApiCall = xcalarGetVersion;
-        xcalarGetVersion = function() {
-            return PromiseHelper.reject({"httpStatus": 500});
+        var oldApiCall = Xcrpc.Version.VersionService.prototype.getVersion;
+        const httpStatus = 500;
+        Xcrpc.Version.VersionService.prototype.getVersion = async function() {
+            throw Xcrpc.Error.parseError({
+                name: 'statusCode',
+                statusCode: httpStatus
+            });
         };
         XcalarGetVersion(true)
         .then(function() {
@@ -44,43 +50,47 @@ describe("XcalarThrift Test", function() {
         })
         .fail(function(error1, error2) {
             expect(error1).to.equal("ConnectionCheck Failed");
-            expect(error2.xcalarStatus).to.equal(undefined);
-            expect(error2.log).to.equal(undefined);
-            expect(error2.httpStatus).to.equal(500);
+            expect(Xcrpc.Error.isNetworkError(error2)).to.be.true;
+            expect(error2.httpStatus).to.equal(httpStatus);
             done();
         })
         .always(function() {
-            xcalarGetVersion = oldApiCall;
+            Xcrpc.Version.VersionService.prototype.getVersion = oldApiCall;
         });
     });
 
-    // String must be resolved for this call
     it("XcalarGetVersion should handle xcalar error case 2", function(done) {
-        var oldApiCall = xcalarGetVersion;
-        xcalarGetVersion = function() {
-            return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
+        var oldApiCall =  Xcrpc.Version.VersionService.prototype.getVersion;
+        var errorMsg = "version error"
+        const statusCode = 1;
+        Xcrpc.Version.VersionService.prototype.getVersion = async function() {
+            throw Xcrpc.Error.parseError({ status: statusCode, error: errorMsg });
         };
         XcalarGetVersion(false)
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.status).to.equal(1);
-            expect(error.httpStatus).to.equal(undefined);
+            expect(error.status).to.equal(statusCode)
             expect(error.error).to.equal("Error: " + StatusTStr[1]);
-            expect(error.log).to.equal("1234");
+            expect(error.log).to.equal(undefined);
+            expect(error.httpStatus).to.equal(undefined);
             expect(error.output).to.equal(undefined);
             done();
         })
         .always(function() {
-            xcalarGetVersion = oldApiCall;
+            Xcrpc.Version.VersionService.prototype.getVersion = oldApiCall;
         });
     });
 
     it("XcalarGetVersion should handle error by proxy case 2", function(done) {
-        var oldApiCall = xcalarGetVersion;
-        xcalarGetVersion = function() {
-            return PromiseHelper.reject({"httpStatus": 500});
+        var oldApiCall = Xcrpc.Version.VersionService.prototype.getVersion;
+        const httpStatus = 500;
+        Xcrpc.Version.VersionService.prototype.getVersion = async function() {
+            throw Xcrpc.Error.parseError({
+                name: 'statusCode',
+                statusCode: httpStatus
+            });
         };
         XcalarGetVersion(false)
         .then(function() {
@@ -96,9 +106,10 @@ describe("XcalarThrift Test", function() {
             done();
         })
         .always(function() {
-            xcalarGetVersion = oldApiCall;
+            Xcrpc.Version.VersionService.prototype.getVersion = oldApiCall;
         });
     });
+
 
     it("XcalarGetLicense should handle xcalar error", function(done) {
         const oldApiCall = Xcrpc.License.LicenseService.prototype.getLicense;

@@ -17,6 +17,7 @@ const DataflowServiceTest = require('./DataflowServiceSpec');
 const GetQueryServiceTest = require('./GetQueryServiceSpec');
 const TargetServiceTest = require('./TargetServiceSpec');
 const XDFServiceTest = require('./XDFServiceSpec');
+const VersionServiceTest = require('./VersionServiceSpec');
 
 //creat xcrpc client
 const hostname = "localhost:12124"
@@ -35,6 +36,7 @@ let TableService = client.getTableService();
 let GetQueryService = client.getGetQueryService();
 const dataflowService = client.getDataflowService();
 let TargetService = client.getTargetService();
+let VersionService = client.getVersionService();
 let STATUS = Xcrpc.Error.status;
 const XDFService = client.getXDFService();
 
@@ -52,4 +54,5 @@ describe("xcrpc integration test: ", function () {
     GetQueryServiceTest.testSuite(GetQueryService);
     TargetServiceTest.testSuite(TargetService);
     XDFServiceTest.testSuite(XDFService);
+    VersionServiceTest.testSuite(VersionService);
 });

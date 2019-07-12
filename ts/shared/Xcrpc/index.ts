@@ -45,3 +45,5 @@ import * as UDF from './UDF/UDFService';
 export { UDF };
 import * as XDF from './XDF/XDFService';
 export { XDF };
+import * as Version from './Version/VersionService';
+export { Version };

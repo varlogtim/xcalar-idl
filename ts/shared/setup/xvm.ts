@@ -263,7 +263,7 @@ namespace XVM {
                 let versionMatch: boolean = true;
                 try {
                     backendVersion = result.version;
-                    const versionNum: number = result.apiVersionSignatureShort;
+                    const versionNum: number = result.thriftVersionSignatureShort;
                     if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
                         versionMatch = false;
                         console.log("Thrift version mismatch!",

@@ -12,6 +12,7 @@ import { OperatorService } from './Operator/OperatorService';
 import { TargetService } from './Target/TargetService';
 import { DagNodeService} from './DagNode/DagNodeService';
 import { XDFService } from './XDF/XDFService';
+import {VersionService} from './Version/VersionService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -70,6 +71,10 @@ class ServiceClient {
 
     public getXDFService(): XDFService {
         return new XDFService(this._apiClient);
+    }
+
+    public getVersionService(): VersionService {
+        return new VersionService(this._apiClient);
     }
 }
 
