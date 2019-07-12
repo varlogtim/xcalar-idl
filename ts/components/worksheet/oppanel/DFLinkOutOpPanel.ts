@@ -60,7 +60,8 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         }
 
         const $checkbox: JQuery = this._getOptionCheckbox().find(".checkbox");
-        if (param.linkAfterExecution) {
+        if (!param.linkAfterExecution) {
+            // checked means deep copy, uncheck is shallow copy
             $checkbox.addClass("checked");
         } else {
             $checkbox.removeClass("checked");
@@ -176,11 +177,11 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         ]);
 
         if (isValid) {
-            const linkAfterExecution: boolean = this._getOptionCheckbox()
+            const noLink: boolean = this._getOptionCheckbox()
             .find(".checkbox").hasClass("checked");
             return {
                 name: name,
-                linkAfterExecution: linkAfterExecution,
+                linkAfterExecution: !noLink,
                 columns: selectedColumns
             };
         } else {

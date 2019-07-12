@@ -871,7 +871,6 @@ module.exports = {
         "DestDFName": "Destination dataflow name",
         "DestFileName": "Destination file name",
         "Settings": "Dataflow settings",
-        "LinkAfterExecutionHint": "If the checkbox is checked, link in nodes that reference the link out node will reuse the node's result directly. Otherwise link in nodes will execute the dataflow to gerenate the result",
         "ClearSQL": "Clear dataflow in SQL folder",
         // For uploader
         "upload": "Upload",
@@ -1037,7 +1036,6 @@ module.exports = {
         "OutInstr": "Please specify the link out reference name",
         "DFName": "Dataflow Name",
         "OutName": "Link Out Reference Name",
-        "LinkWithExecution": "Only allow linking after execution",
         "Schema": "Column Schema",
     },
 

@@ -6,38 +6,46 @@ describe("DFLinkOutOpPanel Test", function() {
     var openOptions = {};
     let cachedGetDagFn;
 
-    before(function() {
-        MainMenu.openPanel("dagPanel");
-        node = new DagNodeDFOut({subType: DagNodeSubType.DFOutOptimized});
-        const parentNode = new DagNodeFilter({});
-        parentNode.getLineage = function() {
-            return {getColumns: function() {
-                return [new ProgCol({
-                    backName: "prefix::name",
-                    type: "string"
-                }),
-                new ProgCol({
-                    backName: "prefix_name",
-                    type: "string"
-                }),new ProgCol({
-                    backName: "name",
-                    type: "string"
-                })]
+    before(function(done) {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .then(function() {
+            return XDFManager.Instance.waitForSetup();
+        })
+        .always(function() {
+            MainMenu.openPanel("dagPanel");
+            node = new DagNodeDFOut({subType: DagNodeSubType.DFOutOptimized});
+            const parentNode = new DagNodeFilter({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: "prefix::name",
+                        type: "string"
+                    }),
+                    new ProgCol({
+                        backName: "prefix_name",
+                        type: "string"
+                    }),new ProgCol({
+                        backName: "name",
+                        type: "string"
+                    })]
 
-            }}
-        };
-        node.getParents = function() {
-            return [parentNode];
-        }
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            }
 
-        oldJSONParse = JSON.parse;
-        dfLinkOutPanel = DFLinkOutOpPanel.Instance;
-        editor = dfLinkOutPanel.getEditor();
-        $dfLinkOutPanel = $('#dfLinkOutPanel');
-        let graph = new DagGraph();
-        cachedGetDagFn = DagViewManager.Instance.getActiveDag;
-        DagViewManager.Instance.getActiveDag = () => graph;
-        graph.hasNode = () => true;
+            oldJSONParse = JSON.parse;
+            dfLinkOutPanel = DFLinkOutOpPanel.Instance;
+            editor = dfLinkOutPanel.getEditor();
+            $dfLinkOutPanel = $('#dfLinkOutPanel');
+            let graph = new DagGraph();
+            cachedGetDagFn = DagViewManager.Instance.getActiveDag;
+            DagViewManager.Instance.getActiveDag = () => graph;
+            graph.hasNode = () => true;
+
+            done();
+        });
     });
 
     describe("Basic DFOutPanel UI Tests", function() {
@@ -75,7 +83,7 @@ describe("DFLinkOutOpPanel Test", function() {
             const res = dfLinkOutPanel._validate();
             expect(res).to.deep.equal({
                 "name": "test",
-                "linkAfterExecution": true,
+                "linkAfterExecution": false,
                 "columns": [
                     {
                         "sourceName": "prefix::name",

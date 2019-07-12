@@ -71,8 +71,8 @@ class DagNodeDFOutInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         let linkAfterExecution: boolean = input.linkAfterExecution;
         if (linkAfterExecution == null) {
-            // default to be true
-            linkAfterExecution = true;
+            // default to be false
+            linkAfterExecution = false;
         }
         return {
             name: input.name || "",
