@@ -339,7 +339,7 @@
                         > .label {
                             margin-right: 10px;
                             line-height: 20px;
-                            font-size: 14px;
+                            font-size: 16px;
                             font-weight: bold;
                             color: @color-font-form-gray;
 
@@ -403,7 +403,7 @@
                 position: absolute;
                 width: 100%;
                 top: 50%;
-                border-top: 1px solid @color-border-softGray;
+                border-top: 1px solid @color-border-bar;
 
                 .ui-resizable-n {
                     top: 0px;
@@ -412,9 +412,20 @@
 
                 .resizeHandler {
                     width: 100%;
-                    height: 15px;
+                    height: 11px;
                     background-color: @color-bg-list-hover-blue;
-                    border-bottom: 1px solid @color-border-menubar-grey;
+                    border-bottom: 1px solid @color-border-bar;
+
+                    .xc-resizeHandler {
+                        width: 48px;
+                        height: 11px;
+                        padding-top: 1px;
+
+                        .border {
+                            margin-top: 2px;
+                            background-color: @color-border-bar;
+                        }
+                    }
                 }
 
                 .cardHeader {
@@ -424,7 +435,7 @@
 
                     .title {
                         padding-left: 15px;
-                        font-size: 14px;
+                        font-size: 16px;
                         font-weight: bold;
                         color: @color-font-form-gray;
                     }
@@ -780,6 +791,12 @@
                     cursor: pointer;
                     text-decoration: underline;
                 }
+            }
+        }
+
+        .row {
+            &:last-child {
+                border-bottom: none;
             }
         }
     }
