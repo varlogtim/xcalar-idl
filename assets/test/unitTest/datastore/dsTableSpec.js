@@ -104,6 +104,14 @@ describe("Dataset-DSTable Test", function() {
                 done("fail");
             });
         });
+
+        it("_toggleButtonInDisplay should work", function() {
+            let $btn = $("#createDF");
+            DSTable._toggleButtonInDisplay(false);
+            expect($btn.hasClass("xc-disabled")).to.be.true;
+            DSTable._toggleButtonInDisplay(true);
+            expect($btn.hasClass("xc-disabled")).to.be.false;
+        });
     });
 
     describe("Error Case Test", function() {

@@ -25,6 +25,7 @@ class DSTable {
         noRetry: boolean,
         isImportError: boolean
     ) {
+        this._toggleButtonInDisplay(false);
         let dsObj: DSObj | null = DS.getDSObj(dsId);
         if (dsObj == null) {
             // error case
@@ -41,6 +42,7 @@ class DSTable {
      * @param isLoading
      */
     public static show(dsId: string, isLoading: boolean): XDPromise<void> {
+        this._toggleButtonInDisplay(false);
         let dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             return PromiseHelper.reject("No DS");
@@ -73,6 +75,10 @@ class DSTable {
         this.clear();
         this._viewer = viewer;
         this.lastDSToSample = viewer.getId();
+        if (dsObj.activated) {
+            this._toggleButtonInDisplay(true);
+        }
+
         viewer.render(this._getContainer())
         .then(() => {
             if (this.lastDSToSample !== viewer.getId()) {
@@ -290,8 +296,21 @@ class DSTable {
         return $("#dsInfo-error");
     }
 
+    private static _getCreateDFEl(): JQuery {
+        return $("#createDF");
+    }
+
     private static _getPreviewDSId(): string | null {
         return this._getContainer().data("id");
+    }
+
+    private static _toggleButtonInDisplay(enable: boolean) {
+        let $btns = this._getCreateDFEl().add($("#showFileListBtn"));
+        if (enable) {
+            $btns.removeClass("xc-disabled");
+        } else {
+            $btns.addClass("xc-disabled");
+        }
     }
 
     private static _newViewer(dsObj: DSObj): XcDatasetViewer {
@@ -472,7 +491,7 @@ class DSTable {
             FileListModal.Instance.show(dsId, dsName, isFileError);
         });
 
-        $("#createDF").click(() => {
+        this._getCreateDFEl().click(() => {
             this._createDF();
         });
 

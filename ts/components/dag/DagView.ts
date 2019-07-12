@@ -159,7 +159,7 @@ class DagView {
     public static newTabFromSource(type: DagNodeType, config: any) {
         try {
             MainMenu.openPanel("dagPanel");
-            let tabId: string = DagTabManager.Instance.newTab();
+            DagTabManager.Instance.newTab();
             let position: number = DagView.gridSpacing * 2;
             let node: DagNode = DagViewManager.Instance.autoAddNode(type, null, null, config,
                 position, position);
@@ -167,7 +167,7 @@ class DagView {
                 DagNodeMenu.execute("configureNode", {
                     node: node,
                     exitCallback: () => {
-                        DagViewManager.Instance.removeNodes([node.getId()], tabId);
+                        node.setParam({});
                     }
                 });
             }
@@ -2876,7 +2876,7 @@ class DagView {
         $dfArea.append($tip);
         let maxSkew: number = 0;
         let skewData = {};
-        skewInfos.forEach(((skewInfo, i) => {
+        skewInfos.forEach((skewInfo, i) => {
             const skew: number = skewInfo.value;
             if (i === 0 || !(skew == null || isNaN(skew))) {
                 if (i === 0 || skew >= maxSkew) {
