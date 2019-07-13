@@ -208,7 +208,7 @@
 
 
 #bottomMenuBarTabs {
-    border-top: 1px solid #1E6688;
+    border-top: 1px solid @color-bg-dusk-blue;
     .size(@width: 100%);
     .position(absolute, @bottom: 0px);
 
@@ -349,10 +349,16 @@
 
                 &.submit {
                     background-color: @color-font-link-blue;
+
+                    &:hover {
+                        background-color: @color-font-button-hover;
+                    }
                 }
 
-                &:hover {
-                    background-color: @color-font-button-hover;
+                &:not(.submit) {
+                    &:hover {
+                        opacity: @opacity-hover;
+                    }
                 }
 
                 &:active {
@@ -517,7 +523,8 @@
     .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-homeBtn})");
     z-index: @z-index-bottomMenu;
     .transition(left @time-menuAnim);
-    border-right: 1px solid @color-border-softGray;
+    border-right: 1px solid @color-border-bar;
+    border-top: 1px solid @color-border-bar;
 
     &.noAnim {
         .transition(left 0s);
@@ -546,6 +553,7 @@
         z-index: @z-index-homeBtn + 1;
         .transition(right 0s);
         box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.2);
+        border-top-color: transparent;
 
         .heading {
             pointer-events: auto;

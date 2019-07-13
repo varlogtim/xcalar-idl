@@ -177,12 +177,12 @@ html.edge {
                         background-color: @color-table-oddSelectedCell-blue;
                     }
                     &.jsonElement, &.jsonElement .pop, &.dataCol {
-                        background-color: @color-table-oddRow-green;
+                        background-color: @color-table-col-green;
                     }
                 }
 
                 .idSpan {
-                    background-color: @color-table-oddRowMarker-gray;
+                    background-color: @color-white;
                 }
             }
             &:nth-child(even) {
@@ -196,12 +196,12 @@ html.edge {
                         background-color: @color-table-evenSelectedCell-blue;
                     }
                     &.jsonElement, &.jsonElement .pop, &.dataCol {
-                        background-color: @color-table-evenRow-green;
+                        background-color: @color-table-col-lightGreen;
                     }
                 }
 
                 .idSpan {
-                    background-color: @color-table-evenRowMarker-gray;
+                    background-color: @color-bg-list-hover-blue;
                 }
             }
         }
@@ -209,7 +209,7 @@ html.edge {
 
     &:not(.tableLockedDisplayed) tbody tr:not(.notDragging):hover, tbody tr.dragging {
         td {
-            border-right: 5px solid @color-table-hoverBorder-gray;
+            border-right: 5px solid @color-table-lightGray;
             background-color: @color-table-hoverBg-gray;
 
             &.indexedColumn:not(.noIndexStyle) {
@@ -224,7 +224,7 @@ html.edge {
 
             .idSpan {
                 background-color: @color-table-hoverBg-gray;
-                border-right-color: @color-table-hoverBorder-gray;
+                border-right-color: @color-table-lightGray;
             }
         }
     }

@@ -16,14 +16,14 @@
 /* Dag */
 @color-dag-schema-selected: rgba(99, 178, 225, 0.25);
 @color-dag-glowing: #43D3F7;
-@color-dagTab-optimized: #ecead8;
-@color-dagTab-sql: #dae7d8;
-@color-dagTab-custom: #f0dbd9;
+@color-dagTab-optimized: #ecead8; // XXX only used once (optimized dag tab)
+@color-dagTab-sql: #dae7d8; // XXX only used once (dag node sql)
+@color-dagTab-custom: #f0dbd9; // XXX only used once (dag node custom)
 @color-dag-yellow: #FFF78D;
 @color-dag-green: #6EF2A6;
 
 /* Dropdown menu colors */
-@color-selectedCell-dark: #D1DEE6;
+@color-selectedCell-dark: @color-bg-light-blue-grey-two;
 @color-selectedCell-light: #DDEAF2;
 @color-selectedCell-lighter: #e1f2f9;
 @color-menu-shadow: rgba(0,0,0,0.1);
@@ -31,18 +31,17 @@
 /* Text */
 @color-text-lightGray: #B6B6B6;
 @color-text-midlightGray: #787878;
-@color-text-error: #E45B52;
+@color-text-error: @color-background-error;
 @color-text-placeholder: #E1E1E1;
 @color-text-graySoft: #AFAFAF;
-@color-text-softGray: #838383;
 @color-text-udfError: #C62C22;
-@color-text-macaroniAndCheese: #F5C22E;
+@color-text-macaroniAndCheese: @color-macaroni-and-cheese;
 
 /* Table Color Scheme */
 @color-table-red: #F46D73;
 @color-table-lightGray: #F5F5F5;
 @color-table-midGray: #EDEDED;
-@color-table-col-darkGray: #DBDBDB;
+@color-table-col-darkGray: #dbdbdb;
 @color-table-col-lightGreen: #EAF5EA;
 @color-table-col-green: #E3EDE2;
 @color-table-indexed-lightBlue: #E9EFF4;
@@ -58,82 +57,62 @@
 
 /* JSON Modal */
 @color-json-default: #FFA633;
-@color-json-active-bar: #C5E1F1;
-@color-json-options-bar: #DEDEDE;
-@color-json-button: #BCBCBC;
+@color-json-active-bar: #C5E1F1; // XXX only used once (jsonModal, active optionsBar)
+@color-json-button: #BCBCBC; // XXX only used once (jsonModal, button deselected background)
 @color-json-key: #002D41;
 @color-json-string: #2B594F;
 @color-json-num: #E74A5F;
 @color-json-array: #9B8920;
 @color-json-partial: #F3DBDC;
 @color-json-partial-shadow: #E56158;
-@color-json-tab: #C0C0C0;
+@color-json-tab: @color-table-border-darkened;
 @color-json-tab-border: #A7A7A7;
-@color-json-project-selected: #BDE6FF;
-@color-json-project-bg: #ECFAFF;
+@color-json-project-selected: #BDE6FF; // XXX only used once (jsonModal, keySelected background)
 
 /* Profile Modal */
-@color-profile-bar-extra: #DDDDDD;
-@color-profile-bar-extra-highlight: #F1F1F1;
-@color-profile-bar-highlight: #B7E2F3;
+@color-profile-bar-extra: @color-bg-white-nine;
+@color-profile-bar-extra-highlight: #F1F1F1; // XXX only used once (profile modal)
+@color-profile-bar-highlight: #B7E2F3;  // XXX only used once (profile modal)
 @color-profile-bar-border-highlight: #25B0DE;
-@color-profile-tick-highlight: #5CB2E8;
-@color-profile-bar-selected-border: #2D7694;;
-@color-profile-bar-null-hover: #CA443B;
-@color-profile-selected-bar-extra:  #A4BBC3;
-@color-profile-bar: #5CB2E8;
+@color-profile-bar-selected-border: #2D7694;
+@color-profile-bar-null-hover: #CA443B; // XXX only used once (profile modal)
+@color-profile-selected-bar-extra: #A4BBC3; // XXX only used once (profile modal)
+@color-profile-bar: @color-bg-softBlue;
 @color-profile-bar-hover: #3A9AC2;
 @color-profile-selected-bar: #339ECA;
 @color-profile-bar-null: #E04C42;
-@color-profile-selected-bar-null: #9E2F28;
+@color-profile-selected-bar-null: #9E2F28; // XXX only used once (profile modal)
 
 /* About Modal */
 @color-about-gradient-top: #0D8BB2;
-@color-about-gradient-bottom: #206688;
+@color-about-gradient-bottom: #206688; // XXX only used once (about modal)
 
 /* Random Colors */
-@color-mercury: #E9E9E9;
+@color-mercury: #E9E9E9; // XXX only used once (scroll bar gradient color)
 @color-defaultGray: #888888;
 @color-lightSilverChalice: #B1B1B1;
-@color-iron: #CBD1D6;
+@color-iron: #CBD1D6; // XXX only used once (table indexed column background)
 @color-heather: #BFCCD4;
-@color-tasman: #CCD7CC;
-@color-silver: #BDBDBD;
+@color-tasman: #CCD7CC; // XXX only used once (jsonElement background)
 @color-nightShadz: #AF2F4D;
-@color-turbo: #FFE400;
-@color-chileanHeath: #FFFDE4;
+@color-turbo: #FFE400; // XXX only used once (tutorial tooltip)
+@color-chileanHeath: #FFFDE4; // XXX only used once (tutorial tooltip)
 
 /* Colors for XPE guis */
-@color-xpe-installer-light-blue: #378CB3;
-@color-xpe-installer-prev-btn-hover: rgba(4, 110, 161, 0.25);
-@color-xpe-installer-dark-blue: #1E6688;
-@color-xpe-installer-left-grad-top: #0D8BB2;
-@color-xpe-installer-left-grad-bottom: #206688;
-@color-xpe-installer-light-text: #FFFFFF;
-@color-xpe-installer-dark-text: #000000;
+@color-xpe-installer-light-blue: @color-bg-select-blue;
+@color-xpe-installer-dark-blue: @color-bg-dusk-blue;
+@color-xpe-installer-light-text: @color-white;
+@color-xpe-installer-dark-text: @color-black;
 @color-xpe-installer-eula-border: #D1D1D1;
 @color-xpe-installer-install-step-text: #797979;
 @color-xpe-installer-fail-red: rgba(245, 141, 127, 1);
-@color-xpe-installer-range-slider-right: #CCCCCC;
-@color-xpe-range-slider-left: #0D8BB2;
+@color-xpe-installer-range-slider-right: @color-bg-pinkish-grey2;
+@color-xpe-range-slider-left: @color-about-gradient-top;
 @color-xpe-installer-right-background: rgba(245, 251, 255, 0.1);
-@color-xpe-docker-starter-bg: #EEF1F4;
-@color-xpe-installer-transparent: rbga(0, 0, 0, 0);
+@color-xpe-docker-starter-bg: @color-bg-topBarGray2;
 @color-xpe-border-gray: #D3D3D3;
 @color-xpe-progress-bar-bg-gray: #DFDFDF;
 @color-xpe-image-table-failure-msg: #B53A1F;
-
-/* Sizes */
-@height-tableTitle: 35px;
-@height-colHeader: 26px;
-@height-colInput: @height-colHeader - 8;
-@height-tableCell: 21px;
-@height-innerTableCell: 11px;
-@width-tableCellPadding: 5px;
-@height-colHeaderOuter: @height-colHeader + (@width-tableCellPadding * 2);
-@height-xcColPrefix: 16px;
-@height-xcColHeader: @height-xcColPrefix + @height-colHeader;
-@height-xcColHeaderOuter: @height-colHeaderOuter + @height-xcColPrefix;
 
 /**
  * ---------------------- NEW 2.0 COLORS ----------------------------------
@@ -147,7 +126,6 @@
 // whites and grays
 @color-bg-white-two: #D8D8D8;
 @color-bg-white-three: #F2F2F2;
-@color-bg-white-four: #F4F4F4;
 @color-bg-white-five: #E6E6E6;
 @color-bg-white-seven: #F8F8F8;
 @color-bg-white-eight: #EAEAEA;
@@ -155,81 +133,68 @@
 @color-bg-body-gray: #D6DCDF;
 @color-bg-pinkish-grey: #BEBEBE;
 @color-bg-pinkish-grey2: #CCCCCC;
-@color-bg-topBarGray: #EAEAEA;
+@color-bg-topBarGray: @color-bg-white-eight;
 @color-bg-topBarGray2: #EEF1F4;
-@color-bg-topBarGray3: #dfe5ea;
+@color-bg-topBarGray3: #dfe5ea; // XXX only used once (workbook panel top section background)
 @color-bg-topBarGray4: #F9FBFC;
 @color-bg-unselect-gray: #9F9F9F;
 @color-bg-99-grey: #999999;
-@color-bg-mid-gray: #A1A1A1;
-@color-bg-white-gray: #E5E5E5;
-@color-bg-step-gray: #BBC7D1;
+@color-bg-white-gray: #E5E5E5; // XXX only used once (supTicketModal tableHeader)
 @color-bg-dropdown-gray: #BBC7D1;
-@color-bg-advSubTab-grey: #667989;
+@color-bg-advSubTab-grey: #667989; // XXX only used once (dataflow mode, subTab)
 @color-bg-advSubTab-drakerGrey: #4e5D69;
-@color-bg-advSubTab-draketsGrey: #38434C;
+@color-bg-advSubTab-draketsGrey: #38434C; // XXX only used once (dataflow mode, active subTab's hover state)
 @color-bg-cancel-gray: #798fa1;
 @color-bg-cancel-gray-hover: #9EB3C5;
 
 // green
 @color-bg-apple-green: #64B053;
-@color-bg-fern-green: #4F963E;
 @color-bg-java-green: #259286;
-@color-bg-greyish-green: #81AF82;
 @color-bg-green-submit: #34C187;
-@color-bg-green-submit-hover: #29D890;
-@color-bg-monitor-green: #34C190;
+@color-bg-monitor-green: #34C190; // XXX only used once (memory alert green)
 
 // yellow
 @color-bg-gold: #FECF33;
 @color-bg-tahiti-gold: #E7762D;
-@color-bg-monitor-gold: #F4D464;
+@color-bg-monitor-gold: #F4D464; // XXX only used once (memory alert yellow)
 @color-macaroni-and-cheese: #F5C22E;
 
 // red
 @color-error-border: #C71F36;
 @color-error-border-light: #D76272;
-@color-bg-red-hover: #8E1022;
-@color-bg-monitor-red: #F35F50;
+@color-bg-red-hover: #8E1022; // XXX only used once (admin steam button stop steam color)
+@color-bg-monitor-red: #F35F50; // XXX only used once (memory alert red)
 @color-error-red: #f15840;
-@color-red-forbid: #ff836f;
+@color-red-forbid: #ff836f; // XXX only used once (sql history cancel button)
 
 // blues
 @color-bg-marine: #0A3549;
 @color-bg-dark-marine: #062330;
-@color-bg-marine-transparent: #335667;
 @color-bg-wkbk-blue: #008EB4;
 @color-bg-select-blue: #378CB3;
-@color-bg-select-title-blue: #29769a;
 @color-bg-cardHeader: #849CB0;
 @color-bg-dusk-blue: #1E6688; // active main tab & mainmenu background
 @color-bg-dusk-blue-up: #236E90;
 @color-bg-light-navy: #154f69; // inactive sub tab
-@color-bg-tiber-blue: #062330; // table list tab
-@color-bg-boston-blue: #3C8DB1;
 @color-bg-btn-hover-blue: #046EA1;
 @color-bg-softBlue: #5CB2E8;
 @color-bg-bright-light-blue: #38CBFF; // help headings
-@color-bg-bright-light-blue-half: #97E1FB;
-@color-bg-activeWB-blue: #0090B5;
-@color-bg-menu-light-blue: #3981A2;
+@color-bg-menu-light-blue: #3981A2; // XXX only used once (dataset menu share action when share is disabled)
 @color-bg-limedSpruce: #36444D;
-@color-bg-light-blue-grey: #DDEAF2;
+@color-bg-light-blue-grey: @color-selectedCell-light;
 @color-bg-light-blue-grey-two: #D1DEE6;
 @color-bg-graph-one: #B4DCD5;
 @color-bg-graph-two: #5DB9C4;
 @color-bg-graph-three: #5A9FC8;
-@color-bg-graph-four: #5cb2e8;
+@color-bg-graph-four: @color-bg-softBlue;
 @color-bg-graph-gray: #EEEEEE;
 @color-bg-highlight-blue-trans: rgba(221, 234, 242, 0.5);
-@color-bg-table-hover-blue: #65CEFF;
-@color-bg-list-hover-blue :#F5F8FA;
-@color-bg-list-selected-blue :#E7EEF3;
+@color-bg-list-hover-blue:#F5F8FA;
+@color-bg-list-selected-blue:#E7EEF3;
 @color-bg-tableView-blue: #16506A;
 @color-bg-hover-blue-dark: #D8E2EA;
 
 @color-bg-charcoal-grey: #2E3A42; // tooltip uses .9 opacity of this color
-@color-tooltip-border:  #36444d;
 @color-bg-info-blue: #73AEC9;
 @color-bg-lockedIcon-light: rgba(4, 110, 161, 0.7);
 @color-bg-lockedIcon-lighter: rgba(4, 110, 161, 0.56);
@@ -241,31 +206,25 @@
 @color-bg-dropdown-hover-gray: #EAF9FF;
 
 /* Borders */
-@color-border-softBlue: #5CB2E8;
-@color-border-select-blue: #378CB3;
-@color-border-activeBlue: #0A3549;
+@color-border-softBlue: @color-bg-softBlue;
+@color-border-select-blue: @color-bg-select-blue;
+@color-border-activeBlue: @color-bg-marine;
 @color-border-mainTab-active: #0b2f40;
 @color-border-subTab-active: #02161f;
-@color-border-tiber-blue: #062330; // table list tab
-@color-border-white-two: #D8D8D8;
+@color-border-white-two: @color-bg-white-two;
 @color-border-warmGray: #979797;
-@color-border-tableGray: #F8F8F8;
-@color-border-pinkish-grey: #BEBEBE;
-@color-border-pinkish-grey2: #CCCCCC; // card border
-@color-border-light-navy: #154f69;
-@color-border-white-five: #E6E6E6;
-@color-border-white-five-darker: darken(#E6E6E6, 3%);
-@color-border-warm-grey-two: #9F9F9F;
+@color-border-pinkish-grey: @color-bg-pinkish-grey;
+@color-border-pinkish-grey2: @color-bg-pinkish-grey2; // card border
+@color-border-white-five: @color-bg-white-five;
+@color-border-white-five-darker: #DEDEDE;
 @color-border-monitor-label: #D4D4D4;
-@color-border-logoBlue: #1E536B;
 @color-border-darkGray: #4D4D4D;
-@color-border-union: rgba(155, 155, 155, 0.3);
 @color-border-softGray: #DBE1E6;
-@color-border-softGray2: #BBC7D1;
+@color-border-softGray2: @color-bg-dropdown-gray;
 @color-border-softGray3: #e3eaf0;
 @color-border-focus-blue: #55C4DE;
 @color-border-menubar-grey: #c7d4df;
-@color-border-bar: #9EB3C5;
+@color-border-bar: @color-bg-cancel-gray-hover;
 @color-border-bar-white: #D4DCE3;
 
 /* Shadow */
@@ -274,31 +233,20 @@
 @color-subTab-shadow: #44525d;
 
 /* Table Color */
-@color-table-header-gray: #F8F8F8;
-@color-table-header-darkGray: #DDDDDD;
-@color-table-oddRowMarker-gray: #ffffff;
-@color-table-evenRowMarker-gray: #f5f8fa;
-@color-table-oddRow-gray: #F2F2F2;
+@color-table-header-gray: @color-bg-white-seven;
 @color-table-evenRow-gray: #FAFAFA;
-@color-table-oddRow-green: #E3EDE2;
-@color-table-evenRow-green: #EAF5EA;
 @color-table-oddSelectedCell-blue: #D7EFF9;
 @color-table-evenSelectedCell-blue: #CFEAF6;
-@color-table-hoverBg-gray: #DBE1E6;
-@color-table-hoverBorder-gray: #F5F5F5;
+@color-table-hoverBg-gray: @color-border-softGray;
 
 /* Log Color Scheme */
-@color-log-bg-blue: #0A3549;
-@color-log-hover: rgba(0, 0, 0, 0.3);
-@color-log-blue: #378CB3;
+@color-log-blue: @color-bg-select-blue;
 @color-log-brown: #B58900;
-@color-log-lightGreen: #259286;
+@color-log-lightGreen: @color-bg-java-green;
 @color-log-darkGreen: #536870;
 @color-log-orange: #CB4A05;
-@color-log-lightGray: #9F9F9F;
+@color-log-lightGray: @color-bg-unselect-gray;
 @color-log-pink: #A647b4;
-@color-log-lightPink: #FD51D9;
-@color-log-purple: #6E5EFF;
 @color-log-select: rgba(91, 178, 233, 0.3);
 
 /* Monitor Log color */
@@ -308,11 +256,11 @@
 @color-monitorLog-bostonBlue: #368CB3;
 @color-monitorLog-ultramarine: #180BA9;
 @color-monitorLog-cardinalPink: #890482;
-@color-monitorLog-lochinvar: #259286;
+@color-monitorLog-lochinvar: @color-bg-java-green;
 @color-monitorLog-guardsmanRed: #CA0000;
 
 // dataflow button colors
-@color-connector: #BBC7D1;
+@color-connector: @color-bg-dropdown-gray;
 @color-stop: #FF6E57;
 
 /* Prefix Colo Scheme */
@@ -328,12 +276,12 @@
 /* Fonts Color */
 // grayish
 @color-font-softGrayBlue: #ABC1CC;
-@color-font-pinkish-grey: #BEBEBE;
-@color-font-pinkish-grey2: #CCCCCC;
+@color-font-pinkish-grey: @color-bg-pinkish-grey;
+@color-font-pinkish-grey2: @color-bg-pinkish-grey2;
 @color-font-greyish-brown: #4A4A4A;
 @color-font-navy: #36454E;
 @color-font-gray36: #5C5C5C;
-@color-font-warm-grey-two: #9F9F9F;
+@color-font-warm-grey-two: @color-bg-unselect-gray;
 @color-font-darkGray: #282828;
 @color-font-warm-grey-three: #858585;
 @color-font-form-gray: #44515C;
@@ -341,10 +289,10 @@
 @color-font-seconday-button-hover: #ebeff2;
 
 // blues
-@color-font-softBlue: #5CB2E8;
-@color-font-select-blue: #378CB3;
-@color-font-bright-light-blue: #38CBFF;
-@color-font-dusk-blue: #1E6688;
+@color-font-softBlue: @color-bg-softBlue;
+@color-font-select-blue: @color-bg-select-blue;
+@color-font-bright-light-blue: @color-bg-bright-light-blue;
+@color-font-dusk-blue: @color-bg-dusk-blue;
 @color-font-wkbkInfo-blue: #7098A5;
 @color-font-edge: #627483;
 @color-font-light-blue: #6eb9db;
@@ -352,9 +300,97 @@
 @color-font-button-hover: #29b5f4;
 @color-font-checkbox-hover: #21BAFF;
 
-// red
-@color-font-link-red: #f15840;
+/* Pie Chart Colors */
+@color-arc-1: #67b9a1;
+@color-arc-2: #cfe8d1;
+@color-arc-3: #14b3b3;
+@color-arc-4: #97e9df;
+@color-arc-5: #97cce9;
+@color-arc-6: #d7fdb1;
+@color-arc-7: #91b7b0;
+@color-arc-8: @color-bg-softBlue;
+@color-arc-9: #f7f7f7;
+@color-arc-10: @color-selectedCell-light;
+@color-arc-11: #1ec89f;
+@color-arc-12: #4E76B0; // Used for Published Table Memory
+@color-arc-other: #9b9b9b;
+@color-arc-sysfree: #DCE1E6;
+@color-arc-sysused: @color-bg-cardHeader;
+@color-arc-xdbfree: #BBC7D0;
+@color-arc-otherusers: #024E7C;
+@color-arc-yourtables: #36B0E5;
+@color-arc-pubtables: #017D7C;
+@color-arc-shareddata: #2ABDBB;
 
+/* Operator icon colors */
+@color-operator-favorites: @color-bg-dropdown-gray;
+@color-operator-in: #F4B48A;
+@color-operator-out: #E7DC98;
+@color-operator-value: #F896A9;
+@color-operator-operations: #7FD4B5;
+@color-operator-column: #89D0E0;
+@color-operator-join: #92B1DA;
+@color-operator-set: #CCAADD;
+@color-operator-SQL: #AACE8F;
+@color-operator-extensions: #EAABD3;
+@color-operator-custom: #F8A296;
+
+/* Color for xcalar adventure */
+@color-flame-pea: #E26340;
+@color-river-bed: #4d5b67;
+
+/* Color for LiveChat */
+@color-confirm-yellow: #fedf98;
+@color-tick-green: @color-bg-apple-green;
+@color-send-border-grey: #707D8A;
+
+/* Color for admin password */
+@color-invalid: @color-error-border;
+@color-very-weak: #F0822E;
+@color-weak: @color-macaroni-and-cheese;
+@color-strong: @color-bg-select-blue;
+@color-very-strong: @color-bg-apple-green;
+
+/* z-indexes
+- table header input needs to go on top of table header grab so that you can
+  click on the input
+- firstHeader needs to be higher than the header input when it's sticky positioned
+  and also needs to be higher than the cell of the first column when you scroll down
+- rowGrab needs to be equal or higher than first column cells or else it wont
+  be grabbable on the first column
+- rowGrab needs to be less than the header grab used to drag and drop columns
+- header grab needs to be less than table header input ... infinite cycle??
+
+- dfPanel needs to be higher than all table headers
+- status bar needs to be higher than df panel to cover the bottom of it
+- top and bottom menu needs to be higher than the status bar so it covers it
+- menubar needs to be higher than top and bottom menu so they can hide behind it
+- home btn needs to be higher than menubar so it casts a shadow on it
+- modalbackground needs to be higher than all elements except for modals
+*/
+@z-index-topBar: 1;
+@z-index-tableHeaderGrab: 2;
+@z-index-tableHeaderInput: 2;
+@z-index-firstColumn: 3;
+@z-index-firstHeader: 4;
+@z-index-dfPanel: 5;
+@z-index-dfAdvancedOpts: 5;
+@z-index-dagSearch: 2;
+@z-index-ret: 10;
+@z-index-statusBar: 10;
+@z-index-topMenu: 20;
+@z-index-bottomMenu: 20;
+@z-index-menuBar: 30;
+@z-index-homeBtn: @z-index-menuBar + 1;
+@z-index-opView: 34;
+@z-index-modalBackground: 35;
+@z-index-modal: 40;
+@z-index-useMenu: 99;
+@z-index-locked: 1000;
+@z-index-gridViewMenu: 40;
+@z-index-dsCart: @z-index-topMenu - 5;
+@z-index-table-title: 1;
+@z-index-sqlEditorUndocked: 10;
 
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
@@ -384,31 +420,20 @@
 @height-card-instr: 56px;
 @height-modeling-col-menu: 24px;
 @height-btn: 28px;
-@padding-mainContent: 5px;
 
-@z-index-topBar: 1;
-@z-index-tableHeaderGrab: 2;
-@z-index-tableHeaderInput: 2;
-@z-index-firstColumn: 3;
-@z-index-firstHeader: 4;
-@z-index-dfPanel: 5;
-@z-index-dfAdvancedOpts: 5;
-@z-index-dagSearch: 2;
-@z-index-ret: 10;
-@z-index-statusBar: 10;
-@z-index-topMenu: 20;
-@z-index-bottomMenu: 20;
-@z-index-menuBar: 30;
-@z-index-homeBtn: @z-index-menuBar + 1;
-@z-index-opView: 34;
-@z-index-modalBackground: 35;
-@z-index-modal: 40;
-@z-index-useMenu: 99;
-@z-index-locked: 1000;
-@z-index-gridViewMenu: 40;
-@z-index-dsCart: @z-index-topMenu - 5;
-@z-index-table-title: 1;
-@z-index-sqlEditorUndocked: 10;
+@height-tableTitle: 35px;
+@height-colHeader: 26px;
+@height-colInput: @height-colHeader - 8;
+@height-tableCell: 21px;
+@height-innerTableCell: 11px;
+@width-tableCellPadding: 5px;
+@height-colHeaderOuter: @height-colHeader + (@width-tableCellPadding * 2);
+@height-xcColPrefix: 16px;
+@height-xcColHeader: @height-xcColPrefix + @height-colHeader;
+@height-xcColHeaderOuter: @height-colHeaderOuter + @height-xcColPrefix;
+
+
+@padding-mainContent: 5px;
 
 @opacity-unhover: 1;
 @opacity-disabled: 0.25;
@@ -416,72 +441,3 @@
 @opacity-hover: 0.8;
 
 @time-menuAnim: 0.2s;
-
-/* Pie Chart Colors */
-@color-arc-1: #67b9a1;
-@color-arc-2: #cfe8d1;
-@color-arc-3: #14b3b3;
-@color-arc-4: #97e9df;
-@color-arc-5: #97cce9;
-@color-arc-6: #d7fdb1;
-@color-arc-7: #91b7b0;
-@color-arc-8: #5cb2e8;
-@color-arc-9: #f7f7f7;
-@color-arc-10: #ddeaf2;
-@color-arc-11: #1ec89f;
-@color-arc-12: #4E76B0; // Used for Published Table Memory
-@color-arc-other: #9b9b9b;
-@color-arc-sysfree: #DCE1E6;
-@color-arc-sysused: #849CB0;
-@color-arc-xdbfree: #BBC7D0;
-@color-arc-otherusers: #024E7C;
-@color-arc-yourtables: #36B0E5;
-@color-arc-pubtables: #017D7C;
-@color-arc-shareddata: #2ABDBB;
-
-/* Operator icon colors */
-@color-operator-favorites: #BBC7D1;
-@color-operator-in: #F4B48A;
-@color-operator-out: #E7DC98;
-@color-operator-value: #F896A9;
-@color-operator-operations: #7FD4B5;
-@color-operator-column: #89D0E0;
-@color-operator-join: #92B1DA;
-@color-operator-set: #CCAADD;
-@color-operator-SQL: #AACE8F;
-@color-operator-extensions: #EAABD3;
-@color-operator-custom: #F8A296;
-
-/* Color for xcalar adventure */
-@color-flame-pea: #E26340;
-@color-river-bed: #4d5b67;
-
-/* Color for LiveChat */
-@color-confirm-yellow: #fedf98;
-@color-tick-green: #64b053;
-@color-send-border-grey: #707D8A;
-
-/* Color for admin password */
-@color-invalid: #C71F36;
-@color-very-weak: #F0822E;
-@color-weak: #F5C22E;
-@color-strong: #378CB3;
-@color-very-strong: #64B053;
-
-/* z-indexes
-- table header input needs to go on top of table header grab so that you can
-  click on the input
-- firstHeader needs to be higher than the header input when it's sticky positioned
-  and also needs to be higher than the cell of the first column when you scroll down
-- rowGrab needs to be equal or higher than first column cells or else it wont
-  be grabbable on the first column
-- rowGrab needs to be less than the header grab used to drag and drop columns
-- header grab needs to be less than table header input ... infinite cycle??
-
-- dfPanel needs to be higher than all table headers
-- status bar needs to be higher than df panel to cover the bottom of it
-- top and bottom menu needs to be higher than the status bar so it covers it
-- menubar needs to be higher than top and bottom menu so they can hide behind it
-- home btn needs to be higher than menubar so it casts a shadow on it
-- modalbackground needs to be higher than all elements except for modals
-*/
