@@ -1033,7 +1033,6 @@ module.exports = {
         "InInstr": "First select the dataflow name, then select the link out reference name to link.",
         "InInstrWithSource": "Please modify the source from advaced view of the panel",
         "OutHeader": "Link Out",
-        "OutInstr": "Please specify the link out reference name",
         "DFName": "Dataflow Name",
         "OutName": "Link Out Reference Name",
         "Schema": "Column Schema",
