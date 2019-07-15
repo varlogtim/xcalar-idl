@@ -140,6 +140,9 @@ namespace DagNodeMenu {
                 case ("focusRunning"):
                     _focusRunningNode();
                     break;
+                case ("findOptimizedSource"):
+                    _findOptimizedSource(tabId);
+                    break;
                 case ("download"):
                     let dagTab: DagTab = DagList.Instance.getDagTabById(tabId);
                     if (dagTab == null) {
@@ -176,8 +179,11 @@ namespace DagNodeMenu {
                 case ("executeNodeOptimized"):
                     DagViewManager.Instance.run(dagNodeIds, true);
                     break;
-                case ("executeAllNodesOptimized"):
-                    DagViewManager.Instance.run(null, true);
+                case ("createNodeOptimized"):
+                    if (dagNodeIds.length === 0) {
+                        dagNodeIds = null;
+                    }
+                    DagViewManager.Instance.generateOptimizedDataflow(dagNodeIds);
                     break;
                 case ("resetNode"):
                     DagViewManager.Instance.reset(dagNodeIds);
@@ -614,13 +620,16 @@ namespace DagNodeMenu {
         if (activeTab instanceof DagTabCustom) {
             classes += ' customTab ';
         }
+        if (activeTab instanceof DagTabOptimized) {
+            classes += " optimizedTab ";
+        }
         if ($dfArea.find(".comment.selected").length) {
             classes += " commentMenu ";
         }
 
         if (!DagViewManager.Instance.getAllNodes().length) {
             classes += " none ";
-            $menu.find(".removeAllNodes, .resetAllNodes, .executeAllNodes, .executeAllNodesOptimized, .selectAllNodes, .autoAlign")
+            $menu.find(".removeAllNodes, .resetAllNodes, .executeAllNodes, .selectAllNodes, .autoAlign")
             .addClass("unavailable");
         }
         if ($dfArea.find(".comment").length) {
@@ -648,9 +657,10 @@ namespace DagNodeMenu {
 
         for (let i = 0; i < nodeIds.length; i++) {
             if (DagViewManager.Instance.isNodeLocked(nodeIds[i]) ||
-                DagViewManager.Instance.isNodeConfigLocked(nodeIds[i])) {
+                DagViewManager.Instance.isNodeConfigLocked(nodeIds[i])
+            ) {
                 $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
-                      ".executeNodeOptimized, .executeAllNodesOptimized, " +
+                      ".executeNodeOptimized, .createNodeOptimized," +
                       ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom, .createCustom")
                 .addClass("unavailable");
                 break;
@@ -669,9 +679,15 @@ namespace DagNodeMenu {
             $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("xc-hidden");
         }
 
+        if (DagViewManager.Instance.hasOptimizableNode(optNodeIds)) {
+            $menu.find(".createNodeOptimized").removeClass("xc-hidden");
+        } else {
+            $menu.find(".createNodeOptimized").addClass("xc-hidden");
+        }
+
         if (!nodeIds.length && DagViewManager.Instance.getActiveDag().isNoDelete()) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
-                        ".executeNodeOptimized, .executeAllNodesOptimized, " +
+                        ".executeNodeOptimized, .createNodeOptimized" +
                         ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
                 .addClass("unavailable");
         }
@@ -777,6 +793,16 @@ namespace DagNodeMenu {
         if (dagNode != null && dagNodeType === DagNodeType.DFIn) {
             classes += " linkInMenu";
         }
+        if ((dagNode instanceof DagNodeDFOut || dagNode instanceof DagNodeExport) &&
+            !dagNode.isOptimized()
+        ) {
+            classes += " optimizableMenu";
+            if (state === DagNodeState.Unused) {
+                $menu.find(".createNodeOptimized").addClass("unavailable");
+            } else {
+                $menu.find(".createNodeOptimized").removeClass("unavailable");
+            }
+        }
         // dataset option
         if (dagNode != null && dagNodeType === DagNodeType.Dataset) {
             classes += " datasetMenu";
@@ -855,7 +881,7 @@ namespace DagNodeMenu {
         if (DagViewManager.Instance.isNodeLocked(nodeId) ||
             DagViewManager.Instance.isNodeConfigLocked(nodeId) ) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
-                      ".executeNodeOptimized, .executeAllNodesOptimized, " +
+                      ".executeNodeOptimized, .createNodeOptimized," +
                       ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
                 .addClass("unavailable");
         }
@@ -865,7 +891,7 @@ namespace DagNodeMenu {
     function adjustMenuForOpenForm(enableConfig?: boolean) {
         let $menu = _getDagNodeMenu();
         let $lis: JQuery = $menu.find(".executeNode, .executeAllNodes, " +
-                        ".executeNodeOptimized, .executeAllNodesOptimized, " +
+                        ".executeNodeOptimized, .createNodeOptimized," +
                         ".resetNode, .resetAllNodes, .cutNodes, " +
                         ".createCustom, .removeNode, .removeAllNodes");
         xcTooltip.remove($lis.add($menu.find(".configureNode")));
@@ -926,6 +952,24 @@ namespace DagNodeMenu {
             DagViewManager.Instance.selectNodes(tabId, [nodeId]);
         } catch (e) {
             Alert.error(AlertTStr.Error, e.message);
+        }
+    }
+
+    function _findOptimizedSource(tabId: string): void {
+        try {
+            let dagTab: DagTabOptimized = <DagTabOptimized>DagList.Instance.getDagTabById(tabId);
+            let srcTab = dagTab.getSourceTab();
+            if (srcTab == null) {
+                Alert.error(AlertTStr.Error, "Cannot find the original source of the optimized dataflow");
+            } else {
+                Alert.show({
+                    title: "Original source for optimized dataflow",
+                    msg: `The original dataflow is: "${srcTab.getName()}"`,
+                    isAlert: true
+                });
+            }
+        } catch (e) {
+            console.error(e);
         }
     }
 

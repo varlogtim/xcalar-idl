@@ -24,7 +24,7 @@ abstract class DagTabProgress extends DagTab {
         this._inProgress = false;
         this._isDeleted = false;
 
-        if (this._id.startsWith(gRetinaPrefix)) {
+        if (this._id.startsWith(DagTabOptimized.KEY)) {
             this._queryName = this._id;
         } else {
             this._queryName = this._name;
@@ -230,4 +230,8 @@ abstract class DagTabProgress extends DagTab {
         this.setGraph(this._dagGraph);
         this._trigger("rerender");
     }
+}
+
+if (typeof exports !== 'undefined') {
+    exports.DagTabProgress = DagTabProgress;
 }

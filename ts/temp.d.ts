@@ -141,6 +141,7 @@ interface WkbkKVKeySet {
     gDagTableManagerKey: string;
     gDagListKey: string;
     gSQLFuncListKey: string;
+    gOptimizedDagListKey: string;
     gSQLSnippetKey: string;
     gSQLSnippetQueryKey: string;
     gTutorialKey: string;
@@ -517,7 +518,6 @@ declare var gColPrefix: string;
 declare var gPrefixSign: string;
 declare var gRetSign: string;
 declare var gDSPrefix: string;
-declare var gRetinaPrefix: string;
 declare var gParamStart: string;
 declare var gHiddenColumnWidth: number | string;
 declare var gUploadChunkSize: number;

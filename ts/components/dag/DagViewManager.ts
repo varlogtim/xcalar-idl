@@ -536,6 +536,17 @@ class DagViewManager {
     }
 
     /**
+     * DagViewManager.Instance.generateOptimizedDataflow
+     * @param nodeIds
+     */
+    public generateOptimizedDataflow(nodeIds?: DagNodeId[]): XDPromise<void> {
+        if (this.activeDagView == null) {
+            return PromiseHelper.reject();
+        }
+        return this.activeDagView.run(nodeIds, true, true);
+    }
+
+    /**
      * DagViewManager.Instance.unlockNode
      * @param nodeId
      */
@@ -670,10 +681,17 @@ class DagViewManager {
         this._isCopying = false;
     }
 
+    /**
+     * @deprecated
+     * @param nodeIds
+     */
     public hasOptimizedNode(nodeIds?: DagNodeId[]): boolean {
         return this.activeDagView.hasOptimizedNode(nodeIds);
     }
 
+    public hasOptimizableNode(nodeIds?: DagNodeId[]): boolean {
+        return this.activeDagView.hasOptimzableNode(nodeIds);
+    }
 
     /**
      * DagViewManager.Instance.disconnect

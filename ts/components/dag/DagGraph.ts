@@ -534,32 +534,6 @@ class DagGraph extends Durable {
         return this._removeNode(node, switchState);
     }
 
-    public removeRetinas(nodeIds: DagNodeId[]): XDPromise<any> {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        const promises = [];
-        nodeIds.forEach((nodeId) => {
-            const node: DagNode = this._getNodeFromId(nodeId);
-            if (node instanceof DagNodeOutOptimizable && node.getState() !==
-                DagNodeState.Unused) {
-                promises.push(this._removeRetina(node));
-            }
-        });
-
-        PromiseHelper.when(...promises)
-        .always((rets) => {
-            const errorNodeIds = [];
-            rets.forEach((error) => {
-                if (error && error.error && error.error.status === StatusT.StatusRetinaInUse) {
-                    errorNodeIds.push(error.dagNode.getId());
-                }
-            });
-            deferred.resolve({hasRetinasInUse: errorNodeIds.length > 0, errorNodeIds: errorNodeIds});
-        });
-
-        return deferred.promise();
-    }
-
-
     /**
      * check if has the node or not
      * @param nodeId node'id
@@ -716,7 +690,8 @@ class DagGraph extends Durable {
     public execute(
         nodeIds?: DagNodeId[],
         optimized?: boolean,
-        parentTxId?: number
+        parentTxId?: number,
+        generateOptimizedDataflow?: boolean
     ): XDPromise<void> {
         this.resetOperationTime();
         // If optimized and nodeIds not specified, then look for 1 optimized node.
@@ -725,6 +700,8 @@ class DagGraph extends Durable {
         // back traverse the nodes and get all the nodes we need rather than
         // every node in the dataflow, where some unneeded nodes may be disjoint
         // and cause the validation precheck test to fail
+
+        // XXX Deprecated, this should not happen in 2.1
         if (!nodeIds && optimized && parentTxId == null) {
             let ret = <any>this._getExecutingOptimizedNodeIds();
             if (ret && ret.hasError) {
@@ -734,7 +711,7 @@ class DagGraph extends Durable {
             }
         }
         if (nodeIds == null) {
-            return this._executeGraph(null, optimized, null, parentTxId);
+            return this._executeGraph(null, optimized, null, parentTxId, generateOptimizedDataflow);
         } else {
             // get subGraph from nodes and execute
             // we want to stop at the next node with a table unless we're
@@ -745,7 +722,7 @@ class DagGraph extends Durable {
             }
             const nodesMap: Map<DagNodeId, DagNode> = backTrack.map;
             const startingNodes: DagNodeId[] = backTrack.startingNodes;
-            return this._executeGraph(nodesMap, optimized, startingNodes, parentTxId);
+            return this._executeGraph(nodesMap, optimized, startingNodes, parentTxId, generateOptimizedDataflow);
         }
     }
 
@@ -826,6 +803,7 @@ class DagGraph extends Durable {
         });
     }
 
+    // for SDK use only
     public getRetinaArgs(nodeIds?: DagNodeId[], noReplaceParam: boolean = true): XDPromise<void> {
         let nodesMap: Map<DagNodeId, DagNode>;
         let startingNodes: DagNodeId[];
@@ -873,7 +851,7 @@ class DagGraph extends Durable {
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
-        return executor.getRetinaArgs();
+        return executor.getRetinaArgs(true);
     }
 
     /**
@@ -1811,7 +1789,8 @@ class DagGraph extends Durable {
         nodesMap?: Map<DagNodeId, DagNode>,
         optimized?: boolean,
         startingNodes?: DagNodeId[],
-        parentTxId?: number
+        parentTxId?: number,
+        generateOptimizedDataflow?: boolean
     ): XDPromise<void> {
         if (this.currentExecutor != null) {
             return PromiseHelper.reject(ErrTStr.DFInExecution);
@@ -1840,7 +1819,14 @@ class DagGraph extends Durable {
         }
         const nodeIds: DagNodeId[] = orderedNodes.map(node => node.getId());
         this.lockGraph(nodeIds, executor);
-        executor.run()
+        let def;
+        if (generateOptimizedDataflow) {
+            def = executor.generateOptimizedDataflow();
+        } else {
+            def = executor.run();
+        }
+
+        def
         .then((...args) => {
             this.unlockGraph(nodeIds);
             deferred.resolve(...args);
@@ -2421,25 +2407,6 @@ class DagGraph extends Durable {
                 recursiveTraverse(child, newRenameMap);
             });
         };
-    }
-
-    private _removeRetina(dagNode: DagNodeOutOptimizable): XDPromise<any> {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        const retinaId = gRetinaPrefix + this.parentTabId + "_" + dagNode.getId();
-        XcalarDeleteRetina(retinaId)
-        .then(deferred.resolve)
-        .fail((error) => {
-            if (error && error.status === StatusT.StatusRetinaInUse) {
-                deferred.reject({
-                    error: error,
-                    dagNode: dagNode
-                });
-            } else {
-                deferred.resolve();
-            }
-        });
-
-        return deferred.promise();
     }
 
     /**

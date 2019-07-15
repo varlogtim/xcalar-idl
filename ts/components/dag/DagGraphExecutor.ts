@@ -71,6 +71,7 @@ class DagGraphExecutor {
         return validateResult;
     }
 
+
     /**
      * Static check if the nodes to run are executable
      */
@@ -151,8 +152,8 @@ class DagGraphExecutor {
                 }
             } else if (this._isOptimized && node.hasNoChildren()) {
                 if (!node.isOutNode() ||
-                    (node.getSubType() !== DagNodeSubType.ExportOptimized &&
-                    node.getSubType() !== DagNodeSubType.DFOutOptimized &&
+                    (node.getType() !== DagNodeType.Export &&
+                    node.getType() !== DagNodeType.DFOut &&
                     node.getType() !== DagNodeType.CustomOutput &&
                     node.getType() !== DagNodeType.Aggregate) &&
                     !this._allowNonOptimizedOut
@@ -232,6 +233,14 @@ class DagGraphExecutor {
             if (node.getType() === DagNodeType.DFOut) {
                 numLinkOutNodes++;
                 linkOutNode = <DagNodeDFOut>node;
+
+                let columns = node.getParam().columns;
+                if (!columns || columns.length === 0) {
+                    errorResult.hasError = true;
+                    errorResult.type = DagNodeErrorType.InvalidLinkOutColumns;
+                    errorResult.node = node;
+                    break;
+                }
             }
             if (numLinkOutNodes > 0 && numExportNodes > 0) {
                 errorResult.hasError = true;
@@ -398,12 +407,13 @@ class DagGraphExecutor {
         if (this._isCanceled) {
             deferred.reject(DFTStr.Cancel);
         } else if (this._isOptimized) {
-            this.getRetinaArgs()
+            // XXX TODO: deprecate this part
+            this.getRetinaArgs(true)
             .then((retinaParams) => {
                 if (this._isCanceled) {
                     return PromiseHelper.reject(DFTStr.Cancel);
                 }
-                return this._executeOptimizedDataflow(retinaParams);
+                return this._createAndExecuteRetina(retinaParams);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -515,7 +525,7 @@ class DagGraphExecutor {
         if (this._hasProgressGraph) {
             XcalarQueryCancel(this._queryName)
             .then(() => {
-                if (this._queryName.startsWith(gRetinaPrefix)) {
+                if (this._queryName.startsWith(DagTabOptimized.KEY)) {
                     // delete non-private retinas
                     this._retinaDeleteLoop();
                 }
@@ -1053,7 +1063,8 @@ class DagGraphExecutor {
         }
     }
 
-    public getRetinaArgs(): any {
+    // XXX TODO: make the retinaName arg mandatory and fix the call in DagGraph
+    public getRetinaArgs(isDeprecatedCall: boolean): any {
         const deferred = PromiseHelper.deferred();
         const nodeIds: DagNodeId[] = this._nodes.map(node => node.getId());
 
@@ -1061,16 +1072,7 @@ class DagGraphExecutor {
         .then((ret) => {
             try {
                 let { queryStr, destTables } = ret;
-                // retina name will be graph id + outNode Id, prefixed by gRetinaPrefix
-                const parentTabId: string = this._graph.getTabId();
-                let outNodeId: DagNodeId;
-                if (this._isOptimizedActiveSession) {
-                    outNodeId = this._optimizedLinkOutNode.getId();
-                } else {
-                    // XXX arbitrarily storing retina in the last export nodes
-                    outNodeId = this._optimizedExportNodes[this._optimizedExportNodes.length - 1].getId();
-                }
-                const retinaName = gRetinaPrefix + parentTabId + "_" + outNodeId;
+                let retinaName = this._getRetinaName(isDeprecatedCall);
                 this._queryName = retinaName;
                 const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTables);
                 if (retinaParameters == null) {
@@ -1087,78 +1089,68 @@ class DagGraphExecutor {
         return deferred.promise();
     }
 
-    // given retinaParameters, we create the retina, then create a tab which
-    // becomes focused and checks and updates node progress
-    private _executeOptimizedDataflow(retinaParameters: {
+    // XXX Currently if we just to create retina here
+    // the dest node cannot update from export to synthesize
+    // so for a temp better UX, we do execute retina after the creation
+    public generateOptimizedDataflow(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        // const tabName: string = this._getOptimizedDataflowTabName();
+
+        if (this._isCanceled) {
+            deferred.reject(DFTStr.Cancel);
+        } else if (this._isOptimized) {
+            this.getRetinaArgs(false)
+            .then((retinaParams) => {
+                if (this._isCanceled) {
+                    return PromiseHelper.reject(DFTStr.Cancel);
+                }
+                // let outputTableName: string = this._getRetinaTableName();
+                // return this._createRetina(retinaParams, tabName, outputTableName);
+                return this._createAndExecuteRetina(retinaParams);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        }
+
+        return deferred.promise();
+    }
+
+    private _executeRetina(
+        dagTab: DagTabOptimized,
         retinaName: string,
-        retina: string,
-        sessionName: string,
-        userName: string
-    }): XDPromise<any> {
-        const deferred = PromiseHelper.deferred();
+        outputTableName: string
+    ): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         // retina name will be the same as the graph/tab's ID
-        let retinaName: string = retinaParameters.retinaName;
-        let subGraph: DagSubGraph;
         const udfContext = this._getUDFContext();
-        const tabName: string = this._getOptimizedDataflowTabName();
-        let tab: DagTabOptimized;
 
         let txId: number = Transaction.start({
             operation: "optimized df",
-            sql: {operation: "Optimized Dataflow", retName: tabName},
+            sql: {
+                operation: "Optimized Dataflow",
+                retName: dagTab.getName()
+            },
             track: true,
             udfUserName: udfContext.udfUserName,
             udfSessionName: udfContext.udfSessionName
         });
 
-        const parentTabId: string = this._graph.getTabId();
-        let outputTableName: string = this._isOptimizedActiveSession ?
-                                "table_" + parentTabId + "_" +
-                                this._optimizedLinkOutNode.getId() +
-                                Authentication.getHashId() : "";
-        if (this._isOptimizedActiveSession) {
-            this._storeOutputTableNameInNode(outputTableName, retinaParameters);
-        }
-
         this._currentTxId = txId;
-        this._createRetina(retinaParameters)
-        .then((retina) => {
-            // remove any existing tab if it exists (tabs can remain open even
-            // if the retina was deleted
-            DagTabManager.Instance.removeTab(retinaName);
+        let subGraph: DagSubGraph = dagTab.getGraph();
 
-             // create tab and pass in nodes to store for progress updates
-
-            tab = DagTabManager.Instance.newOptimizedTab(retinaName,
-                                                tabName, retina.query, this);
-            subGraph = tab.getGraph();
-
-            this._optimizedExecuteInProgress = true;
-            const udfContext = this._getUDFContext();
-            return XcalarExecuteRetina(retinaName, [], {
-                activeSession: this._isOptimizedActiveSession,
-                newTableName: outputTableName,
-                udfUserName: udfContext.udfUserName || userIdName,
-                udfSessionName: udfContext.udfSessionName || sessionName
-            }, this._currentTxId);
-        })
-        .then((_res) => {
+        XcalarExecuteRetina(retinaName, [], {
+            activeSession: this._isOptimizedActiveSession,
+            newTableName: outputTableName,
+            udfUserName: udfContext.udfUserName || userIdName,
+            udfSessionName: udfContext.udfSessionName || sessionName
+        }, this._currentTxId)
+        .then(() => {
             this._optimizedExecuteInProgress = false;
             // get final stats on each node
-            tab.endStatusCheck()
+            dagTab.endStatusCheck()
             .always(() => {
                 deferred.resolve(outputTableName);
             });
-
-            if (this._isOptimizedActiveSession) {
-                this._optimizedLinkOutNode.setTable(outputTableName, true);
-                DagTblManager.Instance.addTable(outputTableName);
-                this._optimizedLinkOutNode.beCompleteState();
-            } else {
-                this._optimizedExportNodes.forEach((node) => {
-                    node.beCompleteState();
-                });
-            }
 
             Transaction.done(txId, {
                 noNotification: true,
@@ -1167,47 +1159,89 @@ class DagGraphExecutor {
             });
         })
         .fail((error) => {
-            if (txId != null) {
-                if (error &&
-                    error.status === StatusT.StatusRetinaAlreadyExists) {
-                    error.error = "The optimized dataflow already exists\nReset the optimized node and select " +
-                        "Execute Optimized to re-execute";
-                }
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.ProfileFailed,
-                    "error": error,
-                    "noAlert": true
-                });
+            if (error &&
+                error.status === StatusT.StatusRetinaAlreadyExists
+            ) {
+                error.error = "The optimized dataflow already exists\nReset the optimized node and select " +
+                    "Execute Optimized to re-execute";
             }
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.ProfileFailed,
+                "error": error,
+                "noAlert": true
+            });
 
-            if (this._optimizedExecuteInProgress) {
-                this._optimizedExecuteInProgress = false;
-                tab.endStatusCheck()
-                .always(() => {
-                    let msg = "";
-                    if (error) {
-                        msg = error.error;
-                    }
-                    if (this._isOptimizedActiveSession) {
-                        this._optimizedLinkOutNode.beErrorState(msg, true);
-                    } else {
-                        this._optimizedExportNodes.forEach((node) => {
-                            node.beErrorState(msg, true);
-                        });
-                    }
-                    if (error && error.status === StatusT.StatusCanceled) {
-                        XcalarDeleteRetina(retinaName);
-                    }
-                    deferred.reject(error);
-                });
-            } else {
+            dagTab.endStatusCheck()
+            .always(() => {
                 deferred.reject(error);
-            }
+            });
         })
         .always(() => {
             if (subGraph != null) {
                 subGraph.stopExecution();
             }
+        });
+
+        return deferred.promise();
+    }
+
+    // given retinaParameters, we create the retina, then create a tab which
+    // becomes focused and checks and updates node progress
+    private _createAndExecuteRetina(retinaParameters: {
+        destTables: any[],
+        retinaName: string,
+        retina: string,
+        sessionName: string,
+        userName: string
+    }): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+        // retina name will be the same as the graph/tab's ID
+        let retinaName: string = retinaParameters.retinaName;
+        const tabName: string = this._getOptimizedDataflowTabName();
+
+        let outputTableName: string = this._getRetinaTableName();
+        this._createRetina(retinaParameters, tabName, outputTableName)
+        .then((dagTab) => {
+            this._optimizedExecuteInProgress = true;
+            return this._executeRetina(dagTab, retinaName, outputTableName);
+        })
+        .then(() => {
+            this._optimizedExecuteInProgress = false;
+
+            if (this._isOptimizedActiveSession) {
+                DagTblManager.Instance.addTable(outputTableName);
+                if (this._optimizedLinkOutNode.isOptimized()) {
+                    this._optimizedLinkOutNode.setTable(outputTableName, true);
+                    this._optimizedLinkOutNode.beCompleteState();
+                }
+            } else {
+                this._optimizedExportNodes.forEach((node) => {
+                    if (node.isOptimized()) {
+                        node.beCompleteState();
+                    }
+                });
+            }
+            deferred.resolve(outputTableName);
+        })
+        .fail((error) => {
+            if (this._optimizedExecuteInProgress) {
+                this._optimizedExecuteInProgress = false;
+                let msg = "";
+                if (error) {
+                    msg = error.error;
+                }
+                if (this._isOptimizedActiveSession) {
+                    this._optimizedLinkOutNode.beErrorState(msg, true);
+                } else {
+                    this._optimizedExportNodes.forEach((node) => {
+                        node.beErrorState(msg, true);
+                    });
+                }
+                if (error && error.status === StatusT.StatusCanceled) {
+                    XcalarDeleteRetina(retinaName);
+                }
+            }
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -1321,21 +1355,44 @@ class DagGraphExecutor {
         }
     }
 
+    private _getRetinaTableName(): string {
+        let parentTabId: string = this._graph.getTabId();
+        let outputTableName: string = this._isOptimizedActiveSession ?
+                                "table_" + parentTabId + "_" +
+                                this._optimizedLinkOutNode.getId() +
+                                Authentication.getHashId() : "";
+        return outputTableName;
+    }
+
     private _createRetina(
         params: {
             retinaName: string,
             retina: string,
             userName: string,
             sessionName: string
+        },
+        tabName: string,
+        outputTableName: string
+    ): XDPromise<DagTabOptimized> {
+        const deferred: XDDeferred<DagTabOptimized> = PromiseHelper.deferred();
+        if (this._isOptimizedActiveSession) {
+            this._storeOutputTableNameInNode(outputTableName, params);
         }
-    ): XDPromise<any> {
-        const deferred = PromiseHelper.deferred();
-
-        XcalarImportRetina(params.retinaName, true, null, params.retina, params.userName, params.sessionName)
-        .then((_res) => {
-            return XcalarGetRetinaJson(params.retinaName);
+        let retinaName: string = params.retinaName;
+        XcalarImportRetina(retinaName, true, null, params.retina, params.userName, params.sessionName)
+        .then(() => {
+            return XcalarGetRetinaJson(retinaName);
         })
-        .then(deferred.resolve)
+        .then((retina) => {
+            // remove any existing tab if it exists (tabs can remain open even
+            // if the retina was deleted)
+            DagTabManager.Instance.removeTab(retinaName);
+
+            // create tab and pass in nodes to store for progress updates
+            let tab = DagTabManager.Instance.newOptimizedTab(retinaName,
+                                                tabName, retina.query, this);
+            deferred.resolve(tab);
+        })
         .fail(deferred.reject);
 
         return deferred.promise();
@@ -1433,6 +1490,26 @@ class DagGraphExecutor {
         } catch (e) {
             // ok to fail
         }
+    }
+
+    private _getRetinaName(isDeprecatedCall: boolean): string {
+        let parentTabId: string = this._graph.getTabId();
+        let outNodeId: DagNodeId = this._getOptimizedNodeId();
+
+        return isDeprecatedCall
+        ? DagTabOptimized.getId_deprecated(parentTabId, outNodeId)
+        : DagTabOptimized.getId(parentTabId, outNodeId);
+    }
+
+    private _getOptimizedNodeId(): DagNodeId {
+        let outNodeId: DagNodeId;
+        if (this._isOptimizedActiveSession) {
+            outNodeId = this._optimizedLinkOutNode.getId();
+        } else {
+            // XXX arbitrarily storing retina in the last export nodes
+            outNodeId = this._optimizedExportNodes[this._optimizedExportNodes.length - 1].getId();
+        }
+        return outNodeId;
     }
 }
 

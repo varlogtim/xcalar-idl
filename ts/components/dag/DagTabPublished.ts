@@ -5,7 +5,6 @@ class DagTabPublished extends DagTab {
     private static readonly _secretUser: string = ".xcalar.published.df";
     private static readonly _delim: string = "_Xcalar_";
     private static readonly _dagKey: string = "DF2";
-    private static readonly _optimizedKey: string = "DF2Optimized";
     private static _currentSession: string;
 
     private _editVersion: number;
@@ -262,27 +261,17 @@ class DagTabPublished extends DagTab {
         return deferred.promise();
     }
 
-    public download(name: string, optimized?: boolean): XDPromise<void> {
+    public download(name: string): XDPromise<void> {
         let fileName: string = name || this.getShortName();
         fileName += gDFSuffix;
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const writeOptimizedArgsDef: XDPromise<void> = optimized ?
-        this._writeOptimizedRetinaArgs() : PromiseHelper.resolve();
+        DagTabPublished._switchSession(null);
+        const promise = XcalarDownloadWorkbook(this._getWKBKName(), "");
+        DagTabPublished._resetSession();
 
-        writeOptimizedArgsDef
-        .then(() => {
-            DagTabPublished._switchSession(null);
-            const promise = XcalarDownloadWorkbook(this._getWKBKName(), "");
-            DagTabPublished._resetSession();
-            return promise;
-        })
+        promise
         .then((file) => {
             xcHelper.downloadAsFile(fileName, file.sessionContent, "application/gzip");
-            if (optimized) {
-                return PromiseHelper.alwaysResolve(this._removeOptimizedRetainArgs());
-            }
-        })
-        .then(() => {
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -550,36 +539,5 @@ class DagTabPublished extends DagTab {
         })
         .fail(deferred.reject)
         return deferred.promise();
-    }
-
-    private _getOptimizedRetinaArgsKVStore(): KVStore {
-        return new KVStore(DagTabPublished._optimizedKey, gKVScope.WKBK);
-    }
-
-    private _writeOptimizedRetinaArgs(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._dagGraph.getRetinaArgs()
-        .then((res) => {
-            const kvStore = this._getOptimizedRetinaArgsKVStore();
-            DagTabPublished._switchSession(this._getWKBKName());
-            const promise = kvStore.put(JSON.stringify(res), true, true);
-            DagTabPublished._resetSession();
-            return promise;
-        })
-        .then(() => {
-            deferred.resolve();
-        })
-        .fail((error) => {
-            deferred.reject({
-                error: error.type
-            });
-        });
-
-        return deferred.promise();
-    }
-
-    private _removeOptimizedRetainArgs(): XDPromise<void> {
-        const kvStore = this._getOptimizedRetinaArgsKVStore();
-        return kvStore.delete();
     }
 }

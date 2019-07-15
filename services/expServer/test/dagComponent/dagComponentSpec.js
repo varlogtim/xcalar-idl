@@ -77,6 +77,7 @@ describe('DagComponent Test', function() {
                         testConfig.userName, testConfig.sessionId, testConfig.workbook
                     )));
                 } catch(e) {
+                    console.error("optimized df failed", e);
                     if (e != null && e.type != null && typeof e.type === 'string') {
                         assert.fail(e.type);
                     } else {

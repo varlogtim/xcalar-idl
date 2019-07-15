@@ -49,7 +49,7 @@ class DagTopBar {
 
         $btns.find(".topButton").removeClass("xc-disabled");
 
-        const $userAndPublishOnlyBtns: JQuery = $btns.find(".run, .optimizedRun");
+        const $userAndPublishOnlyBtns: JQuery = $btns.find(".run");
         if (dagTab instanceof DagTabUser || dagTab instanceof DagTabPublished) {
             $userAndPublishOnlyBtns.removeClass("xc-disabled");
         } else {
@@ -67,22 +67,10 @@ class DagTopBar {
             let scale = graph.getScale() * 100;
             $topBar.find(".zoomPercentInput").val(scale);
         }
-
-        this._toggleButtonsInSQLFunc(dagTab);
     }
 
     private _getTopBar(): JQuery {
         return $("#dagViewBar");
-    }
-
-    private _toggleButtonsInSQLFunc(dagTab: DagTab): void {
-        const $btns: JQuery = this._getTopBar().find(".topButtons");
-        const $btnsToHideInSQLMode: JQuery = $btns.find(".optimizedRun");
-        if (dagTab instanceof DagTabSQLFunc) {
-            $btnsToHideInSQLMode.addClass("xc-hidden");
-        } else {
-            $btnsToHideInSQLMode.removeClass("xc-hidden");
-        }
     }
 
     private _addEventListeners(): void {
@@ -90,10 +78,6 @@ class DagTopBar {
         let $topBar = this._getTopBar();
         $topBar.find(".run").click(function() {
             DagViewManager.Instance.run();
-        });
-
-        $topBar.find(".optimizedRun").click(function() {
-            DagViewManager.Instance.run(null, true);
         });
 
         $topBar.find(".stop").click(function() {

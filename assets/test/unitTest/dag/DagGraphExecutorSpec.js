@@ -127,7 +127,7 @@ describe("Dag Graph Executor Test", () => {
             let res = executor.checkCanExecuteAll();
 
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Valid terminal nodes must be either Export optimized or Link out optimized");
+            expect(res.type).to.equal(DagNodeErrorType.InvalidOptimizedOutNode);
             expect(res.node).to.equal(datasetNode);
         });
 
@@ -159,7 +159,7 @@ describe("Dag Graph Executor Test", () => {
             let executor = new DagGraphExecutor([mapNode], graph, {optimized: true});
             let res = executor.checkCanExecuteAll();
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Valid terminal nodes must be either Export optimized or Link out optimized");
+            expect(res.type).to.equal(DagNodeErrorType.InvalidOptimizedOutNode);
             expect(res.node).to.equal(mapNode);
         });
 
@@ -243,11 +243,29 @@ describe("Dag Graph Executor Test", () => {
             expect(res.type).to.equal("Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow.");
         });
 
+        it("checkValidOptimizedDataflow - fail due to link out no column", () => {
+            let graph = new DagGraph();
+            let datasetNode = new DagNodeDataset({});
+            let linkOutNode = new DagNodeDFOut({});
+            graph.addNode(datasetNode);
+            graph.addNode(linkOutNode);
+            linkOutNode.connectToParent(datasetNode);
+
+            let executor = new DagGraphExecutor([datasetNode, linkOutNode], graph, {optimized: true});
+            let res = executor._checkValidOptimizedDataflow();
+            expect(res.hasError).to.be.true;
+            expect(res.type).to.equal(DagNodeErrorType.InvalidLinkOutColumns);
+            expect(res.node).to.equal(linkOutNode);
+        });
+
         it("checkValidOptimizedDataflow - fail due to export/link out combo", () => {
             let graph = new DagGraph();
             let datasetNode = new DagNodeDataset({});
             let exportNode = new DagNodeExport({});
             let linkOutNode = new DagNodeDFOut({});
+            linkOutNode.setParam({
+                columns: [{sourceName: "test"}]
+            });
             graph.addNode(datasetNode);
             graph.addNode(exportNode);
             graph.addNode(linkOutNode);
@@ -270,7 +288,12 @@ describe("Dag Graph Executor Test", () => {
             graph.addNode(linkOutNode2);
             linkOutNode.connectToParent(datasetNode);
             linkOutNode2.connectToParent(datasetNode);
-
+            linkOutNode.setParam({
+                columns: [{sourceName: "test"}]
+            });
+            linkOutNode2.setParam({
+                columns: [{sourceName: "test"}]
+            });
             let executor = new DagGraphExecutor([datasetNode, linkOutNode, linkOutNode2], graph, {optimized: true});
             let res = executor._checkValidOptimizedDataflow();
             expect(res.hasError).to.be.true;
@@ -286,7 +309,7 @@ describe("Dag Graph Executor Test", () => {
             let executor = new DagGraphExecutor([datasetNode, mapNode], graph, {optimized: true});
             let res = executor._checkValidOptimizedDataflow();
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Valid terminal nodes must be either Export optimized or Link out optimized");
+            expect(res.type).to.equal(DagNodeErrorType.InvalidOptimizedOutNode);
             expect(res.node).to.be.null;
         });
         it("checkValidOptimizedDataflow - fail due to 2 export nodes with same parent", () => {
@@ -314,7 +337,9 @@ describe("Dag Graph Executor Test", () => {
             graph.addNode(datasetNode);
             graph.addNode(linkOutNode);
             linkOutNode.connectToParent(datasetNode);
-
+            linkOutNode.setParam({
+                columns: [{sourceName: "test"}]
+            });
             let executor = new DagGraphExecutor([datasetNode, linkOutNode], graph, {optimized: true});
             let res = executor._checkValidOptimizedDataflow();
             expect(res.hasError).to.be.false;

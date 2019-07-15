@@ -1429,6 +1429,7 @@ module.exports = {
         "executeAll": "Execute All",
         "executeOptimized": "Execute Optimized",
         "executeAllOptimized": "Execute All Optimized",
+        "CreateOptimized": "Create Optimized Dataflow",
         "cancelExecute": "Cancel Execution",
         "zoomIn": "Zoom In",
         "zoomOut": "Zoom Out",
@@ -1461,6 +1462,7 @@ module.exports = {
         "download": "Download selected nodes",
         "downloadDataflow": "Download",
         "duplicateDataflow": "Duplicate Dataflow",
-        "viewOptimizedDataflow": "View Optimized Dataflow"
+        "viewOptimizedDataflow": "View Optimized Dataflow",
+        "findOptimizedSource": "Find Original Dataflow",
     }
 };

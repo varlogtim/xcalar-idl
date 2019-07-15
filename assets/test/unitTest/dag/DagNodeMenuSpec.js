@@ -1097,6 +1097,46 @@ describe("DagNodeMenu Test", function() {
             $("#container").mousedown();
         });
 
+        it("findOptimizedSource node", function() {
+            let oldGet = DagList.Instance.getDagTabById;
+            let oldAlert = Alert.show;
+            let called = false;
+            DagList.Instance.getDagTabById = () => {
+                return {
+                    getSourceTab: () => new DagTabOptimized({name: "test"})
+                }
+            };
+            Alert.show = () => called = true;
+
+            DagView.selectNode($dfArea.find(".operator"));
+            $dfArea.find(".operator .main").contextmenu();
+            $menu.find(".findOptimizedSource").trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+
+            DagList.Instance.getDagTabById = oldGet;
+            Alert.show = oldAlert;
+        });
+
+        it("findOptimizedSource node -- cannot find source case", function() {
+            let oldGet = DagList.Instance.getDagTabById;
+            let oldAlert = Alert.error;
+            let called = false;
+            DagList.Instance.getDagTabById = () => {
+                return {
+                    getSourceTab: () => null
+                }
+            };
+            Alert.error = () => called = true;
+
+            DagView.selectNode($dfArea.find(".operator"));
+            $dfArea.find(".operator .main").contextmenu();
+            $menu.find(".findOptimizedSource").trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+
+            DagList.Instance.getDagTabById = oldGet;
+            Alert.error = oldAlert;
+        });
+
         it("restoreDatasetFrom Node", function() {
             var called = false;
             var cachedFn = DS.restoreSourceFromDagNode;
@@ -1251,21 +1291,20 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.run = cachedFn;
         });
 
-        it("executeAllNodesOptimized", function() {
+        it("createNodeOptimized", function() {
             var called = false;
-            var cachedFn = DagViewManager.Instance.run;
+            var cachedFn = DagViewManager.Instance.generateOptimizedDataflow;
 
             DagView.selectNode($dfArea.find(".operator"));
 
-            DagViewManager.Instance.run = function(ids, optimized) {
-                expect(optimized).to.be.true;
+            DagViewManager.Instance.generateOptimizedDataflow = function() {
                 called = true;
             };
 
             $dfArea.find(".operator .main").contextmenu();
-            $menu.find(".executeAllNodesOptimized").trigger(fakeEvent.mouseup);
+            $menu.find(".createNodeOptimized").trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
-            DagViewManager.Instance.run = cachedFn;
+            DagViewManager.Instance.generateOptimizedDataflow = cachedFn;
         });
 
         // remove all unavailable classes here

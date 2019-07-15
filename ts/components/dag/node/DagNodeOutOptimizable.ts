@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 class DagNodeOutOptimizable extends DagNodeOut {
     protected optimized: boolean;
 
@@ -17,6 +20,18 @@ class DagNodeOutOptimizable extends DagNodeOut {
         this.error = error || this.error;
         this._setState(DagNodeState.Error);
         this._clearConnectionMeta(keepRetina);
+    }
+
+    /**
+     * @override
+     * @returns {boolean}
+     */
+    public isDeprecated(): boolean {
+        if (this.isOptimized()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     protected _clearConnectionMeta(keepRetina?: boolean): void {

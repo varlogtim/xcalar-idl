@@ -33,11 +33,10 @@ describe("DagTopBar Test", function() {
     });
 
     it("Should render all expected buttons", function () {
-        expect($topBar.find(".topButton").length).to.equal(11);
+        expect($topBar.find(".topButton").length).to.equal(10);
         expect($topBar.find(".undo").length).to.equal(1);
         expect($topBar.find(".redo").length).to.equal(1);
         expect($topBar.find(".run").length).to.equal(1);
-        expect($topBar.find(".optimizedRun").length).to.equal(1);
         expect($topBar.find(".stop").length).to.equal(1);
         expect($topBar.find(".parameters").length).to.equal(1);
         expect($topBar.find(".aggregates").length).to.equal(1);
@@ -99,27 +98,20 @@ describe("DagTopBar Test", function() {
     describe("states", function() { 
         it("Should disable most buttons on null dagtab", function () {
             topBar.setState(null);
-            expect($topBar.find(".topButton.xc-disabled").length).to.equal(9);
+            expect($topBar.find(".topButton.xc-disabled").length).to.equal(8);
             topBar.setState(new DagTab({name: "name"}));
-            expect($topBar.find(".topButton.xc-disabled").length).to.equal(3);
+            expect($topBar.find(".topButton.xc-disabled").length).to.equal(2);
         });
 
-        it("Should disable/enable run/optimized on user/publish tabs", function () {
+        it("Should disable/enable run on different tabs", function () {
             topBar.setState(new DagTabUser({name: "name"}));
             expect($topBar.find(".run").hasClass("xc-disabled")).to.be.false;
-            expect($topBar.find(".optimizedRun").hasClass("xc-disabled")).to.be.false;
             topBar.setState(new DagTab({name: "name"}));
             expect($topBar.find(".run").hasClass("xc-disabled")).to.be.true;
-            expect($topBar.find(".optimizedRun").hasClass("xc-disabled")).to.be.true;
+            topBar.setState(new DagTabOptimized({name: "name"}));
+            expect($topBar.find(".run").hasClass("xc-disabled")).to.be.true;
             topBar.setState(new DagTabPublished({name: "name"}));
             expect($topBar.find(".run").hasClass("xc-disabled")).to.be.false;
-            expect($topBar.find(".optimizedRun").hasClass("xc-disabled")).to.be.false;
-        });
-
-        it("Should hide run optimized on SQLFunc", function () {
-            topBar.setState(new DagTabSQLFunc({name: "name"}));
-            expect($topBar.find(".run").hasClass("xc-hidden")).to.be.false;
-            expect($topBar.find(".optimizedRun").hasClass("xc-hidden")).to.be.true;
         });
 
         it("Should set the scale correctly", function() {

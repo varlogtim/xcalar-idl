@@ -20,13 +20,14 @@
             <i class="icon xi-play-circle"></i>
             <span class="label"><%= dicts.dag.executeAll %></span>
         </li>
+        <li class="createNodeOptimized" data-action="createNodeOptimized">
+            <i class="icon xi-dfg2"></i>
+            <span class="label"><%= dicts.dag.CreateOptimized %></span>
+        </li>
+        <!-- XXX @deprecated -->
         <li class="executeNodeOptimized" data-action="executeNodeOptimized">
             <i class="icon xi-play-circle"></i>
             <span class="label"><%= dicts.dag.executeOptimized %></span>
-        </li>
-        <li class="executeAllNodesOptimized" data-action="executeAllNodesOptimized">
-            <i class="icon xi-play-circle"></i>
-            <span class="label"><%= dicts.dag.executeAllOptimized %></span>
         </li>
         <li class="viewResult unavailable" data-action="viewResult">
             <i class="icon xi-table-2"></i>
@@ -128,6 +129,10 @@
         <li class="removeNode" data-action="removeNode">
             <i class="icon xi-trash"></i>
             <span class="label"><%= dicts.dag.removeNode %></span>
+        </li>
+        <li class="findOptimizedSource" data-action="findOptimizedSource">
+            <i class="icon xi-search"></i>
+            <span class="label"><%= dicts.dag.findOptimizedSource %></span>
         </li>
         <li class="download" data-action="download">
             <i class="icon xi-download"></i>

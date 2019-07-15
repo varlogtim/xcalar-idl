@@ -131,17 +131,11 @@ describe("DagCategoryBar Test", function() {
             expect($("#dagView .searchArea ul").is(":visible")).to.be.false;
             $("#dagView .categoryBar .searchInput").val("d").trigger(fakeEvent.input);
             expect($("#dagView .searchArea ul").is(":visible")).to.be.true;
-            expect($("#dagView .searchArea li").length).to.be.gt(4);
+            expect($("#dagView .searchArea li").length).to.be.eq(4);
             let $lis = $("#dagView .searchArea li");
 
             expect($lis.filter(function() {
                 return $(this).text().indexOf("Dataset") > -1;
-            }).length).to.be.gt(0);
-            expect($lis.filter(function() {
-                return $(this).text().indexOf("Export Optimized") > -1;
-            }).length).to.be.gt(0);
-            expect($lis.filter(function() {
-                return $(this).text().indexOf("Link Out Optimized") > -1;
             }).length).to.be.gt(0);
             expect($lis.filter(function() {
                 return $(this).text().indexOf("Round") > -1;
@@ -154,10 +148,10 @@ describe("DagCategoryBar Test", function() {
         it("selecting item", function() {
             expect($("#dagView").find(".categoryBar .category.active.category-in").length).to.equal(0);
 
-            $("#dagView .categoryBar .searchInput").val("Link Out Optimized").trigger(fakeEvent.input);
+            $("#dagView .categoryBar .searchInput").val("Link Out").trigger(fakeEvent.input);
             expect($("#dagView .searchArea ul").is(":visible")).to.be.true;
             let $lis = $("#dagView .searchArea li");
-            expect($lis.eq(0).text()).to.equal("Link Out Optimized");
+            expect($lis.eq(0).text()).to.equal("Link Out");
 
             expect($operatorBar.find(".operator.link.out .selection").length).to.equal(0);
 

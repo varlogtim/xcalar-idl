@@ -18,7 +18,8 @@ abstract class DagTab extends Durable {
     protected _disableSaveLock: number;
     protected _isOpen: boolean;
     protected _isHidden: boolean;
-    protected _saveCheckTimer: NodeJS.Timer; // ensures save not locked for more than 60 seconds
+    protected _saveCheckTimer: any; // ensures save not locked for more than 60 seconds
+    protected _createdTime: number;
 
     public static generateId(): string {
         this.uid = this.uid || new XcUID(DagTab.KEY);
@@ -155,9 +156,17 @@ abstract class DagTab extends Durable {
         return this._isOpen;
     }
 
+    public needReset(): boolean {
+        return false;
+    }
+
     // not used
     public serialize(): string {
         return null;
+    }
+
+    public getCreatedTime(): number {
+        return this._createdTime;
     }
 
     protected getRuntime(): DagRuntime {
@@ -247,40 +256,6 @@ abstract class DagTab extends Durable {
         .then(deferred.resolve)
         .fail(deferred.reject);
 
-        return deferred.promise();
-    }
-
-    // delete all retinas associated with this tab
-    protected _deleteRetinaHelper(): XDPromise<void> {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        let promises = [];
-        // patternMatch doesn't work yet
-        XcalarListRetinas(gRetinaPrefix + this._id + "*")
-        .then((retinas) => {
-            retinas.retinaDescs.forEach((retina) => {
-                // TODO remove the need to search once listRetinas takes in a namepattenr
-                if (retina.retinaName.startsWith(gRetinaPrefix + this._id)) {
-                    promises.push(XcalarDeleteRetina(retina.retinaName));
-                }
-            });
-            return PromiseHelper.when(...promises);
-        })
-        .then(deferred.resolve)
-        .fail((errors) => {
-            let error;
-            for (let i = 0; i < errors.length; i++) {
-                if (errors[i] && errors[i]["status"] === StatusT.StatusRetinaInUse) {
-                    error = errors[i];
-                    break;
-                }
-            }
-            // only reject if error is that retina is in use
-            if (error) {
-                deferred.reject(error);
-            } else {
-                deferred.resolve();
-            }
-        });
         return deferred.promise();
     }
 

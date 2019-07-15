@@ -239,14 +239,20 @@ class DagTabManager {
         }
     }
 
+    /**
+     * DagTabManager.Instance.newOptimizedTab
+     * @param tabId
+     * @param tabName
+     * @param queryNodes
+     * @param executor
+     */
     public newOptimizedTab(
         tabId: string,
         tabName: string,
         queryNodes: any[],
         executor?: DagGraphExecutor
     ): DagTabOptimized {
-        const parentTabId = DagViewManager.Instance.getActiveTab().getId();
-
+        tabName = DagList.Instance.getValidName(tabName, true, false, true);
         // Create a new tab object
         const newTab: DagTabOptimized = new DagTabOptimized({
             id: tabId,
@@ -256,12 +262,8 @@ class DagTabManager {
         });
         // links tab to graph and vice versa
         newTab.setGraph(newTab.getGraph());
-        // Register the new tab in DagTabManager
-        if (this._addSubTab(parentTabId, tabId)) {
-            this._addDagTab(newTab);
-            // Switch to the tab(UI)
-            this._switchTabs();
-
+        if (!this._addNewTab(newTab)) {
+            return null;
         }
         return newTab;
     }
@@ -489,7 +491,7 @@ class DagTabManager {
         }, []);
         return {
             dagKeys: keys
-        }
+        };
     }
 
     //getManagerDataAsync handles loading the tabManager
@@ -648,15 +650,23 @@ class DagTabManager {
                 createdTime: xcTimeHelper.now()
             });
         }
-        if (!DagList.Instance.addDag(newDagTab)) {
+        let succeed = this._addNewTab(newDagTab);
+        if (!succeed) {
             return null;
         }
-        newDagTab.save();
-        this._addDagTab(newDagTab);
-        this._save();
-        this._switchTabs();
         DagViewManager.Instance.newGraph();
         return newDagTab;
+    }
+
+    private _addNewTab(dagTab: DagTab): boolean {
+        if (!DagList.Instance.addDag(dagTab)) {
+            return false;
+        }
+        dagTab.save();
+        this._addDagTab(dagTab);
+        this._save();
+        this._switchTabs();
+        return true;
     }
 
     // Delete a tab, as well as sub tabs(DFS order)
@@ -845,7 +855,7 @@ class DagTabManager {
         }
         tabName = xcStringHelper.escapeHTMLSpecialChar(tabName);
         const tabId = dagTab.getId();
-        const isEditable: boolean = (dagTab instanceof DagTabUser);
+        let isEditable: boolean = (dagTab instanceof DagTabUser);
         const isViewOnly: boolean = (dagTab instanceof DagTabProgress);
         const isProgressGraph: boolean = (dagTab instanceof DagTabProgress);
         const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
@@ -857,6 +867,10 @@ class DagTabManager {
             extraClass += " query";
         } else if (isOptimized) {
             extraClass += " optimized";
+            let optimizedTab: DagTabOptimized = <DagTabOptimized>dagTab;
+            if (!optimizedTab.isFromSDK()) {
+                isEditable = true;
+            }
         } else if (dagTab instanceof DagTabSQLFunc) {
             extraClass += " sqlFunc";
             extraIcon = '<i class="icon xi-menu-cli tabIcon"></i>';

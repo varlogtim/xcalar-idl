@@ -5,7 +5,6 @@ interface DagTabUserOptions extends DagTabOptions {
 
 class DagTabUser extends DagTab {
     private _reset: boolean;
-    private _createdTime: number;
 
     /**
      * DagTabUser.restore
@@ -131,9 +130,7 @@ class DagTabUser extends DagTab {
         const allDagsKey: string = this.KEY;
         KVStore.list(`^${allDagsKey}*`, gKVScope.WKBK)
         .then((res) => {
-            const ids: string[] = res.keys.filter((key) => {
-                return key.startsWith(allDagsKey) && !key.startsWith("DF2Optimized");
-            });
+            const ids: string[] = res.keys.filter((key) => key.startsWith(allDagsKey));
             deferred.resolve(ids);
         })
         .fail(deferred.reject);
@@ -237,9 +234,6 @@ class DagTabUser extends DagTab {
             return PromiseHelper.alwaysResolve(this._deleteAggregateHelper());
         })
         .then(() => {
-            return this._deleteRetinaHelper();
-        })
-        .then(() => {
             return this._kvStore.delete();
         })
         .then(() => {
@@ -250,7 +244,7 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
-    public download(name: string, optimized?: boolean): XDPromise<void> {
+    public download(name: string): XDPromise<void> {
         // Step for download local dataflow:
         // 1. upload as a temp shared dataflow
         // 2. download the temp shared dataflow
@@ -266,7 +260,7 @@ class DagTabUser extends DagTab {
         fakeTab.publish()
         .then(() => {
             hasShared = true;
-            return fakeTab.download(name, optimized);
+            return fakeTab.download(name);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -350,12 +344,11 @@ class DagTabUser extends DagTab {
         return clonedTab;
     }
 
+    /**
+     * @override
+     */
     public needReset(): boolean {
         return this._reset;
-    }
-
-    public getCreatedTime(): number {
-        return this._createdTime;
     }
 
     protected _writeToKVStore(): XDPromise<void> {

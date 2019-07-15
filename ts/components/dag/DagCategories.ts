@@ -23,7 +23,15 @@ class DagCategories {
             }), DagCategoryType.Hidden),
             new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.Placeholder
-            }), DagCategoryType.Hidden)
+            }), DagCategoryType.Hidden),
+            new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.DFOut,
+                subType: DagNodeSubType.DFOutOptimized
+            })),
+            new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.Export,
+                subType: DagNodeSubType.ExportOptimized
+            })),
         ]);
 
         let inCategory: DagCategory;
@@ -69,15 +77,7 @@ class DagCategories {
                 type: DagNodeType.Export
             })));
             hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.Export,
-                subType: DagNodeSubType.ExportOptimized
-            })));
-            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.DFOut
-            })));
-            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.DFOut,
-                subType: DagNodeSubType.DFOutOptimized
             })));
             hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.Jupyter
@@ -92,15 +92,7 @@ class DagCategories {
                     type: DagNodeType.Export
                 })),
                 new DagCategoryNodeOut(DagNodeFactory.create({
-                    type: DagNodeType.Export,
-                    subType: DagNodeSubType.ExportOptimized
-                })),
-                new DagCategoryNodeOut(DagNodeFactory.create({
                     type: DagNodeType.DFOut
-                })),
-                new DagCategoryNodeOut(DagNodeFactory.create({
-                    type: DagNodeType.DFOut,
-                    subType: DagNodeSubType.DFOutOptimized
                 })),
                 new DagCategoryNodeOut(DagNodeFactory.create({
                     type: DagNodeType.Jupyter

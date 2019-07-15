@@ -185,38 +185,47 @@ describe('DagList Test', function() {
 
     describe('Dag List Refresh related test', function() {
         var oldPubRes;
-        var oldListRets;
+        var oldOptimzedRes;
+        var oldListOptimized;
         var oldListQuer;
 
         before(function() {
-            oldListRets = XcalarListRetinas;
+            oldOptimzedRes = DagTabOptimized.restore;
             oldListQuer = XcalarQueryList;
             oldPubRes = DagTabPublished.restore;
+            oldListOptimized = DagList.Instance.listOptimizedDagAsync;
             DagTabPublished.restore = function() {
                 dagName = xcHelper.randName("newAgg");
                 dagTab = new DagTabPublished({name: name});
                 return PromiseHelper.resolve([dagTab]);
             };
-            XcalarListRetinas = function() {
-                return PromiseHelper.resolve({retinaDescs: [{retinaName: "retina"}]});
+            DagTabOptimized.restore = function() {
+                dagName = xcHelper.randName("newOptimized");
+                dagTab = new DagTabOptimized({name: name});
+                return PromiseHelper.resolve({dagTabs: [dagTab]}, false);
             }
+            DagList.Instance.listOptimizedDagAsync = () => PromiseHelper.resolve([]);
             XcalarQueryList = function() {
                 return PromiseHelper.resolve([{name: "table_published_test"}]);
             }
         });
-    
 
         it("should refresh correctly", function(done) {
             var numPublishedTabs = 0;
+            var numOptimizedTabs = 0;
             DagList.Instance._dags.forEach((dagTab) => {
                 if (dagTab instanceof DagTabPublished) {
                     numPublishedTabs++;
+                }
+                if (dagTab instanceof DagTabOptimized) {
+                    numOptimizedTabs++;
                 }
             });
             var prevLen = DagList.Instance._dags.size;
             DagList.Instance.refresh()
             .then(() => {
-                expect(DagList.Instance._dags.size).to.equal(prevLen -numPublishedTabs + 3);
+                let num = prevLen - numPublishedTabs - numOptimizedTabs + 3;
+                expect(DagList.Instance._dags.size).to.equal(num);
                 done();
             })
             .fail(() => {
@@ -226,8 +235,9 @@ describe('DagList Test', function() {
 
         after(function() {
             DagTabPublished.restore = oldPubRes;
-            XcalarListRetinas = oldListRets;
+            DagTabOptimized.restore = oldOptimzedRes;
             XcalarQueryList = oldListQuer;
+            DagList.Instance.listOptimizedDagAsync = oldListOptimized;
         });
     })
 

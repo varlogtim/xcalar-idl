@@ -33,13 +33,11 @@ describe("DagCategories Test", function() {
             expect(categories[0].operators[2].node instanceof DagNodeDFIn).to.be.true;
 
 
-            expect(categories[1].operators.length).to.equal(6);
+            expect(categories[1].operators.length).to.equal(4);
             expect(categories[1].operators[0].node instanceof DagNodeExport).to.be.true;
-            expect(categories[1].operators[1].node instanceof DagNodeExport).to.be.true;
-            expect(categories[1].operators[2].node instanceof DagNodeDFOut).to.be.true;
-            expect(categories[1].operators[3].node instanceof DagNodeDFOut).to.be.true;
-            expect(categories[1].operators[4].node instanceof DagNodeJupyter).to.be.true;
-            expect(categories[1].operators[5].node instanceof DagNodePublishIMD).to.be.true;
+            expect(categories[1].operators[1].node instanceof DagNodeDFOut).to.be.true;
+            expect(categories[1].operators[2].node instanceof DagNodeJupyter).to.be.true;
+            expect(categories[1].operators[3].node instanceof DagNodePublishIMD).to.be.true;
 
             expect(categories[2].operators.length).to.equal(3);
             expect(categories[2].operators[0].node instanceof DagNodeSQL).to.be.true;
@@ -87,10 +85,12 @@ describe("DagCategories Test", function() {
             expect(categories[9].operators[1].node instanceof DagNodeCustomInput).to.be.true;
             expect(categories[9].operators[2].node instanceof DagNodeCustomOutput).to.be.true;
 
-            expect(categories[10].operators.length).to.equal(3);
+            expect(categories[10].operators.length).to.equal(5);
             expect(categories[10].operators[0].node instanceof DagNodeIndex).to.be.true;
             expect(categories[10].operators[1].node instanceof DagNodeSynthesize).to.be.true;
             expect(categories[10].operators[2].node instanceof DagNodePlaceholder).to.be.true;
+            expect(categories[10].operators[3].node instanceof DagNodeDFOut).to.be.true;
+            expect(categories[10].operators[4].node instanceof DagNodeExport).to.be.true;
         });
 
         it("update for sqlFunc should work", function() {
@@ -158,9 +158,11 @@ describe("DagCategories Test", function() {
             expect(categories[8].operators[0].node instanceof DagNodeIndex).to.be.true;
             expect(categories[8].operators[1].node instanceof DagNodeSynthesize).to.be.true;
             expect(categories[8].operators[2].node instanceof DagNodePlaceholder).to.be.true;
-            expect(categories[8].operators[3].node instanceof DagNodeDataset).to.be.true;
-            expect(categories[8].operators[4].node instanceof DagNodeIMDTable).to.be.true;
-            expect(categories[8].operators[5].node instanceof DagNodeDFIn).to.be.true;
+            expect(categories[8].operators[3].node instanceof DagNodeDFOut).to.be.true;
+            expect(categories[8].operators[4].node instanceof DagNodeExport).to.be.true;
+            expect(categories[8].operators[5].node instanceof DagNodeDataset).to.be.true;
+            expect(categories[8].operators[6].node instanceof DagNodeIMDTable).to.be.true;
+            expect(categories[8].operators[7].node instanceof DagNodeDFIn).to.be.true;
         });
 
         it("should switch back to advanced mode", function(){

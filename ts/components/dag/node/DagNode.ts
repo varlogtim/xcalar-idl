@@ -1154,6 +1154,10 @@ abstract class DagNode extends Durable {
         });
     }
 
+    public isDeprecated(): boolean {
+        return false;
+    }
+
     public static readonly schema = {
         "definitions": {},
         "$schema": "http://json-schema.org/draft-07/schema#",

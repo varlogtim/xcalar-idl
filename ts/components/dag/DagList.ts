@@ -48,7 +48,7 @@ class DagList extends Durable {
             return this._restorePublishedDags();
         })
         .then(() => {
-            return this._fetchAllRetinas();
+            return this._restoreOptimizedDags();
         })
         .then(() => {
             return this._fetchXcalarQueries();
@@ -193,13 +193,15 @@ class DagList extends Durable {
     }
 
     public listUserDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
-        let kvStore = this._getUserDagKVStore();
-        return kvStore.getAndParse();
+        return this._getUserDagKVStore().getAndParse();
     }
 
     public listSQLFuncAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
-        let kvStore = this._getSQLFuncKVStore();
-        return kvStore.getAndParse();
+        return this._getSQLFuncKVStore().getAndParse();
+    }
+
+    public listOptimizedDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
+        return this._getOptimizedDagKVStore().getAndParse();
     }
 
     /**
@@ -262,7 +264,7 @@ class DagList extends Durable {
 
         this._restorePublishedDags(oldPublishedDags)
         .then(() => {
-            return this._fetchAllRetinas(oldOptimizedDags);
+            return this._restoreOptimizedDags(oldOptimizedDags);
         })
         .then(() => {
             return this._fetchXcalarQueries(oldQueryDags, true);
@@ -290,7 +292,8 @@ class DagList extends Durable {
         }
 
         if (dagTab instanceof DagTabSQLFunc ||
-            dagTab instanceof DagTabUser
+            dagTab instanceof DagTabUser ||
+            dagTab instanceof DagTabOptimized    
         ) {
             this._dags.set(dagTab.getId(), dagTab);
             this._saveDagList(dagTab);
@@ -315,7 +318,8 @@ class DagList extends Durable {
         }
 
         if (dagTab instanceof DagTabSQLFunc ||
-            dagTab instanceof DagTabUser
+            dagTab instanceof DagTabUser ||
+            dagTab instanceof DagTabOptimized
         ) {
             // this is a rename of SQL Function
             dagTab.setName(newName);
@@ -386,18 +390,24 @@ class DagList extends Durable {
     public getValidName(
         prefixName?: string,
         hasBracket?: boolean,
-        isSQLFunc?: boolean
+        isSQLFunc?: boolean,
+        isOptimizedDag?: boolean
     ): string {
         const prefix: string = prefixName || (isSQLFunc ? "fn" : "Dataflow");
         const nameSet: Set<string> = new Set();
         let cnt: number = 1;
         this._dags.forEach((dagTab) => {
             nameSet.add(dagTab.getName());
-            if (!isSQLFunc && dagTab instanceof DagTabUser) {
+            if (!isSQLFunc &&
+                !isOptimizedDag &&
+                dagTab instanceof DagTabUser
+            ) {
                 if (!this._isForSQLFolder(dagTab)) {
                     cnt++;
                 }
             } else if (isSQLFunc && dagTab instanceof DagTabSQLFunc) {
+                cnt++;
+            } else if (isOptimizedDag && dagTab instanceof DagTabOptimized) {
                 cnt++;
             }
         });
@@ -548,13 +558,24 @@ class DagList extends Durable {
     }
 
     private _getUserDagKVStore(): KVStore {
-        let key: string = KVStore.getKey("gDagListKey");
-        return new KVStore(key, gKVScope.WKBK);
+        return this._getKVStore("gDagListKey");
     }
 
     private _getSQLFuncKVStore(): KVStore {
-        let key: string = KVStore.getKey("gSQLFuncListKey");
+        return this._getKVStore("gSQLFuncListKey");
+    }
+
+    private _getOptimizedDagKVStore(): KVStore {
+        return this._getKVStore("gOptimizedDagListKey");
+    }
+
+    private _getKVStore(keyword: string): KVStore {
+        let key: string = KVStore.getKey(keyword);
         return new KVStore(key, gKVScope.WKBK);
+    }
+
+    private _stripPath(path: string) {
+        return path.substring(0, path.length - 1);
     }
 
     private _setupFileLister(): void {
@@ -566,8 +587,11 @@ class DagList extends Durable {
             let html: HTML = "";
             let publishedPath = DagTabPublished.PATH.substring(1, DagTabPublished.PATH.length - 1);
             let isInPublishedFolder = path.startsWith(publishedPath);
-            let isAbandonedQuery = path.startsWith(DagTabQuery.PATH.substring(0, DagTabQuery.PATH.length - 1)) ||
-                                    path.startsWith(DagTabQuery.SDKPATH.substring(0, DagTabQuery.SDKPATH.length - 1));
+            let isAbandonedQuery = path.startsWith(this._stripPath(DagTabQuery.PATH)) ||
+                                path.startsWith(this._stripPath(DagTabQuery.SDKPATH));
+            let isOptimizedFolder = path.startsWith(this._stripPath(DagTabOptimized.XDPATH)) ||
+                                path.startsWith(this._stripPath(DagTabOptimized.SDKPATH));
+
             // Add folders
             folders.forEach((folder) => {
                 let icon = "xi-folder";
@@ -581,9 +605,12 @@ class DagList extends Durable {
             });
             // Add files
             let deleteIcon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
-            let duplicateIcon: HTML = this._iconHTML("duplicateDataflow", "xi-duplicate", DFTStr.DupDF);
+            let duplicateIcon: HTML = "";
+            if (!isOptimizedFolder) {
+                duplicateIcon = this._iconHTML("duplicateDataflow", "xi-duplicate", DFTStr.DupDF);
+            }
             let publishIcon: HTML = "";
-            if (!isInPublishedFolder) {
+            if (!isInPublishedFolder && !isOptimizedFolder) {
                 publishIcon = this._iconHTML("publishDataflow", "xi-add-dataflow", DFTStr.PubDF);
             }
             let downloadIcon: HTML = this._iconHTML("downloadDataflow", "xi-download", DFTStr.DownloadDF);
@@ -791,12 +818,13 @@ class DagList extends Durable {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagTabPublished.restore()
         .then((dags) => {
-            const oldDags: Map<string, DagTabOptimized> = oldPublishedDags || new Map();
+            const oldDags: Map<string, DagTabPublished> = oldPublishedDags || new Map();
             dags.forEach((dagTab) => {
                 // if the old tab still exists, use it because it contains
                 // data such as whether it's closed or open
                 if (oldDags.has(dagTab.getId()) &&
-                    DagTabManager.Instance.getTabById(dagTab.getId())) {
+                    DagTabManager.Instance.getTabById(dagTab.getId())
+                ) {
                     const oldDag = oldDags.get(dagTab.getId());
                     this._dags.set(oldDag.getId(), oldDag);
                 } else {
@@ -813,41 +841,39 @@ class DagList extends Durable {
         return deferred.promise();
     }
 
-    private _fetchAllRetinas(
+    private _restoreOptimizedDags(
         oldOptimizedDags?: Map<string, DagTabOptimized>
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XcalarListRetinas()
-        .then((retinas) => {
+        this.listOptimizedDagAsync()
+        .then((res) => {
+            return DagTabOptimized.restore(res ? res.dags : []);
+        })
+        .then((ret) => {
+            const {dagTabs, metaNotMatch} = ret;
             const oldDags: Map<string, DagTabOptimized> = oldOptimizedDags || new Map();
-            retinas.retinaDescs.forEach((retina) => {
-                 // hide user dataflows - If we want to expose all optimized
-                 // dataflows then set this if to true!
-                if (!retina.retinaName.startsWith(gRetinaPrefix)) {
-                    let newTab = true;
-                    if (oldDags.has(retina.retinaName)) {
-                        const oldDagTab: DagTabOptimized = oldDags.get(retina.retinaName);
-                        if (DagTabManager.Instance.getTabById(oldDagTab.getId())) {
-                            newTab = false;
-                            this._dags.set(oldDagTab.getId(), oldDagTab);
-                            if (oldDagTab.isFocused()) {
-                                // restarts status check
-                                oldDagTab.unfocus();
-                                oldDagTab.focus();
-                            }
-                        }
+            dagTabs.forEach((dagTab) => {
+                let tabId = dagTab.getId();
+                if (oldDags.has(tabId) &&
+                    DagTabManager.Instance.getTabById(tabId)
+                ) {
+                    const oldDagTab: DagTabOptimized = oldDags.get(tabId);
+                    this._dags.set(oldDagTab.getId(), oldDagTab);
+                    if (oldDagTab.isFocused()) {
+                        // restarts status check
+                        oldDagTab.unfocus();
+                        oldDagTab.focus();
                     }
-                    if (newTab) {
-                        const retinaId = DagTab.generateId();
-                        const retinaTab = new DagTabOptimized({
-                                                id: retinaId,
-                                                name: retina.retinaName});
-                        this._dags.set(retinaId, retinaTab);
-                    }
+                } else {
+                    this._dags.set(dagTab.getId(), dagTab);
                 }
             });
-            deferred.resolve();
+
+            if (metaNotMatch) {
+                return this._saveOptimizedDagList();
+            }
         })
+        .then(deferred.resolve)
         .fail((error) => {
             console.error(error);
             deferred.resolve(); // still resolve it
@@ -968,6 +994,8 @@ class DagList extends Durable {
             return this._saveSQLFuncList();
         } else if (dagTabToChange instanceof DagTabUser) {
             return this._saveUserDagList();
+        } else if (dagTabToChange instanceof DagTabOptimized) {
+            return this._saveOptimizedDagList();
         } else {
             return PromiseHelper.resolve();
         }
@@ -995,7 +1023,7 @@ class DagList extends Durable {
     }
 
     private _saveSQLFuncList(): XDPromise<void> {
-        const dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
+        const dags: DagListTabDurable[] = [];
         this._dags.forEach((dagTab) => {
             if (dagTab instanceof DagTabSQLFunc) {
                 dags.push(this._getSerializableDagList(dagTab));
@@ -1006,7 +1034,19 @@ class DagList extends Durable {
         return kvStore.put(jsonStr, true, true);
     }
 
-    private _getSerializableDagList(dagTab: DagTabUser | DagTabSQLFunc): DagListTabDurable {
+    private _saveOptimizedDagList(): XDPromise<void> {
+        const dags: DagListTabDurable[] = [];
+        this._dags.forEach((dagTab) => {
+            if (dagTab instanceof DagTabOptimized && !dagTab.isFromSDK()) {
+                dags.push(this._getSerializableDagList(dagTab));
+            }
+        });
+        const jsonStr: string = this.serialize(dags);
+        const kvStore = this._getOptimizedDagKVStore();
+        return kvStore.put(jsonStr, true, true);
+    }
+
+    private _getSerializableDagList(dagTab: DagTab): DagListTabDurable {
         return {
             name: dagTab.getName(),
             id: dagTab.getId(),

@@ -971,12 +971,16 @@ class DagView {
         return this.dagTab.save();
     }
 
-      /**
+    /**
      * DagView.run
      * // run the entire dag,
      * // if no nodeIds passed in then it will execute all the nodes
      */
-    public run(nodeIds?: DagNodeId[], optimized?: boolean): XDPromise<void> {
+    public run(
+        nodeIds?: DagNodeId[],
+        optimized?: boolean,
+        generateOptimizedDataflow?: boolean
+    ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         this._canRun()
@@ -987,12 +991,14 @@ class DagView {
                 if (ret && ret.optimized) {
                     optimized = true;
                 }
-                return this.graph.execute(nodeIds, optimized);
+                return this.graph.execute(nodeIds, optimized, null,
+                    generateOptimizedDataflow);
             })
             .then(() => {
                 if (UserSettings.getPref("dfAutoPreview") === true &&
                     nodeIds != null &&
-                    nodeIds.length === 1
+                    nodeIds.length === 1 &&
+                    !generateOptimizedDataflow
                 ) {
                     const node: DagNode = this.graph.getNode(nodeIds[0]);
                     if (node != null &&
@@ -1006,29 +1012,32 @@ class DagView {
                 deferred.resolve();
             })
             .fail((error) => {
-                if (error && error.error === "cancel") {
-                    deferred.reject(error);
-                    return;
-                }
-                if (error && error.hasError && error.node) {
-                    const nodeId: DagNodeId = error.node.getId();
-                    const $node: JQuery = this._getNode(nodeId);
-                    DagTabManager.Instance.switchTab(this.tabId);
-                    StatusBox.show(error.type, $node);
-                } else if (error) {
-                    DagTabManager.Instance.switchTab(this.tabId);
-                    if (error.hasError && error.type) {
-                        error = error.type;
-                    }
-                    Alert.error(null, error);
-                }
-                deferred.reject(error);
+                deferred.reject(this._handleExecutionError(error));
             });
 
         return deferred.promise();
     }
 
-       /**
+    private _handleExecutionError(error: any): any {
+        if (error && error.error === "cancel") {
+            return error;
+        }
+        if (error && error.hasError && error.node) {
+            const nodeId: DagNodeId = error.node.getId();
+            const $node: JQuery = this._getNode(nodeId);
+            DagTabManager.Instance.switchTab(this.tabId);
+            StatusBox.show(error.type, $node);
+        } else if (error) {
+            DagTabManager.Instance.switchTab(this.tabId);
+            if (error.hasError && error.type) {
+                error = error.type;
+            }
+            Alert.error(null, error);
+        }
+        return error;
+    }
+
+    /**
      * DagView.unlockNode
      * @param nodeId
      */
@@ -1366,9 +1375,6 @@ class DagView {
             if (ret == null) {
                 promise = PromiseHelper.reject();
             } else {
-                if (ret.retinaErrorNodeIds && ret.retinaErrorNodeIds.length) {
-                    StatusBox.show("Could not remove some nodes due to optimized dataflow in progress.", DagView.$dfWrap);
-                }
                 if (ret.hasLinkOut) {
                     this.checkLinkInNodeValidation();
                 }
@@ -1429,6 +1435,9 @@ class DagView {
         return nodesStr;
     }
 
+    /**
+     * @deprecated
+     */
     public hasOptimizedNode(nodeIds?: DagNodeId[]): boolean {
         if (nodeIds) {
             for (let i = 0; i < nodeIds.length; i++) {
@@ -1441,6 +1450,25 @@ class DagView {
         } else {
             if (this.$dfArea.find('.operator[data-subtype="' + DagNodeSubType.DFOutOptimized + '"]').length > 0 ||
                 this.$dfArea.find('.operator[data-subtype="' + DagNodeSubType.ExportOptimized + '"]').length > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public hasOptimzableNode(nodeIds?: DagNodeId[]): boolean {
+        if (nodeIds) {
+            for (let i = 0; i < nodeIds.length; i++) {
+                const $node = this._getNode(nodeIds[i]);
+                if ($node.data("type") === DagNodeType.DFOut ||
+                    $node.data("type") === DagNodeType.Export) {
+                    return true;
+                }
+            }
+        } else {
+            if (this.$dfArea.find('.operator[data-type="' + DagNodeType.DFOut + '"]').length > 0 ||
+                this.$dfArea.find('.operator[data-type="' + DagNodeType.Export + '"]').length > 0) {
                 return true;
             }
         }
@@ -1671,7 +1699,7 @@ class DagView {
             return PromiseHelper.reject("Invalid node");
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const retinaId = gRetinaPrefix + this.tabId + "_" + dagNode.getId();
+        const retinaId: string = DagTabOptimized.getId_deprecated(this.tabId, dagNode.getId());
         if (DagTabManager.Instance.getTabById(retinaId)) {
             DagTabManager.Instance.switchTab(retinaId);
             deferred.resolve();
@@ -3050,14 +3078,13 @@ class DagView {
         }
     ): XDPromise<{
         logParam: LogParam,
-        retinaErrorNodeIds: string[],
         hasLinkOut: boolean,
         spliceInfos: {[nodeId: string]: {[childNodeId: string]: boolean[]}}
     }> {
         const { isSwitchState = true, isNoLog = false } = options || {};
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         if (!nodeIds.length) {
-            return PromiseHelper.deferred();
+            return PromiseHelper.resolve();
         }
         let aggregates: string[] = [];
         const dagNodeIds: DagNodeId[] = [];
@@ -3074,101 +3101,91 @@ class DagView {
             }
         });
 
-        // XXX TODO: this remove retina is async
-        // so may slow down the remove operation,
-        // need to improve
-        this.graph.removeRetinas(dagNodeIds)
-        .always((ret) => {
-            let hasLinkOut: boolean = false;
-            // XXX TODO: check the slowness and fix the performance
-            if (isSwitchState) {
-                // isSwitchState is a flag indicating the caller is handling the state switch explicitly
-                // In some cases(such as creating custom node), extra nodes need to be involved in bulkStateSwitch,
-                // and special requirements need to be implemented(such as maintaining running state for custom node)
-                // so make this optional
-                this.graph.turnOnBulkStateSwitch();
-            }
-            nodeIds.forEach((nodeId) => {
-                if (ret.errorNodeIds.indexOf(nodeId) > -1) {
+        let hasLinkOut: boolean = false;
+        // XXX TODO: check the slowness and fix the performance
+        if (isSwitchState) {
+            // isSwitchState is a flag indicating the caller is handling the state switch explicitly
+            // In some cases(such as creating custom node), extra nodes need to be involved in bulkStateSwitch,
+            // and special requirements need to be implemented(such as maintaining running state for custom node)
+            // so make this optional
+            this.graph.turnOnBulkStateSwitch();
+        }
+        nodeIds.forEach((nodeId) => {
+            if (!nodeId.startsWith("comment")) {
+                // Remove tabs for custom OP
+                const dagNode = this.graph.getNode(nodeId);
+                if (dagNode == null) {
                     return;
                 }
-                if (!nodeId.startsWith("comment")) {
-                    // Remove tabs for custom OP
-                    const dagNode = this.graph.getNode(nodeId);
-                    if (dagNode == null) {
-                        return;
-                    }
-                    if (dagNode instanceof DagNodeCustom ||
-                        dagNode instanceof DagNodeSQL
-                    ) {
-                        DagTabManager.Instance.removeTabByNode(dagNode);
-                    } else if (dagNode instanceof DagNodeAggregate) {
-                        let input: DagNodeAggregateInputStruct = dagNode.getParam();
-                        if (input.dest != null) {
-                            let aggName = dagNode.getAggName();
-                            if (DagAggManager.Instance.hasAggregate(aggName)) {
-                                let agg = DagAggManager.Instance.getAgg(aggName);
-                                if (agg.graph === this.graph.getTabId()) {
-                                    aggregates.push(aggName);
-                                }
+                if (dagNode instanceof DagNodeCustom ||
+                    dagNode instanceof DagNodeSQL
+                ) {
+                    DagTabManager.Instance.removeTabByNode(dagNode);
+                } else if (dagNode instanceof DagNodeAggregate) {
+                    let input: DagNodeAggregateInputStruct = dagNode.getParam();
+                    if (input.dest != null) {
+                        let aggName = dagNode.getAggName();
+                        if (DagAggManager.Instance.hasAggregate(aggName)) {
+                            let agg = DagAggManager.Instance.getAgg(aggName);
+                            if (agg.graph === this.graph.getTabId()) {
+                                aggregates.push(aggName);
                             }
                         }
                     }
-                    dagNodeIds.push(nodeId);
-                    const childrenNodes = dagNode.getChildren();
-                    childrenNodes.forEach((childNode) => {
-                        allIdentifiers[childNode.getId()] = childNode.getIdentifiers();
-                    });
-                    const spliceInfo = this.graph.removeNode(nodeId, isSwitchState);
-                    const $node = this._getNode(nodeId);
-                    if ($node.data("type") === DagNodeType.DFOut) {
-                        hasLinkOut = true;
-                    }
-                    $node.remove();
-                    this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
-                    this.$dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
-                    this.$dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
-                        const childNodeId = $(this).attr("data-childnodeid");
-                        self._removeConnection($(this), childNodeId);
-                    });
-                    spliceInfos[nodeId] = spliceInfo;
-                    if (DagNodeInfoPanel.Instance.getActiveNode() &&
-                        DagNodeInfoPanel.Instance.getActiveNode().getId() === nodeId) {
-                        DagNodeInfoPanel.Instance.hide();
-                    }
-                    if (DagUDFErrorModal.Instance.getNode() === dagNode) {
-                        DagUDFErrorModal.Instance.close();
-                    }
-                } else {
-                    this.graph.removeComment(nodeId);
-                    DagComment.Instance.removeComment(nodeId);
                 }
-                removedNodeIds.push(nodeId);
-            });
-            if (isSwitchState) {
-                this.graph.turnOffBulkStateSwitch();
+                dagNodeIds.push(nodeId);
+                const childrenNodes = dagNode.getChildren();
+                childrenNodes.forEach((childNode) => {
+                    allIdentifiers[childNode.getId()] = childNode.getIdentifiers();
+                });
+                const spliceInfo = this.graph.removeNode(nodeId, isSwitchState);
+                const $node = this._getNode(nodeId);
+                if ($node.data("type") === DagNodeType.DFOut) {
+                    hasLinkOut = true;
+                }
+                $node.remove();
+                this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
+                this.$dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
+                this.$dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
+                    const childNodeId = $(this).attr("data-childnodeid");
+                    self._removeConnection($(this), childNodeId);
+                });
+                spliceInfos[nodeId] = spliceInfo;
+                if (DagNodeInfoPanel.Instance.getActiveNode() &&
+                    DagNodeInfoPanel.Instance.getActiveNode().getId() === nodeId) {
+                    DagNodeInfoPanel.Instance.hide();
+                }
+                if (DagUDFErrorModal.Instance.getNode() === dagNode) {
+                    DagUDFErrorModal.Instance.close();
+                }
+            } else {
+                this.graph.removeComment(nodeId);
+                DagComment.Instance.removeComment(nodeId);
             }
-            DagAggManager.Instance.bulkNodeRemoval(aggregates);
+            removedNodeIds.push(nodeId);
+        });
+        if (isSwitchState) {
+            this.graph.turnOffBulkStateSwitch();
+        }
+        DagAggManager.Instance.bulkNodeRemoval(aggregates);
 
-            const logParam: LogParam = {
-                title: SQLTStr.RemoveOperations,
-                options: {
-                    "operation": SQLOps.RemoveOperations,
-                    "dataflowId": this.tabId,
-                    "nodeIds": removedNodeIds,
-                    "spliceInfo": spliceInfos,
-                    "identifiers": allIdentifiers
-                }
-            };
-            if (!isNoLog) {
-                Log.add(logParam.title, Object.assign({}, logParam.options));
+        const logParam: LogParam = {
+            title: SQLTStr.RemoveOperations,
+            options: {
+                "operation": SQLOps.RemoveOperations,
+                "dataflowId": this.tabId,
+                "nodeIds": removedNodeIds,
+                "spliceInfo": spliceInfos,
+                "identifiers": allIdentifiers
             }
-            deferred.resolve({
-                logParam: logParam,
-                retinaErrorNodeIds: ret.errorNodeIds,
-                hasLinkOut: hasLinkOut,
-                spliceInfos: spliceInfos
-            });
+        };
+        if (!isNoLog) {
+            Log.add(logParam.title, Object.assign({}, logParam.options));
+        }
+        deferred.resolve({
+            logParam: logParam,
+            hasLinkOut: hasLinkOut,
+            spliceInfos: spliceInfos
         });
         return deferred.promise();
     }
@@ -3340,8 +3357,9 @@ class DagView {
             DagNodeInfoPanel.Instance.update(nodeId, "params");
         });
 
+        // XXX deprecated
         this._registerGraphEvent(this.graph, DagNodeEvents.RetinaRemove, (info) => {
-            const retinaName: string = gRetinaPrefix + this.tabId + "_" + info.nodeId;
+            const retinaName: string = DagTabOptimized.getId_deprecated(this.tabId, info.nodeId);
             XcalarDeleteRetina(retinaName)
             .then(() => {
                 // remove optimized dataflow tab if opened
@@ -3493,7 +3511,9 @@ class DagView {
         '[data-subtype="' + subType + '"]').first();
         const $node = $categoryBarNode.clone();
         if ($categoryBarNode.closest(".category-hidden").length &&
-            type !== DagNodeType.Synthesize
+            type !== DagNodeType.Synthesize &&
+            type !== DagNodeType.DFOut &&
+            type !== DagNodeType.Export
         ) {
             $node.addClass("configDisabled");
         };
@@ -3551,6 +3571,11 @@ class DagView {
             const { input, output } = node.getNumIOPorts();
             this._updateConnectorIn(node.getId(), input);
             this._updateConnectorOut(node.getId(), output);
+        }
+
+        // XXX TODO: deprecated
+        if (node.isDeprecated()) {
+            xcTooltip.add($node.find(".main"), {title: DFTStr.Deprecated});
         }
 
         return $node;
@@ -3903,7 +3928,6 @@ class DagView {
 
         return deferred.promise();
     }
-
 
     private _getNextAvailablePosition(nodeId: DagNodeId, x: number, y: number): Coordinate {
         let positions = {};

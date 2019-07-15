@@ -6,7 +6,7 @@
     padding-left: 10px;
 
     &.locked {
-        .run, .optimizedRun, .stop, .undo, .redo {
+        .run, .stop, .undo, .redo {
             pointer-events: none;
             opacity: @opacity-disabled;
         }
@@ -66,7 +66,7 @@
             }
         }
 
-        &.run, &.optimizedRun {
+        &.run {
             .icon {
                 color: @color-bg-green-submit;
             }
@@ -1355,7 +1355,7 @@
 
 #dagNodeMenu, #dagNodeSubMenu {
     background-color: @color-white;
-    width: 160px;
+    width: 163px;
     border-radius: 5px;
     box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.2);
 
@@ -1440,7 +1440,7 @@
             .generateResult, .viewSchema, .shareCustom, .viewUDFErrors {
                 display: none;
             }
-            .createCustom {
+            .createCustom, .createNodeOptimized {
                 display: list-item;
             }
         }
@@ -1520,7 +1520,7 @@
         }
     }
     &.backgroundMenu {
-        .removeAllNodes, .executeAllNodes, .executeAllNodesOptimized,
+        .removeAllNodes, .executeAllNodes, .createNodeOptimized,
         .resetAllNodes, .selectAllNodes, .pasteNodes,
         .autoAlign, .newComment, .focusRunning, .download, .duplicateDf,
         .restoreAllDataset {
@@ -1538,6 +1538,11 @@
             }
             .selectAllNodes, .autoAlign, .download {
                 display: list-item;
+            }
+            &.optimizedTab {
+                .findOptimizedSource {
+                    display: list-item;
+                }
             }
         }
         &.published {
@@ -1581,6 +1586,11 @@
             display: list-item;
         }
     }
+    &.optimizableMenu {
+        .createNodeOptimized {
+            display: list-item;
+        }
+    }
     &.datasetMenu {
         .restoreDataset {
             display: list-item;
@@ -1617,6 +1627,12 @@
     .viewOptimizedDataflow {
         .icon {
             color: darken(@color-operator-out, 25%);
+        }
+    }
+
+    .createNodeOptimized {
+        .icon {
+            color: darken(@color-operator-out, 15%);
         }
     }
 

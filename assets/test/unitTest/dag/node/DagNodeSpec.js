@@ -278,6 +278,11 @@ describe("Dag Node Basic Test", () => {
         expect(serializable).not.to.equal(childNode);
     });
 
+    it("should not be depreacated by default", () => {
+        const node = new DagNode();
+        expect(node.isDeprecated()).to.be.false;
+    });
+
     it("should get lineage", () => {
         const node = new DagNode();
         expect(node.getLineage()).to.be.instanceof(DagLineage);

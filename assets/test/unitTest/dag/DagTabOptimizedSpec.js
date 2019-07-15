@@ -1,8 +1,5 @@
-// Tests for dagTabs.
-
 describe('DagTab Optimized Test', function() {
     var $dagTabs;
-    var $newTabButton;
     var oldPut;
     var tabId;
     var tab;
@@ -15,19 +12,22 @@ describe('DagTab Optimized Test', function() {
             $("#modeArea").click();
         }
         console.log("dag tab optimized test");
-        oldPut = XcalarKeyPut;
-        XcalarKeyPut = function() {
-            return PromiseHelper.resolve();
-        };
-        UnitTest.onMinMode();
-        var dagTabManager = DagTabManager.Instance;
-        let newTabId = dagTabManager.newTab();
-        UnitTest.testFinish(() => {
-            return $('.dataflowArea[data-id="' + newTabId + '"]').hasClass("active");
+
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .then(function() {
+            oldPut = XcalarKeyPut;
+            XcalarKeyPut = function() {
+                return PromiseHelper.resolve();
+            };
+            UnitTest.onMinMode();
+            var dagTabManager = DagTabManager.Instance;
+            let newTabId = dagTabManager.newTab();
+            return UnitTest.testFinish(() => {
+                return $('.dataflowArea[data-id="' + newTabId + '"]').hasClass("active");
+            })
         })
         .then(() => {
             $dagTabArea = $("#dagTabSectionTabs");
-            $newTabButton = $("#tabButton");
             $dagTabs = $("#dagTabSectionTabs .dagTab")
             tabId = "xcRet_" + Date.now();
             cachedQueryStateFn = XcalarQueryState;
@@ -151,11 +151,17 @@ describe('DagTab Optimized Test', function() {
         });
 
         it("path should be correct", function() {
-            expect(tab.getPath()).to.equal("Optimized Dataflows (SDK Use Only)/testTab");
+            expect(tab.getPath()).to.equal(DagTabOptimized.XDPATH + "testTab");
         });
 
         it("getQueryName should work", function() {
             expect(tab.getQueryName()).to.equal(tabId);
+        });
+
+        it("should handle from SDK case", function() {
+            let sdkTab = new DagTabOptimized({name: "test", fromSDK: true});
+            expect(sdkTab.isFromSDK()).to.be.true;
+            expect(sdkTab.getPath()).to.equal(DagTabOptimized.SDKPATH + "test");
         });
 
         after(function() {
@@ -653,8 +659,90 @@ describe('DagTab Optimized Test', function() {
                 done("fail")
             })
         });
+
+        it("getSourceTab should work", function() {
+            let oldGet = DagList.Instance.getDagTabById;
+            let parentTab = new DagTabUser();
+            DagList.Instance.getDagTabById = () => parentTab;
+
+            let tab1 = new DagTabOptimized({"id": "test"});
+            expect(tab1.getSourceTab()).to.be.null;
+
+            let tab2 = new DagTabOptimized({"id": DagTabOptimized.getId("a", DagNode.KEY)});
+            expect(tab2.getSourceTab()).to.equal(parentTab);
+
+            DagList.Instance.getDagTabById = oldGet;
+        });
     });
 
+    describe("Static Function", function() {
+        it("getId should work", function() {
+             let res = DagTabOptimized.getId("a", "b");
+             expect(res.startsWith(DagTabOptimized.KEY));
+             expect(res.split("_").length).to.equal(7);
+        });
+        
+        it("getId_deprecated should work", function() {
+            let res = DagTabOptimized.getId_deprecated("a", "b");
+            expect(res.startsWith(DagTabOptimized.KEY));
+            expect(res.split("_").length).to.equal(3);
+       });
+
+        it("restore should work", function(done) {
+            let oldList = XcalarListRetinas;
+            let id = DagTabOptimized.KEY + "test1";
+            let activeWKBKId = WorkbookManager.getActiveWKBK();
+            let activeWKBNK = WorkbookManager.getWorkbook(activeWKBKId);
+            let sessionId = activeWKBNK ? activeWKBNK.sessionId : null;
+            let key = DagNode.KEY + "_" + sessionId;
+
+            XcalarListRetinas = () => {
+                return PromiseHelper.resolve({
+                    retinaDescs: [{
+                        retinaName: id + key
+                    }, {
+                        retinaName: "test2"
+                    }, {
+                        retinaName: id
+                    }]
+                });
+            };
+
+            DagTabOptimized.restore([{name: "test1", id: id}])
+            .then((res) => {
+                let dagTabs = res.dagTabs;
+                expect(dagTabs.length).to.equal(2);
+                expect(dagTabs[0].isFromSDK()).to.be.false;
+                expect(dagTabs[1].isFromSDK()).to.be.true;
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            })
+            .always(() => {
+                XcalarListRetinas = oldList;
+            });
+        });
+
+        it("restore should handle error case", function(done) {
+            let oldList = XcalarListRetinas;
+            XcalarListRetinas = () => {
+                return PromiseHelper.resolve(null);
+            };
+
+            DagTabOptimized.restore([])
+            .then(() => {
+                done("fail");
+            })
+            .fail((e) => {
+                expect(e).not.to.be.empty;
+                done();
+            })
+            .always(() => {
+                XcalarListRetinas = oldList;
+            });
+        });
+    });
 
     after(function() {
         $dagTabs = $("#dagTabSectionTabs .dagTab");

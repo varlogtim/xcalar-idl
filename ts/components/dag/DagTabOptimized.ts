@@ -1,14 +1,108 @@
 class DagTabOptimized extends DagTabProgress {
-    public static readonly PATH = "Optimized Dataflows (SDK Use Only)/";
+    public static readonly KEY = "xcRet_";
+    public static readonly XDPATH = "Optimized Dataflows/";
+    public static readonly SDKPATH = "SDK Dataflows/Optimized SDK Dataflows/";
+    public uid: XcUID;
+
+    /**
+     * DagTabOptimized.getId
+     * format: xcRet_tabId_nodeId_DF2_workbookId_datetime_idCount
+     * @param srcTabId
+     * @param srcNodeId
+     */
+    public static getId(srcTabId: string, srcNodeId: DagNodeId): string {
+        return this.KEY + srcTabId + "_" + srcNodeId + "_" + this.generateId();
+    }
+
+    /**
+     * @deprecated
+     * DagTabOptimized.getId_deprecated
+     * format: xcRet_tabId_nodeId
+     * @param srcTabId
+     * @param srcNodeId
+     */
+    public static getId_deprecated(srcTabId: string, srcNodeId: DagNodeId): string {
+        return this.KEY + srcTabId + "_" + srcNodeId;
+    }
+
+    /**
+     * DagTabOptimized.restore
+     */
+    public static restore(
+        dagList: {name: string, id: string}[]
+    ): XDPromise<{dagTabs: DagTabOptimized[], metaNotMatch: boolean}> {
+        const deferred: XDDeferred<{dagTabs: DagTabOptimized[], metaNotMatch: boolean}> = PromiseHelper.deferred();
+        XcalarListRetinas()
+        .then((retinas) => {
+            try {
+                let dagListMap: Map<string, string> = new Map();
+                dagList.forEach((dag) => dagListMap.set(dag.id, dag.name));
+                let dagTabs: DagTabOptimized[] = [];
+                let metaNotMatch: boolean = false;
+                let activeWKBKId = WorkbookManager.getActiveWKBK();
+                let activeWKBNK = WorkbookManager.getWorkbook(activeWKBKId);
+                let sessionId: string = activeWKBNK ? activeWKBNK.sessionId : null;
+                let key: string = DagNode.KEY + "_" + sessionId;
+
+                retinas.retinaDescs.forEach((retina) => {
+                    let retinaName: string = retina.retinaName;
+                    if (retinaName.startsWith(DagTabOptimized.KEY)) {
+                        if (dagListMap.has(retinaName) && retinaName.includes(key)) {
+                            let dagTabName: string = dagListMap.get(retinaName);
+                            dagTabs.push(new DagTabOptimized({
+                                id: retinaName,
+                                name: dagTabName
+                            }));
+                            dagListMap.delete(retinaName);
+                        } else if (retinaName.includes(key)) {
+                            console.warn("optimized dataflow", retinaName, "is missing in meta");
+                            dagTabs.push(new DagTabOptimized({
+                                id: retinaName,
+                                name: retinaName
+                            }));
+                            metaNotMatch = true;
+                        }
+                    } else {
+                        // optimized dataflow that generate by SDK
+                        dagTabs.push(new DagTabOptimized({
+                            id: DagTab.generateId(),
+                            name: retinaName,
+                            fromSDK: true
+                        }));
+                    }
+                });
+
+                if (dagListMap.size > 0) {
+                    metaNotMatch = true;
+                }
+
+                deferred.resolve({
+                    dagTabs,
+                    metaNotMatch
+                });
+            } catch (e) {
+                console.error(e);
+                deferred.reject(e.message);
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _fromSDK: boolean;
 
     constructor(options: {
         id: string,
         name: string,
         queryNodes?: any[],
-        executor?: DagGraphExecutor
+        executor?: DagGraphExecutor,
+        fromSDK?: boolean
     }) {
         super(options);
         const {queryNodes, executor} = options;
+        this._fromSDK = options.fromSDK || false;
+
         if (queryNodes) {
             const graph: DagSubGraph = this._constructGraphFromQuery(queryNodes);
             graph.startExecution(queryNodes, executor);
@@ -16,13 +110,20 @@ class DagTabOptimized extends DagTabProgress {
         }
     }
 
+    public isFromSDK(): boolean {
+        return this._fromSDK;
+    }
+
     public getPath(): string {
-        return DagTabOptimized.PATH + this.getName();
+        return this._fromSDK
+        ? DagTabOptimized.SDKPATH + this.getName()
+        : DagTabOptimized.XDPATH + this.getName();
     }
 
     public load(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._isDoneExecuting = false;
+        this._hasQueryStateGraph = false; // reload query graph
 
         XcalarGetRetinaJson(this._queryName)
         .then((retina) => {
@@ -57,4 +158,23 @@ class DagTabOptimized extends DagTabProgress {
         this._inProgress = false;
         return this._getAndUpdateStatuses();
     }
+
+    public getSourceTab(): DagTab {
+        try {
+            let tabId = this._id;
+            if (!tabId.startsWith(DagTabOptimized.KEY)) {
+                return null;
+            }
+            let splits = tabId.split("_" + DagNode.KEY)[0].split(DagTabOptimized.KEY);
+            let srcTabId = splits[1];
+            return DagList.Instance.getDagTabById(srcTabId);
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }
+}
+
+if (typeof exports !== 'undefined') {
+    exports.DagTabOptimized = DagTabOptimized;
 }

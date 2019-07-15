@@ -3,7 +3,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
     private dagGraph: DagGraph;
     private model: DFLinkOutOpPanelModel;
     private _$colList: JQuery;
-    private needsColumns: boolean;
+    private needsColumns: boolean; // XXX to deprecated
 
     public constructor() {
         super();
@@ -49,15 +49,9 @@ class DFLinkOutOpPanel extends BaseOpPanel {
     }
 
     private _restorePanel(): void {
-        const $panel = this._getPanel();
         const param: DagNodeDFOutInputStruct = this.dagNode.getParam();
         this._getLinkOutNameInput().val(param.name);
         this.needsColumns = this.dagNode.getSubType() === DagNodeSubType.DFOutOptimized ? true : false;
-        if (this.needsColumns) {
-            $panel.find(".exportColumnsSection").show();
-        } else {
-            $panel.find(".exportColumnsSection").hide();
-        }
 
         const $checkbox: JQuery = this._getOptionCheckbox().find(".checkbox");
         if (!param.linkAfterExecution) {

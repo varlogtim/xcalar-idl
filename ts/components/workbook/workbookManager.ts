@@ -938,6 +938,7 @@ namespace WorkbookManager {
         const gDagAggKey: string = generateKey("gDagAggKey", version);
         const gDagListKey: string = generateKey("gDagListKey", version);
         const gSQLFuncListKey: string = generateKey("gSQLFuncListKey", version);
+        const gOptimizedDagListKey: string = generateKey("gOptimizedDagListKey", version);
         const gDagResetKey: string = generateKey("gDagResetKey", version);
         const gDagParamKey: string = generateKey("gDagParamKey", version);
         const gSQLQueryKey: string = generateKey("gSQLQuery", version);
@@ -965,6 +966,7 @@ namespace WorkbookManager {
             "gDagAggKey": gDagAggKey,
             "gDagListKey": gDagListKey,
             "gSQLFuncListKey": gSQLFuncListKey,
+            "gOptimizedDagListKey": gOptimizedDagListKey,
             "gDagResetKey": gDagResetKey,
             "gDagParamKey": gDagParamKey,
             "gSQLSnippet": gSQLSnippetKey,

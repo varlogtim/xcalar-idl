@@ -75,6 +75,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
      // XXX: Needed by DagGraph.getQuery()
     global.DagTab = require("../../dagHelper/DagTab.js").DagTab
     global.DagTabUser = require("../../dagHelper/DagTabUser.js").DagTabUser
+    global.DagTabProgress = require("../../dagHelper/DagTabProgress.js").DagTabProgress
+    global.DagTabOptimized = require("../../dagHelper/DagTabOptimized.js").DagTabOptimized
     // global.DagList = require("../../dagHelper/DagList.js").DagList
     // XXX: Needed by DagNodeExecutor
     global.DagTblManager = require("../../dagHelper/DagTblManager.js").DagTblManager

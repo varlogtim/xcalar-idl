@@ -2,7 +2,6 @@ class DagTabQuery extends DagTabProgress {
     public static readonly PATH = "Abandoned executions/";
     public static readonly SDKPATH = "SDK Dataflows/";
     private static _abandonedQueryPrefix;
-    private _createdTime: number = null;
     private _isSDK: boolean;
     protected _state: string;
 
@@ -47,10 +46,6 @@ class DagTabQuery extends DagTabProgress {
         } else {
             return DagTabQuery.PATH + this.getName();
         }
-    }
-
-    public getCreatedTime(): number {
-        return this._createdTime;
     }
 
     public getState(): string {
