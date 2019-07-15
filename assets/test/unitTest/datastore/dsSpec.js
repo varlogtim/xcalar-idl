@@ -914,6 +914,14 @@ describe("Dataset-DS Test", function() {
                 $grid.removeClass("fetching");
             });
         });
+
+        it("DS.isLoading should work", function() {
+            var $grid = DS.getGrid(testDS.getId());
+            $grid.addClass("loading");
+            expect(DS.isLoading(testDS.getId())).to.be.true;
+            expect(DS.isLoading("")).to.be.false;
+            $grid.removeClass("loading");
+        })
     });
 
     describe("Grid Menu Test", function() {

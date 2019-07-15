@@ -524,6 +524,18 @@ namespace DS {
         }
     }
 
+    /** Tells us if a dataset by ID is loading
+     * DS.isLoading
+     * @param dsId
+     */
+    export function isLoading(dsId: string): boolean {
+        if (dsId == null) {
+            return null;
+        } else {
+            return $gridView.find('.grid-unit[data-dsid="' + dsId + '"]').hasClass("loading");
+        }
+    }
+
     /**
      * create a new folder
      * DS.newFolder
@@ -3375,6 +3387,8 @@ namespace DS {
             } catch (e) {
                 console.error(e);
             }
+            // need to remove ahead of time to ensure consistent isLoading behavior
+            $grid.removeClass("loading");
             deferred.resolve(); // still resolve it
         })
         .always(() => {

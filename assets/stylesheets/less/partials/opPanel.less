@@ -2258,16 +2258,20 @@
                         border-top: 1px solid @color-bg-topBarGray2;
                         border-bottom: 1px solid @color-bg-topBarGray2;
 
+
+                        .name {
+                            max-width: ~"calc(100% - 10px - 60px)"; // 100% - padding - room for icon or activate text
+                            height: 26px;
+                        }
+
                         &.inActivated {
+                            .name {
+                                max-width: ~"calc(100% - 10px - 80px)";
+                            }
                             .name, .icon {
                                 opacity: 0.7;
                                 color: @color-bg-cardHeader;
                             }
-                        }
-
-                        .name {
-                            max-width: ~"calc(100% - 10px - 30px - 20px)"; // 100% - padding - icon widths - icon margins
-                            height: 26px;
                         }
 
                         .icon {
@@ -2276,6 +2280,16 @@
                             &.viewTable {
                                 float: right;
                             }
+                        }
+
+                        .actButton {
+                            float: right;
+                            text-decoration: underline;
+                            color: @color-font-link-blue;
+                        }
+
+                        .activating {
+                            float: right;
                         }
 
                         &:hover {

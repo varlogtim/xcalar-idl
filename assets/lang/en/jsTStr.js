@@ -1155,6 +1155,7 @@ DSTStr = {
     'DeactivateDSMsg': 'Are you sure you want to deactivate the selected dataset(s)?',
     'ActivateDS': 'Activate Dataset(s)',
     'ActivateDSMsg': 'Are you sure you want to activate the selected dataset(s)?',
+    'DFActivateDSMsg': 'Activating a dataset may take a long time. Are you sure you want to activate it?',
     'DelDS': 'Delete Dataset',
     'DelDSFail': 'Delete Dataset Failed',
     'NewFolder': 'New Folder',

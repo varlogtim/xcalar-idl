@@ -201,6 +201,12 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }): HTML {
         let html: HTML = "";
         if (file.options && file.options.inActivated) {
+            let inactiveHtml = "";
+            if (DS.isLoading(file.id)) {
+                inactiveHtml = '<div class="activating">Activating</div>';
+            } else {
+                inactiveHtml = '<div class="actButton">Activate</div>';
+            }
             html +=
             '<li class="fileName inActivated"' +
             ' data-toggle="tooltip"' +
@@ -210,6 +216,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             ' data-id="' + file.id + '">' +
                 '<i class="gridIcon icon xi_data"></i>' +
                 '<div class="name">' + file.name + '</div>' +
+                inactiveHtml +
             '</li>';
         } else {
             html +=
@@ -523,6 +530,27 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 const id: string = $dataset.data("id");
                 DagTable.Instance.previewDataset(id);
             }
+        });
+
+        this._$datasetList.on("click", ".actButton", (event) => {
+            const $btn: JQuery = $(event.currentTarget);
+            const $dataset: JQuery = $btn.parent();
+            const id: string = $dataset.data("id");
+            Alert.show({
+                title: DSTStr.ActivateDS,
+                msg: DSTStr.DFActivateDSMsg,
+                onConfirm: () => {
+                    $btn.remove();
+                    $dataset.append('<div class="activating">Activating</div>');
+                    let deferred: XDDeferred<void> = PromiseHelper.deferred();
+                    DS.activate([id], false)
+                    .always(() => {
+                        this._refreshDatasetList();
+                        deferred.resolve();
+                    });
+                    xcUIHelper.showRefreshIcon($dataset, null, deferred.promise());
+                }
+            });
         });
 
         this._$datasetList.on("click", "li", (event) => {

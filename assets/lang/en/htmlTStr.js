@@ -992,7 +992,7 @@ module.exports = {
         "dataset": "DATASET",
         "datasetInstr": "Configure the Dataset Node as a source of data.",
         "source": "Source",
-        "sourceInstr": "Select Dataset to use in this dataflow. If a dataset does not appear, or is inactive, close the panel and load/activate the dataset.",
+        "sourceInstr": "Select a dataset to use in your dataflow. If the desired dataset does not exist in the list below, from the sidebar go to Sources->Datasets to create the dataset and then click on the Dataflows icon to come back to this configuration panel.",
         "prefix": "Prefix",
         "prefixInstr": "A prefix for the columns of the result set.",
         "save": "Save"

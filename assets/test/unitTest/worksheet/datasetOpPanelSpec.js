@@ -2,6 +2,7 @@ describe("Dataset Operator Panel Test", function() {
     var datasetOpPanel;
     var node;
     var oldListDS;
+    var oldActivateDS;
     var oldJSONParse;
     var oldGetDS;
     var oldWaitForSetup;
@@ -18,6 +19,15 @@ describe("Dataset Operator Panel Test", function() {
                     options: {
                         inActivated: false,
                         size: 123,
+                    }
+                },
+                {
+                    path: "ids",
+                    id: "support@ids",
+                    suffix: "",
+                    options: {
+                        inActivated: true,
+                        size: 456
                     }
                 },
                 {
@@ -39,6 +49,7 @@ describe("Dataset Operator Panel Test", function() {
                 return { val: "true"};
             }
         };
+        oldActivateDS = DS.activate;
         node.setParam = () => {
             var deferred = PromiseHelper.deferred();
             return deferred.resolve();
@@ -95,8 +106,25 @@ describe("Dataset Operator Panel Test", function() {
         it("Should display dataset list correctly", function() {
             datasetOpPanel.show(node);
             var $nameList = $("#datasetOpPanel #dsOpListSection .fileName");
-            expect($nameList.length).to.equal(1);
+            expect($nameList.length).to.equal(2);
             expect($nameList.eq(0).find(".name").text()).to.equal("ds1");
+            expect($nameList.eq(1).hasClass("inActivated")).to.be.true;
+            expect($nameList.eq(1).find(".actButton")).not.to.be.null;
+            datasetOpPanel.close();
+        });
+
+        it("Should be able to activate an inactive dataset correctly", function() {
+            datasetOpPanel.show(node);
+            var calledActivate = false;
+            var $nameList = $("#datasetOpPanel #dsOpListSection .fileName");
+            var $inactiveDS = $nameList.eq(1);
+            DS.activate = function(id) {
+                calledActivate = true;
+                return PromiseHelper.resolve();
+            }
+            $inactiveDS.find(".actButton").click();
+            $("#alertModal").find(".confirm").click();
+            expect(calledActivate).to.be.true;
             datasetOpPanel.close();
         });
 
@@ -119,7 +147,7 @@ describe("Dataset Operator Panel Test", function() {
             expect($("#datasetOpBrowser .forwardFolderBtn").hasClass("xc-disabled")).to.be.true;
             $("#datasetOpBrowser .backFolderBtn").click();
             var $nameList = $("#datasetOpPanel #dsOpListSection .fileName");
-            expect($nameList.length).to.equal(1);
+            expect($nameList.length).to.equal(2);
             expect($nameList.eq(0).find(".name").text()).to.equal("ds1");
             expect($("#datasetOpBrowser .backFolderBtn").hasClass("xc-disabled")).to.be.true;
             expect($("#datasetOpBrowser .forwardFolderBtn").hasClass("xc-disabled")).to.be.false;
