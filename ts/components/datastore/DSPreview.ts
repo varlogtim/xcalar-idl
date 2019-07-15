@@ -2955,6 +2955,10 @@ namespace DSPreview {
             } else {
                 dataSourceSchema.toggleCaseInsensitive(false);
             }
+        } else if (format === formatMap.CSV) {
+            // import csv dataset case
+            dataSourceSchema.show();
+            dataSourceSchema.toggleCaseInsensitive(false);
         } else {
             dataSourceSchema.hide();
         }
