@@ -1,4 +1,4 @@
-class SQLOpPanelModel {
+class SQLOpPanelModel extends BaseOpPanelModel {
     protected _dagNode: DagNodeSQL;
     private _sqlQueryStr: string;
     private _newTableName: string;
@@ -9,6 +9,7 @@ class SQLOpPanelModel {
     private _dropAsYouGo: boolean;
 
     public constructor(dagNode: DagNodeSQL) {
+        super();
         this._dagNode = dagNode;
         const params = this._dagNode.getParam();
         this._initialize(params);

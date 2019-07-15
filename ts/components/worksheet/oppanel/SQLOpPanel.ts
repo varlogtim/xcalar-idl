@@ -2,6 +2,10 @@
  * The operation editing panel for SQL operator
  */
 class SQLOpPanel extends BaseOpPanel {
+    private static readonly _udfDefault: string =
+        "-- Example:\n" +
+        "-- select * from <table_identifier>\n\n";
+
     private _$elemPanel: JQuery; // The DOM element of the panel
     protected _dataModel: SQLOpPanelModel; // The key data structure
     protected _dagNode: DagNodeSQL;
@@ -65,12 +69,12 @@ class SQLOpPanel extends BaseOpPanel {
 
     public hasUnsavedChange(): boolean {
         if (!this.isOpen()) return false;
-        const curSQL = this._sqlEditor.getValue().replace(/;+$/, "");
+        const curSQL = this._sqlEditor.getValue().replace(/;+$/, "")
         const curIdentifiers = this._extractIdentifiers();
         const preSQL = this._dagNode.getParam().sqlQueryStr;
         const preIdentifiers = this._dagNode.getIdentifiers();
         let hasChange = false;
-        if (curSQL !== preSQL) {
+        if (curSQL !== preSQL && curSQL !== SQLOpPanel._udfDefault) {
             hasChange = true;
         } else if (curIdentifiers.size !== preIdentifiers.size) {
             hasChange = true;
@@ -266,8 +270,8 @@ class SQLOpPanel extends BaseOpPanel {
 
         self._$elemPanel.on("click", ".maximize", function() {
             const $title = $(this).parent();
-            const restore = $(this).find(".icon").hasClass("xi-exit-fullscreen");
-            self._maximizeSection($title, restore);
+            const restore = $(this).find(".icon").hasClass("xi-minus");
+            self._toggleExpandSection($title, restore);
         });
     }
 
@@ -281,41 +285,45 @@ class SQLOpPanel extends BaseOpPanel {
         $ul.html(content).css({top: topOff + "px"});
     }
 
-    private _maximizeSection($title: JQuery, restore: boolean): void {
-        const self = this;
+    private _toggleExpandSection($title: JQuery, restoreToDefault: boolean): void {
         // refer to opPanel.less @table-h & @title-h
         const tableHeight = 180;
         const titleHeight = 40;
         const maxHeight = "calc(100% - " + (titleHeight * 2) + "px)";
-        if (restore) {
-            self._$elemPanel.find(".maximize .icon")
-                            .removeClass("xi-exit-fullscreen")
-                            .addClass("xi-fullscreen");
-            self._$tableWrapper.removeClass("xc-hidden");
-            self._$tableWrapper.css({height: tableHeight});
-            self._$editorWrapper.css({height: "calc(100% - " +
+        if (restoreToDefault) {
+            // back to default size
+            this._toggleExpadHelper(this._$elemPanel.find(".maximize .icon"), true);
+            this._$tableWrapper.removeClass("xc-hidden");
+            this._$tableWrapper.css({height: tableHeight});
+            this._$editorWrapper.css({height: "calc(100% - " +
                                       (tableHeight + titleHeight * 2) + "px)"});
         } else if ($title.hasClass("tableTitle")) {
-            $title.find(".maximize .icon").removeClass("xi-fullscreen")
-                                          .addClass("xi-exit-fullscreen");
-            self._$editorWrapper.prev(".editorTitle").find(".maximize .icon")
-                .removeClass("xi-exit-fullscreen").addClass("xi-fullscreen");
-            self._$tableWrapper.css({height: maxHeight});
-            self._$editorWrapper.css({height: 0});
-            self._$tableWrapper.removeClass("xc-hidden");
+            // expand table mapping section
+            this._toggleExpadHelper($title.find(".maximize .icon"), false);
+            this._toggleExpadHelper(this._$editorWrapper.prev(".editorTitle").find(".maximize .icon"), true);
+            this._$tableWrapper.css({height: maxHeight});
+            this._$editorWrapper.css({height: 0});
+            this._$tableWrapper.removeClass("xc-hidden");
         } else {
-            $title.find(".maximize .icon").removeClass("xi-fullscreen")
-                                          .addClass("xi-exit-fullscreen");
-            self._$tableWrapper.prev(".tableTitle").find(".maximize .icon")
-                .removeClass("xi-exit-fullscreen").addClass("xi-fullscreen");
-            self._$tableWrapper.css({height: 0});
-            self._$editorWrapper.css({height: maxHeight});
-            self._$tableWrapper.addClass("xc-hidden");
+            // expand sql snippet section
+            this._toggleExpadHelper($title.find(".maximize .icon"), false);
+            this._toggleExpadHelper(this._$tableWrapper.prev(".tableTitle").find(".maximize .icon"), true);
+            this._$tableWrapper.css({height: 0});
+            this._$editorWrapper.css({height: maxHeight});
+            this._$tableWrapper.addClass("xc-hidden");
         }
-        // Sometimes gutter height won't adjust itself. Looks like a codemirror bug
-        // const gutterHeight = self._$editorWrapper.find(".CodeMirror-scroll").height();
-        // self._$editorWrapper.find(".CodeMirror-gutters").height(gutterHeight);
-        self._sqlEditor.refresh();
+
+        this._sqlEditor.refresh();
+    }
+
+    private _toggleExpadHelper($icon: JQuery, collapse: boolean) {
+        if (collapse) {
+            $icon.removeClass("xi-minus").addClass("xi-plus");
+            xcTooltip.add($icon, {title: "Expand"});
+        } else {
+            $icon.addClass("xi-minus").removeClass("xi-plus");
+            xcTooltip.add($icon, {title: "Collapse"});
+        }
     }
 
     private _refreshEllipsis(): void {
@@ -415,7 +423,7 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     private _renderSqlQueryString(): void {
-        const sqlQueryString = this._dataModel.getSqlQueryString();
+        const sqlQueryString: string = this._dataModel.getSqlQueryString() || SQLOpPanel._udfDefault;
         this._sqlEditor.setValue(sqlQueryString);
     }
 
