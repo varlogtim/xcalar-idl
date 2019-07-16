@@ -3326,9 +3326,9 @@ class DagView {
                 DagTabManager.Instance.removeTab(retinaName);
             })
             .fail((error) => {
-                if (error && error.status === StatusT.StatusRetinaInUse) {
-                    StatusBox.show("Could not delete optimized dataflow.  " + error.error, DagView.$dfWrap);
-                }
+                // most likely failed due to connectionMeta reset being called
+                // twice -- first call deletes, 2nd call produces an error
+                console.error(error);
             });
         });
 

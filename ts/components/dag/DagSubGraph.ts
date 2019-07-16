@@ -218,7 +218,7 @@ class DagSubGraph extends DagGraph {
                         // should store the outputTableName in a comment
                         let parentNode = node.getParents()[0];
                         let parentId = parentNode.getId();
-                        let targetTable = this._dagIdToTableNamesMap[parentId];
+                        let targetTable = this._dagIdToTableNamesMap[parentId][this._dagIdToTableNamesMap[parentId].length - 1];
                         let nodeInfo = nodeIdInfos.get(parentId)[targetTable];
                         let destTable: string;
                         try {
