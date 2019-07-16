@@ -12,7 +12,12 @@ class RestoreDataset extends EventEmitter {
         });
         this.api.perform(() => {
             if (needRestore) {
+                console.log("restoring dataset");
                 this.api.moveToElement("#dagNodeMenu li.restoreDataset", 10, 1)
+                    .mouseButtonClick('left')
+                    .waitForElementVisible("#dsListSection")
+                    .pause(1000)
+                    .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
                     .mouseButtonClick('left')
                     .waitForElementVisible('#dsTableContainer .datasetTable', 100000)
                     .moveToElement('#modelingDataflowTab', 1, 1)
