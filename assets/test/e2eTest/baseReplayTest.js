@@ -7,7 +7,7 @@ function replay(testConfig, tags) {
     const testTabDfMapping = new Map(); // tabName => dfId
 
     function buildTestUrl(browser, testConfig) {
-        return `${browser.globals.launchUrl}testSuite.html?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${testConfig.user}&id=0`
+        return `${browser.globals.launchUrl}testSuite.html?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${browser.globals.user}&id=0`
     }
 
     function findValidateNodeIndex(linkOutName, nodeInfos) {
@@ -31,7 +31,7 @@ function replay(testConfig, tags) {
         },
 
         after: function(browser) {
-            browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
+            browser.deleteWorkbook(browser.globals.finalWorkbookName, browser.globals.user);
         },
 
         'upload and enter workbook': function(browser) {

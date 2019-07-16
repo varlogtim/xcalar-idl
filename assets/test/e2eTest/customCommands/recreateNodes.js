@@ -150,7 +150,7 @@ class RecreateNodes extends EventEmitter {
                         .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
                         .pause(pause)
                         .setValue("#dfLinkOutPanel .linkOutName .inputWrap input", input.name);
-                        if (!input.linkAfterExecution) {
+                        if (input.linkAfterExecution) {
                             this.api.waitForElementNotPresent("#formWaitingBG", 3000)
                                 .click('#dfLinkOutPanel .argsSection .inputWrap .checkbox.checked');
                         }

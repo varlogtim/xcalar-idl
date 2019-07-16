@@ -1,7 +1,7 @@
 module.exports = {
     '@tags': ['dataflowCreation'],
     'open browser': function(browser) {
-        let user = "dftest3";
+        let user = "dftest";
         browser.globals['gTestUserName'] = user;
         browser.globals['gTestExportDirectory'] = "/home/jenkins/export_test/";
         let url = "http://localhost:8888/testSuite.html" +

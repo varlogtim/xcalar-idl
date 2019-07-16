@@ -169,56 +169,58 @@ module.exports = {
                 return node.type === "dataset";
             });
 
-            browser.perform(() => {
-                datasetNodes.forEach((nodeInfo) => {
-                    input = nodeInfo.input;
-                    if (input.prefix === "classes") {
-                        input.schema = [
-                            {
-                                "name": "class_name",
-                                "type": "string"
-                            },
-                            {
-                                "name": "class_id",
-                                "type": "integer"
-                            }
-                        ];
-                    } else if (input.prefix === "schedule") {
-                        input.schema =   [
-                            {
-                                "name": "class_id",
-                                "type": "integer"
-                            },
-                            {
-                                "name": "days",
-                                "type": "array"
-                            },
-                            {
-                                "name": "time",
-                                "type": "string"
-                            },
-                            {
-                                "name": "duration",
-                                "type": "string"
-                            },
-                            {
-                                "name": "teacher_id",
-                                "type": "integer"
-                            },
-                            {
-                                "name": "student_ids",
-                                "type": "array"
-                            }
-                        ];
-                    }
-                    if (!nodeInfo.schema || !nodeInfo.schema.length) {
-                        browser
-                        .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"]')
-                        .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
-                        .restoreDataset('.dataflowArea.active .operator[data-nodeid="' + nodeInfo.nodeId + '"] .main');
-                    }
-                });
-            });
+            // browser.perform(() => {
+            //     datasetNodes.forEach((nodeInfo) => {
+            //         input = nodeInfo.input;
+            //         if (input.prefix === "classes") {
+            //             input.schema = [
+            //                 {
+            //                     "name": "class_name",
+            //                     "type": "string"
+            //                 },
+            //                 {
+            //                     "name": "class_id",
+            //                     "type": "integer"
+            //                 }
+            //             ];
+            //         } else if (input.prefix === "schedule") {
+            //             input.schema =   [
+            //                 {
+            //                     "name": "class_id",
+            //                     "type": "integer"
+            //                 },
+            //                 {
+            //                     "name": "days",
+            //                     "type": "array"
+            //                 },
+            //                 {
+            //                     "name": "time",
+            //                     "type": "string"
+            //                 },
+            //                 {
+            //                     "name": "duration",
+            //                     "type": "string"
+            //                 },
+            //                 {
+            //                     "name": "teacher_id",
+            //                     "type": "integer"
+            //                 },
+            //                 {
+            //                     "name": "student_ids",
+            //                     "type": "array"
+            //                 }
+            //             ];
+            //         }
+
+            //         if (!nodeInfo.schema || !nodeInfo.schema.length) {
+            //             nodeInfo.schema = input.schema;
+            //             browser
+            //             .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"]')
+            //             // .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
+            //             .restoreDataset('.dataflowArea.active .operator[data-nodeid="' + nodeInfo.nodeId + '"] .main');
+            //         }
+            //     });
+            // });
         }
     },
 
