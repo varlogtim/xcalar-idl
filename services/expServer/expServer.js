@@ -264,24 +264,32 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         var buf = fs.readFileSync(cfgLocation, 'utf-8');
         var lines = buf.split('\n');
         var rePattern = new RegExp(/^Node.(\d+).IpAddr=(.*)$/);
+        // re-order the Node-IpAddress line
+        lines = lines.filter(line => {
+            return line.match(rePattern) != null;
+        })
+        lines.sort((l1, l2) => {
+            id1 = l1.match(rePattern)[1];
+            id2 = l2.match(rePattern)[1];
+            return id1-id2;
+        })
+
         for (var line of lines) {
             var regRes = line.match(rePattern);
-            if (regRes != null) {
-                var num = regRes[1];
-                var ip = regRes[2];
-                var port = Math.floor(Math.random() * (20000-1000))+1000;
-                while (true) {
-                    try{
-                        await verifyAddress(ip, port);
-                        return num;
-                    } catch(err) {
-                        if (err.message.includes("bind EADDRINUSE")){
-                            // Port already in use
-                            port++;
-                        } else {
-                            // Failed to bind to this address
-                            break;
-                        }
+            var num = regRes[1];
+            var ip = regRes[2];
+            var port = Math.floor(Math.random() * (20000-1000))+1000;
+            while (true) {
+                try{
+                    await verifyAddress(ip, port);
+                    return num;
+                } catch(err) {
+                    if (err.message.includes("bind EADDRINUSE")){
+                        // Port already in use
+                        port++;
+                    } else {
+                        // Failed to bind to this address
+                        break;
                     }
                 }
             }
