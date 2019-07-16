@@ -60,6 +60,18 @@ module.exports = {
             .click(".workbookBox .content.activate")
             .pause(1000)
             .waitForElementNotVisible("#initialLoadScreen", 100000);
+
+        // prevent dfAutoPreview from showing table automatically
+        browser.execute(function() {
+                let cachedUserPref = UserSettings.getPref;
+                UserSettings.getPref = function(val) {
+                    if (val === "dfAutoExecute" || val === "dfAutoPreview") {
+                        return false;
+                    } else {
+                        return cachedUserPref(val);
+                    }
+                };
+            }, [])
     },
 
     'activate tab': function(browser) {
@@ -627,11 +639,15 @@ module.exports = {
                 .executeNode(".operator.sql")
                 .moveToElement(`.dataflowArea.active .operator.sql .main`, 10, 20)
                 .mouseButtonClick('right')
-                .waitForElementVisible("#dagNodeMenu", 1000)
-                .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+                .waitForElementVisible("#dagNodeMenu", 1000);
+                browser.saveScreenshot("preValidateScreenshot.png");
+                browser.moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+
                 .mouseButtonClick('left')
-                .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
-                .getText('#dagViewTableArea .totalRows', ({value}) => {
+                .waitForElementVisible('#dagViewTableArea .totalRows', 20000);
+
+            browser.saveScreenshot("validateScreenshot.png");
+                browser.getText('#dagViewTableArea .totalRows', ({value}) => {
                     browser.assert.equal(value, "0");
                 });
         }

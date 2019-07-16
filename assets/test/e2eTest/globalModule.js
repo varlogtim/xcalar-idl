@@ -5,7 +5,7 @@ module.exports = {
         done();
     },
     "default": {
-        user: "dftest2",
+        user: "dftest",
         buildTestUrl: function(browser, user) {
             return `${browser.globals.launchUrl}testSuite.html?
                 test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${user}&id=0`
