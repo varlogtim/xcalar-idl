@@ -1043,6 +1043,11 @@ abstract class GeneralOpPanelModel {
                 let diffTypeArgNum = null;
                 let hasMixed = false;
                 for (let j = 0; j < group.args.length; j++) {
+                    if (opInfo.argDescs[j] &&
+                        opInfo.argDescs[j].argType === XcalarEvalArgTypeT.OptionalArg) {
+                        // ignore optional arguments
+                        continue;
+                    }
                     const arg = group.args[j];
                     let type = arg.getType();
                     let valueType;

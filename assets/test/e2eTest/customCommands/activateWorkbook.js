@@ -7,12 +7,9 @@ class ActivateWorkbook extends EventEmitter {
         .pause(2000)
         .click(".workbookBox .content.activate")
         .pause(10000)
-        .getLogTypes(function(result) {
-            console.log(result);
-        })
-        .getLog('browser', function(result) {
-            console.log(result);
-        })
+        // .getLog('browser', function(result) {
+        //     console.log(result);
+        // })
         .saveScreenshot("nwscreenshot2.png")
         .waitForElementNotVisible("#initialLoadScreen", 100000)
         .waitForElementVisible('.dataflowArea.active.rendered', 100000);

@@ -18,7 +18,7 @@ class DeleteWorkbook extends EventEmitter {
                 .waitForElementVisible("#wkbkMenu .deactivate")
                 .click("#wkbkMenu .deactivate")
                 .click("#alertModal .confirm")
-                .waitForElementNotPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"].active', 20000)
+                .waitForElementNotPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"].active', 50000)
                 .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
                 .click("#wkbkMenu .delete")
                 .click("#alertModal .confirm")

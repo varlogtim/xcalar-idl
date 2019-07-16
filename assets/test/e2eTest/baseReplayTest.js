@@ -192,7 +192,7 @@ function replay(testConfig, tags) {
                             .moveToElement("#dagNodeMenu li.executeNodeOptimized", 10, 1)
                             .waitForElementNotPresent(".dataflowArea.active.locked")
                             .mouseButtonClick('left')
-                            .waitForElementPresent('.dataflowArea ' + selector + '.state-Complete', 50000);
+                            .waitForElementPresent('.dataflowArea ' + selector + '.state-Complete', numOfNodes * 20000);
                     }
             }
         },
