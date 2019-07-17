@@ -139,8 +139,11 @@ class SqlManager {
                 }
             });
             if (sqlSession == null) {
-                this.SqlUtil.setSessionInfo(userName, userId, sessionName);
-                return XcalarNewWorkbook(sessionName, false);
+                const sessionInfo = this.SqlUtil.setSessionInfo(userName, userId,
+                    sessionName);
+                return XcalarNewWorkbook(sessionName, false, "",
+                                         {userName: sessionInfo.userName,
+                                         workbookName: sessionInfo.sessionName});
             }
         })
         .then(() => {

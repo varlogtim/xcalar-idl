@@ -95,7 +95,15 @@ declare module 'xcalar' {
     export class VersionService {
         constructor(client:XceClient);
         GetVersion(): Promise<proto.xcalar.compute.localtypes.Version.GetVersionResponse>;
+    }
 
+    export class SessionService {
+        constructor(client: XceClient);
+        create(request: proto.xcalar.compute.localtypes.Session.CreateRequest): Promise<proto.xcalar.compute.localtypes.Session.CreateResponse>;
+        activate(request: proto.xcalar.compute.localtypes.Session.ActivateRequest): Promise<proto.xcalar.compute.localtypes.Session.ActivateResponse>;
+        upload(request: proto.xcalar.compute.localtypes.Session.UploadRequest): Promise<proto.xcalar.compute.localtypes.Session.UploadResponse>;
+        list(request: proto.xcalar.compute.localtypes.Session.ListRequest): Promise<proto.xcalar.compute.localtypes.Session.ListResponse>;
+        deleteSession(request: proto.xcalar.compute.localtypes.Session.DeleteRequest): Promise<proto.google.protobuf.Empty>;
     }
 }
 // === Service definitions: End ===
@@ -1697,6 +1705,89 @@ declare namespace proto.xcalar.compute.localtypes {
             getThriftVersionSignatureShort(): number;
             getXcrpcVersionSignatureFull(): string;
             getXcrpcVersionSignatureShort(): number;
+        }
+    }
+
+    export namespace Session {
+        export class SessionArg {
+            getSessionId(): number;
+            getName(): string;
+            getState(): string;
+            getInfo(): string;
+            getActiveNode(): number;
+            getDescription(): string;
+        }
+
+        export class SessionGenericOutput {
+            getOutputAdded(): boolean;
+            getNodeId(): number;
+            getIpAddr(): string;
+            getErrorMessage(): string;
+        }
+
+        export class SessionNewInput {
+            setSessionName(value: string): void;
+            setFork(value: boolean): void;
+            setForkedSessionName(value: string): void;
+        }
+
+        export class SessionInfoInput {
+            setSessionId(value: number): void;
+            setSessionName(value: string): void;
+        }
+
+        export class SessionNewOutput {
+            getSessionGenericOutput(): SessionGenericOutput;
+            getSessionId(): number;
+            getError(): string;
+        }
+
+        export class SessionUploadPayload {
+            setPathToAdditionalFiles(value: string): void;
+            setSessionContent(value: string): void;
+        }
+
+        export class CreateRequest {
+            setScope(value: Workbook.WorkbookScope): void;
+            setSessionNewInput(value: SessionNewInput): void;
+        }
+
+        export class CreateResponse {
+            getSessionNewOutput(): SessionNewOutput;
+        }
+
+        export class ActivateRequest {
+            setScope(value: Workbook.WorkbookScope): void;
+            setSessionInfoInput(value: SessionInfoInput): void;
+        }
+
+        export class ActivateResponse {
+            getSessionGenericOutput(): SessionGenericOutput;
+        }
+
+        export class UploadRequest {
+            setScope(value: Workbook.WorkbookScope): void;
+            setSessionNewInput(value: SessionNewInput): void;
+            setSessionUploadPayload(value: SessionUploadPayload): void;
+        }
+
+        export class UploadResponse {
+            getSessionNewOutput(): SessionNewOutput;
+        }
+
+        export class ListRequest {
+            setScope(value: Workbook.WorkbookScope): void;
+            setPattern(value: string): void;
+        }
+
+        export class ListResponse {
+            getSessionGenericOutput(): SessionGenericOutput;
+            getNumSessions(): number;
+            getSessionsList(): Array<SessionArg>;
+        }
+
+        export class DeleteRequest {
+            // TODO
         }
     }
 }

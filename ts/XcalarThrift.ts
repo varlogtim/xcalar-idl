@@ -5474,17 +5474,28 @@ XcalarGetQuery = function(workItem: WorkItem): string {
 XcalarNewWorkbook = function(
     newWorkbookName: string,
     isCopy: boolean,
-    copyFromWhichWorkbook: string
+    copyFromWhichWorkbook: string,
+    scopeInfo?: Xcrpc.Session.ScopeInfo
 ): XDPromise<any> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Session.SCOPE.GLOBAL,
+            workbook: Xcrpc.Session.SCOPE.WORKBOOK
+        }
+    });
 
-    xcalarApiSessionNew(tHandle, newWorkbookName, isCopy,
-                        copyFromWhichWorkbook)
-    .then(function(res) {
-        const sessionId: string = parseWorkbookId(res);
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSessionService().create({
+            sessionName: newWorkbookName,
+            fork: isCopy,
+            forkedSessionName: copyFromWhichWorkbook,
+            scope: Xcrpc.Session.SCOPE.WORKBOOK, // Hard code it here as we have to send user name
+            scopeInfo: xcrpcScope.scopeInfo
+        })
+    )
+    .then(function(sessionId) {
         deferred.resolve(sessionId);
     })
     .fail(function(error) {

@@ -49,3 +49,5 @@ import * as Version from './Version/VersionService';
 export { Version };
 import * as ResultSet from './ResultSet/ResultSetService';
 export { ResultSet };
+import * as Session from './Session/SessionService';
+export { Session };

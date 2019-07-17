@@ -14,6 +14,7 @@ import { DagNodeService} from './DagNode/DagNodeService';
 import { XDFService } from './XDF/XDFService';
 import {VersionService} from './Version/VersionService';
 import { ResultSetService } from './ResultSet/ResultSetService';
+import { SessionService } from './Session/SessionService';
 
 class ServiceClient {
     private _apiClient: ApiClient;
@@ -80,6 +81,10 @@ class ServiceClient {
     
     public getResultSetService(): ResultSetService {
         return new ResultSetService(this._apiClient);
+    }
+
+    public getSessionService(): SessionService {
+        return new SessionService(this._apiClient);
     }
 }
 
