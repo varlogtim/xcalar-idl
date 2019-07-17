@@ -29,7 +29,7 @@
           <section id="udf-fnSection" class="mainSection xc-disabled">
             <!-- topSection -->
             <div class="topSection">
-              <div class="template">
+              <div class="template normal">
                 <div id="udf-fnList" class="dropDownList">
                   <input id= "test_udf_fn" class="text udf-fnName" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
                   <div class="iconWrapper">
@@ -42,6 +42,16 @@
                     include "../../util/menuScrollArea.html"
                   </div>
                 </div>
+              </div>
+              <div class="template sql">
+                <span class="text">
+                  sql.py
+                </span>
+                <i class="qMark icon xi-unknown"
+                data-toggle="tooltip"
+                data-container="body"
+                data-title="sql.py is the only UDF module that can be called from SQL"
+                data-placement="top"></i>
               </div>
             </div>
             <!-- editSection -->

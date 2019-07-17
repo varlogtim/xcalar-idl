@@ -126,6 +126,20 @@ describe("UDFPanel Test", function() {
             expect(editor instanceof CodeMirror).to.be.true;
         });
 
+        it("UDFPanel.Instance.switchMode should work", function() {
+            let $udfSection = $("#udfSection");
+            let oldFunc = XVM.isSQLMode;
+            XVM.isSQLMode = () => true;
+            $("#monitorPanel").removeClass("active");
+            UDFPanel.Instance.switchMode();
+            expect($udfSection.hasClass("sqlMode")).to.be.true;
+            // case 2
+            XVM.isSQLMode = () => false;
+            UDFPanel.Instance.switchMode();
+            expect($udfSection.hasClass("sqlMode")).to.be.false;
+            XVM.isSQLMode = oldFunc;
+        });
+
         // XXX clear will affect UDFFileManager test, need a way to restore
         // it("UDFPanel.Instance.clear should work", function() {
         //     UDFPanel.Instance.clear();

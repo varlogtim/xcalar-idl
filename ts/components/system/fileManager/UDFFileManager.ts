@@ -226,6 +226,14 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
+     * check if has the UDF or not
+     * @param udfPath
+     */
+    public hasUDF(udfPath): boolean {
+        return this.storedUDF.has(udfPath);
+    }
+
+    /**
      * Store Python script. Used in extManager.js.
      * @param  {string} nsPath
      * @param  {string} entireString

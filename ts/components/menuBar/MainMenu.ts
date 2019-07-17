@@ -422,28 +422,23 @@ namespace MainMenu {
                     } else {
                         const $subTab = $curTab.find(".subTab.active");
                         if (!$subTab.hasClass("noLeftPanel")) {
-                            hasAnim = toggleMenu($curTab);
+                            hasAnim = toggleMenu($curTab, false);
                         }
                     }
                 } else if ($target.closest(".subTab").length) {
                     const $subTab = $target.closest(".subTab");
-                    let isUDFManager: boolean = $subTab.attr("id") === "fileManagerButton";
-
                     if ($subTab.hasClass("noLeftPanel")) {
                         closeMenu($curTab, true);
                     } else if ($subTab.hasClass("active")) {
                         // clicking on active sub tab
+                        let isUDFManager: boolean = $subTab.attr("id") === "fileManagerButton";
                         hasAnim = toggleMenu($curTab, isUDFManager);
                     } else if ($("#bottomMenu").hasClass("open")) {
                         openMenu($curTab, true);
-                        if (isUDFManager) {
-                            BottomMenu.openUDFMenuWithMainMenu();
-                        }
+                        checkUDFMenu($subTab);
                         hasAnim = false;
                     } else {
-                        if (isUDFManager) {
-                            BottomMenu.openUDFMenuWithMainMenu();
-                        }
+                        checkUDFMenu($subTab);
                         hasAnim = false;
                     }
 
@@ -473,6 +468,7 @@ namespace MainMenu {
                     !$curTab.hasClass("noLeftPanel") &&
                     !$subTab.hasClass("noLeftPanel")) {
                     openMenu($curTab, noAnim);
+                    checkUDFMenu($curTab);
                 } else {
                     closeMenu($curTab, noAnim);
                 }
@@ -649,6 +645,13 @@ namespace MainMenu {
         }
         sizeRightPanel();
         return !noAnim;
+    }
+
+    function checkUDFMenu($subTab: JQuery): void {
+        let isUDFManager: boolean = $subTab.attr("id") === "fileManagerButton";
+        if (isUDFManager) {
+            BottomMenu.openUDFMenuWithMainMenu();
+        }
     }
 
     // makeInactive is used in "noWorkbook" mode

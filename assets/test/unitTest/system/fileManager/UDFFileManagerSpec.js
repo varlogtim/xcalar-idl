@@ -774,6 +774,14 @@ describe("UDFFileManager Test", function() {
             expect(UDFFileManager.Instance.canShare(displayPath2)).to.be.true;
         });
 
+        it("hasUDF should work", function() {
+            let res = UDFFileManager.Instance.hasUDF(UDFFileManager.Instance.getDefaultUDFPath());
+            expect(res).to.be.true;
+            // case 2
+            res = UDFFileManager.Instance.hasUDF(xcHelper.randName("test"));
+            expect(res).to.be.false;
+        });
+
         it("tests copy", () => {
             // tested in functional tests
         });

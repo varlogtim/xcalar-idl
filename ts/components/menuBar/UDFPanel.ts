@@ -149,8 +149,36 @@ class UDFPanel {
         this._updateDropdownList(sortedUDF);
     }
 
+    /**
+     * UDFPanel.Instance.switchMode
+     * update mode of udf section
+     */
+    public switchMode(): void {
+        const $udfSection: JQuery = this._getUDFSection();
+        const $topSection: JQuery = $("#udf-fnSection .topSection");
+        if (XVM.isSQLMode() &&
+            !($("#monitorPanel").hasClass("active") &&
+             $("#monitor-file-manager").hasClass("active"))
+        ) {
+            // switch to sql mode, only show sql.py
+            $udfSection.addClass("sqlMode");
+            $topSection.find(".template.normal").addClass("xc-hidden");
+            $topSection.find(".template.sql").removeClass("xc-hidden");
+            this._selectSQLUDF();
+        } else {
+            $udfSection.removeClass("sqlMode");
+            $topSection.find(".template.normal").removeClass("xc-hidden");
+            $topSection.find(".template.sql").addClass("xc-hidden");
+        }
+    }
+
+    private _getUDFSection(): JQuery {
+        return $("#udfSection");
+    }
+
     // Setup UDF section
     private _setupUDF(): void {
+        const $udfSection: JQuery = this._getUDFSection();
         UDFFileManager.Instance.initialize();
         const monitorFileManager: FileManagerPanel = new FileManagerPanel(
             $("#monitor-file-manager")
@@ -208,7 +236,6 @@ class UDFPanel {
             );
         });
 
-        const $udfSection: JQuery = $("#udfSection");
         const wasActive: boolean = $udfSection.hasClass("active");
         // panel needs to be active to set editor value to udf default
         $udfSection.addClass("active");
@@ -231,35 +258,12 @@ class UDFPanel {
     }
 
     private _addSaveEvent(): void {
-        const $udfSection: JQuery = $("#udfSection");
+        const $udfSection: JQuery = this._getUDFSection();
         const $topSection: JQuery = $udfSection.find(".topSection");
         const $save: JQuery = $("#udfButtonWrap").find(".saveFile");
         const $saveNameInput: JQuery = $topSection.find(".udf-fnName");
         $save.on("click", () => {
-            let displayPath: string = $saveNameInput.val().trim();
-            if (displayPath === "New Module") {
-                this._eventSaveAs();
-            } else {
-                if (!displayPath.startsWith("/")) {
-                    displayPath =
-                        UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
-                        displayPath;
-                }
-                if (
-                    UDFFileManager.Instance.canAdd(
-                        displayPath,
-                        $saveNameInput,
-                        $saveNameInput,
-                        "bottom"
-                    )
-                ) {
-                    $save.addClass("xc-disabled");
-                    this._eventSave(displayPath)
-                    .always(() => {
-                        $save.removeClass("xc-disabled");
-                    });
-                }
-            }
+            this._saveUDF($saveNameInput);
         });
 
         const $editArea: JQuery = $udfSection.find(".editSection .editArea");
@@ -276,6 +280,42 @@ class UDFPanel {
             event.stopPropagation();
             $save.click();
         });
+    }
+
+    private _saveUDF($saveNameInput: JQuery): void {
+        const $save: JQuery = $("#udfButtonWrap").find(".saveFile");
+        let displayPath: string = $saveNameInput.val().trim();
+        let newModule: boolean = false;
+
+        if (displayPath === "New Module") {
+            let $udfSection = this._getUDFSection();
+            if ($udfSection.hasClass("sqlMode")) {
+                newModule = true;
+                displayPath = "sql.py";
+            } else {
+                this._eventSaveAs();
+                return;
+            }
+        }
+        if (!displayPath.startsWith("/")) {
+            displayPath =
+                UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
+                displayPath;
+        }
+        if (
+            UDFFileManager.Instance.canAdd(
+                displayPath,
+                $saveNameInput,
+                $saveNameInput,
+                "bottom"
+            )
+        ) {
+            $save.addClass("xc-disabled");
+            this._eventSave(displayPath, newModule)
+            .always(() => {
+                $save.removeClass("xc-disabled");
+            });
+        }
     }
 
     private _eventSaveAs() {
@@ -464,6 +504,15 @@ class UDFPanel {
         xcTooltip.changeText($fnListInput, displayName);
 
         this._setEditorValue(this.udfDefault);
+    }
+
+    private _selectSQLUDF(): void {
+        let sqlUDFPath = UDFFileManager.Instance.getCurrWorkbookPath() + "sql";
+        if (UDFFileManager.Instance.hasUDF(sqlUDFPath)) {
+            this._selectUDF("sql.py", false);
+        } else {
+            this._selectBlankUDF();
+        }
     }
 
     private _getDisplayNameAndPath(
