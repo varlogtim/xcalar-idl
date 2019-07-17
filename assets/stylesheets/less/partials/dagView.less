@@ -513,6 +513,7 @@
         &.hasUdfError {
             .iconArea {
                 pointer-events: initial;
+                cursor: pointer;
             }
         }
 
@@ -895,12 +896,6 @@
                 stroke-linecap: round;
             }
 
-            &.debugEdge {
-                .visibleLine {
-                    stroke: @color-error-red;
-                }
-            }
-
             .invisibleLine {
                 stroke: transparent;
                 stroke-width: 9px;
@@ -913,23 +908,12 @@
                     stroke: #555555;
                     stroke-width: 2px;
                 }
-                &.debugEdge {
-                    .visibleLine {
-                        stroke: @color-error-red;
-                    }
-                }
                 .connectorIndex {
                     fill: #444444;
                     font-size: 13px;
                 }
             }
 
-            &.tempEdge {
-                opacity: 0.5;
-                .visibleLine {
-                    stroke-dasharray: 5, 5;
-                }
-            }
             &.lineageSelected {
                 .visibleLine {
                     stroke: @color-border-focus-blue;
@@ -1446,7 +1430,7 @@
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
         .viewOptimizedDataflow,
         .description, .configureNode, .viewResult, .generateResult, .viewSchema, .viewOptions, .customNodeOptions, .autoAlign,
-        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes {
+        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes, .viewUDFErrors {
             display: list-item;
         }
         .findLinkOut, .restoreDataset {
@@ -1454,7 +1438,7 @@
         }
         &.multiple {
             .description, .configureNode, .viewResult, .viewOptimizedDataflow,
-            .generateResult, .viewSchema, .shareCustom {
+            .generateResult, .viewSchema, .shareCustom, .viewUDFErrors {
                 display: none;
             }
             .createCustom {
@@ -1660,6 +1644,11 @@
             font-size: 15px;
             position: relative;
             top: -2px;
+            left: -1px;
+        }
+        &.xi-error {
+            font-size: 11px;
+            position: relative;
             left: -1px;
         }
     }

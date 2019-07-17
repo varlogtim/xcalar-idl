@@ -203,6 +203,9 @@ namespace DagNodeMenu {
                 case ("viewOptimizedDataflow"):
                     DagViewManager.Instance.viewOptimizedDataflow(_getNodeFromId(dagNodeIds[0]), tabId);
                     break;
+                case ("viewUDFErrors"):
+                    DagUDFErrorModal.Instance.show(dagNodeIds[0]);
+                    break;
                 case ("description"):
                     DagDescriptionModal.Instance.show(dagNodeIds[0]);
                     break;
@@ -692,6 +695,8 @@ namespace DagNodeMenu {
         const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
         const $node: JQuery = DagViewManager.Instance.getNode(dagNode.getId());
         let classes = "";
+
+        // display viewResults or generateResult
         if (dagNode != null &&
             state === DagNodeState.Complete &&
             !$node.find(".tableIcon").length
@@ -713,6 +718,8 @@ namespace DagNodeMenu {
             $menu.find(".viewResult").addClass("unavailable");
             $menu.find(".generateResult").addClass("xc-hidden");
         }
+
+        // view optimized dataflow
         if (dagNode instanceof DagNodeOutOptimizable &&
             dagNode.isOptimized() &&
             (dagNode.getState() === DagNodeState.Complete ||
@@ -724,11 +731,26 @@ namespace DagNodeMenu {
             $menu.find(".viewOptimizedDataflow").addClass("xc-hidden");
         }
 
+        // view udf error details
+        if (dagNode instanceof DagNodeMap && dagNode.hasUDFError()) {
+            $menu.find(".viewUDFErrors").removeClass("xc-hidden");
+            if (DagUDFErrorModal.Instance.isOpen()) {
+                $menu.find(".viewUDFErrors").addClass("unavailable");
+            } else {
+                $menu.find(".viewUDFErrors").removeClass("unavailable");
+            }
+        } else {
+            $menu.find(".viewUDFErrors").addClass("xc-hidden");
+        }
+
+
+        // view description
         if (dagNode != null && dagNode.getDescription()) {
             $menu.find(".description .label").text(DagTStr.EditDescription);
         } else {
             $menu.find(".description .label").text(DagTStr.AddDescription);
         }
+        // view agg result
         const dagNodeType: DagNodeType = dagNode.getType();
         if (dagNode != null && dagNodeType === DagNodeType.Aggregate) {
             const aggNode = <DagNodeAggregate>dagNode;

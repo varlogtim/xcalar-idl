@@ -2,7 +2,7 @@ class DagUDFErrorModal {
     private static _instance: DagUDFErrorModal;
     private _$modal: JQuery;
     private _modalHelper: ModalHelper;
-    private _node: DagNode;
+    private _node: DagNodeMap;
     private _tabId: string;
 
     public static get Instance() {
@@ -29,7 +29,7 @@ class DagUDFErrorModal {
             return false;
         }
         this._tabId = DagViewManager.Instance.getActiveTab().getId();
-        this._node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        this._node = <DagNodeMap>DagViewManager.Instance.getActiveDag().getNode(nodeId);
         if (this._node == null) {
             // error case
             return false;
@@ -37,96 +37,97 @@ class DagUDFErrorModal {
 
         this._modalHelper.setup();
         this._listErrors();
+        this._updateErrorNum();
+        this._updateGenErrorTableButton();
         return true;
     }
 
-    private _listErrors() {
-        let numErrors = 4;
+
+    public close(): void {
+        this._modalHelper.clear();
+        this._reset();
+    }
+
+    public getNode(): DagNodeMap {
+        return this._node;
+    }
+
+    public isOpen() {
+        return this._node != null;
+    }
+
+    private _listErrors(): void {
+        let errorInfo = this._node.getUDFError();
         let html: HTML = "";
-        for (let i = 0; i < numErrors; i++) {
-            let count = 650;
+        let count = 0;
+        errorInfo.failureDescArr.forEach(err => {
+            count += err.numRowsFailed;
+            let desc = xcStringHelper.escapeHTMLSpecialChar(err.failureDesc);
             html += `<div class="errorRow">
-                        <div class="count">${count}</div>
-                        <div class="errorText">${JSON.stringify({"a": 2}, null, 4)}</div>
-                    </div>`;
-        }
+                <div class="count">Count: <span class="value">${err.numRowsFailed}</span></div>
+                <div class="errorText">${desc}</div>
+            </div>`;
+        });
         this._$modal.find(".errorList").html(html);
+        if (count < errorInfo.numRowsFailedTotal) {
+            this._$modal.find(".extraErrors").removeClass("xc-hidden");
+        } else {
+            this._$modal.find(".extraErrors").addClass("xc-hidden");
+        }
+    }
+
+    private _updateErrorNum(): void {
+        let errorInfo = this._node.getUDFError();
+        this._$modal.find(".numErrors").text(xcStringHelper.numToStr(errorInfo.numRowsFailedTotal));
+    }
+
+    private _updateGenErrorTableButton(): void {
+        let parentNode = this._node.getParents()[0];
+        if (!parentNode) {
+            xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), "Parent node does not exist");
+        } else if (!parentNode.getTable()) {
+            xcUIHelper.disableElement(this._$modal.find(".genErrorTable"), "Parent node does not have a result set");
+        } else {
+            xcUIHelper.enableElement(this._$modal.find(".genErrorTable"));
+        }
     }
 
     private _addEventListeners(): void {
         const self = this;
         this._$modal.on("click", ".close, .cancel", function() {
-            self._closeModal();
-        });
-
-        this._$modal.on("click", ".genSummaryTable", function() {
-            self._genSummaryTable();
+            self.close();
         });
 
         this._$modal.on("click", ".genErrorTable", function() {
+            if ($(this).hasClass("unavailable")) {
+                return;
+            }
             self._genErrorTable();
         });
     }
 
-    private _closeModal(): void {
-        this._modalHelper.clear();
-        this._reset();
-    }
-
     private _reset(): void {
         this._node = null;
-    }
-
-
-    private _genSummaryTable() {
-        let parentNode = this._node.getParents()[0];
-        let input: DagNodeMapInputStruct = this._node.getParam();
-        let mapColName = input.eval[0].newField;
-        input.icv = true;
-        let newMapNode = DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, parentNode.getId(), null, null, null, {
-            isTempDebugNode: true
-        });
-        newMapNode.setParam(input, true);
-        let newGroupByNode = DagViewManager.Instance.autoAddNode(DagNodeType.GroupBy, null, newMapNode.getId(),  null, null, null, {
-            isTempDebugNode: true
-        });
-        let groupByInput: DagNodeGroupByInputStruct = {
-            "groupBy": [
-                mapColName
-            ],
-            "aggregate": [
-                {
-                    "operator": "count",
-                    "sourceColumn": mapColName,
-                    "destColumn": "count",
-                    "distinct": false,
-                    "cast": null
-                }
-            ],
-            "includeSample": false,
-            "joinBack": false,
-            "icv": false,
-            "groupAll": false,
-            "newKeys": [],
-            "dhtName": "",
-        };
-        newGroupByNode.setParam(groupByInput, true);
-        DagViewManager.Instance.run([newGroupByNode.getId()])
-        .then(() => {
-            if (!UserSettings.getPref("dfAutoPreview")) {
-                DagViewManager.Instance.viewResult(newGroupByNode, this._tabId);
-            }
-        });
+        this._tabId = null;
     }
 
     private _genErrorTable() {
-        let parentNode = this._node.getParents()[0];
-        let input = this._node.getParam();
+        let node = this._node;
+        this.close();
+
+        let parentNode = node.getParents()[0];
+
+        let oldTitle = node.getTitle().trim();
+        let newTitle = oldTitle.length ? (oldTitle + "- Error") : "Error";
+        let input = node.getParam();
         input.icv = true;
+
         let newNode = DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, parentNode.getId(), null, null, null, {
-            isTempDebugNode: true
+            nodeTitle: newTitle
         });
+
         newNode.setParam(input, true);
+
         DagViewManager.Instance.run([newNode.getId()])
         .then(() => {
             if (!UserSettings.getPref("dfAutoPreview")) {

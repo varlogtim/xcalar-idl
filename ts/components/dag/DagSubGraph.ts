@@ -165,7 +165,7 @@ class DagSubGraph extends DagGraph {
     //  *
     //  * @param nodeInfos queryState info
     // */
-    // only being used for optimized dataflows
+    // only being used for optimized / abandoned dataflows
     public updateSubGraphProgress(
         queryNodeInfos: XcalarApiDagNodeT[],
         storeTablesToNode: boolean
@@ -231,6 +231,15 @@ class DagSubGraph extends DagGraph {
                         }
                     }
                 }
+                if (node.getState() === DagNodeState.Complete ||
+                    node.getState() === DagNodeState.Error) {
+                    if (node.getType() === DagNodeType.Map) {
+                        let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
+                        if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.failureDescArr.length) {
+                            (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
+                        }
+                    }
+                }
             }
         }
     }
@@ -275,10 +284,19 @@ class DagSubGraph extends DagGraph {
             queryNodeInfo["index"] = parseInt(queryNodeInfo.dagNodeId);
         });
 
-        for (let [nodeId, _queryNodeMap] of nodeIdInfos) {
+        for (let [nodeId, queryNodesBelongingToDagNode] of nodeIdInfos) {
             let node: DagNode = this.getNode(nodeId);
             if (node != null) {
                 node.updateProgress(nodeIdInfos.get(nodeId), true, true);
+                if (node.getState() === DagNodeState.Complete ||
+                    node.getState() === DagNodeState.Error) {
+
+                if (node.getType() === DagNodeType.Map) {
+                    let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
+                    if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.failureDescArr.length) {
+                        (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
+                    }
+                }
             }
         }
     }

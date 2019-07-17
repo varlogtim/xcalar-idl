@@ -1,7 +1,7 @@
 <div id="dagUDFErrorModal" class="modalContainer shadow">
 <!-- Header -->
 <header class="modalHeader">
-    <span class="text">Error Count</span>
+    <span class="text">Map Node UDF Failures</span>
     <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Minimize %>">
     <i class="icon xi-exit-fullscreen"></i>
     </div>
@@ -14,10 +14,13 @@
 </header>
 <!-- Instruction -->
 <section class="modalInstruction">
-    <i class="icon xi-error"></i>
-    <div class="text">Total number of failures: <span class="numErrors">1000</span></div>
+    <div class="modalInstructionSection totalFailureArea">
+        <i class="icon xi-error"></i>
+        <div class="text">Total number of failures: <span class="numErrors">N/A</span></div>
+    </div>
+    <div class="modalInstructionSection extraErrors">There are additional failures not reported. For full stats, click Generate Detailed Error Table.</div>
 </section>
-<section class="modalRow">
+<section class="modalRow modalMainTitle">
     Error Count and Description
 </section>
 <!-- Main Section -->
@@ -27,7 +30,6 @@
 
 <section class="modalBottom">
     <button type="button" class="btn btn-large btn-submit genErrorTable">Generate Detailed Error Table</button>
-    <button type="button" class="btn btn-large btn-secondary genSummaryTable">Generate Detailed Summary Table</button>
     <button type="button" class="btn cancel"><%= dicts.common.Cancel %></button>
 </section>
 </div>

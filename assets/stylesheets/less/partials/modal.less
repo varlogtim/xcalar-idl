@@ -1671,7 +1671,7 @@ html.microsoft {
             .checkboxSection {
                 display: none;
             }
-        } 
+        }
     }
 
     .header {
@@ -3807,7 +3807,7 @@ html.microsoft {
 
         .topSection {
             margin-left: 10px;
-    
+
             .size(@height: @top-h);
         }
 
@@ -3847,15 +3847,15 @@ html.microsoft {
                 }
             }
         }
-    
-    
+
+
         .bottomSection {
             .size(@width: 100%, @height: @bottom-h);
             padding: 5px 10px;
             .flex-display;
             .flex-wrap(wrap);
             .justify-content(flex-end);
-    
+
             > div {
                 .size(@height: 30px);
                 .input-box(@w: 60px, @h: 30px);
@@ -3863,25 +3863,25 @@ html.microsoft {
                 float: right;
                 clear: right;
                 text-transform: none;
-    
+
                 span {
                     display: inline-block;
                 }
-    
+
                 .text {
                     margin-left: 10px;
                 }
-    
+
                 .offsetNum {
                     padding-left: 3px;
                     .size(@min-width: 60px, @max-width: ~"calc(100% - 50px)");
                 }
-    
+
                 .qMark {
                     position: relative;
                     bottom: 2px;
                 }
-    
+
                 input {
                     margin-left: 3px;
                     padding: 0 3px;
@@ -4594,7 +4594,7 @@ html.microsoft {
         padding: 10px;
         overflow-y: auto;
     }
-    
+
     .modalInstruction {
         b {
             color: @color-font-link-blue;
@@ -5136,19 +5136,41 @@ html.microsoft {
 }
 
 #dagUDFErrorModal {
-    .size(@width: 730px, @height: 400px, @min-width: 730px, @min-height: 250px);
+    .size(@width: 700px, @height: 400px, @min-width: 500px, @min-height: 250px);
+    @modalInstructionHeight: 62px;
+    @modalRowHeight: 36px;
 
     .modalInstruction {
         border-bottom: none;
+        display: flex;
+        padding: 13px 12px;
+        height: @modalInstructionHeight;
 
-        .xi-error {
-            color: @color-error-red;
-            margin-top: 0px;
-            line-height: 36px;
+        .modalInstructionSection {
+            padding-left: 13px;
+            padding-right: 13px;
         }
-        .text {
-            align-self: center;
-            font-size: 15px;
+        .totalFailureArea {
+            flex: none;
+            .xi-error {
+                color: @color-error-red;
+                margin-top: 0px;
+                line-height: 36px;
+                float: left;
+            }
+            .text {
+                font-size: 15px;
+                line-height: 36px;
+                float: left;
+                margin-left: 10px;
+            }
+        }
+        .extraErrors {
+            flex: 1 1 auto;
+            border-left :1px solid @color-border-menubar-grey;
+            font-size: 13px;
+            color: @color-error-red;
+            overflow: auto;
         }
     }
     .modalRow {
@@ -5156,20 +5178,33 @@ html.microsoft {
         border-top: 1px solid @color-border-menubar-grey;
         border-bottom: 1px solid @color-border-menubar-grey;
         font-size: 15px;
-        height: 42px;
+        height: @modalRowHeight;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 600;
     }
     .modalMain {
-        .size(@height: ~"calc(100% - 190px)");
+        @heights: @modalInstructionHeight + @modalRowHeight + 92;
+        .size(@height: ~"calc(100% - @{heights})");
         overflow: auto;
         border-bottom: 1px solid @color-border-menubar-grey;
     }
     .errorRow {
         border-bottom: 1px solid @color-border-menubar-grey;
-        padding: 10px;
+        padding: 12px 10px;
+        padding-left: 25px;
+        font-size: 12px;
+
+        .count {
+            color: @color-error-red;
+            .value {
+                font-weight: bold;
+            }
+        }
+    }
+    .errorText {
+        white-space: pre-wrap;
     }
     .btn-large {
         width: 250px;

@@ -1,6 +1,6 @@
 class DagNodeMap extends DagNode {
     protected input: DagNodeMapInput;
-    private _hasUDFError: boolean;
+    private _udfError: MapUDFFailureInfo;
 
     public constructor(options: DagNodeMapInfo, runtime?: DagRuntime) {
         super(options, runtime);
@@ -9,7 +9,7 @@ class DagNodeMap extends DagNode {
         this.minParents = 1;
         this.display.icon = "&#xe9da;";
         this.input = this.getRuntime().accessible(new DagNodeMapInput(options.input));
-        this._hasUDFError = options.hasUDFError || false;
+        this._udfError = options.udfError;
     }
 
     public static readonly specificSchema = {
@@ -170,8 +170,31 @@ class DagNodeMap extends DagNode {
     }
 
     public hasUDFError(): boolean {
-        return this._hasUDFError;
+        return this._udfError != null;
     }
+
+    public setUDFError(udfError): void {
+        this._udfError = udfError;
+        this.events.trigger(DagNodeEvents.UDFErrorChange, {
+            node: this
+        });
+    }
+
+    public getUDFError(): MapUDFFailureInfo {
+        return this._udfError;
+    }
+
+    protected _removeTable() {
+        this.setUDFError(null);
+        super._removeTable();
+    }
+
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeMapInfo {
+        const serializedInfo: DagNodeMapInfo = <DagNodeMapInfo>super._getSerializeInfo(includeStats);
+        serializedInfo.udfError = this._udfError;
+        return serializedInfo;
+    }
+
 
     /**
      * @override

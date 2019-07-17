@@ -515,6 +515,10 @@ class DagGraph extends Durable {
         })
         .registerEvents(DagNodeEvents.EndSQLCompile, (info) => {
             this.events.trigger(DagNodeEvents.EndSQLCompile, info);
+        })
+        .registerEvents(DagNodeEvents.UDFErrorChange, (info) => {
+            this.events.trigger(DagNodeEvents.UDFErrorChange, info);
+            this.events.trigger(DagGraphEvents.Save, {tabId: this.parentTabId});
         });
     }
 

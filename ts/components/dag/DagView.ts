@@ -33,6 +33,8 @@ class DagView {
     private lockedNodeIds = {};
     private configLockedNodeIds = new Set();
     private static dagEventNamespace = 'DagView';
+    private static udfErrorColor = "#F15840";
+    private static mapNodeColor = "#89D0E0";
 
     private isSqlPreview = false;
     private _isFocused: boolean;
@@ -1519,7 +1521,7 @@ class DagView {
         x?: number,
         y?: number,
         options: {
-            isTempDebugNode?: boolean
+            nodeTitle?: string
         } = {}
     ): DagNode {
         let logActions = [];
@@ -1531,13 +1533,15 @@ class DagView {
             x: x || DagView.gridSpacing,
             y: y || DagView.gridSpacing
         };
-        let nodeInfo = {
+        let nodeInfo: DagNodeInfo = {
             type: newType,
             subType: subType,
             input: input,
-            display: originalCoors,
-            isTempDebugNode: options.isTempDebugNode
+            display: originalCoors
         };
+        if (options.nodeTitle) {
+            nodeInfo.title = options.nodeTitle;
+        }
         this.dagTab.turnOffSave();
         const node: DagNode = this.graph.newNode(nodeInfo);
         const addLogParam: LogParam = this._addNodeNoPersist(node, { isNoLog: true });
@@ -3117,6 +3121,9 @@ class DagView {
                         DagNodeInfoPanel.Instance.getActiveNode().getId() === nodeId) {
                         DagNodeInfoPanel.Instance.hide();
                     }
+                    if (DagUDFErrorModal.Instance.getNode() === dagNode) {
+                        DagUDFErrorModal.Instance.close();
+                    }
                 } else {
                     this.graph.removeComment(nodeId);
                     DagComment.Instance.removeComment(nodeId);
@@ -3400,6 +3407,19 @@ class DagView {
             DagNodeInfoPanel.Instance.update(info.node.getId(), "stats");
         });
 
+        this._registerGraphEvent(this.graph, DagNodeEvents.UDFErrorChange, (info) => {
+            const node: DagNodeMap = info.node;
+            const $node: JQuery = this._getNode(node.getId());
+            if ((<DagNodeMap>node).hasUDFError()) {
+                this._updateNodeUDFErrorIcon($node, node);
+            } else {
+                this._removeNodeUDFErrorIcon($node);
+                if (DagUDFErrorModal.Instance.getNode() === node) {
+                    DagUDFErrorModal.Instance.close();
+                }
+            }
+            this.dagTab.save();
+        });
     }
 
     private _registerGraphEvent(
@@ -3508,7 +3528,7 @@ class DagView {
         $node.appendTo(this.$dfArea.find(".operatorSvg"));
 
         if (node instanceof DagNodeMap && node.hasUDFError()) {
-            this._updateNodeUDFErrorIcon($node);
+            this._updateNodeUDFErrorIcon($node, node);
         }
 
         // Update connector UI according to the number of I/O ports
@@ -3521,11 +3541,18 @@ class DagView {
         return $node;
     }
 
-    private _updateNodeUDFErrorIcon($node) {
+    private _updateNodeUDFErrorIcon($node: JQuery, node: DagNodeMap) {
         $node.addClass("hasUdfError");
-        $node.find(".iconArea").attr("fill", "#F15840");
+        $node.find(".iconArea").attr("fill", DagView.udfErrorColor);
         $node.find(".icon").text("\uea70");
-        xcTooltip.add($node.find(".iconArea"), {title: "here"});
+        xcTooltip.add($node.find(".iconArea"), {title: node.getUDFError().numRowsFailedTotal + " rows failed. Click to view details."});
+    }
+
+    private _removeNodeUDFErrorIcon($node: JQuery): void {
+        $node.removeClass("hasUdfError");
+        $node.find(".iconArea").attr("fill", DagView.mapNodeColor);
+        $node.find(".icon").text("\ue9da");
+        xcTooltip.remove($node.find(".iconArea"));
     }
 
     private _updateConnectorIn(nodeId: DagNodeId, numInputs: number) {
@@ -3545,6 +3572,7 @@ class DagView {
         state: DagNodeState
     }
     ): void {
+        const node = nodeInfo.node;
         const nodeId: DagNodeId = nodeInfo.id;
         const $node: JQuery = this._getNode(nodeId);
         for (let i in DagNodeState) {
@@ -3564,6 +3592,13 @@ class DagView {
             // don't remove tooltip upon completion or if the node went from
             // running to an errored state
             this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
+        }
+        if (node.getType() === DagNodeType.Map && node.getSubType() == null) {
+            if ((<DagNodeMap>node).hasUDFError()) {
+                this._updateNodeUDFErrorIcon($node, <DagNodeMap>node);
+            } else {
+                this._removeNodeUDFErrorIcon($node);
+            }
         }
         DagNodeInfoPanel.Instance.update(nodeId, "status");
     }
@@ -3911,7 +3946,6 @@ class DagView {
         if (parentNode == null || childNode == null) {
             return;
         }
-        let isTempDebugNode = childNode.isTempDebugNode();
         let numParents = childNode.getMaxParents();
         let numConnections = connectorIndex;
         let isMulti = false;
@@ -3931,9 +3965,6 @@ class DagView {
                 ((DagView.nodeHeight - 4) / (numParents + 1) * (1 + numConnections))
         };
         let edgeClass = "edge";
-        if (isTempDebugNode) {
-            edgeClass += " debugEdge";
-        }
 
         const edge = svg.append("g")
             .attr("class", edgeClass)
@@ -3941,13 +3972,9 @@ class DagView {
             .attr("data-parentnodeid", parentNodeId)
             .attr("data-connectorindex", connectorIndex.toString());
 
-        let path = edge.append("path")
+        edge.append("path")
             .attr("class", "visibleLine")
             .attr("d", DagView.lineFunction([parentCoors, childCoors]));
-        if (isTempDebugNode) {
-            path.attr("stroke-dasharray", "10,10");
-            path.attr("stroke-dashoffset", "-4");
-        }
         edge.append("path")
             .attr("class", "invisibleLine")
             .attr("d", DagView.lineFunction([parentCoors, childCoors]));

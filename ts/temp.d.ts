@@ -326,6 +326,11 @@ interface StoredDataset {
     publish?: StoredPubInfo
 }
 
+interface MapUDFFailureInfo {
+    failureDescArr: {numRowsFailed: number, failureDesc: string}[],
+    numRowsFailedTotal: number
+}
+
 declare class d3 {
     public select(selector: string): d3;
     public selectAll(selector: string): d3;

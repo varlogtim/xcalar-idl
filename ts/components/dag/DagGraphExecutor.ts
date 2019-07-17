@@ -901,6 +901,12 @@ class DagGraphExecutor {
                     // log completed nodes so we no longer update them
                     this._finishedNodeIds.add(nodeId);
                     this._dagIdToDestTableMap.delete(nodeId);
+                    if (node.getType() === DagNodeType.Map) {
+                        let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
+                        if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.failureDescArr.length) {
+                            (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
+                        }
+                    }
                 }
             }
         }
@@ -1402,6 +1408,9 @@ class DagGraphExecutor {
         }
     }
 
+    // for retinas, we store the outputTableName as a comment in the last
+    // operator of the retina query so that we can use it later to perform a result
+    // set preview
     private _storeOutputTableNameInNode(outputTableName: string, retinaParameters: {
         destTables: any[],
         retinaName: string,

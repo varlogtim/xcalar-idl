@@ -358,6 +358,7 @@ class DagViewManager {
         DagTable.Instance.switchTab(dagTab.getId());
         DagSearch.Instance.switchTab($oldDfArea);
         this.activeDagView.updateOperationTime();
+        DagUDFErrorModal.Instance.close();
     }
 
     public endOptimizedDFProgress(queryName: string, queryStateOutput): void {
@@ -738,9 +739,9 @@ class DagViewManager {
         input?: object,
         x?: number,
         y?: number,
-        options: {
-            isTempDebugNode?: boolean
-        } = {}
+        options?: {
+            nodeTitle?: string
+        }
     ): DagNode {
         return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y, options);
     }

@@ -1438,6 +1438,7 @@ module.exports = {
         "generateResult": "Generate Result",
         "viewResult": "View Result",
         "viewUDF": "View UDF",
+        "viewUDFErrors": "View UDF errors",
         "udfLayerTitle": "UDF Modules",
         "udfLayerModuleTitle": "Module",
         "udfLayerResTitle": "Resolution",

@@ -72,7 +72,7 @@ enum DagNodeErrorType {
     Disjoint = "Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow.",
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
-    NoAccessToSource = "Dataset does not exist or you have no rights to access it. Please change the node configuration or restore the dastaset",
+    NoAccessToSource = "Dataset does not exist or you have no rights to access it. Please change the node configuration or restore the dastaset.",
     InvalidSQLFunc = "Invalid SQL Function",
 }
 
@@ -112,6 +112,7 @@ enum DagNodeEvents {
     RetinaRemove = "RetinaRemove",
     StartSQLCompile = "StartSQLCompile",
     EndSQLCompile = "EndSQLCompile",
+    UDFErrorChange = "UDFErrorChange"
 }
 
 enum DagCategoryType {

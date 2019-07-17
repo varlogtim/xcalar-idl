@@ -9,35 +9,38 @@ describe("MapOpPanel Test", function() {
     var prefix = "prefix";
     var openOptions = {};
 
-    before(function() {
+    before(function(done) {
         MainMenu.openPanel("dagPanel");
-        node = new DagNodeMap({});
-        const parentNode = new DagNodeMap({});
-        parentNode.getLineage = function() {
-            return {getColumns: function() {
-                return [new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
-                    type: "number"
-                }), new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'stringCol'),
-                    type: "string"
-                })]
-            }}
-        };
-        node.getParents = function() {
-            return [parentNode];
-        }
-        openOptions = {
-            udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
-        };
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            node = new DagNodeMap({});
+            const parentNode = new DagNodeMap({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
+                        type: "number"
+                    }), new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'stringCol'),
+                        type: "string"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            }
+            openOptions = {
+                udfDisplayPathPrefix : UDFFileManager.Instance.getCurrWorkbookDisplayPath()
+            };
 
-        mapOpPanel = MapOpPanel.Instance;
-        editor = mapOpPanel.getEditor();
-        $mapOpPanel = $('#mapOpPanel');
-        $functionsInput = $mapOpPanel.find('.mapFilter');
-        $functionsList = $functionsInput.siblings('.list');
-        $argSection = $mapOpPanel.find('.argsSection').eq(0);
-
+            mapOpPanel = MapOpPanel.Instance;
+            editor = mapOpPanel.getEditor();
+            $mapOpPanel = $('#mapOpPanel');
+            $functionsInput = $mapOpPanel.find('.mapFilter');
+            $functionsList = $functionsInput.siblings('.list');
+            $argSection = $mapOpPanel.find('.argsSection').eq(0);
+            done();
+        });
     });
 
     describe("Basic Map Panel UI Tests", function() {
@@ -543,8 +546,9 @@ describe("MapOpPanel Test", function() {
                     expect($mapOpPanel.find('.arg[type=text]:visible')).to.have.length(3);
                     $argInputs = $mapOpPanel.find('.arg[type=text]:visible');
                 });
-                it ('should have 1 visible checkbox for ICV', function() {
-                    expect($mapOpPanel.find('.checkbox:visible')).to.have.lengthOf(1);
+                it ('should have 1 hidden checkbox for ICV', function() {
+                    expect($mapOpPanel.find('.checkbox')).to.have.lengthOf(5);
+                    expect($mapOpPanel.find('.checkbox:visible')).to.have.lengthOf(0);
                 });
             });
 
