@@ -427,17 +427,26 @@ namespace MainMenu {
                     }
                 } else if ($target.closest(".subTab").length) {
                     const $subTab = $target.closest(".subTab");
+                    let isUDFManager: boolean = $subTab.attr("id") === "fileManagerButton";
+
                     if ($subTab.hasClass("noLeftPanel")) {
                         closeMenu($curTab, true);
                     } else if ($subTab.hasClass("active")) {
                         // clicking on active sub tab
-                        hasAnim = toggleMenu($curTab);
+                        hasAnim = toggleMenu($curTab, isUDFManager);
                     } else if ($("#bottomMenu").hasClass("open")) {
                         openMenu($curTab, true);
+                        if (isUDFManager) {
+                            BottomMenu.openUDFMenuWithMainMenu();
+                        }
                         hasAnim = false;
                     } else {
+                        if (isUDFManager) {
+                            BottomMenu.openUDFMenuWithMainMenu();
+                        }
                         hasAnim = false;
                     }
+
                     $curTab.find(".subTab").removeClass("active");
                     $subTab.addClass("active");
 
@@ -697,13 +706,25 @@ namespace MainMenu {
         }
     }
 
-    function toggleMenu($curTab): boolean {
+    function toggleMenu($curTab, isUDFManager: boolean): boolean {
         let hasAnim: boolean;
-        if ($mainMenu.hasClass("open")) {
+        if ($mainMenu.hasClass("open") ||
+            isUDFManager && BottomMenu.isMenuOpen()
+        ) {
             closeMenu($curTab);
+            if (isUDFManager) {
+                BottomMenu.close();
+            }
             hasAnim = true;
         } else {
             hasAnim = openMenu($curTab);
+            if (isUDFManager) {
+                BottomMenu.openUDFMenuWithMainMenu();
+            }
+        }
+
+        if (isUDFManager) {
+            hasAnim = false;
         }
         return hasAnim;
     }

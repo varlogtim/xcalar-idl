@@ -46,10 +46,18 @@ namespace BottomMenu {
         openMenu(sectionIndex);
     };
 
+    export function openUDFMenuWithMainMenu(): void {
+        openMenu(0, true);
+    }
+
     // setup buttons to open bottom menu
     function setupButtons(): void {
         $menuPanel.on("click", ".close", function() {
+            let wasFromMainMenu = $menuPanel.hasClass("fromMainMenu");
             BottomMenu.close(false);
+            if (wasFromMainMenu) {
+                MainMenu.close(true);
+            }
         });
 
         $menuPanel.on("click", ".popOut", function() {
@@ -181,12 +189,19 @@ namespace BottomMenu {
     function closeMenu(topMenuOpening: boolean = false): boolean {
         if (needsMainMenuBackOpen && !topMenuOpening) {
             needsMainMenuBackOpen = false;
-            let $activeTab =  $(".topMenuBarTab.active");
+            let $activeTab = $(".topMenuBarTab.active");
             if ($activeTab.hasClass("mainMenuOpen") &&
                 !$activeTab.hasClass("noLeftPanel")
             ) {
-                MainMenu.open();
-                return;
+                if ($menuPanel.hasClass("fromMainMenu") &&
+                    $("#udfSection").hasClass("active")
+                ) {
+                    topMenuOpening = true;
+                    MainMenu.close(true);
+                } else {
+                    MainMenu.open();
+                    return;
+                }
             }
         }
         $menuPanel.removeClass("open");
@@ -248,7 +263,7 @@ namespace BottomMenu {
         needsMainMenuBackOpen = false;
     };
 
-    function openMenu(sectionIndex: number): boolean {
+    function openMenu(sectionIndex: number, fromMainMenu?: boolean): boolean {
         // bottom menu was closed or it was open and we"re switching to
         // this section
         const $menuSections: JQuery = $menuPanel.find(".menuSection");
@@ -258,7 +273,16 @@ namespace BottomMenu {
 
         const wasOpen: boolean = $menuPanel.hasClass("open");
         $sliderBtns.removeClass("active");
-        $sliderBtns.eq(sectionIndex).addClass("active");
+        let $activeBtn = $sliderBtns.eq(sectionIndex)
+        $activeBtn.addClass("active");
+
+        if (fromMainMenu) {
+            $menuPanel.addClass("fromMainMenu");
+            $activeBtn.addClass("fromMainMenu");
+        } else {
+            $menuPanel.removeClass("fromMainMenu");
+            $activeBtn.removeClass("fromMainMenu");
+        }
 
         $menuPanel.find(".bottomMenuContainer").show();
 
