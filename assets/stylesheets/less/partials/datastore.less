@@ -3758,12 +3758,21 @@ table.datasetTable {
         }
 
         &.gridView {
+            .grid-unit {
+                width: 63px;
+                height: 63px;
+                margin: 1px;
+                .rounded(3);
+            }
+
             .gridIcon .icon {
-                font-size: 28px;
+                font-size: 35px;
+                color: @color-font-edge;
             }
 
             .label {
                 padding: 0 1px;
+                width: 63px;
             }
         }
 
@@ -3776,19 +3785,18 @@ table.datasetTable {
             }
 
             .gridIcon .icon {
-                font-size: 18px;
+                font-size: 23px;
             }
         }
 
         .grid-unit {
-            opacity: 0.8;
-
-            &:hover {
-                opacity: 1;
+            &:hover, &.active {
+                background-color: @color-bg-topBarGray2;
             }
 
             &.active {
-                opacity: 1;
+                outline: 1px solid @color-font-button-hover;
+                z-index: @z-index-gridViewMenu - 1;
             }
 
             &.selected {

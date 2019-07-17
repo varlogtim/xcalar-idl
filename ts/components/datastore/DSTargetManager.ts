@@ -368,7 +368,7 @@ namespace DSTargetManager {
                 '<div class="target grid-unit" ' +
                 'data-name="' + targetName + '">' +
                     '<div class="gridIcon">' +
-                        '<i class="icon xi-data-target"></i>' +
+                        '<i class="icon xi-data-connector"></i>' +
                     '</div>' +
                     '<div class="label" data-dsname="' + targetName +
                     '" data-toggle="tooltip" data-container="body"' +

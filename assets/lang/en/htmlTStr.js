@@ -407,8 +407,8 @@ module.exports = {
     },
 
     "fileManager": {
-        "monitorMenuTitle": "File Manager",
-        "monitorMenuInstr": "You can manage files.",
+        "monitorMenuTitle": "UDF Manager",
+        "monitorMenuInstr": "You can manage udfs.",
         "UDF": "UDF",
         "Dataflow": "Dataflow",
         "Actions": "Actions",
@@ -440,7 +440,7 @@ module.exports = {
         "NameHint": "Module name (lowercase)",
         "Refresh": "Refresh UDF List",
         "SelectTemplate": "Select Module",
-        "ToManager": "Open File Manager",
+        "ToManager": "Open UDF Manager",
         "SaveFile": "Save File",
         "Udf": "UDF",
         "Udfs": "UDFs"
@@ -550,7 +550,7 @@ module.exports = {
         "DetailQuery": "Operation Details",
         "ElaspedTime": "Elapsed Time",
         "enableFile": "Enable file://",
-        "fileManager": "File Manager",
+        "fileManager": "UDF Manager",
         "GeneralSettings": "General Settings",
         "GenSub": "File Support Ticket",
         "graphInterval": "Graph Interval",
