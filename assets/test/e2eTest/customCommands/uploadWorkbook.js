@@ -15,7 +15,7 @@ class UploadWorkbook extends EventEmitter {
         // upload workbook
         this.api
             .setValue('input#WKBK_uploads', path)
-            .waitForElementVisible('.workbookBox.noResource .subHeading input', 15000);
+            .waitForElementVisible('.workbookBox.noResource .subHeading input', 60000);
         this.api.execute(execFunctions.getFinalWorkbookName, [], (result) => {
             self.api.globals.finalWorkbookName = result.value;
         });
