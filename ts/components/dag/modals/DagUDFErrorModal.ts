@@ -70,8 +70,10 @@ class DagUDFErrorModal {
         });
         this._$modal.find(".errorList").html(html);
         if (count < errorInfo.numRowsFailedTotal) {
+            this._$modal.addClass("hasExtraErrors");
             this._$modal.find(".extraErrors").removeClass("xc-hidden");
         } else {
+            this._$modal.removeClass("hasExtraErrors");
             this._$modal.find(".extraErrors").addClass("xc-hidden");
         }
     }

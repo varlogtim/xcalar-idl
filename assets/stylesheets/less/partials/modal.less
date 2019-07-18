@@ -5136,15 +5136,23 @@ html.microsoft {
 }
 
 #dagUDFErrorModal {
-    .size(@width: 700px, @height: 400px, @min-width: 500px, @min-height: 250px);
+    .size(@width: 700px, @height: 400px, @min-width: 550px, @min-height: 260px);
     @modalInstructionHeight: 62px;
     @modalRowHeight: 36px;
+    @modalBottomHeight: 56px;
+
+    &.visible {
+        display: flex !important;
+        flex-direction: column;
+    }
 
     .modalInstruction {
         border-bottom: none;
         display: flex;
+        flex: 1 0 auto;
+        align-items: center;
         padding: 13px 12px;
-        height: @modalInstructionHeight;
+        height: auto;
 
         .modalInstructionSection {
             padding-left: 13px;
@@ -5170,7 +5178,6 @@ html.microsoft {
             border-left :1px solid @color-border-menubar-grey;
             font-size: 13px;
             color: @color-error-red;
-            overflow: auto;
         }
     }
     .modalRow {
@@ -5178,7 +5185,7 @@ html.microsoft {
         border-top: 1px solid @color-border-menubar-grey;
         border-bottom: 1px solid @color-border-menubar-grey;
         font-size: 15px;
-        height: @modalRowHeight;
+        min-height: @modalRowHeight;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -5208,6 +5215,9 @@ html.microsoft {
     }
     .btn-large {
         width: 250px;
+    }
+    .modalBottom {
+        min-height: @modalBottomHeight;
     }
 }
 

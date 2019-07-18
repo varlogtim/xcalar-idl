@@ -295,21 +295,23 @@ class ModalHelper {
             .fail(deferred.reject);
         } else if (!options.noBackground) {
             const $modalBg: JQuery = $("#modalBackground");
-
             if (window.gMinModeOn) {
                 $modalBg.show();
                 $modal.show();
                 deferred.resolve();
             } else {
                 $modal.fadeIn(180);
+
                 $modalBg.fadeIn(300, function() {
                     deferred.resolve();
                     $modalBg.css('display', 'block'); // when alert modal opens
                     // and drop table modal is open
                 });
             }
+            $modal.addClass("visible");
         } else {
             $modal.addClass("noBackground").show();
+            $modal.addClass("visible");
             deferred.resolve();
         }
 
@@ -380,6 +382,7 @@ class ModalHelper {
             const $modalBg: JQuery = $("#modalBackground");
             const fadeOutTime: number = gMinModeOn ? 0 : 300;
             $modal.hide();
+            $modal.removeClass("visible");
             if (options.noBackground) {
                 deferred.resolve();
             } else {
