@@ -91,10 +91,10 @@ namespace UserSettings {
         if (shouldCommit) {
             userInfos.update();
 
-            // If regular user, we will only commit userInfos with gUserKey.
-            // If admin or xcSupport, we may commit userInfos/gUserKey
-            // if there's a ds folder change, or we may commit genSettings
-            // if there's a settings change, or both
+            // if regular user, we will only commit userInfos with gUserKey.
+            // if admin or xcSupport, we may commit userInfos/gUserKey
+            // if there is a ds folder change, or we may commit genSettings
+            // if there is a settings change, or both
 
             let dsPromise: XDPromise<void>;
             let userPrefPromise: XDPromise<void>;
