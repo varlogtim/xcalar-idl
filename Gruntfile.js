@@ -2214,7 +2214,6 @@ module.exports = function(grunt) {
         // Force the new packages to be used by explicitly uninstalling/reinstalling them
         var pkgList = [jsClient.pkgName, jsSDK.pkgName].join(' ');
         var cmdsets = [];
-        cmdsets.push([expServerBldPath, ['rm -f package-lock.json']]);
         cmdsets.push([expServerBldPath, ['npm install --no-save']]);
         cmdsets.push([expServerBldPath, ['npm uninstall --no-save ' + pkgList]]);
         cmdsets.push([expServerBldPath, ['npm upgrade --no-save']]);
@@ -2275,7 +2274,6 @@ module.exports = function(grunt) {
         // Force the new packages to be used by explicitly uninstalling/reinstalling them
         var pkgList = [jsClient.pkgName, jsSDK.pkgName].join(' ');
         var cmdsets = [];
-        cmdsets.push([xcrpcBldPath, ['rm -f package-lock.json']]);
         cmdsets.push([xcrpcBldPath, ['npm install --no-save']]);
         cmdsets.push([xcrpcBldPath, ['npm uninstall --no-save ' + pkgList]]);
         cmdsets.push([xcrpcBldPath, ['npm upgrade --no-save']]);
