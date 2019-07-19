@@ -736,9 +736,11 @@ abstract class DagNode extends Durable {
         trustIndex?: boolean
     ): XDPromise<void> {
 
-        const errorStates: DgDagStateT[] = [DgDagStateT.DgDagStateUnknown,
+        const errorStates: Set<DgDagStateT> = new Set([DgDagStateT.DgDagStateUnknown,
                              DgDagStateT.DgDagStateError,
-                             DgDagStateT.DgDagStateArchiveError];
+                             DgDagStateT.DgDagStateArchiveError]);
+        const incompleteStates: Set<DgDagStateT> = new Set([DgDagStateT.DgDagStateQueued,
+                            DgDagStateT.DgDagStateProcessing])
         let isComplete: boolean = true;
         let errorState: string = null;
         let error: string = null;
@@ -828,7 +830,7 @@ abstract class DagNode extends Durable {
             tableRunStats.rows = rows;
             tableRunStats.size = nodeInfo.inputSize;
 
-            if (errorStates.indexOf(nodeInfo.state) > -1 ) {
+            if (errorStates.has(nodeInfo.state)) {
                 errorState = nodeInfo.state;
                 if (nodeInfo.log) {
                     error = nodeInfo.log;
@@ -836,7 +838,7 @@ abstract class DagNode extends Durable {
                     error = StatusTStr[nodeInfo.status];
                 }
                 isComplete = false;
-            } else if (progress !== 1) {
+            } else if (progress !== 1 || incompleteStates.has(nodeInfo.state)) {
                 isComplete = false;
             }
         }
