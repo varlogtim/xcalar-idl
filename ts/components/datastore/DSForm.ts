@@ -24,7 +24,7 @@ namespace DSForm {
         FileBrowser.setup();
 
         // click to go to form section
-        $("#datastoreMenu .iconSection .import").click(function() {
+        $("#importDataButton").click(function() {
             let $btn = $(this);
             $btn.blur();
             let createTableMode: boolean = $btn.hasClass("createTable");
@@ -160,7 +160,7 @@ namespace DSForm {
         return $("#dsForm-target input").val();
     }
 
-    function setDataTarget(targetName: string): void {
+    export function setDataTarget(targetName: string): void {
         $("#dsForm-target input").val(targetName);
         if (DSTargetManager.isGeneratedTarget(targetName)) {
             $pathCard.addClass("target-generated");
@@ -228,6 +228,11 @@ namespace DSForm {
         //set up dropdown list for data target
         new MenuHelper($("#dsForm-target"), {
             onSelect: function($li) {
+                if ($li.hasClass("createNew")) {
+                    MainMenu.openPanel("datastorePanel", "targetButton");
+                    DSTargetManager.showTargetCreateView();
+                    return;
+                }
                 setDataTarget($li.text());
             },
             container: "#dsFormView",
