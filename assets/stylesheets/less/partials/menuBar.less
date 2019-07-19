@@ -233,8 +233,9 @@
 
     &.open {
         .position(@left: @width-homeBtn);
-        border-top: 1px solid @color-border-bar;
-        border-right: 1px solid @color-border-bar;
+        border-top: 1px solid @color-border-grayBlue;
+        border-right: 1px solid @color-border-grayBlue;
+        border-left: 1px solid @color-border-grayBlue;
 
         &::after { // used for darkening menu when json modal is open
             content: "";
@@ -523,8 +524,9 @@
     .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-homeBtn})");
     z-index: @z-index-bottomMenu;
     .transition(left @time-menuAnim);
-    border-right: 1px solid @color-border-bar;
-    border-top: 1px solid @color-border-bar;
+    border-right: 1px solid @color-border-grayBlue;
+    border-top: 1px solid @color-border-grayBlue;
+    border-left: 1px solid @color-border-grayBlue;
 
     &.noAnim {
         .transition(left 0s);
