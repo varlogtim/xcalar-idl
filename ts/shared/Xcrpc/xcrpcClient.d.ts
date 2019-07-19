@@ -1024,7 +1024,12 @@ declare namespace proto.xcalar.compute.localtypes {
             STATUS_KV_INVALID_VALUE,
             STATUS_INV_TABLE_NAME,
             STATUS_EXISTS_TABLE_NAME,
-            STATUS_TABLE_NAME_NOT_FOUND
+            STATUS_TABLE_NAME_NOT_FOUND,
+            STATUS_COMPLEX_TYPE_NOT_SUPPORTED,
+            STATUS_PARQUET_PARSER_ERROR,
+            STATUS_UN_SUPPORTED_DECIMAL_TYPE,
+            STATUS_UN_SUPPORTED_LOGICAL_TYPE,
+            STATUS_CLUSTER_NOT_READY
         }
     }
 
@@ -1105,15 +1110,22 @@ declare namespace proto.xcalar.compute.localtypes {
     export namespace License {
         export class GetRequest {}
         export class GetResponse {
-            getExpiration(): string;
-            getNodecount(): number;
-            getUsercount(): number;
-            getLicensee(): string;
-            getCompressedlicense(): string;
+            getLoaded(): boolean;
             getExpired(): boolean;
+            getPlatform(): string;
+            getProduct(): string;
+            getProductFamily(): string;
+            getProductVersion(): string;
+            getExpiration(): string;
+            getNodeCount(): number;
+            getUserCount(): number;
+            getAttributes(): string;
+            getLicensee(): string;
+            getCompressedLicenseSize(): number;
+            getCompressedLicense(): string;
         }
         export class UpdateRequest {
-            setLicensevalue(value: LicenseValue): void;
+            setLicenseValue(value: LicenseValue): void;
         }
         export class LicenseValue {
             setValue(value: string): void;

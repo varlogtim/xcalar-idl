@@ -38,14 +38,22 @@ TableService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.IndexRequest");
         //anyWrapper.pack(indexRequest.serializeBinary(), "IndexRequest");
 
-        var responseData = await this.client.execute("Table", "AddIndex", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var empty =
-        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-        //                        "Empty");
-        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-        return empty;
+        try {
+            var responseData = await this.client.execute("Table", "AddIndex", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     removeIndex: async function(indexRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -56,14 +64,22 @@ TableService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.IndexRequest");
         //anyWrapper.pack(indexRequest.serializeBinary(), "IndexRequest");
 
-        var responseData = await this.client.execute("Table", "RemoveIndex", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var empty =
-        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-        //                        "Empty");
-        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-        return empty;
+        try {
+            var responseData = await this.client.execute("Table", "RemoveIndex", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
 };
 

@@ -37,14 +37,22 @@ CgroupService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Cgroup.CgRequest");
         //anyWrapper.pack(cgRequest.serializeBinary(), "CgRequest");
 
-        var responseData = await this.client.execute("Cgroup", "Process", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var cgResponse =
-        //    responseData.unpack(cgroup.CgResponse.deserializeBinary,
-        //                        "CgResponse");
-        var cgResponse = cgroup.CgResponse.deserializeBinary(specificBytes);
-        return cgResponse;
+        try {
+            var responseData = await this.client.execute("Cgroup", "Process", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var cgResponse =
+            //    responseData.unpack(cgroup.CgResponse.deserializeBinary,
+            //                        "CgResponse");
+            var cgResponse = cgroup.CgResponse.deserializeBinary(specificBytes);
+            return cgResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = cgroup.CgResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
 };
 

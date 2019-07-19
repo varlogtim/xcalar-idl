@@ -11,11 +11,16 @@ var jspb = require('google-protobuf');
 var goog = jspb;
 var global = Function('return this')();
 
+var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
 var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
 var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js');
+goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.GetStatsRequest', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.GetStatsResponse', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.ResetStatRequest', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.StatGroupInfo', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.StatMeta', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.StatNode', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Stats.StatUnits', null, global);
@@ -487,7 +492,7 @@ proto.xcalar.compute.localtypes.Stats.StatMeta.toObject = function(includeInstan
     name: (f = msg.getName()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f),
     monotonic: (f = msg.getMonotonic()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
     units: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    maxname: (f = msg.getMaxname()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f)
+    maxName: (f = msg.getMaxName()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -541,7 +546,7 @@ proto.xcalar.compute.localtypes.Stats.StatMeta.deserializeBinaryFromReader = fun
     case 4:
       var value = new google_protobuf_wrappers_pb.StringValue;
       reader.readMessage(value,google_protobuf_wrappers_pb.StringValue.deserializeBinaryFromReader);
-      msg.setMaxname(value);
+      msg.setMaxName(value);
       break;
     default:
       reader.skipField();
@@ -595,7 +600,7 @@ proto.xcalar.compute.localtypes.Stats.StatMeta.serializeBinaryToWriter = functio
       f
     );
   }
-  f = message.getMaxname();
+  f = message.getMaxName();
   if (f != null) {
     writer.writeMessage(
       4,
@@ -682,23 +687,23 @@ proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.setUnits = function(val
 
 
 /**
- * optional google.protobuf.StringValue maxName = 4;
+ * optional google.protobuf.StringValue max_name = 4;
  * @return {?proto.google.protobuf.StringValue}
  */
-proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.getMaxname = function() {
+proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.getMaxName = function() {
   return /** @type{?proto.google.protobuf.StringValue} */ (
     jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.StringValue, 4));
 };
 
 
 /** @param {?proto.google.protobuf.StringValue|undefined} value */
-proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.setMaxname = function(value) {
+proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.setMaxName = function(value) {
   jspb.Message.setWrapperField(this, 4, value);
 };
 
 
-proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.clearMaxname = function() {
-  this.setMaxname(undefined);
+proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.clearMaxName = function() {
+  this.setMaxName(undefined);
 };
 
 
@@ -706,7 +711,7 @@ proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.clearMaxname = function
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.hasMaxname = function() {
+proto.xcalar.compute.localtypes.Stats.StatMeta.prototype.hasMaxName = function() {
   return jspb.Message.getField(this, 4) != null;
 };
 
@@ -769,7 +774,7 @@ proto.xcalar.compute.localtypes.Stats.StatNode.toObject = function(includeInstan
     meta: (f = msg.getMeta()) && proto.xcalar.compute.localtypes.Stats.StatMeta.toObject(includeInstance, f),
     valuesList: jspb.Message.toObjectList(msg.getValuesList(),
     proto.xcalar.compute.localtypes.Stats.StatValue.toObject, includeInstance),
-    maxvaluesList: jspb.Message.toObjectList(msg.getMaxvaluesList(),
+    maxValuesList: jspb.Message.toObjectList(msg.getMaxValuesList(),
     proto.xcalar.compute.localtypes.Stats.StatValue.toObject, includeInstance),
     childrenList: jspb.Message.toObjectList(msg.getChildrenList(),
     proto.xcalar.compute.localtypes.Stats.StatNode.toObject, includeInstance)
@@ -826,7 +831,7 @@ proto.xcalar.compute.localtypes.Stats.StatNode.deserializeBinaryFromReader = fun
     case 4:
       var value = new proto.xcalar.compute.localtypes.Stats.StatValue;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Stats.StatValue.deserializeBinaryFromReader);
-      msg.addMaxvalues(value);
+      msg.addMaxValues(value);
       break;
     case 5:
       var value = new proto.xcalar.compute.localtypes.Stats.StatNode;
@@ -885,7 +890,7 @@ proto.xcalar.compute.localtypes.Stats.StatNode.serializeBinaryToWriter = functio
       proto.xcalar.compute.localtypes.Stats.StatValue.serializeBinaryToWriter
     );
   }
-  f = message.getMaxvaluesList();
+  f = message.getMaxValuesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       4,
@@ -981,17 +986,17 @@ proto.xcalar.compute.localtypes.Stats.StatNode.prototype.clearValuesList = funct
 
 
 /**
- * repeated StatValue maxValues = 4;
+ * repeated StatValue max_values = 4;
  * @return {!Array<!proto.xcalar.compute.localtypes.Stats.StatValue>}
  */
-proto.xcalar.compute.localtypes.Stats.StatNode.prototype.getMaxvaluesList = function() {
+proto.xcalar.compute.localtypes.Stats.StatNode.prototype.getMaxValuesList = function() {
   return /** @type{!Array<!proto.xcalar.compute.localtypes.Stats.StatValue>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Stats.StatValue, 4));
 };
 
 
 /** @param {!Array<!proto.xcalar.compute.localtypes.Stats.StatValue>} value */
-proto.xcalar.compute.localtypes.Stats.StatNode.prototype.setMaxvaluesList = function(value) {
+proto.xcalar.compute.localtypes.Stats.StatNode.prototype.setMaxValuesList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 4, value);
 };
 
@@ -1001,13 +1006,13 @@ proto.xcalar.compute.localtypes.Stats.StatNode.prototype.setMaxvaluesList = func
  * @param {number=} opt_index
  * @return {!proto.xcalar.compute.localtypes.Stats.StatValue}
  */
-proto.xcalar.compute.localtypes.Stats.StatNode.prototype.addMaxvalues = function(opt_value, opt_index) {
+proto.xcalar.compute.localtypes.Stats.StatNode.prototype.addMaxValues = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 4, opt_value, proto.xcalar.compute.localtypes.Stats.StatValue, opt_index);
 };
 
 
-proto.xcalar.compute.localtypes.Stats.StatNode.prototype.clearMaxvaluesList = function() {
-  this.setMaxvaluesList([]);
+proto.xcalar.compute.localtypes.Stats.StatNode.prototype.clearMaxValuesList = function() {
+  this.setMaxValuesList([]);
 };
 
 
@@ -1096,9 +1101,9 @@ proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.toObject = funct
  */
 proto.xcalar.compute.localtypes.Stats.GetStatsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    getmeta: jspb.Message.getFieldWithDefault(msg, 1, false),
-    getfromallnodes: jspb.Message.getFieldWithDefault(msg, 2, false),
-    statpathsList: jspb.Message.getRepeatedField(msg, 3)
+    getMeta: jspb.Message.getFieldWithDefault(msg, 1, false),
+    getFromAllNodes: jspb.Message.getFieldWithDefault(msg, 2, false),
+    statPathsList: jspb.Message.getRepeatedField(msg, 3)
   };
 
   if (includeInstance) {
@@ -1137,15 +1142,15 @@ proto.xcalar.compute.localtypes.Stats.GetStatsRequest.deserializeBinaryFromReade
     switch (field) {
     case 1:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setGetmeta(value);
+      msg.setGetMeta(value);
       break;
     case 2:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setGetfromallnodes(value);
+      msg.setGetFromAllNodes(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.addStatpaths(value);
+      msg.addStatPaths(value);
       break;
     default:
       reader.skipField();
@@ -1176,21 +1181,21 @@ proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.serializeBinary 
  */
 proto.xcalar.compute.localtypes.Stats.GetStatsRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getGetmeta();
+  f = message.getGetMeta();
   if (f) {
     writer.writeBool(
       1,
       f
     );
   }
-  f = message.getGetfromallnodes();
+  f = message.getGetFromAllNodes();
   if (f) {
     writer.writeBool(
       2,
       f
     );
   }
-  f = message.getStatpathsList();
+  f = message.getStatPathsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       3,
@@ -1201,50 +1206,50 @@ proto.xcalar.compute.localtypes.Stats.GetStatsRequest.serializeBinaryToWriter = 
 
 
 /**
- * optional bool getMeta = 1;
+ * optional bool get_meta = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.getGetmeta = function() {
+proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.getGetMeta = function() {
   return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 1, false));
 };
 
 
 /** @param {boolean} value */
-proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.setGetmeta = function(value) {
+proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.setGetMeta = function(value) {
   jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
 /**
- * optional bool getFromAllNodes = 2;
+ * optional bool get_from_all_nodes = 2;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.getGetfromallnodes = function() {
+proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.getGetFromAllNodes = function() {
   return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
 };
 
 
 /** @param {boolean} value */
-proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.setGetfromallnodes = function(value) {
+proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.setGetFromAllNodes = function(value) {
   jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
 /**
- * repeated string statPaths = 3;
+ * repeated string stat_paths = 3;
  * @return {!Array<string>}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.getStatpathsList = function() {
+proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.getStatPathsList = function() {
   return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
 };
 
 
 /** @param {!Array<string>} value */
-proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.setStatpathsList = function(value) {
+proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.setStatPathsList = function(value) {
   jspb.Message.setField(this, 3, value || []);
 };
 
@@ -1253,13 +1258,13 @@ proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.setStatpathsList
  * @param {!string} value
  * @param {number=} opt_index
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.addStatpaths = function(value, opt_index) {
+proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.addStatPaths = function(value, opt_index) {
   jspb.Message.addToRepeatedField(this, 3, value, opt_index);
 };
 
 
-proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.clearStatpathsList = function() {
-  this.setStatpathsList([]);
+proto.xcalar.compute.localtypes.Stats.GetStatsRequest.prototype.clearStatPathsList = function() {
+  this.setStatPathsList([]);
 };
 
 
@@ -1318,10 +1323,10 @@ proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.toObject
 proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     status: jspb.Message.getFieldWithDefault(msg, 1, false),
-    errmsg: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    nodeid: (f = msg.getNodeid()) && google_protobuf_wrappers_pb.UInt32Value.toObject(includeInstance, f),
+    errMsg: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    nodeId: (f = msg.getNodeId()) && google_protobuf_wrappers_pb.UInt32Value.toObject(includeInstance, f),
     ts: (f = msg.getTs()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
-    statnodesList: jspb.Message.toObjectList(msg.getStatnodesList(),
+    statNodesList: jspb.Message.toObjectList(msg.getStatNodesList(),
     proto.xcalar.compute.localtypes.Stats.StatNode.toObject, includeInstance)
   };
 
@@ -1365,12 +1370,12 @@ proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.deserializeBinaryF
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setErrmsg(value);
+      msg.setErrMsg(value);
       break;
     case 3:
       var value = new google_protobuf_wrappers_pb.UInt32Value;
       reader.readMessage(value,google_protobuf_wrappers_pb.UInt32Value.deserializeBinaryFromReader);
-      msg.setNodeid(value);
+      msg.setNodeId(value);
       break;
     case 4:
       var value = new google_protobuf_timestamp_pb.Timestamp;
@@ -1380,7 +1385,7 @@ proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.deserializeBinaryF
     case 5:
       var value = new proto.xcalar.compute.localtypes.Stats.StatNode;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Stats.StatNode.deserializeBinaryFromReader);
-      msg.addStatnodes(value);
+      msg.addStatNodes(value);
       break;
     default:
       reader.skipField();
@@ -1418,14 +1423,14 @@ proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.serializeBinaryToW
       f
     );
   }
-  f = message.getErrmsg();
+  f = message.getErrMsg();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getNodeid();
+  f = message.getNodeId();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -1441,7 +1446,7 @@ proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.serializeBinaryToW
       google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
   }
-  f = message.getStatnodesList();
+  f = message.getStatNodesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       5,
@@ -1470,38 +1475,38 @@ proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.setStatu
 
 
 /**
- * optional string errMsg = 2;
+ * optional string err_msg = 2;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.getErrmsg = function() {
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.getErrMsg = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.setErrmsg = function(value) {
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.setErrMsg = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional google.protobuf.UInt32Value nodeId = 3;
+ * optional google.protobuf.UInt32Value node_id = 3;
  * @return {?proto.google.protobuf.UInt32Value}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.getNodeid = function() {
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.getNodeId = function() {
   return /** @type{?proto.google.protobuf.UInt32Value} */ (
     jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.UInt32Value, 3));
 };
 
 
 /** @param {?proto.google.protobuf.UInt32Value|undefined} value */
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.setNodeid = function(value) {
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.setNodeId = function(value) {
   jspb.Message.setWrapperField(this, 3, value);
 };
 
 
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.clearNodeid = function() {
-  this.setNodeid(undefined);
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.clearNodeId = function() {
+  this.setNodeId(undefined);
 };
 
 
@@ -1509,7 +1514,7 @@ proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.clearNod
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.hasNodeid = function() {
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.hasNodeId = function() {
   return jspb.Message.getField(this, 3) != null;
 };
 
@@ -1545,17 +1550,17 @@ proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.hasTs = 
 
 
 /**
- * repeated StatNode statNodes = 5;
+ * repeated StatNode stat_nodes = 5;
  * @return {!Array<!proto.xcalar.compute.localtypes.Stats.StatNode>}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.getStatnodesList = function() {
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.getStatNodesList = function() {
   return /** @type{!Array<!proto.xcalar.compute.localtypes.Stats.StatNode>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Stats.StatNode, 5));
 };
 
 
 /** @param {!Array<!proto.xcalar.compute.localtypes.Stats.StatNode>} value */
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.setStatnodesList = function(value) {
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.setStatNodesList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 5, value);
 };
 
@@ -1565,13 +1570,13 @@ proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.setStatn
  * @param {number=} opt_index
  * @return {!proto.xcalar.compute.localtypes.Stats.StatNode}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.addStatnodes = function(opt_value, opt_index) {
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.addStatNodes = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 5, opt_value, proto.xcalar.compute.localtypes.Stats.StatNode, opt_index);
 };
 
 
-proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.clearStatnodesList = function() {
-  this.setStatnodesList([]);
+proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.prototype.clearStatNodesList = function() {
+  this.setStatNodesList([]);
 };
 
 
@@ -1629,7 +1634,7 @@ proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.toObject = func
  */
 proto.xcalar.compute.localtypes.Stats.GetStatsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    perhoststatsList: jspb.Message.toObjectList(msg.getPerhoststatsList(),
+    perHostStatsList: jspb.Message.toObjectList(msg.getPerHostStatsList(),
     proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.toObject, includeInstance)
   };
 
@@ -1670,7 +1675,7 @@ proto.xcalar.compute.localtypes.Stats.GetStatsResponse.deserializeBinaryFromRead
     case 1:
       var value = new proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse.deserializeBinaryFromReader);
-      msg.addPerhoststats(value);
+      msg.addPerHostStats(value);
       break;
     default:
       reader.skipField();
@@ -1701,7 +1706,7 @@ proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.serializeBinary
  */
 proto.xcalar.compute.localtypes.Stats.GetStatsResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getPerhoststatsList();
+  f = message.getPerHostStatsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
@@ -1713,17 +1718,17 @@ proto.xcalar.compute.localtypes.Stats.GetStatsResponse.serializeBinaryToWriter =
 
 
 /**
- * repeated GetStatsPerHostResponse perHostStats = 1;
+ * repeated GetStatsPerHostResponse per_host_stats = 1;
  * @return {!Array<!proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse>}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.getPerhoststatsList = function() {
+proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.getPerHostStatsList = function() {
   return /** @type{!Array<!proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse, 1));
 };
 
 
 /** @param {!Array<!proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse>} value */
-proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.setPerhoststatsList = function(value) {
+proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.setPerHostStatsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
 
@@ -1733,13 +1738,717 @@ proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.setPerhoststats
  * @param {number=} opt_index
  * @return {!proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse}
  */
-proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.addPerhoststats = function(opt_value, opt_index) {
+proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.addPerHostStats = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.xcalar.compute.localtypes.Stats.GetStatsPerHostResponse, opt_index);
 };
 
 
-proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.clearPerhoststatsList = function() {
-  this.setPerhoststatsList([]);
+proto.xcalar.compute.localtypes.Stats.GetStatsResponse.prototype.clearPerHostStatsList = function() {
+  this.setPerHostStatsList([]);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.xcalar.compute.localtypes.Stats.ResetStatRequest = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Stats.ResetStatRequest, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Stats.ResetStatRequest.displayName = 'proto.xcalar.compute.localtypes.Stats.ResetStatRequest';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Stats.ResetStatRequest.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Stats.ResetStatRequest.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Stats.ResetStatRequest} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Stats.ResetStatRequest.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    nodeId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Stats.ResetStatRequest}
+ */
+proto.xcalar.compute.localtypes.Stats.ResetStatRequest.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Stats.ResetStatRequest;
+  return proto.xcalar.compute.localtypes.Stats.ResetStatRequest.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Stats.ResetStatRequest} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Stats.ResetStatRequest}
+ */
+proto.xcalar.compute.localtypes.Stats.ResetStatRequest.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setNodeId(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Stats.ResetStatRequest.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Stats.ResetStatRequest.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Stats.ResetStatRequest} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Stats.ResetStatRequest.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getNodeId();
+  if (f !== 0) {
+    writer.writeUint64(
+      1,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional uint64 node_id = 1;
+ * @return {number}
+ */
+proto.xcalar.compute.localtypes.Stats.ResetStatRequest.prototype.getNodeId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+};
+
+
+/** @param {number} value */
+proto.xcalar.compute.localtypes.Stats.ResetStatRequest.prototype.setNodeId = function(value) {
+  jspb.Message.setProto3IntField(this, 1, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.displayName = 'proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    nodeId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest;
+  return proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setNodeId(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getNodeId();
+  if (f !== 0) {
+    writer.writeUint64(
+      1,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional uint64 node_id = 1;
+ * @return {number}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.prototype.getNodeId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+};
+
+
+/** @param {number} value */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapRequest.prototype.setNodeId = function(value) {
+  jspb.Message.setProto3IntField(this, 1, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Stats.StatGroupInfo, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Stats.StatGroupInfo.displayName = 'proto.xcalar.compute.localtypes.Stats.StatGroupInfo';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Stats.StatGroupInfo.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Stats.StatGroupInfo} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    groupIdNum: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    totalSingleStats: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    statsGroupName: jspb.Message.getFieldWithDefault(msg, 3, "")
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Stats.StatGroupInfo}
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Stats.StatGroupInfo;
+  return proto.xcalar.compute.localtypes.Stats.StatGroupInfo.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Stats.StatGroupInfo} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Stats.StatGroupInfo}
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setGroupIdNum(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setTotalSingleStats(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setStatsGroupName(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Stats.StatGroupInfo.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Stats.StatGroupInfo} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getGroupIdNum();
+  if (f !== 0) {
+    writer.writeUint64(
+      1,
+      f
+    );
+  }
+  f = message.getTotalSingleStats();
+  if (f !== 0) {
+    writer.writeUint64(
+      2,
+      f
+    );
+  }
+  f = message.getStatsGroupName();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional uint64 group_id_num = 1;
+ * @return {number}
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.prototype.getGroupIdNum = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+};
+
+
+/** @param {number} value */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.prototype.setGroupIdNum = function(value) {
+  jspb.Message.setProto3IntField(this, 1, value);
+};
+
+
+/**
+ * optional uint64 total_single_stats = 2;
+ * @return {number}
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.prototype.getTotalSingleStats = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/** @param {number} value */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.prototype.setTotalSingleStats = function(value) {
+  jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * optional string stats_group_name = 3;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.prototype.getStatsGroupName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Stats.StatGroupInfo.prototype.setStatsGroupName = function(value) {
+  jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.repeatedFields_, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.displayName = 'proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse';
+}
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.repeatedFields_ = [3];
+
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    numGroupNames: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    truncated: jspb.Message.getFieldWithDefault(msg, 2, false),
+    statGroupInfoArrayList: jspb.Message.toObjectList(msg.getStatGroupInfoArrayList(),
+    proto.xcalar.compute.localtypes.Stats.StatGroupInfo.toObject, includeInstance)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse;
+  return proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setNumGroupNames(value);
+      break;
+    case 2:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setTruncated(value);
+      break;
+    case 3:
+      var value = new proto.xcalar.compute.localtypes.Stats.StatGroupInfo;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.Stats.StatGroupInfo.deserializeBinaryFromReader);
+      msg.addStatGroupInfoArray(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getNumGroupNames();
+  if (f !== 0) {
+    writer.writeUint64(
+      1,
+      f
+    );
+  }
+  f = message.getTruncated();
+  if (f) {
+    writer.writeBool(
+      2,
+      f
+    );
+  }
+  f = message.getStatGroupInfoArrayList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      3,
+      f,
+      proto.xcalar.compute.localtypes.Stats.StatGroupInfo.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
+ * optional uint64 num_group_names = 1;
+ * @return {number}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.getNumGroupNames = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+};
+
+
+/** @param {number} value */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.setNumGroupNames = function(value) {
+  jspb.Message.setProto3IntField(this, 1, value);
+};
+
+
+/**
+ * optional bool truncated = 2;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.getTruncated = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
+};
+
+
+/** @param {boolean} value */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.setTruncated = function(value) {
+  jspb.Message.setProto3BooleanField(this, 2, value);
+};
+
+
+/**
+ * repeated StatGroupInfo stat_group_info_array = 3;
+ * @return {!Array<!proto.xcalar.compute.localtypes.Stats.StatGroupInfo>}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.getStatGroupInfoArrayList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Stats.StatGroupInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Stats.StatGroupInfo, 3));
+};
+
+
+/** @param {!Array<!proto.xcalar.compute.localtypes.Stats.StatGroupInfo>} value */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.setStatGroupInfoArrayList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 3, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Stats.StatGroupInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Stats.StatGroupInfo}
+ */
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.addStatGroupInfoArray = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 3, opt_value, proto.xcalar.compute.localtypes.Stats.StatGroupInfo, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.Stats.GetStatGroupIdMapResponse.prototype.clearStatGroupInfoArrayList = function() {
+  this.setStatGroupInfoArrayList([]);
 };
 
 

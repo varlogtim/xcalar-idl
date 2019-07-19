@@ -38,14 +38,22 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.LookupRequest");
         //anyWrapper.pack(lookupRequest.serializeBinary(), "LookupRequest");
 
-        var responseData = await this.client.execute("KvStore", "Lookup", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var lookupResponse =
-        //    responseData.unpack(kvStore.LookupResponse.deserializeBinary,
-        //                        "LookupResponse");
-        var lookupResponse = kvStore.LookupResponse.deserializeBinary(specificBytes);
-        return lookupResponse;
+        try {
+            var responseData = await this.client.execute("KvStore", "Lookup", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var lookupResponse =
+            //    responseData.unpack(kvStore.LookupResponse.deserializeBinary,
+            //                        "LookupResponse");
+            var lookupResponse = kvStore.LookupResponse.deserializeBinary(specificBytes);
+            return lookupResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = kvStore.LookupResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     addOrReplace: async function(addOrReplaceRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -56,14 +64,22 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.AddOrReplaceRequest");
         //anyWrapper.pack(addOrReplaceRequest.serializeBinary(), "AddOrReplaceRequest");
 
-        var responseData = await this.client.execute("KvStore", "AddOrReplace", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var empty =
-        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-        //                        "Empty");
-        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-        return empty;
+        try {
+            var responseData = await this.client.execute("KvStore", "AddOrReplace", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     deleteKey: async function(deleteKeyRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -74,14 +90,22 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.DeleteKeyRequest");
         //anyWrapper.pack(deleteKeyRequest.serializeBinary(), "DeleteKeyRequest");
 
-        var responseData = await this.client.execute("KvStore", "DeleteKey", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var empty =
-        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-        //                        "Empty");
-        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-        return empty;
+        try {
+            var responseData = await this.client.execute("KvStore", "DeleteKey", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     append: async function(appendRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -92,14 +116,22 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.AppendRequest");
         //anyWrapper.pack(appendRequest.serializeBinary(), "AppendRequest");
 
-        var responseData = await this.client.execute("KvStore", "Append", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var empty =
-        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-        //                        "Empty");
-        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-        return empty;
+        try {
+            var responseData = await this.client.execute("KvStore", "Append", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     setIfEqual: async function(setIfEqualRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -110,14 +142,22 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.SetIfEqualRequest");
         //anyWrapper.pack(setIfEqualRequest.serializeBinary(), "SetIfEqualRequest");
 
-        var responseData = await this.client.execute("KvStore", "SetIfEqual", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var empty =
-        //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-        //                        "Empty");
-        var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-        return empty;
+        try {
+            var responseData = await this.client.execute("KvStore", "SetIfEqual", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     list: async function(listRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -128,14 +168,22 @@ KvStoreService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.KvStore.ListRequest");
         //anyWrapper.pack(listRequest.serializeBinary(), "ListRequest");
 
-        var responseData = await this.client.execute("KvStore", "List", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var listResponse =
-        //    responseData.unpack(kvStore.ListResponse.deserializeBinary,
-        //                        "ListResponse");
-        var listResponse = kvStore.ListResponse.deserializeBinary(specificBytes);
-        return listResponse;
+        try {
+            var responseData = await this.client.execute("KvStore", "List", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var listResponse =
+            //    responseData.unpack(kvStore.ListResponse.deserializeBinary,
+            //                        "ListResponse");
+            var listResponse = kvStore.ListResponse.deserializeBinary(specificBytes);
+            return listResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = kvStore.ListResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
 };
 

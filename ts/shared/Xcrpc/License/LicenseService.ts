@@ -14,13 +14,27 @@ class LicenseService {
      * @param
      * @description This function returns native promise
      */
-    public async getLicense(): Promise<ProtoTypes.License.GetResponse> {
+    public async getLicense(): Promise<LicenseInfo> {
         try {
             const request = new ProtoTypes.License.GetRequest();
             const licenseService = new ApiLicense(this._apiClient);
             const response = await licenseService.get(request);
 
-            return response;
+            return {
+                isLoaded: response.getLoaded(),
+                isExpired: response.getExpired(),
+                platform: response.getPlatform(),
+                product: response.getProduct(),
+                productFamily: response.getProductFamily(),
+                productVersion: response.getProductVersion(),
+                expiration: response.getExpiration(),
+                nodeCount: response.getNodeCount(),
+                userCount: response.getUserCount(),
+                attributes: response.getAttributes(),
+                licensee: response.getLicensee(),
+                compressedLicenseSize: response.getCompressedLicenseSize(),
+                compressedLicense: response.getCompressedLicense()
+            };
         } catch (e) {
             throw parseError(e);
         }
@@ -39,16 +53,30 @@ class LicenseService {
             const licenseValue = new ProtoTypes.License.LicenseValue();
             licenseValue.setValue(newLicense);
             const request = new ProtoTypes.License.UpdateRequest();
-            request.setLicensevalue(licenseValue);
+            request.setLicenseValue(licenseValue);
 
             const licenseService = new ApiLicense(this._apiClient);
-            const response = await licenseService.update(request);
-
-            return response;
+            await licenseService.update(request);
         } catch (e) {
             throw parseError(e);
         }
     }
 }
 
-export { LicenseService };
+type LicenseInfo = {
+    isLoaded: boolean,
+    isExpired: boolean,
+    platform: string,
+    product: string,
+    productFamily: string,
+    productVersion: string,
+    expiration: string,
+    nodeCount: number,
+    userCount: number,
+    attributes: string,
+    licensee: string,
+    compressedLicenseSize: number,
+    compressedLicense: string
+};
+
+export { LicenseService, LicenseInfo };

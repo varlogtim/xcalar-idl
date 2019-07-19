@@ -61,7 +61,7 @@ proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.toObject = function(o
  */
 proto.xcalar.compute.localtypes.Cgroup.CgRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    jsoninput: jspb.Message.getFieldWithDefault(msg, 1, "")
+    jsonInput: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -100,7 +100,7 @@ proto.xcalar.compute.localtypes.Cgroup.CgRequest.deserializeBinaryFromReader = f
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setJsoninput(value);
+      msg.setJsonInput(value);
       break;
     default:
       reader.skipField();
@@ -131,7 +131,7 @@ proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.serializeBinary = fun
  */
 proto.xcalar.compute.localtypes.Cgroup.CgRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getJsoninput();
+  f = message.getJsonInput();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -142,16 +142,16 @@ proto.xcalar.compute.localtypes.Cgroup.CgRequest.serializeBinaryToWriter = funct
 
 
 /**
- * optional string jsonInput = 1;
+ * optional string json_input = 1;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.getJsoninput = function() {
+proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.getJsonInput = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.setJsoninput = function(value) {
+proto.xcalar.compute.localtypes.Cgroup.CgRequest.prototype.setJsonInput = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
@@ -203,7 +203,7 @@ proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.toObject = function(
  */
 proto.xcalar.compute.localtypes.Cgroup.CgResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    jsonoutput: jspb.Message.getFieldWithDefault(msg, 1, "")
+    jsonOutput: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -242,7 +242,7 @@ proto.xcalar.compute.localtypes.Cgroup.CgResponse.deserializeBinaryFromReader = 
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setJsonoutput(value);
+      msg.setJsonOutput(value);
       break;
     default:
       reader.skipField();
@@ -273,7 +273,7 @@ proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.serializeBinary = fu
  */
 proto.xcalar.compute.localtypes.Cgroup.CgResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getJsonoutput();
+  f = message.getJsonOutput();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -284,16 +284,16 @@ proto.xcalar.compute.localtypes.Cgroup.CgResponse.serializeBinaryToWriter = func
 
 
 /**
- * optional string jsonOutput = 1;
+ * optional string json_output = 1;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.getJsonoutput = function() {
+proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.getJsonOutput = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.setJsonoutput = function(value) {
+proto.xcalar.compute.localtypes.Cgroup.CgResponse.prototype.setJsonOutput = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 

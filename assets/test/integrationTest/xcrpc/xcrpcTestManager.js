@@ -1,7 +1,7 @@
 /**
  * To run the test in dev machine w/o backend:
- * export NODE_TLS_REJECT_UNAUTHORIZED = 0
- * export NODE_APIEP = "https://skywalker:8443/app/service/xce"
+ * export NODE_TLS_REJECT_UNAUTHORIZED=0
+ * export NODE_APIEP="https://skywalker:8443/app/service/xce"
  */
 const Xcrpc = require('xcalarsdk');
 

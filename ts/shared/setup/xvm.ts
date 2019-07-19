@@ -31,24 +31,24 @@ namespace XVM {
         });
     }
 
-    function parseLicense(license: proto.xcalar.compute.localtypes.License.GetResponse): string | null {
+    function parseLicense(license: Xcrpc.License.LicenseInfo): string | null {
         try {
             if (typeof (license) === 'string') {
                 // This is an error. Otherwise it will be an object
                 licenseExpireInfo = 'Unlicensed';
             } else {
-                const utcSeconds: number = parseInt(license.getExpiration());
+                const utcSeconds: number = parseInt(license.expiration);
                 const d: Date = new Date(0);
                 d.setUTCSeconds(utcSeconds);
                 // expirationDate = d;
                 licenseExpireInfo = d.toDateString();
                 licenseMode = XcalarMode.Oper;
             }
-            numNodes = license.getNodecount();
-            numUsers = license.getUsercount();
-            licensee = license.getLicensee();
-            compressedLicense = license.getCompressedlicense();
-            if (license.getExpired()) {
+            numNodes = license.nodeCount;
+            numUsers = license.userCount;
+            licensee = license.licensee;
+            compressedLicense = license.compressedLicense;
+            if (license.isExpired) {
                 console.log(license);
                 const error: string = xcStringHelper.replaceMsg(ErrTStr.LicenseExpire, {
                     date: licenseExpireInfo
@@ -319,7 +319,7 @@ namespace XVM {
                     deferred.reject({ error: ThriftTStr.CCNBE });
                 }
             })
-            .then(function (license) {
+            .then(function (license: Xcrpc.License.LicenseInfo) {
                 if (!passed) {
                     return;
                 }

@@ -497,6 +497,84 @@ DataflowService.prototype = {
             throw error;
         }
     },
+    importDataflow: async function(importRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(importRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.ImportRequest");
+        //anyWrapper.pack(importRequest.serializeBinary(), "ImportRequest");
+
+        try {
+            var responseData = await this.client.execute("Dataflow", "ImportDataflow", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    exportDataflow: async function(exportRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(exportRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.ExportRequest");
+        //anyWrapper.pack(exportRequest.serializeBinary(), "ExportRequest");
+
+        try {
+            var responseData = await this.client.execute("Dataflow", "ExportDataflow", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var exportResponse =
+            //    responseData.unpack(dataflow.ExportResponse.deserializeBinary,
+            //                        "ExportResponse");
+            var exportResponse = dataflow.ExportResponse.deserializeBinary(specificBytes);
+            return exportResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = dataflow.ExportResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    deleteDataflow: async function(deleteRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(deleteRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.DeleteRequest");
+        //anyWrapper.pack(deleteRequest.serializeBinary(), "DeleteRequest");
+
+        try {
+            var responseData = await this.client.execute("Dataflow", "DeleteDataflow", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            return empty;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
 };
 
 exports.DataflowService = DataflowService;

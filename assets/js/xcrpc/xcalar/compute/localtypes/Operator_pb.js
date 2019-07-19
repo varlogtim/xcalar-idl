@@ -16,7 +16,6 @@ var xcalar_compute_localtypes_DataFormatEnums_pb = require('../../../xcalar/comp
 var xcalar_compute_localtypes_OrderingEnums_pb = require('../../../xcalar/compute/localtypes/OrderingEnums_pb.js');
 var xcalar_compute_localtypes_JoinOpEnums_pb = require('../../../xcalar/compute/localtypes/JoinOpEnums_pb.js');
 var xcalar_compute_localtypes_UnionOpEnums_pb = require('../../../xcalar/compute/localtypes/UnionOpEnums_pb.js');
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
 goog.exportSymbol('proto.xcalar.compute.localtypes.Operator.AggRequest', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Operator.AggResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Operator.BulkLoadRequest', null, global);

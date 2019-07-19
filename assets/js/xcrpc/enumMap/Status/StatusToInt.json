@@ -684,6 +684,9 @@
     "StatusExistsTableName" : 682,
     "StatusTableNameNotFound" : 683,
     "StatusComplexTypeNotSupported" : 684,
-    "StatusParquetParserError" : 685
+    "StatusParquetParserError" : 685,
+    "StatusUnSupportedDecimalType" : 686,
+    "StatusUnSupportedLogicalType" : 687,
+    "StatusClusterNotReady" : 688
 }
 

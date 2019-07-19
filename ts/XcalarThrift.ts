@@ -597,7 +597,7 @@ XcalarGetVersion = function(
     return deferred.promise();
 };
 
-XcalarGetLicense = function(): XDPromise<proto.xcalar.compute.localtypes.License.GetResponse> {
+XcalarGetLicense = function(): XDPromise<Xcrpc.License.LicenseInfo> {
     return PromiseHelper.convertToJQuery(Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME)
                                               .getLicenseService().getLicense());
 };

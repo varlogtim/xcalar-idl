@@ -37,14 +37,22 @@ PublishedTableService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.PublishedTable.SelectRequest");
         //anyWrapper.pack(selectRequest.serializeBinary(), "SelectRequest");
 
-        var responseData = await this.client.execute("PublishedTable", "Select", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var selectResponse =
-        //    responseData.unpack(publishedTable.SelectResponse.deserializeBinary,
-        //                        "SelectResponse");
-        var selectResponse = publishedTable.SelectResponse.deserializeBinary(specificBytes);
-        return selectResponse;
+        try {
+            var responseData = await this.client.execute("PublishedTable", "Select", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var selectResponse =
+            //    responseData.unpack(publishedTable.SelectResponse.deserializeBinary,
+            //                        "SelectResponse");
+            var selectResponse = publishedTable.SelectResponse.deserializeBinary(specificBytes);
+            return selectResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = publishedTable.SelectResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
     listTables: async function(listTablesRequest) {
         // XXX we want to use Any.pack() here, but it is only available
@@ -55,14 +63,22 @@ PublishedTableService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.PublishedTable.ListTablesRequest");
         //anyWrapper.pack(listTablesRequest.serializeBinary(), "ListTablesRequest");
 
-        var responseData = await this.client.execute("PublishedTable", "ListTables", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var listTablesResponse =
-        //    responseData.unpack(publishedTable.ListTablesResponse.deserializeBinary,
-        //                        "ListTablesResponse");
-        var listTablesResponse = publishedTable.ListTablesResponse.deserializeBinary(specificBytes);
-        return listTablesResponse;
+        try {
+            var responseData = await this.client.execute("PublishedTable", "ListTables", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var listTablesResponse =
+            //    responseData.unpack(publishedTable.ListTablesResponse.deserializeBinary,
+            //                        "ListTablesResponse");
+            var listTablesResponse = publishedTable.ListTablesResponse.deserializeBinary(specificBytes);
+            return listTablesResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = publishedTable.ListTablesResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
 };
 

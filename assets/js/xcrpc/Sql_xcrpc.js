@@ -37,14 +37,22 @@ SqlService.prototype = {
         anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Sql.SQLQueryRequest");
         //anyWrapper.pack(sQLQueryRequest.serializeBinary(), "SQLQueryRequest");
 
-        var responseData = await this.client.execute("Sql", "ExecuteSQL", anyWrapper);
-        var specificBytes = responseData.getValue();
-        // XXX Any.unpack() is only available in protobuf 3.2; see above
-        //var sQLQueryResponse =
-        //    responseData.unpack(sql.SQLQueryResponse.deserializeBinary,
-        //                        "SQLQueryResponse");
-        var sQLQueryResponse = sql.SQLQueryResponse.deserializeBinary(specificBytes);
-        return sQLQueryResponse;
+        try {
+            var responseData = await this.client.execute("Sql", "ExecuteSQL", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var sQLQueryResponse =
+            //    responseData.unpack(sql.SQLQueryResponse.deserializeBinary,
+            //                        "SQLQueryResponse");
+            var sQLQueryResponse = sql.SQLQueryResponse.deserializeBinary(specificBytes);
+            return sQLQueryResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = sql.SQLQueryResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
     },
 };
 

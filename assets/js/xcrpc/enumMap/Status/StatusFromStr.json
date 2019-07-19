@@ -684,6 +684,9 @@
     "Table name already exists" : 682,
     "Table name not found" : 683,
     "Complex types in Parquet not supported" : 684,
-    "Error parsing parquet file" : 685
+    "Error parsing parquet file" : 685,
+    "Unsupported Decimal type in Parquet" : 686,
+    "Unsupported Logical type in Parquet Byte Array" : 687,
+    "Starting cluster is still in progress, Retry" : 688
 }
 

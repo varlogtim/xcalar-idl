@@ -262,6 +262,32 @@ OperatorService.prototype = {
             throw error;
         }
     },
+    opExport: async function(exportRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(exportRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Operator.ExportRequest");
+        //anyWrapper.pack(exportRequest.serializeBinary(), "ExportRequest");
+
+        try {
+            var responseData = await this.client.execute("Operator", "OpExport", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var exportResponse =
+            //    responseData.unpack(operator.ExportResponse.deserializeBinary,
+            //                        "ExportResponse");
+            var exportResponse = operator.ExportResponse.deserializeBinary(specificBytes);
+            return exportResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = operator.ExportResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
     opSynthesize: async function(synthesizeRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2

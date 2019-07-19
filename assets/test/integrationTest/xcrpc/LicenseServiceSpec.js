@@ -5,8 +5,14 @@ exports.testSuite = function(LicenseService) {
         it("getLicense() should work", async function () {
             try {
                 const result = await LicenseService.getLicense();
-                expect(result.array.length).to.equal(13);
-                expect(result.getLicensee()).to.equal("Xcalar, Inc");
+                const expectedFields = [
+                    'isLoaded', 'isExpired', 'platform', 'product', 'productFamily', 'productVersion', 'expiration',
+                    'nodeCount', 'userCount', 'attributes', 'licensee', 'compressedLicenseSize', 'compressedLicense'
+                ];
+                for (const fieldName of expectedFields) {
+                    expect(result.hasOwnProperty(fieldName), `Missing field "${fieldName}"`).to.be.true;
+                }
+                expect(result.licensee).to.equal("Xcalar, Inc");
             } catch(err) {
                 console.log("getLicense fails");
                 expect.fail(err);

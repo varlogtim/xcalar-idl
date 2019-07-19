@@ -55,6 +55,32 @@ SessionService.prototype = {
             throw error;
         }
     },
+    inact: async function(inactRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(inactRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Session.InactRequest");
+        //anyWrapper.pack(inactRequest.serializeBinary(), "InactRequest");
+
+        try {
+            var responseData = await this.client.execute("Session", "Inact", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var inactResponse =
+            //    responseData.unpack(session.InactResponse.deserializeBinary,
+            //                        "InactResponse");
+            var inactResponse = session.InactResponse.deserializeBinary(specificBytes);
+            return inactResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = session.InactResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
     activate: async function(activateRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
