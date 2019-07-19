@@ -1128,27 +1128,30 @@ class DagViewManager {
             }
         });
 
+        // add listeners to dagView and sqlMode graph
+        let $dfWraps = this.$dfWrap.add($("#sqlDataflowArea .dataflowWrap"));
+
         // add classes to skewTh and skewTd because we can't use
         // css to control their hover states together
-        this.$dfWrap.on("mouseenter", ".skewTh, .skewTd", function() {
+        $dfWraps.on("mouseenter", ".skewTh, .skewTd", function() {
             $(this).closest(".runStats").addClass("hoveringSkew");
         });
 
-        this.$dfWrap.on("mouseleave", ".skewTh", function() {
+        $dfWraps.on("mouseleave", ".skewTh", function() {
             $(this).closest(".runStats").removeClass("hoveringSkew");
         });
 
-        this.$dfWrap.on("mouseleave", ".skewTd", function() {
+        $dfWraps.on("mouseleave", ".skewTd", function() {
             $(this).closest(".runStats").removeClass("hoveringSkew");
         });
 
-        this.$dfWrap.on("click", ".skewTh, .skewTd", function() {
+        $dfWraps.on("mouseup", ".skewTh, .skewTd", function() {
             let $runStats = $(this).closest(".runStats");
             let skewInfo = $runStats.data("skewinfo");
             SkewInfoModal.Instance.show(null, {tableInfo: skewInfo});
         });
 
-        this.$dfWrap.on("mousedown", ".runStats", function() {
+        $dfWraps.on("mousedown", ".runStats", function() {
             const $tip = $(this);
             $tip.parent().append($tip);
         });
