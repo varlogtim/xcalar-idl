@@ -117,8 +117,7 @@ namespace DSTargetManager {
             let html: HTML = targets.map(function(targetName) {
                 return "<li>" + targetName + "</li>";
             }).join("");
-            let dsFormHtml: HTML = `<li class="createNew adminOnly">+ Create New Connector</li>` + html;
-            $("#dsForm-targetMenu ul").html(dsFormHtml);
+            $("#dsForm-targetMenu ul").html(html);
             JupyterUDFModal.Instance.refreshTarget(html);
 
             let $input = $("#dsForm-target input");
@@ -149,6 +148,7 @@ namespace DSTargetManager {
             deferred.resolve(targetList);
         })
         .fail(deferred.reject);
+
 
         return deferred.promise();
     }
@@ -256,15 +256,13 @@ namespace DSTargetManager {
         });
 
         $("#dsTarget-reset").click(function() {
-            resetForm();
-        });
-
-        $("#dsTarget-import").click(function(event) {
-            event.preventDefault();
-            let targetName: string = $gridView.find(".grid-unit.active").data("name");
-            MainMenu.openPanel("datastorePanel", "inButton");
-            $("#importDataButton").click();
-            DSForm.setDataTarget(targetName);
+            let $form = $("#dsTarget-form");
+            $form.find(".description").addClass("xc-hidden")
+                 .find("#dsTarget-description").empty();
+            $form.find(".params").addClass("xc-hidden")
+                 .find(".formContent").empty();
+            $("#dsTarget-type .text").val("").removeData("id");
+            $("#dsTarget-name").val("").focus();
         });
     }
 
@@ -411,7 +409,7 @@ namespace DSTargetManager {
         showTargetInfoView($grid.data("name"));
     }
 
-    export function showTargetCreateView(): void {
+    function showTargetCreateView(): void {
         clearActiveTarget();
         if ($targetCreateCard.hasClass("xc-hidden")) {
             $targetCreateCard.removeClass("xc-hidden");
@@ -884,13 +882,7 @@ namespace DSTargetManager {
     }
 
     function resetForm(): void {
-        let $form = $("#dsTarget-form");
-        $form.find(".description").addClass("xc-hidden")
-             .find("#dsTarget-description").empty();
-        $form.find(".params").addClass("xc-hidden")
-             .find(".formContent").empty();
-        $("#dsTarget-type .text").val("").removeData("id");
-        $("#dsTarget-name").val("").focus();
+        $("#dsTarget-reset").click();
     }
 
     function submitForm(): XDPromise<void> {
@@ -920,23 +912,16 @@ namespace DSTargetManager {
                 return null;
             }
         };
-
         xcUIHelper.disableSubmit($submitBtn);
         checkMountPoint()
         .then(function() {
             return XcalarTargetCreate.apply(this, args);
         })
         .then(function() {
-            return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
-        })
-        .then(() => {
             xcUIHelper.toggleBtnInProgress($submitBtn, true);
             xcUIHelper.showSuccess(SuccessTStr.Target);
+            DSTargetManager.refreshTargets(true);
             resetForm();
-            let $grid = $gridView.find('.target[data-name="' + args[1] + '"]');
-            if ($grid.length) {
-                selectTarget($grid);
-            }
             deferred.resolve();
         })
         .fail(function(error) {

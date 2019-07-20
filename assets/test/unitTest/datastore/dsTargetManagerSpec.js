@@ -130,19 +130,6 @@ describe("Datastore-DSTargetManger Test", function() {
             });
         });
 
-        it("should focus on ds path form when clicking on import", function() {
-            expect($("#dsTarget-import:visible").length).to.equal(1);
-            expect($("#dsForm-target:visible").length).to.equal(0);
-
-            $("#dsTarget-import").click();
-
-            expect($("#dsForm-target:visible").length).to.equal(1);
-            expect($("#dsTarget-import:visible").length).to.equal(0);
-            expect($("#dsForm-target input").val()).to.equal(testTarget);
-
-            MainMenu.openPanel("datastorePanel", "targetButton");
-        });
-
         after(function() {
             if (!Admin.isAdmin()) {
                 $("#datastoreMenu").addClass("noAdmin");
