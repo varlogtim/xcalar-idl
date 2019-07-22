@@ -289,14 +289,14 @@ class SQLOpPanel extends BaseOpPanel {
         // refer to opPanel.less @table-h & @title-h
         const tableHeight = 180;
         const titleHeight = 40;
-        const maxHeight = "calc(100% - " + (titleHeight * 2) + "px)";
+        const maxHeight = "calc(100% - " + (titleHeight * 3) + "px)";
         if (restoreToDefault) {
             // back to default size
             this._toggleExpadHelper(this._$elemPanel.find(".maximize .icon"), true);
             this._$tableWrapper.removeClass("xc-hidden");
             this._$tableWrapper.css({height: tableHeight});
             this._$editorWrapper.css({height: "calc(100% - " +
-                                      (tableHeight + titleHeight * 2) + "px)"});
+                                      (tableHeight + titleHeight * 3) + "px)"});
         } else if ($title.hasClass("tableTitle")) {
             // expand table mapping section
             this._toggleExpadHelper($title.find(".maximize .icon"), false);
