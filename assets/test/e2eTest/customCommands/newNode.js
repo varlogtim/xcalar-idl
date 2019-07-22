@@ -13,7 +13,6 @@ class NewNode extends EventEmitter {
                         y - scroll.top
                     )
                     .mouseButtonUp("left");
-                this.api.saveScreenshot("newNodeScreenshot.png");
                 this.api
                     .waitForElementPresent('.dataflowArea.active .operator.selected', 10);
 

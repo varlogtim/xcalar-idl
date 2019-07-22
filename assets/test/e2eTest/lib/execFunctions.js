@@ -89,5 +89,9 @@ module.exports = {
             }
         });
         DagViewManager.Instance.run(nodeIds);
+    },
+
+    downloadWorkbook: function(wkbkName) {
+        WorkbookManager.downloadWKBK(wkbkName);
     }
 };

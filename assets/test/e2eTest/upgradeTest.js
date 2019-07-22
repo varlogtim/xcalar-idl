@@ -9,7 +9,6 @@ const testConfig = {
 
 const execFunctions = require('./lib/execFunctions');
 let datasetNodeId;
-let secondSqlNodeId;
 
 let testTabs = {}; // { id: string, nodes: [] }
 module.exports = {
@@ -51,16 +50,11 @@ module.exports = {
             });
 
         }
-        // browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
+        browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
     },
 
     'upload and enter workbook': function(browser) {
-        browser
-            .uploadWorkbook(testConfig.workbook, testConfig.isUpgrade)
-            .click(".workbookBox .content.activate")
-            .pause(1000)
-            .waitForElementNotVisible("#initialLoadScreen", 100000);
-
+        browser.uploadAndEnterWorkbook(testConfig.workbook, testConfig.isUpgrade);
         // prevent dfAutoPreview from showing table automatically
         browser.execute(function() {
                 let cachedUserPref = UserSettings.getPref;
@@ -72,12 +66,6 @@ module.exports = {
                     }
                 };
             }, [])
-    },
-
-    'activate tab': function(browser) {
-        browser
-            .click("#dagListSection .fileName .name")
-            .waitForElementVisible('.dataflowArea.active.rendered', 100000);
     },
 
     'get tabs and nodes': function(browser) {
@@ -174,6 +162,7 @@ module.exports = {
         }
     },
 
+
     'config dataset schema': function(browser) {
         for (const tabName of Object.keys(testTabs)) {
             const newTabName = tabName;
@@ -181,58 +170,70 @@ module.exports = {
                 return node.type === "dataset";
             });
 
-            // browser.perform(() => {
-            //     datasetNodes.forEach((nodeInfo) => {
-            //         input = nodeInfo.input;
-            //         if (input.prefix === "classes") {
-            //             input.schema = [
-            //                 {
-            //                     "name": "class_name",
-            //                     "type": "string"
-            //                 },
-            //                 {
-            //                     "name": "class_id",
-            //                     "type": "integer"
-            //                 }
-            //             ];
-            //         } else if (input.prefix === "schedule") {
-            //             input.schema =   [
-            //                 {
-            //                     "name": "class_id",
-            //                     "type": "integer"
-            //                 },
-            //                 {
-            //                     "name": "days",
-            //                     "type": "array"
-            //                 },
-            //                 {
-            //                     "name": "time",
-            //                     "type": "string"
-            //                 },
-            //                 {
-            //                     "name": "duration",
-            //                     "type": "string"
-            //                 },
-            //                 {
-            //                     "name": "teacher_id",
-            //                     "type": "integer"
-            //                 },
-            //                 {
-            //                     "name": "student_ids",
-            //                     "type": "array"
-            //                 }
-            //             ];
-            //         }
+            datasetNodes.forEach((datasetNode, i) => {
+                if (i < 2) { // only do top 2 datasets
+                    browser.executeNode('.operator[data-nodeid="' + datasetNode.nodeId + '"]');
+                }
 
-            //         if (!nodeInfo.schema || !nodeInfo.schema.length) {
-            //             nodeInfo.schema = input.schema;
-            //             browser
-            //             .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"]')
-            //             // .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
-            //             .restoreDataset('.dataflowArea.active .operator[data-nodeid="' + nodeInfo.nodeId + '"] .main');
-            //         }
-            //     });
-            // });
+            });
+
+
+            browser.perform(() => {
+
+                datasetNodes.forEach((nodeInfo, i) => {
+                    if (i > 1) { // only do top 2 datasets
+                        return;
+                    }
+                    input = nodeInfo.input;
+                    if (input.prefix === "classes") {
+                        input.schema = [
+                            {
+                                "name": "class_name",
+                                "type": "string"
+                            },
+                            {
+                                "name": "class_id",
+                                "type": "integer"
+                            }
+                        ];
+                    } else if (input.prefix === "schedule") {
+                        input.schema =   [
+                            {
+                                "name": "class_id",
+                                "type": "integer"
+                            },
+                            {
+                                "name": "days",
+                                "type": "array"
+                            },
+                            {
+                                "name": "time",
+                                "type": "string"
+                            },
+                            {
+                                "name": "duration",
+                                "type": "string"
+                            },
+                            {
+                                "name": "teacher_id",
+                                "type": "integer"
+                            },
+                            {
+                                "name": "student_ids",
+                                "type": "array"
+                            }
+                        ];
+                    }
+
+                    if (!nodeInfo.schema || !nodeInfo.schema.length) {
+                        nodeInfo.schema = input.schema;
+                        browser
+                        .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"]')
+                        .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
+                        // .restoreDataset('.dataflowArea.active .operator[data-nodeid="' + nodeInfo.nodeId + '"] .main');
+                    }
+                });
+            });
         }
     },
 
@@ -328,6 +329,7 @@ module.exports = {
             const finalNode = testTabs[tabName].nodes.find((node) => {
                 return node.title === "union#76";
             });
+
             const linkOutNode = testTabs[tabName].nodes.find((node) => {
                 return node.type === "link out";
             });
@@ -342,7 +344,8 @@ module.exports = {
 
 
             browser.executeNode('.operator[data-nodeid="' + finalNode.nodeId + '"]');
-            let selector = '.operator[data-nodeid="' + linkOutNode.nodeId + '"]';
+
+            // let selector = '.operator[data-nodeid="' + linkOutNode.nodeId + '"]';
             // XXX optimized execution failing due to udf
 
             // browser
@@ -416,7 +419,7 @@ module.exports = {
             ];
             browser.switchTab(newTabName);
 
-            const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [] };
+            let commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [] };
 
             let nodeCategoryClass = '';
             let nodeCategorySelector = '';
@@ -445,7 +448,6 @@ module.exports = {
             });
 
             browser.perform(() => {
-
                 let input = {
                     "source": "dftest3.35829.upgradeTest",
                     "prefix": "upgradeTest",
@@ -553,7 +555,7 @@ module.exports = {
                             "type": "integer"
                         }
                     ],
-                    "parents": [firstParent.id, datasetNodeId],
+                    "parents": [firstParent.nodeId, datasetNodeId],
                     "nodeId": "dag_5C764BC624079350_1551258719473_82"
                 }
             ];
@@ -600,6 +602,7 @@ module.exports = {
                     "dropAsYouGo": true
                 };
 
+                // connect to first parent which is a map node
                 browser
                 .moveToElement('.dataflowArea.active .operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .connector.in', 2, 2)
                 .mouseButtonDown("left")
@@ -610,7 +613,7 @@ module.exports = {
                     + `[data-parentnodeid="${firstParent.nodeId}"]`
                     + `[data-connectorindex="0"]`,
                     10);
-
+                // connect to 2nd parent which is a cast node from the dataset node
                 browser
                 .moveToElement('.dataflowArea.active .operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .connector.in', 2, 2)
                 .mouseButtonDown("left")
@@ -640,16 +643,14 @@ module.exports = {
                 .moveToElement(`.dataflowArea.active .operator.sql .main`, 10, 20)
                 .mouseButtonClick('right')
                 .waitForElementVisible("#dagNodeMenu", 1000);
-                browser.saveScreenshot("preValidateScreenshot.png");
                 browser.moveToElement("#dagNodeMenu li.viewResult", 10, 1)
 
                 .mouseButtonClick('left')
                 .waitForElementVisible('#dagViewTableArea .totalRows', 20000);
 
-            browser.saveScreenshot("validateScreenshot.png");
-                browser.getText('#dagViewTableArea .totalRows', ({value}) => {
-                    browser.assert.equal(value, "0");
-                });
+            browser.getText('#dagViewTableArea .totalRows', ({value}) => {
+                browser.assert.equal(value, "0");
+            });
         }
     },
 

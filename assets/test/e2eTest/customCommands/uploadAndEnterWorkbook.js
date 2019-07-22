@@ -11,7 +11,7 @@ class UploadAndEnterWorkbook extends EventEmitter {
             this.api
                 .uploadWorkbook(workbookName, isUpgrade)
                 .waitForWorkbookReady()
-                .activateWorkbook();
+                .activateWorkbook(isUpgrade);
             this.emit('complete');
         });
         return this;
