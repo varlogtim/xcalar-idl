@@ -8,7 +8,7 @@ class DagNodeIMDTable extends DagNodeIn {
         this.type = DagNodeType.IMDTable;
         this.maxParents = 0;
         this.minParents = 0;
-        this.display.icon = "&#xea55;";
+        this.display.icon = "&#xe910;";
         this.input = this.getRuntime().accessible(new DagNodeIMDTableInput(options.input));
     }
 

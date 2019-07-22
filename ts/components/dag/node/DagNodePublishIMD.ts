@@ -6,7 +6,7 @@ class DagNodePublishIMD extends DagNode {
         this.type = DagNodeType.PublishIMD;
         this.maxChildren = 0;
         this.minParents = 1;
-        this.display.icon = "&#xea55;";
+        this.display.icon = "&#xe910;";
         this.input = this.getRuntime().accessible(new DagNodePublishIMDInput(options.input));
     }
 
