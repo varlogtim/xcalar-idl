@@ -31,12 +31,13 @@ class ModeAlertModal {
 
     private _getTitle(): string {
         let modeTitle: string = XVM.isSQLMode() ? ModeTStr.SQL : ModeTStr.Advanced;
-        return `You are switching to the ${modeTitle}`;
+        return `You are switching to the ${modeTitle} workspace`;
     }
 
     private _getMessage(): string {
-        let backMode: string = XVM.isSQLMode() ? ModeTStr.Advanced : ModeTStr.SQL;
-        return `To switch back to the ${backMode}, click on the <b>blue</b> toggle button again.`;
+        return XVM.isSQLMode()
+        ? 'Use the SQL Mode workspace if you prefer to use SQL to build your data models.'
+        : 'Use the Dataflow Mode workspace if you prefer to use visual tools to build your data models.';
     }
 
     private _isNotShow(): boolean {
