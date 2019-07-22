@@ -259,8 +259,15 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     }
 
     async function getNodeID() {
+        // if XCE_INSTALLER_ROOT is set and XCE_CONFIG is not,
+        // we're running inside an installer and we can just
+        // be node 0
+        if (process.env.XCE_INSTALLER_ROOT &&
+            !process.env.XCE_CONFIG) {
+            return 0
+        }
         var cfgLocation = process.env.XCE_CONFIG ? process.env.XCE_CONFIG :
-                            'etc/xcalar/default.cfg'
+            '/etc/xcalar/default.cfg';
         var buf = fs.readFileSync(cfgLocation, 'utf-8');
         var lines = buf.split('\n');
         var rePattern = new RegExp(/^Node.(\d+).IpAddr=(.*)$/);
