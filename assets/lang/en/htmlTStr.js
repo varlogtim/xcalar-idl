@@ -115,7 +115,7 @@ module.exports = {
         "tableau": "assets/htmlFiles/tableau.html",
         "helpUserDocs": "assets/help/user/Content/Home.htm",
         "skewDoc": "assets/help/user/Content/D_Reference/C_WorksheetWindow.htm#Skew",
-        "news": "https://xcalar.com/blog/"
+        "news": "https://xcalar.com/news/"
     },
 
     "time": {
