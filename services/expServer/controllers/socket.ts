@@ -232,9 +232,15 @@ class SocketUtil {
                     return;
                 }
 
-                let user: string = getSocketUser(socket);
-                xcConsole.log(user + "refreshWorkbook");
-                socket.broadcast.to(user).emit("refreshWorkbook", wkbkInfo);
+                try {
+                    let user: string = getSocketUser(socket) || wkbkInfo.user;
+                    xcConsole.log(user + "refreshWorkbook");
+                    if (user) {
+                        socket.broadcast.to(user).emit("refreshWorkbook", wkbkInfo);
+                    }
+                } catch (e) {
+                    xcConsole.error("Error: " + e.message);
+                }
             });
 
             socket.on("refreshUserSettings", (): void => {
