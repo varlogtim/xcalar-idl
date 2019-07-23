@@ -13,7 +13,6 @@ var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
 var session = require("./xcalar/compute/localtypes/Session_pb");
-var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,6 +76,32 @@ SessionService.prototype = {
             if (error.response != null) {
                 const specificBytes = error.response.getValue();
                 error.response = session.InactResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
+    persist: async function(persistRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(persistRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Session.PersistRequest");
+        //anyWrapper.pack(persistRequest.serializeBinary(), "PersistRequest");
+
+        try {
+            var responseData = await this.client.execute("Session", "Persist", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var persistResponse =
+            //    responseData.unpack(session.PersistResponse.deserializeBinary,
+            //                        "PersistResponse");
+            var persistResponse = session.PersistResponse.deserializeBinary(specificBytes);
+            return persistResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = session.PersistResponse.deserializeBinary(specificBytes);
             }
             throw error;
         }
@@ -159,6 +184,32 @@ SessionService.prototype = {
             throw error;
         }
     },
+    downloadSession: async function(downloadRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(downloadRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Session.DownloadRequest");
+        //anyWrapper.pack(downloadRequest.serializeBinary(), "DownloadRequest");
+
+        try {
+            var responseData = await this.client.execute("Session", "DownloadSession", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var downloadResponse =
+            //    responseData.unpack(session.DownloadResponse.deserializeBinary,
+            //                        "DownloadResponse");
+            var downloadResponse = session.DownloadResponse.deserializeBinary(specificBytes);
+            return downloadResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = session.DownloadResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
     deleteSession: async function(deleteRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
@@ -172,15 +223,15 @@ SessionService.prototype = {
             var responseData = await this.client.execute("Session", "DeleteSession", anyWrapper);
             var specificBytes = responseData.getValue();
             // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var empty =
-            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
-            //                        "Empty");
-            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
-            return empty;
+            //var deleteResponse =
+            //    responseData.unpack(session.DeleteResponse.deserializeBinary,
+            //                        "DeleteResponse");
+            var deleteResponse = session.DeleteResponse.deserializeBinary(specificBytes);
+            return deleteResponse;
         } catch(error) {
             if (error.response != null) {
                 const specificBytes = error.response.getValue();
-                error.response = proto_empty.Empty.deserializeBinary(specificBytes);
+                error.response = session.DeleteResponse.deserializeBinary(specificBytes);
             }
             throw error;
         }

@@ -18,10 +18,15 @@ goog.exportSymbol('proto.xcalar.compute.localtypes.Session.ActivateResponse', nu
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.CreateRequest', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.CreateResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.DeleteRequest', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Session.DeleteResponse', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Session.DownloadRequest', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Session.DownloadResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.InactRequest', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.InactResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.ListRequest', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.ListResponse', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Session.PersistRequest', null, global);
+goog.exportSymbol('proto.xcalar.compute.localtypes.Session.PersistResponse', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.SessionArg', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.SessionGenericOutput', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Session.SessionInfoInput', null, global);
@@ -1881,6 +1886,209 @@ proto.xcalar.compute.localtypes.Session.InactRequest.prototype.hasSessionInfoInp
  * @extends {jspb.Message}
  * @constructor
  */
+proto.xcalar.compute.localtypes.Session.PersistRequest = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Session.PersistRequest, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Session.PersistRequest.displayName = 'proto.xcalar.compute.localtypes.Session.PersistRequest';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Session.PersistRequest.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Session.PersistRequest} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
+    sessionInfoInput: (f = msg.getSessionInfoInput()) && proto.xcalar.compute.localtypes.Session.SessionInfoInput.toObject(includeInstance, f)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Session.PersistRequest}
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Session.PersistRequest;
+  return proto.xcalar.compute.localtypes.Session.PersistRequest.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Session.PersistRequest} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Session.PersistRequest}
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = new xcalar_compute_localtypes_Workbook_pb.WorkbookScope;
+      reader.readMessage(value,xcalar_compute_localtypes_Workbook_pb.WorkbookScope.deserializeBinaryFromReader);
+      msg.setScope(value);
+      break;
+    case 2:
+      var value = new proto.xcalar.compute.localtypes.Session.SessionInfoInput;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.Session.SessionInfoInput.deserializeBinaryFromReader);
+      msg.setSessionInfoInput(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Session.PersistRequest.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Session.PersistRequest} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getScope();
+  if (f != null) {
+    writer.writeMessage(
+      1,
+      f,
+      xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
+    );
+  }
+  f = message.getSessionInfoInput();
+  if (f != null) {
+    writer.writeMessage(
+      2,
+      f,
+      proto.xcalar.compute.localtypes.Session.SessionInfoInput.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
+ * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 1;
+ * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.getScope = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
+    jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 1));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.setScope = function(value) {
+  jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.clearScope = function() {
+  this.setScope(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.hasScope = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional SessionInfoInput session_info_input = 2;
+ * @return {?proto.xcalar.compute.localtypes.Session.SessionInfoInput}
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.getSessionInfoInput = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Session.SessionInfoInput} */ (
+    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Session.SessionInfoInput, 2));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Session.SessionInfoInput|undefined} value */
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.setSessionInfoInput = function(value) {
+  jspb.Message.setWrapperField(this, 2, value);
+};
+
+
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.clearSessionInfoInput = function() {
+  this.setSessionInfoInput(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Session.PersistRequest.prototype.hasSessionInfoInput = function() {
+  return jspb.Message.getField(this, 2) != null;
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
 proto.xcalar.compute.localtypes.Session.InactResponse = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
@@ -2026,6 +2234,245 @@ proto.xcalar.compute.localtypes.Session.InactResponse.prototype.clearSessionGene
  */
 proto.xcalar.compute.localtypes.Session.InactResponse.prototype.hasSessionGenericOutput = function() {
   return jspb.Message.getField(this, 1) != null;
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.xcalar.compute.localtypes.Session.PersistResponse.repeatedFields_, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Session.PersistResponse, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Session.PersistResponse.displayName = 'proto.xcalar.compute.localtypes.Session.PersistResponse';
+}
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.repeatedFields_ = [3];
+
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Session.PersistResponse.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Session.PersistResponse} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    sessionGenericOutput: (f = msg.getSessionGenericOutput()) && proto.xcalar.compute.localtypes.Session.SessionGenericOutput.toObject(includeInstance, f),
+    numSessions: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    sessionsList: jspb.Message.toObjectList(msg.getSessionsList(),
+    proto.xcalar.compute.localtypes.Session.SessionArg.toObject, includeInstance)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Session.PersistResponse}
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Session.PersistResponse;
+  return proto.xcalar.compute.localtypes.Session.PersistResponse.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Session.PersistResponse} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Session.PersistResponse}
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = new proto.xcalar.compute.localtypes.Session.SessionGenericOutput;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.Session.SessionGenericOutput.deserializeBinaryFromReader);
+      msg.setSessionGenericOutput(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setNumSessions(value);
+      break;
+    case 3:
+      var value = new proto.xcalar.compute.localtypes.Session.SessionArg;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.Session.SessionArg.deserializeBinaryFromReader);
+      msg.addSessions(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Session.PersistResponse.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Session.PersistResponse} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getSessionGenericOutput();
+  if (f != null) {
+    writer.writeMessage(
+      1,
+      f,
+      proto.xcalar.compute.localtypes.Session.SessionGenericOutput.serializeBinaryToWriter
+    );
+  }
+  f = message.getNumSessions();
+  if (f !== 0) {
+    writer.writeUint64(
+      2,
+      f
+    );
+  }
+  f = message.getSessionsList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      3,
+      f,
+      proto.xcalar.compute.localtypes.Session.SessionArg.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
+ * optional SessionGenericOutput session_generic_output = 1;
+ * @return {?proto.xcalar.compute.localtypes.Session.SessionGenericOutput}
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.getSessionGenericOutput = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Session.SessionGenericOutput} */ (
+    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Session.SessionGenericOutput, 1));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Session.SessionGenericOutput|undefined} value */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.setSessionGenericOutput = function(value) {
+  jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.clearSessionGenericOutput = function() {
+  this.setSessionGenericOutput(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.hasSessionGenericOutput = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional uint64 num_sessions = 2;
+ * @return {number}
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.getNumSessions = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/** @param {number} value */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.setNumSessions = function(value) {
+  jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * repeated SessionArg sessions = 3;
+ * @return {!Array<!proto.xcalar.compute.localtypes.Session.SessionArg>}
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.getSessionsList = function() {
+  return /** @type{!Array<!proto.xcalar.compute.localtypes.Session.SessionArg>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.xcalar.compute.localtypes.Session.SessionArg, 3));
+};
+
+
+/** @param {!Array<!proto.xcalar.compute.localtypes.Session.SessionArg>} value */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.setSessionsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 3, value);
+};
+
+
+/**
+ * @param {!proto.xcalar.compute.localtypes.Session.SessionArg=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.xcalar.compute.localtypes.Session.SessionArg}
+ */
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.addSessions = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 3, opt_value, proto.xcalar.compute.localtypes.Session.SessionArg, opt_index);
+};
+
+
+proto.xcalar.compute.localtypes.Session.PersistResponse.prototype.clearSessionsList = function() {
+  this.setSessionsList([]);
 };
 
 
@@ -3269,7 +3716,8 @@ proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.toObject = funct
  */
 proto.xcalar.compute.localtypes.Session.DeleteRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-
+    scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
+    sessionInfoInput: (f = msg.getSessionInfoInput()) && proto.xcalar.compute.localtypes.Session.SessionInfoInput.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -3306,6 +3754,16 @@ proto.xcalar.compute.localtypes.Session.DeleteRequest.deserializeBinaryFromReade
     }
     var field = reader.getFieldNumber();
     switch (field) {
+    case 1:
+      var value = new xcalar_compute_localtypes_Workbook_pb.WorkbookScope;
+      reader.readMessage(value,xcalar_compute_localtypes_Workbook_pb.WorkbookScope.deserializeBinaryFromReader);
+      msg.setScope(value);
+      break;
+    case 2:
+      var value = new proto.xcalar.compute.localtypes.Session.SessionInfoInput;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.Session.SessionInfoInput.deserializeBinaryFromReader);
+      msg.setSessionInfoInput(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -3335,6 +3793,681 @@ proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.serializeBinary 
  */
 proto.xcalar.compute.localtypes.Session.DeleteRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
+  f = message.getScope();
+  if (f != null) {
+    writer.writeMessage(
+      1,
+      f,
+      xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
+    );
+  }
+  f = message.getSessionInfoInput();
+  if (f != null) {
+    writer.writeMessage(
+      2,
+      f,
+      proto.xcalar.compute.localtypes.Session.SessionInfoInput.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
+ * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 1;
+ * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.getScope = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
+    jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 1));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
+proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.setScope = function(value) {
+  jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.clearScope = function() {
+  this.setScope(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.hasScope = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional SessionInfoInput session_info_input = 2;
+ * @return {?proto.xcalar.compute.localtypes.Session.SessionInfoInput}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.getSessionInfoInput = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Session.SessionInfoInput} */ (
+    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Session.SessionInfoInput, 2));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Session.SessionInfoInput|undefined} value */
+proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.setSessionInfoInput = function(value) {
+  jspb.Message.setWrapperField(this, 2, value);
+};
+
+
+proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.clearSessionInfoInput = function() {
+  this.setSessionInfoInput(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteRequest.prototype.hasSessionInfoInput = function() {
+  return jspb.Message.getField(this, 2) != null;
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Session.DownloadRequest, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Session.DownloadRequest.displayName = 'proto.xcalar.compute.localtypes.Session.DownloadRequest';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Session.DownloadRequest.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Session.DownloadRequest} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
+    sessionInfoInput: (f = msg.getSessionInfoInput()) && proto.xcalar.compute.localtypes.Session.SessionInfoInput.toObject(includeInstance, f),
+    pathToAdditionalFiles: jspb.Message.getFieldWithDefault(msg, 3, "")
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Session.DownloadRequest}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Session.DownloadRequest;
+  return proto.xcalar.compute.localtypes.Session.DownloadRequest.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Session.DownloadRequest} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Session.DownloadRequest}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = new xcalar_compute_localtypes_Workbook_pb.WorkbookScope;
+      reader.readMessage(value,xcalar_compute_localtypes_Workbook_pb.WorkbookScope.deserializeBinaryFromReader);
+      msg.setScope(value);
+      break;
+    case 2:
+      var value = new proto.xcalar.compute.localtypes.Session.SessionInfoInput;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.Session.SessionInfoInput.deserializeBinaryFromReader);
+      msg.setSessionInfoInput(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPathToAdditionalFiles(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Session.DownloadRequest.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Session.DownloadRequest} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getScope();
+  if (f != null) {
+    writer.writeMessage(
+      1,
+      f,
+      xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
+    );
+  }
+  f = message.getSessionInfoInput();
+  if (f != null) {
+    writer.writeMessage(
+      2,
+      f,
+      proto.xcalar.compute.localtypes.Session.SessionInfoInput.serializeBinaryToWriter
+    );
+  }
+  f = message.getPathToAdditionalFiles();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional xcalar.compute.localtypes.Workbook.WorkbookScope scope = 1;
+ * @return {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.getScope = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Workbook.WorkbookScope} */ (
+    jspb.Message.getWrapperField(this, xcalar_compute_localtypes_Workbook_pb.WorkbookScope, 1));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Workbook.WorkbookScope|undefined} value */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.setScope = function(value) {
+  jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.clearScope = function() {
+  this.setScope(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.hasScope = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional SessionInfoInput session_info_input = 2;
+ * @return {?proto.xcalar.compute.localtypes.Session.SessionInfoInput}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.getSessionInfoInput = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Session.SessionInfoInput} */ (
+    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Session.SessionInfoInput, 2));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Session.SessionInfoInput|undefined} value */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.setSessionInfoInput = function(value) {
+  jspb.Message.setWrapperField(this, 2, value);
+};
+
+
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.clearSessionInfoInput = function() {
+  this.setSessionInfoInput(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.hasSessionInfoInput = function() {
+  return jspb.Message.getField(this, 2) != null;
+};
+
+
+/**
+ * optional string path_to_additional_files = 3;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.getPathToAdditionalFiles = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Session.DownloadRequest.prototype.setPathToAdditionalFiles = function(value) {
+  jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Session.DownloadResponse, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Session.DownloadResponse.displayName = 'proto.xcalar.compute.localtypes.Session.DownloadResponse';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Session.DownloadResponse.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Session.DownloadResponse} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    sessionGenericOutput: (f = msg.getSessionGenericOutput()) && proto.xcalar.compute.localtypes.Session.SessionGenericOutput.toObject(includeInstance, f),
+    sessionContent: msg.getSessionContent_asB64()
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Session.DownloadResponse}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Session.DownloadResponse;
+  return proto.xcalar.compute.localtypes.Session.DownloadResponse.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Session.DownloadResponse} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Session.DownloadResponse}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = new proto.xcalar.compute.localtypes.Session.SessionGenericOutput;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.Session.SessionGenericOutput.deserializeBinaryFromReader);
+      msg.setSessionGenericOutput(value);
+      break;
+    case 2:
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setSessionContent(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Session.DownloadResponse.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Session.DownloadResponse} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getSessionGenericOutput();
+  if (f != null) {
+    writer.writeMessage(
+      1,
+      f,
+      proto.xcalar.compute.localtypes.Session.SessionGenericOutput.serializeBinaryToWriter
+    );
+  }
+  f = message.getSessionContent_asU8();
+  if (f.length > 0) {
+    writer.writeBytes(
+      2,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional SessionGenericOutput session_generic_output = 1;
+ * @return {?proto.xcalar.compute.localtypes.Session.SessionGenericOutput}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.getSessionGenericOutput = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Session.SessionGenericOutput} */ (
+    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Session.SessionGenericOutput, 1));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Session.SessionGenericOutput|undefined} value */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.setSessionGenericOutput = function(value) {
+  jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.clearSessionGenericOutput = function() {
+  this.setSessionGenericOutput(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.hasSessionGenericOutput = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional bytes session_content = 2;
+ * @return {!(string|Uint8Array)}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.getSessionContent = function() {
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * optional bytes session_content = 2;
+ * This is a type-conversion wrapper around `getSessionContent()`
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.getSessionContent_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getSessionContent()));
+};
+
+
+/**
+ * optional bytes session_content = 2;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getSessionContent()`
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.getSessionContent_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getSessionContent()));
+};
+
+
+/** @param {!(string|Uint8Array)} value */
+proto.xcalar.compute.localtypes.Session.DownloadResponse.prototype.setSessionContent = function(value) {
+  jspb.Message.setProto3BytesField(this, 2, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.xcalar.compute.localtypes.Session.DeleteResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.xcalar.compute.localtypes.Session.DeleteResponse, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.xcalar.compute.localtypes.Session.DeleteResponse.displayName = 'proto.xcalar.compute.localtypes.Session.DeleteResponse';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.xcalar.compute.localtypes.Session.DeleteResponse.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.xcalar.compute.localtypes.Session.DeleteResponse} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.DeleteResponse.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    sessionGenericOutput: (f = msg.getSessionGenericOutput()) && proto.xcalar.compute.localtypes.Session.SessionGenericOutput.toObject(includeInstance, f)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.xcalar.compute.localtypes.Session.DeleteResponse}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteResponse.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.xcalar.compute.localtypes.Session.DeleteResponse;
+  return proto.xcalar.compute.localtypes.Session.DeleteResponse.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.xcalar.compute.localtypes.Session.DeleteResponse} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.xcalar.compute.localtypes.Session.DeleteResponse}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteResponse.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = new proto.xcalar.compute.localtypes.Session.SessionGenericOutput;
+      reader.readMessage(value,proto.xcalar.compute.localtypes.Session.SessionGenericOutput.deserializeBinaryFromReader);
+      msg.setSessionGenericOutput(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteResponse.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.xcalar.compute.localtypes.Session.DeleteResponse.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.xcalar.compute.localtypes.Session.DeleteResponse} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.xcalar.compute.localtypes.Session.DeleteResponse.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getSessionGenericOutput();
+  if (f != null) {
+    writer.writeMessage(
+      1,
+      f,
+      proto.xcalar.compute.localtypes.Session.SessionGenericOutput.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
+ * optional SessionGenericOutput session_generic_output = 1;
+ * @return {?proto.xcalar.compute.localtypes.Session.SessionGenericOutput}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteResponse.prototype.getSessionGenericOutput = function() {
+  return /** @type{?proto.xcalar.compute.localtypes.Session.SessionGenericOutput} */ (
+    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Session.SessionGenericOutput, 1));
+};
+
+
+/** @param {?proto.xcalar.compute.localtypes.Session.SessionGenericOutput|undefined} value */
+proto.xcalar.compute.localtypes.Session.DeleteResponse.prototype.setSessionGenericOutput = function(value) {
+  jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+proto.xcalar.compute.localtypes.Session.DeleteResponse.prototype.clearSessionGenericOutput = function() {
+  this.setSessionGenericOutput(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.xcalar.compute.localtypes.Session.DeleteResponse.prototype.hasSessionGenericOutput = function() {
+  return jspb.Message.getField(this, 1) != null;
 };
 
 

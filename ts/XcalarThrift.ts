@@ -1217,8 +1217,7 @@ XcalarDatasetLoad = function(
 XcalarDatasetDeactivate = function(
     datasetname: string,
     txId: number,
-    scopeInfo?: Xcrpc.DagNode.DagScopeInfo,
-    useXcrpc?: boolean
+    scopeInfo?: Xcrpc.DagNode.DagScopeInfo
 ): XDPromise<void> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1234,7 +1233,6 @@ XcalarDatasetDeactivate = function(
 
     releaseAllResultsets()
     .then(function() {
-        if (useXcrpc) {
         const xcrpcScope = createXcrpcScopeInput({
             scopeInfo: scopeInfo,
             xcrpcScopeEnum: {
@@ -1248,10 +1246,6 @@ XcalarDatasetDeactivate = function(
                                       dagScope: xcrpcScope.scope,
                                       scopeInfo: xcrpcScope.scopeInfo});
         return PromiseHelper.alwaysResolve(PromiseHelper.convertToJQuery(promise));
-        } else {
-            const promise = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
-            return PromiseHelper.alwaysResolve(promise);
-        }
     })
     .then(function() {
         return xcalarDatasetUnload(tHandle, dsName);
@@ -1356,8 +1350,7 @@ XcalarDatasetGetLoadArgs = function(datasetName: string) {
 XcalarDatasetDeleteLoadNode = function(
     datasetName: string,
     wkbkName: string,
-    scopeInfo?: Xcrpc.DagNode.DagScopeInfo,
-    useXcrpc?: boolean
+    scopeInfo?: Xcrpc.DagNode.DagScopeInfo
 ): XDPromise<void> {
     const deferred: XDDeferred<void> = PromiseHelper.deferred();
     const currentSession: string = sessionName;
@@ -1370,32 +1363,25 @@ XcalarDatasetDeleteLoadNode = function(
             const dsName: string = parseDS(datasetName);
             res.nodeInfo.forEach((nodeInfo) => {
                 if (nodeInfo.name === datasetName) {
-                    if (useXcrpc) {
-                        // setSessionName(wkbkName);
-                        const xcrpcScope = createXcrpcScopeInput({
-                            scopeInfo: scopeInfo,
-                            xdScopeInfo: {
-                                userName: userIdName, sessionName: wkbkName
-                            },
-                            xcrpcScopeEnum: {
-                                global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
-                                workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
-                            }
-                        });
+                    // setSessionName(wkbkName);
+                    const xcrpcScope = createXcrpcScopeInput({
+                        scopeInfo: scopeInfo,
+                        xdScopeInfo: {
+                            userName: userIdName, sessionName: wkbkName
+                        },
+                        xcrpcScopeEnum: {
+                            global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
+                            workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
+                        }
+                    });
 
-                        let promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
-                                        .delete({namePattern: dsName,
-                                                    srcType: SourceTypeT.SrcDataset,
-                                                    dagScope: xcrpcScope.scope,
-                                                    scopeInfo: xcrpcScope.scopeInfo});
-                        // setSessionName(currentSession);
-                        promises.push(PromiseHelper.convertToJQuery(promise));
-                    } else {
-                        setSessionName(wkbkName);
-                        let promise = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
-                        setSessionName(currentSession);
-                        promises.push(promise);
-                    }
+                    let promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
+                                       .delete({namePattern: dsName,
+                                                srcType: SourceTypeT.SrcDataset,
+                                                dagScope: xcrpcScope.scope,
+                                                scopeInfo: xcrpcScope.scopeInfo});
+                    // setSessionName(currentSession);
+                    promises.push(PromiseHelper.convertToJQuery(promise));
                 }
             });
             return PromiseHelper.when(...promises);
@@ -1796,8 +1782,7 @@ XcalarDeleteTable = function(
     txId?: number,
     isRetry?: boolean,
     deleteCompletely?: boolean,
-    scopeInfo?: Xcrpc.DagNode.DagScopeInfo,
-    useXcrpc?: boolean
+    scopeInfo?: Xcrpc.DagNode.DagScopeInfo
 ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
     const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
 
@@ -1810,25 +1795,21 @@ XcalarDeleteTable = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        if (useXcrpc) {
-            const xcrpcScope = createXcrpcScopeInput({
-                scopeInfo: scopeInfo,
-                xcrpcScopeEnum: {
-                    global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
-                    workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
-                }
-            });
-            const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
-                                .delete({namePattern: tableName,
-                                        srcType: SourceTypeT.SrcTable,
-                                        deleteCompletely: deleteCompletely,
-                                        dagScope: xcrpcScope.scope,
-                                        scopeInfo: xcrpcScope.scopeInfo});
-            def = PromiseHelper.convertToJQuery(promise);
-        } else {
-            def = xcalarDeleteDagNodes(tHandle, tableName, SourceTypeT.SrcTable,
-                deleteCompletely);
-        }
+        const xcrpcScope = createXcrpcScopeInput({
+            scopeInfo: scopeInfo,
+            xcrpcScopeEnum: {
+                global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
+                workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
+            }
+        });
+
+        const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
+                             .delete({namePattern: tableName,
+                                      srcType: SourceTypeT.SrcTable,
+                                      deleteCompletely: deleteCompletely,
+                                      dagScope: xcrpcScope.scope,
+                                      scopeInfo: xcrpcScope.scopeInfo});
+        def = PromiseHelper.convertToJQuery(promise);
     }
 
     const query = XcalarGetQuery(workItem);
@@ -1875,8 +1856,7 @@ XcalarDeleteTable = function(
 XcalarDeleteConstants = function(
     constantPattern: string,
     txId: number,
-    scopeInfo?: Xcrpc.DagNode.DagScopeInfo,
-    useXcrpc?: boolean
+    scopeInfo?: Xcrpc.DagNode.DagScopeInfo
 ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
     const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
 
@@ -1889,31 +1869,23 @@ XcalarDeleteConstants = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        if (useXcrpc) {
-            if (scopeInfo == null && (!userIdName || !sessionName)) {
-                return PromiseHelper.resolve(null);
-            }
-            const xcrpcScope = createXcrpcScopeInput({
-                scopeInfo: scopeInfo,
-                xcrpcScopeEnum: {
-                    global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
-                    workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
-                }
-            });
-
-            const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
-                                 .delete({namePattern: constantPattern,
-                                          srcType: SourceTypeT.SrcConstant,
-                                          dagScope: xcrpcScope.scope,
-                                          scopeInfo: xcrpcScope.scopeInfo});
-            def = PromiseHelper.convertToJQuery(promise);
-        } else {
-            if (tHandle == null) {
-                return PromiseHelper.resolve(null);
-            }
-            def = xcalarDeleteDagNodes(tHandle, constantPattern,
-                                        SourceTypeT.SrcConstant);
+        if (scopeInfo == null && (!userIdName || !sessionName)) {
+            return PromiseHelper.resolve(null);
         }
+        const xcrpcScope = createXcrpcScopeInput({
+            scopeInfo: scopeInfo,
+            xcrpcScopeEnum: {
+                global: Xcrpc.DagNode.DAGSCOPE.GLOBAL,
+                workbook: Xcrpc.DagNode.DAGSCOPE.WORKBOOK
+            }
+        });
+
+        const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService()
+                             .delete({namePattern: constantPattern,
+                                      srcType: SourceTypeT.SrcConstant,
+                                      dagScope: xcrpcScope.scope,
+                                      scopeInfo: xcrpcScope.scopeInfo});
+        def = PromiseHelper.convertToJQuery(promise);
     }
 
     const query = XcalarGetQuery(workItem);

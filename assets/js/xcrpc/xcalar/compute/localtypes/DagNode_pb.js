@@ -76,7 +76,7 @@ proto.xcalar.compute.localtypes.DagNode.DagNodeInfo.prototype.toObject = functio
 proto.xcalar.compute.localtypes.DagNode.DagNodeInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    dagNodeId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    dagNodeId: jspb.Message.getFieldWithDefault(msg, 2, 0),
     state: jspb.Message.getFieldWithDefault(msg, 3, 0),
     size: jspb.Message.getFieldWithDefault(msg, 4, 0),
     api: jspb.Message.getFieldWithDefault(msg, 5, 0)
@@ -121,7 +121,7 @@ proto.xcalar.compute.localtypes.DagNode.DagNodeInfo.deserializeBinaryFromReader 
       msg.setName(value);
       break;
     case 2:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {number} */ (reader.readUint64());
       msg.setDagNodeId(value);
       break;
     case 3:
@@ -173,8 +173,8 @@ proto.xcalar.compute.localtypes.DagNode.DagNodeInfo.serializeBinaryToWriter = fu
     );
   }
   f = message.getDagNodeId();
-  if (f.length > 0) {
-    writer.writeString(
+  if (f !== 0) {
+    writer.writeUint64(
       2,
       f
     );
@@ -219,17 +219,17 @@ proto.xcalar.compute.localtypes.DagNode.DagNodeInfo.prototype.setName = function
 
 
 /**
- * optional string dag_node_id = 2;
- * @return {string}
+ * optional uint64 dag_node_id = 2;
+ * @return {number}
  */
 proto.xcalar.compute.localtypes.DagNode.DagNodeInfo.prototype.getDagNodeId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
-/** @param {string} value */
+/** @param {number} value */
 proto.xcalar.compute.localtypes.DagNode.DagNodeInfo.prototype.setDagNodeId = function(value) {
-  jspb.Message.setProto3StringField(this, 2, value);
+  jspb.Message.setProto3IntField(this, 2, value);
 };
 
 

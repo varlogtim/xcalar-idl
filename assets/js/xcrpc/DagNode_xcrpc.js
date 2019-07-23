@@ -29,6 +29,32 @@ function DagNodeService(client) {
 ////////////////////////////////////////////////////////////////////////////////
 
 DagNodeService.prototype = {
+    list: async function(listRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(listRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.DagNode.ListRequest");
+        //anyWrapper.pack(listRequest.serializeBinary(), "ListRequest");
+
+        try {
+            var responseData = await this.client.execute("DagNode", "List", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var listResponse =
+            //    responseData.unpack(dagNode.ListResponse.deserializeBinary,
+            //                        "ListResponse");
+            var listResponse = dagNode.ListResponse.deserializeBinary(specificBytes);
+            return listResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = dagNode.ListResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
     deleteObjects: async function(deleteRequest) {
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2

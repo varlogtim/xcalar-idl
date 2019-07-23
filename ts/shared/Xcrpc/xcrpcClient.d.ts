@@ -1569,7 +1569,7 @@ declare namespace proto.xcalar.compute.localtypes {
     export namespace DagNode {
         export class XcalarApiDagNodeInfo {
             getName(): string;
-            getDagNodeId(): string;
+            getDagNodeId(): number;
             getState(): string;
             getSize(): number;
             getApi(): string;

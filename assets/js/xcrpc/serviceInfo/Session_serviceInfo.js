@@ -13,10 +13,12 @@ const _serviceInfo = {
     "Session" : {
         "Create" : ["xcalar.compute.localtypes.Session.CreateRequest", "xcalar.compute.localtypes.Session.CreateResponse"],
         "Inact" : ["xcalar.compute.localtypes.Session.InactRequest", "xcalar.compute.localtypes.Session.InactResponse"],
+        "Persist" : ["xcalar.compute.localtypes.Session.PersistRequest", "xcalar.compute.localtypes.Session.PersistResponse"],
         "Activate" : ["xcalar.compute.localtypes.Session.ActivateRequest", "xcalar.compute.localtypes.Session.ActivateResponse"],
         "Upload" : ["xcalar.compute.localtypes.Session.UploadRequest", "xcalar.compute.localtypes.Session.UploadResponse"],
         "List" : ["xcalar.compute.localtypes.Session.ListRequest", "xcalar.compute.localtypes.Session.ListResponse"],
-        "DeleteSession" : ["xcalar.compute.localtypes.Session.DeleteRequest", "google.protobuf.Empty"],
+        "DownloadSession" : ["xcalar.compute.localtypes.Session.DownloadRequest", "xcalar.compute.localtypes.Session.DownloadResponse"],
+        "DeleteSession" : ["xcalar.compute.localtypes.Session.DeleteRequest", "xcalar.compute.localtypes.Session.DeleteResponse"],
     },
 };
 

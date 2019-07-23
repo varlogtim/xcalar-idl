@@ -80,7 +80,7 @@ class DagNodeService {
 
 type DagNodeInfo = {
     name: string,
-    dagNodeId: string,
+    dagNodeId: number,
     state: string,
     size: number,
     api: string

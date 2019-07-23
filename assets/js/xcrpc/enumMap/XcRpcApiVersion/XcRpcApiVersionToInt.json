@@ -1,7 +1,7 @@
 {
     "CgroupVersionSignature" : 193016325,
     "ColumnAttributeVersionSignature" : 199286749,
-    "DagNodeVersionSignature" : 141053009,
+    "DagNodeVersionSignature" : 130961855,
     "DataSetVersionSignature" : 218234228,
     "DataflowVersionSignature" : 13166394,
     "EchoVersionSignature" : 3466616,
@@ -16,7 +16,7 @@
     "QueryVersionSignature" : 31034356,
     "ResultSetVersionSignature" : 113302714,
     "ServiceVersionSignature" : 59787815,
-    "SessionVersionSignature" : 173982189,
+    "SessionVersionSignature" : 218446619,
     "SqlVersionSignature" : 146971870,
     "StatsVersionSignature" : 149250745,
     "TableVersionSignature" : 83473886,
@@ -27,6 +27,6 @@
     "WorkbookVersionSignature" : 57235854,
     "XDFVersionSignature" : 188684344,
     "XcalarEnumTypeVersionSignature" : 222419149,
-    "ProtoAPIVersionSignature" : 41878351
+    "ProtoAPIVersionSignature" : 114091413
 }
 
