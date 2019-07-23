@@ -213,18 +213,21 @@ class IMDTableOpPanel extends BaseOpPanel {
         if (input.schema == null || input.schema.length == 0) {
             error = "Table must have columns.";
             $location = this._$elemPanel.find(".colSchemaSection");
-        } else {
-            for (let i = 0; i < this._primaryKeys.length; i++) {
-                let key: string = this._primaryKeys[i];
-                if (!input.schema.find((col: ColSchema) => {
-                    return (col.name == key);
-                })) {
-                    error = "Schema must include primary key: " + key;
-                    $location = this._$elemPanel.find(".colSchemaSection");
-                    break;
-                }
-            }
         }
+        // XXX TODO: enable it if schema must include primary key
+        // otherwise remove it
+        // else {
+        //     for (let i = 0; i < this._primaryKeys.length; i++) {
+        //         let key: string = this._primaryKeys[i];
+        //         if (!input.schema.find((col: ColSchema) => {
+        //             return (col.name == key);
+        //         })) {
+        //             error = "Schema must include primary key: " + key;
+        //             $location = this._$elemPanel.find(".colSchemaSection");
+        //             break;
+        //         }
+        //     }
+        // }
 
         if (error != "") {
             if (this._advMode) {
