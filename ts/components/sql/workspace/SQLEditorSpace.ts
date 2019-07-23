@@ -787,6 +787,7 @@ class SQLEditorSpace {
                 }
 
                 $panel.removeClass("resizing");
+                TblFunc.moveFirstColumn();
             }
         });
     }

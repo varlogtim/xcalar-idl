@@ -544,10 +544,10 @@ class TblFunc {
     }
 
     public static alignScrollBar($table: JQuery): void {
-        const witdh: number = $table.width();
+        const width: number = $table.width();
         TblFunc.moveFirstColumn(null);
-        $table.find('.rowGrab').width(witdh);
-        $table.siblings('.rowGrab').width(witdh);
+        $table.find('.rowGrab').width(width);
+        $table.siblings('.rowGrab').width(width);
     }
 
         /**

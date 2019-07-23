@@ -66,6 +66,7 @@ class DagViewManager {
         this.toggleSqlPreview(false);
         $("#container").addClass("activePanel-modelingDagPanel");
         DagCategoryBar.Instance.showOrHideArrows();
+        TblFunc.moveFirstColumn();
 
         const $activeDfArea = this.$dfWrap.find(".dataflowArea.active");
         if ($activeDfArea.length) {

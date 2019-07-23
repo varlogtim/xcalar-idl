@@ -53,6 +53,7 @@ class SQLWorkSpace {
         } else {
             SQLResultSpace.Instance.refresh();
         }
+        TblFunc.moveFirstColumn();
 
         $(window).off(".sqlPanelResize");
         let resizeTimer;

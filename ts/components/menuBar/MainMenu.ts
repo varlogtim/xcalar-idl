@@ -646,6 +646,11 @@ namespace MainMenu {
                     DagCategoryBar.Instance.showOrHideArrows();
                 });
             }
+        } else if (!noAnim) {
+            _checkMenuAnimFinish()
+            .then(function() {
+                TblFunc.moveFirstColumn();
+            });
         }
         sizeRightPanel();
         return !noAnim;
@@ -691,6 +696,11 @@ namespace MainMenu {
                     DagCategoryBar.Instance.showOrHideArrows();
                 });
             }
+        } else if (!noAnim) {
+            _checkMenuAnimFinish()
+            .then(function() {
+                TblFunc.moveFirstColumn();
+            });
         }
         $resizableRightPanels.css("margin-left", 0);
         $statusBar.css("margin-left", 0);
