@@ -447,7 +447,7 @@ namespace DS {
                 let parserFnName = loadArgs.args.loadArgs.parseArgs.parserFnName;
                 let format = DSPreview.getFormatFromParserFnName(parserFnName);
                 dsObj.setFormat(format);
-                UserSettings.commit(false, true);
+                commitDSChange();
                 deferred.resolve(format);
             } catch (e) {
                 console.error(e);
@@ -1339,7 +1339,7 @@ namespace DS {
 
         commitSharedFolderChange(arg, false)
         .then(() => {
-            UserSettings.commit(false, true);
+            commitDSChange();
             goToDirHelper(dirId);
             deferred.resolve();
         })
@@ -1435,13 +1435,17 @@ namespace DS {
         return deferred.promise();
     }
 
+    function commitDSChange(): void {
+        UserSettings.commit(false, true);
+    }
+
     function changeDSInfo(chanedDirId: string, arg: any): void {
         sortDS(chanedDirId);
         if (isInSharedFolder(chanedDirId)) {
             arg = $.extend({dir: chanedDirId}, arg);
             commitSharedFolderChange(arg, false);
         } else {
-            UserSettings.commit(false, true);
+            commitDSChange();
         }
     }
 
@@ -1606,7 +1610,7 @@ namespace DS {
                 alertSampleSizeLimit(datasetName);
             }
 
-            UserSettings.commit(false, true);
+            commitDSChange();
             let msgOptions = {
                 "newDataSet": true,
                 "dataSetId": dsObj.getId()
@@ -1701,6 +1705,7 @@ namespace DS {
         if (!created) {
             removeDS(dsId);
         }
+        commitDSChange();
     }
 
     function delDSHelper(
@@ -1903,7 +1908,7 @@ namespace DS {
             sortDS();
         }
         highlighSortKey(sortKey);
-        UserSettings.commit(false, true);
+        commitDSChange();
     }
 
     function sortDS(dirId?: string): void {
@@ -2037,7 +2042,7 @@ namespace DS {
                     action: "delete",
                     dsIds: removedDSIds
                 });
-                UserSettings.commit(false, true);
+                commitDSChange();
                 MemoryAlert.Instance.check(true);
             } else if (folders.length) {
                 changeDSInfo(dirId, {
@@ -3030,7 +3035,7 @@ namespace DS {
             cleanFocusedDSIfNecessary();
             curDirId = dir;
             refreshDS();
-            UserSettings.commit(false, true);
+            commitDSChange();
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -3408,7 +3413,22 @@ namespace DS {
             activateDSObj(dsObj);
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            if (error && error.status === StatusT.StatusDatasetNameAlreadyExists) {
+                // this error usually mean dataset is already active
+                XcalarGetDatasetsInfo(datasetName)
+                .then(() => {
+                    // if XcalarGetDatasetsInfo works, then dataset is activated
+                    activateDSObj(dsObj);
+                    deferred.resolve();
+                })
+                .fail(() => {
+                    deferred.reject(error);
+                });
+            } else {
+                deferred.reject(error);
+            }
+        });
 
         return deferred.promise();
     }
@@ -3766,7 +3786,7 @@ namespace DS {
                 $sibling.after($grid);
             }
             refreshDS();
-            UserSettings.commit(false, true);
+            commitDSChange();
         }
     }
 

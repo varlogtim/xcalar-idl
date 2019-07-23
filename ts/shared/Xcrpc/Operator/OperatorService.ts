@@ -140,7 +140,8 @@ type BulkLoadErrorResponse = {
 function isBulkLoadErrorResponse(errorResp: Object): errorResp is BulkLoadErrorResponse {
     return errorResp != null &&
         errorResp.hasOwnProperty('errorString') &&
-        errorResp.hasOwnProperty('errorFile');
+        errorResp.hasOwnProperty('errorFile') &&
+        (errorResp["errorString"] || errorResp["errorFile"]);
 }
 
 export { OperatorService, SCOPE, ScopeInfo, isBulkLoadErrorResponse };
