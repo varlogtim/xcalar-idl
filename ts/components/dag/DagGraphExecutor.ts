@@ -212,17 +212,27 @@ class DagGraphExecutor {
         };
         let numExportNodes = 0;
         let numLinkOutNodes = 0;
-        let linkOutNode;
-        let exportNodes = [];
+        let linkOutNode: DagNodeDFOut;
+        let exportNodes: DagNodeExport[] = [];
+        let exportNodesSources = new Set();
         for (let i = 0; i < this._nodes.length; i++) {
             const node: DagNode = this._nodes[i];
             if (node.getType() === DagNodeType.Export) {
-                exportNodes.push(node);
+                exportNodes.push(<DagNodeExport>node);
+                let sourceId = node.getParents()[0].getId();
+                if (exportNodesSources.has(sourceId)) {
+                    errorResult.hasError = true;
+                    errorResult.type = DagNodeErrorType.InvalidOptimizedDuplicateExport;
+                    errorResult.node = node;
+                    break;
+                } else {
+                    exportNodesSources.add(sourceId);
+                }
                 numExportNodes++;
             }
             if (node.getType() === DagNodeType.DFOut) {
                 numLinkOutNodes++;
-                linkOutNode = node;
+                linkOutNode = <DagNodeDFOut>node;
             }
             if (numLinkOutNodes > 0 && numExportNodes > 0) {
                 errorResult.hasError = true;
@@ -535,7 +545,7 @@ class DagGraphExecutor {
         const promises = [];
         const udfContext = this._getUDFContext();
         // chain batchExecute calls while storing their destTable results
-        const destTables = []; // accumulates tables
+        const destTables: string[] = []; // accumulates tables
         let allQueries = []; // accumulates queries
         for (let i = 0; i < nodes.length; i++) {
             promises.push(this._getQueryFromNode.bind(this, udfContext, nodes[i], allQueries, destTables, forExecution));
@@ -1088,7 +1098,6 @@ class DagGraphExecutor {
     // given retinaParameters, we create the retina, then create a tab which
     // becomes focused and checks and updates node progress
     private _executeOptimizedDataflow(retinaParameters: {
-        destTables: any[],
         retinaName: string,
         retina: string,
         sessionName: string,
@@ -1255,7 +1264,6 @@ class DagGraphExecutor {
         retina: string,
         userName: string,
         sessionName: string
-        destTables: {nodeId: DagNodeId, tableName: string}[]
     } {
         let operations;
         try {
@@ -1265,7 +1273,7 @@ class DagGraphExecutor {
             return null;
         }
         operations = this._dedupLoads(operations);
-        const realDestTables = [];
+        const realDestTables: string[] = [];
         let outNodes;
         // create tablename and columns property in retina for each outnode
         if (this._isOptimizedActiveSession) {
@@ -1280,29 +1288,29 @@ class DagGraphExecutor {
             });
         }
 
-        const destInfo: {nodeId: DagNodeId, tableName: string}[] = [];
-        const tables = outNodes.map((outNode, i) => {
+        const tables: {
+            name: string,
+            columns: {
+                columnName: string,
+                headerAlias: string
+            }
+        } = outNodes.map((outNode, i) => {
             const destTable = realDestTables[i];
-            const columns = outNode.getParam().columns.map((col) => {
-                if (col.sourceColumn) { // export node
-                    return {
-                        columnName: col.sourceColumn,
-                        headerAlias: col.destColumn
-                    }
-                } else {  // df out node
-                    return {
-                        columnName: col.sourceName,
-                        headerAlias: col.destName
-                    }
-                }
-            });
-            destInfo.push({
-                nodeId: outNode.getId(),
-                tableName: destTable
-            });
             return {
                 name: destTable,
-                columns: columns
+                columns: outNode.getParam().columns.map((col) => {
+                    if (col.sourceColumn) { // export node
+                        return {
+                            columnName: col.sourceColumn,
+                            headerAlias: col.destColumn
+                        }
+                    } else {  // df out node
+                        return {
+                            columnName: col.sourceName,
+                            headerAlias: col.destName
+                        }
+                    }
+                })
             };
         });
 
@@ -1317,8 +1325,7 @@ class DagGraphExecutor {
             retinaName: retinaName,
             retina: retina,
             userName: uName,
-            sessionName: sessName,
-            destTables: destInfo
+            sessionName: sessName
         }
     }
 
@@ -1412,7 +1419,6 @@ class DagGraphExecutor {
     // operator of the retina query so that we can use it later to perform a result
     // set preview
     private _storeOutputTableNameInNode(outputTableName: string, retinaParameters: {
-        destTables: any[],
         retinaName: string,
         retina: string,
         sessionName: string,
