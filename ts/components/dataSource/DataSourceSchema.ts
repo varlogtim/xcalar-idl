@@ -251,6 +251,10 @@ class DataSourceSchema {
             error = ErrTStr.ParseSchema;
         }
 
+        if (schema.length === 0) {
+            error = "Please include at least 1 column";
+        }
+
         if (error != null) {
             // error case
             schema = null;
