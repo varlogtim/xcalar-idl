@@ -21,5 +21,8 @@ declare module 'xcalarEnumMap' {
         export const XcalarApisToInt: { [key: string]: number };
         export const XcalarApisToStr: { [key: string]: string };
         export const QueryStateToStr: { [key: string]: string };
+        export const XcRpcApiVersionFromStr: { [key: string]: number };
+        export const XcRpcApiVersionToInt: { [key: string]: number };
+        export const XcRpcApiVersionToStr: { [key: string]: string };
     }
 }

@@ -259,7 +259,7 @@ namespace XVM {
     export function checkVersion(connectionCheck: boolean): XDPromise<boolean> {
         const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
         XcalarGetVersion(connectionCheck)
-            .then((result) => {
+            .then((result: Xcrpc.Version.VersionOutput) => {
                 let versionMatch: boolean = true;
                 try {
                     backendVersion = result.version;
@@ -270,6 +270,15 @@ namespace XVM {
                             "Backend's thrift version is:", versionNum);
                         console.log("Frontend's thrift version is:",
                             XcalarApiVersionT.XcalarApiVersionSignature);
+                        console.log("Frontend's git SHA is:", gGitVersion);
+                    }
+                    const versionNumXcrpc = result.xcrpcVersionSignatureShort;
+                    if (versionNumXcrpc !== Xcrpc.EnumMap.XcRpcApiVersionToInt.ProtoAPIVersionSignature) {
+                        versionMatch = false;
+                        console.log("Xcrpc version mismatch!",
+                            "Backend's xcrpc version is:", versionNumXcrpc);
+                        console.log("Frontend's xcrpc version is:",
+                            Xcrpc.EnumMap.XcRpcApiVersionToInt.ProtoAPIVersionSignature);
                         console.log("Frontend's git SHA is:", gGitVersion);
                     }
                 } catch (error) {
