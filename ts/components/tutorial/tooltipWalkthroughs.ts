@@ -1,5 +1,6 @@
 namespace TooltipWalkthroughs {
-
+    let seenSQL = false;
+    let seenDataflow = false;
     let SQLModeName = "SQL Mode";
     let ADVModeName = "Dataflow Mode";
     let WorkbookTutorialName = "Tutorial Workbook Walkthrough";
@@ -48,6 +49,16 @@ namespace TooltipWalkthroughs {
                 storedTempWalkthrough.options
             );
         })
+    }
+
+    function storeTooltipObj(): JQueryPromise<void> {
+        let tooltipObj: TooltipStoredInfo = {
+            seenDataflow: seenDataflow,
+            seenSQL: seenSQL
+        }
+        const key: string = KVStore.getKey("gUserTooltipKey");
+        const kvStore: KVStore = new KVStore(key, gKVScope.USER);
+        return kvStore.put(JSON.stringify(tooltipObj), true);
     }
 
     /**
@@ -129,35 +140,41 @@ namespace TooltipWalkthroughs {
                 startScreen: TooltipStartScreen.SQLWorkspace
             },
             [{
+                highlight_div: "#homeBtn",
+                text: "Welcome to Xcalar Design. This tooltip walkthrough will familiarize " +
+                "you with some of the UI for Xcalar Design's SQL Mode.",
+                type: TooltipType.Text
+            },
+            {
                 highlight_div: "#menuBar",
-                text: "The menu bar enables access to various features within Xcalar Design.",
+                text: "The side bar enables you to access to various features within Xcalar Design.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dataStoresTab",
-                text: "This icon enables you to import data, create tables, and create data targets.",
+                text: "The Sources icon enables you to create connectors, and import data as a dataset or table.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#sqlTab",
-                text: "SQL query statements can be created and executed within the SQL workspace.",
+                text: "The SQL Workspace icon enables you to apply SQL to manipulate your data and create data models.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#monitorTab",
-                text: "The monitor tab provides various tools for monitoring Xcalar, managing files, and changing settings.",
+                text: "The System icon provides tools for monitoring, managing, and troubleshooting the Xcalar cluster.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dataStoresTab",
                 interact_div: "#dataStoresTab .mainTab",
-                text: "Let's get started with importing a table. Click this icon to open it.",
+                text: "Let's get started with importing a table. Click the Sources icon to open it.",
                 type: TooltipType.Click
             },
             {
                 highlight_div: "#sourceTblButton",
                 interact_div: "#sourceTblButton",
-                text: "To create a new table, click this Tables icon.",
+                text: "Click the Tables icon to manage and create new tables.",
                 type: TooltipType.Click
             },
             {
@@ -167,44 +184,62 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: "#dsForm-target",
-                text: "The data target is the storage location of your data.",
+                text: "Choose a connector to access your data. Connectors must be created before data can be imported from them.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#filePath",
-                text: "The file path is the path to your data source, in relation to the target. ",
+                text: "Enter the path to your data source for the selected connector.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dsForm-path .cardMain .browse",
-                text: "Clicking this browse button allows you to browse the location at the file path for your file(s).",
+                text: "This button enables you to locate your data source for the associated connector.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dsForm-path .btn-submit",
-                text: "To load the dataset at the path, click this button.",
+                text: "This button enables you to preview the data source.",
                 type: TooltipType.Text,
+            },
+            {
+                highlight_div: "#dsForm-path",
+                text: "After importing, your data will be previewable within this panel." +
+                " It can then be queried within the SQL Workspace.",
+                type: TooltipType.Text
             },
             {
                 highlight_div: "#sqlWorkSpace",
                 interact_div: "#sqlWorkSpace",
-                text: "Let's go back to the SQL Workspace. Click this button to go there instantly.",
+                text: "Click the SQL Workspace icon to start working in SQL.",
                 type: TooltipType.Click,
             },
             {
                 highlight_div: "#sqlEditorSpace",
-                text: "The SQL Editor Space is where you can write, store, and modify SQL Query Statements.",
+                text: "The SQL Editor is where you can write, modify, and execute SQL Query Statements.",
                 type: TooltipType.Text,
             },
             {
                 highlight_div: "#sqlTableListerArea",
-                text: "This area provides information on available tables and result sets.",
+                text: "The Preview section enables you to view information about your tables and results.",
                 type: TooltipType.Text,
             },
             {
                 highlight_div: "#sqlWorkSpacePanel .historySection",
-                text: "This area displays the execution history of your SQL statements.",
+                text: "The History section provides detail about past SQL executions.",
                 type: TooltipType.Text,
+            },
+            {
+                highlight_div: "#bottomMenuBarTabs",
+                interact_div: "#bottomMenuBarTabs #helpMenuTab.sliderBtn",
+                text: "Click the Help icon to get help and support.",
+                type: TooltipType.Click
+            },
+            {
+                highlight_div: "#tutorialResource",
+                text: " This concludes the tour of the Dataflow Mode UI. " +
+                "To get more hands-on, you can view the tutorial workbooks.",
+                type: TooltipType.Text
             }],
             0,
             {
@@ -223,17 +258,15 @@ namespace TooltipWalkthroughs {
             },
             [{
                 highlight_div: "#modeArea",
-                text: "Welcome to Dataflow Mode. This user interface provides" +
-                    " you with a powerful visual design framework to analyze your" +
-                    " data, and augments SQL Mode by providing features and fuctions" +
-                    " for monitoring and troubleshooting your queries.",
+                text: "Welcome to Dataflow Mode. This user interface enables" +
+                    " you to analyze your data and troubleshoot your queries " +
+                    " by providing a powerful visual design framework.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#tabButton",
                 interact_div: "#tabButton",
-                text: "The basis of Dataflow Mode is a dataflow. Click this button to create a new dataflow at any time. " +
-                    "Depending on context, this panel may change to display node information or its configure panel.",
+                text: "Click the new dataflow icon to create a new dataflow at any time.",
                 type: TooltipType.Click
             },
             {
@@ -243,57 +276,54 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: ".dataflowMainArea",
-                text: "This is the dataflow canvas. Dataflow nodes can be connected in this area to create an executable dataflow.",
+                text: "The dataflow canvas is where you create and connect nodes to create dataflows.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView .categoryBar",
-                text: "This is the category bar for selecting various types of nodes.",
+                text: "The dataflow mode toolbar displays the categories of available operator nodes.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView .operatorBar",
-                text: "The Dataflow Mode toolbar is where you can find the operator nodes you'll use to build dataflows.",
+                text: "Each category displays the operator nodes you'll use to build dataflows.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView .operatorBar",
-                text: "Nodes can be dragged and dropped from this bar into the dataflow canvas. Nodes can be connected to eachother " +
-                    "by dragging from a node's input or output anchor to any part of another node.",
+                text: "Drag and drop nodes from here to the dataflow canvas to create a dataflow." +
+                " Nodes can be connected together by dragging node anchors to other nodes.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView .operatorWrap .active .operator",
                 interact_div: "#dagView .operatorWrap .active .operator .main",
-                text: "Double clicking can also bring a node into the canvas.",
+                text: "Double-click this node to add it into the canvas.",
                 type: TooltipType.DoubleClick
             },
             {
                 highlight_div: "#dagView",
-                text: "Try creating and connecting nodes now. Click the arrow when you're ready to continue.",
+                text: "Practice creating a dataflow by adding nodes into the canvas and connecting them. " +
+                "Click the arrow when you're ready to continue.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView",
-                text: "Once a node is in the canvas, it can be configured by clicking on it and selecting 'configure' from the menu.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#dagViewBar",
-                text: "The left buttons allow you to undo, redo, zoom, execute, and stop execution of the current dataflow. " +
-                "The right buttons allow you to create parameters, manage aggregates, and manage dataflow settings.",
+                text: "Clicking a node displays a menu of actions. " +
+                "Select 'Configure' to open a configuration panel on the left of the canvas.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#bottomMenuBarTabs",
                 interact_div: "#bottomMenuBarTabs #helpMenuTab.sliderBtn",
-                text: "Click the ? icon to open up the help and support panel.",
+                text: "Click the Help icon to get help and support.",
                 type: TooltipType.Click
             }
             ,
             {
                 highlight_div: "#tutorialResource",
-                text: " This concludes the tour of the Dataflow Mode UI. Tutorial Workbooks provide a wealth of information on how to use Xcalar Design efficiently and effectively.",
+                text: " This concludes the tour of the Dataflow Mode UI. " +
+                "To get more hands-on, you can view the tutorial workbooks.",
                 type: TooltipType.Text
             }],
             0,
@@ -369,5 +399,55 @@ namespace TooltipWalkthroughs {
                 break;
         }
         return "";
+    }
+
+    /**
+     * Sets up to see if any tooltip walkthroughs need to be automatically started
+     */
+    export function setupInitialWalkthroughCheck(): JQueryPromise<void> {
+        if (typeof window !== 'undefined' && window['unitTestMode']) {
+            seenSQL = true;
+            seenDataflow = true;
+            return PromiseHelper.resolve();
+        }
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        const key: string = KVStore.getKey("gUserTooltipKey");
+        const kvStore: KVStore = new KVStore(key, gKVScope.USER);
+        kvStore.getAndParse()
+        .then((tooltipObj) => {
+            if (tooltipObj != null) {
+                seenSQL = tooltipObj.seenSQL;
+                seenDataflow = tooltipObj.seenDataflow;
+            }
+        })
+        .always(deferred.resolve);
+
+        return deferred.promise();
+    }
+
+    /**
+     * Checks if any tooltip walkthroughs need to be started automatically,
+     * if so, starts them.
+     */
+    export function checkFirstTimeTooltip(): JQueryPromise<void> {
+        if (XVM.isSQLMode() && !seenSQL) {
+            seenSQL = true;
+            TooltipWalkthroughs.startWalkthrough(SQLModeName);
+            return storeTooltipObj();
+        } else if (!seenDataflow) {
+            seenDataflow = true;
+            TooltipWalkthroughs.startWalkthrough(ADVModeName)
+            return storeTooltipObj();
+        } else {
+            return PromiseHelper.resolve();
+        }
+    }
+
+    export function setSeenSQL(flag: boolean) {
+        seenSQL = flag;
+    }
+
+    export function setSeenDataflow(flag: boolean) {
+        seenDataflow = flag;
     }
 }

@@ -909,11 +909,13 @@ namespace WorkbookManager {
         const gUserKey: string = generateKey(username, "gUser", version);
         const gUserCustomOpKey: string = generateKey(username, 'gUserCustomOp', version);
         const gUserIMDKey: string = generateKey(username, 'gUserIMD', version);
+        const gUserTooltipKey: string = generateKey(username, 'gUserTooltip', version);
 
         return {
             "gUserKey": gUserKey,
             "gUserCustomOpKey": gUserCustomOpKey,
-            "gUserIMDKey": gUserIMDKey
+            "gUserIMDKey": gUserIMDKey,
+            "gUserTooltipKey": gUserTooltipKey,
         };
     }
 

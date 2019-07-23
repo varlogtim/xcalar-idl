@@ -489,7 +489,10 @@ namespace XVM {
         if (allPanelsClosed) {
             MainMenu.openDefaultPanel();
         }
-        deferred.resolve();
+        PromiseHelper.alwaysResolve(TooltipWalkthroughs.checkFirstTimeTooltip())
+        .then(() => {
+            deferred.resolve();
+        });
         return deferred.promise();
     }
 

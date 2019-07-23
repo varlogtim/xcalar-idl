@@ -104,6 +104,36 @@ describe("Tooltip Walkthrough Test", function() {
         $("#homeBtn").click();
     });
 
+    it("Should automatically start if entering a mode we havent seen yet", function() {
+        WorkbookManager.getActiveWKBK = function() {
+            return {};
+        }
+        if (XVM.isSQLMode()) {
+            XVM.setMode("Advanced", true);
+        }
+        let started = false;
+        TooltipManager.start = function(obj, list, num) {
+            if (obj.tooltipTitle == "Dataflow Mode") {
+                started = true;
+            }
+            return;
+        }
+        TooltipWalkthroughs.setSeenDataflow(false);
+        TooltipWalkthroughs.checkFirstTimeTooltip();
+        expect(started).to.be.true;
+        TooltipManager.start = function(obj, list, num) {
+            if (obj.tooltipTitle == "SQL Mode") {
+                started = true;
+            }
+            return;
+        }
+        started = false;
+        XVM.setMode("SQL", true);
+        TooltipWalkthroughs.setSeenSQL(false);
+        TooltipWalkthroughs.checkFirstTimeTooltip();
+        expect(started).to.be.true;
+    });
+
     after(function(done) {
         WorkbookManager.getActiveWKBK = oldGetActiveWKBK;
         TooltipManager.start = oldStart;

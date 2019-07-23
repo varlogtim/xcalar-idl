@@ -13,3 +13,8 @@ interface WalkthroughInfo {
     isSingleTooltip?: boolean;
     description?: string;
 }
+
+interface TooltipStoredInfo {
+    seenDataflow: boolean;
+    seenSQL: boolean;
+}

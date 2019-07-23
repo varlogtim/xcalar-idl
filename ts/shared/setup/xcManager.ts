@@ -110,6 +110,9 @@ namespace xcManager {
             }
         })
         .then(function() {
+            return setupTooltips();
+        })
+        .then(function() {
             let promise = PTblManager.Instance.getTablesAsync();
             return PromiseHelper.alwaysResolve(promise);
         })
@@ -147,8 +150,10 @@ namespace xcManager {
                     sizeToText: true
                 });
             }
-            deferred.resolve();
+
+            return TooltipWalkthroughs.checkFirstTimeTooltip();
         })
+        .then(deferred.resolve)
         .fail(function(error) {
             handleSetupFail(error, firstTimeUser);
             UDFPanel.Instance.setup(); // ok to load twice, we check
@@ -1241,6 +1246,11 @@ namespace xcManager {
         });
 
         return deferred.promise();
+    }
+
+    function setupTooltips(): XDPromise<void> {
+        return PromiseHelper.alwaysResolve(
+            TooltipWalkthroughs.setupInitialWalkthroughCheck());
     }
 
     function setupTutorial(): XDPromise<void> {

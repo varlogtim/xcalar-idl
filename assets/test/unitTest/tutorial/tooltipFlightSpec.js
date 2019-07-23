@@ -62,11 +62,6 @@ describe("Tooltip Flight Test", function(done) {
         expect($("#intro-popover").is(":visible")).to.be.true;
         $("#intro-popover .next").click();
 
-        // topbar tip
-        expect($("#dagViewBar").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
-
         // help button tip
         expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
         expect($("#intro-popover").is(":visible")).to.be.true;
@@ -77,12 +72,18 @@ describe("Tooltip Flight Test", function(done) {
         expect($("#intro-popover").is(":visible")).to.be.true;
         $("#intro-popover .next").click();
 
+        expect($("#intro-popover").is(":visible")).to.be.false;
     });
 
     it("should do the entire Sql mode walkthrough successfully", function() {
         TooltipWalkthroughs.startWalkthrough("SQL Mode")
-            //MenuBar tip
 
+        //home tip
+        expect($("#homeBtn").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //MenuBar tip
         expect($("#menuBar").hasClass("intro-highlightedElement")).to.be.true;
         expect($("#intro-popover").is(":visible")).to.be.true;
         $("#intro-popover .next").click();
@@ -140,6 +141,11 @@ describe("Tooltip Flight Test", function(done) {
         expect($("#intro-popover").is(":visible")).to.be.true;
         $("#intro-popover .next").click();
 
+        //dsform tip 2
+        expect($("#dsForm-path").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
         // sql workspace tip
         expect($("#sqlWorkSpace").hasClass("intro-highlightedElement")).to.be.true;
         expect($("#intro-popover").is(":visible")).to.be.true;
@@ -157,6 +163,16 @@ describe("Tooltip Flight Test", function(done) {
 
         //sql history tip
         expect($("#sqlWorkSpacePanel .historySection").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // help button tip
+        expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+
+        // help walkthrough tip
+        expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
         expect($("#intro-popover").is(":visible")).to.be.true;
         $("#intro-popover .next").click();
 
