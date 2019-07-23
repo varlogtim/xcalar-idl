@@ -341,6 +341,10 @@ namespace MainMenu {
         } else {
             $("#dataStoresTab").addClass("wkbkMenuBarTabs");
             $icon.addClass("xc-hidden");
+            // hide the imd panel
+            if ($("#datastorePanel").hasClass("imd")) {
+                $("#imdView").find(".tableView").click();
+            }
         }
     }
 
