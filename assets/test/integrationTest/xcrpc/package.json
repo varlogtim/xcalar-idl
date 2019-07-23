@@ -4,7 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
-    "test": "../../../../../node_modules/mocha/bin/_mocha './xcrpcTestManager.js' "
+    "test": "nyc ../../../../../node_modules/mocha/bin/_mocha './xcrpcTestManager.js' "
   },
   "keywords": [],
   "author": "",
@@ -14,5 +14,20 @@
     "require.async": "^0.1.1",
     "xcalar": "file:xcalar-0.0.1.tgz",
     "xcalarsdk": "file:xcalarsdk-0.0.1.tgz"
+  },
+  "devDependencies": {
+    "nyc": "^14.1.1"
+  },
+  "nyc": {
+    "include": [
+      "node_modules/xcalarsdk/**"
+    ],
+    "excludeNodeModules": false,
+    "watermarks": {
+      "lines": [85, 95],
+      "functions": [85, 95],
+      "branches": [85, 95],
+      "statements": [85, 95]
+    }
   }
 }
