@@ -896,7 +896,19 @@ class DagNodeExecutor {
             node.setTable(source, true);
             DagTblManager.Instance.addTable(source);
             node.beCompleteState();
-            return PromiseHelper.resolve(source);
+            if (xcHelper.isNodeJs()) {
+                return PromiseHelper.resolve(source);
+            } else {
+                // for XD environment, detect if the table exist
+                let deferred: XDDeferred<string> = PromiseHelper.deferred();
+                XcalarGetTableMeta(source)
+                .then(() => {
+                    deferred.resolve(source);
+                })
+                .fail(deferred.reject);
+
+                return deferred.promise();
+            }
         }
     }
 
