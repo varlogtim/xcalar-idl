@@ -474,6 +474,7 @@ class DagNodeExecutor {
             return deferred.promise();
         }
 
+        // only used for groupby so far
         function cast(): XDPromise<string> {
             if (aggArgs.length === 1 && params.aggregate[0].cast && !aggArgs[0].isDistinct) {
                 aggArgs[0].aggColName = xcHelper.castStrHelper(aggArgs[0].aggColName,

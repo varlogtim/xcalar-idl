@@ -432,7 +432,7 @@ namespace xcHelper {
             if (keyAttr.valueArrayIndex < 0) {
                 return null;
             }
-            return keyAttr.name;
+            return xcHelper.escapeColName(keyAttr.name);
         });
     }
 
@@ -447,7 +447,7 @@ namespace xcHelper {
         tableMeta.keyAttr.forEach((keyAttr) => {
             if (keyAttr.valueArrayIndex >= 0) {
                 keys.push({
-                    name: keyAttr.name,
+                    name: xcHelper.escapeColName(keyAttr.name),
                     ordering: keyAttr.ordering
                 });
             }

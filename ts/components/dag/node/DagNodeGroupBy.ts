@@ -95,7 +95,7 @@ class DagNodeGroupBy extends DagNode {
                 colMap.set(colName, progCol);
             });
             const groupCols: ProgCol[] = [];
-            const newKeys: string[] = this.updateNewKeys(input.newKeys);
+            const newKeys: string[] = this.updateNewKeys(input.newKeys, true);
 
             input.groupBy.forEach((colName, index) => {
                 const oldProgCol: ProgCol = colMap.get(colName);
@@ -147,10 +147,24 @@ class DagNodeGroupBy extends DagNode {
 
     // loop through groupby columns and make sure there's a corresponding
     // new key name for each one that is not taken by another column
-    public updateNewKeys(keys: string[]): string[] {
+    public updateNewKeys(keys: string[], escapeColName?: boolean): string[] {
         const takenNames: Set<string> = new Set();
         const input = this.input.getInput();
-        const oldNewKeys = keys || [];
+        let oldNewKeys = keys || [];
+        if (escapeColName) {
+            // this matches up with the behavior in xiapi.groupby
+            let strip: boolean = !(input.includeSample ||
+                                   input.groupBy.length > 1 ||
+                                   input.groupAll);
+
+            oldNewKeys = oldNewKeys.map((oldNewKey, i) => {
+                if (i === 0 && strip) {// replace . with _
+                    return xcHelper.stripColName(oldNewKey);
+                } else { // add / before .
+                    return xcHelper.escapeColName(oldNewKey);
+                }
+            });
+        }
         oldNewKeys.forEach((key) => {
             takenNames.add(key);
         });

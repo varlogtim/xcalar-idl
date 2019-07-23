@@ -279,7 +279,12 @@ namespace XIApi {
         colNames: string[],
         casts: ColumnType[],
         options: CastInfoOptions = <CastInfoOptions>{}
-    ) {
+    ): {
+        mapStrs: string[],
+        newFields: string[],
+        newColNames: string[],
+        newTypes: ColumnType[]
+    } {
         const overWrite: boolean = options.overWrite || false;
         const handleNull: boolean = options.handleNull || false;
         const castPrefix: boolean = options.castPrefix || false;
@@ -321,6 +326,7 @@ namespace XIApi {
         };
     }
 
+    // currently only used for join
     function castColumns(
         txId: number,
         tableName: string,
@@ -354,6 +360,7 @@ namespace XIApi {
         return deferred.promise();
     }
 
+    // currently only used by unionCast
     function synthesizeColumns(
         txId: number,
         tableName: string,
@@ -634,6 +641,7 @@ namespace XIApi {
         return unusedImm;
     }
 
+    // currently only used by join
     function resolveDupName(
         renameInfos: ColRenameInfo[],
         indexRes: JoinIndexResult,
@@ -2112,18 +2120,19 @@ namespace XIApi {
                 const indexKeys = ret.newKeys;
                 newKeys = indexKeys;
                 // table name may have changed after sort!
-                let indexedColName: string = indexKeys.length === 0 ?
-                                null : xcHelper.stripColName(indexKeys[0]);
+                if (isIncSample || isMultiGroupby || groupAll || indexKeys.length === 0) {
+                    // incSample does not take renames, multiGroupby already handle
+                    // the name in index stage
+                    newKeyFieldName = null;
+                } else {
+                    newKeyFieldName = xcHelper.stripPrefixInColName(xcHelper.stripColName(indexKeys[0]));
+                }
 
                 // get name from src table
                 if (!isValidTableName(gbTableName)) {
                     gbTableName = getNewTableName(tableName, "-GB");
                 }
 
-                // incSample does not take renames, multiGroupby already handle
-                // the name in index stage
-                newKeyFieldName = (isIncSample || isMultiGroupby || groupAll) ?
-                null : xcHelper.stripPrefixInColName(indexedColName);
                 const newColNames: string[] = [];
                 const evalStrs: string[] = [];
                 normalAggArgs.forEach((aggArg) => {

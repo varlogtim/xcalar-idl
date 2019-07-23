@@ -52,7 +52,7 @@ class DagNodeSort extends DagNode {
         const changes: DagColumnChange[] = [];
         const input = this.input.getInput(replaceParameters);
         const allCols: ProgCol[] = [];
-        const newKeys: string[] = this.updateNewKeys(input.newKeys);
+        const newKeys: string[] = this.updateNewKeys(input.newKeys, true);
         const orderedCols: Map<string, string> = new Map();
         input.columns.forEach((col, index) => {
             orderedCols.set(col.columnName, newKeys[index]);
@@ -140,10 +140,16 @@ class DagNodeSort extends DagNode {
 
     // loop through sort columns and make sure there's a corresponding
     // output name for each one that is not taken by another column
-    public updateNewKeys(keys: string[]): string[] {
+    public updateNewKeys(keys: string[], escapeColName?: boolean): string[] {
         const takenNames: Set<string> = new Set();
         const input = <DagNodeSortInputStruct>this.input.getInput();
-        const oldNewKeys = keys || [];
+        let oldNewKeys = keys || [];
+        if (escapeColName) {
+            // replace . with _
+            oldNewKeys = oldNewKeys.map((oldNewKey) => {
+                return xcHelper.escapeColName(oldNewKey);
+            });
+        }
         oldNewKeys.forEach((key) => {
             takenNames.add(key);
         });

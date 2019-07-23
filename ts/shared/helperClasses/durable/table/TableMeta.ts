@@ -134,7 +134,7 @@ class TableMeta extends Durable {
                     // fat pointer
                     return;
                 }
-                let progCol = this.getColByBackName(valueAttr.name);
+                let progCol = this.getColByBackName(xcHelper.escapeColName(valueAttr.name));
                 if (progCol != null) {
                     progCol.setImmediateType(valueAttr.type);
                 }
