@@ -13,8 +13,8 @@ describe("XcalarThrift Test", function() {
 
     // String must be resolved for this call
     it("XcalarGetVersion should handle xcalar error", function(done) {
-        var oldApiCall= Xcrpc.Version.VersionService.prototype.getVersion;
-        var errorMsg = "version error"
+        const oldApiCall= Xcrpc.Version.VersionService.prototype.getVersion;
+        const errorMsg = "version error"
         const statusCode = 1;
         Xcrpc.Version.VersionService.prototype.getVersion = async function() {
             throw Xcrpc.Error.parseError({ status: statusCode, error: errorMsg });
@@ -36,7 +36,7 @@ describe("XcalarThrift Test", function() {
     });
 
     it("XcalarGetVersion should handle error by proxy", function(done) {
-        var oldApiCall = Xcrpc.Version.VersionService.prototype.getVersion;
+        const oldApiCall = Xcrpc.Version.VersionService.prototype.getVersion;
         const httpStatus = 500;
         Xcrpc.Version.VersionService.prototype.getVersion = async function() {
             throw Xcrpc.Error.parseError({
@@ -60,8 +60,8 @@ describe("XcalarThrift Test", function() {
     });
 
     it("XcalarGetVersion should handle xcalar error case 2", function(done) {
-        var oldApiCall =  Xcrpc.Version.VersionService.prototype.getVersion;
-        var errorMsg = "version error"
+        const oldApiCall =  Xcrpc.Version.VersionService.prototype.getVersion;
+        const errorMsg = "version error"
         const statusCode = 1;
         Xcrpc.Version.VersionService.prototype.getVersion = async function() {
             throw Xcrpc.Error.parseError({ status: statusCode, error: errorMsg });
@@ -84,7 +84,7 @@ describe("XcalarThrift Test", function() {
     });
 
     it("XcalarGetVersion should handle error by proxy case 2", function(done) {
-        var oldApiCall = Xcrpc.Version.VersionService.prototype.getVersion;
+        const oldApiCall = Xcrpc.Version.VersionService.prototype.getVersion;
         const httpStatus = 500;
         Xcrpc.Version.VersionService.prototype.getVersion = async function() {
             throw Xcrpc.Error.parseError({

@@ -4,7 +4,7 @@ let tHandle: ThriftHandler;
 const funcFailPercentage: {[key: string]: number} = {};
 const defaultFuncFailPercentage: number = 0.0;
 let errorInjection: boolean = true;
-const mapThrifttoXcrpcScope: {[key: number]: number} = {0:2, 1:0, 2:0, 3:1};
+
 
 namespace TypeCheck {
     export function isNumber(value: any): value is number {
@@ -480,6 +480,22 @@ function parseLoadError(error: object): object | string {
     }
 
     return res;
+}
+
+function mapThrifttoXcrpcScope(thriftScope:number): number {
+    switch(thriftScope) {
+        case gKVScope.GLOB:
+            return Xcrpc.KVStore.KVSCOPE.GLOBAL;
+        case gKVScope.USER:
+            return Xcrpc.KVStore.KVSCOPE.WORKBOOK;
+        case gKVScope.WKBK:
+            return Xcrpc.KVStore.KVSCOPE.WORKBOOK;
+        default:
+            //for this case, the input scope is invalid
+            //directly return the invalid scope
+            //then will throw error inside the service file
+            return thriftScope;
+    }
 }
 
 function createXcrpcScopeInput(param: {
@@ -4989,7 +5005,7 @@ XcalarKeyLookup = function(
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
-    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const Xcrpc_scope = mapThrifttoXcrpcScope(scope);
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
     scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
@@ -5006,7 +5022,7 @@ XcalarKeyList = function(
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
-    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const Xcrpc_scope = mapThrifttoXcrpcScope(scope);
     scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName}
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().list({kvScope:Xcrpc_scope, scopeInfo: scopeInfo, kvKeyRegex: keyRegex})
     return PromiseHelper.convertToJQuery(promise);
@@ -5031,7 +5047,7 @@ XcalarKeyPut = function(
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
-    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const Xcrpc_scope = mapThrifttoXcrpcScope(scope);
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
     scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
@@ -5048,7 +5064,7 @@ XcalarKeyDelete = function(
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
-    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const Xcrpc_scope = mapThrifttoXcrpcScope(scope);
     //now, use global userName and sessionName as scopeInfo
     //might change in the future
     scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
@@ -5065,7 +5081,7 @@ XcalarKeySetIfEqual = function(
     scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<{noKV: boolean}> {
 
-    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const Xcrpc_scope = mapThrifttoXcrpcScope(scope);
     scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
     persist: persist, kvKeyCompare:keyCompare, kvValueCompare: oldValue, kvValueReplace: newValue, countSecondaryPairs: 0,
@@ -5084,7 +5100,7 @@ XcalarKeySetBothIfEqual = function(
     otherValue: string,
     scopeInfo?:Xcrpc.KVStore.ScopeInfo
 ): XDPromise<{noKV: boolean}> {
-    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const Xcrpc_scope = mapThrifttoXcrpcScope(scope);
     scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().setIfEqual({kvScope: Xcrpc_scope, scopeInfo: scopeInfo,
     persist: persist, kvKeyCompare:keyCompare, kvValueCompare: oldValue, kvValueReplace: newValue, countSecondaryPairs: 1,
@@ -5103,7 +5119,7 @@ XcalarKeyAppend = function(
     if (scope == null) {
         scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
-    const Xcrpc_scope = mapThrifttoXcrpcScope[scope];
+    const Xcrpc_scope = mapThrifttoXcrpcScope(scope);
     //for now, we use a global value for that.Then we need to figure out a way to pass these value in.
     scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
     const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().append({keyName: key, kvScope: Xcrpc_scope,
