@@ -1508,23 +1508,23 @@ html.microsoft {
         padding: 0 0px 5px 0px;
         .flex(0 1 0);
         .text-selection;
-        min-height: 22px;
+        min-height: 24px;
 
         .detailTitle {
             .font(@size: 12px, @color: @color-font-softBlue);
             text-align: right;
             text-decoration: underline;
             margin: 3px 0;
-            padding: 0px 20px;
-            height: 20px;
+            padding: 0px 25px;
+            height: 24px;
         }
 
         .detailContent {
             display: none;
             word-break: break-all;
-            padding: 0px 20px;
+            padding: 10px 20px;
             overflow: auto;
-            height: ~"calc(100% - 20px)";
+            height: ~"calc(100% - 24px)";
         }
     }
 
@@ -1534,6 +1534,7 @@ html.microsoft {
         .flex-display;
         .flex-direction(column);
         .align-items(center);
+        overflow: hidden; // prevents close button from extending past modal
     }
 
     #alertContent {
