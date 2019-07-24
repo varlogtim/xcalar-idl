@@ -1700,7 +1700,61 @@ describe("InstallerCommon Common Test", function() {
         });
     });
 
-    it("Validate discover should work - error case", function(done) {
+    it("Validate discover should work - error case object", function (done) {
+        var originValidateHosts = InstallerCommon.validateHosts;
+        var originValidateInstallationDirectory = InstallerCommon.validateInstallationDirectory;
+        var originValidateCredentials = InstallerCommon.validateCredentials;
+        var originSendViaHttps = InstallerCommon.sendViaHttps;
+        var $form = $("#upgradeDiscoveryForm");
+        var $sharedStorageUpdateForm = $("#sharedStorageUpdateForm");
+        var $upgradeHostsForm = $("#upgradeHostsForm");
+        var $forms = $("form.upgrade");
+        $forms.addClass("hidden");
+        $form.removeClass("hidden");
+
+        InstallerCommon.validateHosts = function () {
+            return { "a": "a" };
+        };
+        InstallerCommon.validateInstallationDirectory = function () {
+            return { "b": "b" };
+        };
+        InstallerCommon.validateCredentials = function () {
+            return { "error": ["error-state-1", {"error-state-2": true}] };
+        };
+        InstallerCommon.__testOnly__.setSendViaHttps(function () {
+            return PromiseHelper.resolve(
+                "hint",
+                {
+                    "discoverResult":
+                    {
+                        "hosts": ["hostA", "hostB"],
+                        "xcalarMount": {
+                            "path": "fake-path",
+                            "server": "fake-server"
+                        },
+                        "privHosts": ["fake-privHost-1", "fake-privHost-2"],
+                        "ldapConfig": {}
+                    }
+                }
+            );
+        });
+
+        InstallerCommon.validateDiscover($form, $forms)
+            .always(function (data1, data2) {
+                expect(data1).to.equal("Failed to discover");
+                expect(data2).to.equal('error-state-1: {"error-state-2":true}');
+                expect(InstallerCommon.__testOnly__.finalStruct.a).to.equal(undefined);
+                expect(InstallerCommon.__testOnly__.finalStruct.b).to.equal(undefined);
+                expect(InstallerCommon.__testOnly__.finalStruct.c).to.equal(undefined);
+                InstallerCommon.validateHosts = originValidateHosts;
+                InstallerCommon.validateInstallationDirectory = originValidateInstallationDirectory;
+                InstallerCommon.validateCredentials = originValidateCredentials;
+                InstallerCommon.__testOnly__.setSendViaHttps(originSendViaHttps);
+                done();
+            });
+    });
+
+    it("Validate discover should work - error case string", function(done) {
         var originValidateHosts = InstallerCommon.validateHosts;
         var originValidateInstallationDirectory = InstallerCommon.validateInstallationDirectory;
         var originValidateCredentials = InstallerCommon.validateCredentials;

@@ -1139,6 +1139,9 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         })
         .fail(function(arg1, arg2) {
             InstallerCommon.showErrorModal(arg2);
+            if (typeof(arg2) === "object") {
+                arg2 = JSON.stringify(arg2);
+            }
             deferred.reject("Failed to discover", arg1 + ": " + arg2);
         })
         .always(function() {
