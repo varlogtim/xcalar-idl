@@ -134,6 +134,10 @@ describe('RowNumOpPanel Test', () => {
         });
     });
 
+    after(() => {
+       opPanel.close();
+    })
+
     function genProgCols(colPrefix, count, columnType) {
         const cols = new Array(count);
         for (let i = 0; i < count; i ++) {

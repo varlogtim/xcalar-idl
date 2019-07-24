@@ -27,7 +27,6 @@ abstract class DagNode extends Durable {
     protected aggregates: string[];
     protected allowAggNode: boolean; // non-persistent
     protected display: DagNodeDisplayInfo; // coordinates are persistent
-    protected _isTempDebugNode: boolean;
     protected runStats: {
         nodes: {[key: string]: TableRunStats},
         hasRun: boolean,
@@ -66,7 +65,6 @@ abstract class DagNode extends Durable {
         this.input = this.getRuntime().accessible(new DagNodeInput({}));
         this.error = options.error;
         this.aggregates = options.aggregates || [];
-        this._isTempDebugNode = options.isTempDebugNode || false;
 
         this.numParent = 0;
         this.maxParents = 1;
@@ -1153,14 +1151,6 @@ abstract class DagNode extends Durable {
             columnDeltas: this.columnDeltas,
             columnOrdering: this.columnOrdering
         });
-    }
-
-    public isTempNode(): boolean {
-        return this._isTempDebugNode;
-    }
-
-    public isTempDebugNode(): boolean {
-        return this._isTempDebugNode;
     }
 
     public static readonly schema = {

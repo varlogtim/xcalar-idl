@@ -1713,9 +1713,7 @@ class DagGraph extends Durable {
         let nodes: DagNodeInfo[] = [];
         // Assemble node list
         this.nodesMap.forEach((node: DagNode) => {
-            if (!node.isTempNode()) {
-                nodes.push(node.getSerializableObj(includeStats));
-            }
+            nodes.push(node.getSerializableObj(includeStats));
         });
         let comments: CommentInfo[] = [];
         this.commentsMap.forEach((comment) => {

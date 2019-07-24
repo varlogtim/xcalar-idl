@@ -126,6 +126,7 @@ describe('ProjectOpPanel Test', () => {
                 opPanel._editor.setValue(oldValue);
                 opPanel._switchMode(false);
                 opPanel._updateMode(false);
+                opPanel.close();
             })
         })
     });
