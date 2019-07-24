@@ -5605,13 +5605,26 @@ XcalarSaveWorkbooks = function(
     return (deferred.promise());
 };
 
-XcalarActivateWorkbook = function(workbookName: string): XDPromise<any> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
+XcalarActivateWorkbook = function(
+    workbookName: string,
+    scopeInfo?: Xcrpc.Session.ScopeInfo
+): XDPromise<any> {
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
-    // fromWhichWorkbook can be null
-    xcalarApiSessionActivate(tHandle, workbookName)
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Session.SCOPE.GLOBAL,
+            workbook: Xcrpc.Session.SCOPE.WORKBOOK
+        }
+    });
+
+    PromiseHelper.convertToJQuery(
+        Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getSessionService().activate({
+            sessionName: workbookName,
+            scope: Xcrpc.Session.SCOPE.WORKBOOK, // Hard code it here as we have to send user name
+            scopeInfo: xcrpcScope.scopeInfo
+        })
+    )
     .then(function(output) {
         deferred.resolve(output);
     })

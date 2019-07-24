@@ -67,6 +67,44 @@ class SessionService {
             throw parseError(e);
         }
     }
+
+    /**
+     * Session create service for creating new workbook
+     * @param param
+     * @description
+     * This function returns native promise!
+     * Use PromiseHelper.
+     */
+    public async activate(param: {
+        sessionName: string,
+        scope: SCOPE,
+        scopeInfo?: ScopeInfo,
+    }): Promise<{success: boolean}> {
+        try {
+            // Deconstruct arguments
+            const { sessionName, scope, scopeInfo } = param;
+
+            // Step #1: Construct xcrpc service input
+            const request = new ProtoTypes.Session.ActivateRequest();
+            const sessionInfoInput = new ProtoTypes.Session.SessionInfoInput();
+            sessionInfoInput.setSessionName(sessionName);
+            request.setSessionInfoInput(sessionInfoInput);
+            const apiScope = createScopeMessage({
+                scope: scope,
+                scopeInfo: scopeInfo
+            });
+            request.setScope(apiScope);
+
+            // Step #2: Call xcrpc service
+            const sessionService = new ApiSession(this._apiClient);
+            const response = await sessionService.activate(request);
+
+            // Step #3: Parse xcrpc service response
+            return {success: true};
+        } catch (e) {
+            throw parseError(e);
+        }
+    }
 }
 
 export { SessionService, SCOPE, ScopeInfo };

@@ -107,8 +107,9 @@ class SqlManager {
         let deferred = PromiseHelper.deferred();
         let {userName, userId, sessionName} = sessionInfo;
         if (activeSessionNames.indexOf(sessionName) < 0) {
-            this.SqlUtil.setSessionInfo(userName, userId, sessionName);
-            XcalarActivateWorkbook(sessionName)
+            const sessInfo = this.SqlUtil.setSessionInfo(userName, userId, sessionName);
+            XcalarActivateWorkbook(sessionName, {userName: sessInfo.userName,
+                                                 workbookName: sessInfo.sessionName})
             .then(() => {
                 deferred.resolve("newly activated");
             })
