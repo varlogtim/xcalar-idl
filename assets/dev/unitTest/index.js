@@ -185,6 +185,9 @@ function getCoverage(coverage, testType) {
     if (testType === "unitTestOnDev") {
         fs.writeFileSync("coverage/coverage.js", 'var coverage =' + JSON.stringify(coverageToReport));
     }
+    if (testType === "unitTest") {
+        fs.writeFileSync("coverage/coverage.json", JSON.stringify(coverageToReport));
+    }
     console.log(`Bytes used: ${usedBytes / totalBytes * 100}%`);
 }
 
