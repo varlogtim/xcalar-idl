@@ -52,7 +52,7 @@ describe("xcrpc integration test: ", function () {
     KVstoreServiceTest.testSuite(KVstoreService, Xcrpc.KVStore.KVSCOPE, STATUS);
     LicenseServiceTest.testSuite(LicenseService);
     PublishedTableServiceTest.testSuite(PublishedTableService);
-    QueryServiceTest.testSuite(QueryService);
+    QueryServiceTest.testSuite(QueryService, SessionService, DatasetService);
     OperatorServiceTest.testSuite(OperatorService);
     UDFServiceTest.testSuite(UDFService);
     TableServiceTest.testSuite(TableService);

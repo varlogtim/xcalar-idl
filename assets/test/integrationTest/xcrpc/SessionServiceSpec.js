@@ -1,7 +1,6 @@
 const expect = require('chai').expect;
 const ProtoTypes = require('xcalar');
-const ErrorType = require('xcalarsdk').Error.ErrorType;
-const Status = require('xcalarsdk').Error.status;
+const { ErrorType, status } = require('xcalarsdk').Error;
 const errorStr = require('xcalarsdk').EnumMap.StatusToStr;
 const sessionScope = require('xcalarsdk').Session.SCOPE;
 exports.testSuite = function(SessionService) {
@@ -82,8 +81,8 @@ exports.testSuite = function(SessionService) {
                 // Session delete is not wired in so this session would be left there
             } catch(err) {
                 expect(err.type).to.equal(ErrorType.XCALAR);
-                expect(err.status).to.equal(Status.STATUS_SESSION_NOT_FOUND);
-                expect(err.error).to.equal(errorStr[Status.STATUS_SESSION_NOT_FOUND]);
+                expect(err.status).to.equal(status.STATUS_SESSION_NOT_FOUND);
+                expect(err.error).to.equal(errorStr[status.STATUS_SESSION_NOT_FOUND]);
             }
         });
 
@@ -128,8 +127,8 @@ exports.testSuite = function(SessionService) {
                 // Session delete is not wired in so this session would be left there
             } catch(err) {
                 expect(err.type).to.equal(ErrorType.XCALAR);
-                expect(err.status).to.equal(Status.STATUS_SESSION_NOT_FOUND);
-                expect(err.error).to.equal(errorStr[Status.STATUS_SESSION_NOT_FOUND]);
+                expect(err.status).to.equal(status.STATUS_SESSION_NOT_FOUND);
+                expect(err.error).to.equal(errorStr[status.STATUS_SESSION_NOT_FOUND]);
             }
         });
     });

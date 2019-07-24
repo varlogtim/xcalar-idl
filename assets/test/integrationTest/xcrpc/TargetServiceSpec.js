@@ -1,7 +1,6 @@
 const expect = require('chai').expect;
 const ProtoTypes = require('xcalar');
-const ErrorType = require('xcalarsdk').Error.ErrorType;
-const Status = require('xcalarsdk').Error.status;
+const { ErrorType, status } = require('xcalarsdk').Error;
 const sessionScope = require('xcalarsdk').Session.SCOPE;
 const targetScope = require('xcalarsdk').Target.SCOPE;
 exports.testSuite = function(TargetService, SessionService) {
@@ -47,6 +46,11 @@ exports.testSuite = function(TargetService, SessionService) {
                     scopeInfo: scopeInfo
                 });
                 expect(listTypeRes).to.not.equal("");
+                const listResBefore = await TargetService.run({
+                    inputJson: listObj,
+                    scope: TARGETSCOPE,
+                    scopeInfo: scopeInfo
+                });
                 const addRes = await TargetService.run({
                     inputJson: addObj,
                     scope: TARGETSCOPE,
@@ -58,7 +62,7 @@ exports.testSuite = function(TargetService, SessionService) {
                     scope: TARGETSCOPE,
                     scopeInfo: scopeInfo
                 });
-                expect(JSON.parse(listRes).length).to.equal(2);
+                expect(JSON.parse(listRes).length).to.equal(JSON.parse(listResBefore).length + 1);
                 const deleteRes = await TargetService.run({
                     inputJson: deleteObj,
                     scope: TARGETSCOPE,
@@ -70,7 +74,7 @@ exports.testSuite = function(TargetService, SessionService) {
                     scope: TARGETSCOPE,
                     scopeInfo: scopeInfo
                 });
-                expect(JSON.parse(listResAfter).length).to.equal(1);
+                expect(JSON.parse(listResAfter).length).to.equal(JSON.parse(listResBefore).length);
                 // XXX Session delete is not wired in so this session would be left there
             } catch(err) {
                 console.log(err);
@@ -89,7 +93,7 @@ exports.testSuite = function(TargetService, SessionService) {
                 expect.fail("Target service should fail on method not exist");
             } catch(err) {
                 expect(err.type).to.equal(ErrorType.XCALAR);
-                expect(err.status).to.equal(Status.STATUS_UDF_EXECUTE_FAILED);
+                expect(err.status).to.equal(status.STATUS_UDF_EXECUTE_FAILED);
             }
         });
     });
