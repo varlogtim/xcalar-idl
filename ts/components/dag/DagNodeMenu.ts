@@ -1,23 +1,18 @@
 namespace DagNodeMenu {
-    let $dagView: JQuery;
-    let $dfWrap: JQuery;
-    let $menu: JQuery;
     let position: Coordinate;
 
     export function setup() {
-        $dagView = $("#dagView");
-        $dfWrap = $dagView.find(".dataflowWrap");
-        $menu = $("#dagNodeMenu");
         _setupNodeMenu();
         _setupNodeMenuActions();
     }
 
     export function updateExitOptions(name) {
-        var $li = $menu.find(".exitOp");
+        let $menu = _getDagNodeMenu();
+        let $li = $menu.find(".exitOp");
         $li.attr("class", "exitOp");
 
-        var nameUpper = xcStringHelper.capitalize(name);
-        var label = nameUpper;
+        let nameUpper = xcStringHelper.capitalize(name);
+        let label = nameUpper;
         switch (name) {
             case ('groupby'):
                 label = 'Group By';
@@ -65,8 +60,10 @@ namespace DagNodeMenu {
 
     function _setupNodeMenu(): void {
         position = {x: 0, y: 0};
+        let $menu = _getDagNodeMenu();
         xcMenu.add($menu);
 
+        let $dfWrap = _getDFWrap();
         $dfWrap.on("contextmenu", ".operator .main", function(event: JQueryEventObject) {
             _showNodeMenu(event, $(this));
             return false; // prevent default browser's rightclick menu
@@ -211,7 +208,7 @@ namespace DagNodeMenu {
                     break;
                 case ("newComment"):
                     const scale = DagViewManager.Instance.getActiveDag().getScale();
-                    const rect = $dfWrap.find(".dataflowArea.active .dataflowAreaWrapper")[0].getBoundingClientRect();
+                    const rect = _getDFWrap().find(".dataflowArea.active .dataflowAreaWrapper")[0].getBoundingClientRect();
                     const x = (position.x - rect.left - DagView.gridSpacing) / scale;
                     const y = (position.y - rect.top - DagView.gridSpacing) / scale;
                     DagViewManager.Instance.newComment({
@@ -322,6 +319,14 @@ namespace DagNodeMenu {
         } else {
             MainMenu.closeForms();
         }
+    }
+
+    function _getDFWrap(): JQuery {
+        return $("#dagView").find(".dataflowWrap");
+    }
+
+    function _getDagNodeMenu(): JQuery {
+        return $("#dagNodeMenu");
     }
 
     function expandSQLNode(
@@ -517,6 +522,7 @@ namespace DagNodeMenu {
             return;
         }
         let classes: string = " edgeMenu ";
+        let $menu = _getDagNodeMenu();
         MenuHelper.dropdownOpen($edge, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
             offsetY: 8,
@@ -545,6 +551,7 @@ namespace DagNodeMenu {
     function _showCommentMenu($clickedEl: JQuery, event: JQueryEventObject): void {
         let nodeIds = DagViewManager.Instance.getSelectedNodeIds();
         const nodeId: DagNodeId = $(this).data("nodeid");
+        let $menu = _getDagNodeMenu();
         $menu.data("nodeid", nodeId);
         $menu.data("nodeids", nodeIds);
 
@@ -581,6 +588,7 @@ namespace DagNodeMenu {
             backgroundClicked = true;
         }
 
+        let $menu = _getDagNodeMenu();
         $menu.data("nodeid", nodeId);
         $menu.data("nodeids", nodeIds);
         $menu.find("li").removeClass("unavailable");
@@ -695,6 +703,7 @@ namespace DagNodeMenu {
         const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
         const $node: JQuery = DagViewManager.Instance.getNode(dagNode.getId());
         let classes = "";
+        let $menu = _getDagNodeMenu();
 
         // display viewResults or generateResult
         if (dagNode != null &&
@@ -854,6 +863,7 @@ namespace DagNodeMenu {
     }
 
     function adjustMenuForOpenForm(enableConfig?: boolean) {
+        let $menu = _getDagNodeMenu();
         let $lis: JQuery = $menu.find(".executeNode, .executeAllNodes, " +
                         ".executeNodeOptimized, .executeAllNodesOptimized, " +
                         ".resetNode, .resetAllNodes, .cutNodes, " +
@@ -874,6 +884,7 @@ namespace DagNodeMenu {
 
     function adjustMenuForBackground() {
         const $view: JQuery = DagViewManager.Instance.getActiveArea();
+        let $menu = _getDagNodeMenu();
         if ($view.find(".operator.state-" + DagNodeState.Running).length) {
             $menu.find(".focusRunning").removeClass("unavailable");
         } else {
