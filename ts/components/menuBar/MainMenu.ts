@@ -480,7 +480,7 @@ namespace MainMenu {
                 panelSwitchingHandler($curTab, lastTabId);
                 xcUIHelper.hideSuccessBox();
             }
-
+            UDFPanel.Instance.switchMode();
         });
 
         $mainMenu[0].addEventListener(window["transitionEnd"], function(event) {

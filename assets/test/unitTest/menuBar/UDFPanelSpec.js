@@ -127,10 +127,11 @@ describe("UDFPanel Test", function() {
         });
 
         it("UDFPanel.Instance.switchMode should work", function() {
+            let wasActive = $("#sqlWorkSpacePanel").hasClass("active");
             let $udfSection = $("#udfSection");
             let oldFunc = XVM.isSQLMode;
             XVM.isSQLMode = () => true;
-            $("#monitorPanel").removeClass("active");
+            $("#sqlWorkSpacePanel").addClass("active");
             UDFPanel.Instance.switchMode();
             expect($udfSection.hasClass("sqlMode")).to.be.true;
             // case 2
@@ -138,6 +139,10 @@ describe("UDFPanel Test", function() {
             UDFPanel.Instance.switchMode();
             expect($udfSection.hasClass("sqlMode")).to.be.false;
             XVM.isSQLMode = oldFunc;
+
+            if (!wasActive) {
+                $("#sqlWorkSpacePanel").removeClass("active");
+            }
         });
 
         // XXX clear will affect UDFFileManager test, need a way to restore

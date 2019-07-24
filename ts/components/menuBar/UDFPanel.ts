@@ -157,8 +157,7 @@ class UDFPanel {
         const $udfSection: JQuery = this._getUDFSection();
         const $topSection: JQuery = $("#udf-fnSection .topSection");
         if (XVM.isSQLMode() &&
-            !($("#monitorPanel").hasClass("active") &&
-             $("#monitor-file-manager").hasClass("active"))
+            $("#sqlWorkSpacePanel").hasClass("active")
         ) {
             // switch to sql mode, only show sql.py
             $udfSection.addClass("sqlMode");

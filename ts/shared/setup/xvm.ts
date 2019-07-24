@@ -489,7 +489,6 @@ namespace XVM {
         if (allPanelsClosed) {
             MainMenu.openDefaultPanel();
         }
-        UDFPanel.Instance.switchMode();
         deferred.resolve();
         return deferred.promise();
     }
