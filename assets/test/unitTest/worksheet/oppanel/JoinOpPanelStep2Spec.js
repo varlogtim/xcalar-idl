@@ -261,7 +261,7 @@ describe('JoinOpPanelStep2 Test', () => {
             expect(component._createColumnRenameSection() != null).to.be.true;
             // Check prefix rename props
             expect(prefixCollision != null).to.be.true;
-            expect(prefixCollision.size).to.equal(1);
+            expect(prefixCollision.size).to.equal(0);
             // Check derived rename props
             expect(derivedCollision != null).to.be.true;
             expect(derivedCollision.size).to.equal(0);

@@ -420,6 +420,39 @@ class JoinOpPanelModel extends BaseOpPanelModel {
         this._selectedColumns.right = rightSelectable;
     }
 
+    public autoRenameColumn(
+        renameInfo: JoinOpRenameInfo, orignName: string, isLeft: boolean
+    ) {
+
+        const nameMap = {};
+        const {
+            left: leftNames, right: rightNames
+        } = this.getResolvedNames(renameInfo.isPrefix);
+
+        if (isLeft) {
+            removeName(leftNames, orignName);
+        } else {
+            removeName(rightNames, orignName);
+        }
+        const nameList = leftNames.concat(rightNames);
+        for (const name of nameList) {
+            nameMap[name.dest] = true;
+        }
+
+        const newName = xcHelper.autoName(orignName, nameMap,
+            Object.keys(nameMap).length);
+        renameInfo.dest = newName;
+
+        function removeName(list, name) {
+            for (let i = 0; i < list.length; i++) {
+                if (list[i].source === name) {
+                    list.splice(i, 1);
+                    return;
+                }
+            }
+        }
+    }
+
     /**
      * Get the list of conflicted names(based on origin name) and modified names
      * @param isPrefix true: return prefix names; false: return column names
@@ -1513,6 +1546,19 @@ class JoinOpPanelModel extends BaseOpPanelModel {
                 });
             }
         });
+
+        
+        // Auto-rename everything in the rename list
+        this._columnRename.left.forEach((renameInfo) => {
+            if (!renameInfo.dest || renameInfo.dest.length === 0) {
+                this.autoRenameColumn(renameInfo, renameInfo.source, true);
+            }
+        }); 
+        this._columnRename.right.forEach((renameInfo) => {
+            if (!renameInfo.dest || renameInfo.dest.length === 0) {
+                this.autoRenameColumn(renameInfo, renameInfo.source, false);
+            }
+        });	
     }
 
     public static refreshColumns(oldModel, dagNode: DagNodeJoin) {

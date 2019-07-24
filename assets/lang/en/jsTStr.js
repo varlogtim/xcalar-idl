@@ -145,7 +145,7 @@ CommonTxtTstr = {
     'ClickToExpand': 'Click to expand',
     'ClickToOpts': 'Click to see options',
     "ColRenames": "Column Renames",
-    "ColRenameInstr": "The columns that you have selected are duplicates. Please rename either or both of the offending columns.",
+    "ColRenameInstr": "The system has generated new column names for the columns with duplicate names. If you wish to change a system-generated name, click on the name to edit it.",
     'Columns': 'Columns',
     'Continue': 'Continue',
     'Copy': 'Copy',
@@ -791,9 +791,7 @@ JoinTStr = {
     'Estimating': 'Estimating...',
     'JOIN': 'JOIN',
     'ModifyDesc': 'Would you like to modify the join?',
-    "DagColSelectInstr": "Please select pairs of columns: one column from the " +
-                      "left node and one column from the right node, " +
-                      "to be joined together.",
+    "DagColSelectInstr": "Select the columns from input #1 and input #2 to join on by equality.",
     "DagColSelectInstrCross": "Cross join does not require join keys since it is " +
                            "joining every record on the left node with " +
                            "every record on the right node",
@@ -1704,8 +1702,8 @@ OpPanelTStr = {
     "RowNumPanelFieldNameDestColumn": "New resultant column name",
     "JoinPanelRenameTitlePrefix": "Prefixes",
     "JoinPanelRenameTitleDerived": "Derived Fields",
-    "JoinPanelRenameColOldLeft": "Left Result",
-    "JoinPanelRenameColOldRight": "Right Result",
+    "JoinPanelRenameColOldLeft": "#1 Result",
+    "JoinPanelRenameColOldRight": "#2 Result",
     "JoinPanelRenameColNew": "New Name",
     "JoinPanelColumnTableTitleKeep": "Columns To Keep",
     "JoinPanelColumnTableTitleDrop": "Columns To Drop",

@@ -149,16 +149,15 @@ class JoinOpPanelStep2 {
                 break;
             }
             collisionPrefix.add(name);
-            numCollisionsToShow --;
+            numCollisionsToShow--;
         }
         for (const name of columnCollisionMap.keys()) {
             if (numCollisionsToShow <= 0) {
                 break;
             }
             collisionColumns.add(name);
-            numCollisionsToShow --;
+            numCollisionsToShow--;
         }
-
 
         const elemTablePrefix = this._createPrefixRenameTable(
             collisionPrefix, collisionPrefix
@@ -251,10 +250,18 @@ class JoinOpPanelStep2 {
             const nameValidationError = isPrefix
                 ? xcHelper.validatePrefixName(newName)
                 : xcHelper.validateColName(newName);
+
             // Check name collision
-            const collisionError = collisionNames.has(renameInfo.source)
-                ? ( isPrefix ? ErrTStr.PrefixConflict : ErrTStr.ColumnConflict)
-                : null;
+            let collisionError = null;
+            if (collisionNames.has(renameInfo.source)) {
+                if (renameInfo.dest.length === 0) {
+                    this._autoRenameColumn(renameInfo, renameInfo.source, isLeft);
+                } else {
+                    collisionError = isPrefix ? ErrTStr.PrefixConflict :
+                        ErrTStr.ColumnConflict;
+                }
+            }
+
             // Show error message if name collision or invalid name
             const errorMessage = collisionError || nameValidationError;
 
@@ -521,32 +528,7 @@ class JoinOpPanelStep2 {
     private _autoRenameColumn(
         renameInfo: JoinOpRenameInfo, orignName: string, isLeft: boolean
     ) {
-
-        const nameMap = {};
-        const {
-            left: leftNames, right: rightNames
-        } = this._modelRef.getResolvedNames(renameInfo.isPrefix);
-        if (isLeft) {
-            removeName(leftNames, orignName);
-        } else {
-            removeName(rightNames, orignName);
-        }
-        const nameList = leftNames.concat(rightNames);
-        for (const name of nameList) {
-            nameMap[name.dest] = true;
-        }
-
-        const newName = xcHelper.autoName(orignName, nameMap, Object.keys(nameMap).length);
-        renameInfo.dest = newName;
-
-        function removeName(list, name) {
-            for (let i = 0; i < list.length; i ++) {
-                if (list[i].source === name) {
-                    list.splice(i, 1);
-                    return;
-                }
-            }
-        }
+        this._modelRef.autoRenameColumn(renameInfo, orignName, isLeft);
     }
 
     private _batchRename(options: {

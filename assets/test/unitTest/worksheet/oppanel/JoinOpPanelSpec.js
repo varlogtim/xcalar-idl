@@ -387,8 +387,8 @@ describe('JoinOpPanel Test', () => {
                 error = e;
             }
 
-            expect(error != null).to.be.true;
-            expect(error.message).to.equal(JoinOpError.PrefixConflict);
+            expect(error == null).to.be.true;
+            // Should not have any errors because dups will be auto renamed
         });
 
         it('Case: dup derived', () => {
@@ -400,8 +400,8 @@ describe('JoinOpPanel Test', () => {
                 error = e;
             }
 
-            expect(error != null).to.be.true;
-            expect(error.message).to.equal(JoinOpError.ColumnNameConflict);
+            expect(error == null).to.be.true;
+            // Should not have any errors because dups will be auto renamed
         });
 
         it('Case: invalid prefix name', () => {
