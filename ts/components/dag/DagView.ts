@@ -2725,7 +2725,9 @@ class DagView {
                     const skewInfo = DagView._getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
                     skewInfos.push(skewInfo);
                 }
-                times.push(nodeStat.elapsedTime);
+                if (nodeStat.elapsedTime != null) {
+                    times.push(nodeStat.elapsedTime);
+                }
             });
 
             this.updateNodeProgress(nodeId, this.tabId, overallStats, skewInfos, times);
@@ -2768,7 +2770,9 @@ class DagView {
                     const skewInfo = DagView._getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
                     skewInfos.push(skewInfo);
                 }
-                times.push(nodeStat.elapsedTime);
+                if (nodeStat.elapsedTime != null) {
+                    times.push(nodeStat.elapsedTime);
+                }
             });
 
             this.updateNodeProgress(nodeId, this.tabId, overallStats, skewInfos, times);
@@ -2804,7 +2808,9 @@ class DagView {
                         const skewInfo = DagView._getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
                         skewInfos.push(skewInfo);
                     }
-                    times.push(nodeStat.elapsedTime);
+                    if (nodeStat.elapsedTime != null) {
+                        times.push(nodeStat.elapsedTime);
+                    }
                 });
                 DagNodeInfoPanel.Instance.update(nodeId, "stats");
                 this.updateNodeProgress(nodeId, subGraph.getTabId(), overallStats, skewInfos, times);
@@ -2917,7 +2923,9 @@ class DagView {
                         const skewInfo = DagView._getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
                         skewInfos.push(skewInfo);
                     }
-                    times.push(nodeStat.elapsedTime);
+                    if (nodeStat.elapsedTime != null) {
+                        times.push(nodeStat.elapsedTime);
+                    }
                 });
                 this._addProgressTooltip(this.graph, node, this.$dfArea, skewInfos, times, overallStats.state);
                 const nodeInfo = { position: node.getPosition() };

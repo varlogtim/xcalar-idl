@@ -332,6 +332,7 @@ class DagNodeSQL extends DagNode {
         super.setParam(null, noAutoExecute);
     }
 
+
     /**
      * DFS to get lineage changes from sub graph
      * @param columnMapList a column map {finalColName: [finalProgColumn,
@@ -362,18 +363,18 @@ class DagNodeSQL extends DagNode {
     }
 
     public lineageChange(
-        _columns,
-        replaceParameters?: boolean
+            _columns,
+            replaceParameters?: boolean
     ): DagLineageChange {
         let columnMap = {};
         const finalColumnMap = {}; // {finalColName: [finalProgColumn,
-                                   //  changedFlag]}
+                                    //  changedFlag]}
         const finalCols: ProgCol[] = [];
         let hiddenColumns = this.lineage.getHiddenColumns();
         this.columns.forEach((column) => {
             const finalColumn = ColManager.newPullCol(column.name,
-                                                      column.backName,
-                                                      column.type);
+                                                        column.backName,
+                                                        column.type);
             finalColumnMap[column.backName] = [finalColumn, false];
             finalCols.push(finalColumn);
         });
