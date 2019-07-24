@@ -1929,7 +1929,7 @@ module.exports = function(grunt) {
     */
     grunt.task.registerTask(TRUNK, 'trunk', function() {
 
-        grunt.task.run("build");
+        grunt.task.run("build_trunk");
 
         grunt.task.run('touch'); // creates assets/js/config.js if it does not exist
 
@@ -2037,6 +2037,77 @@ module.exports = function(grunt) {
         grunt.log.writeln('\n\t::::::::::::: END SETUP ::::::::::::::::\n');
     });
 
+    grunt.task.registerTask("build_step_prep", function() {
+        // now construct the ultimate build directory
+        grunt.task.run("prep_build_dirs"); // generate dirs needed for build process
+
+        /**
+            For DEV BLDS:
+            The default behavior is to put the bld output directly at same root as project src.
+            (Though user can specify params to change this behavior)
+            So for a dev bld following the default behavior, do NOT do the initial rsync!
+            (Similarly on other blds user could use params to make it this way,
+            so only do the rsync if the bld and src root are different
+        */
+        if (SRCROOT != BLDROOT) {
+            if (fastcopy) {
+                grunt.task.run("rsync:fastcopy");
+            } else if (grunt.option(BLD_FLAG_RC_SHORT) ||
+                        grunt.option(BLD_FLAG_RC_LONG)) {
+                grunt.task.run("rsync:rc");
+            } else {
+                grunt.task.run("rsync:initial");
+            }
+        }
+    });
+
+    grunt.task.registerTask("build_step_syncXcrpc", function() {
+        var xcrpcSrc = process.env[XLRDIR];
+        var xcrpcDest = BLDROOT;
+        var apiToolDir = path.join(SRCROOT, 'assets/dev/apiTool');
+
+        if (!grunt.file.exists(xcrpcSrc)) {
+            grunt.fail.fatal("syncXcrpc: jsClient not found");
+        }
+        if (!grunt.file.exists(xcrpcDest)) {
+            grunt.fail.fatal("syncXcrpc: xd build not found");
+        }
+        if (!grunt.file.exists(path.join(apiToolDir, 'syncXcrpc.sh'))) {
+            grunt.fail.fatal("syncXcrpc: apiTool(syncXcrpc) not found");
+        }
+
+        var cmdsets = [];
+        cmdsets.push([apiToolDir, ['./syncXcrpc.sh ' + xcrpcSrc + ' ' + xcrpcDest]]);
+        runCmds(cmdsets);
+    });
+
+    grunt.task.registerTask("build_step_build", function() {
+        // set prod name in globalAutogen.js, to set branding of xcalar-gui code
+        // (run before "build_html" - html templating uses the var it sets)
+        grunt.task.run("SET_PROD_NAME");
+        grunt.task.run("help_contents");
+        grunt.task.run("build_css");
+        // XXX It won't work until antlr4 is correctly packaged
+        // grunt.task.run("build_parser");
+        grunt.task.run("build_js"); // build js before html (built html will search for some js
+            // files to autogen script tags for, that only get generated here)
+        grunt.task.run("update_exp_module"); // update expServer's node_module;
+        grunt.task.run("update_integration_test_xcrpc_module"); // update integration test xcrpc's node_module
+            // relying on xcrpc jsClient and jsSDK, so keep this after js build
+        grunt.task.run("remove_exp_crypto"); // remove external crypto module
+            // keep right after update_exp_module, as it cleared npm cache
+        grunt.task.run("browserify_package"); // keep after build js because it builds from js files;
+            // relying on xd js files(jsSDK)
+        grunt.task.run("build_html");
+        grunt.task.run("constructor_files");
+        // Update js files that will get used outside xcalar-gui to display correct branding
+        grunt.task.run("update_prod_name_outside_js");
+        // Generate TS definition for jsTStr.js in dev build
+        if (BLDTYPE === DEV) {
+            grunt.task.run("generate_tsdef");
+        }
+    });
+
     /**
         Runs main build tasks required for all build flavors:
 
@@ -2048,55 +2119,8 @@ module.exports = function(grunt) {
         (These tasks are independent and aside from rsync which must come first,
         their order does not matter)
     */
-    grunt.task.registerTask("build", function() {
-
-            // now construct the ultimate build directory
-            grunt.task.run("prep_build_dirs"); // generate dirs needed for build process
-
-            /**
-                For DEV BLDS:
-                The default behavior is to put the bld output directly at same root as project src.
-                (Though user can specify params to change this behavior)
-                So for a dev bld following the default behavior, do NOT do the initial rsync!
-                (Similarly on other blds user could use params to make it this way,
-                so only do the rsync if the bld and src root are different
-            */
-            if (SRCROOT != BLDROOT) {
-                if (fastcopy) {
-                    grunt.task.run("rsync:fastcopy");
-                } else if (grunt.option(BLD_FLAG_RC_SHORT) ||
-                           grunt.option(BLD_FLAG_RC_LONG)) {
-                    grunt.task.run("rsync:rc");
-                } else {
-                    grunt.task.run("rsync:initial");
-                }
-
-            }
-            // set prod name in globalAutogen.js, to set branding of xcalar-gui code
-            // (run before "build_html" - html templating uses the var it sets)
-            grunt.task.run("SET_PROD_NAME");
-            grunt.task.run("help_contents");
-            grunt.task.run("build_css");
-            // XXX It won't work until antlr4 is correctly packaged
-            // grunt.task.run("build_parser");
-            grunt.task.run("build_js"); // build js before html (built html will search for some js
-                // files to autogen script tags for, that only get generated here)
-            grunt.task.run("update_exp_module"); // update expServer's node_module;
-            grunt.task.run("update_integration_test_xcrpc_module"); // update integration test xcrpc's node_module
-                // relying on xcrpc jsClient and jsSDK, so keep this after js build
-            grunt.task.run("remove_exp_crypto"); // remove external crypto module
-                // keep right after update_exp_module, as it cleared npm cache
-            grunt.task.run("browserify_package"); // keep after build js because it builds from js files;
-                // relying on xd js files(jsSDK)
-            grunt.task.run("build_html");
-            grunt.task.run("constructor_files");
-            // Update js files that will get used outside xcalar-gui to display correct branding
-            grunt.task.run("update_prod_name_outside_js");
-            // Generate TS definition for jsTStr.js in dev build
-            if (BLDTYPE === DEV) {
-                grunt.task.run("generate_tsdef");
-            }
-    });
+    grunt.task.registerTask("build", ["build_step_prep", "build_step_build"]);
+    grunt.task.registerTask("build_trunk", ["build_step_prep", "build_step_syncXcrpc", "build_step_build"]);
 
     /**
      * Sets prod name/branding for the GUIs, by setting

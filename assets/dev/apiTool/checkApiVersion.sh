@@ -13,7 +13,7 @@ debug() {
 
 XLRDIR=${1:-"$XLRDIR"}
 XLRGUIDIR=${2:-"$XLRGUIDIR"}
-[ -z $XLRDIR ] || [ -z $XLRGUIDIR ] && die "Usage: $0 <xce_repo> <xd_repo>"
+[ -n "$XLRDIR" ] && [ -n "$XLRGUIDIR" ] || die "Usage: $0 <xce_repo> <xd_repo>"
 
 scriptPath=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 . $scriptPath/versionFunc.sh

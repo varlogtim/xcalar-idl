@@ -10,8 +10,8 @@ debug() {
     echo "[DEBUG] $*" >&2
 }
 
-[ -z $XLRDIR ] && die "XLRDIR must be set"
-[ -z $XLRGUIDIR ] && die "XLRGUIDIR must be set"
+[ -n "$XLRDIR" ] || die "XLRDIR must be set"
+[ -n "$XLRGUIDIR" ] || die "XLRGUIDIR must be set"
 
 BUILD_DIR=${BUILD_DIR:-"${XLRDIR}/buildOut"}
 
@@ -33,8 +33,9 @@ for jsFile in "${fileList[@]}"; do
 done
 
 # Generate command to copy over files remotely
+SSH_OPTS="-oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no"
 remoteCommand=("rm ${THRIFT_DEST}/*")
 for jsFile in "${fileList[@]}"; do
-    remoteCommand+=("scp ${USER}@${HOSTNAME}:${jsFile} ${THRIFT_DEST}/")
+    remoteCommand+=("scp ${SSH_OPTS} ${USER}@${HOSTNAME}:${jsFile} ${THRIFT_DEST}/")
 done
 printf '%s\n' "${remoteCommand[@]}"

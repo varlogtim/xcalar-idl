@@ -12,7 +12,7 @@ debug() {
 
 XLRDIR=${1:-"$XLRDIR"}
 XLRGUIDIR=${2:-"$XLRGUIDIR"}
-[ -z $XLRDIR ] || [ -z $XLRGUIDIR ] && die "Usage: $0 <xce_repo> <xd_repo>"
+[ -n "$XLRDIR" ] && [ -n "$XLRGUIDIR" ] || die "Usage: $0 <xce_repo> <xd_repo>"
 
 BUILD_DIR=${BUILD_DIR:-"${XLRDIR}/buildOut"}
 
@@ -36,9 +36,10 @@ debug "[Copy enum] ${ENUM_SRC} to ${ENUM_DEST}"
 cp -r ${ENUM_SRC}/* ${XLRGUIDIR}/${ENUM_DEST}/ || die "Copy enum maps failed"
 
 # Generate command to copy over files remotely
+SSH_OPTS="-oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no"
 cat << EOF
 rm -rf ${CLIENT_DEST}/*
-scp -r ${USER}@${HOSTNAME}:${CLIENT_SRC}/* ${CLIENT_DEST}/
+scp ${SSH_OPTS} -r ${USER}@${HOSTNAME}:${CLIENT_SRC}/* ${CLIENT_DEST}/
 mkdir ${ENUM_DEST}
-scp -r ${USER}@${HOSTNAME}:${ENUM_SRC}/* ${ENUM_DEST}/
+scp ${SSH_OPTS} -r ${USER}@${HOSTNAME}:${ENUM_SRC}/* ${ENUM_DEST}/
 EOF
