@@ -52,7 +52,7 @@ interface ExportDriverArg {
     name: string,
     type: string,
     optional: boolean,
-    value: string
+    value: string | boolean | number
 }
 
 /* ==== End of interfaces related to Export Drivers ==== */

@@ -197,10 +197,10 @@ describe("Export Operator Panel Test", function() {
             exportOpPanel.renderDriverArgs();
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
+            exportOpPanel.close();
         });
 
         it ("Should save correctly", function (done) {
-            $("#exportOpPanel .close").click();
             const parentNode = new DagNodeMap({});
             parentNode.getLineage = function() {
                 return {getColumns: function() {
@@ -215,6 +215,10 @@ describe("Export Operator Panel Test", function() {
             };
 
             exportOpPanel.show(node);
+            if (exportOpPanel._isAdvancedMode()) {
+                $("#exportOpPanel .bottomSection .xc-switch").click();
+                exportOpPanel._switchMode(false);
+            }
             UnitTest.testFinish(function() {
                 return $("#exportOpPanel .xc-waitingBG").length === 0;
             })

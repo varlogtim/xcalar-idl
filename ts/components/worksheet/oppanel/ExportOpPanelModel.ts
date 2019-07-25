@@ -172,17 +172,29 @@ class ExportOpPanelModel extends BaseOpPanelModel {
                 return;
             }
             $param = $params.eq(index);
-            if (arg.type == "boolean" && arg.value == "true") {
-                $param.addClass("checked");
-                $param.find('.checkbox').addClass("checked");
+            if (arg.type == "boolean") {
+                // for upgrade
+                if (arg.value === "true") {
+                    arg.value = true;
+                } else if (arg.value === "false") {
+                    arg.value = false;
+                }
+
+                // update checkboxes
+                if (arg.value === true) {
+                    $param.find('.checkbox').addClass("checked");
+                } else if (arg.value === false) {
+                    $param.find('.checkbox').removeClass("checked");
+                }
                 return;
             }
-            $param.find('input').val(arg.value);
+            $param.find('input').val(<string | number>arg.value);
             return;
         });
     }
 
-    public constructParams(driver: ExportDriver, oldArgs?: {[key: string]: string}) {
+    public constructParams(driver: ExportDriver,
+            oldArgs?: {[key: string]: string | boolean | number}) {
         if (driver == null) {
             return [];
         }
@@ -195,7 +207,11 @@ class ExportOpPanelModel extends BaseOpPanelModel {
                 "value": null
             }
             if (param.type == "boolean") {
-                arg.value = param.defArg || "false";
+                if (param.defArg) {
+                    arg.value = (param.defArg === "true");
+                } else {
+                    arg.value = false;
+                }
             }
             if (oldArgs && oldArgs[param.name]) {
                 arg.value = oldArgs[param.name];
@@ -232,11 +248,13 @@ class ExportOpPanelModel extends BaseOpPanelModel {
      * @param value
      * @param argIndex
      */
-    public setParamValue(value: string, argIndex: number): void {
+    public setParamValue(value: string | boolean | number, argIndex: number): void {
         let arg: ExportDriverArg = this.driverArgs[argIndex];
-        if (value == "") {
+        if (value === "") {
             value = null;
             // Export drivers only default if they see "null".
+        } else if (arg.type === "integer" && (typeof value === "string")) {
+            value = parseInt(value);
         }
         arg.value = value;
     }
@@ -263,7 +281,8 @@ class ExportOpPanelModel extends BaseOpPanelModel {
             return "Invalid driver specified: \"" + dagInput.driver + '"';
         }
         const dParams: ExportParam[] = driver.params;
-        const inputParams: {[key: string]: string} = dagInput.driverArgs;
+        const inputParams: {[key: string]: string | number | boolean} =
+            dagInput.driverArgs;
         const inputNames: string[] = Object.keys(inputParams);
         if (dParams.length != inputNames.length) {
             return "Invalid number of parameters for driver specified";

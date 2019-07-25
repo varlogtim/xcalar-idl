@@ -322,14 +322,12 @@ class ExportSQLTableModal {
             let $box: JQuery = $(this);
             let $arg: JQuery = $(this).parent();
             let paramIndex: number = $("#exportSQLTableModal .exportArg").index($arg);
-            if ($arg.hasClass("checked")) {
-                $arg.removeClass("checked");
+            if ($box.hasClass("checked")) {
                 $box.removeClass("checked");
-                self._dataModel.setParamValue("false", paramIndex);
+                self._dataModel.setParamValue(false, paramIndex);
             } else {
-                $arg.addClass("checked");
                 $box.addClass("checked");
-                self._dataModel.setParamValue("true", paramIndex);
+                self._dataModel.setParamValue(true, paramIndex);
             }
         });
 
@@ -386,7 +384,7 @@ class ExportSQLTableModal {
             return;
         }
 
-        let driverArgs: {[key: string]: string} =  {}
+        let driverArgs: {[key: string]: string | number | boolean} =  {}
         this._dataModel.driverArgs.forEach((arg: ExportDriverArg) => {
             driverArgs[arg.name] = arg.value;
         });

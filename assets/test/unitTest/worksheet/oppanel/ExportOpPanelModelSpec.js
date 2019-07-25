@@ -198,6 +198,20 @@ describe("ExportOpPanelModel Test", function() {
         expect(model.driverArgs[0]["value"]).to.equal("cat");
         model.setParamValue("",0);
         expect(model.driverArgs[0]["value"]).to.be.null;
+
+        model.setUpParams(drivers[1], $("#exportSQLTableModal"));
+        expect(model.driverArgs[0]).to.deep.equal({
+            "name": "param1",
+            "type": "integer",
+            "optional": false,
+            "value": null
+        });
+        model.setParamValue(5,0);
+        expect(model.driverArgs[0]["value"]).to.equal(5);
+        model.setParamValue("2",0);
+        expect(model.driverArgs[0]["value"]).to.equal(2);
+        model.setParamValue("",0);
+        expect(model.driverArgs[0]["value"]).to.be.null;
     });
 
     describe("Verify export input tests", function () {

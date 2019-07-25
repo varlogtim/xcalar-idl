@@ -198,11 +198,15 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             } catch (e) {
                 this._dataModel = new ExportOpPanelModel();
                 MainMenu.setFormOpen();
+                this._dataModel.setAdvMode(true);
                 this._startInAdvancedMode(e);
                 return;
             }
             if (BaseOpPanel.isLastModeAdvanced) {
+                this._dataModel.setAdvMode(true);
                 this._startInAdvancedMode();
+            } else {
+                this._dataModel.setAdvMode(false);
             }
 
             if (this._dataModel.loadedName == "") {
@@ -477,14 +481,12 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             let $box: JQuery = $(this);
             let $arg: JQuery = $(this).parent();
             let paramIndex: number = $("#exportOpPanel .exportArg").index($arg);
-            if ($arg.hasClass("checked")) {
-                $arg.removeClass("checked");
+            if ($box.hasClass("checked")) {
                 $box.removeClass("checked");
-                self._dataModel.setParamValue("false", paramIndex);
+                self._dataModel.setParamValue(false, paramIndex);
             } else {
-                $arg.addClass("checked");
                 $box.addClass("checked");
-                self._dataModel.setParamValue("true", paramIndex);
+                self._dataModel.setParamValue(true, paramIndex);
             }
         });
 
