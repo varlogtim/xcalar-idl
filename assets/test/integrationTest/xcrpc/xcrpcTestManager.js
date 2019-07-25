@@ -58,7 +58,7 @@ describe("xcrpc integration test: ", function () {
     TableServiceTest.testSuite(TableService);
     DataflowServiceTest.testSuite(dataflowService);
     GetQueryServiceTest.testSuite(GetQueryService);
-    TargetServiceTest.testSuite(TargetService);
+    TargetServiceTest.testSuite(TargetService, SessionService);
     XDFServiceTest.testSuite(XDFService);
     VersionServiceTest.testSuite(VersionService);
     SessionServiceTest.testSuite(SessionService);

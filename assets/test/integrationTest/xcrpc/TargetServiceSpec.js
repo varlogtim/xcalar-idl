@@ -1,14 +1,95 @@
 const expect = require('chai').expect;
 const ProtoTypes = require('xcalar');
-exports.testSuite = function(TargetService) {
-     describe("TargetService test: ", function () {
-        it("run should work", function () {
-            // XXX TODO: test target service
-            // Need session implemented to access the workbook scope
+const ErrorType = require('xcalarsdk').Error.ErrorType;
+const Status = require('xcalarsdk').Error.status;
+const sessionScope = require('xcalarsdk').Session.SCOPE;
+const targetScope = require('xcalarsdk').Target.SCOPE;
+exports.testSuite = function(TargetService, SessionService) {
+    let userName, workbookName, SESSIONSCOPE, TARGETSCOPE, scopeInfo, sessionId;
+    before( async () => {
+        userName = "TargetServiceTestUser_" + new Date().getTime();
+        workbookName = "TargetServiceTestSession_" + new Date().getTime();
+        SESSIONSCOPE = sessionScope.WORKBOOK;
+        TARGETSCOPE = targetScope.WORKBOOK;
+        scopeInfo = {
+            userName: userName,
+            workbookName: undefined
+        };
+        sessionId = await SessionService.create({
+            sessionName: workbookName,
+            fork: false,
+            forkedSessionName: "",
+            scope: SESSIONSCOPE,
+            scopeInfo: scopeInfo});
+        await SessionService.activate({
+            sessionName: workbookName,
+            scope: SESSIONSCOPE,
+            scopeInfo: scopeInfo});
+    })
+
+    describe("TargetService test: ", function () {
+        it("run should work", async () => {
+            const targetType = "sharednothingsingle";
+            const targetName = "test";
+            const targetParams = {};
+            const addObj = {"func": "addTarget",
+                            "targetTypeId": targetType,
+                            "targetName": targetName,
+                            "targetParams": targetParams};
+            const deleteObj = {func: "deleteTarget",
+                               targetName: targetName};
+            const listObj = {func: "listTargets"};
+            const listTypeObj = {func: "listTypes"};
             try {
-                expect(true).to.be.true;
+                const listTypeRes = await TargetService.run({
+                    inputJson: listTypeObj,
+                    scope: TARGETSCOPE,
+                    scopeInfo: scopeInfo
+                });
+                expect(listTypeRes).to.not.equal("");
+                const addRes = await TargetService.run({
+                    inputJson: addObj,
+                    scope: TARGETSCOPE,
+                    scopeInfo: scopeInfo
+                });
+                expect(addRes).to.equal('{"status": "success"}');
+                const listRes = await TargetService.run({
+                    inputJson: listObj,
+                    scope: TARGETSCOPE,
+                    scopeInfo: scopeInfo
+                });
+                expect(JSON.parse(listRes).length).to.equal(2);
+                const deleteRes = await TargetService.run({
+                    inputJson: deleteObj,
+                    scope: TARGETSCOPE,
+                    scopeInfo: scopeInfo
+                });
+                expect(deleteRes).to.equal('{"status": "success"}');
+                const listResAfter = await TargetService.run({
+                    inputJson: listObj,
+                    scope: TARGETSCOPE,
+                    scopeInfo: scopeInfo
+                });
+                expect(JSON.parse(listResAfter).length).to.equal(1);
+                // XXX Session delete is not wired in so this session would be left there
             } catch(err) {
+                console.log(err);
                 expect.fail(err);
+            }
+        });
+
+        it("run should return error message on failure", async () => {
+            const badObj = {"func": "NotExist"};
+            try {
+                const targetRes = await TargetService.run({
+                    inputJson: badObj,
+                    scope: TARGETSCOPE,
+                    scopeInfo: scopeInfo
+                });
+                expect.fail("Target service should fail on method not exist");
+            } catch(err) {
+                expect(err.type).to.equal(ErrorType.XCALAR);
+                expect(err.status).to.equal(Status.STATUS_UDF_EXECUTE_FAILED);
             }
         });
     });
