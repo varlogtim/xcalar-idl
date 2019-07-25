@@ -963,6 +963,7 @@ describe("sqlRestApi Test", function() {
                 obj.status = SQLStatus.Done;
                 obj.allColumns = "allColumns";
                 obj.newTableName = "sqlTbl";
+                obj.orderColumns = "orderColumns";
             };
 
             sqlManager.executeSql(params)
@@ -970,6 +971,7 @@ describe("sqlRestApi Test", function() {
                 expect(res).to.deep.equal({
                     tableName: "sqlTbl",
                     columns: "allColumns",
+                    orderColumns: "orderColumns"
                 });
                 done();
             })
