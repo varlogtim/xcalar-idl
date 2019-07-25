@@ -35,7 +35,7 @@ class ColSchemaSection {
         this._addNoSchemaHint();
     }
 
-    public getSchema(ingore: boolean): ColSchema[] {
+    public getSchema(ignore: boolean): ColSchema[] {
         const schema: ColSchema[] = [];
         const $contentSection: JQuery = this._getContentSection();
         let valid: boolean = true;
@@ -43,14 +43,14 @@ class ColSchemaSection {
             const $part: JQuery = $(el);
             const $name: JQuery = $part.find(".name input");
             const name: string = $name.val().trim();
-            if (!ingore && !name) {
+            if (!ignore && !name) {
                 StatusBox.show(ErrTStr.NoEmpty, $name);
                 valid = false;
                 return false; // stop loop
             }
             const $type: JQuery = $part.find(".type .text");
             const colType: ColumnType = <ColumnType>$type.text();
-            if (!ingore && !colType) {
+            if (!ignore && !colType) {
                 StatusBox.show(ErrTStr.NoEmpty, $type);
                 valid = false;
                 return false; // stop loop
@@ -60,7 +60,7 @@ class ColSchemaSection {
                 type: colType
             });
         });
-        if (!ingore && valid && schema.length === 0) {
+        if (!ignore && valid && schema.length === 0) {
             valid = false;
             StatusBox.show(ErrTStr.NoEmptySchema, $contentSection);
         }
@@ -127,7 +127,7 @@ class ColSchemaSection {
 
         list.forEach(($row) => {
             this._addHintDropdown($row.find(".name.dropDownList"));
-            this._addTypeDropdwn($row.find(".type.dropDownList"));
+            this._addTypeDropdown($row.find(".type.dropDownList"));
             if ($rowToReplace != null) {
                 $rowToReplace.after($row);
             } else {
@@ -149,20 +149,20 @@ class ColSchemaSection {
 
     private _selectList($row: JQuery, schema: ColSchema): void {
         const index: number = $row.index();
-        let $rowWithSamaeName: JQuery = null;
+        let $rowWithSameName: JQuery = null;
         const $contentSection: JQuery = this._getContentSection();
         $contentSection.find(".part").each((i, el) => {
             const $currentRow = $(el);
             if (index !== i &&
                 $currentRow.find(".name input").val() === schema.name
             ) {
-                $rowWithSamaeName = $currentRow;
+                $rowWithSameName = $currentRow;
                 return false; // stop loop
             }
         })
-        if ($rowWithSamaeName != null) {
-            schema.type = schema.type || <ColumnType>$rowWithSamaeName.find(".type").text();
-            this._addList([{name: "", type: null}], $rowWithSamaeName);
+        if ($rowWithSameName != null) {
+            schema.type = schema.type || <ColumnType>$rowWithSameName.find(".type").text();
+            this._addList([{name: "", type: null}], $rowWithSameName);
         }
         this._addList([schema], $row);
     }
@@ -256,7 +256,7 @@ class ColSchemaSection {
         $dropdown.find("ul").html(html);
     }
 
-    private _addTypeDropdwn($dropdown: JQuery) {
+    private _addTypeDropdown($dropdown: JQuery) {
         const selector: string = this._getSelector();
         new MenuHelper($dropdown, {
             onOpen: ($curDropdown) => {
