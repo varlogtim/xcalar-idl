@@ -7,12 +7,12 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
         this.timeout(60000);
         // XXX TODO: test all DagNodeService APIs
         // Need session implemented to access the workbook scope
-        const testUserName = "testUser1";
-        const testSessionName = "testSession1";
-        const testCreateDSName = "admin.24826.nation";
+        const testUserName = "testUserSession";
+        const testSessionName = "testSessionSession";
+        const testCreateDSName = testUserName + "." + (Math.floor(Math.random()*90000) + 10000) + ".nation";
         const testCreateDSArgs = {"sourceArgsList":[{"targetName":"Default Shared Root","path":"/netstore/datasets/tpch_sf1_notrail/nation.tbl","fileNamePattern":"","recursive":false}],"parseArgs":{"parserFnName":"default:parseCsv","parserArgJson":"{\"recordDelim\":\"\\n\",\"fieldDelim\":\"|\",\"isCRLF\":false,\"linesToSkip\":1,\"quoteDelim\":\"\\\"\",\"hasHeader\":true,\"schemaFile\":\"\",\"schemaMode\":\"loadInput\"}","allowRecordErrors":false,"allowFileErrors":false,"fileNameFieldName":"","recordNumFieldName":"","schema":[{"sourceColumn":"N_NATIONKEY","destColumn":"N_NATIONKEY","columnType":4},{"sourceColumn":"N_NAME","destColumn":"N_NAME","columnType":1},{"sourceColumn":"N_REGIONKEY","destColumn":"N_REGIONKEY","columnType":4},{"sourceColumn":"N_COMMENT","destColumn":"N_COMMENT","columnType":1}]},"size":10737418240};
         const testLoadArgs = '{"sourceArgsList":null,"parseArgs":null,"size":null}';
-        const testLoadDSName = ".XcalarDS.admin.24826.nation";
+        const testLoadDSName = ".XcalarDS." + testCreateDSName;
         const testQueryName = "testXcalarQuery1";
         const testTableName = "table_DF2_5D324A043B307F6D_1563577542673_0_dag_5D324A043B307F6D_1563930449950_37#t_1563930487120_0";
         const testXcalarQuery = '[{"operation":"XcalarApiIndex","args":{"source":"' + testLoadDSName + '","dest":"' + testTableName + '","key":[{"name":"xcalarRecordNum","type":"DfUnknown","keyFieldName":"","ordering":"Unordered"}],"prefix":"nation","dhtName":"","delaySort":false,"broadcast":false},"tag":"dag_5D324A043B307F6D_1563930449950_37"}]';
@@ -54,7 +54,6 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
                     workbookName: testSessionName
                 }
             });
-            console.log("running quyer");
             await Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getQueryService().execute({
                 queryName: testQueryName,
                 queryString: testXcalarQuery,
@@ -79,7 +78,6 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
                         workbookName: testSessionName
                     }
                 });
-                console.log(result);
                 expect(result.numNodes).to.equal(1);
                 let statuses = result.statuses;
                 expect(statuses.length === 1);

@@ -16,7 +16,7 @@ class DatasetService {
         loadArgs?: LoadArgs,
         scope: SCOPE,
         scopeInfo: ScopeInfo
-    }): Promise<{}> {
+    }): Promise<{success: boolean}> {
         try {
             const {
                 datasetName, loadArgs,
@@ -67,7 +67,7 @@ class DatasetService {
             const dsService = new ApiDataset(this._apiClient);
             await dsService.create(request);
 
-            return {};
+            return {success: true};
         } catch(e) {
             throw parseError(e);
         }
