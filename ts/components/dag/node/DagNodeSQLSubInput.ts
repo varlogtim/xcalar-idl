@@ -24,6 +24,9 @@ class DagNodeSQLSubInput extends DagNode {
      * The input node doesn't change any columns, and is only a bridge between sub graph and parents
      */
     public lineageChange(_: ProgCol[]): DagLineageChange {
+        if (this._container == null) {
+            return { columns: [], changes: [] };
+        }
         const inputParent = this._container.getInputParent(this);
         if (inputParent == null || inputParent.getLineage() == null) {
             return { columns: [], changes: [] };
@@ -35,6 +38,9 @@ class DagNodeSQLSubInput extends DagNode {
     }
 
     public getHiddenColumns() {
+        if (this._container == null) {
+            return new Map();
+        }
         const inputParent = this._container.getInputParent(this);
         if (inputParent == null || inputParent.getLineage() == null) {
             return new Map();
@@ -56,7 +62,7 @@ class DagNodeSQLSubInput extends DagNode {
         }
     }
 
-       /**
+    /**
      * Return a short hint of the param, it should be one line long
      */
     public getParamHint(inheritHint?: boolean): {hint: string, fullHint: string} {
