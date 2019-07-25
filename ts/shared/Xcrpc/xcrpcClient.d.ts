@@ -50,10 +50,11 @@ declare module 'xcalar' {
     export class UserDefinedFunctionService {
         constructor(client: XceClient);
         getResolution(request: proto.xcalar.compute.localtypes.UDF.GetResolutionRequest): Promise<proto.xcalar.compute.localtypes.UDF.GetResolutionResponse>;
-        get(request: proto.xcalar.compute.localtypes.UDF.GetRequest): Promise<proto.xcalar.compute.localtypes.UDF.GetResponse>;
-        add(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): Promise<void>;
-        update(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): Promise<void>;
-        delete(request: proto.xcalar.compute.localtypes.UDF.DeleteRequest): Promise<void>;
+        // XXX TO-DO Need backend to migrate from thrift to protobuf first
+        // get(request: proto.xcalar.compute.localtypes.UDF.GetRequest): Promise<proto.xcalar.compute.localtypes.UDF.GetResponse>;
+        // add(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): Promise<void>;
+        // update(request: proto.xcalar.compute.localtypes.UDF.AddUpdateRequest): Promise<void>;
+        // delete(request: proto.xcalar.compute.localtypes.UDF.DeleteRequest): Promise<void>;
     }
 
     export class PublishedTableService {
@@ -1683,20 +1684,21 @@ declare namespace proto.xcalar.compute.localtypes {
         export class GetResolutionResponse {
             getFqModName(): FQname;
         }
-        export class GetRequest {
-            setUdfModule(value: UdfModule): void;
-        }
-        export class GetResponse {
-            getUdfModuleSrc(): UdfModuleSrc;
-        }
-        export class AddUpdateRequest {
-            setUdfModule(value: UdfModule): void;
-            setType(value: string): void;
-            setSource(value: string): void;
-        }
-        export class DeleteRequest {
-            setUdfModule(value: UdfModule): void;
-        }
+        // XXX TO-DO Need backend to migrate from thrift to protobuf first
+        // export class GetRequest {
+        //     setUdfModule(value: UdfModule): void;
+        // }
+        // export class GetResponse {
+        //     getUdfModuleSrc(): UdfModuleSrc;
+        // }
+        // export class AddUpdateRequest {
+        //     setUdfModule(value: UdfModule): void;
+        //     setType(value: string): void;
+        //     setSource(value: string): void;
+        // }
+        // export class DeleteRequest {
+        //     setUdfModule(value: UdfModule): void;
+        // }
     }
 
     export namespace Target {
