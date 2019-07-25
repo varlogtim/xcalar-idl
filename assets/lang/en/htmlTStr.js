@@ -114,7 +114,7 @@ module.exports = {
     "paths": {
         "tableau": "assets/htmlFiles/tableau.html",
         "helpUserDocs": "assets/help/user/Content/Home.htm",
-        "skewDoc": "assets/help/user/Content/D_Reference/C_WorksheetWindow.htm#Skew",
+        "skewDoc": "assets/help/user/Content/ContentXDHelp/C_XcalarAdvancedMode/B_Operations/Y_DeskewNode.htm#Skew",
         "news": "https://xcalar.com/news/"
     },
 
