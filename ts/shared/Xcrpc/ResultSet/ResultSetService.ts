@@ -75,13 +75,11 @@ class ResultSetService {
             let tableProtos: Map<number, ProtoTypes.TableMeta.TableMetaProto> = metaProto.getTableMetaMap();
             let tableInfo = [];
             tableProtos.forEach((tableProto: ProtoTypes.TableMeta.TableMetaProto, key: number) => {
-                let rps = [];
-                for (let i = 0; i < tableProto.getNumRows(); i++) {
-                    rps.push(tableProto.getRowsPerSlotMap().get(i));
-                }
-                let pps = [];
-                for (let i = 0; i < tableProto.getNumPages(); i++) {
-                    pps.push(tableProto.getPagesPerSlotMap().get(i));
+                const rps = [];
+                const pps = [];
+                for (let idxSlot = 0; idxSlot < tableProto.getNumSlots(); idxSlot ++) {
+                    rps.push(tableProto.getRowsPerSlotMap().get(idxSlot));
+                    pps.push(tableProto.getPagesPerSlotMap().get(idxSlot));
                 }
                 tableInfo.push({
                     status: tableProto.getStatus(),
@@ -106,8 +104,8 @@ class ResultSetService {
                     datasets: metaProto.getDatasetsList(),
                     result_set_ids: metaProto.getResultSetIdsList(),
                     columnsAttributes: colAttributes,
-                    keyAttributes: keyAttributes, 
-                    tableInfo: tableInfo, 
+                    keyAttributes: keyAttributes,
+                    tableInfo: tableInfo,
                     num_immediates: metaProto.getNumImmediates(),
                     ordering: metaProto.getOrdering()
                 }

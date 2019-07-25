@@ -1181,8 +1181,8 @@ declare namespace proto.xcalar.compute.localtypes {
             getNumPages(): number;
             getNumSlots(): number;
             getSize(): number;
-            getRowsPerSlotMap(): any;
-            getPagesPerSlotMap(): any;
+            getRowsPerSlotMap(): Map<number, number>;
+            getPagesPerSlotMap(): Map<number, number>;
             getPagesConsumedInBytes(): number;
             getPagesAllocatedInBytes(): number;
             getPagesSent(): number;
