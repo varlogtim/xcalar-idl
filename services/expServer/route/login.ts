@@ -22,7 +22,7 @@ var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt';
 
 Example OpenLDAP Settings (now gotten from ldapConfig.json)
 
-var ldap_uri = 'ldap://turing.int.xcalar.com:389';
+var ldap_uri = 'ldap://ldap.int.xcalar.com:389';
 var userDN = "uid=%username%,ou=People,dc=int,dc=xcalar,dc=com";
 var useTLS = false;
 var searchFilter = "";

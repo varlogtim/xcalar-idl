@@ -95,7 +95,7 @@ describe('ExpServer Login Test', function() {
             xipassword: "welcome1"
         }
         testConfig = {
-            ldap_uri: "ldap://turing.int.xcalar.com:389",
+            ldap_uri: "ldap://ldap.int.xcalar.com:389",
             userDN: "mail=%username%,ou=Test,dc=int,dc=xcalar,dc=com",
             useTLS: true,
             searchFilter: "(memberof=cn=xceUsers,ou=Groups,dc=int,dc=xcalar,dc=com)",
