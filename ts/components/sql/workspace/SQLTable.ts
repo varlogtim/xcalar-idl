@@ -45,19 +45,6 @@ class SQLTable {
         return deferred.promise();
     }
 
-    // public replaceTable(table: TableMeta): XDPromise<void> {
-    //     if (this._currentViewer instanceof XcDatasetViewer) {
-    //         return PromiseHelper.resolve(); // invalid case
-    //     }
-    //     const currentViewer: XcDagTableViewer = <XcDagTableViewer>this._currentViewer;
-    //     const viewer = currentViewer.replace(table);
-    //     if (this._isSameViewer(viewer)) {
-    //         return PromiseHelper.resolve();
-    //     }
-    //     this._viewers.set(currentViewer.getDataflowTabId(), viewer);
-    //     return this._show(viewer);
-    // }
-
     public getTable(): string {
         return this._currentViewer ? this._currentViewer.getId() : null;
     }
@@ -89,7 +76,6 @@ class SQLTable {
     private _close(): void {
         this._getContainer().addClass("xc-hidden");
         this._reset();
-        // Log.updateUndoRedoState(); // update the state to skip table related undo/redo
     }
 
     private _showViewer(): XDPromise<void> {
