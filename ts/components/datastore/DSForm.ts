@@ -24,7 +24,7 @@ namespace DSForm {
         FileBrowser.setup();
 
         // click to go to form section
-        $("#importDataButton").click(function() {
+        $("#datastoreMenu .iconSection .import").click(function() {
             let $btn = $(this);
             $btn.blur();
             let createTableMode: boolean = $btn.hasClass("createTable");
