@@ -1362,7 +1362,7 @@ window.Function.prototype.bind = function() {
         test.trivial(xcalarIndex(thriftHandle,
                                  origStrTable,
                                  "yelp/user-yelping_since",
-                                 [new XcalarApiKeyT({name:"yelp_user::yelping_since", type:"Df string", keyFieldName:"", ordering:"Unordered"})]));
+                                 [new XcalarApiKeyT({name:"yelp_user::yelping_since", type:"DfString", keyFieldName:"", ordering:"Unordered"})]));
     }
 
     function testGetTableRefCount(test) {
@@ -2763,7 +2763,7 @@ window.Function.prototype.bind = function() {
             test.fail(reason);
         })
         .fail(function(reason) {
-            if (reason.xcalarStatus === StatusT.StatusEvalStringTooLong) {
+            if (reason.xcalarStatus === StatusT.StatusParameterTooLong) {
                 test.pass();
             } else {
                 test.fail(reason);
@@ -3348,6 +3348,54 @@ window.Function.prototype.bind = function() {
         });
     }
 
+    function testPyExecOnLoadExceedLimit(test) {
+
+        var content = fs.read(system.env.MGMTDTEST_DIR +
+            '/PyExecOnLoadTest.py');
+
+        xcalarApiUdfDelete(thriftHandle, "PyExecOnLoadTest")
+            .always(function() {
+                xcalarApiUdfAdd(thriftHandle, UdfTypeT.UdfTypePython,
+                    "PyExecOnLoadTest", content)
+                    .done(function(uploadPythonOutput) {
+                        if (status == StatusT.StatusOk) {
+                            var sourceArgs = new DataSourceArgsT();
+                            sourceArgs.targetName = targetName;
+                            sourceArgs.path = qaTestDir + "/yelp/user";
+                            sourceArgs.fileNamePattern = "";
+                            sourceArgs.recursive = false;
+                            var parseArgs = new ParseArgsT();
+                            parseArgs.parserFnName = "PyExecOnLoadTest:poorManCsvToJson2";
+                            parseArgs.parserArgJson = "{}";
+
+                            xcalarLoad(thriftHandle, "movie_1", [sourceArgs], parseArgs, 0)
+                                .done(function(result) {
+                                    printResult(result);
+                                    loadOutput = result;
+                                    moviesDataset = loadOutput.dataset.name;
+                                    moviesDatasetSet = true;
+                                    origDataset = loadOutput.dataset.name;
+                                    test.fail();
+                                })
+                                .fail(function(reason) {
+                                    if (reason.xcalarStatus == StatusT.StatusFieldLimitExceeded){
+                                        test.pass();
+                                    }
+                                    else {
+                                        test.fail(StatusTStr[reason.xcalarStatus]);
+                                    }
+                                });
+                        } else {
+                            var reason = "status = " + status;
+                            test.fail(reason);
+                        }
+                    })
+                    .fail(function(status) {
+                        test.fail(StatusTStr[status]);
+                    });
+            });
+    }
+
     function testArchiveTable(test) {
         xcalarArchiveTables(thriftHandle, ["yelp/user-name"])
         .then(function(status) {
@@ -3904,35 +3952,7 @@ window.Function.prototype.bind = function() {
         var content = file.read();
 
         xcalarApiImportRetina(thriftHandle, importRetinaName, true, content)
-        .done(function(importRetinaOutput) {
-            console.log("numUdfs: " , importRetinaOutput.numUdfModules);
-            if (importRetinaOutput.numUdfModules != 3) {
-                test.fail("Number of Udf modules is wrong!");
-            } else {
-                var udfUploadFailed = false;
-                for (var ii = 0; ii < importRetinaOutput.numUdfModules; ii++) {
-                    console.log("udf[" + ii + "].moduleName = ",
-                                importRetinaOutput.udfModuleStatuses[ii].moduleName);
-                    console.log("udf[" + ii + "].status = ",
-                                StatusTStr[importRetinaOutput.udfModuleStatuses[ii].status],
-                                " (", importRetinaOutput.udfModuleStatuses[ii].status, ")");
-                    if (!(importRetinaOutput.udfModuleStatuses[ii].status == StatusT.StatusOk ||
-                        importRetinaOutput.udfModuleStatuses[ii].status == StatusT.StatusUdfModuleOverwrittenSuccessfully ||
-                        (importRetinaOutput.udfModuleStatuses[ii].moduleName == "default" &&
-                         importRetinaOutput.udfModuleStatuses[ii].status == StatusT.StatusUdfModuleAlreadyExists))) {
-                        udfUploadFailed = true;
-                    }
-                    console.log("udf[" + ii + "].error.message = ",
-                                importRetinaOutput.udfModuleStatuses[ii].error.message);
-                    console.log("udf[" + ii + "].error.traceback = ",
-                                importRetinaOutput.udfModuleStatuses[ii].error.traceback);
-                }
-
-                if (udfUploadFailed) {
-                    test.fail("Udf import failed");
-                }
-            }
-
+        .done(function() {
             xcalarListRetinas(thriftHandle)
             .then(function(listRetinasOutput) {
                 for (var ii = 0; ii < listRetinasOutput.numRetinas; ii++) {
@@ -4500,6 +4520,9 @@ window.Function.prototype.bind = function() {
     addTestCase(testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
+
+
+    addTestCase(testPyExecOnLoadExceedLimit, "python during load exceed limits", defaultTimeout, TestCaseEnabled, "");
 
     // This pair must go together
     addTestCase(testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");

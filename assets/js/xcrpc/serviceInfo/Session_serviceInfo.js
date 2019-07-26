@@ -19,6 +19,7 @@ const _serviceInfo = {
         "List" : ["xcalar.compute.localtypes.Session.ListRequest", "xcalar.compute.localtypes.Session.ListResponse"],
         "DownloadSession" : ["xcalar.compute.localtypes.Session.DownloadRequest", "xcalar.compute.localtypes.Session.DownloadResponse"],
         "DeleteSession" : ["xcalar.compute.localtypes.Session.DeleteRequest", "xcalar.compute.localtypes.Session.DeleteResponse"],
+        "Rename" : ["xcalar.compute.localtypes.Session.RenameRequest", "xcalar.compute.localtypes.Session.RenameResponse"],
     },
 };
 

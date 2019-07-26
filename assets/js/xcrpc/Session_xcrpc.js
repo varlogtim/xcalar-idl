@@ -236,6 +236,32 @@ SessionService.prototype = {
             throw error;
         }
     },
+    rename: async function(renameRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(renameRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Session.RenameRequest");
+        //anyWrapper.pack(renameRequest.serializeBinary(), "RenameRequest");
+
+        try {
+            var responseData = await this.client.execute("Session", "Rename", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var renameResponse =
+            //    responseData.unpack(session.RenameResponse.deserializeBinary,
+            //                        "RenameResponse");
+            var renameResponse = session.RenameResponse.deserializeBinary(specificBytes);
+            return renameResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = session.RenameResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
 };
 
 exports.SessionService = SessionService;

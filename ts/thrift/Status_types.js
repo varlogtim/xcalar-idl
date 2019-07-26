@@ -691,7 +691,10 @@ StatusT = {
   'StatusExistsTableName' : 682,
   'StatusTableNameNotFound' : 683,
   'StatusComplexTypeNotSupported' : 684,
-  'StatusParquetParserError' : 685
+  'StatusParquetParserError' : 685,
+  'StatusUnSupportedDecimalType' : 686,
+  'StatusUnSupportedLogicalType' : 687,
+  'StatusClusterNotReady' : 688
 };
 StatusTStr = {
   0 : 'Success',
@@ -1379,7 +1382,10 @@ StatusTStr = {
   682 : 'Table name already exists',
   683 : 'Table name not found',
   684 : 'Complex types in Parquet not supported',
-  685 : 'Error parsing parquet file'
+  685 : 'Error parsing parquet file',
+  686 : 'Unsupported Decimal type in Parquet',
+  687 : 'Unsupported Logical type in Parquet Byte Array',
+  688 : 'Starting cluster is still in progress, Retry'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2067,5 +2073,8 @@ StatusTFromStr = {
   'Table name already exists' : 682,
   'Table name not found' : 683,
   'Complex types in Parquet not supported' : 684,
-  'Error parsing parquet file' : 685
+  'Error parsing parquet file' : 685,
+  'Unsupported Decimal type in Parquet' : 686,
+  'Unsupported Logical type in Parquet Byte Array' : 687,
+  'Starting cluster is still in progress, Retry' : 688
 };

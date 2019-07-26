@@ -13,6 +13,7 @@ const _serviceInfo = {
     "KvStore" : {
         "Lookup" : ["xcalar.compute.localtypes.KvStore.LookupRequest", "xcalar.compute.localtypes.KvStore.LookupResponse"],
         "AddOrReplace" : ["xcalar.compute.localtypes.KvStore.AddOrReplaceRequest", "google.protobuf.Empty"],
+        "MultiAddOrReplace" : ["xcalar.compute.localtypes.KvStore.MultiAddOrReplaceRequest", "google.protobuf.Empty"],
         "DeleteKey" : ["xcalar.compute.localtypes.KvStore.DeleteKeyRequest", "google.protobuf.Empty"],
         "Append" : ["xcalar.compute.localtypes.KvStore.AppendRequest", "google.protobuf.Empty"],
         "SetIfEqual" : ["xcalar.compute.localtypes.KvStore.SetIfEqualRequest", "google.protobuf.Empty"],

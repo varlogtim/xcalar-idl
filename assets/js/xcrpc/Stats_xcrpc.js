@@ -107,6 +107,32 @@ StatsService.prototype = {
             throw error;
         }
     },
+    getStatFromNodeId: async function(getStatFromNodeIdRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(getStatFromNodeIdRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Stats.GetStatFromNodeIdRequest");
+        //anyWrapper.pack(getStatFromNodeIdRequest.serializeBinary(), "GetStatFromNodeIdRequest");
+
+        try {
+            var responseData = await this.client.execute("Stats", "GetStatFromNodeId", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var getStatFromNodeIdResponse =
+            //    responseData.unpack(stats.GetStatFromNodeIdResponse.deserializeBinary,
+            //                        "GetStatFromNodeIdResponse");
+            var getStatFromNodeIdResponse = stats.GetStatFromNodeIdResponse.deserializeBinary(specificBytes);
+            return getStatFromNodeIdResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = stats.GetStatFromNodeIdResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
 };
 
 exports.StatsService = StatsService;
