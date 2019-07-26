@@ -188,6 +188,10 @@ class DedupPlan {
                 node.colNameMaps[0] = jQuery.extend(true, {},
                                                     node.colNameMaps[1],
                                                     node.colNameMaps[0]);
+                for (let i = 0; i < node.value.args.columns[0].length; i++) {
+                    node.colNameMaps[0][node.value.args.columns[0][i].destColumn] =
+                                    baseNode.value.args.columns[0][i].destColumn;
+                }
                 for (let i = 0; i < node.value.args.columns[1].length; i++) {
                     node.colNameMaps[0][node.value.args.columns[1][i].destColumn] =
                                     baseNode.value.args.columns[1][i].destColumn;
