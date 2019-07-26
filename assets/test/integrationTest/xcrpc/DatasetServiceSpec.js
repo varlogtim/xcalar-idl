@@ -7,9 +7,10 @@ exports.testSuite = function(DatasetService) {
         this.timeout(60000);
         // XXX TODO: test all DatasetService APIs
         // Need session implemented to access the workbook scope
-        const testUserName = "testUserDataset";
-        const testSessionName = "testSessionDataset";
-        const testCreateDSName = testUserName + "." + Math.floor(Math.random()*90000) + 10000 + ".nation";
+        const id = Math.floor(Math.random()*90000) + 10000;
+        const testUserName = "testUserDataset" + id;
+        const testSessionName = "testSessionDataset" + id;
+        const testCreateDSName = testUserName + "." +  + ".nation";
         const testCreateDSArgs = {"sourceArgsList":[{"targetName":"Default Shared Root","path":"/netstore/datasets/tpch_sf1_notrail/nation.tbl","fileNamePattern":"","recursive":false}],"parseArgs":{"parserFnName":"default:parseCsv","parserArgJson":"{\"recordDelim\":\"\\n\",\"fieldDelim\":\"|\",\"isCRLF\":false,\"linesToSkip\":1,\"quoteDelim\":\"\\\"\",\"hasHeader\":true,\"schemaFile\":\"\",\"schemaMode\":\"loadInput\"}","allowRecordErrors":false,"allowFileErrors":false,"fileNameFieldName":"","recordNumFieldName":"","schema":[{"sourceColumn":"N_NATIONKEY","destColumn":"N_NATIONKEY","columnType":4},{"sourceColumn":"N_NAME","destColumn":"N_NAME","columnType":1},{"sourceColumn":"N_REGIONKEY","destColumn":"N_REGIONKEY","columnType":4},{"sourceColumn":"N_COMMENT","destColumn":"N_COMMENT","columnType":1}]},"size":10737418240};
 
         before(async () => {
