@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node --experimental-worker expServer.js",
     "debug": "node --experimental-worker --inspect expServer.js",
-    "test": "NODE_ENV=test XCE_INSTALLER_ROOT=/tmp TMPDIR=/tmp ../../../node_modules/istanbul/lib/cli.js cover ../../../node_modules/mocha/bin/_mocha './test/**/*Spec.js' --dir ./test/report"
+    "test": "NODE_ENV=test XCE_INSTALLER_ROOT=/tmp TMPDIR=/tmp nyc ../../../node_modules/mocha/bin/_mocha './test/**/*Spec.js'"
   },
   "repository": {
     "type": "git",
@@ -46,5 +46,21 @@
     "console-stamp": "^0.2.9"
   },
   "license": "UNLICENSED",
-  "devDependencies": {}
+  "devDependencies": {
+    "nyc": "^14.1.1"
+  },
+  "nyc": {
+    "include": [
+      "*"
+    ],
+    "excludeNodeModules": true,
+    "watermarks": {
+      "lines": [85, 95],
+      "functions": [85, 95],
+      "branches": [85, 95],
+      "statements": [85, 95]
+    },
+    "reporter": ["lcov", "text-summary"],
+    "report-dir": "./test/report"
+  }
 }

@@ -388,7 +388,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         .catch((err) => {
             xcConsole.error(err);
             xcConsole.error("============start expServer failed===============");
-            process.exit();
+            process.exit(1);
         })
     });
 
