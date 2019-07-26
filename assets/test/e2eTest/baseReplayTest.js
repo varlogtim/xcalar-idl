@@ -50,27 +50,35 @@ function replay(testConfig, tags) {
 
         'new tabs': function(browser) {
             browser.waitForElementNotVisible("#initialLoadScreen", 100000);
-            const tabNames = Object.keys(testTabs);
-            let newTabIndex = tabNames.length + 1;
-            for (const tabName of tabNames) {
-                const selector = `#dagTabSectionTabs .dagTab:nth-child(${newTabIndex}).active`;
-                browser
-                    .click('#tabButton')
-                    .waitForElementPresent(selector, 2000)
-                    .getText(`${selector} div.name`, function(result) {
-                        testTabMapping.set(tabName, result.value);
-                    })
-                    .execute(function(tabIndex) {
-                        const tab = DagTabManager.Instance.getTabByIndex(tabIndex);
-                        return tab.getId();
-                    }, [newTabIndex - 1], function(result) {
-                        testDfIdMapping.set(testTabs[tabName].id, result.value);
-                        testTabDfMapping.set(tabName, testTabs[tabName].id); // uploaded df
-                        testTabDfMapping.set(testTabMapping.get(tabName), result.value); // replayed df
-                    });
+            // close intro popup if visible
+            browser.isVisible("#intro-popover", results => {
+                if (results.value) {
+                    browser.click("#intro-popover .cancel");
+                    browser.pause(1000);
+                }
+                const tabNames = Object.keys(testTabs);
+                let newTabIndex = tabNames.length + 1;
+                for (const tabName of tabNames) {
+                    const selector = `#dagTabSectionTabs .dagTab:nth-child(${newTabIndex}).active`;
+                    browser
+                        .click('#tabButton')
+                        .waitForElementPresent(selector, 2000)
+                        .getText(`${selector} div.name`, function(result) {
+                            testTabMapping.set(tabName, result.value);
+                        })
+                        .execute(function(tabIndex) {
+                            const tab = DagTabManager.Instance.getTabByIndex(tabIndex);
+                            return tab.getId();
+                        }, [newTabIndex - 1], function(result) {
+                            testDfIdMapping.set(testTabs[tabName].id, result.value);
+                            testTabDfMapping.set(tabName, testTabs[tabName].id); // uploaded df
+                            testTabDfMapping.set(testTabMapping.get(tabName), result.value); // replayed df
+                        });
 
-                newTabIndex ++;
-            }
+                    newTabIndex ++;
+                }
+            });
+
         },
 
         'clearAggs': function(browser) {
