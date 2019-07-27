@@ -12,8 +12,10 @@ class SetOpPanel extends BaseOpPanel {
      *
      * @param dagNode {DagNodeSet} show the view based on the set type node
      */
-    public show(dagNode: DagNodeSet, options?): void {
+    public show(dagNode: DagNodeSet, options?): XDPromise<void> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
         this._dagNode = dagNode;
+
         super.showPanel(null, options)
         .then(() => {
             let hasError;
@@ -37,7 +39,12 @@ class SetOpPanel extends BaseOpPanel {
             }
 
             this._formHelper.setup({});
+            deferred.resolve();
+        })
+        .fail(() => {
+            deferred.reject();
         });
+        return deferred.promise();
     }
 
     /**
@@ -148,36 +155,6 @@ class SetOpPanel extends BaseOpPanel {
         $panel.find('.resultCol[data-index="' + colIndex + '"]').addClass("cast");
         $panel.find('.columnList[data-index="' + colIndex + '"]').addClass("cast");
     }
-
-    // function suggestSelectedCols(tableInfo, tableIndex) {
-    //     var suggestCols = [];
-    //     if (tableIndex === 0) {
-    //         // not suggest first table
-    //         return suggestCols;
-    //     }
-    //     var firstCols = tableInfoLists[0].selectedCols;
-    //     var candidateCols = getCandidateCols(tableInfo, true);
-    //     var candidateColInfos = candidateCols.map(function(col) {
-    //         var parsedName = xcHelper.parsePrefixColName(col.name).name;
-    //         return {
-    //             col: col,
-    //             parsedName: parsedName
-    //         };
-    //     });
-    //     suggestCols = firstCols.map(function(col) {
-    //         if (col == null) {
-    //             return null;
-    //         }
-    //         var colName = xcHelper.parsePrefixColName(col.name).name;
-    //         for (var i = 0; i < candidateColInfos.length; i++) {
-    //             if (colName === candidateColInfos[i].parsedName) {
-    //                 return candidateColInfos[i].col;
-    //             }
-    //         }
-    //         return null;
-    //     });
-    //     return suggestCols;
-    // }
 
     private _submitForm(): void {
         if (!this._validate()) {
