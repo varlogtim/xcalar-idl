@@ -805,6 +805,145 @@ describe("JoinOpPanelModel Test", () => {
         });
     });
 
+    describe("updateRenameInfo should work with removeSet", () => {
+        let inputStruct;
+        let leftColumns;
+        let rightColumns;
+
+        before(() => {
+            const leftDerivedColumns = genProgCols('Col', 2); // Col#1, Col#2
+            const leftPrefixedColumns = genProgCols('P1::a', 1); // P1::a#1
+            const rightDerivedColumns = genProgCols('Col', 2); // Col#1, Col#2
+            const rightPrefixedColumns = genProgCols('P1::b', 1); // P1::b#1
+            leftColumns = leftDerivedColumns.concat(leftPrefixedColumns);
+            rightColumns = rightDerivedColumns.concat(rightPrefixedColumns);
+
+            inputStruct = {
+                joinType: JoinOperatorTStr[JoinOperatorT.InnerJoin],
+                left: {
+                    columns: [leftDerivedColumns[0].getBackColName()],
+                    keepColumns: [],
+                    rename: []
+                },
+                right: {
+                    columns: [rightDerivedColumns[0].getBackColName()],
+                    keepColumns: [],
+                    rename: []
+                },
+                evalString: 'evalString',
+                keepAllColumns: true,
+            };
+        });
+
+        it("Case: derived column", () => {
+            // left table: Col#1, Col#2, P1::a#1
+            // right table: Col#1, Col#2, P1::b#1
+            // JoinOn: left.Col#1 == right.Col#1
+
+            // Init state:
+            // keepLeft: Col#1, Col#2, P1::a#1
+            // keepRight: Col#1, Col#2, P1::b#1
+            // renameLeft: Col#1, Col#2, P1
+            // renameRight: Col#1, Col#2, P1
+            const dagInput = xcHelper.deepCopy(inputStruct);
+            const model = JoinOpPanelModel.fromDagInput(
+                leftColumns, rightColumns,
+                dagInput,
+                preset.leftTable, preset.rightTable,
+                {
+                    currentStep: 1,
+                    isAdvMode: false,
+                    isNoCast: true,
+                    isFixedType: false
+                }
+            );
+
+            // Action: Unselect rightTable.Col#2
+            model.removeSelectedColumn({ right: 'Col#2' });
+            model.updateRenameInfo({ removeSet: new Set(['Col#2'])});
+
+            // The state should be:
+            // keepLeft: Col#1, Col#2, P1::a#1
+            // keepRight: Col#1, P1::b#1
+            // renameLeft: Col#1, P1
+            // renameRight: Col#1, P1
+            expect(model._columnRename.left.length).to.equal(2);
+            expect(model._columnRename.right.length).to.equal(2);
+            expect(model._columnRename.left.filter((renameInfo) => {
+                if (renameInfo.source === "Col#1" && renameInfo.isPrefix === false) {
+                    return true;
+                }
+                if (renameInfo.source === "P1" && renameInfo.isPrefix === true) {
+                    return true;
+                }
+                return false;
+            }).length).to.equal(2);
+            expect(model._columnRename.right.filter((renameInfo) => {
+                if (renameInfo.source === "Col#1" && renameInfo.isPrefix === false) {
+                    return true;
+                }
+                if (renameInfo.source === "P1" && renameInfo.isPrefix === true) {
+                    return true;
+                }
+                return false;
+            }).length).to.equal(2);
+        });
+
+        it("Case: prefixed column", () => {
+            // left table: Col#1, Col#2, P1::a#1
+            // right table: Col#1, Col#2, P1::b#1
+            // JoinOn: left.Col#1 == right.Col#1
+
+            // Init state:
+            // keepLeft: Col#1, Col#2, P1::a#1
+            // keepRight: Col#1, Col#2, P1::b#1
+            // renameLeft: Col#1, Col#2, P1
+            // renameRight: Col#1, Col#2, P1
+            const dagInput = xcHelper.deepCopy(inputStruct);
+            const model = JoinOpPanelModel.fromDagInput(
+                leftColumns, rightColumns,
+                dagInput,
+                preset.leftTable, preset.rightTable,
+                {
+                    currentStep: 1,
+                    isAdvMode: false,
+                    isNoCast: true,
+                    isFixedType: false
+                }
+            );
+
+            // Action: Unselect rightTable.P1::b#1
+            model.removeSelectedColumn({ right: 'P1::b#1' });
+            model.updateRenameInfo({ removeSet: new Set(['P1::b#1'])});
+
+            // The state should be:
+            // keepLeft: Col#1, Col#2, P1::a#1
+            // keepRight: Col#1, Col#2
+            // renameLeft: Col#1, Col#2
+            // renameRight: Col#1, Col#2
+            expect(model._columnRename.left.length).to.equal(2);
+            expect(model._columnRename.right.length).to.equal(2);
+            expect(model._columnRename.left.filter((renameInfo) => {
+                if (renameInfo.source === "Col#1" && renameInfo.isPrefix === false) {
+                    return true;
+                }
+                if (renameInfo.source === "Col#2" && renameInfo.isPrefix === false) {
+                    return true;
+                }
+                return false;
+            }).length).to.equal(2);
+            expect(model._columnRename.right.filter((renameInfo) => {
+                if (renameInfo.source === "Col#1" && renameInfo.isPrefix === false) {
+                    return true;
+                }
+                if (renameInfo.source === "Col#2" && renameInfo.isPrefix === false) {
+                    return true;
+                }
+                return false;
+            }).length).to.equal(2);
+        });
+    });
+
     describe("getResolvedNames should work", () => {
         let model;
 

@@ -568,13 +568,16 @@ class JoinOpPanelStep2 {
             return false;
         }
 
+        const removeSet = new Set<string>();
         for (const colName of leftNames) {
             this._modelRef.removeSelectedColumn({ left: colName });
+            removeSet.add(colName);
         }
         for (const colName of rightNames) {
             this._modelRef.removeSelectedColumn({ right: colName });
+            removeSet.add(colName);
         }
-        this._modelRef.updateRenameInfo();
+        this._modelRef.updateRenameInfo({ removeSet: removeSet });
         return true;
     }
     // Data model manipulation === end

@@ -367,12 +367,35 @@ class JoinOpPanelModel extends BaseOpPanelModel {
 
     /**
      * Update the column/prefix rename list by checking conflicts in source columns
+     * @param removeSet All column names(comprehensive) in the set will be removed from rename list, if they are optional(ie. no collision)
      * @description
      * This function does not take the current rename rules into account.
      * Call this function after joinType/source column changing
      */
-    public updateRenameInfo(): void {
+    public updateRenameInfo(param?: { removeSet?: Set<string> }): void {
         if (this._needRenameByType(this.getJoinType())) {
+            const { removeSet = new Set<string>() } = param || {};
+
+            // Create sets of derived/prefix names, which will be ignored in optional rename list
+            // It doesn't matter they are left or right, because
+            // 1. If a name has collision: not in optional list
+            // 2. If a name has no collision and remove from left: (no collision => not in right, remove from left => not in left) => not in list
+            // 3. If a name has no collision and remove from right: (no collision => not in left, remove from right => not in right) => not in list
+            // This is based on an assumption: columns not selected will not in rename list
+            // If the assumption is broken, we have to revisit the code here.
+            const removeCol = new Set<string>();
+            const removePrefix = new Set<string>();
+            removeSet.forEach((colName) => {
+                const colMeta = this._columnMeta.leftMap.get(colName) || this._columnMeta.rightMap.get(colName);
+                if (colMeta != null) {
+                    if (colMeta.isPrefix) {
+                        removePrefix.add(colMeta.prefix);
+                    } else {
+                        removeCol.add(colMeta.name);
+                    }
+                }
+            });
+
             const colDestLeft = {};
             const prefixDestLeft = {};
             for (const rename of this._columnRename.left) {
@@ -397,7 +420,10 @@ class JoinOpPanelModel extends BaseOpPanelModel {
                 colDestLeft: colDestLeft,
                 prefixDestLeft: prefixDestLeft,
                 colDestRight: colDestRight,
-                prefixDestRight: prefixDestRight
+                prefixDestRight: prefixDestRight,
+                ignoredNames: {
+                    column: removeCol, prefix: removePrefix
+                }
             });
         } else {
             this._clearRenames();
@@ -1433,14 +1459,22 @@ class JoinOpPanelModel extends BaseOpPanelModel {
         colDestLeft: { [source: string]: string },
         colDestRight: { [source: string]: string },
         prefixDestLeft: { [source: string]: string },
-        prefixDestRight: { [source: string]: string }
+        prefixDestRight: { [source: string]: string },
+        ignoredNames?: {
+            column?: Set<string>, prefix?: Set<string>,
+        }
     }): void {
         const {
             colDestLeft,
             colDestRight,
             prefixDestLeft,
-            prefixDestRight
+            prefixDestRight,
+            ignoredNames = {}
         } = dest;
+        const {
+            column: ignoredColumn = new Set<string>(),
+            prefix: ignoredPrefix = new Set<string>(),
+        } = ignoredNames;
 
         // Cleanup
         this._columnRename = { left: [], right: [] };
@@ -1486,6 +1520,9 @@ class JoinOpPanelModel extends BaseOpPanelModel {
         // not having collision, but still need to rename
         // ex. manually added in advanced form
         Object.entries(colDestLeft).forEach(([source, dest]) => {
+            if (ignoredColumn.has(source)) {
+                return;
+            }
             if (!leftColRenamed.has(source) && leftColMetaMap.has(source)) {
                 this._columnRename.left.push({
                     source: source, dest: dest, isPrefix: false
@@ -1493,6 +1530,9 @@ class JoinOpPanelModel extends BaseOpPanelModel {
             }
         });
         Object.entries(colDestRight).forEach(([source, dest]) => {
+            if (ignoredColumn.has(source)) {
+                return;
+            }
             if (!rightColRenamed.has(source) && rightColMetaMap.has(source)) {
                 this._columnRename.right.push({
                     source: source, dest: dest, isPrefix: false
@@ -1533,6 +1573,9 @@ class JoinOpPanelModel extends BaseOpPanelModel {
         }
         // Optional prefixes
         Object.entries(prefixDestLeft).forEach(([source, dest]) => {
+            if (ignoredPrefix.has(source)) {
+                return;
+            }
             if (!leftPrefixRenamed.has(source) && leftPrefixMetaMap.has(source)) {
                 this._columnRename.left.push({
                     source: source, dest: dest, isPrefix: true
@@ -1540,6 +1583,9 @@ class JoinOpPanelModel extends BaseOpPanelModel {
             }
         });
         Object.entries(prefixDestRight).forEach(([source, dest]) => {
+            if (ignoredPrefix.has(source)) {
+                return;
+            }
             if (!rightPrefixRenamed.has(source) && rightPrefixMetaMap.has(source)) {
                 this._columnRename.right.push({
                     source: source, dest: dest, isPrefix: true
