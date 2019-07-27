@@ -13,7 +13,8 @@
     "request": "^2.85.0",
     "require.async": "^0.1.1",
     "xcalar": "file:xcalar-0.0.1.tgz",
-    "xcalarsdk": "file:xcalarsdk-0.0.1.tgz"
+    "xcalarsdk": "file:xcalarsdk-0.0.1.tgz",
+    "python-shell": "^1.0.7"
   },
   "devDependencies": {
     "nyc": "^14.1.1"
