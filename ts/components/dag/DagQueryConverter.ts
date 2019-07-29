@@ -44,7 +44,7 @@ class DagQueryConverter {
         }
     }
 
-    public upgradeQuery(dataflowInfo, nestedPrefix?, nodes?) {
+    private upgradeQuery(dataflowInfo, nestedPrefix?, nodes?) {
         try {
             return this.convertHelper(dataflowInfo, nestedPrefix, nodes);
         } catch (e) {
@@ -976,27 +976,43 @@ class DagQueryConverter {
                         prefix: colInfo.columnType === DfFieldTypeTStr[DfFieldTypeTFromStr.DfFatptr]
                     }
                 });
+
+                let input: DagNodeJoinInputStruct = {
+                    joinType: node.args.joinType,
+                    "left": {
+                        "columns": node.indexedFields[0].map(key => {
+                            return key.name;
+                        }),
+                        "rename": leftRenames
+                    },
+                    "right": {
+                        "columns": node.indexedFields[1].map(key => {
+                            return key.name;
+                        }),
+                        "rename": rightRenames
+                    },
+                    keepAllColumns: true,
+                    evalString: node.args.evalString,
+                    nullSafe: false
+                };
                 dagNodeInfo = {
                     type: DagNodeType.Join,
-                    input: <DagNodeJoinInputStruct>{
-                        joinType: node.args.joinType,
-                        "left": {
-                            "columns": node.indexedFields[0].map(key => {
-                                return key.name;
-                            }),
-                            "rename": leftRenames
-                        },
-                        "right": {
-                            "columns": node.indexedFields[1].map(key => {
-                                return key.name;
-                            }),
-                            "rename": rightRenames
-                        },
-                        keepAllColumns: true,
-                        evalString: node.args.evalString,
-                        nullSafe: false
-                    }
+                    input: input
                 };
+                if (!this.isUpgrade && node.args.keepAllColumns != null) {
+                    input.keepAllColumns = node.args.keepAllColumns;
+                    if (!node.args.keepAllColumns) {
+                        // if keepAllColumns is false, then we will declare
+                        // which columns to keep in the keepColumns property
+                        // by using the columns included in the rename property
+                        input.left.keepColumns = input.left.rename.map((rename) => {
+                            return rename.sourceColumn;
+                        });
+                        input.right.keepColumns = input.right.rename.map((rename) => {
+                            return rename.sourceColumn;
+                        });
+                    }
+                }
                 break;
             case (XcalarApisT.XcalarApiUnion):
                 const setType = <DagNodeSubType>xcHelper.unionTypeToXD(node.args.unionType) || "union";
