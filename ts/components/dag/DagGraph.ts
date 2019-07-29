@@ -1616,6 +1616,7 @@ class DagGraph extends Durable {
                 }
             }
         } catch (error) {
+            console.error(error);
             return {
                 "status": "Error",
                 "hasError": true,

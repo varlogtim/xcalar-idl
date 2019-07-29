@@ -415,15 +415,8 @@ class DagGraphExecutor {
                 }
                 return (node.getState() !== DagNodeState.Complete || !DagTblManager.Instance.hasTable(node.getTable()));
             });
-            //XXX TODO: Remove nodes that have had their table deleted but arent necessary for this execution
-            const nodesToRun: {node: DagNode, executable: boolean}[] = nodes.map((node) => {
-                return {
-                    node: node,
-                    executable: true
-                }
-            });
 
-            if (nodesToRun.length === 0 && this._nodes.length !== 0) {
+            if (nodes.length === 0 && this._nodes.length !== 0) {
                 return PromiseHelper.reject(DFTStr.AllExecuted);
             }
             let nodeIds = nodes.map(node => node.getId());
@@ -456,7 +449,7 @@ class DagGraphExecutor {
                 queryMeta: queryMeta
             });
             this._currentTxId = txId;
-            this._getAndExecuteBatchQuery(txId)
+            this._getAndExecuteBatchQuery(txId, nodes)
             .then((_res) => {
                 self._optimizedExecuteInProgress = false;
                 nodes.forEach((node) => {
@@ -624,9 +617,9 @@ class DagGraphExecutor {
      * if not, execute previous built up query, execute as a step, then create new query array
      * should have [queryFn, queryFn query], op, [query , query]
      */
-    private _getAndExecuteBatchQuery(txId: number): XDPromise<{queryStr: string, destTables: string[]}> {
+    private _getAndExecuteBatchQuery(txId: number, nodes: DagNode[]): XDPromise<{queryStr: string, destTables: string[]}> {
         // get rid of link out node to get the correct query and destTable
-        const nodes: DagNode[] = this._nodes.filter((node) => {
+        nodes = nodes.filter((node) => {
             return node.getType() !== DagNodeType.DFOut;
         });
 
