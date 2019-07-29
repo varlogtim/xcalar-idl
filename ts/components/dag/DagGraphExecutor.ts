@@ -492,7 +492,7 @@ class DagGraphExecutor {
                 return PromiseHelper.alwaysResolve(MemoryAlert.Instance.check());
             })
             .then(() => deferred.resolve())
-            .fail(function(error) {
+            .fail((error) => {
                 let transactionError = error;
                 if (error && error.node) {
                     // remove node from transaction.log due to cyclical error
@@ -502,7 +502,7 @@ class DagGraphExecutor {
                     error.node = node;
 
                 }
-                nodes.forEach((node) => {
+                this._nodes.forEach((node) => {
                     if (node.getState() === DagNodeState.Running) {
                         node.beConfiguredState();
                     }
