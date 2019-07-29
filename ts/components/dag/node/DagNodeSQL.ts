@@ -1215,6 +1215,9 @@ class DagNodeSQL extends DagNode {
                     }
                     usedTables = sqlStructArray[0].identifiers || [];
                     usedTables = usedTables.map((table) => {
+                        if (table.length > 2 && table[0] === "`" && table[table.length - 1] === "`") {
+                            table = table.substring(1, table.length - 1);
+                        }
                         return table.toUpperCase();
                     });
                 }
