@@ -1428,7 +1428,13 @@ class DagGraphExecutor {
             // store outputTableName in last operator
             const retinaStruct = JSON.parse(retinaParameters.retina);
             const operators = JSON.parse(retinaStruct.query);
-            const lastNode = operators[operators.length - 1];
+            let lastNode; // get last node that is not a Delete operation
+            for (let i = operators.length - 1; i >= 0; i--) {
+                lastNode = operators[i];
+                if (lastNode.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+                    break;
+                }
+            }
             lastNode.comment = JSON.stringify({outputTableName: outputTableName});
             retinaStruct.query = JSON.stringify(operators);
             retinaParameters.retina = JSON.stringify(retinaStruct);
