@@ -5,7 +5,7 @@
     "DataSetVersionSignature" : 218234228,
     "DataflowVersionSignature" : 13166394,
     "EchoVersionSignature" : 3466616,
-    "FileVersionSignature" : 30587311,
+    "FileVersionSignature" : 161221884,
     "KvStoreVersionSignature" : 52044399,
     "LicenseVersionSignature" : 69608712,
     "OperatorVersionSignature" : 136359256,
@@ -27,6 +27,6 @@
     "WorkbookVersionSignature" : 57235854,
     "XDFVersionSignature" : 188684344,
     "XcalarEnumTypeVersionSignature" : 222419149,
-    "ProtoAPIVersionSignature" : 33294457
+    "ProtoAPIVersionSignature" : 9797341
 }
 
