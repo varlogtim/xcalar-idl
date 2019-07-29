@@ -91,7 +91,7 @@ namespace WorkbookManager {
     * Returns a workbook based on id
     * @param workbookId - id of the target workbook
     */
-    export function getWorkbook(workbookId: string): WKBK {
+    export function getWorkbook(workbookId: string): WKBK | null {
         return wkbkSet && wkbkSet.get(workbookId) || null;
     };
 

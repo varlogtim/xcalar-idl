@@ -212,6 +212,10 @@ namespace WorkbookPanel {
     ): XDPromise<void> {
         const $workbookBox: JQuery = getWorkbookBoxById(workbookId);
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
+        if (workbook == null) {
+            // error case
+            return PromiseHelper.reject();
+        }
         const oldWorkbookName: string = workbook.getName();
         const oldDescription: string = workbook.getDescription() || "";
         if (oldWorkbookName === newName &&
@@ -506,6 +510,10 @@ namespace WorkbookPanel {
     function updateWorkbookInfo($workbookBox: JQuery, workbookId: string): void {
         $workbookBox.attr("data-workbook-id", workbookId);
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
+        if (workbook == null) {
+            // error case
+            return;
+        }
         let modified: number = workbook.getModifyTime();
         let modifiedStr: string = "";
         const description: string = workbook.getDescription() || "";
@@ -770,6 +778,10 @@ namespace WorkbookPanel {
     function downloadWorkbook(): void {
         const workbookId: string = $dropDownCard.attr("data-workbook-id");
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
+        if (workbook == null) {
+            // error case
+            return;
+        }
         const workbookName: string = workbook.getName();
 
         //$dlButton.addClass("inActive");
@@ -974,6 +986,10 @@ namespace WorkbookPanel {
     }
 
     function createWorkbookCard(workbook: WKBK, extraClasses?: string[], isNewWKBK: boolean = false): string {
+        if (workbook == null) {
+            // error case
+            return "";
+        }
         const workbookId: string = workbook.getId() || "";
         let workbookName: string = workbook.getName() || "";
         const createdTime: number = workbook.getCreateTime();
@@ -1167,6 +1183,9 @@ namespace WorkbookPanel {
 
         const workbookId: string = $dropDownCard.attr("data-workbook-id");
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
+        if (workbook == null) {
+            return;
+        }
         const workbookName: string = workbook.getName();
 
         const $dropDownLocation: JQuery = $dropDownCard.find(".dropDown");

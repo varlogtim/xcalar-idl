@@ -25,26 +25,26 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
     //         }
     //     }]
     // },
-    {
-        "buttonText": "Rank Over",
-        "fnName": "rankOver",
-        "instruction": "This function creates rank over a specific column.",
-        "arrayOfFields": [{
-            "type": "column",
-            "name": "Rank Over",
-            "fieldClass": "rankOverCol",
-            "autofill": true,
-            "typeCheck": {
-                "columnType": ["number", "string", "boolean"]
-            }
-        },
-        {
-            "type": "string",
-            "name": "New Column Name",
-            "fieldClass": "rankOverColName",
-            "autofill": "XcalarRankOver"
-        }]
-    },
+    // {
+    //     "buttonText": "Rank Over",
+    //     "fnName": "rankOver",
+    //     "instruction": "This function creates rank over a specific column.",
+    //     "arrayOfFields": [{
+    //         "type": "column",
+    //         "name": "Rank Over",
+    //         "fieldClass": "rankOverCol",
+    //         "autofill": true,
+    //         "typeCheck": {
+    //             "columnType": ["number", "string", "boolean"]
+    //         }
+    //     },
+    //     {
+    //         "type": "string",
+    //         "name": "New Column Name",
+    //         "fieldClass": "rankOverColName",
+    //         "autofill": "XcalarRankOver"
+    //     }]
+    // },
     {
         "buttonText": "Windowing",
         "fnName": "windowChain",
@@ -95,12 +95,12 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
     UExtXcalarDef.actionFn = function(functionName) {
         switch (functionName) {
-            case ("hPartition"):
-                return hPartitionExt();
+            // case ("hPartition"):
+            //     return hPartitionExt();
             case ("windowChain"):
                 return windowExt();
-            case ("rankOver"):
-                return rankOverExt();
+            // case ("rankOver"):
+            //     return rankOverExt();
             default:
                 return null;
         }

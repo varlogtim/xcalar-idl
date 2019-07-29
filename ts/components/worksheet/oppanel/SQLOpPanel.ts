@@ -4,7 +4,7 @@
 class SQLOpPanel extends BaseOpPanel {
     private static readonly _udfDefault: string =
         "-- Example:\n" +
-        "-- select * from <table_identifier>\n\n";
+        "-- select * from table_identifier\n\n";
 
     private _$elemPanel: JQuery; // The DOM element of the panel
     protected _dataModel: SQLOpPanelModel; // The key data structure
