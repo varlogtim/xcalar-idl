@@ -68,7 +68,161 @@ describe('DagList Test', function() {
             expect(parsed.version).to.equal(Durable.Version);
             expect(parsed.dags[0]).to.equal("test");
         });
+
+        it("should toggle disable", function() {
+            DagList.Instance.toggleDisable(true);
+            expect($("#dagList").hasClass("xc-disabled")).to.be.true;
+            DagList.Instance.toggleDisable(false);
+            expect($("#dagList").hasClass("xc-disabled")).to.be.false;
+        });
+
+        it("should get all dags", function() {
+            DagList.Instance.addDag(dagTab);
+            var map = DagList.Instance.getAllDags();
+            expect(map.get(dagTab.getId())).to.be.not.null;
+        });
+
+        it("should get a dag by ID", function() {
+            dagName = xcHelper.randName("newAgg");
+            dagTab = new DagTabUser({name: name});
+            DagList.Instance.addDag(dagTab);
+            var dag = DagList.Instance.getDagTabById(dagTab.getId());
+            expect(dag).to.deep.equal(dagTab);
+        });
+
+        it("should list correctly", function() {
+            var prevLen = DagList.Instance._dags.size;
+            dagName = xcHelper.randName("newAgg");
+            dagTab = new DagTabPublished({name: name});
+            DagList.Instance.addDag(dagTab);
+            var list = DagList.Instance.list();
+            expect(list.length).to.equal(prevLen + 1);
+            expect(list[0]["path"]).to.equal("/Published/");
+        });
+
+        it("should remove published dag correctly", function() {
+            dagName = xcHelper.randName("newAgg");
+            dagTab = new DagTabPublished({name: name});
+            DagList.Instance.addDag(dagTab);
+            var prevLen = DagList.Instance._dags.size;
+            DagList.Instance.removePublishedDagFromList(dagTab);
+            expect(DagList.Instance._dags.size).to.equal(prevLen - 1);
+        });
+
+        it("should update state correctly", function() {
+            dagName = xcHelper.randName("newAgg");
+            dagTab = new DagTabUser({name: name});
+            dagTab.setOpen();
+            DagList.Instance.addDag(dagTab);
+            var id = dagTab.getId();
+            $("#dagListSection").append("<div class='dagListDetail testClass' data-id='" +
+                id + "'><div>");
+            DagList.Instance.updateDagState(id)
+            var $li = $("#dagListSection").find('.dagListDetail[data-id="' + id + '"]');
+            expect($li.hasClass("open")).to.be.true;
+            dagTab.setClosed();
+            DagList.Instance.updateDagState(id)
+            $li = $("#dagListSection").find('.dagListDetail[data-id="' + id + '"]');
+            expect($li.hasClass("open")).to.be.false;
+            $li.remove();
+        });
+
+        it("should get a valid name", function() {
+            var name = DagList.Instance.getValidName();
+            // duplicate standard dataflow name
+            expect(name.split(" ")[0]).to.equal("Dataflow");
+            // with prefix
+            expect(DagList.Instance.getValidName("uniquePref")).to.equal("uniquePref");
+            // has bracket
+            expect(DagList.Instance.getValidName(null, true)).to.equal("Dataflow 0");
+            // is sql func
+            expect(DagList.Instance.getValidName(null, true, true)).to.equal("fn0");
+        });
+
+        it("should add a dataflow", function() {
+            var prevLen = DagList.Instance._dags.size;
+            dagName = xcHelper.randName("newAgg");
+            dagTab = new DagTabUser({name: name});
+            DagList.Instance.addDataflow(dagTab);
+            expect(DagList.Instance._dags.size).to.equal(prevLen + 1);
+        });
+
+        it("should remove a dataflow", function() {
+            var prevLen = DagList.Instance._dags.size;
+            DagList.Instance.removeDataflow(dagTab.getId());
+            expect(DagList.Instance._dags.size).to.equal(prevLen - 1);
+        });
+
+        it("Should clear sql dataflows", function() {
+            var prevLen = DagList.Instance._dags.size;
+            dagName = xcHelper.randName("newAgg");
+            dagTab = new DagTabSQL({name: name});
+            DagList.Instance.addDag(dagTab);
+            DagList.Instance.clearSQLDataflow();
+            expect(DagList.Instance._dags.size).to.equal(prevLen);
+        });
+
+        it("Should delete a dataflow through UI clicks", function(done) {
+            dagName = xcHelper.randName("newAgg");
+            dagTab = new DagTabUser({name: name});
+            dagTab.setOpen();
+            DagList.Instance.addDag(dagTab);
+            var prevLen = DagList.Instance._dags.size;
+            var id = dagTab.getId();
+            $("#dagListSection").append("<div class='dagListDetail testClass' data-id='" +
+                id + "'><div class='deleteDataflow'></div></div>");
+            $("#dagListSection").find(".testClass .deleteDataflow").click();
+            setTimeout(function() {
+                $("#alertModal .confirm").click();
+                setTimeout(function() {
+                    expect(DagList.Instance._dags.size).to.equal(prevLen - 1);
+                    done();
+                }, 100);
+            }, 10);
+        })
     });
+
+    describe('Dag List Refresh related test', function() {
+        var oldPubRes;
+        var oldListRets;
+        var oldListQuer;
+
+        before(function() {
+            oldListRets = XcalarListRetinas;
+            oldListQuer = XcalarQueryList;
+            oldPubRes = DagTabPublished.restore;
+            DagTabPublished.restore = function() {
+                dagName = xcHelper.randName("newAgg");
+                dagTab = new DagTabPublished({name: name});
+                return PromiseHelper.resolve([dagTab]);
+            };
+            XcalarListRetinas = function() {
+                return PromiseHelper.resolve({retinaDescs: [{retinaName: "retina"}]});
+            }
+            XcalarQueryList = function() {
+                return PromiseHelper.resolve([{name: "table_published_test"}]);
+            }
+        });
+    
+
+        it("should refresh correctly", function(done) {
+            var prevLen = DagList.Instance._dags.size;
+            DagList.Instance.refresh()
+            .then(() => {
+                expect(DagList.Instance._dags.size).to.equal(prevLen + 2);
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            DagTabPublished.restore = oldPubRes;
+            XcalarListRetinas = oldListRets;
+            XcalarQueryList = oldListQuer;
+        });
+    })
 
     it("_loadErroHandler should work", function() {
         let oldGetList = DagList.Instance._getListElById;
