@@ -147,7 +147,7 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: "#menuBar",
-                text: "The side bar enables you to access to various features within Xcalar Design.",
+                text: "The sidebar enables you to access various features within Xcalar Design.",
                 type: TooltipType.Text
             },
             {
@@ -237,7 +237,7 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: "#tutorialResource",
-                text: " This concludes the tour of the Dataflow Mode UI. " +
+                text: " This concludes the tour of the SQL Mode UI. " +
                 "To get more hands-on, you can view the tutorial workbooks.",
                 type: TooltipType.Text
             }],
