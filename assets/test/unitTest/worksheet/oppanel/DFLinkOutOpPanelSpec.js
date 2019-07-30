@@ -2,7 +2,6 @@ describe("DFLinkOutOpPanel Test", function() {
     var dfLinkOutPanel;
     var $dfLinkOutPanel;
     var node;
-    var editor;
     var openOptions = {};
     let cachedGetDagFn;
 
@@ -37,7 +36,6 @@ describe("DFLinkOutOpPanel Test", function() {
 
             oldJSONParse = JSON.parse;
             dfLinkOutPanel = DFLinkOutOpPanel.Instance;
-            editor = dfLinkOutPanel.getEditor();
             $dfLinkOutPanel = $('#dfLinkOutPanel');
             let graph = new DagGraph();
             cachedGetDagFn = DagViewManager.Instance.getActiveDag;
@@ -59,6 +57,15 @@ describe("DFLinkOutOpPanel Test", function() {
 
             dfLinkOutPanel.show(node, openOptions);
             expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.false;
+        });
+
+        it("should select checkbox", function() {
+            let $checkbox = $dfLinkOutPanel.find(".columnsWrap .checkbox").eq(0);
+            let checked = $checkbox.hasClass("checked");
+            $checkbox.click();
+            expect($checkbox.hasClass("checked")).to.equal(!checked);
+            $checkbox.click();
+            expect($checkbox.hasClass("checked")).to.equal(checked);
         });
 
         it ("Should be hidden when close is called after showing", function () {
@@ -99,7 +106,7 @@ describe("DFLinkOutOpPanel Test", function() {
                     }
                 ]
             });
-        })
+        });
     });
 
 
