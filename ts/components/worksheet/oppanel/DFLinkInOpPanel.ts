@@ -11,7 +11,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._schemaSection = new ColSchemaSection(this._getSchemaSection());
     }
 
-    public show(dagNode: DagNodeDFIn, options?) {
+    public show(dagNode: DagNodeDFIn, options?): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._dagNode = dagNode;
         super.showPanel("Link In", options)
         .then(() => {
@@ -28,7 +29,11 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 this._switchMode(true);
                 this._updateMode(true);
             }
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     /**
@@ -58,7 +63,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
             try {
                 const param = this._convertAdvConfigToModel();
                 this._restorePanel(param);
-                return;
+                return null;
             } catch (e) {
                 return {error: e};
             }
@@ -331,7 +336,9 @@ class DFLinkInOpPanel extends BaseOpPanel {
         return this._getPanel().find(".colSchemaSection");
     }
 
-    private _autoDetectSchema(isOverwriteConfig: boolean = true): {error: string} {
+    private _autoDetectSchema(
+        isOverwriteConfig: boolean = true
+    ): {error: string} | null {
         try {
             const $dfInput: JQuery = this._getDFDropdownList().find("input");
             const $linkOutInput: JQuery = this._getLinkOutDropdownList().find("input");
@@ -363,13 +370,14 @@ class DFLinkInOpPanel extends BaseOpPanel {
             if (isOverwriteConfig) {
                 this._schemaSection.render(schema);
             }
+            return null;
         } catch (e) {
-            return {error: e};
+            return {error: e.message};
         }
     }
 
-    private _autoDetectSchemaFromSource(): XDPromise<void> {
-        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+    private _autoDetectSchemaFromSource(): XDPromise<ColSchema[]> {
+        let deferred: XDDeferred<ColSchema[]> = PromiseHelper.deferred();
         try {
             // use fake node to do parameterization replacement
             const fakeLinkInNode: DagNodeDFIn = <DagNodeDFIn>DagNodeFactory.create({
@@ -394,7 +402,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
             .then((schema) => {
                 this._schemaSection.setInitialSchema(schema);
                 this._schemaSection.render(schema);
-                deferred.resolve();
+                deferred.resolve(schema);
             })
             .fail(deferred.reject);
         } catch (e) {
