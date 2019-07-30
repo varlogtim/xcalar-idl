@@ -221,8 +221,10 @@ describe('JoinOpPanelStep2 Test', () => {
     describe('_createColumnRenameSection() should work', () => {
         const oldFunc = {};
         let elemProps = new Map();
-        let prefixCollision;
-        let derivedCollision;
+        let prefixCollisionLeft;
+        let prefixCollisionRight;
+        let derivedCollisionLeft;
+        let derivedCollisionRight;
         before(() => {
             component._modelRef = createDefaultModel();
 
@@ -236,13 +238,15 @@ describe('JoinOpPanelStep2 Test', () => {
             }
 
             oldFunc._createPrefixRenameTable = component._createPrefixRenameTable;
-            component._createPrefixRenameTable = (prefix) => {
-                prefixCollision = prefix;
+            component._createPrefixRenameTable = (prefixLeft, prefixRight) => {
+                prefixCollisionLeft = prefixLeft;
+                prefixCollisionRight = prefixRight;
                 return [$('<div></div>')[0]];
             };
             oldFunc._createDerivedRenameTable = component._createDerivedRenameTable;
-            component._createDerivedRenameTable = (derived) => {
-                derivedCollision = derived;
+            component._createDerivedRenameTable = (derivedLeft, derivedRight) => {
+                derivedCollisionLeft = derivedLeft;
+                derivedCollisionRight = derivedRight;
                 return [$('<div></div>')[0]];
             };
         });
@@ -252,19 +256,89 @@ describe('JoinOpPanelStep2 Test', () => {
             component._createDerivedRenameTable = oldFunc._createDerivedRenameTable;
         });
         afterEach(() => {
-            prefixCollision = null;
-            derivedCollision = null;
+            component._modelRef._buildRenameInfo({
+                colDestLeft: {},
+                prefixDestLeft: {},
+                colDestRight: {},
+                prefixDestRight: {}
+            })
+            prefixCollisionLeft = null;
+            prefixCollisionRight = null;
+            derivedCollisionLeft = null;
+            derivedCollisionRight = null;
             elemProps.clear();
         });
 
-        it('test', () => {
+        it('case: no collision', () => {
+            // We don't have collisions(on dest name) after auto-renaming
             expect(component._createColumnRenameSection() != null).to.be.true;
             // Check prefix rename props
-            expect(prefixCollision != null).to.be.true;
-            expect(prefixCollision.size).to.equal(0);
+            expect(prefixCollisionLeft != null).to.be.true;
+            expect(prefixCollisionLeft.size).to.equal(0);
+            expect(prefixCollisionRight != null).to.be.true;
+            expect(prefixCollisionRight.size).to.equal(0);
             // Check derived rename props
-            expect(derivedCollision != null).to.be.true;
-            expect(derivedCollision.size).to.equal(0);
+            expect(derivedCollisionLeft != null).to.be.true;
+            expect(derivedCollisionLeft.size).to.equal(0);
+            expect(derivedCollisionRight != null).to.be.true;
+            expect(derivedCollisionRight.size).to.equal(0);
+            // Check rename section props
+            const sectionProps = elemProps.get(JoinOpPanelStep2._templateIds.renameSection);
+            expect(sectionProps != null).to.be.true;
+            expect(sectionProps[0]['APP-PREFIXRENAME'] != null).to.be.true;
+            expect(sectionProps[0]['APP-DERIVEDRENAME'] != null).to.be.true;
+        });
+
+        it('case: name collision between tables', () => {
+            // Revert the auto-rename, so that we have collisions on:
+            // prefix: prefix
+            // derived: col#1
+            component._modelRef._columnRename.left.forEach((renameInfo) => {
+                renameInfo.dest = renameInfo.source;
+            });
+            component._modelRef._columnRename.right.forEach((renameInfo) => {
+                renameInfo.dest = renameInfo.source;
+            });
+            expect(component._createColumnRenameSection() != null).to.be.true;
+            // Check prefix rename props
+            expect(prefixCollisionLeft != null).to.be.true;
+            expect(prefixCollisionLeft.size).to.equal(1); // prefix
+            expect(prefixCollisionRight != null).to.be.true;
+            expect(prefixCollisionRight.size).to.equal(1);// col#1
+            // Check derived rename props
+            expect(derivedCollisionLeft != null).to.be.true;
+            expect(derivedCollisionLeft.size).to.equal(1); // prefix
+            expect(derivedCollisionRight != null).to.be.true; // col#1
+            expect(derivedCollisionRight.size).to.equal(1);
+            // Check rename section props
+            const sectionProps = elemProps.get(JoinOpPanelStep2._templateIds.renameSection);
+            expect(sectionProps != null).to.be.true;
+            expect(sectionProps[0]['APP-PREFIXRENAME'] != null).to.be.true;
+            expect(sectionProps[0]['APP-DERIVEDRENAME'] != null).to.be.true;
+        });
+
+        it('case: name collision in a table', () => {
+            // Create collisions in left table, so that we have collisions on:
+            // prefix: left, prefix
+            // derived: lcol#1, col#1
+            component._modelRef._columnRename.left.forEach((renameInfo) => {
+                if (renameInfo.isPrefix) {
+                    renameInfo.dest = 'left';
+                } else {
+                    renameInfo.dest = 'lcol#1';
+                }
+            });
+            expect(component._createColumnRenameSection() != null).to.be.true;
+            // Check prefix rename props
+            expect(prefixCollisionLeft != null).to.be.true;
+            expect(prefixCollisionLeft.size).to.equal(2);
+            expect(prefixCollisionRight != null).to.be.true;
+            expect(prefixCollisionRight.size).to.equal(0);
+            // Check derived rename props
+            expect(derivedCollisionLeft != null).to.be.true;
+            expect(derivedCollisionLeft.size).to.equal(2);
+            expect(derivedCollisionRight != null).to.be.true;
+            expect(derivedCollisionRight.size).to.equal(0);
             // Check rename section props
             const sectionProps = elemProps.get(JoinOpPanelStep2._templateIds.renameSection);
             expect(sectionProps != null).to.be.true;

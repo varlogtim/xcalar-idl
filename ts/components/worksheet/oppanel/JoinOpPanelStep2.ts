@@ -138,32 +138,22 @@ class JoinOpPanelStep2 {
 
     private _createColumnRenameSection(): HTMLElement[] {
         const {
-            columnLeft: columnCollisionMap, prefixLeft: prefixCollisionMap
+            columnLeft: columnCollisionLeft, prefixLeft: prefixCollisionLeft,
+            columnRight: columnCollisionRight, prefixRight: prefixCollisionRight
         } = this._modelRef.getCollisionNames();
-        // Keep only one collision error to show
-        let numCollisionsToShow = 1;
-        const collisionPrefix: Set<string> = new Set();
-        const collisionColumns: Set<string> = new Set();
-        for (const name of prefixCollisionMap.keys()) {
-            if (numCollisionsToShow <= 0) {
-                break;
-            }
-            collisionPrefix.add(name);
-            numCollisionsToShow--;
-        }
-        for (const name of columnCollisionMap.keys()) {
-            if (numCollisionsToShow <= 0) {
-                break;
-            }
-            collisionColumns.add(name);
-            numCollisionsToShow--;
-        }
+        // Everytime columns change(ex. select/deselect), we will do auto-rename to resolve collisions
+        // So we won't have name collisions(on dest names), the only exception is the user manually changes the name in rename section.
+        // Collision can happen between names in one table or cross tables
+        const collisionPrefixLeft: Set<string> = new Set(prefixCollisionLeft.keys());
+        const collisionPrefixRight: Set<string> = new Set(prefixCollisionRight.keys());
+        const collisionColumnsLeft: Set<string> = new Set(columnCollisionLeft.keys());
+        const collisionColumnsRight: Set<string> = new Set(columnCollisionRight.keys());
 
         const elemTablePrefix = this._createPrefixRenameTable(
-            collisionPrefix, collisionPrefix
+            collisionPrefixLeft, collisionPrefixRight
         );
         const elemTableDerived = this._createDerivedRenameTable(
-            collisionColumns, collisionColumns
+            collisionColumnsLeft, collisionColumnsRight
         );
 
         if ((elemTablePrefix == null || elemTablePrefix.length === 0)
