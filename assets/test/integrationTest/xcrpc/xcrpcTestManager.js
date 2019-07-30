@@ -21,6 +21,7 @@ const VersionServiceTest = require('./VersionServiceSpec');
 const SessionServiceTest = require('./SessionServiceSpec');
 const DagNodeServiceTest = require('./DagNodeServiceSpec');
 const DatasetServiceTest = require('./DatasetServiceSpec');
+const ResultSetServiceTest = require('./ResultSetServiceSpec');
 
 //creat xcrpc client
 const hostname = "localhost:12124"
@@ -45,6 +46,7 @@ const XDFService = client.getXDFService();
 let SessionService = client.getSessionService();
 let DagNodeService = client.getDagNodeService();
 let DatasetService = client.getDatasetService();
+let ResultSetService = client.getResultSetService();
 
 
 describe("xcrpc integration test: ", function () {
@@ -64,4 +66,5 @@ describe("xcrpc integration test: ", function () {
     SessionServiceTest.testSuite(SessionService);
     DagNodeServiceTest.testSuite(DagNodeService, Xcrpc.DagNode.DAGSCOPE);
     DatasetServiceTest.testSuite(DatasetService);
+    ResultSetServiceTest.testSuite(ResultSetService, SessionService, DatasetService, QueryService, OperatorService);
 });

@@ -5,11 +5,13 @@ const errorStr = require('xcalarsdk').EnumMap.StatusToStr;
 const sessionScope = require('xcalarsdk').Session.SCOPE;
 exports.testSuite = function(SessionService) {
     let userName;
-    before(() => {
-        userName = "SessionServiceTestUser_" + new Date().getTime();
-    });
 
     describe("SessionService test: ", function () {
+        this.timeout(60000);
+        before(function () {
+            userName = "SessionServiceTestUser_" + new Date().getTime();
+        });
+
         it("new should work", async function () {
             let sessionName = "SessionServiceTestNew_" + new Date().getTime();
             try {

@@ -5,29 +5,31 @@ const sessionScope = require('xcalarsdk').Session.SCOPE;
 const targetScope = require('xcalarsdk').Target.SCOPE;
 exports.testSuite = function(TargetService, SessionService) {
     let userName, workbookName, SESSIONSCOPE, TARGETSCOPE, scopeInfo, sessionId;
-    before( async () => {
-        userName = "TargetServiceTestUser_" + new Date().getTime();
-        workbookName = "TargetServiceTestSession_" + new Date().getTime();
-        SESSIONSCOPE = sessionScope.WORKBOOK;
-        TARGETSCOPE = targetScope.WORKBOOK;
-        scopeInfo = {
-            userName: userName,
-            workbookName: undefined
-        };
-        sessionId = await SessionService.create({
-            sessionName: workbookName,
-            fork: false,
-            forkedSessionName: "",
-            scope: SESSIONSCOPE,
-            scopeInfo: scopeInfo});
-        await SessionService.activate({
-            sessionName: workbookName,
-            scope: SESSIONSCOPE,
-            scopeInfo: scopeInfo});
-    })
 
     describe("TargetService test: ", function () {
-        it("run should work", async () => {
+        this.timeout(60000);
+        before( async function () {
+            userName = "TargetServiceTestUser_" + new Date().getTime();
+            workbookName = "TargetServiceTestSession_" + new Date().getTime();
+            SESSIONSCOPE = sessionScope.WORKBOOK;
+            TARGETSCOPE = targetScope.WORKBOOK;
+            scopeInfo = {
+                userName: userName,
+                workbookName: undefined
+            };
+            sessionId = await SessionService.create({
+                sessionName: workbookName,
+                fork: false,
+                forkedSessionName: "",
+                scope: SESSIONSCOPE,
+                scopeInfo: scopeInfo});
+            await SessionService.activate({
+                sessionName: workbookName,
+                scope: SESSIONSCOPE,
+                scopeInfo: scopeInfo});
+        });
+
+        it("run should work", async function () {
             const targetType = "sharednothingsingle";
             const targetName = "test";
             const targetParams = {};
@@ -82,7 +84,7 @@ exports.testSuite = function(TargetService, SessionService) {
             }
         });
 
-        it("run should return error message on failure", async () => {
+        it("run should return error message on failure", async function () {
             const badObj = {"func": "NotExist"};
             try {
                 const targetRes = await TargetService.run({

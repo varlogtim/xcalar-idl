@@ -6,29 +6,31 @@ const DatasetScope = require('xcalarsdk').Dataset.SCOPE;
 const QueryScope = require('xcalarsdk').Query.SCOPE;
 exports.testSuite = function(QueryService, SessionService, DatasetService) {
     let userName, workbookName, SESSIONSCOPE, DATASETSCOPE, QUERYSCOPE, scopeInfo, sessionId;
-    before( async () => {
-        userName = "QueryServiceTestUser_" + new Date().getTime();
-        workbookName = "QueryServiceTestSession_" + new Date().getTime();
-        SESSIONSCOPE = SessionScope.WORKBOOK;
-        DATASETSCOPE = DatasetScope.WORKBOOK;
-        QUERYSCOPE = QueryScope.WORKBOOK;
-        scopeInfo = {
-            userName: userName,
-            workbookName: undefined
-        };
-        sessionId = await SessionService.create({
-            sessionName: workbookName,
-            fork: false,
-            forkedSessionName: "",
-            scope: SESSIONSCOPE,
-            scopeInfo: scopeInfo});
-        await SessionService.activate({
-            sessionName: workbookName,
-            scope: SESSIONSCOPE,
-            scopeInfo: scopeInfo});
-    })
 
     describe("QueryService test: ", function () {
+        this.timeout(60000);
+        before( async function () {
+            userName = "QueryServiceTestUser_" + new Date().getTime();
+            workbookName = "QueryServiceTestSession_" + new Date().getTime();
+            SESSIONSCOPE = SessionScope.WORKBOOK;
+            DATASETSCOPE = DatasetScope.WORKBOOK;
+            QUERYSCOPE = QueryScope.WORKBOOK;
+            scopeInfo = {
+                userName: userName,
+                workbookName: undefined
+            };
+            sessionId = await SessionService.create({
+                sessionName: workbookName,
+                fork: false,
+                forkedSessionName: "",
+                scope: SESSIONSCOPE,
+                scopeInfo: scopeInfo});
+            await SessionService.activate({
+                sessionName: workbookName,
+                scope: SESSIONSCOPE,
+                scopeInfo: scopeInfo});
+        });
+
         it("list() should work", async function () {
             try {
                 const listArray = await QueryService.list({ namePattern: "*" });
@@ -42,7 +44,7 @@ exports.testSuite = function(QueryService, SessionService, DatasetService) {
             }
         });
 
-        it("execute() should work", async () => {
+        it("execute() should work", async function () {
             let datasetName = userName + ".region";
             let bulkLoadName = ".XcalarDS." + datasetName;
             let loadArgs = {
@@ -133,7 +135,7 @@ exports.testSuite = function(QueryService, SessionService, DatasetService) {
             }
         });
 
-        it("execute() should return error message on failure", async () => {
+        it("execute() should return error message on failure", async function () {
             let datasetName = userName + ".region2";
             let bulkLoadName = ".XcalarDS." + datasetName;
             let loadArgs = {

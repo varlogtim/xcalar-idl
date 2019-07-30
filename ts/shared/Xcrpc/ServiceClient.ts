@@ -78,7 +78,7 @@ class ServiceClient {
     public getVersionService(): VersionService {
         return new VersionService(this._apiClient);
     }
-    
+
     public getResultSetService(): ResultSetService {
         return new ResultSetService(this._apiClient);
     }
