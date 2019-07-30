@@ -245,7 +245,7 @@ class DagNodeExtension extends DagNode {
                     } else {
                         return subArg;
                     }
-                })
+                });
             } else if (typeof val == "object") {
                 if (val["triggerNode"] != null) {
                     val = this._getExtensionTable(args[key]["triggerNode"]);
@@ -272,13 +272,9 @@ class DagNodeExtension extends DagNode {
         return sdkTable;
     }
 
-    private _getExtensionColumn = (col: {
-        name: string,
-        type: ColumnType
-    } | {
-        name: string,
-        type: ColumnType
-    }[]): XcSDK.Column | XcSDK.Column[] => {
+    private _getExtensionColumn(
+        col: ColSchema | ColSchema[]
+    ): XcSDK.Column | XcSDK.Column[] {
         if (col instanceof Array) {
             return col.map((col: {name: string, type: ColumnType}) => {
                 return new XcSDK.Column(col.name, col.type);
