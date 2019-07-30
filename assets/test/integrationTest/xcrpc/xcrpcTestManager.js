@@ -51,7 +51,7 @@ let ResultSetService = client.getResultSetService();
 
 describe("xcrpc integration test: ", function () {
     // run the testSuit for each services
-    KVstoreServiceTest.testSuite(KVstoreService, Xcrpc.KVStore.KVSCOPE, STATUS);
+    KVstoreServiceTest.testSuite(KVstoreService, Xcrpc.KVStore.KVSCOPE, STATUS, SessionService, Xcrpc.Session.SCOPE);
     LicenseServiceTest.testSuite(LicenseService);
     PublishedTableServiceTest.testSuite(PublishedTableService);
     QueryServiceTest.testSuite(QueryService, SessionService, DatasetService);

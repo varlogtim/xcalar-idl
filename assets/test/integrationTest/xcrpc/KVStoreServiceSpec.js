@@ -1,75 +1,175 @@
 const expect = require('chai').expect;
-exports.testSuite = function(KVstoreService, KVSCOPE, STATUS) {
-    let newKey = new Set()
-    describe("KVStoreService Test: ", function () {
-
-        it("lookup() should handle key not found error correctly", async function () {
-            try {
-                const result = await KVstoreService.lookup({keyName: "*", kvScope: KVSCOPE.GLOBAL});
-                expect(result).to.be.null;
-            } catch(err) {
-                console.log("lookup() did not handle not found error");
-                expect.fail(err);
-            }
+exports.testSuite = function(KVstoreService, KVSCOPE, STATUS,  SessionService, SessionSCOPE) {
+    let newKey = new Set();
+    let newKeyWorkbook = new Set();
+    const testUserName = "testUserKVStore" + new Date().getTime();
+    const testSessionName = "testSessionKVStore" + new Date().getTime();
+    const scopeInfo = {userName: testUserName, workbookName: testSessionName};
+    describe("KVStoreService Test: ", async function () {
+        before(async function(){
+            await  SessionService.create({
+                sessionName: testSessionName,
+                fork: false,
+                forkedSessionName: "",
+                scope: SessionSCOPE.WORKBOOK,
+                scopeInfo:scopeInfo
+            });
+            await  SessionService.activate({
+                sessionName: testSessionName,
+                scope: SessionSCOPE.WORKBOOK,
+                scopeInfo: scopeInfo
+            });
         });
 
-        it("list() should works", async function() {
+        it("lookup() should handle key not found error correctly in global scope", async function () {
+            let result;
+            try {
+                result = await KVstoreService.lookup({keyName: "*", kvScope: KVSCOPE.GLOBAL});
+            } catch(err) {
+                console.log("lookup() did not handle not found error in global scope");
+                expect.fail(null, null, err.error);
+            }
+            expect(result).to.be.null;
+        });
+
+        it("lookup() should handle key not found error correctly in workbook scope", async function () {
+            let result;
+            try {
+                result = await KVstoreService.lookup({keyName: "*", kvScope:  KVSCOPE.WORKBOOK, scopeInfo:scopeInfo});
+            } catch(err) {
+                console.log("lookup() did not handle not found error in workbook scope");
+                expect.fail(null, null, err.error);
+            }
+            expect(result).to.be.null;
+        });
+
+        it("list() should works in global scope", async function() {
             let keyName = "testList";
             newKey.add(keyName);
+            let result, result2, result3;
             try {
-                const result = await KVstoreService.list({kvScope: KVSCOPE.GLOBAL, kvKeyRegex:keyName});
+                result = await KVstoreService.list({kvScope: KVSCOPE.GLOBAL, kvKeyRegex:keyName});
                 expect(result.keys).to.not.include(keyName);
                 await KVstoreService.addOrReplace({ key: keyName, value: "a", persist: false, kvScope: KVSCOPE.GLOBAL});
-                const result2 = await KVstoreService.list({kvScope: KVSCOPE.GLOBAL, kvKeyRegex:keyName});
+                result2 = await KVstoreService.list({kvScope: KVSCOPE.GLOBAL, kvKeyRegex:keyName});
                 expect(result2.numKeys).to.equal(result.numKeys+1);
                 expect(result2.keys).to.include(keyName);
                 await KVstoreService.deleteKey({ keyName: keyName, kvScope: KVSCOPE.GLOBAL});
-                const result3 = await KVstoreService.list({kvScope: KVSCOPE.GLOBAL, kvKeyRegex:keyName});
+                result3 = await KVstoreService.list({kvScope: KVSCOPE.GLOBAL, kvKeyRegex:keyName});
                 expect(result3.numKeys).to.equal(result2.numKeys-1);
                 expect(result3.keys).to.not.include(keyName);
             } catch(err) {
-                console.log("list() not work");
-                expect.fail(err);
+                expect.fail(null, null, err.error);
             }
         });
 
-        it("list() should catch the error when keyRegex not match", async function(){
+        it("list() should works in workbook scope", async function(){
+            let keyName = "testListWorkbook";
+            newKeyWorkbook.add(keyName);
+            try{
+                const result = await KVstoreService.list({kvScope: KVSCOPE.WORKBOOK, kvKeyRegex:keyName,
+                    scopeInfo:scopeInfo});
+                expect(result.keys).to.not.include(keyName);
+                await KVstoreService.addOrReplace({ key: keyName, value: "a", persist: false, kvScope: KVSCOPE.WORKBOOK,
+                    scopeInfo:scopeInfo});
+                const result2 = await KVstoreService.list({kvScope: KVSCOPE.WORKBOOK, kvKeyRegex:keyName,
+                    scopeInfo:scopeInfo});
+                expect(result2.numKeys).to.equal(result.numKeys+1);
+                expect(result2.keys).to.include(keyName);
+                await KVstoreService.deleteKey({ keyName: keyName, kvScope: KVSCOPE.WORKBOOK,
+                    scopeInfo:scopeInfo});
+                const result3 = await KVstoreService.list({kvScope: KVSCOPE.WORKBOOK, kvKeyRegex:keyName,
+                    scopeInfo:scopeInfo});
+                expect(result3.numKeys).to.equal(result2.numKeys-1);
+                expect(result3.keys).to.not.include(keyName);
+            } catch(err) {
+                console.log("list() not work in workbook scope");
+                expect.fail(null, null, err.error);
+            }
+        })
 
+        it("list() should catch the error when keyRegex not match in global scope", async function(){
+            let result;
             try {
-                const result = await KVstoreService.list({kvScope: KVSCOPE.GLOBAL, kvKeyRegex:"notExsit"});
-                expect(result.numKeys).to.equal(0);
-                expect(result.keys).to.be.an('array').that.is.empty;
+                result = await KVstoreService.list({kvScope: KVSCOPE.GLOBAL, kvKeyRegex:"notExsit"});
 
             } catch(err) {
-                console.log("when kvKeyRegex does not match, should return an empty array");
-                expect.fail(err);
+                console.log("when kvKeyRegex does not match in global scope, should return an empty array");
+                expect.fail(null, null, err.error);
+            }
+            expect(result.numKeys).to.equal(0);
+            expect(result.keys).to.be.an('array').that.is.empty;
+        });
+
+        it("list() should catch the error when keyRegex not match in workbook scope", async function(){
+            let result;
+            try {
+                result = await KVstoreService.list({kvScope: KVSCOPE.WORKBOOK, kvKeyRegex:"notExsit", scopeInfo:scopeInfo});
+            } catch(err) {
+                console.log("when kvKeyRegex does not match in workbook scope, should return an empty array");
+                expect.fail(null, null, err.error);
+            }
+            expect(result.numKeys).to.equal(0);
+            expect(result.keys).to.be.an('array').that.is.empty;
+        });
+
+        it("addOrReplace() should add a new key in workbook scope", async function () {
+            let keyName = "mykeyworkbook";
+            newKeyWorkbook.add(keyName);
+            try {
+                await KVstoreService.addOrReplace({ key: keyName, value: "a", persist: false, kvScope: KVSCOPE.WORKBOOK,
+                    scopeInfo:scopeInfo});
+                const result = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.GLOBAL});
+                expect(result).to.be.null;
+                const result2 = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.WORKBOOK, scopeInfo:scopeInfo});
+                expect(result2.value).to.equal('a');
+            } catch(err){
+                console.log("addOrReplace() did not add new key successfully in workbook scope");
+                expect.fail(null, null, err.error);
             }
         });
 
         it("addOrReplace() should add a new key in global scope", async function () {
             let keyName = "mykey";
             newKey.add(keyName);
+            let result;
             try {
-                await KVstoreService.addOrReplace({ key: keyName, value: "a", persist: false, kvScope: KVSCOPE.GLOBAL});
-                const result = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.GLOBAL});
-                expect(result.value).to.equal('a');
+                await KVstoreService.addOrReplace({ key: keyName, value: "aa", persist: false, kvScope: KVSCOPE.GLOBAL});
+                result = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.GLOBAL});
             } catch(err){
-                console.log("addOrReplace() did not add new key successfully");
-                expect.fail(err);
+                console.log("addOrReplace() did not add new key successfully in global scope");
+                expect.fail(null, null, err.error);
+            }
+            expect(result.value).to.equal('aa');
+        });
+
+        it("addOrReplace() should replace a existed key value in workbook scope", async function () {
+            let keyName = "mykeyworkbook";
+            newKeyWorkbook.add(keyName);
+            try {
+                const result = await KVstoreService.list({ kvScope: KVSCOPE.WORKBOOK, kvKeyRegex:keyName, scopeInfo:scopeInfo});
+                expect(result.keys).to.include(keyName);
+                await KVstoreService.addOrReplace({key: keyName, value: "b", persist: false, kvScope: KVSCOPE.WORKBOOK, scopeInfo:scopeInfo});
+                const result2 = await KVstoreService.lookup({keyName: keyName, kvScope: KVSCOPE.WORKBOOK, scopeInfo:scopeInfo});
+                expect(result2.value).to.equal('b');
+            } catch(err){
+                console.log("addOrReplace() did not replace a exised key value successfully in workbook scope");
+                expect.fail(null, null, err.error);
             }
         });
+
         it("addOrReplace() should replace a existed key value in global scope", async function () {
             let keyName = "mykey";
             newKey.add(keyName);
             try {
                 const result = await KVstoreService.list({kvScope: KVSCOPE.GLOBAL, kvKeyRegex:keyName});
                 expect(result.keys).to.include(keyName);
-                await KVstoreService.addOrReplace({key: keyName, value: "b", persist: false, kvScope: KVSCOPE.GLOBAL});
+                await KVstoreService.addOrReplace({key: keyName, value: "bb", persist: false, kvScope: KVSCOPE.GLOBAL});
                 const result2 = await KVstoreService.lookup({keyName: keyName, kvScope: KVSCOPE.GLOBAL});
-                expect(result2.value).to.equal('b');
+                expect(result2.value).to.equal('bb');
             } catch(err){
-                console.log("addOrReplace() did not replace a exised key value successfully");
-                expect.fail(err);
+                console.log("addOrReplace() did not replace a exised key value successfully in global scope");
+                expect.fail(null, null, err.error);
             }
         });
 
@@ -85,12 +185,29 @@ exports.testSuite = function(KVstoreService, KVSCOPE, STATUS) {
                 expect(result2.numKeys).to.equal(result.numKeys-1);
                 expect(result2.keys).to.not.include(keyName);
             } catch(err){
-                console.log("deleteKey() did not delete an existed key successfull");
-                expect.fail(err);
+                console.log("deleteKey() did not delete an existed key successfull in global scope");
+                expect.fail(null, null, err.error);
             }
         });
 
-        it("deleteKey() should handle the unexisted key", async function () {
+        it("deleteKey() should delete an existed key in workbook scope", async function () {
+            //should use key list to make sure deleteKey sucessfully
+            let keyName = "mykeyworkbook";
+            newKeyWorkbook.add(keyName);
+            try {
+                const result = await KVstoreService.list({kvScope: KVSCOPE.WORKBOOK, kvKeyRegex:keyName, scopeInfo:scopeInfo});
+                expect(result.keys).to.include(keyName);
+                await KVstoreService.deleteKey({ keyName: keyName, kvScope: KVSCOPE.WORKBOOK,scopeInfo:scopeInfo})
+                const result2 = await KVstoreService.list({kvScope: KVSCOPE.WORKBOOK, kvKeyRegex:keyName, scopeInfo:scopeInfo});
+                expect(result2.numKeys).to.equal(result.numKeys-1);
+                expect(result2.keys).to.not.include(keyName);
+            } catch(err){
+                console.log("deleteKey() did not delete an existed key successfull in workbook scope");
+                expect.fail(null, null, err.error);
+            }
+        });
+
+        it("deleteKey() should handle the unexisted key in global scope", async function () {
             let keyName = "mykey";
             newKey.add(keyName);
             try {
@@ -99,40 +216,93 @@ exports.testSuite = function(KVstoreService, KVSCOPE, STATUS) {
                 await KVstoreService.deleteKey({ keyName: keyName, kvScope:KVSCOPE.GLOBAL})
             } catch(err){
                 console.log("deleteKey() did not hanlde the unexisted key");
-                expect.fail(err);
+                expect.fail(null, null, err.error);
             }
         });
 
-        it("append() should append the value when the key exists", async function () {
+        it("deleteKey() should handle the unexisted key in workbook scope", async function () {
+            let keyName = "mykeyworkbook";
+            newKeyWorkbook.add(keyName);
+            try {
+                const result = await KVstoreService.list({kvScope: KVSCOPE.WORKBOOK, kvKeyRegex:keyName, scopeInfo:scopeInfo});
+                expect(result.keys).to.not.include(keyName);
+                await KVstoreService.deleteKey({ kkeyName: keyName, kvScope: KVSCOPE.WORKBOOK,scopeInfo:scopeInfo})
+            } catch(err){
+                console.log("deleteKey() did not hanlde the unexisted key");
+                expect.fail(null, null, err.error);
+            }
+        });
+
+        it("append() should append the value when the key exists in global scope", async function () {
             let keyName = "testAppend1";
             newKey.add(keyName);
+            let result;
             try {
                 await KVstoreService.addOrReplace({ key: keyName, value: "a", persist: false, kvScope: KVSCOPE.GLOBAL});
                 await KVstoreService.append({keyName: keyName, kvScope:  KVSCOPE.GLOBAL,
                     persist:false, kvSuffix: "bb"});
-                const result = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.GLOBAL});
-                expect(result.value).to.equal('abb');
+                result = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.GLOBAL});
             } catch(err) {
                 console.log("append() did not append the value when the key exists");
-                expect.fail(err);
+                expect.fail(null, null, err.error);
             }
+            expect(result.value).to.equal('abb');
+        });
+
+        it("append() should append the value when the key exists in global scope", async function () {
+            let keyName = "testAppend1workbook";
+            newKeyWorkbook.add(keyName);
+            let result;
+            try {
+                await KVstoreService.addOrReplace({ key: keyName, value: "aa", persist: false, kvScope: KVSCOPE.GLOBAL});
+                await KVstoreService.append({keyName: keyName, kvScope:  KVSCOPE.GLOBAL,
+                    persist:false, kvSuffix: "bb"});
+                result = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.GLOBAL});
+            } catch(err) {
+                console.log("append() did not append the value when the key exists");
+                expect.fail(null, null, err.error);
+            }
+            expect(result.value).to.equal('aabb');
         });
 
         it("append() should add the key when key does not exist", async function () {
             let keyName = "testAppend2";
             newKey.add(keyName);
+            let result;
             try {
                 await KVstoreService.append({keyName: keyName, kvScope:  KVSCOPE.GLOBAL,
                     persist:false, kvSuffix: "cc"});
-                const result = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.GLOBAL});
-                expect(result.value).to.equal('cc');
+                result = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.GLOBAL});
             } catch(err) {
                 console.log("append() did not append the value when the key exists");
-                expect.fail(err);
+                expect.fail(null, null, err.error);
             }
+            expect(result.value).to.equal('cc');
         });
 
-        it("setIfEqual() should set the value for the existed key", async function() {
+        it("setIfEqual() should set the value for the existed key in workbook scope", async function() {
+            let keyName = "testSetIfEqualworkbook";
+            let keyValue = "testValue";
+            let keyValueSet = "replaceValue";
+            newKeyWorkbook.add(keyName);
+            let result, result2, result3;
+            try {
+                await KVstoreService.addOrReplace({ key: keyName, value: keyValue, persist: false, kvScope: KVSCOPE.WORKBOOK, scopeInfo:scopeInfo});
+                result = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.WORKBOOK, scopeInfo:scopeInfo});
+                result2 = await KVstoreService.setIfEqual({kvScope: KVSCOPE.WORKBOOK,
+                    persist:false, countSecondaryPairs: 0, kvKeyCompare: keyName, kvValueCompare: keyValue, kvValueReplace: keyValueSet,
+                    scopeInfo:scopeInfo});
+                result3 = await KVstoreService.lookup({ keyName: keyName, kvScope: KVSCOPE.WORKBOOK,scopeInfo:scopeInfo});
+            } catch(err) {
+                console.log("setIfEqual() did not set the value for the existed key correctly");
+                expect.fail(null, null, err.error);
+            }
+            expect(result2.noKV).to.be.false;
+            expect(result.value).to.not.equal(result3.value);
+            expect(result3.value).to.equal(keyValueSet);
+        });
+
+        it("setIfEqual() should set the value for the existed key in globl scope", async function() {
             let keyName = "testSetIfEqual";
             let keyValue = "testValue";
             let keyValueSet = "replaceValue";
@@ -148,22 +318,24 @@ exports.testSuite = function(KVstoreService, KVSCOPE, STATUS) {
                 expect(result3.value).to.equal(keyValueSet);
             } catch(err) {
                 console.log("setIfEqual() did not set the value for the existed key correctly");
-                expect.fail(err);
+                expect.fail(null, null, err.error);
             }
         });
+
         it("setIfEqual() should handle the error when the key does not exist", async function() {
             let keyName = "testSetIfEqual2";
             let keyValue = "testValue";
             let keyValueSet = "replaceValue";
             newKey.add(keyName);
+            let result2;
             try {
-                const result2 = await KVstoreService.setIfEqual({kvScope: KVSCOPE.GLOBAL,
+                result2 = await KVstoreService.setIfEqual({kvScope: KVSCOPE.GLOBAL,
                     persist:false, countSecondaryPairs: 0, kvKeyCompare: keyName, kvValueCompare: keyValue, kvValueReplace: keyValueSet});
-                expect(result2.noKV).to.be.true;
             } catch(err) {
                 console.log("setIfEqual() cannot throw an error when the key does not exist");
-                expect.fail(err);
+                expect.fail(null, null, err.error);
             }
+            expect(result2.noKV).to.be.true;
         });
 
         it("setIfEqual() should return error when the keyValue does not match", async function(){
@@ -184,6 +356,9 @@ exports.testSuite = function(KVstoreService, KVSCOPE, STATUS) {
         after(async function() {
             newKey.forEach(async function(val){
                 await KVstoreService.deleteKey({ keyName: val, kvScope:KVSCOPE.GLOBAL});
+            });
+            newKeyWorkbook.forEach(async function(val){
+                await KVstoreService.deleteKey({ keyName: val, kvScope:KVSCOPE.WORKBOOK, scopeInfo:scopeInfo});
             });
         });
     });
