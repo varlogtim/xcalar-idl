@@ -293,6 +293,14 @@ class DagNodeJoin extends DagNode {
             colMap.set(progCol.getBackColName(), progCol);
         });
 
+        const columnDeltas: Map<string, any> = this.getColumnDeltas();
+        let columnsHiddenThisNode: Set<string> = new Set();
+        columnDeltas.forEach((colInfo, colName) => {
+            if (colInfo.isHidden) {
+                columnsHiddenThisNode.add(colName);
+            }
+        });
+
         // 1. Get columns should be in the resultant table
         const finalCols: ProgCol[] = [];
         const finalHiddenCols: ProgCol[] = [];
@@ -363,24 +371,36 @@ class DagNodeJoin extends DagNode {
         // 2.b rename hidden columns
         for (let i = 0; i < finalHiddenCols.length; i++) { // Apply rename to every columns
             const progCol: ProgCol = finalHiddenCols[i];
-            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(progCol.getBackColName());
+            const prevName = progCol.getBackColName();
+            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(prevName);
             if (parsed.prefix.length > 0) {
                 // Prefixed column
                 const prefixAfterRename = prefixRenameMap.get(parsed.prefix);
                 if (prefixAfterRename != null) {
                     const newName = xcHelper.getPrefixColName(prefixAfterRename, parsed.name);
                     const newProgCol: ProgCol = ColManager.newPullCol(parsed.name, newName, progCol.getType());
-                    finalHiddenCols[i] = newProgCol;
-                    changes.push({ from: progCol, to: newProgCol, hidden: true, parentIndex: parentIndex });
-                    hiddenColumns.set(newName, newProgCol);
+                    let hidden = false;
+                    if (newName !== prevName && !columnsHiddenThisNode.has(prevName)) {
+                        // if renamed and column was hidden before, add
+                        // the new column name to the set
+                        hidden = true;
+                        hiddenColumns.set(newName, newProgCol);
+                    }
+                    changes.push({ from: progCol, to: newProgCol, hidden: hidden, parentIndex: parentIndex });
                 }
             } else {
                 // Derived column
                 const newName = columnRenameMap.get(parsed.name);
                 if (newName != null) {
                     const newProgCol: ProgCol = ColManager.newPullCol(newName, newName, progCol.getType());
-                    finalHiddenCols[i] = newProgCol;
-                    changes.push({ from: progCol, to: newProgCol, hidden: true, parentIndex: parentIndex });
+                    let hidden = false;
+                    if (newName !== prevName && !columnsHiddenThisNode.has(prevName)) {
+                        // if renamed and column was hidden before, add
+                        // the new column name to the set
+                        hidden = true;
+                        hiddenColumns.set(newName, newProgCol);
+                    }
+                    changes.push({ from: progCol, to: newProgCol, hidden: hidden, parentIndex: parentIndex });
                     hiddenColumns.set(newName, newProgCol);
                 }
             }

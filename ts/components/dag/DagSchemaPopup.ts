@@ -111,6 +111,14 @@ class DagSchemaPopup {
         let changeIcon;
         let seenColumns: Set<string> = new Set();
 
+        const columnDeltas: Map<string, any> = this._dagNode.getColumnDeltas();
+        let columnsHiddenThisNode: Set<string> = new Set();
+        columnDeltas.forEach((colInfo, colName) => {
+            if (colInfo.isHidden) {
+                columnsHiddenThisNode.add(colName);
+            }
+        });
+
         // list changes first
         for (let i = 0; i < changes.length; i++) {
             const change = changes[i];
@@ -131,7 +139,12 @@ class DagSchemaPopup {
                     htmlType = replaces;
                     changeIcon = "+";
                     if (hiddenColumns.has(otherProgCol.getBackColName())) {
-                        isHidden = true;
+                        if (columnsHiddenThisNode.has(otherProgCol.getBackColName()) &&
+                        otherProgCol.getBackColName() !== progCol.getBackColName()) {
+                            // renamed column was not hidden
+                        } else {
+                            isHidden = true;
+                        }
                     }
                 } else {
                     changeType = "add";
@@ -143,8 +156,6 @@ class DagSchemaPopup {
                 }
             } else if (change.from) {
                 progCol = change.from;
-                seenColumns.add(progCol.getBackColName());
-
                 destCol = change.from;
                 changeType = "remove";
                 htmlType = removes;
@@ -191,15 +202,13 @@ class DagSchemaPopup {
 
         // list columns that have no change (have not been seen)
 
-        for (let i = 0; i < this._tableColumns.length; i++) {
-            const progCol = this._tableColumns[i];
+        this._tableColumns.forEach(progCol => {
             if (seenColumns.has(progCol.getBackColName())) {
-                continue;
+                return;
             }
             seenColumns.add(progCol.getBackColName());
             html += this._liTemplate(progCol, "", "");
-        }
-
+        });
 
         hiddenColumns.forEach((progCol, colName) => {
             if (seenColumns.has(colName)) {

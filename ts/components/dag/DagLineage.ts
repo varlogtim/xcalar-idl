@@ -543,11 +543,23 @@ class DagLineage {
         changes.forEach((change) => {
             if (change.from && columnDeltas.has(change.from.getBackColName()) &&
                 columnDeltas.get(change.from.getBackColName()).isHidden) {
-                    change.hidden = true;
+                    if (colsHiddenInThisNode.has(change.from.getBackColName()) &&
+                        change.to && change.to.getBackColName() !== change.from.getBackColName()) {
+                        // if column was hidden in this node, do not hide a
+                        // column that used to have that name but is different now
+                    } else {
+                        change.hidden = true;
+                    }
             }
             if (change.to && columnDeltas.has(change.to.getBackColName()) &&
                 columnDeltas.get(change.to.getBackColName()).isHidden) {
-                    change.hidden = true;
+                    if (change.from && colsHiddenInThisNode.has(change.from.getBackColName()) &&
+                        change.to.getBackColName() !== change.from.getBackColName()) {
+                        // if column was hidden in this node, do not hide a
+                        // column that used to have that name but is different now
+                    } else {
+                        change.hidden = true;
+                    }
             }
 
             updatedChanges.push(change);
