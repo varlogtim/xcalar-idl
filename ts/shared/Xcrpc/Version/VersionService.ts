@@ -1,6 +1,5 @@
 import { VersionService as ApiVersion, XceClient as ApiClient } from 'xcalar';
 import { parseError } from '../ServiceError';
-import ProtoTypes = proto.xcalar.compute.localtypes;
 
 class VersionService {
     private _apiClient: ApiClient;
@@ -17,7 +16,6 @@ class VersionService {
     */
    public async getVersion():Promise<VersionOutput> {
        try {
-
             // Step #1: Construct xcrpc service input
             const request = new proto.google.protobuf.Empty();
             // Step #2: Call xcrpc service
@@ -38,7 +36,6 @@ class VersionService {
             throw parseError(e);
         }
    }
-
 }
 
 interface VersionOutput {

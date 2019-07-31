@@ -60,7 +60,7 @@ describe("xcrpc integration test: ", function () {
     GetQueryServiceTest.testSuite(GetQueryService);
     TargetServiceTest.testSuite(TargetService, SessionService);
     XDFServiceTest.testSuite(XDFService);
-    VersionServiceTest.testSuite(VersionService);
+    VersionServiceTest.testSuite(VersionService, Xcrpc.EnumMap.XcRpcApiVersionToInt.ProtoAPIVersionSignature);
     SessionServiceTest.testSuite(SessionService);
     DagNodeServiceTest.testSuite(DagNodeService, Xcrpc.DagNode.DAGSCOPE);
     DatasetServiceTest.testSuite(DatasetService);
