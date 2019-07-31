@@ -2969,7 +2969,7 @@ namespace XIApi {
                 });
             }
             return {
-                name: primaryKey.toUpperCase(),
+                name: xcHelper.cleanseSQLColName(primaryKey.toUpperCase()),
                 ordering: XcalarOrderingT.XcalarOrderingUnordered
             };
     });

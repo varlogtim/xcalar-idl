@@ -1667,7 +1667,7 @@ namespace xcHelper {
     }
 
     export function cleanseSQLColName(colName) {
-        return colName.replace(/[()\[\]{}^,"'\\: ]/g, "_");
+        return colName.replace(/[()\[\]{}^,"'\\: \.]/g, "_");
     }
     /**
      * xcHelper.validateBackendColName
