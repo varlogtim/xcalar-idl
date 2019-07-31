@@ -248,8 +248,13 @@ function thriftLog(
 
     // case other than connection reset and no mem,
     // return first error
-    return errorLists.length ? errorLists[0] : new ThriftError();
-
+    if (errorLists.length > 0) {
+        return errorLists[0];
+    } else {
+        const originalError = new ThriftError();
+        originalError.error = JSON.stringify(errResList);
+        return originalError;
+    }
 }
 
 function parseLog(log: string): string {
