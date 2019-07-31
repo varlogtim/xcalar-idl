@@ -7,7 +7,7 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
         this.timeout(60000);
         // XXX TODO: test all DagNodeService APIs
         // Need session implemented to access the workbook scope
-        const id = (Math.floor(Math.random()*90000) + 10000);
+        const id = (Math.floor(Math.random() * 90000) + 10000);
         const testUserName = "testUserSession" + id;
         const testSessionName = "testSessionSession" + id;
         const testCreateDSName = testUserName + "." + id + ".nation";
@@ -162,6 +162,7 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
         });
 
         it("delet() should fail if dag node doesn't exist", async () => {
+            let error;
             try {
                 // deleting table that no longer exists
                 let result = await DagNodeService.delete({
@@ -174,12 +175,15 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
                         workbookName: testSessionName
                     }
                 });
-                expect.fail("delet() doesn't fail when dag node doesn't exist");
             } catch(err) {
-                expect(err.type).to.equal(Xcrpc.Error.ErrorType.XCALAR);
-                expect(err.status).to.equal(Xcrpc.Error.status.STATUS_DAG_NODE_NOT_FOUND);
-                expect(err.error).to.equal(Xcrpc.EnumMap.StatusToStr[Xcrpc.Error.status.STATUS_DAG_NODE_NOT_FOUND]);
+                error = err
             }
+            if (error == null) {
+                expect.fail("delet() doesn't fail when dag node doesn't exist");
+            }
+            expect(error.type).to.equal(Xcrpc.Error.ErrorType.XCALAR);
+            expect(error.status).to.equal(Xcrpc.Error.status.STATUS_DAG_NODE_NOT_FOUND);
+            expect(error.error).to.equal(Xcrpc.EnumMap.StatusToStr[Xcrpc.Error.status.STATUS_DAG_NODE_NOT_FOUND]);
         });
     });
 }
