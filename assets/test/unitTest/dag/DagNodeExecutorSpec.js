@@ -1,8 +1,12 @@
 describe("DagNodeExecutor Test", () => {
     const txId = 1;
+    const symTxId = 1.5;
+    let symTxIdCount;
     let cachedTransactionGet;
     before(function(done){
         cachedTransactionGet = Transaction.get;
+        symTxIdCount = Transaction.__testOnly__.getAll().txIdCount;
+        console.log(symTxIdCount, "count");
         Transaction.get = () => {
             return {
                 setCurrentNodeId: ()=>{},
@@ -26,6 +30,17 @@ describe("DagNodeExecutor Test", () => {
         const node = new DagNode();
         const executor = new DagNodeExecutor(node, txId);
         expect(executor).to.be.an.instanceof(DagNodeExecutor)
+    });
+
+    it("getTableNamePrefix", () => {
+        let cache = DagTabManager.Instance.getTabById;
+        DagTabManager.Instance.getTabById = () => {
+            return {
+                getName: () => "tabName"
+            };
+        }
+        expect(DagNodeExecutor.getTableNamePrefix("sampleId")).to.equal("table_published_tabName");
+        DagTabManager.Instance.getTabById = cache;
     });
 
     it("should load dataset", (done) => {
@@ -77,6 +92,100 @@ describe("DagNodeExecutor Test", () => {
         let res = executor._getOptimizedLoadArg(node, "test2");
         let parsed = JSON.parse(res);
         expect(parsed.args.dest).to.equal("test2");
+    });
+
+    it("should load dataset optimized", (done) => {
+
+        let loadArgs = {
+            args: {
+                dest: "test"
+            }
+        };
+        const node = createNode(DagNodeType.Dataset);
+        node.setParam({source: "test", prefix: "prefix", loadArgs: JSON.stringify(loadArgs)});
+        const executor = new DagNodeExecutor(node, symTxId);
+        const oldIndex = XIApi.indexFromDataset;
+
+        XIApi.indexFromDataset = (symTxId, dsName, newTableName, prefix) => {
+            expect(symTxId).to.equal(1.5);
+            expect(dsName.startsWith("Optimized.")).to.be.true;
+            expect(dsName.endsWith(".test")).to.be.true;
+            expect(newTableName).not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            expect(prefix).to.equal("prefix");
+            return PromiseHelper.resolve({newTableName, prefix});
+        };
+
+        executor.run(true)
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.indexFromDataset = oldIndex;
+        });
+    });
+
+    it("should load dataset optimized and fail", (done) => {
+        const node = createNode(DagNodeType.Dataset);
+        node.setParam({source: "test", prefix: "prefix"});
+        const executor = new DagNodeExecutor(node, symTxId);
+        const oldIndex = XIApi.indexFromDataset;
+
+        XIApi.indexFromDataset = (symTxId, dsName, newTableName, prefix) => {
+            expect(symTxId).to.equal(1.5);
+            expect(dsName.startsWith("Optimized.")).to.be.true;
+            expect(dsName.endsWith(".test")).to.be.true;
+            expect(newTableName).not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            expect(prefix).to.equal("prefix");
+            return PromiseHelper.resolve({newTableName, prefix});
+        };
+
+        executor.run(true)
+        .then(() => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .fail((error) => {
+            expect(error.detail).to.equal("Cannot read property 'args' of null");
+            expect(error.error).to.equal("Parse load args error");
+            done();
+        })
+        .always(() => {
+            XIApi.indexFromDataset = oldIndex;
+        });
+    });
+
+    it("should synthesize dataset", (done) => {
+        const node = createNode(DagNodeType.Dataset);
+        const executor = new DagNodeExecutor(node, txId);
+        let oldSynthesize = XIApi.synthesize;
+        let called = false;
+        XIApi.synthesize = (txId, colInfos, dsName, desTable, sameSession) => {
+            expect(colInfos).to.deep.equal([{
+                orig: "name",
+                new: "name",
+                type: 0
+            }]);
+            expect(dsName).to.equal(".XcalarDS.dsName");
+            expect(desTable.startsWith("table_undefined_dag")).to.be.true;
+            expect(sameSession).to.be.true;
+            called = true;
+            return PromiseHelper.resolve();
+        };
+        executor._synthesizeDataset("dsName", [{name: "name", type: DfFieldTypeT.DfString}])
+        .then(() => {
+            expect(called).to.be.true;
+            XIApi.synthesize = oldSynthesize
+            done();
+        })
+        .fail(() => {
+            done("fail");
+        });
     });
 
     it("should aggregate", (done) => {
@@ -193,6 +302,166 @@ describe("DagNodeExecutor Test", () => {
         })
         .always(() => {
             XIApi.groupBy = oldGroupBy;
+        });
+    });
+
+    it("should group by with join", (done) => {
+        const node = createNode(DagNodeType.GroupBy);
+        const parentNode = createNode();
+        node.setParam({
+            groupBy: ["groupCol"],
+            aggregate: [{
+                operator: "count",
+                sourceColumn: "aggCol",
+                destColumn: "count_aggCol",
+                distinct: true
+            }],
+            icv: false,
+            groupAll: false,
+            includeSample: false,
+            joinBack: true
+        });
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldGroupBy = XIApi.groupBy;
+
+        XIApi.groupBy = (txId, aggArgs, groupByCols, tableName, options) => {
+            expect(txId).to.equal(1);
+            expect(aggArgs.length).to.equal(1);
+            expect(aggArgs[0]).to.deep.equal({
+                operator: "count",
+                aggColName: "aggCol",
+                newColName: "count_aggCol",
+                isDistinct: true,
+                delim: undefined
+            });
+            expect(groupByCols.length).to.equal(1);
+            expect(groupByCols[0]).to.equal("groupCol");
+            expect(tableName).to.equal("testTable");
+            expect(options).to.be.an("object");
+            expect(options.newTableName).not.to.be.empty;
+            expect(options.newTableName).to.be.a("string");
+            expect(options.isIncSample).to.be.false;
+            expect(options.icvMode).to.be.false;
+            expect(options.groupAll).to.be.false;
+            return PromiseHelper.resolve({finalTable: tableName});
+        };
+        const oldJoin = XIApi.join;
+        let called = false;
+        XIApi.join = (txId, type, lTableInfo, rTableInfo, joinOpts) => {
+            expect(txId).to.equal(1);
+            expect(type).to.equal(3);
+            expect(lTableInfo).to.deep.equal({
+                "tableName": "testTable",
+                "columns": [
+                    "groupCol"
+                ]}
+            )
+            expect(rTableInfo.tableName).to.equal("testTable")
+            expect(rTableInfo.columns).to.deep.equal([
+                    "groupCol"
+                ]
+            );
+            expect(joinOpts.keepAllColumns).to.be.true;
+            expect(joinOpts.newTableName.startsWith("table_undefined_dag")).to.be.true;
+            called = true;
+            return PromiseHelper.resolve("newTableName");
+        };
+
+        executor.run()
+        .then(() => {
+            expect(called).to.be.true;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.groupBy = oldGroupBy;
+            XIApi.join = oldJoin;
+        });
+    });
+
+    it("should group by with cast", (done) => {
+        const node = createNode(DagNodeType.GroupBy);
+        const parentNode = createNode();
+        node.setParam({
+            groupBy: ["groupCol"],
+            aggregate: [{
+                operator: "count",
+                sourceColumn: "aggCol",
+                destColumn: "count_aggCol",
+                distinct: true
+            },
+            {
+                operator: "avg",
+                sourceColumn: "aggCol2",
+                destColumn: "avg_aggCol",
+                distinct: true,
+                cast: "integer"
+            }],
+            icv: false,
+            groupAll: false,
+            includeSample: false
+        });
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldGroupBy = XIApi.groupBy;
+
+        XIApi.groupBy = (txId, aggArgs, groupByCols, tableName, options) => {
+            expect(txId).to.equal(1);
+            expect(aggArgs.length).to.equal(2);
+            expect(aggArgs[0]).to.deep.equal({
+                operator: "count",
+                aggColName: "aggCol",
+                newColName: "count_aggCol",
+                isDistinct: true,
+                delim: undefined
+            });
+            expect(aggArgs[1]).to.deep.equal({
+                operator: "avg",
+                aggColName: "aggCol2",
+                newColName: "avg_aggCol",
+                isDistinct: true,
+                delim: undefined
+            });
+            expect(groupByCols.length).to.equal(1);
+            expect(groupByCols[0]).to.equal("groupCol");
+            expect(tableName).to.equal("destTable");
+            expect(options).to.be.an("object");
+            expect(options.newTableName).not.to.be.empty;
+            expect(options.newTableName).to.be.a("string");
+            expect(options.isIncSample).to.be.false;
+            expect(options.icvMode).to.be.false;
+            expect(options.groupAll).to.be.false;
+            return PromiseHelper.resolve({finalTable: tableName});
+        };
+
+        let oldMap = XIApi.map;
+        let called = false;
+        XIApi.map = (txId, mapStrs, srcTable, newCastNames, tableName) => {
+            expect(srcTable).to.equal("testTable");
+            expect(mapStrs).to.deep.equal(["int(aggCol2, 10)"]);
+            expect(newCastNames).to.deep.equal(["aggCol2"]);
+            called = true;
+            return PromiseHelper.resolve("destTable");
+        };
+
+        executor.run()
+        .then(() => {
+            expect(called).to.be.true;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.groupBy = oldGroupBy;
+            XIApi.map = oldMap;
         });
     });
 
@@ -1000,6 +1269,927 @@ describe("DagNodeExecutor Test", () => {
             XIApi.synthesize = oldSynthesize;
         });
     });
+    it("should work for custom", (done) => {
+        let customNodeInfo = {
+                "version": 1,
+                "type": "custom",
+                "subType": null,
+                "display": {
+                    "x": 610,
+                    "y": 120
+                },
+                "description": "",
+                "title": "Node 11",
+                "input": {},
+                "id": "dag_5D38D6453793C52F_1564545230115_91",
+                "state": "Error",
+                "error": "Requires 1 parents",
+                "configured": false,
+                "aggregates": [],
+                "inPorts": [
+                    {
+                        "parentId": "dag_5D38D6453793C52F_1564545230117_94",
+                        "pos": 0
+                    }
+                ],
+                "outPorts": [
+                    {
+                        "childId": "dag_5D38D6453793C52F_1564545230117_95",
+                        "pos": 0
+                    }
+                ],
+                "customName": "Custom",
+                "parents": [],
+                "subGraph": {
+                    "nodes": [
+                        {
+                            "version": 1,
+                            "type": "map",
+                            "subType": null,
+                            "display": {
+                                "x": 180,
+                                "y": 40
+                            },
+                            "description": "",
+                            "title": "Node 9",
+                            "input": {
+                                "eval": [
+                                    {
+                                        "evalString": "add(1, 2)",
+                                        "newField": "three"
+                                    }
+                                ],
+                                "icv": false
+                            },
+                            "state": "Error",
+                            "error": "Requires 1 parents",
+                            "configured": true,
+                            "aggregates": [],
+                            "udfError": null,
+                            "parents": [
+                                "dag_5D38D6453793C52F_1564545230117_94"
+                            ],
+                            "nodeId": "dag_5D38D6453793C52F_1564545230116_92"
+                        },
+                        {
+                            "version": 1,
+                            "type": "filter",
+                            "subType": null,
+                            "display": {
+                                "x": 320,
+                                "y": 40
+                            },
+                            "description": "",
+                            "title": "Node 10",
+                            "input": {
+                                "evalString": "eq(1, 1)"
+                            },
+                            "state": "Configured",
+                            "configured": true,
+                            "aggregates": [],
+                            "parents": [
+                                "dag_5D38D6453793C52F_1564545230116_92"
+                            ],
+                            "nodeId": "dag_5D38D6453793C52F_1564545230116_93"
+                        },
+                        {
+                            "version": 1,
+                            "type": "customInput",
+                            "subType": null,
+                            "display": {
+                                "x": 40,
+                                "y": 40
+                            },
+                            "description": "",
+                            "title": "",
+                            "input": {},
+                            "state": "Error",
+                            "error": "Requires 1 parents",
+                            "configured": false,
+                            "aggregates": [],
+                            "parents": [],
+                            "nodeId": "dag_5D38D6453793C52F_1564545230117_94"
+                        },
+                        {
+                            "version": 1,
+                            "type": "customOutput",
+                            "subType": null,
+                            "display": {
+                                "x": 460,
+                                "y": 40
+                            },
+                            "description": "",
+                            "title": "",
+                            "input": {},
+                            "state": "Unused",
+                            "configured": false,
+                            "aggregates": [],
+                            "parents": [
+                                "dag_5D38D6453793C52F_1564545230116_93"
+                            ],
+                            "nodeId": "dag_5D38D6453793C52F_1564545230117_95"
+                        }
+                    ],
+                    "comments": [],
+                    "display": {
+                        "width": 660,
+                        "height": 140
+                    },
+                    "operationTime": 0
+                }
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(customNodeInfo);
+        const parentNode = createNode();
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldFilter = XIApi.filter;
+        let called = false;
+
+        XIApi.filter = (txId, fltStr, tableName, newTableName) => {
+            expect(txId).to.equal(symTxIdCount + 2.5);
+            expect(fltStr).to.equal("eq(1, 1)");
+            expect(newTableName).not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            called = true;
+            return PromiseHelper.resolve();
+        };
+
+        const oldMap = XIApi.map;
+        let called2 = false;
+        XIApi.map = (txId, mapStr, tableName) => {
+            expect(txId).to.equal(symTxIdCount + 1.5);
+            expect(mapStr).to.deep.equal(["add(1, 2)"]);
+            expect(tableName).to.equal("testTable");
+            called2 = true;
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            expect(called).to.be.true;
+            expect(called2).to.be.true;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.filter = oldFilter;
+            XIApi.map = oldMap;
+        });
+    });
+
+    it("should work for custom simulate", (done) => {
+        let customNodeInfo = {
+                "version": 1,
+                "type": "custom",
+                "subType": null,
+                "display": {
+                    "x": 610,
+                    "y": 120
+                },
+                "description": "",
+                "title": "Node 11",
+                "input": {},
+                "id": "dag_5D38D6453793C52F_1564545230115_91",
+                "state": "Error",
+                "error": "Requires 1 parents",
+                "configured": false,
+                "aggregates": [],
+                "inPorts": [
+                    {
+                        "parentId": "dag_5D38D6453793C52F_1564545230117_94",
+                        "pos": 0
+                    }
+                ],
+                "outPorts": [
+                    {
+                        "childId": "dag_5D38D6453793C52F_1564545230117_95",
+                        "pos": 0
+                    }
+                ],
+                "customName": "Custom",
+                "parents": [],
+                "subGraph": {
+                    "nodes": [
+                        {
+                            "version": 1,
+                            "type": "map",
+                            "subType": null,
+                            "display": {
+                                "x": 180,
+                                "y": 40
+                            },
+                            "description": "",
+                            "title": "Node 9",
+                            "input": {
+                                "eval": [
+                                    {
+                                        "evalString": "add(1, 2)",
+                                        "newField": "three"
+                                    }
+                                ],
+                                "icv": false
+                            },
+                            "state": "Error",
+                            "error": "Requires 1 parents",
+                            "configured": true,
+                            "aggregates": [],
+                            "udfError": null,
+                            "parents": [
+                                "dag_5D38D6453793C52F_1564545230117_94"
+                            ],
+                            "nodeId": "dag_5D38D6453793C52F_1564545230116_92"
+                        },
+                        {
+                            "version": 1,
+                            "type": "filter",
+                            "subType": null,
+                            "display": {
+                                "x": 320,
+                                "y": 40
+                            },
+                            "description": "",
+                            "title": "Node 10",
+                            "input": {
+                                "evalString": "eq(1, 1)"
+                            },
+                            "state": "Configured",
+                            "configured": true,
+                            "aggregates": [],
+                            "parents": [
+                                "dag_5D38D6453793C52F_1564545230116_92"
+                            ],
+                            "nodeId": "dag_5D38D6453793C52F_1564545230116_93"
+                        },
+                        {
+                            "version": 1,
+                            "type": "customInput",
+                            "subType": null,
+                            "display": {
+                                "x": 40,
+                                "y": 40
+                            },
+                            "description": "",
+                            "title": "",
+                            "input": {},
+                            "state": "Error",
+                            "error": "Requires 1 parents",
+                            "configured": false,
+                            "aggregates": [],
+                            "parents": [],
+                            "nodeId": "dag_5D38D6453793C52F_1564545230117_94"
+                        },
+                        {
+                            "version": 1,
+                            "type": "customOutput",
+                            "subType": null,
+                            "display": {
+                                "x": 460,
+                                "y": 40
+                            },
+                            "description": "",
+                            "title": "",
+                            "input": {},
+                            "state": "Unused",
+                            "configured": false,
+                            "aggregates": [],
+                            "parents": [
+                                "dag_5D38D6453793C52F_1564545230116_93"
+                            ],
+                            "nodeId": "dag_5D38D6453793C52F_1564545230117_95"
+                        }
+                    ],
+                    "comments": [],
+                    "display": {
+                        "width": 660,
+                        "height": 140
+                    },
+                    "operationTime": 0
+                }
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(customNodeInfo);
+        const parentNode = createNode();
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, symTxId);
+        const oldFilter = XIApi.filter;
+        let called = false;
+
+        XIApi.filter = (txId, fltStr, tableName, newTableName) => {
+            expect(txId).to.equal(symTxIdCount + 5.5);
+            expect(fltStr).to.equal("eq(1, 1)");
+            expect(newTableName).not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            called = true;
+            return PromiseHelper.resolve();
+        };
+
+        const oldMap = XIApi.map;
+        let called2 = false;
+        XIApi.map = (txId, mapStr, tableName) => {
+            expect(txId).to.equal(symTxIdCount + 4.5);
+            expect(mapStr).to.deep.equal(["add(1, 2)"]);
+            expect(tableName).to.equal("testTable");
+            called2 = true;
+            return PromiseHelper.resolve();
+        };
+        const oldQuery =  XIApi.query;
+        let called3 = false;
+        XIApi.query = (txId, destTable, queryStr) => {
+            expect(txId).to.equal(1.5);
+            expect(queryStr).to.equal("[]");
+            called3 = true;
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            expect(called).to.be.true;
+            expect(called2).to.be.true;
+            expect(called3).to.be.true;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.filter = oldFilter;
+            XIApi.map = oldMap;
+            XIApi.query = oldQuery;
+        });
+    });
+
+    it("should work for _dfIn _linkWithBatch", (done) => {
+        let nodeInfo =
+            {
+                "version": 1,
+                "type": "link in",
+                "subType": null,
+                "display": {
+                    "x": 320,
+                    "y": 240
+                },
+                "description": "",
+                "title": "Node 12",
+                "input": {
+                    "dataflowId": "self",
+                    "linkOutName": "a",
+                    "source": ""
+                },
+                "id": "dag_5D38D6453793C52F_1564551809791_101",
+                "state": "Configured",
+                "configured": true,
+                "aggregates": [],
+                "schema": [
+                    {
+                        "name": "flight5016::CheckSum",
+                        "type": "integer"
+                    }
+                ],
+                "parents": []
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(nodeInfo);
+        node.getLinkedNodeAndGraph = () => {
+            return {
+                graph: new DagGraph(),
+                node: createNode(DagNodeType.DFOut)
+            }
+        }
+
+        const executor = new DagNodeExecutor(node, txId);
+
+         const oldQuery =  XIApi.query;
+        let called = false;
+        XIApi.query = (txId, destTable, queryStr) => {
+            expect(txId).to.equal(1);
+            expect(queryStr).to.equal("[]");
+            called = true;
+        };
+
+        executor.run()
+        .then(() => {
+            expect(called).to.be.true;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.query = oldQuery;
+        });
+    });
+
+    it("should work for _dfIn _synthesizeDFOutInBatch", (done) => {
+        let nodeInfo =
+            {
+                "version": 1,
+                "type": "link in",
+                "subType": null,
+                "display": {
+                    "x": 320,
+                    "y": 240
+                },
+                "description": "",
+                "title": "Node 12",
+                "input": {
+                    "dataflowId": "self",
+                    "linkOutName": "a",
+                    "source": ""
+                },
+                "id": "dag_5D38D6453793C52F_1564551809791_101",
+                "state": "Configured",
+                "configured": true,
+                "aggregates": [],
+                "schema": [
+                    {
+                        "name": "flight5016::CheckSum",
+                        "type": "integer"
+                    }
+                ],
+                "parents": []
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(nodeInfo);
+        let outNode = createNode(DagNodeType.DFOut, null, DagNodeSubType.DFOutOptimized);
+        node.getLinkedNodeAndGraph = () => {
+            return {
+                graph: new DagGraph(),
+                node: outNode
+            }
+        }
+
+        const executor = new DagNodeExecutor(node, txId);
+
+         const oldQuery =  XIApi.query;
+        let called = false;
+        XIApi.query = (txId, destTable, queryStr) => {
+            expect(txId).to.equal(1);
+            expect(queryStr).to.equal("[]");
+            called = true;
+            return PromiseHelper.resolve();
+        };
+
+        let oldSynthesize = XIApi.synthesize;
+        let called2 = false;
+        XIApi.synthesize = () => {
+            called2 = true;
+            return PromiseHelper.resolve();
+        }
+
+        executor.run()
+        .then(() => {
+            expect(called).to.be.true;
+            expect(called2).to.be.true;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.query = oldQuery;
+            XIApi.synthesize = oldSynthesize;
+        });
+    });
+
+    it("should work for _dfIn _linkWithExecution", (done) => {
+        let nodeInfo =
+            {
+                "version": 1,
+                "type": "link in",
+                "subType": null,
+                "display": {
+                    "x": 320,
+                    "y": 240
+                },
+                "description": "",
+                "title": "Node 12",
+                "input": {
+                    "dataflowId": "self",
+                    "linkOutName": "a",
+                    "source": ""
+                },
+                "id": "dag_5D38D6453793C52F_1564551809791_101",
+                "state": "Configured",
+                "configured": true,
+                "aggregates": [],
+                "schema": [
+                    {
+                        "name": "flight5016::CheckSum",
+                        "type": "integer"
+                    }
+                ],
+                "parents": []
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(nodeInfo);
+        let outNode =  createNode(DagNodeType.DFOut);
+        outNode.shouldLinkAfterExecution = () => true;
+        node.getLinkedNodeAndGraph = () => {
+            return {
+                graph: new DagGraph(),
+                node: outNode
+            }
+        }
+
+        const executor = new DagNodeExecutor(node, txId);
+
+        executor.run()
+        .then(() => {
+            expect(node.getState()).to.equal(DagNodeState.Complete);
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        });
+    });
+
+    it("should work for _dfIn _linkWithExecution synthesize", (done) => {
+        let nodeInfo =
+            {
+                "version": 1,
+                "type": "link in",
+                "subType": null,
+                "display": {
+                    "x": 320,
+                    "y": 240
+                },
+                "description": "",
+                "title": "Node 12",
+                "input": {
+                    "dataflowId": "self",
+                    "linkOutName": "a",
+                    "source": ""
+                },
+                "id": "dag_5D38D6453793C52F_1564551809791_101",
+                "state": "Configured",
+                "configured": true,
+                "aggregates": [],
+                "schema": [
+                    {
+                        "name": "flight5016::CheckSum",
+                        "type": "integer"
+                    }
+                ],
+                "parents": []
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(nodeInfo);
+        node.getTable = () => "testTable";
+        let outNode =  createNode(DagNodeType.DFOut);
+        outNode.shouldLinkAfterExecution = () => true;
+        node.getLinkedNodeAndGraph = () => {
+            return {
+                graph: new DagGraph(),
+                node: outNode
+            }
+        }
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldSynthesize =  XIApi.synthesize;
+        let called = false;
+        XIApi.synthesize = (txId, colInfos, tableName, newTableName, sameSession) => {
+            expect(txId).to.equal(1);
+            expect(tableName).to.equal("testTable");
+            expect(newTableName).not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            expect(sameSession).to.be.false;
+            called = true;
+            return PromiseHelper.resolve();
+        };
+        executor.run(true)
+        .then(() => {
+            expect(called).to.be.true;
+            XIApi.synthesize = oldSynthesize;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        });
+    });
+
+    it("should work for _dfIn _linkWithSource", (done) => {
+        let nodeInfo =
+            {
+                "version": 1,
+                "type": "link in",
+                "subType": null,
+                "display": {
+                    "x": 320,
+                    "y": 240
+                },
+                "description": "",
+                "title": "Node 12",
+                "input": {
+                    "dataflowId": "self",
+                    "linkOutName": "a",
+                    "source": "testSource"
+                },
+                "id": "dag_5D38D6453793C52F_1564551809791_101",
+                "state": "Configured",
+                "configured": true,
+                "aggregates": [],
+                "schema": [
+                    {
+                        "name": "flight5016::CheckSum",
+                        "type": "integer"
+                    }
+                ],
+                "parents": []
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(nodeInfo);
+
+        node.getLinkedNodeAndGraph = () => {
+            return {
+                graph: new DagGraph(),
+                node: createNode(DagNodeType.DFOut)
+            }
+        }
+
+        const executor = new DagNodeExecutor(node, txId);
+        let oldAddTable = DagTblManager.Instance.addTable;
+        let called = false;
+        DagTblManager.Instance.addTable = () => {
+            called = true;
+        };
+
+        let oldMeta = XcalarGetTableMeta;
+        let called2 = false;
+        XcalarGetTableMeta = () => {
+            called2 = true;
+            return PromiseHelper.resolve("testSource");
+        }
+
+
+        executor.run()
+        .then(() => {
+            expect(called).to.be.true;
+            expect(called2).to.be.true;
+            expect(node.getState()).to.equal(DagNodeState.Complete);
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            DagTblManager.Instance.addTable = oldAddTable;
+            XcalarGetTableMeta = oldMeta;
+        });
+    });
+
+    it("should work for _dfIn _linkWithSource optimized", (done) => {
+        let nodeInfo =
+            {
+                "version": 1,
+                "type": "link in",
+                "subType": null,
+                "display": {
+                    "x": 320,
+                    "y": 240
+                },
+                "description": "",
+                "title": "Node 12",
+                "input": {
+                    "dataflowId": "self",
+                    "linkOutName": "a",
+                    "source": "testSource"
+                },
+                "id": "dag_5D38D6453793C52F_1564551809791_101",
+                "state": "Configured",
+                "configured": true,
+                "aggregates": [],
+                "schema": [
+                    {
+                        "name": "flight5016::CheckSum",
+                        "type": "integer"
+                    }
+                ],
+                "parents": []
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(nodeInfo);
+
+        node.getLinkedNodeAndGraph = () => {
+            return {
+                graph: new DagGraph(),
+                node: createNode(DagNodeType.DFOut)
+            }
+        }
+
+        const executor = new DagNodeExecutor(node, txId);
+
+        const oldSynthesize =  XIApi.synthesize;
+        let called = false;
+        XIApi.synthesize = (txId, colInfos, tableName, newTableName, sameSession) => {
+            expect(txId).to.equal(1);
+            expect(tableName).to.equal("testSource");
+            expect(newTableName).not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            expect(sameSession).to.be.false;
+            called = true;
+            return PromiseHelper.resolve();
+        };
+
+
+        executor.run(true)
+        .then(() => {
+            expect(called).to.be.true;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.synthesize = oldSynthesize;
+        });
+    });
+
+    // XXX need more thorough testing
+    it("should work for sql", (done) => {
+        let sqlNodeInfo = {
+                "version": 1,
+                "type": "sql",
+                "subType": null,
+                "display": {
+                    "x": 100,
+                    "y": 200
+                },
+                "description": "",
+                "title": "Node 4",
+                "input": {
+                    "sqlQueryStr": "SELECT * FROM b",
+                    "identifiers": {
+                        "1": "b"
+                    },
+                    "identifiersOrder": [
+                        1
+                    ],
+                    "dropAsYouGo": true
+                },
+                "id": "dag_5D38D6453793C52F_1564163314149_38",
+                "state": "Error",
+                "error": "Unknown Error",
+                "configured": true,
+                "aggregates": [],
+                "tableSrcMap": {},
+                "columns": [
+                    {
+                        "name": "CHECKSUM",
+                        "backName": "CHECKSUM",
+                        "type": "integer"
+                    }
+                ],
+                "parents": [
+                    "dag_5D38D6453793C52F_1564163432905_39"
+                ]
+        };
+        let datasetNodeInfo = {
+                "version": 1,
+                "type": "dataset",
+                "subType": null,
+                "display": {
+                    "x": 20,
+                    "y": 120
+                },
+                "description": "",
+                "title": "Node 5",
+                "input": {
+                    "source": "admin.97128.flight5016",
+                    "prefix": "flight5016",
+                    "synthesize": false,
+                    "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"admin.97128.flight5016\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/netstore/datasets/flight/airlines/\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\n\\\",\\\"fieldDelim\\\":\\\",\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CheckSum\",\n                        \"destColumn\": \"CheckSum\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"Timestamp\",\n                        \"destColumn\": \"Timestamp\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Category\",\n                        \"destColumn\": \"Category\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Towers\",\n                        \"destColumn\": \"Towers\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"TypeOfInformation\",\n                        \"destColumn\": \"TypeOfInformation\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Year\",\n                        \"destColumn\": \"Year\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"Month\",\n                        \"destColumn\": \"Month\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"DayofMonth\",\n                        \"destColumn\": \"DayofMonth\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"DayOfWeek\",\n                        \"destColumn\": \"DayOfWeek\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"DepTime\",\n                        \"destColumn\": \"DepTime\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CRSDepTime\",\n                        \"destColumn\": \"CRSDepTime\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"ArrTime\",\n                        \"destColumn\": \"ArrTime\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CRSArrTime\",\n                        \"destColumn\": \"CRSArrTime\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"UniqueCarrier\",\n                        \"destColumn\": \"UniqueCarrier\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"FlightNum\",\n                        \"destColumn\": \"FlightNum\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"TailNum\",\n                        \"destColumn\": \"TailNum\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"ActualElapsedTime\",\n                        \"destColumn\": \"ActualElapsedTime\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CRSElapsedTime\",\n                        \"destColumn\": \"CRSElapsedTime\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"AirTime\",\n                        \"destColumn\": \"AirTime\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"ArrDelay\",\n                        \"destColumn\": \"ArrDelay\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"DepDelay\",\n                        \"destColumn\": \"DepDelay\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Origin\",\n                        \"destColumn\": \"Origin\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Dest\",\n                        \"destColumn\": \"Dest\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Distance\",\n                        \"destColumn\": \"Distance\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"TaxiIn\",\n                        \"destColumn\": \"TaxiIn\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"TaxiOut\",\n                        \"destColumn\": \"TaxiOut\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"Cancelled\",\n                        \"destColumn\": \"Cancelled\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CancellationCode\",\n                        \"destColumn\": \"CancellationCode\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Diverted\",\n                        \"destColumn\": \"Diverted\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CarrierDelay\",\n                        \"destColumn\": \"CarrierDelay\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"WeatherDelay\",\n                        \"destColumn\": \"WeatherDelay\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"NASDelay\",\n                        \"destColumn\": \"NASDelay\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"SecurityDelay\",\n                        \"destColumn\": \"SecurityDelay\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"LateAircraftDelay\",\n                        \"destColumn\": \"LateAircraftDelay\",\n                        \"columnType\": \"DfInt64\"\n                    }\n                ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
+                },
+                "id": "dag_5D38D6453793C52F_1564163432905_39",
+                "state": "Configured",
+                "configured": true,
+                "aggregates": [],
+                "schema": [
+                    {
+                        "name": "CheckSum",
+                        "type": "integer"
+                    }
+                ],
+                "parents": []
+            };
+        let node = DagViewManager.Instance.getActiveDag().newNode(sqlNodeInfo);
+        node.getXcQueryString = () => {
+            return "testQuery";
+        };
+        node.subGraph = new DagSubGraph();
+
+        const executor = new DagNodeExecutor(node, txId);
+        let called = false;
+        executor._replaceSQLTableName = (queryStr) => {
+            expect(queryStr).to.equal("testQuery");
+            called = true;
+            return {
+                newQueryStr: "[]",
+                newTableSrcMap: {},
+                newTableMap: {}
+            };
+        }
+
+        let oldQuery = XIApi.query;
+        let called2 = false;
+        XIApi.query = (txId, queryId, finalQueryStr, options) => {
+            called2  = true;
+            expect(txId).to.equal(1);
+            expect(queryId.startsWith("sqlQuery")).to.be.true;
+            expect(finalQueryStr).to.equal("[]");
+            expect(options.checkTime).to.equal(500);
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            expect(called).to.be.true;
+            expect(called2).to.be.true;
+            XIApi.query = oldQuery;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+
+        });
+    });
+
+    it("_replaceSQLTableName should work", () => {
+        let node = createNode();
+        const executor = new DagNodeExecutor(node, txId);
+        let queryString = JSON.stringify([
+            {
+                "operation": "XcalarApiSynthesize",
+                "args": {
+                    "source": "a",
+                    "dest": "b",
+                    "columns": [
+                        {
+                            "sourceColumn": "classes::class_name",
+                            "destColumn": "CLASS_NAME",
+                            "columnType": "DfString"
+                        },
+                        {
+                            "sourceColumn": "classes::class_id",
+                            "destColumn": "CLASS_ID",
+                            "columnType": "DfInt64"
+                        }
+                    ],
+                    "sameSession": true,
+                    "numColumns": 2
+                }
+            }
+        ]);
+        let tableSrcMap = {"a": 1};
+        let replaceMap = {"1": "a"};
+        let oldTableName = "b";
+        let newTableName = "c";
+        let res = executor._replaceSQLTableName(queryString, tableSrcMap, replaceMap, oldTableName, newTableName);
+
+        expect(res.newTableMap).to.deep.equal({a:"a", b: "c"});
+        expect(res.newTableSrcMap).to.deep.equal({a:1});
+        expect(JSON.parse(res.newQueryStr)).to.deep.equal([
+            {
+                "operation": "XcalarApiSynthesize",
+                "args": {
+                    "source": "a",
+                    "dest": "c",
+                    "columns": [
+                        {
+                            "sourceColumn": "classes::class_name",
+                            "destColumn": "CLASS_NAME",
+                            "columnType": "DfString"
+                        },
+                        {
+                            "sourceColumn": "classes::class_id",
+                            "destColumn": "CLASS_ID",
+                            "columnType": "DfInt64"
+                        }
+                    ],
+                    "sameSession": true,
+                    "numColumns": 2
+                }
+            }
+        ]);
+    });
+
+    it("_mapEvalStrAggs", () => {
+        const node = createNode(DagNodeType.Map);
+        const executor = new DagNodeExecutor(node, txId);
+        executor.isOptimized = true;
+        let aggs = ["^test"];
+        executor.aggNames = new Set(["^test"]);
+        let res = executor._mapEvalStrAggs("add(^test, 3)", aggs);
+        expect(res).to.equal("add(^batch_undefined_test, 3)");
+    });
+
     after(function() {
         Transaction.get = cachedTransactionGet;
     });

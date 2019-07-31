@@ -124,7 +124,7 @@ class DagGraphExecutor {
                 }
                 // check if the linked node has executed
                 const linkoutNode: DagNodeDFOut = linkInNode.getLinkedNodeAndGraph().node;
-                if (linkoutNode.shouldLinkAfterExecuition() &&
+                if (linkoutNode.shouldLinkAfterExecution() &&
                     linkoutNode.getState() !== DagNodeState.Complete
                 ) {
                     errorResult.hasError = true;

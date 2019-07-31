@@ -129,7 +129,7 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
         }
     }
 
-    public shouldLinkAfterExecuition(): boolean {
+    public shouldLinkAfterExecution(): boolean {
         return this.input.getInput().linkAfterExecution;
     }
 

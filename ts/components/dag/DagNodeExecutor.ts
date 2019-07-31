@@ -237,7 +237,7 @@ class DagNodeExecutor {
                 } catch (e) {
                     return PromiseHelper.reject({
                         error: "Parse load args error",
-                        defail: e.message
+                        detail: e.message
                     });
                 }
             }
@@ -786,7 +786,7 @@ class DagNodeExecutor {
             return PromiseHelper.reject('CustomInput has no corresponding parent');
         }
         return PromiseHelper.resolve(inputParent.getTable());
-}
+    }
 
     private _customOutput(): XDPromise<string> {
         const outputParent = this.node.getParents()[0];
@@ -867,7 +867,7 @@ class DagNodeExecutor {
             const res = node.getLinkedNodeAndGraph();
             const graph: DagGraph = res.graph;
             const linkOutNode: DagNodeDFOut = res.node;
-            if (linkOutNode.shouldLinkAfterExecuition()) {
+            if (linkOutNode.shouldLinkAfterExecution()) {
                 return this._linkWithExecution(graph, linkOutNode, node, optimized);
             } else {
                 return this._linkWithBatch(graph, linkOutNode, optimized);

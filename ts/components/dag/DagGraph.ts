@@ -951,7 +951,7 @@ class DagGraph extends Durable {
                 // Get the corresponding linkOut node and the graph it's in
                 const { graph: linkGraph, node: linkOutNode } = linkInNode.getLinkedNodeAndGraph();
                 const sourceTable = linkOutNode.getTable();
-                if (linkOutNode.shouldLinkAfterExecuition() && sourceTable != null) {
+                if (linkOutNode.shouldLinkAfterExecution() && sourceTable != null) {
                     // Replace the source with linkOut's table
                     linkInNode.setSource(sourceTable);
                 } else {
@@ -1326,7 +1326,7 @@ class DagGraph extends Durable {
                     inNode.getLinkedNodeAndGraph();
                     if (!DagTblManager.Instance.hasTable(inSource.node.getTable())) {
                         // The needed table doesnt exist so we need to generate it, if we can
-                        if (inSource.node.shouldLinkAfterExecuition() &&
+                        if (inSource.node.shouldLinkAfterExecution() &&
                             inSource.graph.getTabId() != this.getTabId()
                         ) {
                             error = xcStringHelper.replaceMsg(AlertTStr.DFLinkGraphError, {
@@ -1334,7 +1334,7 @@ class DagGraph extends Durable {
                                 "graphName": this.getRuntime().getDagTabService().getTabById(inSource.graph.getTabId())
                                     .getName()
                             });
-                        } else if (inSource.node.shouldLinkAfterExecuition()) {
+                        } else if (inSource.node.shouldLinkAfterExecution()) {
                             if (inSource.node.getState() == DagNodeState.Complete) {
                                 // The dfOut node's table was deleted by the auto table manager,
                                 // we're gonna need it if we can.

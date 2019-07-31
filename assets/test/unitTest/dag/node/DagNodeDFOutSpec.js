@@ -44,8 +44,8 @@ describe("DagNodeDFOut Test", function() {
         expect(res.changes.length).to.equal(2);
     });
 
-    it("shouldLinkAfterExecuition should work", function() {
-        expect(node.shouldLinkAfterExecuition()).to.be.true;
+    it("shouldLinkAfterExecution should work", function() {
+        expect(node.shouldLinkAfterExecution()).to.be.true;
     });
 
     it("should set stored query dest", function() {
