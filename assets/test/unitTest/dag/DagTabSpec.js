@@ -1,24 +1,173 @@
+
 describe('DagTab Test', function() {
     var $dagTabs;
     var $newTabButton;
     var oldPut;
+    var oldDown;
+    var oldGetAndParse
+    var graph;
+    var tab;
 
-    before(function() {
+    before(function(done) {
         console.log("Dag Tab Test");
         oldPut = XcalarKeyPut;
         XcalarKeyPut = function() {
             return PromiseHelper.resolve();
         };
+        oldGetAndParse = KVStore.getAndParse;
+        oldDown = xcHelper.downloadAsFile;
         UnitTest.onMinMode();
-        var dagTabManager = DagTabManager.Instance;
-        dagTabManager.newTab();
-        dagTabManager.newTab();
-        $dagTabArea = $("#dagTabSectionTabs");
-        $newTabButton = $("#tabButton");
-        $dagTabs = $("#dagTabSectionTabs .dagTab")
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            var dagTabManager = DagTabManager.Instance;
+            dagTabManager.newTab();
+            dagTabManager.newTab();
+            $dagTabArea = $("#dagTabSectionTabs");
+            $newTabButton = $("#tabButton");
+            $dagTabs = $("#dagTabSectionTabs .dagTab");
+            dagGraph = new DagGraph();
+            dagGraph.setTabId("gId");
+            tab = new DagTab(
+            {
+                name: "cat",
+                id: "myId",
+                dagGraph: dagGraph
+            })
+            
+            done();
+        });
+        
     });
 
-    describe('Dag Tabs Test', function() {
+    describe("DagTab Test", function() {
+        it("Should have constructed correctly", function() {
+            expect(tab._name).to.equal("cat");
+            expect(tab._id).to.equal("myId");
+            expect(tab._dagGraph).to.be.not.null;
+        });
+
+        it("Should generate a UID correctly", function() {
+            var name = DagTab.generateId();
+            expect(name.split("_")[0]).to.equal("DF2");
+        });
+
+        it("Should get and set name correctly", function() {
+            tab.setName("test");
+            expect(tab.getName()).to.equal("test");
+            tab.setName("test2");
+            expect(tab.getName()).to.equal("test2");
+        });
+
+        it("Should get and set graph correctly", function() {
+            var g = new DagGraph();
+            g.setTabId("testgId");
+            tab._id = "otherId";
+            tab.setGraph(g);
+            expect(tab.getGraph().getTabId()).to.equal("otherId");
+        });
+
+        it("Should get id correctly", function() {
+            tab._id = "newId";
+            expect(tab.getId()).to.equal("newId");
+        });
+
+        it("Should get short name correctly", function() {
+            tab._name = "na/me";
+            expect(tab.getShortName()).to.equal("me");
+        });
+
+        it("Should trigger a download correctly", function() {
+            var called = false;
+            xcHelper.downloadAsFile = function(arg1, arg2) {
+                if (arg1 === "me.json") {
+                    called = true;
+                }
+            }
+            tab._name = "na/me";
+            tab.downloadStats();
+            expect(called).to.be.true;
+        });
+
+        it("Should open and close correctly", function() {
+            tab.setClosed();
+            expect(tab.isOpen()).to.be.false;
+            tab.setOpen();
+            expect(tab.isOpen()).to.be.true;
+            tab.setClosed();
+            expect(tab.isOpen()).to.be.false;
+        });
+
+        it("Should return null for serialization", function() {
+            expect(tab.serialize()).to.be.null;
+        });
+    });
+
+    describe("DagTab protected functions tests", function() {
+        it("Should return the correct errors for validate kv store info",
+                function() {
+            var dagInfo = "not an object";
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid dataflow information");
+            dagInfo = {
+                name: 5,
+                id: "kvTab",
+                dag: {
+                    constructor: {},
+                    nodes: [],
+                    comments: []
+                },
+            }
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid dataflow name");
+            dagInfo = {
+                name: "kvstore",
+                id: 5,
+                dag: {
+                    constructor: {},
+                    nodes: [],
+                    comments: []
+                },
+            }
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid dataflow ID");
+            dagInfo = {
+                name: "kvstore",
+                id: "kvTab",
+                dag: null,
+            }
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid dataflow");
+        });
+
+        it("Should load from kv store correctly", function(done) {
+            var info = {
+                name: "kvstore",
+                id: "kvTab",
+                dag: {
+                    constructor: Object,
+                    nodes: [],
+                    comments: []
+                }
+            };
+            tab._dagGraph = null;
+            tab._kvStore = {
+                    getAndParse: function() {
+                        return PromiseHelper.resolve(info);
+                }
+            }
+            tab._loadFromKVStore()
+            .then(({ dagInfo, graph }) => {
+                expect(graph).to.not.be.null;
+                expect(graph.getTabId()).to.equal("newId");
+                expect(dagInfo).to.deep.equal(info);
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            })
+        });
+    })
+
+    describe('Dag Tabs UI Test', function() {
 
         describe("dagTabManager should note active tabs", function() {
             it("Should activate a clicked tab", function() {
@@ -76,5 +225,7 @@ describe('DagTab Test', function() {
 
     after(function() {
         XcalarKeyPut = oldPut;
+        xcHelper.downloadAsFile = oldDown;
+        KVStore.getAndParse = oldGetAndParse;
     });
 });
