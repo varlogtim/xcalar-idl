@@ -156,6 +156,7 @@ abstract class ConfigFile {
             fs.stat(defaultConfigPath, (error, stat) => {
                 if (error) {
                     message.message = "Could not stat " + defaultConfigPath;
+                    xcConsole.log(message.message);
                     return deferred.reject(message);
                 }
 
@@ -164,6 +165,7 @@ abstract class ConfigFile {
                         defaultConfigPath + " are wrong (" +
                         (stat.mode & 0o777).toString(8) +
                         " instead of " + 0o600.toString(8) + ")";
+                    xcConsole.log(message.message);
                     return deferred.reject(message);
                 }
 
