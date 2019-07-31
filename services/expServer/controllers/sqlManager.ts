@@ -79,7 +79,7 @@ class SqlManager {
         hostname: string,
     ): JQueryPromise<any> {
         let deferred = PromiseHelper.deferred();
-        const url: string = "https://" + hostname + "/app/service/xce";
+        const url: string = "http://" + hostname + ":" + process.env.XCE_EXP_PORT + "/service/xce";
         let newThrift: boolean = false;
         Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, url);
         if (getTHandle() == null) {

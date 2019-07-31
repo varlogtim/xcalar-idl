@@ -352,6 +352,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                 hostname = "localhost";
             }
             xcConsole.log("All ready, Listen on port " + port);
+            process.env.XCE_EXP_PORT = port;
             if (process.env.NODE_ENV === "test") {
                 exports.server = httpServer;
             }
