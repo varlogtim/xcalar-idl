@@ -87,6 +87,9 @@ describe("ColSchemaSection Test", function() {
 
         let schema = section.getSchema();
         expect(schema).to.deep.equal(mySchema);
+        $schemaSelectionModal.find(".content .part").after('<div class="part"><div class="name dropDownList"><i class="remove icon xi-close-no-circle xc-action fa-8"></i><input value="" spellcheck="false"><div class="list"><ul></ul><div class="scrollArea top"><i class="arrow icon xi-arrow-up"></i></div><div class="scrollArea bottom"><i class="arrow icon xi-arrow-down"></i></div></div></div><div class="type dropDownList"><div class="text"></div><div class="iconWrapper"><i class="icon xi-arrow-down"></i></div><div class="list"><ul></ul><div class="scrollArea top"><i class="arrow icon xi-arrow-up"></i></div><div class="scrollArea bottom"><i class="arrow icon xi-arrow-down"></i></div></div></div></div>');
+        schema = section.getSchema();
+        expect(schema).to.deep.equal(null);
     });
 
     it("should render schema", function() {
@@ -111,5 +114,6 @@ describe("ColSchemaSection Test", function() {
 
     after(() => {
         $schemaSelectionModal.remove();
+        StatusBox.forceHide();
     });
 });

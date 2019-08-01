@@ -49,6 +49,32 @@ describe("SetOpPanel Test", function() {
         expect(submitCalled).to.equal(false);
     });
 
+    it('refreshColumns should work', () => {
+        refreshColumnsCalled = false;
+        opPanel.setOpData.refreshColumns = () => { refreshColumnsCalled = true };
+        opPanel.refreshColumns();
+        expect(refreshColumnsCalled).to.equal(true);
+    })
+
+    it('_validate should work', () => {
+        opPanel.advancedMode = true;
+        opPanel._validate();
+    });
+
+    it('_switchMode should work', () => {
+        switchModeCalled = false;
+        opPanel.setOpData.switchMode = () => { switchModeCalled = true };
+        opPanel._switchMode();
+        expect(switchModeCalled).to.equal(true);
+    })
+
+    it('_restoreBasicModeParams should work', () => {
+        restoreBasicModeParamsCalled = false;
+        opPanel.setOpData.restoreBasicModeParams = () => { restoreBasicModeParamsCalled = true };
+        opPanel._restoreBasicModeParams();
+        expect(restoreBasicModeParamsCalled).to.equal(true);
+    })
+
     after(() => {
         StatusBox.forceHide();
     });
