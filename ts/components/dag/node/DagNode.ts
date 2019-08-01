@@ -696,7 +696,7 @@ abstract class DagNode extends Durable {
         return result;
     }
 
-    public initializeProgress(tableNames) {
+    public initializeProgress(tableNames: string[]) {
         const nodes: {[key: string]: TableRunStats} = {};
         tableNames.forEach((tableName: string) => {
             const tableRunStats: TableRunStats = {
@@ -819,6 +819,7 @@ abstract class DagNode extends Durable {
                 nodeInfo.state === DgDagStateT.DgDagStateReady) {
                 progress = 1;
             }
+
             const pct: number = Math.round(100 * progress);
             tableRunStats.pct = pct;
             let rows = nodeInfo.numRowsPerNode.map(numRows => numRows);
@@ -1629,7 +1630,7 @@ abstract class DagNode extends Durable {
         }
     }
 
-    protected _replaceColumnInEvalStr(evalStr: string, columnMap: {columns: any}): string {
+    protected _replaceColumnInEvalStr(evalStr: string, columnMap: any): string {
         const parsedEval: ParsedEval = XDParser.XEvalParser.parseEvalStr(evalStr);
         if (parsedEval.error) {
             return evalStr;

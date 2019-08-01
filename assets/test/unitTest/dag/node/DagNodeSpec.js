@@ -119,13 +119,38 @@ describe("Dag Node Basic Test", () => {
         expect(node.getTable()).to.be.undefined;
     });
 
-    it.skip("should get parameters", () => {
-        const node = new DagNode();
-        expect(node.getParams()).to.be.an("object");
+    it("should get parameters", () => {
+        const node = new DagNode({type: DagNodeType.Map});
+        expect(node.getParam()).to.be.an("object");
     });
 
-    it.skip("should set parameters", () => {
-        const node = new DagNode({type: DagNodeType.Dataset});
+    it("should set parameters", () => {
+        const node = new DagNodeMap({});
+        expect(node.configured).to.be.false;
+        let called = false;
+        node.registerEvents(DagNodeEvents.ParamChange, (info) => {
+            expect(node.getId()).to.equal(info.id);
+            expect(info.node).to.equal(node);
+            expect(info.hasParameters).to.be.false;
+            expect(info.type).to.equal("map");
+            expect(info.noAutoExecute).to.be.undefined;
+            expect(info.params).to.deep.equal({
+                eval: "testEval",
+                icv: true
+            });
+            called = true;
+        });
+
+        node.setParam({
+            eval: "testEval",
+            icv: true
+        });
+        expect(node.configured).to.be.true;
+        expect(node.getParam()).to.deep.equal({
+            eval: "testEval",
+            icv: true
+        });
+        expect(called).to.be.true;
     });
 
     it("should connect to parent", () => {
@@ -357,5 +382,443 @@ describe("Dag Node Basic Test", () => {
             expect(res.get("test1")).to.deep.equal({textAlign: "Right"});
             expect(node.getColumnOrdering()).to.deep.equal(["test1", "test2"]);
         });
+    });
+
+    it('getGroupByAggEvalStr should work', () => {
+        const colName = 'a';
+        const tests = [{
+            op: 'stdevp',
+            expect: 'sqrt(div(sum(pow(sub(a, avg(a)), 2)), count(a)))'
+        }, {
+            op: 'stdev',
+            expect: 'sqrt(div(sum(pow(sub(a, avg(a)), 2)), sub(count(a), 1)))'
+        }, {
+            op: 'varp',
+            expect: 'div(sum(pow(sub(a, avg(a)), 2)), count(a))'
+        }, {
+            op: 'var',
+            expect: 'div(sum(pow(sub(a, avg(a)), 2)), sub(count(a), 1))'
+        }, {
+            op: 'min',
+            expect: 'min(a)'
+        }];
+
+        tests.forEach((test) => {
+            const evalStr = DagNode.getGroupByAggEvalStr({
+                aggColName: colName,
+                operator: test.op
+            });
+            expect(evalStr).to.equal(test.expect);
+        });
+    });
+
+    it('getAggsFromEvalStrs should work', () => {
+        const tests = [{
+            op: [{evalString: 'add(^a)'}],
+            expect: ['^a']
+        }, {
+            op: [{evalString: 'add(3, ^a)'}],
+            expect: ['^a']
+        }, {
+            op: [{evalString: 'add(^a,^b)'}],
+            expect: ['^a','^b']
+        }, {
+            op: [{evalString: 'add(a,b)'}],
+            expect: []
+        }, {
+            op: [{evalString: 'add(^a, eq(c, ^b, gt(^d, ^e, f)))'}],
+            expect: ['^a', '^b', '^d', '^e']
+        }];
+
+        tests.forEach((test) => {
+            const aggs = DagNode.getAggsFromEvalStrs(test.op);
+            expect(aggs).to.deep.equal(test.expect);
+        });
+    });
+
+    it("set title should work", () => {
+        const node = new DagNode();
+        node.registerEvents(DagNodeEvents.TitleChange, (info) => {
+            expect(node.getId()).to.equal(info.id);
+            expect(info.title).to.equal("testTitle")
+            expect(info.node).to.equal(node);
+        });
+
+        node.setTitle("testTitle", true);
+        expect(node.getTitle()).to.equal("testTitle");
+    });
+
+    it
+
+    describe("column deltas", () => {
+        let node;
+        before(() => {
+            let nodeInfo = {
+                "version": 1,
+                "type": "filter",
+                "subType": null,
+                "display": {
+                    "x": 200,
+                    "y": 40
+                },
+                "description": "",
+                "title": "classes#3",
+                "input": {
+                    "evalString": "neq(classes::class_id, 6)"
+                },
+                "id": "XcalarSDK-_1564530357771_3187",
+                "state": "Configured",
+                "configured": true,
+                "aggregates": [],
+                "columnDeltas": [
+                    {
+                        "name": "classes::class_name",
+                        "widthChange": {
+                            "width": 196,
+                            "sizedTo": "auto",
+                            "isMinimized": false
+                        }
+                    }
+                ],
+                "columnOrdering": [
+                    "classes::class_name",
+                    "classes::class_id",
+                    "DATA"
+                ],
+                "parents": []
+            };
+            node = new DagNode(nodeInfo);
+        });
+        it("should getColumnDeltas and reset", () => {
+            let res = node.getColumnDeltas();
+            expect(res.size).to.equal(1);
+            expect(res.get("classes::class_name").widthChange).to.deep.equal({width: 196, sizedTo: "auto", isMinimized: false});
+
+            let called = false;
+            node.registerEvents(DagNodeEvents.LineageChange, (info) => {
+                expect(node).to.equal(node);
+                expect(info.columnDeltas.size).to.equal(0);
+                called = true;
+            });
+
+            node.resetColumnDeltas();
+            expect(called).to.be.true;
+
+        });
+        it("should getColumnOrdering and reset", () => {
+            let res = node.getColumnOrdering();
+            expect(res).to.deep.equal(["classes::class_name", "classes::class_id", "DATA"]);
+
+            let called = false;
+            node.registerEvents(DagNodeEvents.LineageChange, (info) => {
+                expect(node).to.equal(info.node);
+                expect(info.columnOrdering).to.deep.equal([]);
+                called = true;
+            });
+
+            node.resetColumnOrdering();
+            expect(called).to.be.true;
+        });
+    });
+
+    it("should get minParents", () => {
+        let node = new DagNode();
+        expect(node.getMinParents()).to.be.undefined;
+        node.minParents = 1;
+        expect(node.getMinParents()).to.equal(1);
+    });
+
+    it("isSourceNode should work", () => {
+        let node = new DagNode();
+        node.maxParents = 0;
+        expect(node.isSourceNode()).to.be.true;
+        node.maxParents = -1;
+        expect(node.isSourceNode()).to.be.false;
+        node.maxParents = 1;
+        expect(node.isSourceNode()).to.be.false;
+    });
+
+    it("isOutNode should work", () => {
+        let node = new DagNode();
+        node.maxChildren = 0;
+        expect(node.isOutNode()).to.be.true;
+        node.maxChildren = -1;
+        expect(node.isOutNode()).to.be.false;
+        node.maxChildren = 1;
+        expect(node.isOutNode()).to.be.false;
+    });
+
+
+    it("hasNoChildren should work", () => {
+        let node = new DagNode();
+        node.children = [];
+        expect(node.hasNoChildren()).to.be.true;
+        node.children = ["test"];
+        expect(node.hasNoChildren()).to.be.false;
+    });
+
+    it("getNextOpenConnectionIndex", () => {
+        let node = new DagNode();
+
+        node.parents = ["test1", "test2"];
+        node._canHaveMultiParents = () => true;
+        expect(node.getNextOpenConnectionIndex()).to.equal(2);
+
+        node.parents = ["test1", null, "test2"];
+        expect(node.getNextOpenConnectionIndex()).to.equal(1);
+
+        node.parents = [];
+        expect(node.getNextOpenConnectionIndex()).to.equal(0);
+
+        node.parents = ["test1", "test2"];
+        node.maxParents = 2;
+        node._canHaveMultiParents = () => false;
+        expect(node.getNextOpenConnectionIndex()).to.equal(-1);
+
+        node.parents = ["test1"];
+        node.maxParents = 2;
+        node._canHaveMultiParents = () => false;
+        expect(node.getNextOpenConnectionIndex()).to.equal(1);
+
+
+        node.parents = ["test1"];
+        node.maxParents = 1;
+        node._canHaveMultiParents = () => false;
+        expect(node.getNextOpenConnectionIndex()).to.equal(-1);
+    });
+
+    describe("execution progress", () => {
+        let node;
+        before(() => {
+            node = new DagNode();
+        });
+        it("initialize progress should work", () => {
+            node.initializeProgress(["tableA"]);
+            expect(true).to.be.true;
+            expect(node.runStats).to.deep.equal({
+                "hasRun": false,
+                "nodes": {
+                    "tableA": {
+                        "startTime": null,
+                        "pct": 0,
+                        "state": 2,
+                        "numRowsTotal": 0,
+                        "numWorkCompleted": 0,
+                        "numWorkTotal": 0,
+                        "skewValue": 0,
+                        "elapsedTime": 0,
+                        "size": 0,
+                        "rows": [],
+                        "hasStats": false
+                    }
+                },
+                "needsClear": false
+            });
+        });
+        it("update progress should work", () => {
+
+            node.updateProgress({
+                "tableA": {
+                    "name": {
+                        "name": "tableA"
+                    },
+                    "tag": "dag_5D40D6B4265E6B2C_1564623650068_37",
+                    "comment": "",
+                    "dagNodeId": "113436",
+                    "api": 24,
+                    "state": 5,
+                    "numWorkCompleted": 6,
+                    "numWorkTotal": 6,
+                    "elapsed": {
+                        "milliseconds": 7
+                    },
+                    "inputSize": 49953,
+                    "input": {
+                        "mapInput": {
+                            "source": "sourceTable",
+                            "dest": "tableA",
+                            "eval": [
+                                {
+                                    "evalString": "add(1,2)",
+                                    "newField": "a"
+                                }
+                            ],
+                            "icv": false
+                        }
+                    },
+                    "numRowsTotal": 6,
+                    "numNodes": 2,
+                    "numRowsPerNode": [
+                        3,
+                        3
+                    ],
+                    "sizeTotal": 0,
+                    "sizePerNode": [],
+                    "status": 0,
+                    "index": 113436
+                }
+            }, true, true);
+            expect(true).to.be.true;
+            expect(node.getState()).to.equal("Complete");
+            expect(node.runStats.hasRun).to.be.true;
+            let tableStats = node.runStats.nodes["tableA"];
+            expect(tableStats.elapsedTime).to.equal(7);
+            expect(tableStats.numRowsTotal).to.equal(6);
+            expect(tableStats.numWorkCompleted).to.equal(6);
+            expect(tableStats.numWorkTotal).to.equal(6);
+            expect(tableStats.pct).to.equal(100);
+            expect(tableStats.state).to.equal(5);
+            expect(tableStats.skewValue).to.equal(0);
+        });
+        it("get overall stats should work", () => {
+            let res = node.getOverallStats();
+            expect(res).to.deep.equal({
+                curStep: 1,
+                curStepPct: 100,
+                pct: 100,
+                rows: 6,
+                size: 49953,
+                skewValue: 0,
+                started: true,
+                state: 5,
+                time: 7
+            });
+        });
+        it("get individual stats should work", () => {
+            let res = node.getIndividualStats();
+
+            expect(res).to.deep.equal([
+                {
+                    "startTime": null,
+                    "pct": 100,
+                    "state": 5,
+                    "numRowsTotal": 6,
+                    "numWorkCompleted": 6,
+                    "numWorkTotal": 6,
+                    "skewValue": 0,
+                    "elapsedTime": 7,
+                    "size": 49953,
+                    "rows": [
+                        3,
+                        3
+                    ],
+                    "index": 113436,
+                    "hasStats": true,
+                    "name": "tableA",
+                    "type": 24
+                }
+            ]);
+        });
+
+        it("update progress with error should work", () => {
+            let node = new DagNode();
+            node.state = DagNodeState.Running;
+            node.updateProgress({
+                "tableA": {
+                    "name": {
+                        "name": "tableA"
+                    },
+                    "tag": "dag_5D40D6B4265E6B2C_1564623650068_37",
+                    "comment": "",
+                    "dagNodeId": "113436",
+                    "api": 24,
+                    "state": DgDagStateT.DgDagStateError,
+                    "numWorkCompleted": 6,
+                    "numWorkTotal": 6,
+                    "elapsed": {
+                        "milliseconds": 7
+                    },
+                    "inputSize": 49953,
+                    "input": {
+                        "mapInput": {
+                            "source": "sourceTable",
+                            "dest": "tableA",
+                            "eval": [
+                                {
+                                    "evalString": "add(1,2)",
+                                    "newField": "a"
+                                }
+                            ],
+                            "icv": false
+                        }
+                    },
+                    "numRowsTotal": 6,
+                    "numNodes": 2,
+                    "numRowsPerNode": [
+                        3,
+                        3
+                    ],
+                    "sizeTotal": 0,
+                    "sizePerNode": [],
+                    "status": 0,
+                    "index": 113436
+                }
+            }, true, true);
+
+            expect(true).to.be.true;
+            expect(node.getState()).to.equal("Error");
+            expect(node.runStats.hasRun).to.be.true;
+            let tableStats = node.runStats.nodes["tableA"];
+            expect(tableStats.elapsedTime).to.equal(7);
+            expect(tableStats.numRowsTotal).to.equal(6);
+            expect(tableStats.numWorkCompleted).to.equal(6);
+            expect(tableStats.numWorkTotal).to.equal(6);
+            expect(tableStats.pct).to.equal(0);
+            expect(tableStats.state).to.equal(7);
+            expect(tableStats.skewValue).to.equal(0);
+        });
+    });
+
+    it("parseValidationErrMsg", () => {
+        let node = new DagNode();
+        let res = DagNode.parseValidationErrMsg(node, {
+            dataPath: ".path/columns",
+            message: "error occured",
+            keyword: "enum",
+            params: {allowedValues: ["allowedValue"]}
+        });
+        expect(res).to.equal("path/columns error occured: allowedValue");
+
+        res = DagNode.parseValidationErrMsg(node, {
+            dataPath: "",
+            message: "error occured",
+            keyword: "additionalProperties",
+            params: {additionalProperty: "additionalProperty"}
+        });
+        expect(res).to.equal("Node error occured: additionalProperty");
+
+
+        res = DagNode.parseValidationErrMsg(node, {
+            dataPath: "",
+            message: "error occured",
+            keyword: "none",
+            params: {additionalProperty: "additionalProperty"}
+        }, true);
+        expect(res).to.equal("Comment error occured");
+    });
+
+    it("findParentIndices", () => {
+        let node = new DagNode();
+        let parentNode = new DagNode();
+        let otherParentNode = new DagNode();
+        node.getParents = () => [parentNode, otherParentNode, otherParentNode];
+        expect(node.findParentIndices(new DagNode())).to.deep.equal([]);
+        expect(node.findParentIndices(parentNode)).to.deep.equal([0]);
+        expect(node.findParentIndices(otherParentNode)).to.deep.equal([1,2]);
+    });
+
+    it("replaceColumnInEvalStr", () => {
+        let node = new DagNode();
+        let res = node._replaceColumnInEvalStr("add(colA)", {"colA": "colB"});
+        expect(res).to.equal("add(colB)");
+
+        res = node._replaceColumnInEvalStr("add(colA)", {"colB": "colC"});
+        expect(res).to.equal("add(colA)");
+
+        res = node._replaceColumnInEvalStr("add(colA, eq(colB, colC))", {"colA": "colB", "colC": "colD"});
+        expect(res).to.equal("add(colB,eq(colB,colD))");
+
+        res = node._replaceColumnInEvalStr("add(1,2)",{"colA": "colB", "colC": "colD"});
+        expect(res).to.equal("add(1,2)");
     });
 });
