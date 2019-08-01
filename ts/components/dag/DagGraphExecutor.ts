@@ -132,7 +132,6 @@ class DagGraphExecutor {
                     errorResult.node = node;
                     break;
                 } else if (this._isOptimized && node.hasNoChildren()) {
-                    // if this is just a dataset node, we need to error
                     errorResult.hasError = true;
                     errorResult.type = DagNodeErrorType.InvalidOptimizedOutNode;
                     errorResult.node = node;
