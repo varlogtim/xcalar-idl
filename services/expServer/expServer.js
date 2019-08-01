@@ -120,8 +120,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                   return res.status(502).send('ECONNREFUSED proxy error causing 502');
                }
             }
-            xcConsole.error('error on proxy', err);
-        },
+            xcConsole.error('error on proxy', err); },
         limit: payloadSizeLimit ,
         parseReqBody: true  // GUI-13416 - true is necessary for thrift to work
     }));
@@ -353,6 +352,10 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             }
             xcConsole.log("All ready, Listen on port " + port);
             process.env.XCE_EXP_PORT = port;
+
+            // Create local xcrpc client
+            const url = "http://" + hostname + ":" + port + "/service/xce";
+            Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, url);
             if (process.env.NODE_ENV === "test") {
                 exports.server = httpServer;
             }
