@@ -50,6 +50,7 @@ let ResultSetService = client.getResultSetService();
 
 
 describe("xcrpc integration test: ", function () {
+    this.timeout(10000);
     // run the testSuit for each services
     KVstoreServiceTest.testSuite(KVstoreService, Xcrpc.KVStore.KVSCOPE, STATUS, SessionService, Xcrpc.Session.SCOPE);
     LicenseServiceTest.testSuite(LicenseService);

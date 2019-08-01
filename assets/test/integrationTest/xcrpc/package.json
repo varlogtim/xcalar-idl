@@ -24,6 +24,7 @@
       "node_modules/xcalarsdk/**"
     ],
     "excludeNodeModules": false,
+    "reporter": ["html","text"],
     "watermarks": {
       "lines": [85, 95],
       "functions": [85, 95],

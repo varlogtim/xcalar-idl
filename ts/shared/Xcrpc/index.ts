@@ -14,6 +14,8 @@ export * from './ServiceClientFactory';
 import * as Error from './ServiceError';
 export { Error };
 export { EnumMap } from 'xcalar';
+const XcalarEnum = proto.xcalar.compute.localtypes.XcalarEnumType;
+export { XcalarEnum };
 import * as Debug from './Common/Debug';
 export { Debug };
 
