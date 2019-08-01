@@ -681,7 +681,7 @@ class DagNodeSQL extends DagNode {
         return this.tableNewDagIdMap;
     }
 
-    private _getDerivedColName(colName: string): string {
+    private _getDerivedColName(colName: string, validate?: boolean): string {
         if (colName.indexOf("::") > 0) {
             colName = colName.split("::")[1];
         }
@@ -689,7 +689,7 @@ class DagNodeSQL extends DagNode {
             colName.endsWith("_boolean") || colName.endsWith("_string")) {
             colName = colName.substring(0, colName.lastIndexOf("_"));
         }
-        if (xcHelper.validateColName(colName, true, true, false)) {
+        if (validate && xcHelper.validateColName(colName, true, true, false)) {
             throw SQLErrTStr.InvalidColName + colName;
         }
         colName = xcHelper.cleanseSQLColName(colName);
@@ -707,7 +707,7 @@ class DagNodeSQL extends DagNode {
         }
         const colInfo: ColRenameInfo = {
             orig: col.name,
-            new: this._getDerivedColName(col.name).toUpperCase(),
+            new: this._getDerivedColName(col.name, true).toUpperCase(),
             type: xcHelper.convertColTypeToFieldType(col.type)
         };
         return colInfo;
