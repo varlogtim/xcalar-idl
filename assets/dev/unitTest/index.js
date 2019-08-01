@@ -126,7 +126,7 @@ function getCoverage(coverage, testType) {
     const excludeFolders = ['/thrift/', '/sdk/', 'tutorial'];
     const excludeFiles = ['config.js', 'loginConfig.js', 'compatible.js',
     'XcalarThrift.js', 'sqlCompiler.js', 'sqlCache.js', 'sqlTest.js',
-    'undo.js', 'redo.js', 'upgrader.js'];
+    'undo.js', 'redo.js', 'upgrader.js', 'librpc.js'];
 
     let entryMap = {};
     let entrySizeMap = {};
