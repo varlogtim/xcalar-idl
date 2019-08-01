@@ -956,7 +956,7 @@ class PTblManager {
         dsName: string,
         tableName: string,
         schema: ColSchema[],
-        newNames: string[].
+        newNames: string[],
         primaryKeys: string[],
         noDatasetDeletion?: boolean
     ): XDPromise<void> {
