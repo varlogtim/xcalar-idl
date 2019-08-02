@@ -123,10 +123,14 @@ function getCoverage(coverage, testType) {
     let totalBytes = 0;
     let usedBytes = 0;
     const coverageToReport = [];
-    const excludeFolders = ['/thrift/', '/sdk/', 'tutorial'];
+    const excludeFolders = [
+        '/thrift/', '/sdk/', 'tutorial',
+        '/components/sql/node', '/components/sql/operators', '/components/sql/rules/',
+        '/xcrpc/', '/shared/Xcrpc/'
+    ];
     const excludeFiles = ['config.js', 'loginConfig.js', 'compatible.js',
-    'XcalarThrift.js', 'sqlCompiler.js', 'sqlCache.js', 'sqlTest.js',
-    'undo.js', 'redo.js', 'upgrader.js', 'librpc.js'];
+    'XcalarThrift.js', 'SQLCompiler.js', 'sqlCache.js', 'sqlTest.js', 'logicalOptimizer.js',
+    'upgrader.js', 'librpc.js'];
 
     let entryMap = {};
     let entrySizeMap = {};

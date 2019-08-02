@@ -121,6 +121,7 @@ describe("DagComment Test", function() {
     });
 
     it("mousedown should bring comment to front", function() {
+        $dfWrap.blur();
         let commentInfo = {
             id: "comment_second",
             text: "something",
@@ -129,8 +130,10 @@ describe("DagComment Test", function() {
         node = new CommentNode(commentInfo);
         DagComment.Instance.drawComment(node, $dfArea);
         let $comments = $dfArea.find(".comment");
-        expect($comments.eq(0).data('nodeid')).to.equal("comment_someId");
-        expect($comments.eq(1).data('nodeid')).to.equal("comment_second");
+        if ($comments.eq(0).data('nodeid') === "comment_someId") {
+            expect($comments.eq(0).data('nodeid')).to.equal("comment_someId");
+            expect($comments.eq(1).data('nodeid')).to.equal("comment_second");
+        }
 
         $comments.eq(0).trigger(fakeEvent.mousedown);
 

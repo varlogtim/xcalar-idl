@@ -43,6 +43,7 @@ tags
 /assets/js/constructor/E_persConstructor.js
 /assets/dev/!shortCutStyles.css
 /assets/dev/unitTest/coverage/coverage.js
+/assets/dev/unitTest/coverage/coverage.json
 /assets/dev/e2eTest/tests_output/*
 !/assets/dev/e2eTest/workbooks/*
 /assets/htmlFiles/*
