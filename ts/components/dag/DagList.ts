@@ -84,7 +84,10 @@ class DagList extends Durable {
         return this._dags;
     }
 
-    public getDagTabById(id: string): DagTab {
+    public getDagTabById(id: string | number): DagTab {
+        if (typeof id === "number") {
+            id = String(id);
+        }
         return this._dags.get(id);
     }
 

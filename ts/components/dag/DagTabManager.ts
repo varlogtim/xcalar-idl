@@ -349,6 +349,10 @@ class DagTabManager {
      *  an external source, can also be true upon activation
      */
     public loadTab(dagTab: DagTab, reset: boolean = false): XDPromise<void> {
+        if (dagTab == null) {
+            console.error("error case");
+            return PromiseHelper.reject();
+        }
         // Check if we already have the tab
         const index: number = this.getTabIndex(dagTab.getId());
         if (index != -1) {
