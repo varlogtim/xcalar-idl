@@ -62,7 +62,8 @@ class SessionService {
             const response = await sessionService.create(request);
 
             // Step #3: Parse xcrpc service response
-            return response.getSessionNewOutput().getSessionId().toString();
+            // Here convert number to hexadecimal string, we need to do it for other apis
+            return response.getSessionNewOutput().getSessionId().toString(16).toUpperCase();
         } catch (e) {
             throw parseError(e);
         }

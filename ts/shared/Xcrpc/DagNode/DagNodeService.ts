@@ -45,7 +45,7 @@ class DagNodeService {
                 const responseNodeInfo = responseStatus.getNodeInfo();
                 const nodeInfo: DagNodeInfo = {
                     name: responseNodeInfo.getName(),
-                    dagNodeId: responseNodeInfo.getDagNodeId(),
+                    dagNodeId: responseNodeInfo.getDagNodeId().toString(),
                     state: responseNodeInfo.getState(),
                     size: responseNodeInfo.getSize(),
                     api: responseNodeInfo.getApi()
@@ -80,7 +80,7 @@ class DagNodeService {
 
 type DagNodeInfo = {
     name: string,
-    dagNodeId: number,
+    dagNodeId: string,
     state: string,
     size: number,
     api: string
