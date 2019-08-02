@@ -77,8 +77,7 @@ exports.testSuite = function(DatasetService) {
                 });
                 expect(result.success).to.be.true;
             } catch(err) {
-                console.log("create() not work: ", err);
-                expect.fail(err);
+                expect.fail(null, null, JSON.stringify(err));
             }
             let error;
             try {

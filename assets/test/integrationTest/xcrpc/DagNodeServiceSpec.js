@@ -108,8 +108,7 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
                 expect(statuses[0].status).to.equal(Xcrpc.Error.status.STATUS_OK);
                 expect(statuses[0].nodeInfo.name).to.equal(testTableName);
             } catch(err) {
-                console.log("delete() not working with table: ", err);
-                expect.fail(err);
+                expect.fail(null, null, JSON.stringify(err));
             }
         });
 
@@ -132,8 +131,7 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
                 expect(statuses[0].status).to.equal(Xcrpc.Error.status.STATUS_OK);
                 expect(statuses[0].nodeInfo.name).to.equal(testLoadDSName);
             } catch(err) {
-                console.log("delete() not working with dataset: ", err);
-                expect.fail(err);
+                expect.fail(null, null, JSON.stringify(err));
             }
         });
 
@@ -156,8 +154,7 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
                 expect(statuses[0].status).to.equal(Xcrpc.Error.status.STATUS_OK);
                 expect(statuses[0].nodeInfo.name).to.equal(testConstName);
             } catch(err) {
-                console.log("delete() not working with constant: ", err);
-                expect.fail(err);
+                expect.fail(null, null, JSON.stringify(err));
             }
         });
 
@@ -179,7 +176,7 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
                 error = err
             }
             if (error == null) {
-                expect.fail("delet() doesn't fail when dag node doesn't exist");
+                expect.fail(null, null, "delet() doesn't fail when dag node doesn't exist");
             }
             expect(error.type).to.equal(Xcrpc.Error.ErrorType.XCALAR);
             expect(error.status).to.equal(Xcrpc.Error.status.STATUS_DAG_NODE_NOT_FOUND);
