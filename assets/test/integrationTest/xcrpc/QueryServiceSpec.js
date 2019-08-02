@@ -126,7 +126,10 @@ exports.testSuite = function(QueryService, SessionService, DatasetService) {
                     queryName: "testQuery_" + new Date().getTime(),
                     queryString: JSON.stringify([bulkLoadStruct]),
                     scope: QUERYSCOPE,
-                    scopeInfo: scopeInfo});
+                    scopeInfo: scopeInfo,
+                    options: {
+                        isAsync: false
+                    }});
 
                 expect(executeName).to.not.equal("");
             } catch (err) {
@@ -190,7 +193,10 @@ exports.testSuite = function(QueryService, SessionService, DatasetService) {
                     queryName: "testQuery",
                     queryString: JSON.stringify([bulkLoadStruct]),
                     scope: QUERYSCOPE,
-                    scopeInfo: scopeInfo});
+                    scopeInfo: scopeInfo,
+                    options: {
+                        isAsync: false
+                    }});
 
                 expect.fail("Bulk load without loadArgs should fail");
             } catch (err) {

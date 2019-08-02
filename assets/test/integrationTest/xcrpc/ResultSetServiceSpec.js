@@ -275,7 +275,8 @@ exports.testSuite = function(ResultSetService, SessionService, DatasetService, Q
                     scope: QUERYSCOPE,
                     scopeInfo: scopeInfo,
                     options: {
-                        isBailOnError: true
+                        isBailOnError: true,
+                        isAsync: false
                     }
                 });
                 expect(queryRes).to.equal(tableName);
@@ -303,7 +304,8 @@ exports.testSuite = function(ResultSetService, SessionService, DatasetService, Q
                     scope: QUERYSCOPE,
                     scopeInfo: scopeInfo,
                     options: {
-                        isBailOnError: false
+                        isBailOnError: false,
+                        isAsync: false
                     }
                 });
             } catch (err) {
@@ -347,7 +349,8 @@ exports.testSuite = function(ResultSetService, SessionService, DatasetService, Q
                     scope: QUERYSCOPE,
                     scopeInfo: scopeInfo,
                     options: {
-                        isBailOnError: true
+                        isBailOnError: true,
+                        isAsync: false
                     }
                 });
                 await ResultSetService.make({
@@ -366,7 +369,8 @@ exports.testSuite = function(ResultSetService, SessionService, DatasetService, Q
                     scope: QUERYSCOPE,
                     scopeInfo: scopeInfo,
                     options: {
-                        isBailOnError: false
+                        isBailOnError: false,
+                        isAsync: false
                     }
                 });
                 expect(err.type).to.equal(ErrorType.XCALAR);
