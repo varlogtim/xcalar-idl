@@ -15,7 +15,8 @@ class DagTabQuery extends DagTabProgress {
         super(options);
         this._queryName = options.queryName;
         this._state = options.state;
-        if (this._queryName.startsWith(DagTabQuery.abandonedQueryPrefix)) {
+        if (this._queryName.startsWith(DagTabQuery.abandonedQueryPrefix) ||
+            this._queryName.startsWith("table_published_")) {
             let timeStr: string = this._queryName.slice(this._queryName.lastIndexOf("#t_") + 3);
             timeStr = timeStr.slice(0, timeStr.indexOf("_"));
             if (timeStr.length) {
