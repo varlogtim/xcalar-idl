@@ -1,8 +1,9 @@
 const expect = require('chai').expect;
 const XcrpcSDK = require('xcalarsdk');
 const { ErrorType, status: ErrorStatus } = XcrpcSDK.Error;
-const { QueryState } = XcrpcSDK.XcalarEnum;
-const { QueryStateFromStr } = XcrpcSDK.EnumMap;
+const createDatasetHelper = require('./common/DatasetHelper');
+const createQueryHelper = require('./common/QueryHelper');
+const createSessionHelper = require('./common/SessionHelper');
 
 exports.testSuite = function(operatorService) {
     const sdkClient = XcrpcSDK.getClient(XcrpcSDK.DEFAULT_CLIENT_NAME);
@@ -15,35 +16,33 @@ exports.testSuite = function(operatorService) {
     const testSessionName = "testSessionOperator" + testId;
 
     // dataset helper
-    const datasetHelper = createDatasetHelper(sdkClient, testUserName, testSessionName);
+    const testDSKey = 'nation';
+    const datasetHelper = createDatasetHelper({
+        sdkClient: sdkClient,
+        userName: testUserName,
+        sessionName: testSessionName,
+        dsKey: testDSKey,
+        dsPrefix: `${testUserName}.${testSessionName}`
+    });
     // query helper
-    const queryHelper = createQueryHelper(sdkClient, testUserName, testSessionName);
+    const queryHelper = createQueryHelper({
+        sdkClient: sdkClient,
+        userName: testUserName,
+        sessionName: testSessionName,
+        objectPrefix: `${testUserName}_${testSessionName}`
+    });
+    // session helper
+    const sessionHelper = createSessionHelper({
+        sdkClient: sdkClient,
+        userName: testUserName,
+        sessionName: testSessionName
+    });
 
     describe("OperatorService test: ", function() {
 
         before(async () => {
             try {
-                const sessionService = sdkClient.getSessionService();
-                const SessionScope = XcrpcSDK.Session.SCOPE;
-
-                await sessionService.create({
-                    sessionName: testSessionName,
-                    fork: false,
-                    forkedSessionName: "",
-                    scope: SessionScope.WORKBOOK,
-                    scopeInfo: {
-                        userName: testUserName,
-                        workbookName: testSessionName
-                    }
-                });
-                await sessionService.activate({
-                    sessionName: testSessionName,
-                    scope: SessionScope.WORKBOOK,
-                    scopeInfo: {
-                        userName: testUserName,
-                        workbookName: testSessionName
-                    }
-                });
+                await sessionHelper.createAndActivate();
             } catch(e) {
                 expect.fail(null, null, `Test preparation failed: ${e}`);
             }
@@ -188,7 +187,7 @@ exports.testSuite = function(operatorService) {
                 // Activate the dataset
                 const loadDSName = await queryHelper.activateDataset(datasetName);
                 // Prepare the index table from dataset
-                indexTableName = await queryHelper.indexDataset(loadDSName);
+                indexTableName = await queryHelper.indexDataset(loadDSName, testDSKey);
             });
 
             it("Case: regular", async () => {
@@ -281,178 +280,4 @@ exports.testSuite = function(operatorService) {
             });
         });
     });
-
-    // Helper factory
-    function createQueryHelper(sdkClient, userName, sessionName) {
-        let id = 0;
-        const tablePrefix = `table_${userName}_${sessionName}`;
-
-        async function indexDataset(loadDSName) {
-            const getQueryService = sdkClient.getGetQueryService();
-            const queryService = sdkClient.getQueryService();
-            const queryList = [];
-
-            // construct index query
-            const indexTableName = genTableName();
-            const indexQueryString = getQueryService.getIndex(
-                loadDSName,
-                indexTableName,
-                [{
-                    name: 'xcalarRecordNum',
-                    type: 'DfUnknown',
-                    keyFieldName: '',
-                    ordering: 'Unordered'
-                }],
-                'nation', '', false, false
-            );
-            queryList.push(indexQueryString);
-
-            // Execute query
-            const queryName = getQueryName(indexTableName);
-            const queryString = `[${queryList.join(',')}]`;
-            await queryService.execute({
-                queryName: queryName,
-                queryString: queryString,
-                scope: XcrpcSDK.Query.SCOPE.WORKBOOK,
-                scopeInfo: {
-                    userName: userName,
-                    workbookName: sessionName
-                }
-            });
-            // Wait for query done
-            if (!await waitForQuery(queryName)) {
-                throw new Error('query exec failed');
-            }
-
-            return indexTableName;
-        }
-
-        async function activateDataset(dsName) {
-            const operatorService = sdkClient.getOperatorService();
-            const loadDSName = getLoadDSName(dsName);
-            await operatorService.opBulkLoad({
-                datasetName: loadDSName,
-                scope: XcrpcSDK.Operator.SCOPE.WORKBOOK,
-                scopeInfo: {
-                    userName: userName, workbookName: sessionName
-                }
-            });
-            return loadDSName;
-        }
-
-        async function waitForQuery(queryName) {
-            try {
-                let retryCount = 10;
-                const duration = 100;
-
-                for (let i = 0; i < retryCount; i ++) {
-                    const { done, success } = await checkQueryState(queryName);
-                    if (done) {
-                        return success;
-                    }
-                    await waitTimeout(duration);
-                }
-
-                return false;
-            } catch(e) {
-                return false;
-            }
-        }
-
-        function waitTimeout(duration) {
-            return new Promise((resolve) => {
-                setTimeout(() => { resolve(); }, duration);
-            });
-        }
-
-        async function checkQueryState(queryName) {
-            try {
-                const doneStates = new Set([QueryState.QR_FINISHED, QueryState.QR_ERROR, QueryState.QR_CANCELLED]);
-                const successStates = new Set([QueryState.QR_FINISHED]);
-
-                const queryService = sdkClient.getQueryService();
-                const queryList = await queryService.list({ namePattern: queryName });
-                for (const { name, state } of queryList) {
-                    if (name === queryName) {
-                        const stateEnum = QueryStateFromStr[state];
-                        return { done: doneStates.has(stateEnum), success: successStates.has(stateEnum) };
-                    }
-                }
-                return { done: true, success: false };
-            } catch(e) {
-                return { done: true, success: false };
-            }
-        }
-
-        function getLoadDSName(dsName) {
-            return `.XcalarDS.${dsName}`;
-        }
-
-        function genTableName() {
-            return `${tablePrefix}_${id ++}`;
-        }
-
-        function getQueryName(tableName) {
-            return `query_${tableName}`;
-        }
-
-        return {
-            activateDataset: (dsName) => activateDataset(dsName),
-            indexDataset: (loadDSName) => indexDataset(loadDSName),
-            getLoadDSName: (dsName) => getLoadDSName(dsName),
-            genTableName: () => genTableName()
-        };
-    }
-
-    function createDatasetHelper(sdkClient, userName, sessionName) {
-        const dsPrefix = `${userName}.${sessionName}.nation`;
-        const createDSArgs = {
-            sourceArgsList: [{
-                targetName: "Default Shared Root",
-                path: "/netstore/datasets/tpch_sf1_notrail/nation.tbl",
-                fileNamePattern: "",
-                recursive: false
-            }],
-            parseArgs: {
-                parserFnName: "default:parseCsv",
-                parserArgJson: "{\"recordDelim\":\"\\n\",\"fieldDelim\":\"|\",\"isCRLF\":false,\"linesToSkip\":1,\"quoteDelim\":\"\\\"\",\"hasHeader\":true,\"schemaFile\":\"\",\"schemaMode\":\"loadInput\"}",
-                allowRecordErrors: false,
-                allowFileErrors: false,
-                fileNameFieldName: "",
-                recordNumFieldName: "",
-                schema:[
-                    { sourceColumn: "N_NATIONKEY", destColumn: "N_NATIONKEY", columnType: 4 },
-                    { sourceColumn: "N_NAME", destColumn: "N_NAME", columnType: 1 },
-                    { sourceColumn: "N_REGIONKEY", destColumn: "N_REGIONKEY", columnType: 4 },
-                    { sourceColumn: "N_COMMENT", destColumn: "N_COMMENT", columnType: 1 }
-                ]
-            },
-            size: 10737418240
-        };
-
-        let id = 0;
-        function genDSName() {
-            return `${dsPrefix}${id ++}`;
-        }
-
-        return {
-            createDS: async () => {
-                const testDSName = genDSName();
-                await sdkClient.getDatasetService().create({
-                    datasetName: testDSName,
-                    loadArgs: createDSArgs,
-                    scope: XcrpcSDK.Dataset.SCOPE.WORKBOOK,
-                    scopeInfo: {
-                        userName: userName,
-                        workbookName: sessionName
-                    }
-                });
-                return testDSName;
-            },
-            getLoadArgs: () => {
-                return createDSArgs;
-            },
-            genDSName: () => genDSName()
-        };
-    }
 }

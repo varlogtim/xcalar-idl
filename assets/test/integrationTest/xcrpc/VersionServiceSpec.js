@@ -22,7 +22,7 @@ exports.testSuite = function(VersionService, ProtoAPIVersionSignature) {
                 const result = await VersionService.getVersion();
                 expect(result.version).to.be.a('string');
                 expect(result.xcrpcVersionSignatureShort).to.equal(ProtoAPIVersionSignature);
-            } catch {
+            } catch(err) {
                 console.log("getVersion() not work");
                 expect.fail(err);
             }
