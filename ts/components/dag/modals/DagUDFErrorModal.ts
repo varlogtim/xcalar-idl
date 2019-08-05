@@ -62,7 +62,7 @@ class DagUDFErrorModal {
         let count = 0;
         errorInfo.failureDescArr.forEach(err => {
             count += err.numRowsFailed;
-            let numFails = xcStringHelper.escapeHTMLSpecialChar(err.numRowsFailed);
+            let numFails = xcStringHelper.numToStr(err.numRowsFailed);
             let desc = xcStringHelper.escapeHTMLSpecialChar(err.failureDesc);
             html += `<div class="errorRow">
                 <div class="count">Count: <span class="value">${numFails}</span></div>

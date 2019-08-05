@@ -235,7 +235,7 @@ class DagSubGraph extends DagGraph {
                     node.getState() === DagNodeState.Error) {
                     if (node.getType() === DagNodeType.Map) {
                         let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
-                        if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.failureDescArr.length) {
+                        if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.numRowsFailedTotal > 0) {
                             (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
                         }
                     }
@@ -293,7 +293,7 @@ class DagSubGraph extends DagGraph {
 
                     if (node.getType() === DagNodeType.Map) {
                         let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
-                        if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.failureDescArr.length) {
+                        if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.numRowsFailedTotal > 0) {
                             (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
                         }
                     }
