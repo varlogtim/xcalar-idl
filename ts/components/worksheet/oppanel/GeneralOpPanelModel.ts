@@ -376,6 +376,8 @@ abstract class GeneralOpPanelModel {
             }
             if (outputType == null) {
                 return false; // XXX column was not found, we just pass for now
+            } else if (outputType === "paramArg") {
+                return false; // ignore check on parameter
             } else if (outputType === ColumnType.number && (types.indexOf(ColumnType.float) > -1 ||
                 types.indexOf(ColumnType.integer) > -1)) {
                 return false;
