@@ -20,9 +20,7 @@ class XcrpcManager {
         let respBuf: Buffer = undefined;
         let response: ResponseMsg = {"error": "Unknown error occurred"};
 
-        // XXX get these from a config file
-        let nodeId : string = process.env.NODE_ID ? process.env.NODE_ID : "0";
-        let udsPath: string = `/tmp/xcalar_sock/usrnode-${nodeId}`;
+        let udsPath: string = `/tmp/xcalar_sock/usrnode`;
         let timeoutMs: number = 5 * 60 * 60 * 1000; // 5 hours
 
         reqSizeBuf.writeUInt32LE(reqBuf.length, 0);
