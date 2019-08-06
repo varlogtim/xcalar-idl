@@ -523,7 +523,11 @@ class SQLOpPanel extends BaseOpPanel {
             })
             .fail(function(err) {
                 if (err === SQLErrTStr.EmptySQL) {
-                    StatusBox.show(err, self._$elemPanel.find(".btn-submit"));
+                    Alert.show({
+                        title: SQLErrTStr.Err,
+                        msg: err,
+                        isAlert: true
+                    });
                 }
                 self._dagNode.beErrorState();
             });

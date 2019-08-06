@@ -106,11 +106,11 @@ describe("SQLEditorSpace Test", function() {
 
     describe("execute SQL Test", function() {
         let oldSendToPlanner;
-        let oldStatusBox;
+        let oldAlert;
 
         before(function() {
             oldSendToPlanner = SQLUtil.sendToPlanner;
-            oldStatusBox = StatusBox.show;
+            oldAlert = Alert.show;
         });
 
         it("should not execute if no sql", function() {
@@ -119,7 +119,7 @@ describe("SQLEditorSpace Test", function() {
                 called++;
                 return PromiseHelper.resolve();
             };
-            StatusBox.show = () => { called++; };
+            Alert.show = () => { called++; };
     
             SQLEditorSpace.Instance.execute();
             expect(called).to.equal(0);
@@ -132,7 +132,7 @@ describe("SQLEditorSpace Test", function() {
                 called = true;
                 return PromiseHelper.resolve({});
             };
-            StatusBox.show = () => { errorCalled = true };
+            Alert.show = () => { errorCalled = true };
     
             SQLEditorSpace.Instance.execute("test");
     
@@ -149,7 +149,7 @@ describe("SQLEditorSpace Test", function() {
         it("should reject no query case", function(done) {
             let called = false;
             let errorCalled = false;
-            StatusBox.show = () => { errorCalled = true; };
+            Alert.show = () => { errorCalled = true; };
 
             SQLUtil.sendToPlanner = () => {
                 called = true;
@@ -287,7 +287,7 @@ describe("SQLEditorSpace Test", function() {
 
         after(function() {
             SQLUtil.sendToPlanner = oldSendToPlanner;
-            StatusBox.show = oldStatusBox;
+            Alert.show = oldAlert;
         });
     });
 

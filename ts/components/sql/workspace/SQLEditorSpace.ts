@@ -346,32 +346,30 @@ class SQLEditorSpace {
                 });
             })
             .fail((e) => {
-                let error: string;
-                if (e instanceof Error) {
-                    error = e.message;
-                } else if (typeof e === "string") {
-                    error = e;
-                } else {
-                    error = JSON.stringify(e);
-                }
-                let $btn = this._getEditorSpaceEl().find(".bottomSection .execute");
-                StatusBox.show(error, $btn);
+                this._throwError(e);
             });
         } catch (e) {
-            console.error(e);
-            let error: string;
-            if (e instanceof Error) {
-                error = e.message;
-            } else if (typeof e === "string") {
-                error = e;
-            } else {
-                error = JSON.stringify(e);
-            }
-            let $btn = this._getEditorSpaceEl().find(".bottomSection .execute");
-            StatusBox.show(error, $btn);
+            this._throwError(e);
         }
     }
-
+    private _throwError(error: any): void {
+        let errorMsg: string;
+        if (error instanceof Error) {
+            errorMsg = error.message;
+        } else if (typeof error === "string") {
+            errorMsg = error;
+        } else {
+            errorMsg = JSON.stringify(error);
+        }
+        Alert.show({
+            title: SQLErrTStr.Err,
+            msg: errorMsg,
+            isAlert: true,
+            align: "left",
+            preSpace: true,
+            sizeToText: true
+        });
+    }
     private _compileStatement(curExecutor: SQLDagExecutor) {
         try {
             let callback = null;
@@ -383,17 +381,7 @@ class SQLEditorSpace {
             .always(deferred.resolve);
             return deferred.promise();
         } catch (e) {
-            console.error(e);
-            let error: string;
-            if (e instanceof Error) {
-                error = e.message;
-            } else if (typeof e === "string") {
-                error = e;
-            } else {
-                error = JSON.stringify(e);
-            }
-            let $btn = this._getEditorSpaceEl().find(".bottomSection .execute");
-            StatusBox.show(error, $btn);
+            this._throwError(e);
         }
     }
 
@@ -418,17 +406,7 @@ class SQLEditorSpace {
             .always(deferred.resolve);
             return deferred.promise();
         } catch (e) {
-            console.error(e);
-            let error: string;
-            if (e instanceof Error) {
-                error = e.message;
-            } else if (typeof e === "string") {
-                error = e;
-            } else {
-                error = JSON.stringify(e);
-            }
-            let $btn = this._getEditorSpaceEl().find(".bottomSection .execute");
-            StatusBox.show(error, $btn);
+            this._throwError(e);
         }
     }
 

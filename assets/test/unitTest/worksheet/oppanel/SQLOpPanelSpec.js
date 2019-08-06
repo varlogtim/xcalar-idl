@@ -206,7 +206,7 @@ describe("SQLOpPanel Test", function() {
             $('#formWaitingBG').remove();
             editor.setValue(JSON.stringify(struct, null, 4));
             $("#sqlOpPanel .bottomSection .btn-submit").click();
-            expect($("#statusBox").hasClass("active")).to.be.false;
+            expect($("#alertModal").is(":visible")).to.be.false;
 
             node.compileSQL = () => {
                 return PromiseHelper.resolve({newTableName: "newName", allCols: [], xcQueryString: "queryString", tableSrcMap: new Map()});
