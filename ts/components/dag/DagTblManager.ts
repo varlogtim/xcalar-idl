@@ -595,3 +595,7 @@ class DagTblManager {
 if (typeof exports !== 'undefined') {
     exports.DagTblManager = DagTblManager;
 };
+
+if (typeof runEntity !== "undefined") {
+    runEntity.DagTblManager = DagTblManager;
+}
