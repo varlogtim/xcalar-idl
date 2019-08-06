@@ -211,6 +211,7 @@ interface SQLQueryInput {
     sessionName?: string,
     resultTableName?: string,
     queryString?: string,
+    modifiedQueryString?: string,
     tablePrefix?: string,
     queryName?: string,
     optimizations?: SQLOptimizations,

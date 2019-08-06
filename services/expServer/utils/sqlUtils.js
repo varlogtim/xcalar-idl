@@ -178,12 +178,11 @@ SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, 
         if (typeof(source) === "string") {
             source = [source];
         }
-        var newName;
         for (var j = 0; j < source.length; j++) {
             if (source[j] in selectTables) {
                 continue;
             }
-            if (!source[j].startsWith(prefix)) {
+            if (!source[j].startsWith(prefix) && newTableMap[source[j]]) {
                 if (source.length === 1) {
                     operation.args.source = newTableMap[source[j]];
                 } else {
@@ -195,7 +194,7 @@ SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, 
         if (!dest.startsWith(prefix) && operation.operation !== "XcalarApiAggregate") {
             newTableName = prefix + newTableName;
             if (newTableName.length > 255 / 2) {
-                ret = ret.substring(0, ret.length - 255 / 2) +
+                newTableName = newTableName.substring(0, newTableName.length - 255 / 2) +
                       Authentication.getHashId();
             }
         }

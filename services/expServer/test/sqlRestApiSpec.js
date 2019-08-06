@@ -431,11 +431,33 @@ describe("sqlRestApi Test", function() {
             ]);
             const identifiers = ["pubtbl1", "`pubtbl2`", "xdtbl3", "`xdtbl4`"];
 
-            const res = sqlManager.getTablesFromParserResult(identifiers,
+            const res = sqlManager.getTablesFromParserResult(identifiers, {},
                 setOfPubTables, setOfXDTables);
             expect(res).to.be.instanceOf(Array);
-            expect(res[0]).to.deep.equal(['v1', 'v2']);
-            expect(res[1]).to.deep.equal(['v3', 'v4']);
+            expect(res[0]).to.deep.equal([{"identifier": "pubtbl1", "table": "v1"},
+                                            {"identifier": "pubtbl2", "table": "v2"}]);
+            expect(res[1]).to.deep.equal([{"identifier": "xdtbl3", "table": "v3"},
+                                            {"identifier": "xdtbl4", "table": "v4"}]);
+        })
+
+        it("sqlManager.getTablesFromParserResult should work", () => {
+            const setOfPubTables = new Map([
+                ['PUBTBL1', 'v1'],
+                ['PUBTBL2', 'v2'],
+            ]);
+            const setOfXDTables = new Map([
+                ['XDTBL3', 'v3'],
+                ['XDTBL4', 'v4'],
+            ]);
+            const identifiers = ["newPubtbl1", "`pubtbl2`", "xdtbl3", "`newXdtbl4`"];
+            const identifiersMap = {"`newXdtbl4`": "`xdtbl4`", "newPubtbl1": "pubtbl1"}
+            const res = sqlManager.getTablesFromParserResult(identifiers, identifiersMap,
+                setOfPubTables, setOfXDTables);
+            expect(res).to.be.instanceOf(Array);
+            expect(res[0]).to.deep.equal([{"identifier": "newPubtbl1", "table": "v1"},
+                                            {"identifier": "pubtbl2", "table": "v2"}]);
+            expect(res[1]).to.deep.equal([{"identifier": "xdtbl3", "table": "v3"},
+                                            {"identifier": "newXdtbl4", "table": "v4"}]);
         })
 
         it("sqlManager.getInfoForPublishedTable shoud work", () => {
@@ -527,7 +549,7 @@ describe("sqlRestApi Test", function() {
             }
             Transaction.done = () => {return JSON.stringify(expectedRes.query)};
 
-            sqlManager.getInfoForXDTable(expectedRes.pubTableName, sessionInfo)
+            sqlManager.getInfoForXDTable(expectedRes.tableName, expectedRes.pubTableName, sessionInfo)
             .then((res) => {
                 expect(res).to.deep.equal(expectedRes);
                 done()
@@ -555,7 +577,7 @@ describe("sqlRestApi Test", function() {
             sqlManager.SqlUtil.setSessionInfo = fakeFunc;
             XcalarGetTableMeta = fakeRejectFunc;
 
-            sqlManager.getInfoForXDTable("pubtbl", sessionInfo)
+            sqlManager.getInfoForXDTable("pubtbl", "pubtbl", sessionInfo)
             .then((res) => {
                 done("fail")
             })
@@ -676,8 +698,10 @@ describe("sqlRestApi Test", function() {
             }
             sqlManager.getTablesFromParserResult = () => {
                 const ret = [
-                    ["imdtbl1", "imdtbl2"],
-                    ["xdtbl1", "xdtbl2"],
+                    [{"identifier": "imdtbl1", "table": "imdtbl1"},
+                     {"identifier": "imdtbl2", "table": "imdtbl2"}],
+                    [{"identifier": "xdtbl1", "table": "xdtbl1"},
+                     {"identifier": "xdtbl2", "table": "xdtbl2"}]
                 ]
                 return ret;
             }
@@ -777,8 +801,10 @@ describe("sqlRestApi Test", function() {
             }
             sqlManager.getTablesFromParserResult = () => {
                 const ret = [
-                    ["imdtbl1", "imdtbl2"],
-                    ["xdtbl1", "xdtbl2"],
+                    [{"identifier": "imdtbl1", "table": "imdtbl1"},
+                     {"identifier": "imdtbl2", "table": "imdtbl2"}],
+                    [{"identifier": "xdtbl1", "table": "xdtbl1"},
+                     {"identifier": "xdtbl2", "table": "xdtbl2"}]
                 ]
                 return ret;
             }

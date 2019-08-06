@@ -299,36 +299,61 @@ class SqlManager {
         return deferred.promise();
     }
 
+    // identifiers mapping example
+    // [{"newIdentifiers":{"`t_1`":"`t#1`"},"newSql":"select * from `t_1`  ","identifiers":["`t_1`"],"sql":"select * from `t#1`"}]
     private getTablesFromParserResult(
         identifiers: string[],
+        newIdentifiersMap: any,
         setOfPubTables: Map<string, string>,
         setOfXDTables: Map<string, string>
-    ): string[][] | string  {
-        let imdTables: string[] = [];
-        let xdTables: string[] = [];
+    ): object[][] | string  {
+        let imdTables: object[] = [];
+        let xdTables: object[] = [];
         let errorTables: string[] = [];
+        let identifierUpper: string;
+        let identifierTableMap: object;
         setOfXDTables = setOfXDTables || new Map();
         identifiers.forEach((identifier) => {
-            identifier = identifier.toUpperCase();
-            let slicedIdentifier: string = identifier.slice(1, -1);
-            if (setOfXDTables.has(identifier)){
-                xdTables.push(setOfXDTables.get(identifier));
+            if (identifier in newIdentifiersMap) {
+                identifierUpper = newIdentifiersMap[identifier].toUpperCase();
+            } else {
+                identifierUpper = identifier.toUpperCase();
             }
-            else if (identifier[0] === "`"
-                && identifier[identifier.length - 1] === "`"
+            let slicedIdentifier: string = identifierUpper.slice(1, -1);
+            if (setOfXDTables.has(identifierUpper)){
+                identifierTableMap = {
+                    "identifier": identifier,
+                    "table": setOfXDTables.get(identifierUpper)
+                }
+                xdTables.push(identifierTableMap);
+            }
+            else if (identifierUpper[0] === "`"
+                && identifierUpper[identifierUpper.length - 1] === "`"
                 && setOfXDTables.has(slicedIdentifier)) {
-                    xdTables.push(setOfXDTables.get(slicedIdentifier));
+                    identifierTableMap = {
+                        "identifier": identifier.slice(1, -1),
+                        "table": setOfXDTables.get(slicedIdentifier)
+                    }
+                    xdTables.push(identifierTableMap);
             }
-            else if(setOfPubTables.has(identifier)){
-                imdTables.push(setOfPubTables.get(identifier));
+            else if(setOfPubTables.has(identifierUpper)){
+                identifierTableMap = {
+                    "identifier": identifier,
+                    "table": setOfPubTables.get(identifierUpper)
+                }
+                imdTables.push(identifierTableMap);
             }
-            else if (identifier[0] === "`"
-                && identifier[identifier.length - 1] === "`"
+            else if (identifierUpper[0] === "`"
+                && identifierUpper[identifierUpper.length - 1] === "`"
                 && setOfPubTables.has(slicedIdentifier)) {
-                    imdTables.push(setOfPubTables.get(slicedIdentifier));
+                    identifierTableMap = {
+                        "identifier": identifier.slice(1, -1),
+                        "table": setOfPubTables.get(slicedIdentifier)]
+                    }
+                    imdTables.push(identifierTableMap);
             }
             else {
-                errorTables.push(identifier);
+                errorTables.push(identifierUpper);
             }
         });
         if (errorTables.length > 0) {
@@ -373,6 +398,7 @@ class SqlManager {
 
     private getInfoForXDTable(
         tableName: string,
+        tableIdentifier: string,
         sessionInfo: SessionInfo
     ): JQueryPromise<XDTableInfo> {
         let deferred: any = PromiseHelper.deferred();
@@ -408,7 +434,7 @@ class SqlManager {
                 }
                 let jsonQuery: any = JSON.parse(query);
                 return deferred.resolve({
-                        "pubTableName": tableName,
+                        "pubTableName": tableIdentifier,
                         "tableName": finalizedTableName,
                         "query": jsonQuery,
                         "schema":schema,
@@ -513,7 +539,7 @@ class SqlManager {
     }
 
     private collectTablesMetaInfo(
-        queryStr: string,
+        inputParams: SQLQueryInput,
         tablePrefix: string,
         type: string,
         sessionInfo: SessionInfo
@@ -555,7 +581,7 @@ class SqlManager {
                 type: "sqlparse",
                 method: "POST",
                 data: {
-                    sqlQuery: queryStr,
+                    sqlQuery: inputParams.queryString,
                     ops: ["identifier"],
                     isMulti: false
                 }
@@ -565,6 +591,7 @@ class SqlManager {
         })
         .then((data: any): JQueryPromise<any> => {
             let retStruct: any[] = data.ret;
+            let newIdentifiersMap: any = {};
             if (retStruct.length > 1) {
                 return PromiseHelper.reject("Multiple queries not supported yet");
             }
@@ -573,8 +600,12 @@ class SqlManager {
                 return PromiseHelper.reject("Failed to get identifiers " +
                                                 "from invalid SQL");
             }
+            if ("newIdentifiers" in retStruct[0]) {
+                newIdentifiersMap = retStruct[0].newIdentifiers;
+                inputParams.modifiedQueryString = retStruct[0].newSql;
+            }
             let allTables: any =
-                this.getTablesFromParserResult(identifiers, pubTablesMap,
+                this.getTablesFromParserResult(identifiers, newIdentifiersMap, pubTablesMap,
                                                         xdTablesMap);
             if (typeof(allTables) !== "object") {
                 console.log(allTables);
@@ -586,24 +617,25 @@ class SqlManager {
             console.log("XD tables are", xdTables);
             let tableValidPromiseArray: JQueryPromise<XDTableInfo>[] = [];
             for (let imdTable of imdTables) {
+                const xcTable = imdTable["table"];
                 let tableStruct: TableInfo =
-                    this.getInfoForPublishedTable(pubTableRes, imdTable);
+                    this.getInfoForPublishedTable(pubTableRes, xcTable);
                 // schema must exist because getListOfPublishedTables ensures
                 // that it exists
-                allSchemas[imdTable] = tableStruct.schema;
-                batchIdMap[imdTable] = tableStruct.nextBatchId - 1;
+                allSchemas[xcTable] = tableStruct.schema;
+                batchIdMap[xcTable] = tableStruct.nextBatchId - 1;
                 let candidateSelectTable: string =
                     this.findValidLastSelect(tableStruct.selects,
                                             tableStruct.nextBatchId);
-                allSelects[imdTable] = candidateSelectTable;
-                tableValidPromiseArray.push(this.tableValid(imdTable,
+                allSelects[xcTable] = candidateSelectTable;
+                tableValidPromiseArray.push(this.tableValid(xcTable,
                                                           candidateSelectTable,
                                                           sessionInfo));
             }
 
             for (let xdTable of xdTables) {
-                tableValidPromiseArray.push(this.getInfoForXDTable(xdTable,
-                                                                    sessionInfo));
+                tableValidPromiseArray.push(this.getInfoForXDTable(xdTable["table"],
+                                                    xdTable["identifier"], sessionInfo));
             }
             whenCallSent = true;
             return PromiseHelper.when(...tableValidPromiseArray);
@@ -711,6 +743,7 @@ class SqlManager {
                                 sessionInfo.userName, sessionInfo.sessionName);
         tablePrefix = this.SqlUtil.cleansePrefix(tablePrefix);
         params.usePaging = params.usePaging || false;
+        params.modifiedQueryString = params.queryString // modified query string is input sql query with identifiers modified
         let allSelects: any = {};
         let queryId: string = params.queryName || xcHelper.randName("sql");
 
@@ -731,7 +764,7 @@ class SqlManager {
                                         sessionInfo.sessionName);
             SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj,
                 {userName: info.userName, workbookName: info.sessionName});
-            return this.collectTablesMetaInfo(params.queryString, tablePrefix,
+            return this.collectTablesMetaInfo(params, tablePrefix,
                                                         type, sessionInfo);
         })
         .then((sqlQuery: XcalarSelectQuery[], schemas: any, selects: any):
@@ -759,7 +792,7 @@ class SqlManager {
             let requestStruct: RequestInput = {
                 type: "sqlquery",
                 method: "post",
-                data: {"sqlQuery": params.queryString}
+                data: {"sqlQuery": params.modifiedQueryString}
             }
             return this.sendToPlanner(tablePrefix, requestStruct,
                                 sessionInfo.userName, sessionInfo.sessionName);
@@ -919,6 +952,7 @@ class SqlManager {
                             this.generateTablePrefix(sessionInfo.userName,
                                 sessionInfo.sessionName);
         params.usePaging = params.usePaging || false;
+        params.modifiedQueryString = params.queryString // modified query string is input sql query with identifiers modified
         let option: any = {
             prefix: tablePrefix,
             checkTime: params.checkTime,
@@ -934,7 +968,7 @@ class SqlManager {
         this.setupConnection(sessionInfo.userName, sessionInfo.userId,
             sessionInfo.sessionName)
         .then((): JQueryPromise<any> => {
-            return this.collectTablesMetaInfo(params.queryString, tablePrefix,
+            return this.collectTablesMetaInfo(params, tablePrefix,
                                                     type, sessionInfo);
         })
         .then((sqlQuery: XcalarSelectQuery[], schemas: any, selects: any):
@@ -962,7 +996,7 @@ class SqlManager {
             let requestStruct: RequestInput = {
                 type: "sqlquery",
                 method: "post",
-                data: {"sqlQuery": params.queryString}
+                data: {"sqlQuery": params.modifiedQueryString}
             }
             return this.sendToPlanner(tablePrefix, requestStruct,
                                 sessionInfo.userName, sessionInfo.sessionName);
