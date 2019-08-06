@@ -18,7 +18,7 @@
         "desiredCapabilities": {
           "browserName": "chrome",
           "chromeOptions": {
-            "args": ["--headless", "window-size=1280,800"]
+            "args": ["--headless", "window-size=2000,2000"]
           }
         }
       },
@@ -29,7 +29,7 @@
         "desiredCapabilities": {
           "browserName": "chrome",
           "chromeOptions": {
-            "args": ["--headless", "window-size=1280,800"]
+            "args": ["--headless", "window-size=2000,2000"]
           }
         }
       }

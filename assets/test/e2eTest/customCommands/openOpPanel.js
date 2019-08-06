@@ -1,11 +1,12 @@
 const EventEmitter = require('events');
+const execFunctions = require('../lib/execFunctions');
 
 EventEmitter.defaultMaxListeners = 1000;
 
 class OpenOpPanel extends EventEmitter {
     command(selector) {
-
         this.api
+            .execute(execFunctions.scrollIntoView, [".dataflowArea.active " + selector], () => {})
             .moveToElement(".dataflowArea.active " + selector, 30, 15)
             .mouseButtonClick('right')
             .waitForElementVisible("#dagNodeMenu", 1000)

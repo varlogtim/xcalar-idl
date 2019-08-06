@@ -92,14 +92,21 @@ class RecreateNodes extends EventEmitter {
                             connectorIndex = 1;
                         }
                         if (nodeInfo.type !== "dataset") {
+                            this.api
+                            .execute(execFunctions.scrollIntoView, ['.dataflowArea.active .operator[data-id="' + commandResult.nodeIDs[parentIndex] + '"]'], () => {})
+                            .execute(execFunctions.scrollIntoView, [".dataflowArea.active .operator:nth-child(" + (i + 1) + ")"], () => {})
+                            .moveToElement(".dataflowArea.active .operator:nth-child(" + (i + 1) + ") .connIn:nth-child(" + connectorIndex + ") .connector.in", 2, 2)
+                            .mouseButtonDown("left")
+                            // .saveScreenshot("nwscreenshot1.png")
+                            .moveTo(commandResult.nodeElemIDs[parentIndex], 20, 10)
+                            // .saveScreenshot("nwscreenshot2.png")
+                            .mouseButtonUp("left")
+                            // .saveScreenshot("nwscreenshot3.png")
+
                             // If it's connecting to a sort, an alert popup ios going to show up
                             // It needs to be closed.
                             if (commandResult.nodeTypes[parentIndex] == "sort") {
-                                this.api
-                                    .moveToElement(".dataflowArea.active .operator:nth-child(" + (i + 1) + ") .connIn:nth-child(" + connectorIndex + ") .connector.in", 2, 2)
-                                    .mouseButtonDown("left")
-                                    .moveTo(commandResult.nodeElemIDs[parentIndex], 20, 10)
-                                    .mouseButtonUp("left")
+                                    this.api
                                     .waitForElementVisible("#alertModal", 2000)
                                     .click("#alertActions .confirm")
                                     .waitForElementNotVisible("#alertModal", 5000)
@@ -111,10 +118,6 @@ class RecreateNodes extends EventEmitter {
                                         10);
                             } else {
                                 this.api
-                                    .moveToElement(".dataflowArea.active .operator:nth-child(" + (i + 1) + ") .connIn:nth-child(" + connectorIndex + ") .connector.in", 2, 2)
-                                    .mouseButtonDown("left")
-                                    .moveTo(commandResult.nodeElemIDs[parentIndex], 20, 10)
-                                    .mouseButtonUp("left")
                                     .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
                                         + `[data-childnodeid="${childId}"]`
                                         + `[data-parentnodeid="${commandResult.nodeIDs[parentIndex]}"]`

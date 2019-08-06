@@ -60,6 +60,10 @@ module.exports = {
         };
     },
 
+    scrollIntoView: function(selector) {
+        $(selector).scrollintoview({duration: 0});
+    },
+
     getFinalWorkbookName: function() {
         return $("#workbookPanel .workbookBox.noResource .subHeading input").val();
     },
