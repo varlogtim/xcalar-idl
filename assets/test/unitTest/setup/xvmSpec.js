@@ -96,6 +96,10 @@ describe('XVM Test', () => {
             expect(XVM.getMaxNodes()).to.be.a('number');
         });
 
+        it("XVM.isCloud should work", function() {
+            expect(XVM.isCloud()).to.be.a("boolean");
+        });
+
         it('XVM.checkMaxUsers should work', () => {
             // case 1
             expect(XVM.checkMaxUsers()).to.be.false;

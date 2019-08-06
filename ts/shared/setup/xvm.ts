@@ -11,6 +11,7 @@ namespace XVM {
     let licenseMode: XcalarMode = null;
     let licensee: string = 'Unknown';
     let compressedLicense: string = "Unknown";
+    let cloud: boolean = false;
 
     // let expirationDate: Date = null;
     let numUsers: number = -1; // Set, but not used
@@ -48,6 +49,10 @@ namespace XVM {
             numUsers = license.userCount;
             licensee = license.licensee;
             compressedLicense = license.compressedLicense;
+
+            // XXX TODO: make it to work
+            license.cloud = true;
+            cloud = license.cloud || false
             if (license.isExpired) {
                 console.log(license);
                 const error: string = xcStringHelper.replaceMsg(ErrTStr.LicenseExpire, {
@@ -217,6 +222,13 @@ namespace XVM {
      */
     export function getMaxNodes(): number {
         return numNodes;
+    }
+
+    /**
+     * XVM.isCloud
+     */
+    export function isCloud(): boolean {
+        return cloud;
     }
 
     /**
