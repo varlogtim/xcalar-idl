@@ -1,7 +1,7 @@
 {
     "CgroupVersionSignature" : 193016325,
     "ColumnAttributeVersionSignature" : 199286749,
-    "DagNodeVersionSignature" : 130961855,
+    "DagNodeVersionSignature" : 246070714,
     "DataSetVersionSignature" : 218234228,
     "DataflowVersionSignature" : 13166394,
     "EchoVersionSignature" : 3466616,
@@ -27,6 +27,6 @@
     "WorkbookVersionSignature" : 57235854,
     "XDFVersionSignature" : 188684344,
     "XcalarEnumTypeVersionSignature" : 222419149,
-    "ProtoAPIVersionSignature" : 9797341
+    "ProtoAPIVersionSignature" : 10845916
 }
 

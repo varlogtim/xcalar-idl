@@ -1484,7 +1484,7 @@ proto.xcalar.compute.localtypes.DagNode.DeleteResponse.deserializeBinaryFromRead
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readUint32());
+      var value = /** @type {number} */ (reader.readUint64());
       msg.setNumNodes(value);
       break;
     case 2:
@@ -1523,7 +1523,7 @@ proto.xcalar.compute.localtypes.DagNode.DeleteResponse.serializeBinaryToWriter =
   var f = undefined;
   f = message.getNumNodes();
   if (f !== 0) {
-    writer.writeUint32(
+    writer.writeUint64(
       1,
       f
     );
@@ -1540,7 +1540,7 @@ proto.xcalar.compute.localtypes.DagNode.DeleteResponse.serializeBinaryToWriter =
 
 
 /**
- * optional uint32 num_nodes = 1;
+ * optional uint64 num_nodes = 1;
  * @return {number}
  */
 proto.xcalar.compute.localtypes.DagNode.DeleteResponse.prototype.getNumNodes = function() {
