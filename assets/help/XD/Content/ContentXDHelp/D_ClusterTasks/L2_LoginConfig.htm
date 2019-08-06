@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Understanding and changing login configuration (Xcalar admin only)</title>
+        <meta name="author" content="" /><title>Configuring users (admin only)</title>
         <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -183,13 +181,17 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <h1>Understanding and changing login configuration (<span class="GeneralProductName3">Xcalar</span> admin only)</h1>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Configuring users (admin only)</h1>
                                                 <p>This section describes how to configure user authentication through the <span class="UIelement">LOGIN CONFIGURATION</span> modal window in <span class="GeneralGUIName1">Xcalar Design</span>.</p>
                                                 <h2 class="noPageBreak">Displaying the Login Configuration modal window</h2>
-                                                <p>To display the <span class="UIelement">Login Configuration</span> modal window, follow these steps:</p>
+                                                <p>To display the <span class="UIelement">Login Configuration</span> modal window:</p>
                                                 <ol>
                                                     <li value="1">Log in to <span class="GeneralGUIName1">Xcalar Design</span> as either the <span class="GeneralCompanyNameShort">Xcalar</span> Admin user or the default admin user.</li>
-                                                    <li value="2">From the sidebar, click the <b>System</b> icon and then click the <b>Administration</b> icon (<img src="../../Resources/Images/XD_assets/xd-administration.png" />).</li>
+                                                    <li value="2">From the sidebar, click the <b>System</b> icon and then click the <b>Administration</b> icon <img src="../../Resources/Images/XD_assets/xd-administration.png" />.</li>
                                                     <li value="3">In the <b>Administration</b> panel, click <span class="UIelement">Login Configuration</span>.</li>
                                                 </ol>
                                                 <p>The rest of this topic discusses the tasks that you can perform from the <span class="UIelement">Login Configuration</span> modal window. After filling out the required information, click <span class="UIelement">Save</span>. Your changes will take effect immediately.</p>
@@ -198,13 +200,13 @@
                                                 <ul>
                                                     <li value="1">For an on-premises <span class="GeneralProductName3">Xcalar</span> deployment, <span class="GeneralGUIName1">Xcalar Design</span> supports the Lightweight Directory Access Protocol (LDAP) user authentication for verifying user access. </li>
                                                 </ul>
-                                                <div class="Note"><span class="label">NOTE</span>: During the <span class="GeneralProductName3">Xcalar</span> installation, you can choose to configure your LDAP settings before or after the  installation. If you choose to configure your LDAP&#160;settings after installing <span class="GeneralProductName3">Xcalar</span>, you must create a default admin user account during installation by selecting the <b>CREATE DEFAULT ADMIN USER</b> checkbox.  </div>
+                                                <div class="Note"><span class="label">NOTE</span>: During the <span class="GeneralProductName3">Xcalar</span> installation, you can choose to configure your LDAP settings before or after the  installation. If you choose to configure your LDAP&#160;settings after installing <span class="GeneralProductName3">Xcalar</span>, you must create a default admin user account during installation by selecting the <b>CREATE DEFAULT ADMIN USER</b> check box.  </div>
                                                 <div class="Note"><span class="label">IMPORTANT: </span><span class="GeneralProductName3">Xcalar</span> recommends  creating a default administrator, as this account's credentials are stored locally on your cluster and can be used when the LDAP server is not available.</div>
                                                 <ul>
                                                     <li value="1">For a Microsoft Azure Marketplace <span class="GeneralProductName3">Xcalar</span> cloud deployment, <span class="GeneralGUIName1">Xcalar Design</span> supports Azure Active Directory v2.0 user authentication or LDAP&#160;for verifying user access. </li>
                                                     <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> recommends using Azure Active Directory v2.0 for user authentication. </div>
                                                 </ul>
-                                                <p>In the <span class="UIelement">Login Configuration</span> modal window, you can enable or disable LDAP,&#160;Azure AD authentication by selecting or deselecting its checkbox. For more information on how to fill out the required field settings, see either <a href="#Enabling" class="MCXref xref" xrefformat="{para}">Enabling LDAP authentication</a> or <a href="#Enabling2" class="MCXref xref" xrefformat="{para}">Enabling Azure AD&#160;v2.0 Common Endpoint authentication</a>.</p>
+                                                <p>In the <span class="UIelement">Login Configuration</span> modal window, you can enable or disable LDAP,&#160;Azure AD authentication by selecting or deselecting its check box. For more information on how to fill out the required field settings, see either <a href="#Enabling" class="MCXref xref" xrefformat="{para}">Enabling LDAP authentication</a> or <a href="#Enabling2" class="MCXref xref" xrefformat="{para}">Enabling Azure AD&#160;v2.0 Common Endpoint authentication</a>.</p>
                                                 <div class="Note"><span class="label">IMPORTANT</span>:&#160;You must enable at least one authentication method. If both LDAP&#160;and Azure AD are disabled, users cannot access <span class="GeneralGUIName1">Xcalar Design</span>. Creating a <b>default admin</b> user during the <span class="GeneralProductName3">Xcalar</span> installation, grants administrator user access privileges to <span class="GeneralGUIName1">Xcalar Design</span> outside of the LDAP&#160;and Azure AD authentication method. This user is then able to enable LDAP or Azure AD authentication.  For more information about the default admin user account, see <a href="#Understa" class="MCXref xref" xrefformat="{para}">Understanding the default admin user account</a>. If you cannot use the default admin user account, call <span class="GeneralCompanyNameShort">Xcalar</span> for information about accessing your cluster again.</div>
                                                 <h2 class="noPageBreak"><a name="Enabling"></a>Enabling LDAP authentication</h2>
                                                 <p>LDAP authentication requires values that were collected during the <span class="GeneralProductName3">Xcalar</span> pre-installation tasks. For more information, see the <span class="GeneralProductName3">Xcalar</span> Installation Guide.</p>
@@ -213,10 +215,10 @@
                                                     <li value="1">
                                                         <p>Log in to <span class="GeneralGUIName1">Xcalar Design</span> as either the <span class="GeneralCompanyNameShort">Xcalar</span> Admin user or the default admin user.</p>
                                                     </li>
-                                                    <li value="2">From the sidebar, click the <b>System</b> icon and then click the <b>Administration</b> icon (<img src="../../Resources/Images/XD_assets/xd-administration.png" />).</li>
+                                                    <li value="2">From the sidebar, click the <b>System</b> icon and then click the <b>Administration</b> icon <img src="../../Resources/Images/XD_assets/xd-administration.png" />.</li>
                                                     <li value="3">In the <b>Administration</b> panel, select <span class="UIelement">Login Configuration</span>.</li>
                                                     <p>The <b>LOGIN CONFIGURATION</b> modal window appears.</p>
-                                                    <li value="4">Select the <b>ENABLE LIGHTWEIGHT DIRECTORY ACCESS PROTOCOL (LDAP) AUTHENTICATION</b> checkbox and then select your current LDAP implementation.</li>
+                                                    <li value="4">Select the <b>ENABLE LIGHTWEIGHT DIRECTORY ACCESS PROTOCOL (LDAP) AUTHENTICATION</b> check box and then select your current LDAP implementation.</li>
                                                     <li value="5">
                                                         <p>In the <b>LDAP URL</b> field, enter the LDAP URL that is used to contact the LDAP Server.</p>
                                                     </li>
@@ -231,9 +233,9 @@
                                                     <li value="9">(AD option only) In the <b>AD USER GROUP</b> field, enter the name of the Active Directory's user group. For example, <b>Xce User</b>.</li>
                                                     <li value="10">(AD option only) In the <b>AD ADMIN GROUP</b> field, enter the name of the Active Directory's administrator group. For example, <b>Xce Admin</b>.</li>
                                                     <li value="11">(Optional AD option only) In the <b>AD DEFAULT&#160;DOMAIN</b> field, enter the domain name of your Active Directory, which is used as an optional default domain name. </li>
-                                                    <li value="12">(Optional AD option only) If your Active Directory's top level groups contain sub groups, select the <b>ENABLE GROUP SUBTREE SEARCHING</b> checkbox. This enables subgroup LDAP searching for AD LDAP.</li>
-                                                    <li value="13">(Optional AD option only) By default, when a user enters their user name and password to log in to <span class="GeneralGUIName1">Xcalar Design</span>, <span class="GeneralProductName3">Xcalar</span> authenticates the user by searching AD for both a user name and the AD domain name. If you require user authentication by <span class="GeneralProductName3">Xcalar</span> based on the user name only, select the <b>SEARCH USING USER ID ONLY</b> checkbox.</li>
-                                                    <li value="14"> If you require secure LDAP connections, select the <b>ENABLE TRANSPORTATION LAYER SECURITY (TLS)</b> checkbox. </li>
+                                                    <li value="12">(Optional AD option only) If your Active Directory's top level groups contain sub groups, select the <b>ENABLE GROUP SUBTREE SEARCHING</b> check box. This enables subgroup LDAP searching for AD LDAP.</li>
+                                                    <li value="13">(Optional AD option only) By default, when a user enters their user name and password to log in to <span class="GeneralGUIName1">Xcalar Design</span>, <span class="GeneralProductName3">Xcalar</span> authenticates the user by searching AD for both a user name and the AD domain name. If you require user authentication by <span class="GeneralProductName3">Xcalar</span> based on the user name only, select the <b>SEARCH USING USER ID ONLY</b> check box.</li>
+                                                    <li value="14"> If you require secure LDAP connections, select the <b>ENABLE TRANSPORTATION LAYER SECURITY (TLS)</b> check box. </li>
                                                     <li value="15">Click <b>Confirm &amp; Save</b>.</li>
                                                 </ol>
                                                 <h2 class="noPageBreak"><a name="Enabling2"></a>Enabling Azure AD&#160;v2.0 Common Endpoint authentication</h2>
@@ -259,10 +261,10 @@
                                                     <li value="2">
                                                         <p>Log in to <span class="GeneralGUIName1">Xcalar Design</span> as either the <span class="GeneralCompanyNameShort">Xcalar</span> Admin user or the default admin user.</p>
                                                     </li>
-                                                    <li value="3">From the sidebar, click the <b>System</b> icon and then click the <b>Administration</b> icon (<img src="../../Resources/Images/XD_assets/xd-administration.png" />).</li>
+                                                    <li value="3">From the sidebar, click the <b>System</b> icon and then click the <b>Administration</b> icon <img src="../../Resources/Images/XD_assets/xd-administration.png" />.</li>
                                                     <li value="4">From the <b>Administration</b> panel, select <span class="UIelement">Login Configuration</span>.</li>
                                                     <p>The <b>LOGIN CONFIGURATION</b> modal window appears.</p>
-                                                    <li value="5">Select the ENABLE AZURE V2.0 COMMON AUTHENTICATION checkbox.</li>
+                                                    <li value="5">Select the ENABLE AZURE V2.0 COMMON AUTHENTICATION check box.</li>
                                                     <li value="6">In the <b>CLIENT ID</b> field, enter the <b>Application ID</b> that you recorded from the Azure Application Registration Portal. For example, <code>3e956d1c-ac0d-4381-a755-9cc63b7d50hb</code>.</li>
                                                     <li value="7">
                                                         <p>In the <b>XCALAR USER SCOPE</b> field, enter the <b>Application ID URI</b> that you recorded from the Azure Application Registration Portal, using the following syntax:</p>
@@ -282,7 +284,7 @@
                                                     <li value="10">
                                                         <p><span style="color: #b22222;"><span style="color: #000000;">(Optional) B2C fields have been provided for B2C services authentication to access services, such as Web API, social media, and local accounts. For more information on how to set up and register B2C authentication, see the Microsoft Azure B2C authentication documentation. For more information on using the B2C authentication fields, contact <span class="GeneralProductName3">Xcalar</span> support.</span></span>
                                                         </p>
-                                                        <div class="Note"><span class="label">NOTE:</span> <span style="color: #b22222;"><span style="color: #000000;">When using B2C you must select the </span></span><b style="color: #000000;">ENABLE AZURE B2C</b><span style="color: #b22222;"><span style="color: #000000;"> checkbox</span></span><span style="color: #000000;">.</span></div>
+                                                        <div class="Note"><span class="label">NOTE:</span> <span style="color: #b22222;"><span style="color: #000000;">When using B2C you must select the </span></span><b style="color: #000000;">ENABLE AZURE B2C</b><span style="color: #b22222;"><span style="color: #000000;"> check box</span></span><span style="color: #000000;">.</span></div>
                                                     </li>
                                                     <li value="11">Click <b>Confirm &amp; Save</b>.</li>
                                                 </ol>

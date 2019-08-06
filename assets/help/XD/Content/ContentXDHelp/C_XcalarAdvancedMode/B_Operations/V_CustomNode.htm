@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Creating and using a Custom Node</title>
+        <meta name="author" content="" /><title>Modularizing dataflows using a Custom Node</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,75 +185,89 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Creating and using a Custom Node</h1>
-                                                <p><span class="UIelement">Custom </span>Node is a convenient way of modularizing your dataflow. If you have a set of operations in your dataflow that is used at many places, you can create a <span class="UIelement">Custom </span>Node for those operations and share it. Once a <span class="UIelement">Custom </span>Node is shared, it is available in the Advanced Mode toolbar as a compound operator for you to use across all your workbooks. This new Node can be used like any other Node in a dataflow. </p>
-                                                <p><span class="label">NOTE</span>:&#160;The shared <span class="UIelement">Custom </span>Node is only visible to the user who created it.</p>
-                                                <h2 class="noPageBreak">Creating and sharing a Custom Node</h2>
-                                                <p>Follow these steps to create and share a <span class="UIelement">Custom </span>Node:</p>
-                                                <ol>
-                                                    <li value="1">Create a dataflow and test it.</li>
-                                                    <li value="2">Once you are satisfied with the dataflow, select all the Nodes of the dataflow. See <a href="#Limitati" class="MCXref xref" xrefformat="{para}">Limitations of creating a Custom Node</a> for more information on what can constitute a <span class="UIelement">Custom </span>Node.</li>
-                                                    <li value="3">Right click on any of the selected Nodes and choose the <span class="UIelement">Create Custom Node</span> menu item from the drop-down. </li>
-                                                    <li value="4">The selected dataflow Nodes are compacted in a single <span class="UIelement">Custom</span> Node. </li>
-                                                    <li value="5">Right click on the <span class="UIelement">Custom </span>Node and select <span class="UIelement">Share Custom Node</span> menu item from the drop-down. A new <span class="UIelement">Custom </span>Node appears in the <span class="UIelement">Custom</span> category of the Advanced Mode toolbar. </li>
-                                                    <li value="6">Drag this <span class="UIelement">Custom </span>Node from the toolbar to any dataflow to use it.</li>
-                                                </ol>
-                                                <h2 class="noPageBreak"><a name="Limitati"></a>Limitations of creating a Custom Node</h2>
-                                                <p>There are certain restrictions on what a <span class="UIelement">Custom </span>Node can include:</p>
-                                                <ol>
-                                                    <li value="1">It cannot include <span class="UIelement">Link in</span>, <span class="UIelement">Export Optimized</span>, <span class="UIelement">Link out</span>, <span class="UIelement">Link out Optimized</span> Nodes.</li>
+                                                <h1>Modularizing dataflows using a Custom Node</h1>
+                                                <p><span class="UIelement">Custom</span> Node is a convenient way of modularizing your dataflows. If you have a set of operations in your dataflow which is used at many places, you can create a <span class="UIelement">Custom</span> Node for those operations and share it. Once a <span class="UIelement">Custom</span> Node is shared, it is available in the Dataflow Mode toolbar as a compound operator for you to use across all your workbooks. This new Node can be used like any other Node in a dataflow. </p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The shared <span class="UIelement">Custom</span> Node is only visible to the user who created it.</div>
+                                                <h2 class="noPageBreak"><a name="Limitati"></a>Restrictions in creating a Custom Node</h2>
+                                                <p>There are certain restrictions on what a <span class="UIelement">Custom</span> Node can include:</p>
+                                                <ul>
+                                                    <li value="1">It cannot include <span class="UIelement">Link In</span>, <span class="UIelement">Export Optimized</span>, <span class="UIelement">Link Out</span>, <span class="UIelement">Link Out Optimized</span> Nodes.</li>
                                                     <li value="2">It cannot have more than one output Nodes. </li>
                                                     <li value="3">
-                                                        <p>It cannot include disconnected dataflows. For example, in the following dataflow, you cannot create a <span class="UIelement">Custom </span>Node by selecting all the Nodes except Node3 because that is equivalent to having two disconnected dataflows, one with Node1 and Node2 and the other with Node4 and Node5.</p>
+                                                        <p>It cannot include disconnected dataflows. For example, in the following dataflow, you cannot create a <span class="UIelement">Custom</span> Node by selecting Node1, Node2, Node4, and Node5 because that is equivalent to having two disconnected dataflows, one with Node1 and Node2 and the other with Node4 and Node5.</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-custom-node-limitation.png" />
                                                         </p>
                                                     </li>
-                                                </ol>
-                                                <h2 class="noPageBreak">Expanding a Custom Node</h2>
-                                                <p>If you are using a <span class="UIelement">Custom </span>Node in a dataflow and need to see all the Nodes that constitute that <span class="UIelement">Custom </span>Node:</p>
+                                                </ul>
+                                                <h2 class="noPageBreak">Creating and sharing a Custom Node</h2>
+                                                <p>To create and share a <span class="UIelement">Custom</span> Node:</p>
                                                 <ol>
-                                                    <li value="1">Right click on the <span class="UIelement">Custom </span>Node in the dataflow.</li>
-                                                    <li value="2">Select <span class="UIelement">Expand </span>menu item from the drop-down and the Node is expanded in place. </li>
-                                                    <li value="3">You can click the <span class="UIelement">Undo </span>icon in the top left corner of  <span class="GeneralGUIName1">Xcalar Design</span> to go back to the previous state.</li>
+                                                    <li value="1">Create a dataflow and test it. </li>
+                                                    <li value="2">Once you are satisfied with the dataflow, select all the Nodes of the dataflow. </li>
+                                                    <li value="3">Right click on any of the selected Nodes and select <span class="UIelement">Create Custom Node</span>. </li>
+                                                    <li value="4">The selected dataflow Nodes are compacted in a single <span class="UIelement">Custom</span> Node. </li>
+                                                    <li value="5">
+                                                        <p>Right click the <span class="UIelement">Custom</span> Node and select <span class="UIelement">Share Custom Node</span>. </p>
+                                                        <p>A new <span class="UIelement">Custom</span> Node appears in the <span class="UIelement">Custom</span> category of the Dataflow Mode toolbar. </p>
+                                                    </li>
+                                                    <li value="6">To use this <span class="UIelement">Custom</span> Node in any dataflow, drag it into the dataflow canvas from the Dataflow Mode toolbar.</li>
+                                                </ol>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;See <a href="#Limitati" class="MCXref xref" xrefformat="{para}">Restrictions in creating a Custom Node</a> for more information on what can constitute a <span class="UIelement">Custom</span> Node.</div>
+                                                <h2 class="noPageBreak">Expanding a Custom Node</h2>
+                                                <p>If you are using a <span class="UIelement">Custom</span> Node in a dataflow and need to see all the Nodes that constitute that <span class="UIelement">Custom</span> Node:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>Right click the <span class="UIelement">Custom</span> Node and select <span class="UIelement">Expand</span>.</p>
+                                                        <p>The Node is expanded in place.</p>
+                                                    </li>
+                                                    <li value="2">You can click the <span class="UIelement">Undo</span> icon in the top left corner of  <span class="GeneralGUIName1">Xcalar Design</span> to go back to the previous state.</li>
                                                 </ol>
                                                 <h2 class="noPageBreak">Editing a Custom Node</h2>
-                                                <p>Follow these steps to edit the configuration of the individual Nodes of a <span class="UIelement">Custom </span>Node in a dataflow:</p>
+                                                <p>To edit the configuration of the individual Nodes of a <span class="UIelement">Custom</span> Node:</p>
                                                 <ol>
-                                                    <li value="1">Right click the <span class="UIelement">Custom </span>Node in a dataflow and select <span class="UIelement">Edit</span> menu item from the drop-down. </li>
+                                                    <li value="1">
+                                                        <p>Right click the <span class="UIelement">Custom</span> Node in a dataflow and select <span class="UIelement">Edit</span>. </p>
+                                                        <p>A new tab opens up with the expanded <span class="UIelement">Custom</span> Node. </p>
+                                                    </li>
                                                     <li value="2">
-                                                        <p>A new tab opens up with the expanded <span class="UIelement">Custom</span> Node. Right click on any of the expanded Nodes (except the Nodes named <span class="UIelement">Input </span>and the <span class="UIelement">Output</span>) and configure it again. </p>
-                                                        <p><span class="label">NOTE</span>:&#160;You cannot add or remove any Node from the expanded <span class="UIelement">Custom</span> Node.</p>
+                                                        <p>Right click on any of the expanded Nodes (except the Nodes named <span class="UIelement">Input </span>and the <span class="UIelement">Output</span>) and reconfigure it. </p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;You cannot add or remove any Node from the expanded <span class="UIelement">Custom</span> Node.</div>
                                                     </li>
                                                 </ol>
                                                 <h2 class="noPageBreak">Renaming a shared Custom Node</h2>
-                                                <p>When you create or share a <span class="UIelement">Custom </span>Node, system generates a default name for it. You cannot rename a <span class="UIelement">Custom </span>Node in the dataflow but you can rename a shared <span class="UIelement">Custom </span>Node in the toolbar. Follow these steps to rename a shared <span class="UIelement">Custom </span>Node:</p>
+                                                <p>When you create or share a <span class="UIelement">Custom</span> Node, system generates a default name for it. You cannot rename a <span class="UIelement">Custom</span> Node in the dataflow but you can rename a shared <span class="UIelement">Custom</span> Node in the Dataflow Mode toolbar. Follow these steps to rename a shared <span class="UIelement">Custom</span> Node:</p>
                                                 <ol>
-                                                    <li value="1">Select the <span class="UIelement">Custom </span>Node you want to rename in the Advanced Mode toolbar.</li>
+                                                    <li value="1">Select the <span class="UIelement">Custom</span> Node you want to rename in the Dataflow Mode toolbar.</li>
                                                     <li value="2">
-                                                        <p>Click on the pencil icon on the left.</p>
+                                                        <p>Click the pencil icon on the left.</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-custom-node-mgmt.png" />
                                                         </p>
+                                                        <p>A <span class="UIelement">Rename</span> modal window is displayed. </p>
                                                     </li>
-                                                    <li value="3">A <span class="UIelement">Rename </span>modal window is displayed. Enter the new name and click <span class="UIelement">Save </span>button. The Node is renamed.</li>
-                                                    <li value="4">Renaming the Custom Node in the toolbar has no effect on already used <span class="UIelement">Custom </span>Nodes in the dataflow.</li>
+                                                    <li value="3">
+                                                        <p> Enter a new name and click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node is renamed.</p>
+                                                    </li>
                                                 </ol>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;Renaming the <span class="UIelement">Custom</span> Node in the toolbar has no effect on already used <span class="UIelement">Custom</span> Nodes in a dataflow.</div>
                                                 <h2 class="noPageBreak">Deleting a shared Custom Node</h2>
-                                                <p>Follow these steps to delete a shared <span class="UIelement">Custom </span>Node from the toolbar:</p>
+                                                <p>To delete a shared <span class="UIelement">Custom</span> Node from the toolbar:</p>
                                                 <ol>
-                                                    <li value="1">Select the <span class="UIelement">Custom </span>Node you want to delete in the  toolbar.</li>
+                                                    <li value="1">Select the <span class="UIelement">Custom</span> Node you want to delete in the  toolbar.</li>
                                                     <li value="2">
                                                         <p>Click on the trash icon on the left.</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-custom-node-mgmt.png" />
                                                         </p>
+                                                        <p>A <span class="UIelement">DELETE</span> modal window is displayed. </p>
                                                     </li>
-                                                    <li value="3">A <span class="UIelement">DELETE OPERATOR</span> modal window is displayed. Click <span class="UIelement">Confirm </span>and the Node is deleted.</li>
-                                                    <li value="4">Deleting a <span class="UIelement">Custom </span>Node from the toolbar has no effect on already used <span class="UIelement">Custom </span>Nodes in the dataflow.</li>
+                                                    <li value="3">Click <span class="UIelement">Confirm</span> and the Node is deleted.</li>
                                                 </ol>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;Deleting a <span class="UIelement">Custom</span> Node from the toolbar has no effect on already used <span class="UIelement">Custom</span> Nodes in a dataflow.</div>
                                                 <h2 class="noPageBreak">Editing a shared Custom Node</h2>
-                                                <p>A shared <span class="UIelement">Custom </span>Node cannot be edited. You can drag a shared <span class="UIelement">Custom</span> Node to the dataflow canvas and edit it but the editing is not saved back to the shared <span class="UIelement">Custom </span>Node. It stays in the dataflow where you edit it, the shared <span class="UIelement">Custom Node</span> in the toolbar stays unchanged.</p>
+                                                <p>A shared <span class="UIelement">Custom</span> Node cannot be edited. You can drag a shared <span class="UIelement">Custom</span> Node to the dataflow canvas and edit the Node instance in the dataflow but the edits are not saved back to the shared <span class="UIelement">Custom</span> Node in the toolbar. It stays in the dataflow where you edit it, the shared <span class="UIelement">Custom</span> Node in the toolbar stays unchanged.</p>
                                                 <p>&#160;</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>

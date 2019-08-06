@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -95,8 +95,6 @@
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -189,16 +187,15 @@
                                                     </div>
                                                 </div>
                                                 <h1>Importing a data source</h1>
-                                                <p>This topic assumes that you have selected a data source for <span class="GeneralGUIName1">Xcalar Design</span> to import, as described in <a href="B3_SelectDataSource.htm" class="MCXref xref">Selecting a data source</a>.</p>
-                                                <p>If you import multiple items at once in the <span class="UIelement">Import Data Source</span> window, be sure to read <a href="#Using" class="MCXref xref">Using multiple items in one import </a> for additional information.</p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;If your data target type is  Custom Database Connector, see the <cite>Xcalar Administration Guide</cite> for additional information about importing data.</div>
-                                                <h2><a name="Specifyi"></a>Understanding the <span class="UIelement">Import Data Source</span> window</h2>
-                                                <p>The <span class="UIelement">Import Data Source</span> window is divided into two portions: </p>
+                                                <p>This topic describes the steps required to import a data source in <span class="GeneralGUIName1">Xcalar Design</span>. </p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Select a data source as described in <a href="B3_SelectDataSource.htm" class="MCXref xref">Selecting a data source</a> before you begin to import a data source.</div>
+                                                <h2 class="noPageBreak"><a name="Specifyi"></a>Understanding the <span class="UIelement">Import Data Source</span> window</h2>
+                                                <p>The <span class="UIelement">Import Data Source</span> window is divided into two parts: </p>
                                                 <ul>
-                                                    <li value="1">The top portion displays a preview of the table or dataset. You can see the sample records, data types, and so on. </li>
-                                                    <li value="2">The bottom portion is a form for you to specify how data is imported. The preview responds to your specifications.</li>
+                                                    <li value="1">The top part displays a preview of the table or the dataset. You can see the sample records, data types, and so on. </li>
+                                                    <li value="2">The bottom part is a form for you to specify how the data is imported. The preview responds to your specifications.</li>
                                                 </ul>
-                                                <h3>How to view records in the preview</h3>
+                                                <h3>Viewing records in the preview</h3>
                                                 <p>You can change how records are displayed in the following ways:</p>
                                                 <table class="TableStyle-SimpleTable" style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -219,103 +216,89 @@
                                                                 <p>Resize a column</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p>Position your mouse on a column header and drag it.</p>
+                                                                <p>Position your mouse on a column header and drag it left or right.</p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                                <p>Bring hidden columns into view</p>
+                                                                <p>Bring hidden columns and rows into view</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                                <p>Move the horizontal scrollbar.</p>
+                                                                <p>Move the horizontal or the vertical scroll bars.</p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>Bring hidden rows into view</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p>Use your mouse to scroll the rows vertically. </p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
                                                                 <p>Include more rows in the preview</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                                <p>Click <span class="UIelement">Show more rows</span>, which is displayed below the last row. </p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>Display records from another file in the folder</p>
-                                                            </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p>Click the Down arrow next to the data source path. When a drop-down list of files is displayed, select the desired file.</p>
-                                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/data-source-preview-file-selection.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="731" data-mc-height="267" src="../../Resources/Images/XD_screenshots/data-source-preview-file-selection_thumb_0_150.png" tabindex="" /></a>
-                                                                </p>
+                                                                <p>Click <span class="UIelement">Show more rows</span>, displayed below the last row. </p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Preview records from another file you have chosen</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>Click the Down arrow next to the data source path. When a drop-down list of files is displayed, select the desired file.</p>
+                                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/xd-file-preview-selection.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="904" data-mc-height="278" src="../../Resources/Images/XD_screenshots/xd-file-preview-selection_thumb_0_150.png" tabindex="" /></a>
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
                                                                 <p>Adjust the height of the preview section</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
-                                                                <p>Place the cursor on the bottom border of the preview section and drag vertically. The following screenshot illustrates how to resize the preview section.</p>
-                                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/data-source-preview-drag-up-down.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="552" data-mc-height="399" src="../../Resources/Images/XD_screenshots/data-source-preview-drag-up-down_thumb_0_150.png" tabindex="" /></a>
-                                                                </p>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                                <p>Place the cursor at the bottom border of the preview section and drag vertically. </p>
                                                             </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <p>If the format of your data source  is CSV, <span class="GeneralGUIName1">Xcalar Design</span> performs a smart cast when importing the data. Smart cast means that <span class="GeneralGUIName1">Xcalar Design</span> tries to automatically assign the appropriate data type to each field. </p>
-                                                <p>You can change the data type and column name in the preview. For a non-CSV data source, you can change the data type only after creating the table or dataset. You cannot change the column names.</p>
+                                                <h3>Smart casting</h3>
+                                                <p>If the format of your data source  is CSV, <span class="GeneralGUIName1">Xcalar Design</span> performs a smart cast when importing the data. Smart casting means that <span class="GeneralGUIName1">Xcalar Design</span> tries to automatically assign the appropriate data type to each field. You can change the data type and column name in the preview. </p>
+                                                <p>For a non-CSV data source, you can change the data type only after creating the table or the dataset but you cannot change the column names.</p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;Smart casting and changing the column name and data type are possible only for a CSV&#160;data source with up to 127 fields. </div>
                                                 <h3><a name="Changing"></a>Changing the data type and column name in a CSV&#160;data source</h3>
-                                                <p> To change the data type in the preview for a column:</p>
+                                                <p> To change the data type of a column in the preview window:</p>
                                                 <ol>
                                                     <li value="1">Click the data type icon in the column header. A pop-up list appears showing the possible data types.</li>
                                                     <li value="2">Select the appropriate data type.</li>
                                                 </ol>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;If <span class="GeneralProductName3">Xcalar</span> encounters a value in the column that cannot be cast, the data type of the column is set to Mixed. For example, if the Age column contains both numeric values and the string NA, you cannot change the data type from&#160;String to Integer because NA is not a numeric value.&#160;Instead, the column becomes a Mixed column. Similarly, if the column contains both Integer and Float numbers, the column is set to Number. After you create the dataset, you can change this column's data type. Any value that cannot be cast as an integer is replaced with FNF. For more information about changing data types, see <a href="../C_XcalarAdvancedMode/B_Operations/D_ChangeDataType.htm" class="MCXref xref">Changing the data type of a column</a>.</div>
-                                                <p>Follow these steps to change the column name:</p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;If <span class="GeneralProductName3">Xcalar</span> encounters a value in the column that cannot be cast, the data type of the column is set to Mixed. For example, if the Age column contains both numeric values and the string NA, you cannot change the data type from&#160;String to Integer because NA is not a numeric value.&#160;Instead, the column becomes a Mixed column. After you create the dataset, you can change this column's data type. Any value that cannot be cast as an integer is replaced with FNF. For more information about changing data types, see <a href="../C_XcalarAdvancedMode/B_Operations/D_ChangeDataType.htm" class="MCXref xref">Changing the data type of a column</a>.</div>
+                                                <p>To change the column name in the preview window:</p>
                                                 <ol>
                                                     <li value="1">Click the column header.</li>
                                                     <li value="2">
-                                                        <p>Type the new column name.</p>
-                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                        <p>Enter the new column name.</p>
+                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                             <div class="MCDropDownBody dropDownBody">
+                                                                <p>To avoid any issues from the case sensitivity column naming differences between <span class="GeneralProductName3">Xcalar</span> and <span class="GeneralProductName3">Xcalar</span> SQL, column names are automatically processed into uppercase characters.</p>
                                                                 <ul>
-                                                                    <li value="1">The name is case sensitive if the column is in a dataset; it is case-insensitive if the column is in a table, in which case all letters are displayed in uppercase.</li>
-                                                                    <li value="2">
-                                                                        <p>The name must consist of alphanumeric characters, spaces, and special characters except the following characters:</p>
-                                                                        <ul>
-                                                                            <li value="1">caret (^)</li>
-                                                                            <li value="2">single quote mark (')</li>
-                                                                            <li value="3">double quote mark (")</li>
-                                                                            <li value="4">left or right parenthesis (( ))</li>
-                                                                            <li value="5">left or right square bracket ([ ])</li>
-                                                                            <li value="6">left or right brace ({ })</li>
-                                                                            <li value="7">backslash (\)</li>
-                                                                            <li value="8">colons (:)</li>
-                                                                            <li value="9">comma (,)</li>
-                                                                            <li value="10">period (.)</li>
-                                                                        </ul>
-                                                                    </li>
-                                                                    <li value="3">The name must not begin or end with a space.</li>
-                                                                    <li value="4">The name must begin with an underscore or a letter.</li>
-                                                                    <li value="5">Length must not exceed 255 characters.</li>
-                                                                    <li value="6">The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</li>
-                                                                    <li value="7">The name must not be one of the following strings, regardless of capitalization: <ul><li value="1"><span class="UIelement">None</span></li><li value="2"><span class="UIelement">False</span></li><li value="3"><span class="UIelement">True</span></li></ul></li>
-                                                                    <li value="8">The name must not contain two consecutive hyphens (--).</li>
+                                                                    <li value="1">Length must not exceed 255 characters.</li>
+                                                                    <li value="2">First character must be a letter of the alphabet or an underscore.</li>
+                                                                    <li value="3">First character must not start or end with a space.</li>
+                                                                    <li value="4">Characters must be A-Z, a-z, 0-9, or underscore (_). </li>
+                                                                    <li value="5">Cannot contain special or punctuation characters, such as:<ul><li value="1">caret (^)</li><li value="2">single (') or double (") quote marks </li><li value="3">left (() or right ()) parenthesis</li><li value="4">left ({) or right (}) brace</li><li value="5">forward slash (/) or backslash (\)</li><li value="6">colon (:) or semi-colon (;)</li><li value="7">comma (,)</li><li value="8">period (.)</li><li value="9">single (-) or double hyphen (--)</li></ul></li>
+                                                                    <li value="6">Must not be one of the following reserved names:</li>
+                                                                    <ul style="list-style-type: circle;">
+                                                                        <li value="1"><span class="UIelement">Data</span>
+                                                                        </li>
+                                                                        <li value="2"><span class="UIelement">None</span>
+                                                                        </li>
+                                                                        <li value="3"><span class="UIelement">False</span>
+                                                                        </li>
+                                                                        <li value="4"><span class="UIelement">True</span>
+                                                                        </li>
+                                                                    </ul>
                                                                 </ul>
                                                             </div>
                                                         </div>
                                                     </li>
                                                     <li value="3">Press Enter.</li>
                                                 </ol>
-                                                <p>The following screenshot illustrates how to change the data type and the name for a particular column in the data source preview:</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/import-change-datatype-or-colname.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="607" data-mc-height="450" src="../../Resources/Images/XD_screenshots/import-change-datatype-or-colname_thumb_0_150.png" tabindex="" /></a>
+                                                <p>The following screenshot illustrates how to change the data type and the column name for a particular column in the preview window:</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/xd-import-edits.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="903" data-mc-height="612" src="../../Resources/Images/XD_screenshots/xd-import-edits_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                                 <h3><a name="Specifyi2"></a>Specifying how data is imported</h3>
                                                 <p>Follow these steps in the <span class="UIelement">Import Data Source</span> window to specify how data is imported:</p>
@@ -323,43 +306,52 @@
                                                     <li value="1">
                                                         <p>In the <span class="UIelement">Table Name</span> or <span class="UIelement">Dataset Name</span> field,  accept the suggested name or enter the desired name. The name cannot be changed later. </p>
                                                         <div class="Note"><span class="label">NOTE</span>:&#160;Table names are automatically set to uppercase.</div>
-                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                             <div class="MCDropDownBody dropDownBody">
+                                                                <p>To avoid any issues from the case sensitivity column naming differences between <span class="GeneralProductName3">Xcalar</span> and <span class="GeneralProductName3">Xcalar</span> SQL, column names are automatically processed into uppercase characters.</p>
                                                                 <ul>
                                                                     <li value="1">Length must not exceed 255 characters.</li>
-                                                                    <li value="2"> Characters must be A-Z, a-z, 0-9,  or underscore (_).</li>
-                                                                    <li value="3">First character must be a letter.</li>
-                                                                    <li value="4">Letters are displayed in uppercase, but you can enter them in uppercase or lowercase.</li>
+                                                                    <li value="2">First character must be a letter of the alphabet.</li>
+                                                                    <li value="3"> Characters must be A-Z, a-z, 0-9,  or underscore (_).</li>
                                                                 </ul>
                                                             </div>
                                                         </div>
-                                                        <div class="Note"><span class="label">TIP</span>:&#160;If the path to the data source is too long to be displayed completely, click the path to copy it to the clipboard. You can paste it in the <span class="UIelement">Table Name</span> or <span class="UIelement">Dataset&#160;Name</span> field if you want to use a portion of the path as the name. However, you must remove all the slashes in the path in the name.</div>
+                                                        <div class="Note"><span class="label">TIP</span>:&#160;If the path to the data source is too long to be displayed completely, click the path to copy it to the clipboard. You can paste it in the <span class="UIelement">Table Name</span> or <span class="UIelement">Dataset&#160;Name</span> field if you want to use a part of the path in the name. However, you must remove all the slashes in the path in the name.</div>
                                                     </li>
                                                     <li value="2">
                                                         <p>In the <span class="UIelement">Format</span> field, accept the data format suggested by <span class="GeneralGUIName1">Xcalar Design</span> or select an appropriate format from the drop-down list. </p>
-                                                        <div class="Note"><span class="label">NOTE</span>: If the data source is an Excel file, you can import data from one worksheet, which can be any worksheet from the Excel workbook.</div>
-                                                        <p>If <span class="GeneralGUIName1">Xcalar Design</span> fails to parse the data source as a file in your specified format, an error message is displayed for you to recommend another format. For example, if a file cannot be parsed as a JSON file,  an error message is displayed, and you can change your format selection.</p>
-                                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;If your data source requires a UDF during the import, you must select <span class="UIelement">Custom Format</span> in the drop-down list, even though the original format of the data source is one of the listed formats, such as CSV and JSON. For example, if your data source is a CSV file, but you need  a UDF to remove illegal characters from it when it is being parsed, select <span class="UIelement">Custom Format</span>, not <span class="UIelement">CSV</span>. Also, because you can change data types and column names in the preview only for CSV&#160;files, after you select  <span class="UIelement">Custom Format</span>, you cannot edit it in the preview.</div>
+                                                        <div class="Note"><span class="label">NOTE</span>: If the data source is an Excel file, you can import data from one Excel worksheet, which can be any worksheet from the Excel workbook.</div>
+                                                        <p>If <span class="GeneralGUIName1">Xcalar Design</span> fails to parse the data source as a file in your specified format, an error message is displayed for you to select another format. For example, if a file cannot be parsed as a JSON file,  an error message is displayed, and you can change your format selection.</p>
+                                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;If your data source requires a user-defined function (UDF) during the import, you must select <span class="UIelement">Custom Format</span> in the drop-down list, even though the original format of the data source is one of the listed formats, such as CSV and JSON. For example, if your data source is a CSV file, but you need  a UDF to remove illegal characters from it when it is being parsed, select <span class="UIelement">Custom Format</span>, not <span class="UIelement">CSV</span>. Also, because you can change data types and column names in the preview for CSV&#160;files only, after you select the <span class="UIelement">Custom Format</span>, you cannot edit the data type and the column name in the preview.</div>
                                                     </li>
                                                     <li value="3">
-                                                        <p>Skip this step if you do not select <span class="UIelement">Custom Format</span>. </p>
+                                                        <p>Skip this step if you did not select <span class="UIelement">Custom Format</span> in the previous step. </p>
                                                         <ol style="list-style-type: lower-alpha;">
                                                             <li value="1">
-                                                                <p>If the UDF already exists, select the module containing the function and the function. </p>
-                                                                <p>Otherwise, click <span class="UIelement">WRITE&#160;PARSER&#160;USING&#160;JUPYTER</span> to create a UDF or edit an existing UDF with Jupyter. For information about Jupyter, see <a href="../C_XcalarAdvancedMode/D_Jupyter/C1_UsingJupyter.htm" class="MCXref xref">Using Xcalar Design with Jupyter Notebook</a>. After saving the UDF, you can select the UDF&#160;in the <span class="UIelement">Import Data Source</span> window.</p>
+                                                                <p>Select a UDF using one of the following methods:</p>
+                                                                <ul>
+                                                                    <li value="1">If the UDF already exists, select the module and the function. </li>
+                                                                    <li value="2">If the UDF does not exist, click <span class="UIelement">WRITE&#160;PARSER&#160;USING&#160;JUPYTER</span> to create a UDF or edit an existing UDF with Jupyter. For information about Jupyter, see <a href="../C_XcalarAdvancedMode/D_Jupyter/C1_UsingJupyter.htm" class="MCXref xref">Using Xcalar Design with Jupyter Notebook</a>. After saving the UDF, you can select the module and the function in the <span class="UIelement">Import Data Source</span> window.</li>
+                                                                    <li value="3">Code the UDF in any editor and upload it to <span class="GeneralGUIName1">Xcalar Design</span> as described in <a href="../E_Reference/H1_UdfExamples.htm#Coding" class="MCXref xref">Coding the import user-defined function</a>. After uploading the UDF, you can select the module and the function in the <span class="UIelement">Import Data Source</span> window.</li>
+                                                                </ul>
                                                             </li>
                                                             <li value="2">
+                                                                <p>(Optional) If you have additional parameters in your import UDF (other than the required fullPath and inStream), enter the argument name value pairs in JSON format in the <span class="UIelement">UDF Args</span> field. Do not enter the name value pair for fullPath and inStream. For example, if the third parameter in your import UDF is a Boolean parameter called <code>withHeader</code> and you want to pass <code>true</code> for the value, enter the following in the <span class="UIelement">UDF Args</span> field:</p>
+                                                                <p><code>{"withHeader": true}</code>
+                                                                </p>
+                                                            </li>
+                                                            <li value="3">
                                                                 <p>Click <span class="UIelement">APPLY&#160;UDF</span>.</p>
-                                                                <p><span class="GeneralGUIName1">Xcalar Design</span> generates a preview of the dataset after parsing the data with the import UDF. In this process, <span class="GeneralGUIName1">Xcalar Design</span> displays the percent completed. To terminate the process, click the Cancel icon, as shown in the following screenshot:</p>
+                                                                <p><span class="GeneralGUIName1">Xcalar Design</span> generates a preview of the dataset after parsing the data with the import UDF and displays a progress meter. To terminate the process, click the Cancel icon, as shown in the following screenshot:</p>
                                                                 <p>
                                                                     <img src="../../Resources/Images/XD_screenshots/data-source-preview-cancel.png" />
                                                                 </p>
                                                             </li>
                                                         </ol>
-                                                        <p>If you see unexpected results in the dataset preview, you can select another UDF. For more information about UDFs, see <a href="../D_ClusterTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding UDFs</a> and <a href="../D_ClusterTasks/C_UDFTasks.htm" class="MCXref xref">Using UDFs</a>.</p>
+                                                        <p>If you see unexpected results in the dataset preview, you can select another UDF. For more information about UDFs, see <a href="../D_ClusterTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding user-defined functions</a> and <a href="../E_Reference/H1_UdfExamples.htm#Example" class="MCXref xref">Example of using an import user-defined function</a>.</p>
                                                     </li>
                                                     <li value="4">
-                                                        <p>Specify the values for the other fields as described in the following table. The exact fields available depend on the data format.</p>
+                                                        <p>Specify the values for other fields as described in the following table. The exact fields available depend on the data format.</p>
                                                         <table class="TableStyle-SimpleTable" style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
                                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                                             <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -374,10 +366,10 @@
                                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">Promote First Row as Header</span>
                                                                     </td>
                                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                        <p>Depending on the data format, <span class="GeneralGUIName1">Xcalar Design</span> automatically selects or deselects this option. For example, if the data source is a CSV file, <span class="GeneralGUIName1">Xcalar Design</span> recommends that you promote the first row as header.</p>
+                                                                        <p>Depending on the data format, <span class="GeneralGUIName1">Xcalar Design</span> automatically selects or deselects this option. For example, if the data source is a CSV file, <span class="GeneralGUIName1">Xcalar Design</span> recommends that you promote the first row as the header.</p>
                                                                         <p>When importing multiple files with the same first row, <span class="GeneralGUIName1">Xcalar Design</span> promotes the first row of the first file being processed and omits the first row of subsequent files.</p>
                                                                         <p>If you use the <span class="UIelement">Skip Rows</span> field to skip rows that do not require analysis, <span class="GeneralGUIName1">Xcalar Design</span> promotes the first row after the row-skipping.&#160;</p>
-                                                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160;The  file contains comments in the first row, and the strings <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> in cells on the second row. You can specify <span class="UIelement">1</span> in the <span class="UIelement">Skip Rows</span> field to eliminate the first row and promote the row containing <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> as header.</div>
+                                                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160;The  file contains comments in the first row, and the strings <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> in cells on the second row. You can specify <span class="UIelement">1</span> in the <span class="UIelement">Skip Rows</span> field to eliminate the first row and promote the row containing <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> as the header.</div>
                                                                         <div class="Note"><span class="label">IMPORTANT:</span>&#160;You can promote the first row  only at this point. You will not be able to change the first row into the header row at a later time.</div>
                                                                     </td>
                                                                 </tr>
@@ -389,12 +381,12 @@
                                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">Field Delimiter</span>
                                                                     </td>
-                                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The UTF-8 character separating fields (for example, a tab or a comma). The delimiter can consist of multiple characters. The maximum length is 255 bytes.</td>
+                                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The UTF-8 character separating fields (for example, a tab or a comma). The delimiter can consist of multiple characters. The maximum length of the delimiter is 255 bytes.</td>
                                                                 </tr>
                                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2"><span class="UIelement">Quoting Character</span>
                                                                     </td>
-                                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Character used as a quote mark. Delimiter characters between quote marks are interpreted literally, not as delimiters. Leave this field empty if you want to treat delimiter characters as delimiters regardless of where these characters  appear.</td>
+                                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Character used as a quote mark. Delimiter characters between the quote marks are interpreted literally, not as delimiters. Leave this field empty if you want to treat delimiter characters as delimiters regardless of where these characters  appear.</td>
                                                                 </tr>
                                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">Skip Rows</span>
@@ -451,87 +443,47 @@
                                                                 </tr>
                                                             </tbody>
                                                         </table>
-                                                        <p>To better understand how to import an XML&#160;data source, see <a href="#Example" class="MCXref xref">Example of importing an XML&#160;data source</a>.</p>
+                                                        <p>To better understand how to import an XML&#160;data source, see <a href="B8_ImportXMLExample.htm#Example" class="MCXref xref">Example of importing an XML&#160;data source</a>.</p>
+                                                        <p>To better understand how to import a JSON data source, see <a href="H_ImportJSONExample.htm" class="MCXref xref">Example of importing a JSON data source</a>.</p>
                                                     </li>
-                                                    <li value="5">If you are creating a dataset, skip this step. If you are creating a table, specify the table schema, as described in <a href="../B_SQLMode/d_importing/sql_db_import_tblprops.htm#Configur" class="MCXref xref">Configuring the schema for the table</a>.</li>
+                                                    <li value="5">If you are creating a table, specify the table schema, as described in <a href="../B_SQLMode/d_importing/sql_db_import_tblprops.htm#Configur" class="MCXref xref">Configuring the schema for the table</a>. If you are creating a dataset from a csv file, you can use the <span class="UIelement">Schema Wizard</span> as described in <a href="../B_SQLMode/d_importing/sql_db_import_tblprops.htm#Understa" class="MCXref xref">Understanding the Schema Wizard</a> or edit the auto-detected schema text for any schema changes, otherwise skip this step. </li>
                                                     <li value="6">
-                                                        <p>(Optional)&#160;To add columns for identifying and managing data in your table or dataset, and to choose how <span class="GeneralProductName3">Xcalar</span> will handle import errors, expand the <span class="UIelement">Advanced Options</span> section. Then follow the procedures in <a href="#About" class="MCXref xref">Setting advanced options</a>. </p>
+                                                        <p>(Optional)&#160;To add columns for identifying and managing data in your table or dataset, and to select how <span class="GeneralProductName3">Xcalar</span> will handle import errors, expand the <span class="UIelement">Advanced Options</span> section. Then follow the procedures in <a href="#About" class="MCXref xref">Setting advanced options</a>. </p>
                                                     </li>
                                                     <li value="7">
-                                                        <p>Click <span class="UIelement">Create Table</span> or <span class="UIelement">Create Dataset</span>. A spinner is displayed, indicating that table or dataset creation is in progress. You can click the spinner to cancel the process if desired.</p>
+                                                        <p>Click <span class="UIelement">Create Table</span> or <span class="UIelement">Create Dataset</span>. A spinner is displayed, indicating that the table or the dataset creation is in progress. You can click the spinner to cancel the process if desired.</p>
                                                         <div class="Note"><span class="label">NOTE</span>:&#160;If you import data to a table, you cannot cancel the final steps of the creation process.</div>
-                                                        <p>After the table or dataset is successfully created, you see a preview. You also see the table in the <span class="UIelement">Tables</span> panel or the dataset in the <span class="UIelement">Datasets</span> panel.</p>
+                                                        <p>After the table or the dataset is successfully created, you see a preview. You also see the table in the <span class="UIelement">Tables</span> panel or the dataset in the <span class="UIelement">Datasets</span> panel.</p>
                                                     </li>
                                                 </ol>
-                                                <h2><a name="Example"></a>Example of importing an XML&#160;data source</h2>
-                                                <p>The following example illustrates how to import an XML&#160;data source file named books.xml.</p>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">Some of the source file's contents are shown below:</a></span>
-                                                    <div class="MCDropDownBody dropDownBody">
-                                                        <div class="Code">
-                                                            <p>&lt;?xml version="1.0"?&gt;</p>
-                                                            <p>&lt;catalog&gt;</p>
-                                                            <p>&lt;book id="bk101"&gt;</p>
-                                                            <p>&lt;author&gt;Gambardella, Matthew&lt;/author&gt;</p>
-                                                            <p>&lt;title&gt;XML Developer's Guide&lt;/title&gt;</p>
-                                                            <p>&lt;genre&gt;Computer&lt;/genre&gt;</p>
-                                                            <p>&lt;price&gt;44.95&lt;/price&gt;</p>
-                                                            <p>&lt;publish_date&gt;2000-10-01&lt;/publish_date&gt;</p>
-                                                            <p>&lt;description&gt;An in-depth look at creating applications</p>
-                                                            <p>with XML.&lt;/description&gt;</p>
-                                                            <p>&lt;/book&gt;</p>
-                                                            <p>&lt;book id="bk102"&gt;</p>
-                                                            <p>&lt;author&gt;Ralls, Kim&lt;/author&gt;</p>
-                                                            <p>&lt;title&gt;Midnight Rain&lt;/title&gt;</p>
-                                                            <p>&lt;genre&gt;Fantasy&lt;/genre&gt;</p>
-                                                            <p>&lt;price&gt;5.95&lt;/price&gt;</p>
-                                                            <p>&lt;publish_date&gt;2000-12-16&lt;/publish_date&gt;</p>
-                                                            <p>&lt;description&gt;A former architect battles corporate zombies,</p>
-                                                            <p>an evil sorceress, and her own childhood to become queen</p>
-                                                            <p>of the world.&lt;/description&gt;</p>
-                                                            <p>&lt;/book&gt;</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <p>For <span class="UIelement">XPaths</span>, enter the following list, and select both <span class="UIelement">Matched XPaths</span> and <span class="UIelement">Element XPath</span>:</p>
-                                                <p class="CLIoutput">/catalog/book,/catalog/book/author</p>
-                                                <p>The following partial screenshot of the dataset preview illustrates the results of your selections:</p>
-                                                <p>
-                                                    <img src="../../Resources/Images/XD_screenshots/dataset-import-xml.png" />
-                                                </p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;The values you specify in the <span class="UIelement">Import Data Source</span> window apply to records of all items. For example, if you create two datasets from two files, both the datasets will use the same  line delimiter and the same record delimiter. Therefore, make sure that the import specifications are applicable to all items in one import.</div>
                                                 <h2><a name="About"></a>Setting advanced options</h2>
                                                 <p>The advanced options section, contains import data source settings that add columns for identifying and managing data in your table or dataset and preference options for how you would like <span class="GeneralProductName3">Xcalar</span> to handle errors during your data source import. </p>
                                                 <h3>Add Columns option</h3>
                                                 <p>By default, columns are created only from the fields in the data source.&#160;Before you import your data source, you can include the following columns that will help you identify and work more effectively with the data: </p>
                                                 <ul>
-                                                    <li value="1">A column that contains the original data source's file name for each record.<p>To add a column, where each field contains the data source's file name for each record, click the <span class="UIelement">File Name</span> check box and enter a name for the column (for example, fileName).</p><p>This column displays the data source file name. It is useful if the dataset or table  contains records from multiple files. For example, if a table or dataset consists of records from /datasets/flights/airlines1.csv and /datasets/flights/airlines2.csv, adding this column enables you to see which records are from airlines1.csv and which records are from airlines2.csv.</p></li>
+                                                    <li value="1">A column that contains the original data source's file name for each record.<p>To add a column, which contains the data source's file name for each record, click the <span class="UIelement">File Name</span> check box and enter a name for the column (for example, fileName).</p><p>This column displays the data source file name. It is useful if the dataset or table  contains records from multiple files. For example, if a table or dataset consists of records from /datasets/flights/airlines1.csv and /datasets/flights/airlines2.csv, adding this column enables you to see which records are from airlines1.csv and which records are from airlines2.csv.</p></li>
                                                     <li value="2">A column that contains an identifier number for each record.</li>
-                                                    <p>To add a column, where each field contains an identifier number for each record, click the <span class="UIelement">Record Number</span> check box and enter a name for the column (for example, recordNumber). Numbering starts at 0 for the first record in a file.</p>
-                                                    <div class="Note"><span class="label">IMPORTANT:</span> For each new file imported, the record number begins at 0.&#160;Therefore, when creating a table or dataset that imports from multiple files, <span class="GeneralProductName3">Xcalar</span> recommends that you also create a  <span class="UIelement">File Name</span> column. For example, if  one dataset is created from the <i>/flights</i> folder that contains the files airlines1.csv and airlines2.csv, the table or dataset will contain duplicate identifier numbers for the second set of records from airlines2.csv. Creating this column distinguishes records that contain the same identifier number.</div>
+                                                    <p>To add a column, which contains an identifier number for each record, click the <span class="UIelement">Record Number</span> check box and enter a name for the column (for example, recordNumber). Numbering starts at 0 for the first record in a file.</p>
+                                                    <div class="Note"><span class="label">IMPORTANT:</span> For each new file imported, the record number begins at 0.&#160;Therefore, when creating a table or dataset that imports from multiple files, <span class="GeneralProductName3">Xcalar</span> recommends that you also create a  <span class="UIelement">File Name</span> column. For example, if  one dataset is created from the <i>/flights</i> folder that contains the files airlines1.csv and airlines2.csv, the table or dataset will contain duplicate identifier numbers for the second set of records from airlines2.csv. Creating the <span class="UIelement">File Name</span> column distinguishes records that contain the same identifier number.</div>
                                                 </ul>
                                                 <h3>Error Tolerance option</h3>
-                                                <p>While importing your source files, you can choose how <span class="GeneralGUIName1">Xcalar Design</span> handles errors:</p>
+                                                <p>While importing your source files, you can select how <span class="GeneralGUIName1">Xcalar Design</span> handles errors:</p>
                                                 <ul>
                                                     <li value="1">Low - Abort import on error&#160;</li>
-                                                    <p>When <span class="GeneralGUIName1">Xcalar Design</span> detects an error, log the error and stop the import. This is the default setting.</p>
+                                                    <p>When <span class="GeneralGUIName1">Xcalar Design</span> detects an error, it logs the error and stops the import. This is the default setting.</p>
                                                 </ul>
                                                 <ul>
                                                     <li value="1">Medium - Skip to next file on error, continue </li>
-                                                    <p>When <span class="GeneralGUIName1">Xcalar Design</span> detects an error, log the error, skip to the next file, and continue reading records. </p>
+                                                    <p>When <span class="GeneralGUIName1">Xcalar Design</span> detects an error, it logs the error, skips to the next file, and continues reading records. </p>
                                                 </ul>
                                                 <ul>
                                                     <li value="1">High - Skip to next file on unrecoverable error, continue</li>
-                                                    <p>When <span class="GeneralGUIName1">Xcalar Design</span> detects an error, log the error, and continue reading records from the file. For unrecoverable errors, log the error, skip to the next file, and continue reading records.</p>
+                                                    <p>When <span class="GeneralGUIName1">Xcalar Design</span> detects an error, it logs the error and continues reading records from the file. For unrecoverable errors, it logs the error, skips to the next file, and continues reading records.</p>
                                                 </ul>
-                                                <p>If you log errors, you can view the errors as described in <a href="../D_ClusterTasks/L_UseSetup.htm#Methods" class="MCXref xref">Methods for viewing logs</a>.</p>
-                                                <h2><a name="Using"></a>Using multiple items in one import </h2>
-                                                <p>If you specify multiple items to import, the <span class="UIelement">Import Data Source</span> window enables you to preview one item at a time, as shown in the following screenshot:</p>
-                                                <p>
-                                                    <img src="../../Resources/Images/XD_screenshots/dataset-from-multiple-items.png" />
-                                                </p>
-                                                <p>The values you specify in the <span class="UIelement">Import Data Source</span> window apply to records from all items. For example, in Advanced Mode, if you create two datasets from two files, the datasets will use the same  line delimiter and record delimiter. Therefore, make sure that the import specifications are applicable to all items in one import.</p>
+                                                <p>You can view the errors logged by <span class="GeneralGUIName1">Xcalar Design</span> as described in <a href="../SingleSourcing/troubleshooting/a_viewingLogs.htm" class="MCXref xref">Displaying log entries in Xcalar Design (admin only)</a>.</p>
                                                 <h2>Next step</h2>
-                                                <p>In SQL&#160;Mode, you can start using the SQL&#160;workspace to design and execute queries. For information about using SQL&#160;Mode, see <a href="../B_SQLMode/sql_aa_mode.htm" class="MCXref xref">Working in SQL&#160;Mode</a>. </p>
-                                                <p>In Advanced Mode, you can start using the dataset or table in a dataflow. For information about creating a dataflow, see <a href="../C_XcalarAdvancedMode/A_Dataflows/A_AboutDf.htm" class="MCXref xref">Understanding dataflows</a>.</p>
+                                                <p>Start using datasets and tables in dataflows. To learn about dataflows, see <a href="../C_XcalarAdvancedMode/A_Dataflows/A_AboutDf.htm" class="MCXref xref">Understanding a dataflow</a>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

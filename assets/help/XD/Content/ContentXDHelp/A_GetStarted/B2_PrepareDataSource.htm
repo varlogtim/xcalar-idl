@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Preparing the data source</title>
+        <meta name="author" content="" /><title>Understanding the data source format requirements</title>
         <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,88 +185,71 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Preparing the data source</h1>
+                                                <h1>Understanding the data source format requirements</h1>
                                                 <p>To use <span class="GeneralProductName3">Xcalar</span> reliably and predictably, you must make sure that your data source meets the requirements described in this topic. You might need to prepare your data files so that <span class="GeneralGUIName1">Xcalar Design</span> can properly import the data. </p>
-                                                <h2>Importing multiple files</h2>
-                                                <p>The data source can be a file or a directory. If you import a directory, <span class="GeneralGUIName1">Xcalar Design</span> imports data in all files in the directory, unless a search pattern is specified. You can also import subdirectories recursively. </p>
-                                                <p>If you want to create a single table or dataset from multiple files, place the files in one directory.</p>
-                                                <p>For example, suppose you want to import airline data gathered in 2015 and 2016, which is in two files. To create a table or dataset with records from both files, follow one of these steps:</p>
-                                                <ul>
-                                                    <li value="1">Create a directory named AirlinesData and place both files in the directory. Then import the AirlinesData directory. </li>
-                                                    <li value="2">
-                                                        <p>Give names to the files such as airlines2015.csv and airlines2016.csv. Then instruct <span class="GeneralGUIName1">Xcalar Design</span> to import only these files by specifying a search pattern. Only files with names matching the pattern will be processed.</p>
-                                                        <p>You can use an asterisk (*) as a wild card character in the search pattern. In this example, you can specify the following pattern:</p>
-                                                        <p class="userInput">airlines201*.csv</p>
-                                                        <p>Alternatively, use a regular expression (regex) pattern. In this example, you can specify the following regex pattern:</p>
-                                                        <p class="userInput">airlines201.\.csv</p>
-                                                        <p>Preparing the source files by renaming enables you to create one table or dataset with records from only airlines2015.csv and airlines2016.csv. If other files such as Airlines2000.csv or airlines2015.xls exist in the same directory, <span class="GeneralGUIName1">Xcalar Design</span> disregards them as their names do not match the specified pattern.</p>
-                                                    </li>
-                                                </ul>
+                                                <h2 class="noPageBreak"><a name="Data"></a>Data formats supported</h2>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> natively supports CSV, JSON, Excel, XML, raw text, and Parquet files. For other formats, you must create a user-defined function (UDF) for importing the data and instruct <span class="GeneralGUIName1">Xcalar Design</span> to use that UDF during the import.</p>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;The CSV format includes not only the comma-separated values but also the values separated by alternate delimiters. The default field delimiter is the <span class="UIelement">tab (\t)</span> character and the default record delimiter is the <span class="UIelement">newline (\n)</span> character. You can select the delimiters for separating the fields and for separating the records at the time of the import. </div>
                                                 <h3>Verifying the file format or schema</h3>
-                                                <p>If you import a directory or multiple files, make sure that the source files meet the following requirements to avoid unpredictable operation results:</p>
+                                                <p>The data source can be a file or a directory. If you import a directory, <span class="GeneralGUIName1">Xcalar Design</span> imports the data from all the files in that directory, unless a search pattern is specified. You can also import the subdirectories recursively. </p>
+                                                <p>If you import a directory or multiple files, make sure that the source files meet the following requirements to avoid unpredictable results:</p>
                                                 <ul>
-                                                    <li value="1">All files are in the same format. For example, they must be all JSON&#160;files or XML&#160;files. </li>
-                                                    <li value="2">If the file format is CSV, the files must have the same schema. </li>
+                                                    <li value="1">All files are in the same format. For example, they must be all JSON&#160;files or all XML&#160;files. </li>
+                                                    <li value="2">The files have the same schema. </li>
                                                 </ul>
-                                                <p>To instruct <span class="GeneralGUIName1">Xcalar Design</span> to import the files that meet the requirements, use file name pattern matching to limit the files to be processed.</p>
-                                                <h2><a name="Before"></a>Creating a first row as column headers</h2>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;The information about creating a first row as column headers is not applicable if the data format  is JSON,&#160;XML, or user defined format.</div>
-                                                <p><span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the first row of your data file as column headers. If the values are not appropriate as column headers, create a first row, which you can promote as column headers. For information about naming conventions for column headers, see <a href="#Preparin" class="MCXref xref" xrefformat="{para}">Preparing the first row as column header</a>. (If you do not provide the column headers, <span class="GeneralGUIName1">Xcalar Design</span> uses  column0, column1, and so on, as default column headers.)</p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;If you import a directory, the first row created must be the same for <em>each file</em> in the directory. <span class="GeneralGUIName1">Xcalar Design</span> processes data files in parallel; the order of the files being processed is not predetermined. If all the files contain the same first row,  the desired column headers will be used when <span class="GeneralGUIName1">Xcalar Design</span> promotes the first row.</div>
-                                                <p>Column headers improve readability of the result sets created by <span class="GeneralGUIName1">Xcalar Design</span>. In addition, if you  use an import UDF, be aware that after <span class="GeneralGUIName1">Xcalar Design</span> imports the data, the columns are ordered differently than the columns in the data source. (A UDF for parsing data when <span class="GeneralGUIName1">Xcalar Design</span> imports the data is called an import UDF.) If the columns do not have headers, you might not be able to determine the meaning of each column based on its position. </p>
-                                                <div class="Example"><span class="label">Example</span>:&#160;Your data source is an Excel file with ID numbers in its first column. When you import it, <span class="GeneralGUIName1">Xcalar Design</span> invokes a UDF&#160;to parse the data. If the file does not have headers, it might be difficult to determine which column is for ID&#160;numbers because the column is no longer the first column in the result set created after the data import. If, before you import data into <span class="GeneralProductName3">Xcalar</span>, you create a header row as the first row of the Excel file, and assign a name to the first column (for example, ID), then you can easily locate the column in <span class="GeneralGUIName1">Xcalar Design</span>.</div>
-                                                <p>If you split a large source file into smaller ones for importing, remember to add the first row of the original file to all the smaller files that do not contain the file. In this way, the same first row in each source file can be promoted to the header row during the import.</p>
-                                                <h2><a name="Preparin"></a>Preparing the first row as column header</h2>
-                                                <p>Before you promote the first row, make sure that the first row of the source file does not contain illegal characters. If there are illegal characters, edit the first row to remove the illegal characters. Alternatively, you can import the data source by using a user-defined function (UDF) provided by <span class="GeneralCompanyNameShort">Xcalar</span> to replace these characters.</p>
-                                                <p>Column headers must use the following  naming conventions. Otherwise, you might see unexpected operation results. </p>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <h2 class="noPageBreak"><a name="Before"></a>Using the first row as column headers</h2>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The information about using the first row as column headers is not applicable if the data format  is JSON,&#160;XML, or user-defined.</div>
+                                                <p><span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the first row of your data file as column headers. If it does not exist, add the first row to use as column headers. For information about naming conventions for column headers, see <a href="#Preparin" class="MCXref xref" xrefformat="{para}">Preparing the first row as column headers</a>. If you do not provide the column headers, <span class="GeneralGUIName1">Xcalar Design</span> uses  column0, column1, and so on, as the default column headers.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;If you import a directory, the first row must be the same in <em>each file</em> in the directory. <span class="GeneralGUIName1">Xcalar Design</span> processes data files in parallel so the order of the files being processed is not predetermined and you cannot rely on only the first file in the directory having the correct column headers row.</div>
+                                                <p>Column headers improve readability of the tables and the datasets created by <span class="GeneralGUIName1">Xcalar Design</span>. In addition, if you  use a user-defined function (UDF) for parsing the data while importing, be aware that after <span class="GeneralGUIName1">Xcalar Design</span> imports the data, the columns may be ordered differently than the columns in the data source.  If the columns do not have headers, you might not be able to determine the meaning of each column based on its position. </p>
+                                                <div class="Example"><span class="label">Example</span>:&#160;Your data source is an Excel file with ID numbers in its first column. When you import an Excel file, <span class="GeneralGUIName1">Xcalar Design</span> invokes a UDF&#160;to parse the data. If the file does not have headers, it might be difficult to determine which column is for ID&#160;numbers because the ID column may not be the first column after the data import. If, before you import data into <span class="GeneralProductName3">Xcalar</span>, you create a header row as the first row of the Excel file, and assign a name to the first column (for example, ID), then you can easily locate the column in <span class="GeneralGUIName1">Xcalar Design</span>.</div>
+                                                <p>If you split a large source file into smaller ones for importing, remember to add the column headers row of the original file to all the smaller files. This ensures that the same first row in each source file can be promoted as column headers during the import.</p>
+                                                <h2 class="noPageBreak"><a name="Preparin"></a>Preparing the first row as column headers</h2>
+                                                <p>Before you promote the first row of your data file as column headers, make sure that the first row of the source file does not contain any illegal characters. If there are illegal characters, edit the first row to remove them. Alternatively, you can import the data source by using the <i>default</i> user-defined function (UDF) provided by <span class="GeneralCompanyNameShort">Xcalar</span> to replace these characters.</p>
+                                                <p>The column headers must use the following  naming conventions. </p>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
+                                                        <p>To avoid any issues from the case sensitivity column naming differences between <span class="GeneralProductName3">Xcalar</span> and <span class="GeneralProductName3">Xcalar</span> SQL, column names are automatically processed into uppercase characters.</p>
                                                         <ul>
-                                                            <li value="1">The name is case sensitive if the column is in a dataset; it is case-insensitive if the column is in a table, in which case all letters are displayed in uppercase.</li>
-                                                            <li value="2">
-                                                                <p>The name must consist of alphanumeric characters, spaces, and special characters except the following characters:</p>
-                                                                <ul>
-                                                                    <li value="1">caret (^)</li>
-                                                                    <li value="2">single quote mark (')</li>
-                                                                    <li value="3">double quote mark (")</li>
-                                                                    <li value="4">left or right parenthesis (( ))</li>
-                                                                    <li value="5">left or right square bracket ([ ])</li>
-                                                                    <li value="6">left or right brace ({ })</li>
-                                                                    <li value="7">backslash (\)</li>
-                                                                    <li value="8">colons (:)</li>
-                                                                    <li value="9">comma (,)</li>
-                                                                    <li value="10">period (.)</li>
-                                                                </ul>
-                                                            </li>
-                                                            <li value="3">The name must not begin or end with a space.</li>
-                                                            <li value="4">The name must begin with an underscore or a letter.</li>
-                                                            <li value="5">Length must not exceed 255 characters.</li>
-                                                            <li value="6">The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</li>
-                                                            <li value="7">The name must not be one of the following strings, regardless of capitalization: <ul><li value="1"><span class="UIelement">None</span></li><li value="2"><span class="UIelement">False</span></li><li value="3"><span class="UIelement">True</span></li></ul></li>
-                                                            <li value="8">The name must not contain two consecutive hyphens (--).</li>
+                                                            <li value="1">Length must not exceed 255 characters.</li>
+                                                            <li value="2">First character must be a letter of the alphabet or an underscore.</li>
+                                                            <li value="3">First character must not start or end with a space.</li>
+                                                            <li value="4">Characters must be A-Z, a-z, 0-9, or underscore (_). </li>
+                                                            <li value="5">Cannot contain special or punctuation characters, such as:<ul><li value="1">caret (^)</li><li value="2">single (') or double (") quote marks </li><li value="3">left (() or right ()) parenthesis</li><li value="4">left ({) or right (}) brace</li><li value="5">forward slash (/) or backslash (\)</li><li value="6">colon (:) or semi-colon (;)</li><li value="7">comma (,)</li><li value="8">period (.)</li><li value="9">single (-) or double hyphen (--)</li></ul></li>
+                                                            <li value="6">Must not be one of the following reserved names:</li>
+                                                            <ul style="list-style-type: circle;">
+                                                                <li value="1"><span class="UIelement">Data</span>
+                                                                </li>
+                                                                <li value="2"><span class="UIelement">None</span>
+                                                                </li>
+                                                                <li value="3"><span class="UIelement">False</span>
+                                                                </li>
+                                                                <li value="4"><span class="UIelement">True</span>
+                                                                </li>
+                                                            </ul>
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <h2>Determining the quoting character to use in CSV or text files</h2>
-                                                <p>If your data source is a CSV&#160;or a text file, check to see if the data source contains a double quote mark (") that should be interpreted literally. By default, <span class="GeneralGUIName1">Xcalar Design</span> considers the quote mark as a character to surround a string value. If the quote mark in your data source should be parsed literally, you must override <span class="GeneralGUIName1">Xcalar Design</span>'s default  by specifying no character as the quoting character.</p>
-                                                <h2>Unicode encoding</h2>
-                                                <p>Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. Import user-defined functions (UDFs)&#160;can convert other text encoding standards, like UTF-16, to UTF-8 without loss of information.</p>
-                                                <h2>Verifying that the smallest source data file can be imported</h2>
-                                                <p>There is a limit as to how much data <span class="GeneralGUIName1">Xcalar Design</span> can import from the data source. The limit is set by the MaxInteractiveDataSize parameter, which the <span class="GeneralProductName3">Xcalar</span> administrator can view and change. </p>
-                                                <p>This parameter represents the maximum amount of source data on disk that <span class="GeneralProductName3">Xcalar</span> can import, and the default value is 10 GB. Because <span class="GeneralProductName3">Xcalar</span> cannot create a table or dataset by importing only a partial file, if you want to import a single file, the file must be under this limit. Similarly, if you want to import a folder or multiple files, the smallest file to be imported must be under this limit.</p>
-                                                <div class="Example"><span class="label">EXAMPLE</span>:&#160;The default value of MaxInteractiveData parameter is in effect, and you try to import a 12-GB file named <span class="UIelement">airlines.csv</span>. The attempt to import fails because <span class="GeneralProductName3">Xcalar</span> cannot create a table or dataset by importing only a portion of the <span class="UIelement">airlines.csv</span> file.</div>
-                                                <div class="Example"><span class="label">EXAMPLE</span>:&#160;The default value of <span class="UIelement">MaxInteractiveDataSize</span> parameter is in effect, and you try to import a folder containing a 2-GB file named airlines1.csv and a 12-GB file named <span class="UIelement">airlines2.csv</span>. <span class="GeneralProductName3">Xcalar</span> can successfully import the <span class="UIelement">airlines1.csv</span> file and some records from <span class="UIelement">airlines2.csv</span>, because the smaller file in the folder is under the  <span class="UIelement">MaxInteractiveDataSize</span> limit. <span class="GeneralProductName3">Xcalar</span> keeps importing data from <span class="UIelement">airlines2.csv</span> until the limit is reached.</div>
-                                                <p>To work around the problem of importing a large data source, perform one of these tasks:</p>
+                                                <h2 class="noPageBreak">Using quoting characters in a CSV or a text file</h2>
+                                                <p>If your data source is a CSV&#160;or a text file, check to see if they contain a double quote mark (") that should be interpreted literally. By default, <span class="GeneralGUIName1">Xcalar Design</span> considers the double quote mark as a character to surround a string value. If the double quote mark in your data source should be parsed literally, you must override <span class="GeneralGUIName1">Xcalar Design</span>'s default  by specifying no character as the <span class="UIelement">Quoting Character</span> during the import process.</p>
+                                                <h2 class="noPageBreak">Unicode encoding</h2>
+                                                <p>Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. Import user-defined functions (UDFs)&#160;can convert other text encoding standards, like UTF-16, to UTF-8 without any loss of information.</p>
+                                                <h2 class="noPageBreak">Size limit for the import</h2>
+                                                <p>There is a limit to how much data <span class="GeneralGUIName1">Xcalar Design</span> can import from the data source. The limit is set by the <span class="UIelement">MaxInteractiveDataSize </span>parameter, which the <span class="GeneralGUIName1">Xcalar Design</span> administrator can view and change. This parameter represents the maximum amount of source data on disk that <span class="GeneralProductName3">Xcalar</span> can import, and the default value is 10 GB. </p>
+                                                <p>Because <span class="GeneralProductName3">Xcalar</span> cannot create a table or a dataset by importing only a partial file:</p>
                                                 <ul>
-                                                    <li value="1">Increase the value of the <span class="UIelement">MaxInteractiveDataSize</span> parameter, which the <span class="GeneralProductName3">Xcalar</span> administrator can change in the <span class="UIelement">Monitor &gt; Setup &gt; Configure Parameters</span> window. Its value can range from 1 MB to 1 TB. For information about setting this parameter, see <a href="../D_ClusterTasks/L_UseSetup.htm#Configur" class="MCXref xref" xrefformat="{para}">Configuring parameters</a>.</li>
-                                                    <li value="2">Split a large source data file into smaller files. </li>
-                                                    <div class="Note"><span class="label">RECOMMENDATION</span>:&#160;For better performance, split a large source data file into smaller files that are from 1 MB to 100 MB. Also, you can improve performance if these smaller files are of similar sizes. </div>
+                                                    <li value="1">If you want to import a single file, it must be under this limit. </li>
+                                                    <li value="2">If you want to import multiple files or a folder containing multiple files:<ul><li value="1"> in a single dataset or a single table, the total of all the file sizes must be under this limit. <span class="GeneralProductName3">Xcalar</span> skips importing the files after this limit is reached. </li><li value="2">as individual datasets, every file must be under this limit. Any file above this limit is skipped.</li></ul></li>
                                                 </ul>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160; The <span class="UIelement">MaxInteractiveDataSize</span> parameter takes effect only when you use <span class="GeneralProductName3">Xcalar</span> for modeling. When you run a batch dataflow, importing the data source is not affected by the setting of this parameter.</div>
-                                                <h2 class="noPageBreak">Next step</h2>
-                                                <p>Import a data source by following the instructions in this topic:</p>
-                                                <p><a href="B3_SelectDataSource.htm" class="MCXref xref" xrefformat="{para}">Selecting a data source</a>
-                                                </p>
+                                                <div class="Example"><span class="label">EXAMPLE</span>:&#160;The default value of <span class="UIelement">MaxInteractiveDataSize </span>parameter is in effect, and you try to import a 12-GB file named <span class="UIelement">airlines.csv</span>. The attempt to import this file fails because <span class="GeneralProductName3">Xcalar</span> cannot create a table or a dataset by importing only a portion of the <span class="UIelement">airlines.csv</span> file.</div>
+                                                <div class="Example"><span class="label">EXAMPLE</span>:&#160;The default value of <span class="UIelement">MaxInteractiveDataSize</span> parameter is in effect, and you try to import a folder containing a 2-GB file named airlines1.csv and a 12-GB file named <span class="UIelement">airlines2.csv</span>. <span class="GeneralProductName3">Xcalar</span> can successfully import the <span class="UIelement">airlines1.csv</span> file but no records from airlines2.csv.</div>
+                                                <p>To work around the problem of importing a large data source:</p>
+                                                <ul>
+                                                    <li value="1">Ask the <span class="GeneralGUIName1">Xcalar Design</span> administrator to increase the value of the <span class="UIelement">MaxInteractiveDataSize</span> parameter . For more information about setting this parameter, see <a href="../D_ClusterTasks/L_ClusterParam.htm#Configur" class="MCXref xref" xrefformat="{para}">Configuring Xcalar Compute Engine parameters (admin only)</a>.</li>
+                                                    <li value="2">Split a large source data file into smaller files. </li>
+                                                </ul>
+                                                <div class="Note"><span class="label">RECOMMENDATION</span>:&#160;For better performance, split a large source data file into smaller files that are from 1 MB to 100 MB. Also, you can improve performance if all files are of similar sizes. </div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160; The <span class="UIelement">MaxInteractiveDataSize</span> parameter takes effect only when you use <span class="GeneralProductName3">Xcalar</span> for modeling. When you execute a dataflow as optimized, the import process is not affected by this parameter.</div>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

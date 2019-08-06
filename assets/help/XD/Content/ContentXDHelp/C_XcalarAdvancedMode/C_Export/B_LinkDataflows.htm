@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,52 +186,78 @@
                                                     </div>
                                                 </div>
                                                 <h1>Linking dataflows</h1>
-                                                <p>The dataflows can be modularized with the help of <span class="UIelement">Link in</span>, <span class="UIelement">Link out</span> and <span class="UIelement">Link out Optimized</span> Nodes. You can break your dataflow in smaller modules, test one module, connect a <span class="UIelement">Link out</span> Node to the end of this module, and use it as input to the next module in the same workbook. This allows you to focus on smaller modules and build a big dataflow gradually. </p>
-                                                <h2 class="noPageBreak">Using the Link out Node</h2>
-                                                <p>Follow these steps to use a <span class="UIelement">Link out</span> Node:</p>
+                                                <p>Linking dataflows enables you to modularize your dataflows. <span class="GeneralGUIName1">Xcalar Design</span> provides three Nodes for linking the dataflows -  <span class="UIelement">Link In</span>, <span class="UIelement">Link Out</span> and <span class="UIelement">Link Out Optimized</span>. The <span class="UIelement">Link In</span> Node is a source Node and the <span class="UIelement">Link Out</span> and the <span class="UIelement">Link Out Optimized</span> Nodes are the terminal Nodes. </p>
+                                                <p>A <span class="UIelement">Link Out</span> Node  is used as the last Node  in a dataflow to feed a <span class="UIelement">Link In</span> Node  in another dataflow. The <span class="UIelement">Link Out Optimized</span> Node is also used as the last Node in a dataflow but it is used when you want to execute your dataflow in an optimized fashion, for example in a production environment.</p>
+                                                <p> To use the <span class="UIelement">Link In</span>, <span class="UIelement">Link Out</span> and <span class="UIelement">Link Out Optimized</span> Nodes, verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
+                                                <h2 class="noPageBreak">Using the Link Out Node</h2>
+                                                <p>To use a <span class="UIelement">Link Out</span> Node:</p>
                                                 <ol>
                                                     <li value="1">Create a dataflow.</li>
-                                                    <li value="2">Click on the <span class="UIelement">Out</span> category of operations in the Advanced Mode toolbar to display the <span class="UIelement">Link out</span> Node. </li>
-                                                    <li value="3">Drag the <span class="UIelement">Link out</span> Node to the dataflow canvas. </li>
-                                                    <li value="4">Connect the last Node of the dataflow to the <span class="UIelement">Link out</span> Node.</li>
-                                                    <li value="5">Right click on the <span class="UIelement">Link out</span> Node and select <span class="UIelement">Configure </span>menu from the drop-down. The <span class="UIelement">Link Out</span> panel is displayed.</li>
-                                                    <li value="6">Enter a name in the <span class="UIelement">Link Out Reference Name</span> field for the <span class="UIelement">Link out</span> Node. </li>
-                                                    <li value="7">If the<span class="UIelement"> Only allow linking after execution</span> checkbox is checked, the <span class="UIelement">Link in</span> Node that refers to this <span class="UIelement">Link out</span> Node, uses the result set of the <span class="UIelement">Link out</span> Node. If it is unchecked, the <span class="UIelement">Link in</span> Node executes the dataflow to generate the result set. The<span class="UIelement"> Only allow linking after execution</span> checkbox is checked by default. </li>
-                                                    <li value="8">Click the <span class="UIelement">Save </span>button. Now you have a <span class="UIelement">Link out</span> Node with a name that can be used as an input to a <span class="UIelement">Link in</span> Node in another dataflow.</li>
+                                                    <li value="2">Click the <span class="UIelement">Out</span> category of operations in the Dataflow Mode toolbar to display the <span class="UIelement">Link Out</span> Node. </li>
+                                                    <li value="3">Drag the <span class="UIelement">Link Out</span> Node to the dataflow canvas. </li>
+                                                    <li value="4">Connect the output of the last Node of the dataflow to the input of the <span class="UIelement">Link Out</span> Node.</li>
+                                                    <li value="5">
+                                                        <p>Right click on the <span class="UIelement">Link Out</span> Node and select <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">Link Out</span> configuration panel is displayed.</p>
+                                                    </li>
+                                                    <li value="6">Enter a unique Link Out reference name for the <span class="UIelement">Link Out</span> Node. </li>
+                                                    <li value="7">If the <span class="UIelement"> Link In Node triggers the execution of this Node</span> check box is checked (default state), the referring <span class="UIelement">Link In</span> Node executes the dataflow containing this <span class="UIelement">Link Out</span> Node to generate the result set. If the check box is unchecked, the <span class="UIelement">Link In</span> Node uses the existing result set of the <span class="UIelement">Link Out</span> Node and gives an error if the result set does not exist.</li>
+                                                    <li value="8">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The <span class="UIelement">Link Out</span> Node configuration is saved with a name that can be used as an input in a <span class="UIelement">Link In</span> Node in another dataflow.</p>
+                                                    </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Using the Link out Optimized Node</h2>
-                                                <p>The <span class="UIelement">Link out Optimized</span> Node is used when you want to optimize your dataflow, for example in a production environment. Follow these steps to use a <span class="UIelement">Link out Optimized</span> Node:</p>
+                                                <h2 class="noPageBreak">Using the Link Out Optimized Node</h2>
+                                                <p>To use a <span class="UIelement">Link Out Optimized</span> Node:</p>
                                                 <ol>
                                                     <li value="1">Create a dataflow and test it.</li>
-                                                    <li value="2">Click on the <span class="UIelement">Out</span> category of operations in the Advanced Mode toolbar to display the <span class="UIelement">Link out Optimized</span> Node. </li>
-                                                    <li value="3">Drag the <span class="UIelement">Link out Optimized</span> Node to the dataflow canvas. </li>
-                                                    <li value="4">Connect the last Node of the dataflow to the <span class="UIelement">Link out Optimized</span> Node.</li>
-                                                    <li value="5">Right click on the <span class="UIelement">Link out Optimized</span> Node and select <span class="UIelement">Configure </span>menu from the drop-down. The <span class="UIelement">Link Out</span> panel is displayed.</li>
-                                                    <li value="6">Enter a name in the <span class="UIelement">Link Out Reference Name</span> field for the <span class="UIelement">Link out Optimized</span> Node. </li>
-                                                    <li value="7">In the <span class="UIelement">Column to export</span> section, select the columns you need in your result set. Optionally click on <span class="UIelement">Select All</span> checkbox to select all the columns.</li>
-                                                    <li value="8">If the<span class="UIelement"> Only allow linking after execution</span> checkbox is checked, the <span class="UIelement">Link in</span> Node that refers to this <span class="UIelement">Link out Optimized</span> Node, uses the result set of the <span class="UIelement">Link out Optimized</span> Node. If it is unchecked, the <span class="UIelement">Link in</span> Node executes the dataflow to generate the result set. The<span class="UIelement"> Only allow linking after execution</span> checkbox is checked by default. </li>
-                                                    <li value="9">Click the <span class="UIelement">Save </span>button. Now you have a <span class="UIelement">Link out Optimized</span> Node with a name that can be used as an input to a <span class="UIelement">Link in</span> Node in another dataflow.</li>
-                                                    <li value="10">Right click on the configured <span class="UIelement">Link out Optimized</span> Node and select <span class="UIelement">View Optimized Dataflow</span> to see the optimized execution plan of the dataflow.</li>
+                                                    <li value="2">Click on the <span class="UIelement">Out</span> category of operations in the Dataflow Mode toolbar to display the <span class="UIelement">Link Out Optimized</span> Node. </li>
+                                                    <li value="3">Drag the <span class="UIelement">Link Out Optimized</span> Node to the dataflow canvas. </li>
+                                                    <li value="4">Connect the output of the last Node of the dataflow to the input of the <span class="UIelement">Link Out Optimized</span> Node.</li>
+                                                    <li value="5">
+                                                        <p>Right click the <span class="UIelement">Link Out Optimized</span> Node and select <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">Link Out</span> configuration panel is displayed.</p>
+                                                    </li>
+                                                    <li value="6">Enter a unique Link Out reference name for the <span class="UIelement">Link Out Optimized</span> Node. </li>
+                                                    <li value="7">In the <span class="UIelement">Column to export</span> section, check the columns you need in your result set. </li>
+                                                    <li value="8">(Optional) Check <span class="UIelement">Select All</span> to select all columns.</li>
+                                                    <li value="9">If the <span class="UIelement"> Link In Node triggers the execution of this Node</span> check box is checked (default state), the referring <span class="UIelement">Link In</span> Node executes the dataflow containing this <span class="UIelement">Link Out Optimized Node</span> to generate a result set. If the check box is unchecked, the <span class="UIelement">Link In</span> Node uses the existing result set of the <span class="UIelement">Link Out Optimized</span> Node and gives an error if the result set does not exist. </li>
+                                                    <li value="10">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The <span class="UIelement">Link Out Optimized</span> Node configuration is saved with a name that can be used as an input in a <span class="UIelement">Link In</span> Node in another dataflow.</p>
+                                                    </li>
+                                                    <li value="11">To see the optimized execution plan of a dataflow, right click on a configured <span class="UIelement">Link Out Optimized</span> Node and select <span class="UIelement">View Optimized Dataflow</span>.</li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Using the Link in Node</h2>
-                                                <p>Follow these steps to use a <span class="UIelement">Link in</span> Node:</p>
+                                                <h2 class="noPageBreak">Using the Link In Node</h2>
+                                                <p>To use a <span class="UIelement">Link In</span> Node:</p>
                                                 <ol>
-                                                    <li value="1">Click on the <span class="UIelement">In</span> category of operations in the Advanced Mode toolbar to display the <span class="UIelement">Link in</span> Node. </li>
-                                                    <li value="2">Drag the <span class="UIelement">Link in</span> Node to the dataflow canvas. </li>
-                                                    <li value="3">Right click on the <span class="UIelement">Link in</span> Node and select <span class="UIelement">Configure </span>menu from the drop-down. The <span class="UIelement">Link In</span> panel is displayed.</li>
-                                                    <li value="4">Click on the<span class="UIelement"> Dataflow Name</span> field to drop down a list of dataflows in the workbook. Select a dataflow that contains the <span class="UIelement">Link out</span> Node that you want to use as input to this <span class="UIelement">Link in</span> Node.</li>
-                                                    <li value="5">Click on the <span class="UIelement">Link Out Reference Name</span> field to drop down the list of <span class="UIelement">Link out</span> Node names available in the selected dataflow. Select the one that you want to use as input to the <span class="UIelement">Link in</span> Node.</li>
-                                                    <li value="6">The <span class="UIelement">Column Schema</span> of the result set from the <span class="UIelement">Link out</span> Node is displayed.</li>
-                                                    <li value="7">Click on the <span class="UIelement">X</span> before the <span class="UIelement">Column Name </span>to remove it from the result set.</li>
-                                                    <li value="8">Click on <span class="UIelement">Add Column</span> label to add an empty column name and column type field to the <span class="UIelement">Column Schema</span>.</li>
-                                                    <li value="9">Click on the empty <span class="UIelement">Column Name</span> field to drop down the list of available column names. Select a column name you want to add to the result set. The corresponding <span class="UIelement">Column Type</span> field is automatically filled in.</li>
-                                                    <li value="10">If you add a <span class="UIelement">Column Name</span> that already exists in the <span class="UIelement">Column Schema</span>, the existing column name is wiped out.</li>
-                                                    <li value="11">Once you are satisfied with the <span class="UIelement">Column Schema</span> for the result set, click the <span class="UIelement">Save</span> button.</li>
-                                                    <li value="12">If a <span class="UIelement">Column Name</span> is left empty, an error message is displayed. You can either fill it up or remove the empty column and click the <span class="UIelement">Save</span> button again.</li>
-                                                    <li value="13">If there are no errors, the <span class="UIelement">Link in</span> Node is populated with the <span class="UIelement">Link out</span> result set.</li>
+                                                    <li value="1">Click the <span class="UIelement">In</span> category of operations in the Dataflow Mode toolbar to display the <span class="UIelement">Link In</span> Node. </li>
+                                                    <li value="2">Drag the <span class="UIelement">Link In</span> Node to the dataflow canvas. </li>
+                                                    <li value="3">
+                                                        <p>Right click the <span class="UIelement">Link In</span> Node and select <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">Link In</span> configuration panel is displayed.</p>
+                                                    </li>
+                                                    <li value="4">Click the<span class="UIelement"> Dataflow Name</span> field to view the list of dataflows in the workbook and select a dataflow that contains the <span class="UIelement">Link Out</span> Node that you want to use as input in this <span class="UIelement">Link In</span> Node.</li>
+                                                    <li value="5">
+                                                        <p>Click the <span class="UIelement">Link Out Reference Name</span> field to view the list of <span class="UIelement">Link Out</span> Node names available in the selected dataflow and select the name you want to use as input in this <span class="UIelement">Link In</span> Node.</p>
+                                                        <p>The <span class="UIelement">Column Schema</span> of the selected <span class="UIelement">Link Out</span> Node is displayed.</p>
+                                                    </li>
+                                                    <li value="6">(Optional) To remove a column from the <span class="UIelement">Column Schema</span>, click <span class="UIelement">X</span> before the <span class="UIelement">Column Name</span>.</li>
+                                                    <li value="7">
+                                                        <p>(Optional) To add a column in the <span class="UIelement">Column Schema</span>, click <span class="UIelement">Add Column</span>. </p>
+                                                        <p>This adds an empty column name and column type in the <span class="UIelement">Column Schema</span>.</p>
+                                                    </li>
+                                                    <li value="8">
+                                                        <p>Click the empty <span class="UIelement">Column Name</span> to view the list of available column names and select a column name you want to add to the result set. </p>
+                                                        <p>The corresponding <span class="UIelement">Column Type</span> field is automatically filled in. If you add a <span class="UIelement">Column Name</span> that already exists in the <span class="UIelement">Column Schema</span>, the existing duplicate column name is wiped out.</p>
+                                                    </li>
+                                                    <li value="9">
+                                                        <p>Once you are satisfied with the <span class="UIelement">Column Schema</span>, click <span class="UIelement">Save</span>.</p>
+                                                        <p>If a <span class="UIelement">Column Name</span> is left empty, an error message is displayed. You can either fill it up or remove the empty column and click <span class="UIelement">Save</span>. The <span class="UIelement">Link In</span> configuration is saved.</p>
+                                                    </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Finding the Link out Node connected to a Link in Node</h2>
-                                                <p>Sometimes you may want to find out the <span class="UIelement">Link out</span> or <span class="UIelement">Link out Optimized</span> Node connected to a <span class="UIelement">Link in</span> Node to investigate that dataflow. Right click on a <span class="UIelement">Link in</span> Node and select the <span class="UIelement">Find the linked node</span> menu item from the drop-down. It opens up the dataflow with the connected <span class="UIelement">Link out</span> or <span class="UIelement">Link out Optimized</span> Node highlighted.</p>
+                                                <h2 class="noPageBreak">Finding the Link Out Node connected to a Link In Node</h2>
+                                                <p>To find out the <span class="UIelement">Link Out</span> or the <span class="UIelement">Link Out Optimized</span> Node connected to a <span class="UIelement">Link In</span> Node in a dataflow, right click on a <span class="UIelement">Link In</span> Node and select <span class="UIelement">Find the linked node</span>. It opens up the dataflow with the connected <span class="UIelement">Link Out</span> or <span class="UIelement">Link Out Optimized</span> Node highlighted.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

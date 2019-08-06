@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Working with a SQL Node</title>
+        <meta name="author" content="" /><title>Running a SQL snippet using a SQL Node</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,62 +185,38 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Working with a SQL Node</h1>
-                                                <p>A <span class="UIelement">SQL</span> Node enables you to quickly apply SQL queries to your dataflow. It reads the data from a result set, run the specified code snippet on the data and returns a new result set. You can connect multiple result set Nodes to a <span class="UIelement">SQL</span> Node.  </p>
+                                                <h1>Running a SQL snippet using a SQL Node</h1>
+                                                <p>A <span class="UIelement">SQL</span> Node enables you to add a SQL snippet in your dataflow. It uses the output of the parent Nodes as input tables for the SQL snippet and generates a result set as output on execution. </p>
+                                                <p>To use a <span class="UIelement">SQL </span>Node, verify that you are in <span class="UIelement">Dataflow Mode</span>. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
                                                 <h2 class="noPageBreak">Using the SQL Node</h2>
-                                                <p>Follow these steps to use a <span class="UIelement">SQL</span> Node in a dataflow:</p>
+                                                <p>To use a <span class="UIelement">SQL</span> Node in a dataflow:</p>
                                                 <ol>
-                                                    <li value="1">Click on the <span class="UIelement">SQL</span> category of operations in the Advanced Mode toolbar to display the <span class="UIelement">SQL</span> Node. </li>
+                                                    <li value="1">Click the <span class="UIelement">SQL</span> category of operations in the Dataflow Mode toolbar to display the <span class="UIelement">SQL</span> Node. </li>
                                                     <li value="2">Drag the <span class="UIelement">SQL</span> Node to the dataflow canvas. </li>
-                                                    <li value="3">Connect a result set Node to the <span class="UIelement">SQL</span> Node. The connection line displays a number. For example, the first connection displays #1, the second connection displays #2 and so on.</li>
-                                                    <li value="4">Right click the <span class="UIelement">SQL</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu. The <span class="UIelement">SQL</span> panel is displayed.</li>
-                                                    <li value="5"> <span class="UIelement">Table Identifiers</span> section provides you a way to use input result sets in <span class="UIelement">SQL Editor</span>. Follow these steps to fill the <span class="UIelement">Table Identifiers</span>: <ol style="list-style-type: lower-alpha;"><li value="1">The <span class="UIelement">Input </span>drop-down displays all the result set connections you added to the <span class="UIelement">SQL</span> Node. If you connect one result set to the <span class="UIelement">SQL</span> Node the <span class="UIelement">Input</span> drop-down displays 1. If you connect two result sets to the <span class="UIelement">SQL</span> Node, the <span class="UIelement">Input</span> drop-down displays 1 and 2. Select a connection number from the <span class="UIelement">Input</span> drop-down field. </li><li value="2">Enter a table name in the <span class="UIelement">Table Identifiers</span> field to refer in the SQL query. For example, enter t1 for the table identifier.</li></ol></li>
-                                                    <li value="6">If you connect multiple result sets to the SQL Node, you can click on the <span class="UIelement">+</span> button below the <span class="UIelement">Input</span> field to add another table identifier to use in the SQL query.</li>
-                                                    <li value="7"><span class="UIelement">The Drop as you go</span> checkbox is automatically checked. This lets the system drop intermediate results if they are not required. Uncheck it if you want to see the intermediate results of each step in the expanded query plan.</li>
+                                                    <li value="3">
+                                                        <p>Locate an existing Node with a result set that you want to use as input in the SQL Node snippet, and connect the Node's output to the <span class="UIelement">SQL</span> Node.</p>
+                                                        <p>Each input connection line of a <span class="UIelement">SQL</span> Node displays a number. For example, the first connection displays #1, the second connection displays #2 and so on.</p>
+                                                    </li>
+                                                    <li value="4">(Optional) Repeat the previous step to add as many input tables to the <span class="UIelement">SQL </span>Node as required by the SQL snippet.</li>
+                                                    <li value="5">
+                                                        <p>Right click the <span class="UIelement">SQL</span> Node and select <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">SQL</span> configuration panel is displayed.</p>
+                                                    </li>
+                                                    <li value="6">The <span class="UIelement">Table Mapping</span> section in the <span class="UIelement">SQL </span>panel enables you to map the output of the parent Nodes to the table identifiers for the SQL snippet. Follow these steps to fill in the table identifier for each connection: <ol style="list-style-type: lower-alpha;"><li value="1"><p>The <span class="UIelement">Input </span>drop-down displays the connection numbers of all the input connections to the <span class="UIelement">SQL</span> Node. If you connected one Node to the <span class="UIelement">SQL</span> Node the <span class="UIelement">Input</span> drop-down displays 1. If you connected two Nodes to the <span class="UIelement">SQL</span> Node, the <span class="UIelement">Input</span> drop-down displays 1 and 2, and so on. </p><p>Select a connection number from the <span class="UIelement">Input</span> drop-down. </p></li><li value="2"><p>Enter a table identifier in the <span class="UIelement">Table Identifier</span> field to refer to the selected connection number. <br />For example, if you selected connection number 1 and entered <code>orders </code>for the table identifier, you can write the SQL snippet as:</p><p><code>select * from orders;</code></p><p>where <code>orders </code>refers to the output of the Node connected with connection number 1.</p></li><li value="3">If you connected multiple Nodes to the SQL Node, click <span class="UIelement">Add input connection</span> to add another table identifier for another connection. </li></ol></li>
+                                                    <li value="7">The <span class="UIelement">Drop intermediate results</span> check box is automatically checked to drop the intermediate results if they are not required. Uncheck the check box if you want to see the intermediate results of each step in the expanded query plan.</li>
                                                     <li value="8">
-                                                        <p>In the <span class="UIelement">SQL Editor</span> section, type in the SQL query using the table identifier entered in the <span class="UIelement">Table Identifiers</span> section. For example, if the airlines result set is connected to the <span class="UIelement">SQL</span> Node and you have given it the <span class="UIelement">Table Identifier</span> t1, you can type:</p>
-                                                        <p> select * from t1 where carrier="UA"</p>
+                                                        <p>In the <span class="UIelement">SQL Snippet</span> section, enter the SQL snippet using the table identifiers entered in the <span class="UIelement">Table Identifiers</span> section. </p>
                                                     </li>
-                                                    <li value="9">Click on <span class="UIelement">Save </span>button. The code snippet is saved in the <span class="UIelement">SQL</span> Node and displays a result set when executed.</li>
-                                                </ol>
-                                                <h3>Understanding the Default Snippet</h3>
-                                                <p>The <span class="UIelement">Default Snippet</span> is the place holder where the SQL code snippet attached to the SQL Node is displayed. If you right click on an already configured <span class="UIelement">SQL</span> Node and select the <span class="UIelement">Configure </span>menu from the drop-down, the <span class="UIelement">SQL</span> panel is displayed. Notice that the <span class="UIelement">SQL Editor </span>displays the SQL code snippet attached to the <span class="UIelement">SQL</span> Node and the snippet name is displayed as <span class="UIelement">Default Snippet</span>. </p>
-                                                <h2 class="noPageBreak"><a name="Storing"></a>Saving SQL code in a code snippet</h2>
-                                                <p>If you want to use the same SQL code in multiple SQL Nodes, you can save it for reuse in a  code snippet. Follow these steps to save a SQL code snippet:</p>
-                                                <ol>
-                                                    <li value="1">Enter the SQL query in the <span class="UIelement">SQL Editor</span>.</li>
-                                                    <li value="2">Click on the save icon to the right of the Snippet drop-down. A <span class="UIelement">New Snippet</span> button shows up below the Snippet name field.</li>
-                                                    <li value="3">Click on the <span class="UIelement">New Snippet</span> button. </li>
-                                                    <li value="4">Enter the name of the code snippet and click save icon next to it. An error message is displayed if a snippet name with the same name already exists otherwise the snippet is saved.</li>
-                                                </ol>
-                                                <h2 class="noPageBreak">Editing an existing SQL code snippet</h2>
-                                                <p>Follow these steps to edit an existing SQL code snippet:</p>
-                                                <ol>
-                                                    <li value="1">Click on the <span class="UIelement">Snippet</span> drop-down in the <span class="UIelement">SQL Editor</span>.</li>
-                                                    <li value="2">Select a snippet name from the drop-down. The SQL code snippet is displayed in the <span class="UIelement">SQL Editor</span>.</li>
-                                                    <li value="3">Edit the code in the <span class="UIelement">SQL Editor</span>. Once you are satisfied with your changes, click on the save icon next to the <span class="UIelement">Snippet</span> drop-down. </li>
-                                                    <li value="4">The <span class="UIelement">Overwrite</span> button is displayed. Click on it to overwrite the existing code snippet.</li>
-                                                </ol>
-                                                <h2 class="noPageBreak">Using saved SQL code snippet</h2>
-                                                <p>Follow these steps to use an existing SQL code snippet in <span class="UIelement">SQL Editor</span>:</p>
-                                                <ol>
-                                                    <li value="1">Click on the <span class="UIelement">Snippet</span> drop-down in the <span class="UIelement">SQL Editor</span>.</li>
-                                                    <li value="2">Select a snippet name from the drop-down. The SQL snippet is displayed in the <span class="UIelement">SQL Editor</span>. </li>
-                                                </ol>
-                                                <h2 class="noPageBreak">Deleting a saved SQL code snippet</h2>
-                                                <p>Follow these steps to delete an existing SQL code snippet:</p>
-                                                <ol>
-                                                    <li value="1">Click on the <span class="UIelement">Snippet</span> drop-down in the <span class="UIelement">SQL Editor</span>.</li>
-                                                    <li value="2">
-                                                        <p>Locate the code snippet name in the drop-down and click on the trash icon next to its name. The code snippet is deleted.</p>
-                                                        <p><span class="label">IMPORTANT:</span> No confirmation message appears when you delete a code snippet. Once deleted, you cannot undo the delete action by clicking the <span class="UIelement">Undo</span> icon or any other undo action.</p>
+                                                    <li value="9">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The SQL code snippet is saved in the <span class="UIelement">SQL</span> Node and displays a result set when executed.</p>
                                                     </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Inspecting the query plan</h2>
-                                                <p>A query execution plan is an ordered set of steps to run a query. Sometimes database users and administrators want to manually examine the query execution plan to debug any issues. <span class="GeneralGUIName1">Xcalar Design</span> allows you to inspect the query plan of a <span class="UIelement">SQL</span> Node. Right click on a <span class="UIelement">SQL</span> Node and select the <span class="UIelement">Inspect</span> menu item from the drop-down. A new tab in the workbook is opened and the query execution plan of the Node is displayed.</p>
-                                                <h2 class="noPageBreak">Expanding the SQL Node</h2>
-                                                <p>The <span class="UIelement">SQL</span> Node allows you to expand the query execution plan in the dataflow. This helps in fine tuning each step of the SQL query individually. For example, a SQL query may have 2 steps - Synthesize and Filter. If you expand the SQL Node, you see both the Nodes in your dataflow. You can right click on each of them and configure them individually. </p>
-                                                <p>To expand the query execution plan for a <span class="UIelement">SQL</span> Node, right click on the <span class="UIelement">SQL</span> Node and select the <span class="UIelement">Expand </span>menu item. The <span class="UIelement">SQL</span> Node is replaced by its expanded view. You can use the <span class="UIelement">Undo </span>and <span class="UIelement">Redo </span>icons in the top left corner of the <span class="GeneralGUIName1">Xcalar Design</span> to go back to the original <span class="UIelement">SQL</span> Node. However, if the page is refreshed, you lose the ability to <span class="UIelement">Undo </span>and <span class="UIelement">Redo </span>and cannot go back to the original <span class="UIelement">SQL</span> Node from its expanded view.</p>
+                                                <h2 class="noPageBreak">Inspecting the query execution plan of a SQL Node</h2>
+                                                <p>A query execution plan is an ordered set of steps to run a query. The purpose of the query execution plan is to help database users and administrators debug and fine tune their queries. <span class="GeneralGUIName1">Xcalar Design</span> enables you to inspect the query plan of a <span class="UIelement">SQL</span> Node by right clicking the Node and selecting <span class="UIelement">Inspect</span>. This opens a new tab in the workbook with the query execution plan of the Node.</p>
+                                                <h2 class="noPageBreak">Expanding the query execution plan of a SQL Node</h2>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> enables you to expand the query execution plan of a SQL Node to fine tune each step of the SQL query. For example, a SQL query may have two steps - Synthesize and Filter. If you expand the <span class="UIelement">SQL </span>Node, you see both the Nodes in your dataflow. You can right click on each of them and configure them individually. </p>
+                                                <p>To expand the query execution plan for a <span class="UIelement">SQL</span> Node, right click the <span class="UIelement">SQL</span> Node and select <span class="UIelement">Expand</span>. The <span class="UIelement">SQL</span> Node is replaced by its expanded view. You can use the <span class="UIelement">Undo </span>and <span class="UIelement">Redo </span>icons in the top left corner of the <span class="GeneralGUIName1">Xcalar Design</span> to go back to the original <span class="UIelement">SQL</span> Node. However, if the page is refreshed, you lose the ability to <span class="UIelement">Undo </span>and <span class="UIelement">Redo </span>and cannot go back to the original <span class="UIelement">SQL</span> Node from its expanded view.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

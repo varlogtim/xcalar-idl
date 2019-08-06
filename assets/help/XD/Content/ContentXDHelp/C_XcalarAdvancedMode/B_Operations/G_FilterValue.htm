@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,20 +186,20 @@
                                                     </div>
                                                 </div>
                                                 <h1>Filtering in a result set column</h1>
-                                                <p>You can filter a result set column in one of two ways:</p>
+                                                <p>In Dataflow Mode, you can filter a result set column in one of the two ways:</p>
                                                 <ul>
-                                                    <li value="1">Select  values in a result set column and use an option from the drop-down to include or exclude them in the resultant result set.</li>
-                                                    <li value="2">Use a column drop-down menu item on a column header to specify conditions for filtering values in the column. </li>
+                                                    <li value="1">Select  values in a result set column and use an option from the drop-down to include or exclude them from the result set.</li>
+                                                    <li value="2">Use a column drop-down on a column header to specify conditions for filtering values in the column. </li>
                                                 </ul>
                                                 <p>You can filter any value, including NULL.</p>
-                                                <div class="Example"><span class="label">TIP:</span>&#160;You might want to count the occurrences of a value before filtering it. See <a href="E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Counting occurrences of unique values in a column</a> for information about counting the number of times a value appears in a column. You can continue using the <span class="UIelement">Profile</span> modal window to filter. For information about the <span class="UIelement">Profile</span> modal window, see <a href="E_CountOccurrencesOfValues.htm#Filterin" class="MCXref xref" xrefformat="{para}">Filtering by using the Profile window</a>.</div>
-                                                <h2 class="noPageBreak">Filtering based on values selectable in a column</h2>
-                                                <p>If you want to filter based on one or multiple values in a column, follow these steps:</p>
+                                                <div class="Example"><span class="label">TIP:</span>&#160;Before filtering a result set, you might want to find the distribution of values through the <span class="UIelement">Profile </span>operation. See <a href="E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Using Profile to find the distribution of values in a column</a> for information about counting the number of times a value appears in a column. You can also use the <span class="UIelement">Profile</span> modal for filtering values as described in <a href="E_CountOccurrencesOfValues.htm#Filterin" class="MCXref xref" xrefformat="{para}">Filtering by using the Profile window</a>.</div>
+                                                <p>Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
+                                                <h2 class="noPageBreak">Filtering based on a value selectable in a column</h2>
+                                                <p>If you want to filter a result set based on one or multiple values in a column:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>Right click a cell containing a value that you want to filter or exclude. The cell options are displayed. </p>
-                                                        <p>To select multiple values, use your computer's key combination (for example, Ctrl-Shift) when clicking additional cells.</p>
-                                                        <p>The value or values you select can be in any row. For example, to filter the value 10, click any cell containing 10 in the column. The result is the same regardless of the row number.  </p>
+                                                        <p>Right click a cell containing a value that you want to filter or exclude. </p>
+                                                        <p>The cell options are displayed. To select multiple values, use your computer's key combination (for example, Ctrl-Shift) when clicking additional cells. The value you select can be in any row. For example, to filter the value 10, click any cell containing 10 in the column. The result is same regardless of the row number.  </p>
                                                     </li>
                                                     <li value="2">To include the selected value, click <span class="UIelement">Filter this value</span>; to exclude the selected values, click <span class="UIelement">Exclude this value</span>. If multiple values are selected, the options are <span class="UIelement">Filter these values</span> and <span class="UIelement">Exclude these values</span>.</li>
                                                 </ol>
@@ -210,46 +208,15 @@
                                                     <img src="../../../Resources/Images/XD_screenshots/xd-filter-on-cell.png" />
                                                 </p>
                                                 <h2 class="noPageBreak"><a name="Filterin"></a>Filtering based on a condition</h2>
-                                                <p>You can filter based on a condition. For example, for a selected column, you can filter depending on whether the string contains a particular substring. If the result of the filter function is true, the value is kept in the column. If the result of the filter function is false, the value is excluded from the column.</p>
+                                                <p>You can filter a result set based on a condition. For example, for a selected column, you can filter depending on whether the value string contains a particular substring. If the result of the filter function is true, the value is kept in the column. If the result of the filter function is false, the value is excluded from the column.</p>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;If you select a filter function not applicable to the data type of the column, an error message is displayed. Use the <span class="UIelement">Cast</span> field to change the type so that the function can run.&#160;This data type change is temporary.&#160;The column retains the original data type after the filter function.</div>
                                                 <p>You can also filter based on multiple conditions. For information about filtering on multiple conditions, see <a href="#filterMultiple" class="MCXref xref" xrefformat="{para}">Filtering based on multiple conditions</a>. </p>
-                                                <p> Follow these steps to filter data based on a condition:</p>
+                                                <p> To filter data based on a condition:</p>
                                                 <ol>
-                                                    <li value="1">There are two ways of starting the filtering process - starting from a column header or starting from a <span class="UIelement">Filter</span> Node.<ol><li value="1"><span class="UIelement">Starting from a column header</span>: Right click the heading of the column containing the value to filter and select <span class="UIelement">Filter...</span> from the drop-down menu. </li><li value="2"><p><span class="UIelement">Starting from a Filter Node</span>: Select the <span class="UIelement">Row Ops</span> category in the <span class="UIelement">Advanced Mode Toolbar</span>, to display the <span class="UIelement">Filter</span> Node. Drag the <span class="UIelement">Filter</span> Node to the dataflow canvas. Connect a result set Node  to the <span class="UIelement">Filter</span> Node. Right click on the <span class="UIelement">Filter</span> Node and click on the <span class="UIelement">Configure</span> menu. </p><p><span class="label">NOTE</span>:&#160;See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a> for more information on connecting Nodes and creating dataflows.</p></li></ol></li>
+                                                    <li value="1">There are two ways of starting the filtering process - starting from a column header and starting from a <span class="UIelement">Filter</span> Node.<ul><li value="1"><span class="UIelement">Starting from a column header</span>: Display the result set on which you want to perform the <span class="UIelement">Filter</span> operation. Right click the header of the column containing the value you want to filter, and select <span class="UIelement">Filter</span>. </li><li value="2"><p><span class="UIelement">Starting from a Filter Node</span>: Click the <span class="UIelement">Row Ops</span> category in the <span class="UIelement">Dataflow Mode Toolbar</span>, to display the <span class="UIelement">Filter</span> Node. Drag the <span class="UIelement">Filter</span> Node to the dataflow canvas. Locate the Node with the result set on which you want to perform the <span class="UIelement">Filter</span> operation, and connect its output to the <span class="UIelement">Filter</span> Node. Right click the <span class="UIelement">Filter</span> Node and select <span class="UIelement">Configure</span>. </p><div class="Note"><span class="label">NOTE</span>:&#160;See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a> for more information on connecting Nodes and creating dataflows.</div></li></ul><p>The <span class="UIelement">Filter</span> configuration panel is displayed.</p></li>
                                                     <li value="2">
-                                                        <p>The <span class="UIelement">Filter</span> panel appears.</p>
-                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
-                                                            <div class="MCDropDownBody dropDownBody">
-                                                                <p>For selecting columns:</p>
-                                                                <ul>
-                                                                    <li value="1">By default, the name of the column from which you start the function is displayed as an argument. You can select another column.</li>
-                                                                    <li value="2">If the column you want to select is not in the result set, go to the Data Browser to pull the column. Then you can select the column as input to the function.</li>
-                                                                </ul>
-                                                                <p>For typing a column name:</p>
-                                                                <ul>
-                                                                    <li value="1">Always start with the dollar sign ($).</li>
-                                                                    <li value="2">Always include the prefix if one exists. A derived column does not have a column name prefix.</li>
-                                                                    <li value="3">To specify the resultant column name, type the name without preceding it with the dollar sign ($).</li>
-                                                                    <li value="4">To avoid mistakes when typing a column name, click on the argument field, move your cursor to the active result set and click anywhere in the desired column. The column's name is automatically entered for you.</li>
-                                                                    <li value="5">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
-                                                                </ul>
-                                                                <p>For typing an operand value:</p>
-                                                                <ul>
-                                                                    <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
-                                                                    <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
-                                                                    <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>. It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
-                                                                    <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>.&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
-                                                                    <li value="5">
-                                                                        <p>Boolean values are case-insensitive. For example, in an input field that accepts a Boolean value, you can type true, True, false, or False.</p>
-                                                                    </li>
-                                                                </ul>
-                                                                <p>In the panel, you can undo any typing with the undo key or key combination that you normally use in your browser.</p>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                    <li value="3">
-                                                        <p>Select the filter function. For example, for a column of data type Integer or Float, you can select the <span class="UIelement">between</span> function to filter values that exist between two values.</p>
-                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following functions are supported:</a></span>
+                                                        <p>Select a <span class="UIelement">Filter Function</span>. For example, for an Integer or Float column, you can select the <span class="UIelement">between</span> function to filter the values that exist between two values.</p>
+                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following functions are supported:</a></span>
                                                             <div class="MCDropDownBody dropDownBody">
                                                                 <ul>
                                                                     <li value="1">and</li>
@@ -280,40 +247,74 @@
                                                             </div>
                                                         </div>
                                                     </li>
-                                                    <li value="4">
-                                                        <p>Based on the description of the function, fill out the fields. </p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;The functions work in the same way as the <span class="UIelement">Map</span> functions in the conditional category. For information about these Map functions, see<a href="../../E_Reference/I_MapFunctions.htm#Conditio" class="MCXref xref" xrefformat="{para}">Conditional functions</a>.</div>
+                                                    <li value="3">
+                                                        <p>Based on the description of the function, fill out the other fields. </p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;These functions work in the same way as the <span class="UIelement">Map</span> functions in the conditional category. For information about these Map functions, see <a href="../../E_Reference/I_MapFunctions.htm#Conditio" class="MCXref xref" xrefformat="{para}">Conditional functions</a>.</div>
                                                     </li>
-                                                    <li value="5">If the function is for comparing strings, you can specify whether the string comparison is case sensitive. By default, the filter does not ignore the case. The comparison is case sensitive.</li>
-                                                    <li value="6"> Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set is displayed when the Node executes. </li>
+                                                    <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
+                                                        <div class="MCDropDownBody dropDownBody">
+                                                            <p>For selecting columns:</p>
+                                                            <ul>
+                                                                <li value="1">By default, the name of the column from which you start the function is displayed as an argument. You can select another column.</li>
+                                                                <li value="2">If the column you want to select is not in the result set, go to the Data Browser to pull the column. Then you can select the column as input to the function.</li>
+                                                            </ul>
+                                                            <p>For typing a column name:</p>
+                                                            <ul>
+                                                                <li value="1">Always start with the dollar sign ($).</li>
+                                                                <li value="2">Always include the prefix if one exists. A derived column does not have a column name prefix.</li>
+                                                                <li value="3">To specify the resultant column name, type the name without preceding it with the dollar sign ($).</li>
+                                                                <li value="4">To avoid mistakes when typing a column name, click on the argument field, move your cursor to the active result set and click anywhere in the desired column. The column's name is automatically entered for you.</li>
+                                                                <li value="5">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                            </ul>
+                                                            <p>For typing an operand value:</p>
+                                                            <ul>
+                                                                <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
+                                                                <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                                <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>. It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
+                                                                <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>.&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
+                                                                <li value="5">
+                                                                    <p>Boolean values are case-insensitive. For example, in an input field that accepts a Boolean value, you can type true, True, false, or False.</p>
+                                                                </li>
+                                                            </ul>
+                                                            <p>In the panel, you can undo any typing with the undo key or key combination that you normally use in your browser.</p>
+                                                        </div>
+                                                    </div>
+                                                    <li value="4">If the function is for comparing strings, you can specify whether the string comparison is case sensitive. By default, the comparison is case sensitive.</li>
+                                                    <li value="5">
+                                                        <p> Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a new result set is displayed when the Node executes. </p>
+                                                    </li>
                                                 </ol>
                                                 <h2 class="noPageBreak"><a name="filterMultiple" class="ForCSH"></a>Filtering based on multiple conditions</h2>
-                                                <p>You can specify multiple conditions for filtering and choose the operator for connecting the conditions as described below:</p>
+                                                <p>You can specify multiple conditions for filtering and select how to combine the results as described below:</p>
                                                 <ul>
-                                                    <li value="1">The <span class="UIelement">and</span>&#160;operator means that all specified conditions must be true for a row to be included in the resultant result set.</li>
-                                                    <li value="2">The <span class="UIelement">or</span>&#160;operator means that at least one of the specified conditions must be true for a row to be included in the resultant result set.</li>
+                                                    <li value="1">The <span class="UIelement">and</span>&#160;operator means that all specified conditions must be true for a row to be included in the new result set.</li>
+                                                    <li value="2">The <span class="UIelement">or</span>&#160;operator means that at least one of the specified conditions must be true for a row to be included in the new result set.</li>
                                                 </ul>
-                                                <p>Follow these steps to filter based on multiple conditions:</p>
+                                                <p>To filter based on multiple conditions:</p>
                                                 <ol>
                                                     <li value="1">Follow the instructions in <a href="#Filterin" class="MCXref xref" xrefformat="{para}">Filtering based on a condition</a> to specify the first condition.</li>
                                                     <li value="2">Click <span class="UIelement">Additional Conditions</span>. </li>
                                                     <li value="3">Select a filter function and fill out the fields as you do for the first condition.</li>
                                                     <li value="4">Repeat steps 2 and 3 for each additional condition.</li>
                                                     <li value="5">Select the operator (or, and) to connect the conditions. </li>
-                                                    <li value="6">Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set is displayed when the Node executes. </li>
+                                                    <li value="6">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a new result set is displayed when the Node executes. </p>
+                                                    </li>
                                                 </ol>
                                                 <h3>Example of filtering values that meet  all conditions</h3>
-                                                <p>You can specify as many conditions as you want. This example illustrates how to apply the <span class="UIelement">and</span> operator to two conditions.</p>
+                                                <p>The following example illustrates how to apply the <span class="UIelement">and</span> operator on two conditions.</p>
                                                 <p>In the result set named airlines, you can specify these conditions:</p>
                                                 <ul>
                                                     <li value="1">The value in the DayOfWeek column is 1.</li>
                                                     <li value="2">The value in the Carrier column is UA.</li>
                                                 </ul>
-                                                <p>Select the <span class="UIelement">and</span>&#160;operator in the <span class="UIelement">Filter</span>&#160;panel to indicate that a row must meet both the conditions to be included in the resultant result set. The following screenshots illustrate how to enter information in the&#160;<span class="UIelement">Filter</span>&#160;panel to specify these conditions:</p>
+                                                <p>Select the <span class="UIelement">and</span>&#160;operator in the <span class="UIelement">Filter</span>&#160;panel to indicate that a row must meet both the conditions to be included in the new result set. The following screenshots illustrate how to enter information in the&#160;<span class="UIelement">Filter</span>&#160;panel to specify these conditions:</p>
                                                 <p>
                                                     <img src="../../../Resources/Images/XD_screenshots/xd-filter-multiple-conditions.png" />
                                                 </p>
-                                                <p>The following partial screenshot illustrates the resultant result set, which includes only rows that meet both the conditions.</p>
+                                                <p>The following partial screenshot illustrates the new result set, which includes only those rows that meet both the conditions.</p>
                                                 <p>
                                                     <img src="../../../Resources/Images/XD_screenshots/xd-filter-result-set.png" />
                                                 </p>

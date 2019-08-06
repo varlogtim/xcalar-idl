@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,39 +186,69 @@
                                                     </div>
                                                 </div>
                                                 <h1>Determining aggregate values</h1>
-                                                <p>Determining an aggregate value means using values from rows in a column as input to calculate a new value. For example, in a result set showing employee salaries, you can run an aggregate function on the Salary column to determine the average salary. </p>
-                                                <p>You can determine the aggregate values for numeric columns in one of two ways:</p>
+                                                <p>This section explains how to determine aggregate values from numeric values. <span class="GeneralProductName3">Xcalar</span> provides only one aggregate function called listAgg which works on strings. For more information about listAgg, see <a href="J_GroupBy.htm#Understa" class="MCXref xref" xrefformat="{para}">Understanding the listAgg (list aggregate) function</a>.</p>
+                                                <p>An aggregate value is calculated using the values of the rows in a column. For example, in a result set showing employee salaries, you can run an aggregate function on the Salary column to determine the average salary. </p>
+                                                <p>To calculate aggregate values, verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
+                                                <p>You can determine the aggregate values for numeric columns in one of the following two ways:</p>
                                                 <ul>
                                                     <li value="1">Calculate aggregate values for multiple selected columns in a result set.</li>
-                                                    <li value="2">Calculate aggregate values for a selected column.</li>
+                                                    <li value="2">Calculate aggregate values for a selected column in a result set.</li>
                                                 </ul>
-                                                <p>This section explains how to determine aggregate values from numeric values. One aggregate function, listAgg, is a string function. For more information about listAgg, see <a href="J_GroupBy.htm#Understa" class="MCXref xref" xrefformat="{para}">Understanding the listAgg (list aggregate) function</a>.</p>
                                                 <h2 class="noPageBreak">Understanding the min and max functions</h2>
                                                 <p>The min and max functions return the aggregate values appropriate to the column's data type.&#160;For example, for a string column, the max function returns the same value as the maxString function; for an integer column, the min function returns the same value as the minInteger function. The min and max functions are shortcuts for the data type-specific functions. However, the data type-specific functions provide better performance. </p>
                                                 <h2 class="noPageBreak">Calculating aggregate values for multiple columns</h2>
-                                                <p>Follow these steps to calculate aggregate values for all numeric columns in a result set:</p>
+                                                <p>To calculate aggregate values for all numeric columns in a result set:</p>
                                                 <ol>
-                                                    <li value="1">Select <span class="UIelement">Correlations…</span> in the result set drop-down menu in the top right corner of the result set or in the column drop-down menu, depending on whether you want to see aggregate values for selected columns or all columns in the result set. The <span class="UIelement">Correlation and Quick Aggregates</span> modal window is displayed. For more information about displaying the <span class="UIelement">Correlation and Quick Aggregates</span> modal window, see <a href="L_Correlation.htm" class="MCXref xref" xrefformat="{para}">Determining correlation between two values</a>.</li>
-                                                    <li value="2">Click the <span class="UIelement">Quick Aggregate</span> horizontal tab. The modal window displays the values resulting from the common aggregate functions for all numeric columns.</li>
+                                                    <li value="1">Display the result set on which you want to calculate aggregate values. </li>
+                                                    <li value="2">
+                                                        <p>Click Menu in the top right corner of the result set view and select <span class="UIelement">Correlation</span>.</p>
+                                                        <p>The <span class="UIelement">Correlation and Quick Aggregates</span> modal is displayed. For more information about <span class="UIelement">Correlation and Quick Aggregates</span> modal window, see <a href="L_Correlation.htm" class="MCXref xref" xrefformat="{para}">Determining the correlation between two columns</a>.</p>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>Click the <span class="UIelement">Quick Aggregate</span> horizontal tab. </p>
+                                                        <p>The modal window displays the values resulting from the common aggregate functions for all numeric columns.</p>
+                                                    </li>
                                                 </ol>
                                                 <h2 class="noPageBreak"><a name="Calculat"></a>Calculating aggregate values for a selected column</h2>
-                                                <p>If you are only interested in viewing aggregate values for a single column, follow these steps:</p>
+                                                <p>If you are interested in viewing only the common aggregate values for a single column:</p>
                                                 <ol>
-                                                    <li value="1">Right click the header for the column. In the drop-down menu, select <span class="UIelement">Profile…</span>.</li>
-                                                    <li value="2">In the <span class="UIelement">Profile</span> modal window, if the <span class="UIelement">Aggregate Summary</span> section does not display the aggregate values, click <span class="UIelement">Generate</span>, which displays the values resulting from common aggregate functions for the column.</li>
+                                                    <li value="1">Display the result set on which you want to calculate aggregate values. </li>
+                                                    <li value="2">
+                                                        <p>Right click the header of the desired numeric column and select <span class="UIelement">Profile</span>.</p>
+                                                        <p>The <span class="UIelement">Profile</span> modal is displayed.</p>
+                                                    </li>
+                                                    <li value="3">If the <span class="UIelement">Aggregate Summary</span> section does not display the aggregate values, click <span class="UIelement">Generate</span>, which generates and displays the values resulting from common aggregate functions for the selected column.</li>
                                                 </ol>
-                                                <p>If you are interested in calculating one particular aggregate value for a column or if you plan to use the aggregate value as input for other functions, follow these steps:</p>
+                                                <p>If you are interested in calculating one particular aggregate value for a column or if you plan to use the aggregate value as input for other functions:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>Right click the header for the column. In the drop-down menu, select <span class="UIelement">Aggregate…</span>. The <span class="UIelement">Aggregate</span>&#160;panel is displayed. </p>
+                                                        <p>Right click the header of the desired numeric column and select <span class="UIelement">Aggregate</span>. </p>
+                                                        <p>The <span class="UIelement">Aggregate</span>&#160;panel is displayed. </p>
                                                         <p>Alternatively:</p>
                                                         <ol style="list-style-type: lower-alpha;">
-                                                            <li value="1">Select the <span class="UIelement">Aggregates</span> category in the <span class="UIelement">Advanced Mode Toolbar</span>, to display the <span class="UIelement">Single Value</span> node. </li>
-                                                            <li value="2">Drag the <span class="UIelement">Single Value</span> node to the dataflow canvas. </li>
-                                                            <li value="3">Select the result set node in which you want to aggregate the column. Connect it to the <span class="UIelement">Single Value</span> node by clicking on its anchor, dragging it and releasing it on the <span class="UIelement">Single Value</span> node. A link is created between the two nodes. See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a> for more information on connecting nodes and creating dataflows. </li>
-                                                            <li value="4">Right click on the <span class="UIelement">Single Value</span> node and click on the <span class="UIelement">Configure</span> menu to display the <span class="UIelement">Aggregate</span> panel. </li>
+                                                            <li value="1">Select the <span class="UIelement">Aggregates</span> category in the Dataflow Mode toolbar, to display the <span class="UIelement">Single Value</span> Node. </li>
+                                                            <li value="2">Drag the <span class="UIelement">Single Value</span> Node to the dataflow canvas. </li>
+                                                            <li value="3">Locate the result set Node in which you want to aggregate a column, and connect its output to the <span class="UIelement">Single Value</span> Node. See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a> for more information on connecting nodes and creating dataflows. </li>
+                                                            <li value="4">Right click the <span class="UIelement">Single Value</span> Node and select <span class="UIelement">Configure</span> to display the <span class="UIelement">Aggregate</span> configuration panel. </li>
                                                         </ol>
-                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
+                                                    </li>
+                                                    <li value="2">Select an <span class="UIelement">Aggregate Function</span>. For example, to calculate the average for the column, select the avg function.</li>
+                                                    <li value="3">Select a column to aggregate on.</li>
+                                                    <li value="4">
+                                                        <p>In the <span class="UIelement">New Resultant Aggregate Name</span> field, enter the name of the aggregate value. The caret (^) is automatically entered in the field because the name must be preceded by the caret when using it in other parts of your dataflow. </p>
+                                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;If you plan to use an aggregate value in the future as input to a function such as a Map function, <span class="GeneralCompanyNameShort">Xcalar</span> strongly recommends that you assign a meaningful name to the value.&#160;In this way, you can use the name as an argument to the function. Do not use the actual aggregate value as the argument because the value might not be accurate when you run the function against the entire data source or when you use the function against another dataset.</div>
+                                                        <div class="Example"><span class="label">EXAMPLE:</span> You can name the resultant aggregate value average_salary (which shows as <span class="UIelement">^average_salary</span> in the <span class="UIelement">Aggregate</span>&#160;panel). Naming a resultant value is useful if you plan to use the value as input for another function. In this example, you can type <span class="UIelement">average_salary</span> as an operand in a <span class="UIelement">Map</span> or <span class="UIelement">Filter</span> panel, or you can type <span class="UIelement">^average_salary</span> as input for a function in the function bar.</div>
+                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
+                                                            <div class="MCDropDownBody dropDownBody">
+                                                                <ul>
+                                                                    <li value="1">The name is case-sensitive. </li>
+                                                                    <li value="2">Length must not exceed 255 characters.</li>
+                                                                    <li value="3">First character must be a letter of the alphabet.</li>
+                                                                    <li value="4"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
                                                             <div class="MCDropDownBody dropDownBody">
                                                                 <p>For selecting columns:</p>
                                                                 <ul>
@@ -249,28 +277,15 @@
                                                             </div>
                                                         </div>
                                                     </li>
-                                                    <li value="2">Select an <span class="UIelement">Aggregate Function</span>. For example, to calculate the average for the column, select the avg function.</li>
-                                                    <li value="3">The column to aggregate on is already filled in but you can change it if you need to.</li>
-                                                    <li value="4">
-                                                        <p>In the <span class="UIelement">New Resultant Aggregate Name</span> field, type the name of the aggregate value. The caret (^) is automatically entered in the field because the name must be preceded by the caret. </p>
-                                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;If you plan to use an aggregate value in the future as input to a function such as a Map function, <span class="GeneralCompanyNameShort">Xcalar</span> strongly recommends that you assign a meaningful name to the value.&#160;In this way, you can use the name as an argument to the function. Do not use the actual aggregate value as the argument because the value might not be accurate when you run the function against the entire data source or when you use the function against another dataset.</div>
-                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the  naming conventions:</a></span>
-                                                            <div class="MCDropDownBody dropDownBody">
-                                                                <ul>
-                                                                    <li value="1">The name is case-sensitive. </li>
-                                                                    <li value="2">Length must not exceed 255 characters.</li>
-                                                                    <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
-                                                                    <li value="4">First character must be a letter.</li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                        <div class="Example"><span class="label">EXAMPLE:</span> You can name the resultant aggregate value average_salary (which shows as <span class="UIelement">^average_salary</span> in the <span class="UIelement">Aggregate</span>&#160;panel). Naming a resultant value is useful if you plan to use the value as input for another function. In this example, you can type <span class="UIelement">average_salary</span> as an operand in a <span class="UIelement">Map</span> or <span class="UIelement">Filter</span> panel, or you can type <span class="UIelement">^average_salary</span> as input for a function in the function bar.</div>
+                                                    <li value="5">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The configuration is saves and aggregate value is generated when the Node executes. The aggregate value is saved under the aggregate name. </p>
                                                     </li>
                                                 </ol>
                                                 <h2 class="noPageBreak"><a name="Displayi"></a>Displaying saved aggregate values</h2>
-                                                <p>If you use the <span class="UIelement">New Resultant Aggregate Name</span> field in the <span class="UIelement">Aggregate</span>&#160;panel, the value is saved under the aggregate name. If you want to use one of the saved aggregate values as input to a function, you can choose the value from a list of saved aggregate names. Click on the <span class="UIelement">Aggregates</span> button near the <span class="UIelement">Advanced Mode</span> switch to display the list of saved aggregate names in a table format. Click on the copy icon next to an aggregate name to copy the name to the clipboard. Click on the focus icon next to an aggregate name to find the aggregate name node in the dataflow.</p>
+                                                <p>If you want to use one of the saved aggregate values as input to a function, you can select the value from a list of saved aggregate names. Click on the <span class="UIelement">Aggregates</span> button near the <span class="UIelement">Dataflow Mode</span> switch to display the list of saved aggregate names in a table format. Hover over an aggregate name to display a copy icon and a search icon. Click on the copy icon to copy the aggregate name to the clipboard. Click on the search icon to find the Node in the dataflow which generated that aggregate.</p>
                                                 <h2 class="noPageBreak">Displaying aggregate values in a result set</h2>
-                                                <p>Instead of saving an aggregate value under a name, you can store an aggregate value in a result set. In the <span class="UIelement">Group By</span> panel, you can select columns on which you calculate aggregate values. These values are saved in the resultant result set. For more information about saving aggregate values in a result set, see <a href="J_GroupBy.htm#Creating" class="MCXref xref" xrefformat="{para}">Creating a result set for listing aggregate values</a>.</p>
+                                                <p>Instead of saving an aggregate value under a name, you can also store an aggregate value in a result set using the <span class="UIelement">Group By</span> Node. For more information about saving aggregate values in a result set, see <a href="J_GroupBy.htm#Creating" class="MCXref xref" xrefformat="{para}">Creating a result set for listing aggregate values</a>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

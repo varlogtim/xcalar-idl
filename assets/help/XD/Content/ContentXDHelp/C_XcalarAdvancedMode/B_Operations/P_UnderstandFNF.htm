@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,25 +186,25 @@
                                                     </div>
                                                 </div>
                                                 <h1>Working with a result set containing FNF</h1>
-                                                <p>You might see some result set cells containing the string <span class="UIelement">FNF</span> (field not found). This section explains the meaning of FNF&#160;and how various operations work with records containing FNF.</p>
-                                                <h2 class="noPageBreak">When FNF&#160;occurs in a result set cell</h2>
-                                                <p>The following list describes the scenarios where you see FNF in a result set cell:</p>
+                                                <p>Occasionally, some result set cells contain the string <span class="UIelement">FNF</span> (field not found). This section explains the meaning of FNF&#160;and how various operations work with the records containing FNF.</p>
+                                                <h2 class="noPageBreak">FNF&#160;occuring in a result set cell</h2>
+                                                <p>The following list describes the scenarios where you see a FNF in a result set cell:</p>
                                                 <ul>
                                                     <li value="1">
-                                                        <p>A row does not have a value for the column. For example, a column named EmployeeID has a value for all rows except row 1. The value in the cell on row 1 in the EmployeeID column is shown as FNF. </p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;Having an empty string for a column is not the same as having no value. For example, in a JSON&#160;file, row&#160;1 is <span class="UIelement">{a: 1, b: ""}</span> and row 2 is <span class="UIelement">{a: 2}</span>. In row 1, the field b exists and contains an empty string. In row 2, no value exists for the field b. As a result, row 2 shows FNF for the b column.</div>
+                                                        <p><span class="UIelement">A row does not have a value for the column</span>. For example, a column named EmployeeID has a value for all rows except row 1. The value in the cell on row 1 in the EmployeeID column is shown as FNF. </p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;Having an empty string for a column is not the same as having no value. For example, in a JSON&#160;file, row&#160;1 is <span class="UIelement">{a: 1, b: ""}</span> and row 2 is <span class="UIelement">{a: 2}</span>. In row 1, the field b exists and contains an empty string. In row 2, no value exists for the field b. As a result, row 2 shows FNF for column b.</div>
                                                     </li>
-                                                    <li value="2">You change the data type for a column but the data in a cell cannot be changed.&#160;Suppose you change the data type of the EmployeeID column from string to integer. If the EmployeeID in row 2 is NA, it is changed to FNF because the string NA cannot be cast into an integer. </li>
-                                                    <li value="3">The result of a <span class="UIelement">Map</span> function is undefined.&#160;For example,  when the div or mod function uses  a zero as the divisor, the result of the function is FNF.</li>
+                                                    <li value="2"><span class="UIelement">You change the data type for a column but the data in a cell cannot be changed</span>.&#160;Suppose you change the data type of the EmployeeID column from string to integer. If the EmployeeID in row 2 is NA, it is changed to FNF because the string NA cannot be cast into an integer. </li>
+                                                    <li value="3"><span class="UIelement">The result of a Map function is undefined</span>.&#160;For example,  when the div or mod function uses  a zero as the divisor, the result of the function is FNF.</li>
                                                 </ul>
                                                 <h2 class="noPageBreak">Filtering and excluding FNF</h2>
-                                                <p>You can use a cell option to filter or exclude FNF, just as you would other values.</p>
+                                                <p>You can use a cell option to filter or exclude FNF, just as you would any other value.</p>
                                                 <h2 class="noPageBreak"><a name="Sorting"></a>Sorting a result set on a column containing FNF</h2>
-                                                <p>You can sort a result set on a column with FNF. If you sort in ascending order, the cells with FNF are displayed before all others; if you sort in descending order, the cells with FNF are displayed last. </p>
+                                                <p>You can sort a result set on a column with FNF. If you sort in ascending order, the cells with FNF are displayed before all others; if you sort in descending order, the cells with FNF are displayed in the end. </p>
                                                 <h2 class="noPageBreak">Standardizing data in a column with FNF</h2>
-                                                <p>One of the purposes of cleansing and standardizing data is to ensure that all data in a column is of the same type. If a column contains FNF, you can map FNF&#160;to a value that is useful for future operations. Without changing FNF&#160;to a value, some operations cannot produce meaningful results. For example, when you use the <span class="UIelement">gt</span> (greater than) function to compare two columns, the function cannot do a comparison for an FNF, and the resultant value is an FNF instead of the expected Boolean value. </p>
+                                                <p>One of the objectives of cleansing and standardizing data is to ensure that all data in a column is of the same type. If a column contains FNF, you can map FNF&#160;to a value that is useful for future operations. Without changing FNF&#160;to a value, some operations cannot produce meaningful results. For example, when you use the <span class="UIelement">gt</span> (greater than) function to compare two columns, the function cannot do a comparison for an FNF, and the resultant value is an FNF instead of the expected Boolean value. </p>
                                                 <p>The following example illustrates how you can standardize data in an integer column having FNF cells.</p>
-                                                <p>To change all occurrences of FNF in this column  to an integer, follow these steps:</p>
+                                                <p>To change all occurrences of FNF in this column  to an integer:</p>
                                                 <ol>
                                                     <li value="1">Start the <span class="UIelement">Map</span> function in the EmployeeID column to display the <span class="UIelement">Map</span>&#160;panel.</li>
                                                     <li value="2">Select the <span class="UIelement">exists</span> function in the <span class="UIelement">conditional</span> category.</li>
@@ -215,7 +213,7 @@
                                                     <li value="5">Start the Map function in the EmployeeID_exists column to display the <span class="UIelement">Map</span>&#160;panel. </li>
                                                     <li value="6">Select the <span class="UIelement">if</span> function in the <span class="UIelement">miscellaneous</span> category. The <span class="UIelement">condition to test</span> field is shown as $EmployeeID_exists.</li>
                                                     <li value="7">For the <span class="UIelement">value returned if condition is true</span> field, click the EmployeeID column header. The field now displays $EmployeeID. </li>
-                                                    <li value="8">For the <span class="UIelement">value returned if condition is false</span> field, type a value to which you want to map FNF. For example, you can enter a negative integer such as -1.</li>
+                                                    <li value="8">For the <span class="UIelement">value returned if condition is false</span> field, type a value to which you want to map the FNF. For example, you can enter a negative integer such as -1.</li>
                                                     <li value="9">Accept the resultant column name (EmployeeID_exists_if).</li>
                                                     <li value="10">
                                                         <p>Click <span class="UIelement">Save</span>. The EmployeeID_exists_if column shows the original integer in EmployeeID  if one exists. For each row containing FNF in the EmployeeID column, the cell displays -1.</p>
@@ -224,7 +222,7 @@
                                                 </ol>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;Select an appropriate string or numeric value to which you map FNF, depending on your specific needs. It can be a value different from the one used in this example.</div>
                                                 <h2 class="noPageBreak">Counting occurrences of FNF in a column</h2>
-                                                <p>Use the <span class="UIelement">Profile</span> option in the column drop-down menu to count the occurrences of FNF.  The bar graph for FNF is displayed in red. For more information about the <span class="UIelement">Profile</span> modal window, see <a href="E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Counting occurrences of unique values in a column</a>.</p>
+                                                <p>Use the <span class="UIelement">Profile</span> option in the column drop-down menu to count the occurrences of FNF.  The bar graph for FNF is displayed in red. For more information about the <span class="UIelement">Profile</span> modal window, see <a href="E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Using Profile to find the distribution of values in a column</a>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

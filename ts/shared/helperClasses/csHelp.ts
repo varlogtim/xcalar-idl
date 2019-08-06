@@ -7,7 +7,7 @@ class CSHelp {
 
         $(document).on("click", ".csHelp", function() {
             const topic = $(this).attr("data-topic");
-            const url = helpBaseUrl + lookup[topic];
+            const url = helpBaseUrl + "ContentXDHelp/" + lookup[topic];
             window.open(url, "xcalar");
         });
     }

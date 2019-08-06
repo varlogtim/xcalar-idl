@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Using a Table Node</title>
+        <meta name="author" content="" /><title>Using a table in a dataflow</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,24 +185,34 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Using a Table Node</h1>
-                                                <p>A <span class="UIelement">Table</span> Node is one of the starting Nodes of a dataflow. It reads the data from an already published table and displays it in a result set. </p>
-                                                <p>Follow these steps to use a <span class="UIelement">Table</span> Node in a dataflow:</p>
+                                                <h1>Using a table in a dataflow</h1>
+                                                <p>A dataflow cannot be executed successfully if it does not start with a source Node. The <span class="UIelement">Table</span> Node is a source Node. If your data is stored in a table, use a <span class="UIelement">Table</span> Node to start building your dataflow.  </p>
+                                                <p>To use a <span class="UIelement">Table</span> Node in a dataflow:</p>
                                                 <ol>
-                                                    <li value="1">Click on the <span class="UIelement">In</span> category of operations in the Advanced Mode toolbar to display the <span class="UIelement">Table</span> Node. </li>
-                                                    <li value="2">Drag the <span class="UIelement">Table</span> Node to the dataflow canvas. </li>
-                                                    <li value="3">Right click the <span class="UIelement">Table</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu. The <span class="UIelement">IMD Table</span> panel is displayed.</li>
-                                                    <li value="4">Select a table from the <span class="UIelement">Published Table</span> drop-down.</li>
-                                                    <li value="5"><span class="UIelement">Select table version</span> section lets you select the version of the table you want to use.  The first version of a table always has version <span class="UIelement">0</span>. The version of the table is incremented by 1 each time there is an update (Insert, Modify, Delete) on the table. Follow these steps to select a version:<ol style="list-style-type: lower-alpha;"><li value="1"><span class="UIelement">Use latest version</span> checkbox is automatically checked for you to use the latest version of the selected table. Alternatively, you can uncheck this checkbox and use <span class="UIelement">-1</span> in the drop-down below it. Value <span class="UIelement">-1</span> always points to the latest version. </li><li value="2">If you want to use an older version of the table, you can uncheck the <span class="UIelement">Use latest version</span> checkbox and select a version in the drop-down below it. </li></ol></li>
-                                                    <li value="6">
-                                                        <p>(Optional) Enter a Filter function in the <span class="UIelement">Filter String</span> to filter the table data. For example, to fetch only those rows that have carrier as UA  from the airlines table, enter:</p>
-                                                        <p> eq(airlines::Carrier, "UA")</p>
+                                                    <li value="1">Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</li>
+                                                    <li value="2">Click the <span class="UIelement">In</span> category of operations in the Dataflow Mode toolbar to display the <span class="UIelement">Table</span> Node. </li>
+                                                    <li value="3">Drag the <span class="UIelement">Table</span> Node to the dataflow canvas. </li>
+                                                    <li value="4">
+                                                        <p>Right click the <span class="UIelement">Table</span> Node and select <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">Table</span> configuration panel is displayed.</p>
                                                     </li>
-                                                    <li value="7">Click the <span class="UIelement">Next</span> button.</li>
-                                                    <li value="8">The <span class="UIelement">Column Schema</span> of the selected table is displayed. Click on the X before a column name to remove it from the resultant result set. </li>
-                                                    <li value="9">Click on the <span class="UIelement">Add Column</span> field to add a column to the result set. This adds an empty <span class="UIelement">Column Name</span> and an <span class="UIelement">Column Type</span> field. Click on the empty column name field and choose a column from the drop-down. <span class="UIelement">Column Type</span> is automatically selected based on the column name you choose.</li>
-                                                    <li value="10">Click the <span class="UIelement">Save</span> button. The <span class="UIelement">Table </span>Node configuration is saved and a new result set is displayed when the Node executes.</li>
-                                                    <li value="11">If you added a column but did not select the column name, an error message is displayed. You can either select a column name for that column or remove the column and click <span class="UIelement">Save</span> again.</li>
+                                                    <li value="5">Select a table from the <span class="UIelement">Published Table</span> drop-down.</li>
+                                                    <li value="6"><span class="UIelement">Select table version</span> section enables you to select the version of the table you want to use.  The first version of a table is always <span class="UIelement">0</span>. The version of the table is incremented by 1 each time there is an update (Insert, Modify, Delete) on the table. Follow these steps to select a version:<ol style="list-style-type: lower-alpha;"><li value="1"><span class="UIelement">Use latest version</span> check box is automatically checked for you to use the latest version of the selected table. Alternatively, you can uncheck this check box and use <span class="UIelement">-1</span> in the drop-down below it. The value <span class="UIelement">-1</span> always points to the latest version. </li><li value="2">If you want to use an older version of the table, you can uncheck the <span class="UIelement">Use latest version</span> check box and select a version in the drop-down below it. </li></ol></li>
+                                                    <li value="7">
+                                                        <p>(Optional) If you want to filter the table data, enter a Filter function in the <span class="UIelement">Filter String</span>. For example, to fetch only those rows that have carrier as UA  from the airlines table, enter:</p>
+                                                        <p> <code>eq(airlines::Carrier, "UA")</code></p>
+                                                        <p>For more information on a list of functions, see <a href="../../E_Reference/I_MapFunctions.htm#Conditio" class="MCXref xref" xrefformat="{para}">Conditional functions</a>.</p>
+                                                    </li>
+                                                    <li value="8">
+                                                        <p>Click <span class="UIelement">Next</span>.</p>
+                                                        <p>The <span class="UIelement">Column Schema</span> of the selected table is displayed. </p>
+                                                    </li>
+                                                    <li value="9">(Optional) If you do not want to read all the columns from the table, click <span class="UIelement">X</span> before a column name to remove it from the <span class="UIelement">Column Schema</span>. </li>
+                                                    <li value="10">(Optional) If you want to add a column back to the <span class="UIelement">Column Schema</span>, click <span class="UIelement">Add Column</span>. This adds an empty <span class="UIelement">Column Name</span> field and a <span class="UIelement">Column Type</span> field to the <span class="UIelement">Column Schema</span>. Click on the empty column name field and select a column from the drop-down. <span class="UIelement">Column Type</span> is automatically filled in based on the column name you select.</li>
+                                                    <li value="11">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The <span class="UIelement">Table </span>Node configuration is saved and displays the new result set when the Node executes. If you added a column but did not select the column name, an error message is displayed. You can either select a column name for the empty column or remove the column and click <span class="UIelement">Save</span>.</p>
+                                                    </li>
                                                 </ol>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>

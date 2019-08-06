@@ -95,8 +95,6 @@
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -192,7 +190,7 @@
                                                 <p>This section describes the function categories supported by the Map operation. If the input type is shown as Any, the data type can be boolean, float, integer, or string.</p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;Functions that accept  an integer as input also accept a boolean value, unless specified otherwise in the following tables. When an arithmetic function evaluates boolean input, true is equivalent to 1, and false is equivalent to 0.</div>
                                                 <div class="Note"><span class="label">IMPORTANT</span>: The data type of a prefixed column might be number. If a function accepts only float or integer, always cast a number column to the appropriate type before running the function to avoid unexpected results. To confirm that the data type of a column is appropriate for a function, move the cursor over the data type icon in the column header. A tooltip is displayed to indicate the data type. </div>
-                                                <p>For information about how to start a Map operation, see <a href="../C_XcalarAdvancedMode/B_Operations/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>.</p>
+                                                <p>For information about how to start a Map operation, see <a href="../C_XcalarAdvancedMode/B_Operations/K_Map.htm" class="MCXref xref">Using a Map function to create new values</a>.</p>
                                                 <h2 class="noPageBreak"><a name="About"></a>Understanding date and time formats</h2>
                                                 <p>Some functions  require you to enter date or time formats in the input and output fields. You specify year, month, day, hour, minute, and second as %Y, %m, %d, %H, %M, and %S, respectively. </p>
                                                 <p>Some specifiers use uppercase and lowercase letters to distinguish between  the long and short form of the same name. For example, %b is an abbreviated month name such as Aug, and %B is a full month name such as August. </p>
@@ -266,7 +264,8 @@
                                                                 <p class="tableParagraph">addNumeric(number1, number2, …)</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                                <p class="tableParagraph">Returns the sum of all arguments. The function adds up to  1,024 arguments.</p>
+                                                                <p class="tableParagraph">Returns the sum of all arguments. The string must be a number or a scientific notation of a number (for example, "3.14", "2.78e1").</p>
+                                                                <p class="tableParagraph">The function adds up to  1,024 arguments.</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
                                                                 <p class="tableParagraph">Integer, Money or String</p>
@@ -292,7 +291,7 @@
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">divNumeric(number1, number2)</td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Divides <var>number1</var> by <var>number2</var>. If <var>number2</var> is 0, the result is NAN.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Divides <var>number1</var> by <var>number2</var>. If <var>number2</var> is 0, the result is NAN. The string must be a number or a scientific notation of a number (for example, "3.14", "2.78e1")</td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
                                                                 <p class="tableParagraph">Integer, Money or String</p>
                                                             </td>
@@ -397,7 +396,7 @@
                                                                 <p class="tableParagraph">multInteger(number1, number2, …)</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                                <p class="tableParagraph">Returns the product of multiplying all arguments. The function can multiply up to 1,024 arguments. Arguments are truncated before multiplication.</p>
+                                                                <p class="tableParagraph">Returns the product of multiplying all arguments. The function can multiply up to 1,024 arguments. The arguments are truncated before multiplication.</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
                                                                 <p class="tableParagraph">Float or Integer</p>
@@ -408,7 +407,7 @@
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">multNumeric(number1, number2, …)</td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the product of multiplying all arguments. The function can multiply up to 1,024 arguments.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the product of multiplying all arguments. The string must be a number or a scientific notation of a number (for example, "3.14", "2.78e1"). The function can multiply up to 1,024 arguments.</td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Integer, Money or String</td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Money</td>
                                                         </tr>
@@ -432,7 +431,7 @@
                                                                 <p class="tableParagraph">roundNumeric(number, decimal_places)</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                                <p class="tableParagraph">Rounds <var>number</var> to the specified decimal places.</p>
+                                                                <p class="tableParagraph">Rounds <var>number</var> to the specified decimal places. The string must be a number or a scientific notation of a number (for example, "3.14", "2.78e1").</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer, Money or String for <var>number</var>; Integer for <var>decimal_places</var></td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Money</td>
@@ -460,7 +459,7 @@
                                                                 <p class="tableParagraph">subNumeric(number1, number2, …)</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">
-                                                                <p class="tableParagraph">Subtracts one or more arguments from <var>number1</var>. The function accepts up to 1,024 arguments.</p>
+                                                                <p class="tableParagraph">Subtracts one or more arguments from <var>number1</var>. The string must be a number or a scientific notation of a number (for example, "3.14", "2.78e1"). The function accepts up to 1,024 arguments.</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
                                                                 <p class="tableParagraph">Integer, Money or String</p>
@@ -617,7 +616,7 @@
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">between(number1, number2, number3)</td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if <var>number1</var> is equal to or greater than <var>number2</var>, and less than or equal to <var>number3</var>.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if <var>number1</var> is equal to or greater than <var>number2</var>, and less than or equal to <var>number3</var>. All the values should be of the same type. </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Boolean, Float, Integer, String or Timestamp</td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
                                                         </tr>
@@ -644,7 +643,10 @@
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">eq(value1, value2)</td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
-                                                                <p>Tests if <var>value1</var> and <var>value2</var> are equal.</p>
+                                                                <p>Tests if <var>value1</var> and <var>value2</var> are equal. Both the values must be of the same type. For example, if column1 contains Timestamps, the following statement will produce an error:</p>
+                                                                <p>eq($column1, "1996-02-28T00:00:00.000Z")</p>
+                                                                <p>because the second argument is a String, not a Timestamp. The correct statement will be:</p>
+                                                                <p>eq($column1, timestamp("1996-02-28T00:00:00.000Z"))</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any (all values must be of the same type)</td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
@@ -738,7 +740,7 @@
                                                                 <p class="tableParagraph">isNumeric(value)</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                                <p class="tableParagraph">Tests if the data type of <var>value</var> is numeric.</p>
+                                                                <p class="tableParagraph">Tests if the data type of <var>value</var> is money.</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
                                                                 <p class="tableParagraph">Any</p>
@@ -776,7 +778,7 @@
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">neq(value1, value2)</td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if <var>value1</var> is not equal to <var>value2</var>.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if <var>value1</var> is not equal to <var>value2</var>. Both the values must be of the same type. For example, if column1 contains Timestamps, the following statement will produce an error:<p>neq($column1, "1996-02-28T00:00:00.000Z")</p><p>because the second argument is a String, not a Timestamp. The correct statement will be:</p><p>neq($column1, timestamp("1996-02-28T00:00:00.000Z"))</p></td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any (all operands must be of the same type)</td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
                                                         </tr>
@@ -840,8 +842,8 @@
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">convertToUnixTS(timestamp, UNIX_timestamp)</td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Converts a timestamp to a UNIX timestamp.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">convertToUnixTS(timestamp, format)</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Converts a given timestamp in the specified format to a UNIX timestamp.</td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
                                                         </tr>
@@ -900,7 +902,7 @@
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">genRandom(number1, number2)</td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Generates a random number between <var>number1</var> and <var>number2</var>. A valid result is generated if <var>number1</var> is less than <var>number2</var>. Otherwise, the result is FNF.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Generates a random number between <var>number1</var>and <var>number2</var>. Numbers are inclusive. A valid result is generated if <var>number1</var> is less than <var>number2</var>. Otherwise, the result is FNF.</td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer</td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
                                                         </tr>
@@ -1111,12 +1113,12 @@
                                                                 <p>findInSet(string, element)</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
-                                                                <p>Returns the index of <var>element</var> in <var>string</var>, which is a comma-delimited list of elements. </p>
+                                                                <p>Returns the index of <var>element</var> in <var>string</var>, which is a comma-delimited list of elements. The pattern matching is case-sensitive.</p>
                                                                 <p>Indexes start at 1. If <var>element</var> does not exist, the function returns 0.</p>
                                                                 <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is 18,07,03, and <var>element</var> is 07, the index is 2. If <var>element</var> is 19, the index is 0.</div>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>String</p>
+                                                                <p>String for all</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
                                                                 <p>Integer</p>
@@ -1247,7 +1249,7 @@
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                                <p class="tableParagraph">stringPosCompare(string1, string2, delim, min_diff, max_diff)</p>
+                                                                <p class="tableParagraph">stringsPosCompare(string1, string2, delim, min_diff, max_diff)</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
                                                                 <p class="tableParagraph">Returns true if the substrings of <span class="UIelement">string1</span> and <span class="UIelement">string2 </span>have specified range of mismatches. First it splits <span class="UIelement">string1 </span>and <span class="UIelement">string2</span> by the delimiter <span class="UIelement">delim</span>. Then it compares the substrings of each and counts the number of differences. If the number of differences is within the range <span class="UIelement">min_diff</span> (included) to <span class="UIelement">max_diff</span> (excluded), it returns true otherwise it returns false. If the number of substrings is different in <span class="UIelement">string1</span> and <span class="UIelement">string2</span>, it returns FNF. For example, if <span class="UIelement">string1</span> = abcdef, <span class="UIelement">string2</span> = defcab, <span class="UIelement">delim</span> = c, <span class="UIelement">min_diff</span> = 1, <span class="UIelement">max_diff </span>= 3, the result will be true. First the strings are split and result in ab, def and def, ab. Then the substrings are compared and returns 2 mismatches and since that number falls in the range <span class="UIelement">min_diff</span> to <span class="UIelement">max_diff</span>, the result is true. In the same example, if <span class="UIelement">max_diff</span> was 2, the function will return false.</p>
@@ -1436,7 +1438,7 @@
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">monthsBetween(date1, date2)</td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the number of months between <span class="UIelement">date1 </span>and <span class="UIelement">date2</span>. If <span class="UIelement">date1 </span>is later than <span class="UIelement">date2</span>, the result is positive else if <span class="UIelement">date1 </span>is earlier than <span class="UIelement">date2</span>, the result is negative. If both timestamps have the same day component, the result is always an integer otherwise it  calculates the fractional portion of the result based on  a 31-day month and also considers the difference in time components.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the number of months between <span class="UIelement">date1 </span>and <span class="UIelement">date2</span>. If <span class="UIelement">date1 </span>is later than <span class="UIelement">date2</span>, the result is positive else if <span class="UIelement">date1 </span>is earlier than <span class="UIelement">date2</span>, the result is negative. If both dates have the same day component, the result is always an integer otherwise it  calculates the fractional portion of the result based on  a 31-day month and also considers the difference in time components.</td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Timestamp for <span class="UIelement">date1 </span>and <span class="UIelement">date2</span></td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
                                                         </tr>

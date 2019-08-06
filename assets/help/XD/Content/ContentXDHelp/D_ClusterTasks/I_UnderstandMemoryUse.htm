@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Cluster tasks">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Understanding memory usage</title>
+        <meta name="author" content="" /><title>Understanding the memory usage</title>
         <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,7 +185,7 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Understanding memory usage</h1>
+                                                <h1>Understanding the memory usage</h1>
                                                 <p>The <span class="GeneralProductName3">Xcalar</span> architecture makes optimal use of system resources (such as memory, CPU, and network resources). <span class="GeneralProductName3">Xcalar</span> can optimize memory usage even on a heterogeneous cluster where  server nodes have different amounts of memory installed. </p>
                                                 <h2 class="noPageBreak">About <span class="GeneralProductName2">Xcalar Compute Engine</span>'s use of the memory hierarchy</h2>
                                                 <p><span class="GeneralProductName2">Xcalar Compute Engine</span>'s distributed shared memory (DSM) architecture automatically uses and manages the tiers of a memory hierarchy, which are shown in the following list:</p>
@@ -197,42 +195,33 @@
                                                     <li value="3">Solid state drives (SSDs)</li>
                                                     <li value="4">Hard disk drive (HDD)</li>
                                                 </ul>
-                                                <p><span class="GeneralProductName2">Xcalar Compute Engine</span> uses  sophisticated policies to optimally distribute data and meta data across the cluster. It also uses demand paging to move data between main memory and lower tiers of the memory hierarchy. When the <span class="GeneralProductName3">Xcalar</span> cluster is low on memory, <span class="GeneralProductName3">Xcalar</span> writes data to lower tiers of the memory hierarchy. This process is called serialization. When more memory is available, <span class="GeneralProductName3">Xcalar</span> moves data from the demand paging area back to memory.  This process is called deserialization. While serialization and deserialization take place without  user intervention, <span class="GeneralCompanyNameShort">Xcalar</span> recommends that users conserve memory (with methods described in <a href="J_OptimizeMemory.htm" class="MCXref xref" xrefformat="{para}">Optimizing memory usage</a>) so that <span class="GeneralProductName2">Xcalar Compute Engine</span> can deliver the highest possible performance.</p>
+                                                <p><span class="GeneralProductName2">Xcalar Compute Engine</span> uses  sophisticated policies to optimally distribute data and meta data across the cluster. <span class="GeneralProductName3">Xcalar</span> also gives you fine-grained control over the distribution of data and meta data across the cluster. Such control is particularly useful when you have to deal with non-uniform data distribution or correlation that occurs in real-world applications. Production systems often need to run optimized dataflows in a similar way as database administrators optimize SQL&#160;queries. Contact <span class="GeneralCompanyNameShort">Xcalar</span>  if you need <span class="GeneralCompanyNameShort">Xcalar</span>'s Field Technology Engineers to help  operationalize dataflows for you or provide training on operationalizing dataflows.</p>
+                                                <p><span class="GeneralProductName2">Xcalar Compute Engine</span> also uses demand paging to move data between main memory and lower tiers of the memory hierarchy. When the <span class="GeneralProductName3">Xcalar</span> cluster is low on memory, <span class="GeneralProductName3">Xcalar</span> writes data to lower tiers of the memory hierarchy. This process is called serialization. When more memory is available, <span class="GeneralProductName3">Xcalar</span> moves data from the demand paging area back to memory.  This process is called deserialization. </p>
+                                                <p>While serialization and deserialization take place without  user intervention, <span class="GeneralCompanyNameShort">Xcalar</span> recommends that users conserve memory so that <span class="GeneralProductName2">Xcalar Compute Engine</span> can deliver the highest possible performance.</p>
+                                                <h2 class="noPageBreak">Best practices for conserving memory</h2>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> users can follow these best practices to conserve memory: </p>
+                                                <ul>
+                                                    <li value="1">Reduce the number of result sets as described in <a href="../C_XcalarAdvancedMode/B_Operations/X_ResultsetMemory.htm" class="MCXref xref" xrefformat="{para}">Effect of a result set on memory consumption</a>.</li>
+                                                    <li value="2">
+                                                        <p>Reduce the number of fields in the <span class="UIelement">Data Browser</span> as described in <a href="../C_XcalarAdvancedMode/B_Operations/W_Project.htm" class="MCXref xref" xrefformat="{para}">Understanding the Project operation</a>.</p>
+                                                    </li>
+                                                </ul>
                                                 <p><span class="GeneralProductName3">Xcalar</span> is designed to automatically drop the result sets after certain period of inactivity. The result set can be regenerated by right clicking on a dataflow Node and selecting the <span class="UIelement">Execute</span> menu item. You can prevent the system from dropping a result set by right clicking on the dataflow Node and selecting <span class="UIelement">Lock Result</span> menu item. </p>
-                                                <p><span class="GeneralProductName3">Xcalar</span> gives you fine-grained control over the distribution of data and meta data across the cluster. Such control is particularly useful when you have to deal with non-uniform data distribution or coloration that occurs for real-world applications. Production systems often need to run optimized dataflows in a similar way as database administrators optimize SQL&#160;queries. Contact <span class="GeneralCompanyNameShort">Xcalar</span>  if you need <span class="GeneralCompanyNameShort">Xcalar</span>'s Field Technology Engineers to help  operationalize dataflows for you or provide training on operationalizing dataflows.</p>
                                                 <h2 class="noPageBreak">What happens when the cluster is low on memory</h2>
-                                                <p>If the cluster is healthy without low-memory issues, <img src="../../Resources/Images/XD_assets/xd-system-health.png" />  is displayed next to the user icon in the top right corner of <span class="GeneralGUIName1">Xcalar Design</span>. You can mouse over this icon to view the percentage of memory used.&#160;Click the icon to display the <span class="UIelement">Statistics</span> window, where you can see more details about resource usage. If <span class="GeneralProductName2">Xcalar Compute Engine</span> is low on memory, <span class="GeneralGUIName1">Xcalar Design</span> displays a warning icon next to the user icon. A yellow icon indicates that memory consumption is at 60% and a red icon indicates that memory consumption is at 80%. A warning tooltip is also displayed, recommending the action to take for releasing memory.&#160;</p>
+                                                <p>If the cluster is healthy without low-memory issues, a green icon <img src="../../Resources/Images/XD_assets/xd-system-health.png" />  is displayed next to the user icon in the top right corner of <span class="GeneralGUIName1">Xcalar Design</span>. You can mouse over this icon to view the percentage of memory used.&#160;Click the icon to display the <span class="UIelement">Statistics</span> window, where you can see more details about resource usage. If <span class="GeneralProductName2">Xcalar Compute Engine</span> is low on memory, <span class="GeneralGUIName1">Xcalar Design</span> displays a warning icon next to the user icon. A yellow icon indicates that memory consumption is at 60% and a red icon indicates that memory consumption is at 80%. A warning tooltip is also displayed, recommending the action to take for releasing memory.&#160;</p>
                                                 <h3>Example of low-memory warning</h3>
                                                 <p>The following partial screenshot illustrates the warning message when dropping result sets is the recommended action:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/XD_screenshots/xd-low-mem-resultset-warning.png" />
                                                 </p>
-                                                <p>Clicking the warning icon displays a modal window with all your active result sets, where you can select and drop them. You can also display the <span class="UIelement">Drop Result Sets</span> modal window at any time by clicking the <span class="UIelement">Monitor</span> icon under <span class="UIelement">System</span> and then clicking <span class="UIelement">Release Memory</span>.&#160;</p>
-                                                <p>For more information, see <a href="K_Monitor.htm#Monitor" class="MCXref xref" xrefformat="{para}">Monitor </a>.</p>
+                                                <p>Clicking the warning icon displays a modal window with all your active result sets where you can select and drop them. You can also display the <span class="UIelement">Drop Result Sets</span> modal window at any time by clicking the <span class="UIelement">Monitor</span> icon under <span class="UIelement">System</span> and then clicking <span class="UIelement">Release Memory</span>.&#160;</p>
                                                 <h3>Example of low-memory warning due to datasets or tables</h3>
                                                 <p>The following partial screenshot illustrates the warning message when deleting datasets or tables is the recommended action:</p>
                                                 <p>
                                                     <img src="../../Resources/Images/XD_screenshots/xd-low-mem-dataset-warning.png" />
                                                 </p>
-                                                <p>If you have any result sets that can be dropped, clicking the warning icon displays the <span class="UIelement">Drop Result Sets</span>&#160;modal window otherwise it displays the <span class="UIelement">Datasets</span> panel, where you can deactivate any dataset that you are not using. For more information on dropping a result, see<a href="#dropTablesModal" class="MCXref xref" xrefformat="{para}">Determining which result set to drop</a>.</p>
-                                                <p>To deactivate a table, click <span class="UIelement">Sources</span> icon (<img src="../../Resources/Images/XD_assets/xd-sources.png" />) and then <span class="UIelement">Tables</span> icon (<img src="../../Resources/Images/XD_assets/xd-tables.png" />) in the sidebar. It displays the <span class="UIelement">Tables</span> panel, where you can right click on a table name and deactivate it.</p>
-                                                <h2 class="noPageBreak"><a name="dropTablesModal" class="ForCSH"></a>Determining which result set to drop</h2>
-                                                <p>Use the following list to determine which result set to drop:</p>
-                                                <ul>
-                                                    <li value="1">From the <span class="UIelement">Drop Result Sets</span>&#160;modal window, you can see the amount of memory consumed by each result set. The size information helps you decide the amount of memory that will be released.</li>
-                                                    <li value="2">You might have multiple active result sets  in your workbook. It is least likely that you want to drop active result sets because they are the ones that you are currently working with or worked with recently. However, it is acceptable to drop an active result set if it is not needed anymore. For example, because another active result set contains similar data. </li>
-                                                </ul>
-                                                <h2 class="noPageBreak">Dropping a result set from the Drop&#160;Result Sets modal window</h2>
-                                                <p>Follow these steps to drop result sets:</p>
-                                                <ol>
-                                                    <li value="1">To display the <span class="UIelement">Monitor</span> window, from the sidebar, click the <span class="UIelement">Monitor</span> icon (<img src="../../Resources/Images/XD_assets/xd-monitor.png" />). </li>
-                                                    <li value="2">Click <span class="UIelement">Release Memory</span>, which displays the <span class="UIelement">Drop Result Sets</span> modal window.</li>
-                                                    <li value="3">
-                                                        <p>In the <span class="UIelement">Drop Result Sets</span> modal window, select the result sets to drop. </p>
-                                                        <div class="Note"><span class="label">NOTE:</span> Before selecting a result set, you can sort the result sets by name, size, or date modified. </div>
-                                                    </li>
-                                                    <li value="4">Click <span class="UIelement">Drop</span> and <span class="UIelement">Confirm</span>.</li>
-                                                </ol>
+                                                <p>If you have any result sets that can be dropped, clicking the warning icon displays the <span class="UIelement">Drop Result Sets</span>&#160;modal window otherwise it displays the <span class="UIelement">Datasets</span> panel, where you can deactivate any dataset that you are not using. For more information on how to drop a result set, see <a href="../C_XcalarAdvancedMode/B_Operations/X_ResultsetMemory.htm#How" class="MCXref xref" xrefformat="{para}">Effect of a result set on memory consumption</a>.</p>
+                                                <p>To deactivate a table, click the <span class="UIelement">Sources</span> icon <img src="../../Resources/Images/XD_assets/xd-sources.png" /> and then the<span class="UIelement">Tables</span> icon <img src="../../Resources/Images/XD_assets/xd-tables.png" /> in the sidebar. It displays the <span class="UIelement">Tables</span> panel, where you can right click on a table name and deactivate it.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

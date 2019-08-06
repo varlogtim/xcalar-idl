@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,66 +186,64 @@
                                                     </div>
                                                 </div>
                                                 <h1>Creating and activating a workbook</h1>
-                                                <p>This topic describes how to  create and activate a workbook in <span class="GeneralGUIName1">Xcalar Design</span>. An active workbook is required for you to import data to <span class="GeneralProductName3">Xcalar</span>.</p>
-                                                <h2 class="noPageBreak">Before creating a workbook</h2>
-                                                <p>Before creating a workbook, decide on the workbook name. Workbook names can be changed at any time.</p>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the  naming conventions:</a></span>
-                                                    <div class="MCDropDownBody dropDownBody">
-                                                        <ul>
-                                                            <li value="1">The name is case-sensitive. </li>
-                                                            <li value="2">Length must not exceed 255 characters.</li>
-                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or space.</li>
-                                                            <li value="4">First character must be a letter.</li>
-                                                            <li value="5">The name must not be one of the following strings:<ul><li value="1">udf</li><li value="2">udfs</li></ul></li>
-                                                            <li value="6">For the admin user, the name must not be PreUpgrade.</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
+                                                <p>This topic describes how to  create and activate a workbook in <span class="GeneralGUIName1">Xcalar Design</span>. An active workbook is required for you to develop and execute a data model in <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <p>After you log in to the <span class="GeneralGUIName1">Xcalar Design</span>, you see the <span class="UIelement">Workbook Browser</span> window. The <span class="UIelement">Workbook Browser</span> is the place where you create and manage your workbooks. It displays a workbook card for every workbook you have. </p>
+                                                <p>The following screenshot provides an overview of the <span class="UIelement">Workbook Browser</span> window:</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/xd-workbook-browser-2.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1259" data-mc-height="589" src="../../Resources/Images/XD_screenshots/xd-workbook-browser-2_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The <span class="GeneralGUIName1">Xcalar Design</span> administrator can see the workbook cards for all the workbooks of all the users in your <span class="GeneralProductName3">Xcalar</span> cluster.</div>
                                                 <h2 class="noPageBreak"><a name="Creating"></a>Creating a workbook</h2>
                                                 <p>To create a workbook:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>The <span class="UIelement">Workbook Browser</span> is automatically displayed after you log in to <span class="GeneralGUIName1">Xcalar Design</span>. <br />If it is not displayed, click <img src="../../Resources/Images/XD_assets/xd-workbook-browser_24x24.png" style="width: 24;height: 24;" /> in the upper left corner of the window. In the <span class="UIelement">New Workbook</span> card, click <span class="UIelement">Create New Workbook</span>. A new card is displayed.</p>
+                                                        <p>Log in to <span class="GeneralGUIName1">Xcalar Design</span>. The <span class="UIelement">Workbook Browser</span> is automatically displayed. If it is not displayed, click the <span class="UIelement">Workbooks</span> icon <img src="../../Resources/Images/XD_assets/xd-workbook-browser.png" style="width: 24px;height: 24px;" /> in the upper left corner of the window. </p>
                                                     </li>
-                                                    <li value="2">
-                                                        <p>To name the new workbook and add a description, do the following:</p>
+                                                    <li value="2">In the <span class="UIelement">New Workbook</span> card, click <span class="UIelement">Create New Workbook</span>. A new workbook is created and a corresponding new workbook card is displayed in the <span class="UIelement">Workbook Browser</span>.</li>
+                                                    <li value="3">
+                                                        <p>To name the new workbook and add a description:</p>
                                                         <ol style="list-style-type: lower-alpha;">
                                                             <li value="1">
-                                                                <p>Click the ellipsis icon and then click <span class="UIelement">Edit Name and Description</span>.</p>
-                                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the  naming conventions:</a></span>
+                                                                <p>Click the ellipsis icon in the new workbook card and then click <span class="UIelement">Edit Name and Description</span>.</p>
+                                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
                                                                     <div class="MCDropDownBody dropDownBody">
                                                                         <ul>
                                                                             <li value="1">The name is case-sensitive. </li>
                                                                             <li value="2">Length must not exceed 255 characters.</li>
-                                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or space.</li>
-                                                                            <li value="4">First character must be a letter.</li>
-                                                                            <li value="5">The name must not be one of the following strings:<ul><li value="1">udf</li><li value="2">udfs</li></ul></li>
-                                                                            <li value="6">For the admin user, the name must not be PreUpgrade.</li>
+                                                                            <li value="3">First character must be a letter of the alphabet.</li>
+                                                                            <li value="4">Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or space.</li>
+                                                                            <li value="5">Must not be one of the following reserved names:
+		    <ul><li value="1"><span class="UIelement">udf</span></li><li value="2"><span class="UIelement">udfs</span></li><li value="3"><span class="UIelement">preupgrade</span></li></ul></li>
                                                                         </ul>
                                                                     </div>
                                                                 </div>
                                                             </li>
                                                             <li value="2"> In the <span class="UIelement">Edit Workbook</span> modal window, enter the workbook name.</li>
                                                             <li value="3">
-                                                                <p>Enter a workbook description. This description is displayed on the workbook card in the Workbook Browser, enabling you to make the correct workbook selection. </p>
+                                                                <p>Enter a workbook description. This description is displayed on the workbook card in the <span class="UIelement">Workbook Browser</span>, enabling you to make the correct workbook selection. </p>
                                                             </li>
-                                                            <li value="4">Click <span class="UIelement">Confirm</span>.</li>
+                                                            <li value="4">Click <span class="UIelement">Confirm</span>. </li>
                                                         </ol>
-                                                        <div class="Note"><span class="label">TIP</span>:&#160;If the complete description is too long to fit on the workbook card,  move the cursor over the description to display a tooltip with the complete description.</div>
                                                     </li>
                                                 </ol>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The newly created workbook is in the inactive state. You must activate the workbook before you can use it.</div>
+                                                <div class="Note"><span class="label">TIP</span>:&#160;If the complete description is too long to fit on the workbook card,  move the cursor over the description to display a tooltip with the complete description.</div>
+                                                <h2 class="noPageBreak"><a name="Understa"></a>Understanding the workbook activation</h2>
+                                                <p>A workbook is inactive right after its creation. In the <span class="UIelement">Workbook Browser</span>, the card for an active workbook is blue, and the card for an inactive workbook is white. Logging in and out of <span class="GeneralGUIName1">Xcalar Design</span> does not affect the state of a workbook. However, if the <span class="GeneralProductName3">Xcalar</span> cluster is stopped and then started again, all workbooks become inactive and you must activate them again before working on your data.</p>
+                                                <p>Multiple workbooks can be active at the same time and you can display them in different browser tabs. However, you cannot display the same workbook in two browser tabs.</p>
                                                 <h2 class="noPageBreak">Activating a workbook</h2>
-                                                <p>Once a workbook is created, it is inactive. You must activate it before you can use it. For more information about  workbook activation, see <a href="../D_ClusterTasks/C1_ManageWorkbook.htm" class="MCXref xref">Managing workbooks</a>.</p>
-                                                <p>Follow these steps to activate a workbook:</p>
+                                                <p>You must activate a workbook before you can use it. For more information about  workbook activation, see <a href="#Understa" class="MCXref xref">Understanding the workbook activation</a>.</p>
+                                                <p>To activate a workbook:</p>
                                                 <ol>
-                                                    <li value="1">Click anywhere in the card for the inactive workbook.</li>
-                                                    <li value="2">When the <span class="UIelement">ACTIVATE&#160;WORKBOOK</span>&#160;modal window is displayed, click <span class="UIelement">Confirm</span>.</li>
+                                                    <li value="1">Log in to <span class="GeneralGUIName1">Xcalar Design</span>. The <span class="UIelement">Workbook Browser</span> is automatically displayed. If it is not displayed, click the <span class="UIelement">Workbooks</span> icon <img src="../../Resources/Images/XD_assets/xd-workbook-browser.png" style="width: 24px;height: 24px;" /> in the upper left corner of the window.</li>
+                                                    <li value="2">Click anywhere except the ellipsis icon in the  inactive workbook's card to activate and open it. </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Next step</h2>
-                                                <p>Enable access to your source data by following the steps in  this topic:</p>
-                                                <p><a href="B1_MakingDataAccessible.htm" class="MCXref xref">Making source data accessible</a>
-                                                </p>
-                                                <p>To learn more about tasks related to workbooks, see <a href="../D_ClusterTasks/C1_ManageWorkbook.htm" class="MCXref xref">Managing workbooks</a>.</p>
+                                                <p>A <span class="GeneralGUIName1">Xcalar Design</span> administrator can activate any inactive workbook created by any user. This feature is useful if the user is not available to access the content of the workbook. To activate an inactive workbook created by another user:</p>
+                                                <ol>
+                                                    <li value="1">Log in to <span class="GeneralGUIName1">Xcalar Design</span> as an administrator. The <span class="UIelement">Workbook Browser</span> is automatically displayed. If it is not displayed, click the <span class="UIelement">Workbooks</span> icon <img src="../../Resources/Images/XD_assets/xd-workbook-browser.png" style="width: 24px;height: 24px;" /> in the upper left corner of the window.</li>
+                                                    <li value="2">Click anywhere except the ellipsis icon in the  inactive workbook's card. The <span class="UIelement">ACTIVATE&#160;WORKBOOK</span>&#160;modal window is displayed.</li>
+                                                    <li value="3">Click <span class="UIelement">Confirm</span>. The workbook is activated and opened.</li>
+                                                </ol>
+                                                <p>For information about other tasks related to workbooks, see <a href="../D_ClusterTasks/C1_ManageWorkbook.htm" class="MCXref xref">Managing workbooks</a>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

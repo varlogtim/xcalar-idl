@@ -12,7 +12,7 @@
  * http://www.madcapsoftware.com/
  * Unlicensed use is strictly prohibited
  *
- * v15.0.7027.24060
+ * v15.0.7081.30245
  */
 
 (function () {
@@ -61,7 +61,10 @@
 		var popupEl = Topic.ShowThumbnailPopup(e, this, "mouseleave");
 	};
 
-	Topic.ShowThumbnailPopup = function (e, aEl, showType) {
+    Topic.ShowThumbnailPopup = function (e, aEl, showType) {
+        // dismiss any open popups
+        $(".MCPopupContainer").trigger('popup:dismiss');
+
 		var CONTAINER_MARGIN = 10;
 		var CONTAINER_BORDER_WIDTH = 1;
 		var IMAGE_PADDING = 10;
@@ -70,48 +73,43 @@
 		var fullImageHeight = parseInt(MadCap.Dom.Dataset(thumbEl, "mcHeight"));
         var hwRatio = fullImageHeight / fullImageWidth;
 
-        var contentBody = isTriPane ? $("#contentBodyInner")[0] :
-            $("[data-mc-content-body='True']").length > 0 ? $("[data-mc-content-body='True']")[0] :
-            document.documentElement;
-        var maxWidth = contentBody.clientWidth - ((CONTAINER_MARGIN + CONTAINER_BORDER_WIDTH + IMAGE_PADDING) * 2);
+        var maxWidth = document.documentElement.clientWidth - ((CONTAINER_MARGIN + CONTAINER_BORDER_WIDTH + IMAGE_PADDING) * 2);
         var maxHeight = document.documentElement.clientHeight - ((CONTAINER_MARGIN + CONTAINER_BORDER_WIDTH + IMAGE_PADDING) * 2);
 
-		if (fullImageHeight > maxHeight) {
-			fullImageHeight = maxHeight;
-			fullImageWidth = fullImageHeight / hwRatio;
-		}
+        if (fullImageHeight > maxHeight) {
+            fullImageHeight = maxHeight;
+            fullImageWidth = fullImageHeight / hwRatio;
+        }
 
-		if (fullImageWidth > maxWidth) {
-			fullImageWidth = maxWidth;
-			fullImageHeight = fullImageWidth * hwRatio;
-		}
+        if (fullImageWidth > maxWidth) {
+            fullImageWidth = maxWidth;
+            fullImageHeight = fullImageWidth * hwRatio;
+        }
 
-		//
+        //
 
-		var documentUrl = new MadCap.Utilities.Url(document.location.href);
+        var thumbTop = $(thumbEl).offset().top;
+        var thumbLeft = $(thumbEl).offset().left;
 
-		var thumbTop = $(thumbEl).offset().top;
-		var thumbLeft = $(thumbEl).offset().left;
+        var fullImageSrc = MadCap.Dom.GetAttribute(aEl, "href");
 
-		var fullImageSrc = MadCap.Dom.GetAttribute(aEl, "href");
+        var fullImageAlt = MadCap.Dom.GetAttribute(aEl, "data-mc-popup-alt");
+        var containerHeight = fullImageHeight + ((CONTAINER_BORDER_WIDTH + IMAGE_PADDING) * 2);
+        var containerWidth = fullImageWidth + ((CONTAINER_BORDER_WIDTH + IMAGE_PADDING) * 2);
+        var containerTop = (thumbTop + (thumbEl.offsetHeight / 2)) - (containerHeight / 2);
+        var containerLeft = (thumbLeft + (thumbEl.offsetWidth / 2)) - (containerWidth / 2);
 
-		var fullImageAlt = MadCap.Dom.GetAttribute(aEl, "data-mc-popup-alt");
-		var containerHeight = fullImageHeight + ((CONTAINER_BORDER_WIDTH + IMAGE_PADDING) * 2);
-		var containerWidth = fullImageWidth + ((CONTAINER_BORDER_WIDTH + IMAGE_PADDING) * 2);
-		var containerTop = (thumbTop + (thumbEl.offsetHeight / 2)) - (containerHeight / 2);
-		var containerLeft = (thumbLeft + (thumbEl.offsetWidth / 2)) - (containerWidth / 2);
-
-		// Keep within viewable area
+        // Keep within viewable area
 
         var scrollPosition = MadCap.Dom.GetScrollPosition();
-        var clientTop = scrollPosition.Y + $(contentBody).offset().top;
-		var clientBottom = clientTop + contentBody.clientHeight;
-        var clientLeft = scrollPosition.X + $(contentBody).offset().left;
-		var clientRight = clientLeft + contentBody.clientWidth;
-		var minTop = clientTop + CONTAINER_MARGIN;
-		var minLeft = clientLeft + CONTAINER_MARGIN;
-		var maxBottom = clientBottom - CONTAINER_MARGIN;
-		var maxRight = clientRight - CONTAINER_MARGIN;
+        var clientTop = scrollPosition.Y;
+        var clientBottom = clientTop + document.documentElement.clientHeight;
+        var clientLeft = scrollPosition.X;
+        var clientRight = clientLeft + document.documentElement.clientWidth;
+        var minTop = clientTop + CONTAINER_MARGIN;
+        var minLeft = clientLeft + CONTAINER_MARGIN;
+        var maxBottom = clientBottom - CONTAINER_MARGIN;
+        var maxRight = clientRight - CONTAINER_MARGIN;
 
 		if (containerTop < minTop)
 			containerTop = minTop;
@@ -142,38 +140,45 @@
 		$(fullImageEl).addClass("MCPopupFullImage");
 		fullImageEl.setAttribute("src", fullImageSrc);
 		fullImageEl.setAttribute("alt", fullImageAlt); // Fix for bug #46031 - HTML5 output
-		fullImageEl.setAttribute("tabindex", "0");
+        fullImageEl.setAttribute("tabindex", "0");
 
-		$containerEl.bind(showType, function () {
-			MadCap.DEBUG.Log.AddLine(showType);
-			$containerEl.animate(
-				{
-					top: topStart,
-					left: leftStart
-				}, 200, function () {
-					$containerEl.remove();
-				});
+        var dismissPopup = function (e) {
+            $containerEl.animate(
+                {
+                    top: topStart,
+                    left: leftStart
+                }, 200, function () {
+                    $containerEl.remove();
+                });
 
-			$(fullImageEl).animate(
-				{
-					width: thumbEl.offsetWidth,
-					height: thumbEl.offsetHeight
-				}, 200);
+            $(fullImageEl).animate(
+                {
+                    width: thumbEl.offsetWidth,
+                    height: thumbEl.offsetHeight
+                }, 200);
+        };
 
-			$(bgTintEl).animate(
-				{
-					opacity: 0
-				}, 200, function () { MadCap.TextEffects.RemoveBackgroundTint(); });
-		});
+        $containerEl.on('popup:dismiss', dismissPopup);
+        $containerEl.bind(showType, dismissPopup);
 
 		$containerEl.bind("keydown", function (e) {
-			var e = e || window.event;
-			if (e.keyCode != 27 && e.keyCode != 13) // Escape and enter key support to close thumbnail popup
+			var ev = e || window.event;
+			if (ev.keyCode !== 27 && ev.keyCode !== 13) // Escape and enter key support to close thumbnail popup
 				return;
 
-			$containerEl.remove();
-			MadCap.TextEffects.RemoveBackgroundTint();
-		});
+            $containerEl.trigger('popup:dismiss');
+        });
+
+        // if popup is shown with click event, dismiss it with a click anywhere
+        if (showType === 'click') {
+            var openEvent = e;
+            $(document).on('click.dismissPopup', function (e) {
+                if (e.originalEvent !== openEvent.originalEvent) {
+                    dismissPopup();
+                    $(document).off('.dismissPopup');
+                }
+            });
+        }
 
 		$containerEl.append(fullImageEl);
 		document.body.appendChild($containerEl[0]);
@@ -211,15 +216,7 @@
 				height: fullImageHeight
 			}, 200);
 
-		// Add the background tint and animate it
-		var bgTintEl = MadCap.TextEffects.AddBackgroundTint(null, document.body);
-
-		$(bgTintEl).animate(
-			{
-				opacity: 0.5
-			}, 200);
-
-		fullImageEl.focus();
+        fullImageEl.focus();
 	};
 
 	Topic.HelpControl_Click = function (e) {
@@ -400,19 +397,23 @@
                         $(this).on("loaded", function () {
                             menusLoaded++;
                             if (menusLoaded === $menus.length)
-                                ScrollToOffset($target[0].offsetTop);
+                                ScrollToOffset(GetTargetOffset($target));
                         });
                     } else {
                         menusLoaded++;
                         if (menusLoaded === $menus.length)
-                            ScrollToOffset($target[0].offsetTop);
+                            ScrollToOffset(GetTargetOffset($target));
                     }
                 });
             } else {
-                ScrollToOffset($target[0].offsetTop);
+                ScrollToOffset(GetTargetOffset($target));
             }
         }
     };
+
+    function GetTargetOffset($target) {
+        return $target.parents('table').length > 0 ? $target.offset().top : $target[0].offsetTop;
+    }
 
     function ScrollToOffset(targetOffset) {
 		var $scrollContainer = isTriPane ? $("#contentBodyInner") : $(".sidenav-container").is(":visible") ? $(".body-container") : $("html, body");

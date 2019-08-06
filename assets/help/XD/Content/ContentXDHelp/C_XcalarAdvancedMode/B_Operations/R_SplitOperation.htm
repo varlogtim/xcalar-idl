@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Using a Split operation</title>
+        <meta name="author" content="" /><title>Splitting a column</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,24 +185,26 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Using a Split operation</h1>
-                                                <p>You can split a column if it contains strings. You cannot split a numeric column. New columns are created as a result of the split, and the original column remains in the result set.</p>
-                                                <p>Follow these steps to split a column:</p>
+                                                <h1>Splitting a column</h1>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> enables you to split a column of a result set if it contains only strings. You cannot split any other type of column. As a result of the split, new columns are created and added to the result set.</p>
+                                                <p>To split a column:</p>
                                                 <ol>
-                                                    <li value="1">There are two ways of splitting a column - starting from a result set or starting from a <span class="UIelement">Split</span> Node.<ol><li value="1"><span class="UIelement">Starting from a result set</span>: In the result set column drop-down menu, select <span class="UIelement">Split column...</span>. The <span class="UIelement">Split Operation</span> panel is displayed.</li><li value="2"><p><span class="UIelement">Starting from a Split Node</span>: Click on the <span class="UIelement">Column Ops</span> category of operations in the Advanced Mode toolbar. Drag the <span class="UIelement">Split </span>Node to the dataflow canvas. Connect a result set  to the <span class="UIelement">Split</span> Node. Right click the <span class="UIelement">Split</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu. The <span class="UIelement">Split Operation</span> panel is displayed.</p><div class="Example"><span class="label">NOTE</span>:&#160;See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a> for more information on connecting Nodes and creating dataflows.</div></li></ol></li>
-                                                    <li value="2">Choose a column to split in the <span class="UIelement">Column to split</span> drop-down.</li>
-                                                    <li value="3">Type the delimiter in the <span class="UIelement">Delimiter</span> field. The delimiter can be a single character or a string. </li>
-                                                    <li value="4">
-                                                        <p>(Optional) To limit the number of new columns created from the split, enter the number  in the <span class="UIelement">Number of columns</span> field. </p>
-                                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160;If the <span class="UIelement">Date</span> column contains dates in the <span class="UIelement">mm/dd/yy</span> format, you can enter the slash (<span class="UIelement">/</span>) as the delimiter and <span class="UIelement">2</span> as the number of splits. Two columns are created, one with the <span class="UIelement">mm</span> field and the other with the <span class="UIelement">dd</span> field. </div>
+                                                    <li value="1">Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</li>
+                                                    <li value="2">&#160;There are two ways of splitting a column - starting from a result set and starting from a <span class="UIelement">Split</span> Node.<ul><li value="1"><span class="UIelement">Starting from a result set</span>: Display the result set with the column that you want to split. Right click on the column header  and select <span class="UIelement">Split column</span>. A <span class="UIelement">Split </span>Node is added to the dataflow and the <span class="UIelement">Split Operation</span> configuration panel is displayed.</li><li value="2"><p><span class="UIelement">Starting from a Split Node</span>: Click on the <span class="UIelement">Column Ops</span> category of operations in the Dataflow Mode toolbar. Drag the <span class="UIelement">Split </span>Node to the dataflow canvas. Locate the Node with the result set column that you want to split, and connect its output to the <span class="UIelement">Split</span> Node. Right click the <span class="UIelement">Split</span> Node and select <span class="UIelement">Configure</span>. The <span class="UIelement">Split Operation</span> configuration panel is displayed.</p><div class="Example"><span class="label">NOTE</span>:&#160;See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a> for more information on connecting Nodes and creating dataflows.</div></li></ul></li>
+                                                    <li value="3">Select a column to split in the <span class="UIelement">Column to split</span> drop-down.</li>
+                                                    <li value="4">Enter a delimiter in the <span class="UIelement">Delimiter</span> field. The delimiter can be a single character or a string. </li>
+                                                    <li value="5">
+                                                        <p>(Optional) To limit the number of new columns created as a result of the split operation, enter a number  in the <span class="UIelement">Number of columns</span> field. </p>
+                                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160;If the <span class="UIelement">Date</span> column contains dates in the <span class="UIelement">mm/dd/yy</span> format, you can enter the slash (<span class="UIelement">/</span>) as the delimiter and <span class="UIelement">2</span> as the number of splits. This creates two new columns, one with the <span class="UIelement">mm</span> field and the other with the <span class="UIelement">dd</span> field. </div>
                                                     </li>
-                                                    <li value="5">The new column names are suggested in the <span class="UIelement">Column name #x</span> field. You can change the new column name by entering a different text.</li>
-                                                    <li value="6">(Optional) Check the <span class="UIelement">Include only erroneous rows</span> checkbox to get only those rows that produce an error during split operation. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a result set with only erroneous rows</a>.</li>
-                                                    <li value="7">
-                                                        <p>Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set with split columns is displayed when the Node executes. </p>
+                                                    <li value="6">The new column names are suggested in the <span class="UIelement">Column name #x</span> fields. You can change the new column name by entering a different text.</li>
+                                                    <li value="7">(Optional) Check the <span class="UIelement">Include only erroneous rows</span> check box to get only those rows that produce an error during the split operation. This is helpful in detecting data anomalies. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a result set with erroneous rows only</a>.</li>
+                                                    <li value="8">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a new result set with split columns is displayed when the Node executes. </p>
                                                     </li>
                                                 </ol>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <p>For selecting columns:</p>
                                                         <ul>

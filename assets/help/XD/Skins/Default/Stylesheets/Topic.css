@@ -402,6 +402,22 @@ div.MCBreadcrumbsBox_0
 	text-decoration: none;
 }
 
+.MCDropDown_Open .MCDropDownHotSpot_.MCHotSpotImage
+{
+	background-position: left;
+	background-image: url('xd-minus-circle-outline.png');
+	padding-left: 5px;
+	padding-right: 0;
+}
+
+.MCDropDown_Closed .MCDropDownHotSpot_.MCHotSpotImage
+{
+	background-position: left;
+	background-image: url('xd-plus-circle-outline.png');
+	padding-left: 5px;
+	padding-right: 0;
+}
+
 .dropDownHead
 {
 	text-decoration: none;

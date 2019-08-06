@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Understanding dataflows</title>
+        <meta name="author" content="" /><title>Understanding a dataflow</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,69 +185,42 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1><a name="dataflowGraph" class="ForCSH"></a>Understanding dataflows</h1>
-                                                <p>A dataflow is a series of actions performed by <span class="GeneralProductName3">Xcalar</span> to manipulate data. You control the actions  in a dataflow by configuring the operations and specifying the order in which <span class="GeneralProductName3">Xcalar</span> executes them.</p>
-                                                <p>To create a dataflow, use the dataflow editor in <span class="GeneralGUIName1">Xcalar Design</span>. After <span class="GeneralProductName3">Xcalar</span> executes an operation in the dataflow, you can view the result set produced by the operation. You can edit the dataflow by re-configuring and re-ordering the operations, until you arrive at the desired data analytic algorithm.</p>
-                                                <p>You can configure dataflow settings that affect how dataflows behave. For more information about dataflow settings, see <a href="H_SettingsForDf.htm" class="MCXref xref" xrefformat="{para}">Configuring settings for dataflows</a>.</p>
-                                                <h2 class="noPageBreak">Understanding dataflow components</h2>
-                                                <p>A dataflow consists of operations and links that connect the operations. In <span class="GeneralGUIName1">Xcalar Design</span>, each operation is shown as a named Node.</p>
-                                                <p>Each dataflow starts with one of these nodes that get data into the dataflow:</p>
-                                                <ul>
-                                                    <li value="1">A Dataset&#160;Node representing a dataset that exists  on the <span class="GeneralProductName3">Xcalar</span> cluster.</li>
-                                                    <li value="2">A Link In Node representing the result of another dataflow in the same workbook.</li>
-                                                    <li value="3">A Table Node representing a SELECT statement on a published table that exists on the Xcalar cluster.</li>
-                                                </ul>
-                                                <p>The rest of the dataflow consists of the following types of operations:</p>
-                                                <ul>
-                                                    <li value="1">Operations for creating a data model from the imported data: For example, in the dataflow, you can have operations for data preparation, such as type casting and filtering, or aggregate operations, such as summation. </li>
-                                                    <li value="2">
-                                                        <p>Operations for getting the data out: The terminating Node of a dataflow can be one of the following:</p>
-                                                        <ul>
-                                                            <li value="1">An Export Node writes the dataflow result to files or objects residing at a destination specified by the export target.</li>
-                                                            <li value="2">A Link out Node saves the dataflow result set under a reference name. From this result set, you can start a new dataflow and continue designing the algorithm for data analysis.</li>
-                                                            <li value="3">A PublishIMD Node publishes the dataflow result to a published table on the cluster.</li>
-                                                            <li value="4">A Jupyter operation saves the dataflow result to a DataFrame usable by Jupyter.</li>
-                                                        </ul>
-                                                    </li>
-                                                </ul>
-                                                <p>You must configure an operation before you can execute it. A successful execution produces a result set, which can be used as input for other operations.</p>
-                                                <p>The following screenshot illustrates the components of a dataflow.</p>
+                                                <h1><a name="dataflowGraph" class="ForCSH"></a>Understanding a dataflow</h1>
+                                                <p>A dataflow is a series of actions performed on data to develop a data model in Dataflow Mode in <span class="GeneralGUIName1">Xcalar Design</span>. You control the actions  in a dataflow by configuring the operations and specifying the order in which <span class="GeneralProductName3">Xcalar</span> executes them. After <span class="GeneralProductName3">Xcalar</span> executes an operation in the dataflow, you can view the result set produced by that operation. You can edit the dataflow by reconfiguring and reordering the operations, until you arrive at the desired data model.</p>
+                                                <p>You can configure dataflow settings that affect how dataflows behave. For more information about dataflow settings, see <a href="H_SettingsForDf.htm" class="MCXref xref" xrefformat="{para}">Configuring dataflow settings</a>.</p>
+                                                <h2 class="noPageBreak">Understanding the dataflow components</h2>
+                                                <p>A dataflow consists of operations and links that connect the operations.  In <span class="GeneralGUIName1">Xcalar Design</span>, each operation is shown as a named Node. You create your dataflow by dragging and dropping these Nodes on the dataflow canvas and linking them. Typically, each dataflow consists of the following three operations:</p>
+                                                <ol>
+                                                    <li value="1"><span class="UIelement">Operations for getting the data into a dataflow</span>: Each dataflow starts with one of these Nodes that gets the data into the dataflow:<ul><li value="1">A <span class="UIelement">Dataset&#160;</span>Node representing a dataset that exists  on the <span class="GeneralProductName3">Xcalar</span> cluster.</li><li value="2">A <span class="UIelement">Link In</span> Node representing the result of another dataflow in the same workbook.</li><li value="3">A <span class="UIelement">Table</span> Node representing a SELECT statement on a published table that exists on the <span class="GeneralProductName3">Xcalar</span> cluster.</li></ul></li>
+                                                    <li value="2"><span class="UIelement">Operations for creating a data model from the imported data</span>: For example, in a dataflow, you can have operations for data preparation, such as type casting and filtering, or aggregate operations, such as Group By. </li>
+                                                    <li value="3"><span class="UIelement">Operations for getting the data out</span>: The terminating Node of a dataflow can be one of the following:<ul><li value="1">An <span class="UIelement">Export</span> or <span class="UIelement">Export Optimized</span> Node writes the dataflow result set to files or objects residing at a destination specified in the export configuration.</li><li value="2">A <span class="UIelement">Link Out</span> or <span class="UIelement">Link Out Optimized</span> Node saves the dataflow result set under a reference name. You can refer to this Node in a <span class="UIelement">Link In</span> Node in another dataflow and continue designing your data model further.</li><li value="3">A <span class="UIelement">Publish Table</span> Node publishes the dataflow result to a published table on the <span class="GeneralProductName3">Xcalar</span> cluster.</li><li value="4">A <span class="UIelement">Jupyter</span> Node saves the dataflow result to a DataFrame usable by Jupyter Notebook.</li></ul></li>
+                                                </ol>
+                                                <p>The following screenshot illustrates the components of a dataflow:</p>
                                                 <p>
                                                     <img src="../../../Resources/Images/XD_screenshots/dataflow-components.png" alt="" title="" />
                                                 </p>
+                                                <h2 class="noPageBreak">Typical steps for creating and using a dataflow</h2>
+                                                <p>The following list outlines the typical steps for creating and using a dataflow:</p>
+                                                <ol>
+                                                    <li value="1">Create a dataflow in the dataflow editor by dragging the operation Nodes to the dataflow canvas and linking them, as described in <a href="C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a>.</li>
+                                                    <li value="2">Configure each Node in the dataflow, as described in <a href="I_NodeConfigAndExecution.htm#Configur" class="MCXref xref" xrefformat="{para}">Configuring a Node</a>.</li>
+                                                    <li value="3">Execute selected Nodes or the entire dataflow, as described in <a href="E_ExecuteDf.htm" class="MCXref xref" xrefformat="{para}">Executing a dataflow</a>.</li>
+                                                    <li value="4">View the result set, as described in <a href="J_ResultSetTasks.htm#Viewing" class="MCXref xref" xrefformat="{para}">Viewing the result set of a Node</a>. </li>
+                                                    <li value="5">Edit the dataflow if necessary, as described in <a href="C_CreateEditDeleteDf.htm#Editing" class="MCXref xref" xrefformat="{para}">Editing a dataflow</a>.</li>
+                                                    <li value="6">Publish the result set, as described in <a href="../B_Operations/N_PublishingResultset.htm" class="MCXref xref" xrefformat="{para}">Publishing a result set</a>.</li>
+                                                </ol>
                                                 <h2 class="noPageBreak">Understanding sub-dataflows</h2>
                                                 <p>In a dataflow, you can create multiple sub-dataflows. A sub-dataflow looks like a dataflow, but a sub-dataflow does not have a name. The following list provides some examples of when to use sub-dataflows in a dataflow:</p>
                                                 <ul>
-                                                    <li value="1">You create sub-dataflows when you experiment with different operations for developing the data analysis algorithm.</li>
-                                                    <li value="2">You use multiple source nodes and you plan to join the result sets that originate from the source nodes.</li>
+                                                    <li value="1">You create sub-dataflows when you experiment with different operations for developing the data analysis model.</li>
+                                                    <li value="2">You use multiple source Nodes and you plan to join the result sets that originate from the source Nodes.</li>
                                                 </ul>
-                                                <p>The following screenshot illustrates  a dataflow named Dataflow 5 that contains sub-dataflows:</p>
+                                                <p>The following screenshot illustrates  a dataflow named Dataflow 5 that contains two sub-dataflows:</p>
                                                 <p>
                                                     <img src="../../../Resources/Images/XD_screenshots/dataflows-with-sub-dataflows.png" alt="" title="" />
                                                 </p>
-                                                <h2 class="noPageBreak">Understanding result sets</h2>
-                                                <p>Executing an operation creates a result set. You can view the data in the result set in a table format. You can choose to view only the schema of the result set. Viewing the result set helps you determine what further operations should take place for developing your algorithm.</p>
-                                                <p>You can remove a result set  by resetting a Node. Resetting a Node means undoing the execution of a Node. For more information about resetting a Node, see <a href="I_NodeConfigAndExecution.htm#Resettin" class="MCXref xref" xrefformat="{para}">Resetting a Node</a>.</p>
-                                                <h2 class="noPageBreak">Steps for using a dataflow</h2>
-                                                <p>The following list outlines the typical steps for using a dataflow:</p>
-                                                <ol>
-                                                    <li value="1">Add a source Node to the canvas and connect it to at least one Node, as described in <a href="C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a>.</li>
-                                                    <li value="2">Configure each Node in the dataflow, as described in <a href="I_NodeConfigAndExecution.htm" class="MCXref xref" xrefformat="{para}">Performing tasks on a Node</a>.</li>
-                                                    <li value="3">Execute selected Nodes or the entire dataflow in the dataflow, as described in <a href="E_ExecuteDf.htm" class="MCXref xref" xrefformat="{para}">Executing a dataflow</a>.</li>
-                                                    <li value="4">View the result set, as described in <a href="I_NodeConfigAndExecution.htm" class="MCXref xref" xrefformat="{para}">Performing tasks on a Node</a>. Edit the dataflow if necessary.</li>
-                                                </ol>
-                                                <h2 class="noPageBreak">Dataflow tasks</h2>
-                                                <p>The following list describes the tasks that you can perform on a dataflow:</p>
-                                                <ul>
-                                                    <li value="1">Creating and editing</li>
-                                                    <li value="2">Duplicating </li>
-                                                    <li value="3">Renaming</li>
-                                                    <li value="4">Deleting</li>
-                                                    <li value="5">Executing</li>
-                                                    <li value="6">Publishing</li>
-                                                    <li value="7">Downloading</li>
-                                                    <li value="8">Uploading</li>
-                                                </ul>
+                                                <h2 class="noPageBreak">Next step</h2>
+                                                <p>Start working with the dataflows as decribed in <a href="L_WorkingWithDf.htm" class="MCXref xref" xrefformat="{para}">Working with a dataflow</a>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

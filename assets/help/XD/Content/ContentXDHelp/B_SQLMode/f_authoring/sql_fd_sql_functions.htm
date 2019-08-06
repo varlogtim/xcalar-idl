@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -193,12 +191,12 @@
                                                 <p>You can use SQL functions:</p>
                                                 <ul>
                                                     <li value="1">To save coding time by creating reusable SQL functions that can quickly be inserted within a statement for repetitive manipulations.</li>
-                                                    <li value="2">For manipulations that are difficult to include as part of a SQL query. In the Advance Mode you can test and debug each phase of the SQL&#160;function. </li>
+                                                    <li value="2">For manipulations that are difficult to include as part of a SQL query. In the Dataflow Mode workspace you can test and debug each phase of the SQL&#160;function. </li>
                                                     <li value="3"> To use for repetitive statements.</li>
                                                     <li value="4">To create SQL functions from existing statements or dataflows. For more information, see <a href="../i_analyzing/sql_id_dataflow_to_sqlfunct.htm#Converti" class="MCXref xref" xrefformat="{para}">Converting a dataflow into a SQL function</a>.</li>
                                                 </ul>
-                                                <h3>Working in the Advanced Mode for SQL Functions </h3>
-                                                <p>SQL functions are created in the  Advanced Mode of <span class="GeneralGUIName1">Xcalar Design</span>. The SQL function feature has its own set of Node components and except for a few Input and Output Node differences, creating a SQL function is similar to creating a dataflow in Advanced Mode. For more information on how to use the Advanced Mode, see <a href="../../C_XcalarAdvancedMode/A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a>.</p>
+                                                <h3>Working in the Dataflow Mode for SQL Functions </h3>
+                                                <p>SQL functions are created in the  Dataflow Mode of <span class="GeneralGUIName1">Xcalar Design</span>. The SQL function feature has its own set of Node components and except for a few Input and Output Node differences, creating a SQL function is similar to creating a dataflow in the Dataflow Mode. For more information on how to use the Dataflow Mode, see <a href="../../C_XcalarAdvancedMode/A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a>.</p>
                                                 <p>The SQL function tab contains an icon on the left side of the SQL function name, as shown below, which enables you to quickly identify the SQL function canvas:</p>
                                                 <p> <img src="../../../Resources/Images/XD_assets/xd_sql_function_icon.png" /> </p>
                                                 <p>To name the SQL function, double-click the SQL function name tab and enter a name. For the SQL function naming conventions, see <a href="../../E_Reference/J_naming_rules.htm#SQL" class="MCXref xref" xrefformat="{para}">SQL code snippet</a>.</p>
@@ -206,53 +204,49 @@
                                                 <div class="Note"><span class="label">NOTE:</span> The following procedure assumes that you are logged into <span class="GeneralGUIName1">Xcalar Design</span> and that you are in a Workbook.</div>
                                                 <p>To create a SQL function:</p>
                                                 <ol>
-                                                    <li value="1">Depending on which <span class="GeneralGUIName1">Xcalar Design</span> Mode you are in, do one of the following:</li>
-                                                    <ul style="list-style-type: circle;">
-                                                        <li value="1"><span class="UIelement">SQL Mode</span>: From the SQL Editor menu bar in the <span class="UIelement">SQL WORKSPACE</span>, click the  <span class="UIelement">SQL Function</span> <img src="../../../Resources/Images/XD_assets/xd_sql_funct_button.png" /> button.</li>
-                                                        <p>The mode changes from <span class="UIelement">SQL Mode</span> to <span class="UIelement">Advanced Mode</span> and the New SQL Function modal window opens.</p>
-                                                        <li value="2"><span class="UIelement">Advance Mode</span>: From the tabs bar, click the <span class="UIelement">+SQL function</span> button.</li>
-                                                        <p>The New SQL Function modal window opens.</p>
-                                                    </ul>
-                                                    <li value="2">In the <span class="UIelement">Number of parameters</span> field, enter the number of <span class="UIelement">Input</span> Nodes (tables) you require in your SQL function.</li>
-                                                    <li value="3">Click <span class="UIelement">Confirm</span>.</li>
+                                                    <li value="1">Verify that you are in the <span class="UIelement">Dataflow Mode</span> workspace. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to <span class="UIelement">Dataflow Mode</span> . </li>
+                                                    <li value="2">From the tabs bar, click the <span class="UIelement">+SQL function</span> button.</li>
+                                                    <p>The New SQL Function modal window opens.</p>
+                                                    <li value="3">In the <span class="UIelement">Number of parameters</span> field, enter the number of <span class="UIelement">Input</span> Nodes (tables) you require in your SQL function.</li>
+                                                    <li value="4">Click <span class="UIelement">Confirm</span>.</li>
                                                     <p>The SQL function canvas opens containing the number of <span class="UIelement">Input</span> Nodes you requested and one <span class="UIelement">Output</span> Node.</p>
                                                     <div class="Note"><span class="label">TIP:</span> If required, you can add more <span class="UIelement">Input</span> Nodes to the SQL function. To add an <span class="UIelement">Input</span> Node, from the SQL function toolbar, select the <span class="UIelement">In</span> tab, and either drag the <span class="UIelement">Input</span> Node to the canvas, or double-click the the <span class="UIelement">Input</span> Node. </div>
-                                                    <li value="4">(Optional) Double-click the <span class="UIelement">SQL function</span> tab and enter a name for the SQL function. For more information on the SQL function naming conventions, see <a href="../../E_Reference/J_naming_rules.htm#SQL" class="MCXref xref" xrefformat="{para}">SQL code snippet</a>.</li>
-                                                    <li value="5">For each <span class="UIelement">Input</span> Node, do the following:</li>
+                                                    <li value="5">(Optional) Double-click the <span class="UIelement">SQL function</span> tab and enter a name for the SQL function. For more information on the SQL function naming conventions, see <a href="../../E_Reference/J_naming_rules.htm#SQL" class="MCXref xref" xrefformat="{para}">SQL code snippet</a>.</li>
+                                                    <li value="6">For each <span class="UIelement">Input</span> Node, do the following:</li>
                                                     <ol style="list-style-type: lower-alpha;">
                                                         <li value="1">Select the <span class="UIelement">Input</span> Node, right-click and select <span class="UIelement">Configure</span>.</li>
                                                         <li value="2">From the <span class="UIelement">SQL Function Input</span> panel, click in the <span class="UIelement">Source Table (For testing only)</span> field and select a table.</li>
                                                         <li value="3">From the <span class="UIelement">Column Schema</span> section, verify the schema columns and their data types.</li>
                                                         <li value="4">Click <span class="UIelement">Save</span>.</li>
-                                                        <div class="Note"><span class="label">NOTE:</span> If  the <span class="UIelement">Auto preview the results after execution</span> setting is enabled, the table is displayed in the Advanced Mode's previewing section. You can enable the <span class="UIelement">Auto preview the results after execution</span> setting from the <span class="UIelement">Dataflow Settings</span> modal window by clicking the <span class="UIelement">Dataflow settings</span> <img src="../../../Resources/Images/XD_assets/xd_dataflow_settings_icon.png" /> icon in the <span class="GeneralGUIName1">Xcalar Design</span> menu bar.</div>
+                                                        <div class="Note"><span class="label">NOTE:</span> If  the <span class="UIelement">Auto preview the results after execution</span> setting is enabled, the table is displayed in the Dataflow Mode's previewing section. You can enable the <span class="UIelement">Auto preview the results after execution</span> setting from the <span class="UIelement">Dataflow Settings</span> modal window by clicking the <span class="UIelement">Dataflow settings</span> icon <img src="../../../Resources/Images/XD_assets/xd_dataflow_settings_icon.png" /> in the <span class="GeneralGUIName1">Xcalar Design</span> menu bar.</div>
                                                     </ol>
                                                     <p>For more information on configuring  a Node's schema, see <a href="#Configur" class="MCXref xref" xrefformat="{para}">Configuring the  Input Node's schema</a>. </p>
-                                                    <p>For more information on configuring each Node type, see <a href="../../C_XcalarAdvancedMode/B_Operations/AboutOperations.htm" class="MCXref xref" xrefformat="{para}">Understanding the Node operators</a>.</p>
-                                                    <li value="6">For each required operation in your SQL function, add the SQL operator from the SQL function toolbar to the  canvas by selecting the operator and doing one of the following:</li>
+                                                    <p>For more information on configuring each Node type, see <a href="../../C_XcalarAdvancedMode/B_Operations/AboutOperations.htm" class="MCXref xref" xrefformat="{para}">Understanding the operation Nodes</a>.</p>
+                                                    <li value="7">For each required operation in your SQL function, add the SQL operator from the SQL function toolbar to the  canvas by selecting the operator and doing one of the following:</li>
                                                     <ul style="list-style-type: circle;">
                                                         <li value="1">Double-click.</li>
                                                         <li value="2">Drag and drop.</li>
                                                     </ul>
-                                                    <li value="7">Connect the <span class="UIelement">Input</span> and <span class="UIelement">Output</span> Nodes to the operator Nodes by clicking one of the Node's anchors and dragging your cursor to the connecting Node.</li>
-                                                    <li value="8">Configure each operator by right-clicking on the operator Node and selecting <span class="UIelement">Configure</span>. For more information on how to configure each Node type from their operator panel, see <a href="../../C_XcalarAdvancedMode/B_Operations/AboutOperations.htm" class="MCXref xref" xrefformat="{para}">Understanding the Node operators</a>.</li>
-                                                    <li value="9">Configure the <span class="UIelement">Output</span> Node, by doing the following:</li>
+                                                    <li value="8">Connect the <span class="UIelement">Input</span> and <span class="UIelement">Output</span> Nodes to the operator Nodes by clicking one of the Node's anchors and dragging your cursor to the connecting Node.</li>
+                                                    <li value="9">Configure each operator by right-clicking on the operator Node and selecting <span class="UIelement">Configure</span>. For more information on how to configure each Node type from their operator panel, see <a href="../../C_XcalarAdvancedMode/B_Operations/AboutOperations.htm" class="MCXref xref" xrefformat="{para}">Understanding the operation Nodes</a>.</li>
+                                                    <li value="10">Configure the <span class="UIelement">Output</span> Node, by doing the following:</li>
                                                     <ol style="list-style-type: lower-alpha;">
                                                         <li value="1">Select the <span class="UIelement">Output</span> Node, right-click, and select <span class="UIelement">Configure</span>.</li>
                                                         <li value="2">From the <span class="UIelement">SQL Function Output</span> panel, verify the schema.</li>
                                                         <li value="3">Click <span class="UIelement">Save</span>.</li>
                                                     </ol>
-                                                    <li value="10">In the canvas, right-click and select <span class="UIelement">Execute All</span>.</li>
-                                                    <li value="11">(Optional) As you connect each Node, test each phase of the SQL function, by right-clicking the Node and selecting <span class="UIelement">Execute</span>.</li>
+                                                    <li value="11">In the canvas, right-click and select <span class="UIelement">Execute All</span>.</li>
+                                                    <li value="12">(Optional) As you connect each Node, test each phase of the SQL function, by right-clicking the Node and selecting <span class="UIelement">Execute</span>.</li>
                                                     <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> recommends that you test each phase of the SQL function and fix any errors during  each configuration step.</div>
-                                                    <li value="12">When you are satisfied with your SQL&#160;function, the next step is to include the SQL function in an SQL&#160;Statement. For this task you must go back to the <span class="UIelement">SQL Mode</span>.</li>
-                                                    <p>To go back to the SQL Mode, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to SQL&#160;MODE.</p>
+                                                    <li value="13">When you are satisfied with your SQL&#160;function, the next step is to include the SQL function in an SQL&#160;Statement. For this task you must go back to the <span class="UIelement">SQL Mode</span> workspace.</li>
+                                                    <p>To go back to the <span class="UIelement">SQL Mode</span> workspace, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to <span class="UIelement">SQL&#160;Mode</span>.</p>
                                                 </ol>
                                                 <p>For more information on how to include a SQL function in a SQL&#160;statement, see <a href="#Invoking" class="MCXref xref" xrefformat="{para}">Invoking a SQL function in a SQL statement</a>. </p>
                                                 <h3><a name="Configur"></a>Configuring the  Input Node's schema</h3>
-                                                <p>Tables must be associated with a schema that describes the table by its column names and their data type formats, such as integer or string. In the Advanced Mode, you can choose to manually code the schema or allow <span class="GeneralProductName3">Xcalar</span> to detect the columns and their data types for you. </p>
-                                                <p>To configure the <span class="UIelement">Input </span>Node's schema:</p>
+                                                <p>Tables must be associated with a schema that describes the table by its column names and their data type formats, such as integer or string. In the Dataflow Mode, you can choose to manually code the schema or allow <span class="GeneralProductName3">Xcalar</span> to detect the columns and their data types for you. </p>
+                                                <p>To configure the <span class="UIelement">Input</span> Node's schema:</p>
                                                 <ol>
-                                                    <li value="1">In the Advanced Mode canvas, select the <span class="UIelement">Input</span> Node.</li>
+                                                    <li value="1">In the Dataflow Mode canvas, select the <span class="UIelement">Input</span> Node.</li>
                                                     <li value="2">Right-click and select <span class="UIelement">Configure</span>.</li>
                                                     <p>The <span class="UIelement">SQL&#160;Function Input</span> panel appears.</p>
                                                     <li value="3">From the <span class="UIelement">Source Table (For testing only)</span> list, select the table that contains your input source data.</li>
@@ -272,7 +266,7 @@
                                                         </ol>
                                                         <li value="2">To manually enter the table's schema:</li>
                                                         <ol style="list-style-type: lower-alpha;">
-                                                            <li value="1">In the <span class="UIelement">SQL&#160;Function Input</span> panel, click the mode switch to the <span class="UIelement">Advanced</span> procedure.</li>
+                                                            <li value="1">In the <span class="UIelement">SQL&#160;Function Input</span> panel, click the toggle switch from the <span class="UIelement">Standard</span> view to the <span class="UIelement">Advanced</span> view.</li>
                                                             <p>The schema code editor opens.</p>
                                                             <li value="2">In the code editor enter the table's column names and their data type using the following syntax:</li>
                                                             <p>[{"name":"<var>column1</var>", "type":"<var>data type</var>"}, {"name":"<var>column2</var>", "type":"<var>data type</var>"}, ... ]
@@ -283,10 +277,19 @@
                                                                 <li value="2"><var>data type</var> is the data type format of the column. Choose from boolean, integer, float, string, timestamp, and money. For more information on the data types formats that <span class="GeneralProductName3">Xcalar</span> supports, see <a href="../../E_Reference/B_DataTypes.htm" class="MCXref xref" xrefformat="{para}">Data types supported</a>.</li>
                                                             </ul>
                                                         </ol>
+                                                        <p>For an <span class="UIelement">Input</span> Node's schema that requires a primary key, contains nested JSON data, or contains nested XML data, see the following topics on how to include these in the table syntax:</p>
+                                                        <ul>
+                                                            <li value="1"><a href="../d_importing/sql_db_import_tblprops.htm#Creating" class="MCXref xref" xrefformat="{para}">Creating a primary key</a>
+                                                            </li>
+                                                            <li value="2"><a href="../d_importing/sql_db_import_tblprops.htm#Includin" class="MCXref xref" xrefformat="{para}">Including JSON&#160;nested data as columns in table </a>
+                                                            </li>
+                                                            <li value="3"><a href="../d_importing/sql_db_import_tblprops.htm#Includin2" class="MCXref xref" xrefformat="{para}">Including XML&#160;nested data as columns in table </a>
+                                                            </li>
+                                                        </ul>
                                                     </ul>
                                                     <li value="5">When you are satisfied with all the entries, click <span class="UIelement">Save</span>.</li>
-                                                    <div class="Note"><span class="label">NOTE:</span> If  the <span class="UIelement">Auto preview the results after execution</span> setting is enabled, the table is displayed in the Advanced Mode's previewing section. You can enable the <span class="UIelement">Auto preview the results after execution</span> setting from the <span class="UIelement">Dataflow Settings</span> modal window by clicking the <span class="UIelement">Dataflow settings</span> <img src="../../../Resources/Images/XD_assets/xd_dataflow_settings_icon.png" /> icon in the <span class="GeneralGUIName1">Xcalar Design</span> menu bar.</div>
                                                 </ol>
+                                                <div class="Note"><span class="label">NOTE:</span> If  the <span class="UIelement">Auto preview the results after execution</span> setting is enabled, the table is displayed in the Dataflow Mode's previewing section. You can enable the <span class="UIelement">Auto preview the results after execution</span> setting from the <span class="UIelement">Dataflow Settings</span> modal window by clicking the <span class="UIelement">Dataflow settings</span> icon <img src="../../../Resources/Images/XD_assets/xd_dataflow_settings_icon.png" /> in the <span class="GeneralGUIName1">Xcalar Design</span> menu bar.</div>
                                                 <h3><a name="Invoking"></a>Invoking a SQL function in a SQL statement</h3>
                                                 <p>The SQL function replaces a table  within a SQL query statement as long as it generates the same schema. SQL&#160;functions use standard modular programming. You can apply multiple SQL&#160;functions to one table, you can include one SQL function multiple times in a SQL&#160;statement, and you can create nested SQL&#160;functions. </p>
                                                 <p>When including the SQL&#160;function in a statement the following <span class="UIelement">must</span> be adhered:</p>

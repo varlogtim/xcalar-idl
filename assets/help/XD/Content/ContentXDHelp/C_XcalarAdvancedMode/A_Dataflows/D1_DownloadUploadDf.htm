@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Downloading and uploading a dataflow</title>
+        <meta name="author" content="" /><title>Uploading a dataflow</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,102 +185,67 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Downloading and uploading a dataflow</h1>
-                                                <p>You might want to download a dataflow so that you or another user can upload it, either to the same or another <span class="GeneralProductName3">Xcalar</span> instance. The following list describes some common scenarios where you want to download a dataflow:</p>
+                                                <h1>Uploading a dataflow</h1>
+                                                <p>This topic describes the steps to upload an existing dataflow from your computer to the <span class="GeneralProductName3">Xcalar</span> instance. You may need to upload a dataflow in the following scenarios:</p>
                                                 <ul>
-                                                    <li value="1">Handing off a dataflow to other users so that they can continue building the dataflow or creating a SQL&#160;function from the dataflow.</li>
-                                                    <li value="2">Archiving or backing up a dataflow so that you can revert to it if needed.</li>
+                                                    <li value="1">Another user handed off his dataflow to you:<ul><li value="1"> to use it as a template</li><li value="2">to debug</li><li value="3">to build additional algorithm on top of it</li></ul></li>
+                                                    <li value="2">You need to revert back to a previously downloaded dataflow</li>
                                                 </ul>
-                                                <h2 class="noPageBreak">What you can download</h2>
-                                                <p>The following list describes what you can download and the results from the download:</p>
-                                                <ul>
-                                                    <li value="1">A dataflow or a SQL&#160;function: The dataflow file includes all UDFs used in the dataflow. The file name of the dataflow file ends with .xlrdf.tar.gz.</li>
-                                                    <li value="2">A dataflow image file: A .png file is created, which matches what is displayed on the canvas. </li>
-                                                    <li value="3">Operation statistics:&#160;A .json file is created, which contains statistics about all operations in the dataflow.</li>
-                                                </ul>
-                                                <div class="Note"><span class="label">NOTE</span>: For an optimized dataflow, you can download the image file or operation statistics.</div>
-                                                <h2 class="noPageBreak"><a name="Download"></a>Downloading a dataflow</h2>
-                                                <p>To download a dataflow:</p>
-                                                <ol>
-                                                    <li value="1">Click the dataflow icon to display the <span class="UIelement">Dataflows</span> panel.</li>
-                                                    <li value="2">
-                                                        <p>In the <span class="UIelement">Dataflows</span> panel, locate the name for the dataflow to be downloaded. Then click the download button for the dataflow. </p>
-                                                        <p>Alternatively, display the dataflow to be downloaded and right click anywhere in the canvas. When a list is displayed, click <span class="UIelement">Duplicate Dataflow</span>, as shown in the following screenshot:</p>
-                                                        <p>
-                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-download.png" alt="" title="" />
-                                                        </p>
-                                                    </li>
-                                                    <li value="3">
-                                                        <p>In the <span class="UIelement">Download Dataflow</span> modal window, follow these steps:</p>
-                                                        <ol style="list-style-type: lower-alpha;">
-                                                            <li value="1">In the <span class="UIelement">Download as</span> field, select the item to download. You can create and download a dataflow file, an image file, or an operation statistics file.</li>
-                                                            <li value="2">In the <span class="UIelement">Destination file name</span> field, enter the file name  for the downloaded file, without the file name extension.</li>
-                                                            <li value="3">Click <span class="UIelement">Download</span>.</li>
-                                                        </ol>
-                                                    </li>
-                                                </ol>
-                                                <p>To download an optimized dataflow, follow these steps:</p>
-                                                <ol>
-                                                    <li value="1">Display the optimized dataflow by viewing the result set of the Node that produces the optimized dataflow.</li>
-                                                    <li value="2">In the tab for the optimized dataflow, right click anywhere in the canvas to display a list.</li>
-                                                    <li value="3">From the list, click <span class="UIelement">Download</span>.</li>
-                                                    <li value="4">In the <span class="UIelement">Download Dataflow</span> modal window, enter the file name  for the downloaded file, without the file name extension.</li>
-                                                    <li value="5">Click <span class="UIelement">Download</span>.</li>
-                                                </ol>
-                                                <p>At the location on your computer where your browser saves downloaded files, a file is created.</p>
-                                                <h2 class="noPageBreak">Uploading a dataflow</h2>
                                                 <p>Follow these guidelines when you upload a dataflow:</p>
                                                 <ul>
                                                     <li value="1">If you downloaded a SQL&#160;function, the file must be uploaded as a SQL function</li>
-                                                    <li value="2">If you downloaded a dataflow, the file must be uploaded as a dataflow.</li>
-                                                    <li value="3">After you upload a dataflow, it is unshared. To share the uploaded dataflow, place the uploaded dataflow in the Published folder as you normally would when publishing a dataflow.</li>
+                                                    <li value="2">
+                                                        <p>If you downloaded a dataflow, the file must be uploaded as a dataflow</p>
+                                                        <p>After you upload a dataflow, it is unshared. To share the uploaded dataflow, place the uploaded dataflow in the Published folder as you normally would when publishing a dataflow.</p>
+                                                    </li>
                                                 </ul>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;Only dataflow files with the .xlrdf.tar.gz file name extension can be uploaded.</div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;Dataflow files with only the .xlrdf.tar.gz file name extension can be uploaded.</div>
                                                 <h3>Naming a dataflow</h3>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case sensitive. </li>
                                                             <li value="2">Length must not exceed 255 characters.</li>
-                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or left or right parenthesis.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                                 <h3>Naming a SQL&#160;function</h3>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
-                                                            <li value="1">Characters must be A-Z, a-z, 0-9, or underscore (_).</li>
-                                                            <li value="2">The name is case-sensitive. </li>
-                                                            <li value="3">Length must not exceed 255 characters.</li>
+                                                            <li value="1">The name is case-sensitive. </li>
+                                                            <li value="2">Length must not exceed 255 characters.</li>
+                                                            <li value="3">Characters must be A-Z, a-z, 0-9, or underscore (_).</li>
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <p>To upload a dataflow from your computer, follow these steps:</p>
+                                                <p>To upload a dataflow from your computer:</p>
                                                 <ol>
-                                                    <li value="1">Open the workbook to which you want to upload the dataflow.</li>
-                                                    <li value="2">Click the Dataflow icon to display the <span class="UIelement">Dataflows</span> panel. </li>
-                                                    <li value="3">
+                                                    <li value="1">Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</li>
+                                                    <li value="2">Open the workbook to which you want to upload the dataflow.</li>
+                                                    <li value="3">From the sidebar, click the <span class="UIelement">Dataflow Panel</span> icon to display the <span class="UIelement">Dataflows</span> panel. </li>
+                                                    <li value="4">
                                                         <p>Click the  upload dataflow button, as shown in the following screenshot:</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/dataflow-upload.png" alt="" title="" />
                                                         </p>
                                                     </li>
-                                                    <li value="4">
+                                                    <li value="5">
                                                         <p>In the <span class="UIelement">Upload Dataflow</span> modal window, for the <span class="UIelement">Source File</span> field, click <span class="UIelement">Browse</span> to navigate to the location of the dataflow file on your computer. Then select the dataflow file.</p>
                                                     </li>
-                                                    <li value="5">
-                                                        <p> In the <span class="UIelement">Destination dataflow</span> name field, enter the dataflow or SQL function name if you accept the default name, which is the downloaded dataflow file's name.</p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;If the name you entered includes a disallowed character for the dataflow or SQL&#160;function, <span class="GeneralProductName3">Xcalar</span> automatically removes the character. </div>
-                                                    </li>
                                                     <li value="6">
-                                                        <p>If your dataflow uses user-defined fuctions (UDFs), specify whether the UDFs&#160;in the dataflow file will overwrite the UDFs with the same name on the destination cluster, whether or not the UDFs are shared. Click the <span class="UIelement">Overwrite UDFs</span> check box if you want overwriting to occur. </p>
-                                                        <div class="Example"><span class="label">EXAMPLE</span>:&#160;Suppose the dataflow downloaded uses a UDF&#160;module named test.py in a Map operation. If the cluster to which you upload the dataflow also has a UDF&#160;module named test.py, clicking <span class="UIelement">Overwrite UDFs</span> will replace the UDF on the cluster with the one in the uploaded dataflow.</div>
+                                                        <p> In the <span class="UIelement">Destination dataflow</span> name field, enter the dataflow or the SQL function name. Alternatively, accept the default name, which is the file name of the selected dataflow.</p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;If the name you entered includes a disallowed character for the dataflow or the SQL&#160;function, <span class="GeneralProductName3">Xcalar</span> automatically removes that character. </div>
                                                     </li>
                                                     <li value="7">
-                                                        <p>Specify whether datasets will be restored if they do not exist on the cluster. Click the <span class="UIelement">Restore datasets</span> check box if you want the datasets used in the dataflow to be created on the cluster. If you do not click the <span class="UIelement">Restore datasets</span> check box, after the dataflow upload, you must re-create each dataset for the dataflow to be executed.</p>
+                                                        <p>If your dataflow uses user-defined fuctions (UDFs), specify whether the UDFs&#160;in the dataflow file will overwrite the UDFs with the same name on the destination cluster and whether or not the UDFs are shared. Check the <span class="UIelement">Overwrite UDFs</span> check box if you want overwriting to occur. </p>
+                                                        <div class="Example"><span class="label">EXAMPLE</span>:&#160;Suppose the downloaded dataflow uses a UDF&#160;module named test.py in a Map operation. If the cluster to which you upload the dataflow also has a UDF&#160;module named test.py, clicking <span class="UIelement">Overwrite UDFs</span> will replace the UDF on the cluster with the one in the uploaded dataflow.</div>
                                                     </li>
-                                                    <li value="8">Click <span class="UIelement">Upload</span>. The dataflow is displayed in the <span class="UIelement">Dataflows</span> panel. If you uploaded a SQL&#160;function, it is displayed in the Home / SQL&#160;Functions folder.</li>
+                                                    <li value="8">
+                                                        <p>Specify whether datasets will be restored if they do not exist on the cluster. Check the <span class="UIelement">Restore datasets</span> check box if you want the datasets used in the dataflow to be created on the cluster. If you do not check the <span class="UIelement">Restore datasets</span> check box, after the dataflow upload, you must re-create each dataset for the dataflow to be executed.</p>
+                                                    </li>
+                                                    <li value="9">Click <span class="UIelement">Upload</span>. The dataflow is uploaded and displayed in the <span class="UIelement">Dataflows</span> panel. If you uploaded a SQL&#160;function, it is displayed in the Home / SQL&#160;Functions folder.</li>
                                                 </ol>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>

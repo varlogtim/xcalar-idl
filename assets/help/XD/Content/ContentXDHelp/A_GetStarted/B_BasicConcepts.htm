@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -183,20 +181,16 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="nocontent">
-                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
-                                                    </div>
-                                                </div>
                                                 <h1>Basic <span class="GeneralCompanyNameShort">Xcalar</span> concepts</h1>
                                                 <p>This section explains the basic concepts you must understand to use <span class="GeneralGUIName1">Xcalar Design</span> efficiently.</p>
                                                 <h2 class="noPageBreak">Understanding the purpose of <span class="GeneralGUIName1">Xcalar Design</span></h2>
-                                                <p>You can use  <span class="GeneralGUIName1">Xcalar Design</span>, an HTML5-based visual tool, to construct and execute SQL&#160;queries. The SQL queries are run in <span class="GeneralGUIName1">Xcalar Design</span>'s SQL Mode, which is the default mode. To augment the features of SQL&#160;Mode, <span class="GeneralGUIName1">Xcalar Design</span> provides additional data analytic tools in its Advanced Mode. Use Advanced Mode if you want to monitor or troubleshoot your SQL&#160;queries.</p>
-                                                <p>Data imported to <span class="GeneralGUIName1">Xcalar Design</span> can be unstructured or organized in arbitrary formats, and can reside on a local or cloud storage system. After you finish executing a SQL&#160;query, you can export the result set  to a file system for other applications to use. If you use Advanced Mode, you can export a result set after executing a dataflow, as well as publish data  to a Jupyter Notebook for further data analysis or visualization. </p>
+                                                <p>You can use  <span class="GeneralGUIName1">Xcalar Design</span>, an HTML5-based visual tool, to construct and execute SQL&#160;queries. The SQL queries are run in <span class="GeneralGUIName1">Xcalar Design</span>'s SQL Mode, which is the default mode. To augment the features of SQL&#160;Mode, <span class="GeneralGUIName1">Xcalar Design</span> provides additional data analytic tools in its Dataflow Mode. Use Dataflow Mode if you want to monitor or troubleshoot your SQL&#160;queries.</p>
+                                                <p>Data imported to <span class="GeneralGUIName1">Xcalar Design</span> can be unstructured or organized in arbitrary formats, and can reside on a local or cloud storage system. After you finish executing a SQL&#160;query, you can export the result set  to a file system for other applications to use. If you use Dataflow Mode, you can export a result set after executing a dataflow, as well as publish data  to a Jupyter Notebook for further data analysis or visualization. </p>
                                                 <h2>Starting <span class="GeneralGUIName1">Xcalar Design</span></h2>
                                                 <p>To start <span class="GeneralGUIName1">Xcalar Design</span>, point the browser using the HTTPS&#160;protocol to the location where <span class="GeneralGUIName1">Xcalar Design</span> is installed, as in the following example:</p>
                                                 <p class="userInput">https://xcalar.mycompany.com/index.html</p>
                                                 <h2 class="noPageBreak"><a name="Understa"></a>Understanding workbooks</h2>
-                                                <p>You create workbooks  in <span class="GeneralGUIName1">Xcalar Design</span> to perform your work in SQL&#160;Mode or  Advanced Mode.  A workbook can  be regarded as a file, in which you run SQL&#160;queries or manipulate a dataflow.  </p>
+                                                <p>You create workbooks  in <span class="GeneralGUIName1">Xcalar Design</span> to perform your work in SQL&#160;Mode or  Dataflow Mode.  A workbook can  be regarded as a file, in which you run SQL&#160;queries or manipulate a dataflow.  </p>
                                                 <p>Multiple workbooks can be active at the same time. You can deactivate or activate a workbook as desired.</p>
                                                 <h2 class="noPageBreak">Understanding the <span class="GeneralGUIName1">Xcalar Design</span> login</h2>
                                                 <p>Log in to <span class="GeneralGUIName1">Xcalar Design</span> with the login name and password obtained from the <span class="GeneralProductName3">Xcalar</span> administrator or by using the Microsoft Azure account credentials.</p>
@@ -205,9 +199,9 @@
                                                 <p>Suppose you are logged in to <span class="GeneralGUIName1">Xcalar Design</span> from two browser tabs. After you open a workbook in one browser tab, your attempt to open the same workbook in another browser tab generates a warning message. You can either go back to the previous screen or continue opening the workbook in the second browser tab. If you continue, the workbook in the first browser tab is closed.</p>
                                                 <h2 class="noPageBreak">Understanding data sources and data imports</h2>
                                                 <p>The raw data you want to query or analyze can be in one file, or multiple files in the same directory or different directories. The term <em>data source</em> refers to the file, files, or directory containing the raw data. For example, your data source can be an HDFS&#160;file system that your <span class="GeneralProductName3">Xcalar</span> nodes can access or an NFS file system mounted on each node of the cluster. </p>
-                                                <p>By reading the data at its source, <span class="GeneralGUIName1">Xcalar Design</span> obtains the metadata to build a table (if you use SQL&#160;Mode) or a dataset (if you use  Advanced Mode). This process of reading the data and building the table or dataset is called importing a data source.</p>
+                                                <p>By reading the data at its source, <span class="GeneralGUIName1">Xcalar Design</span> obtains the metadata to build a table (if you use SQL&#160;Mode) or a dataset (if you use Dataflow Mode). This process of reading the data and building the table or dataset is called importing a data source.</p>
                                                 <h2 class="noPageBreak"><a name="Data"></a>Data formats supported</h2>
-                                                <p><span class="GeneralGUIName1">Xcalar Design</span> natively supports CSV, JSON, Excel, XML, raw text, and Parquet files. For other formats, you must create a user defined function (UDF) for importing the data and instruct <span class="GeneralGUIName1">Xcalar Design</span> to use the UDF during the import.</p>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> natively supports CSV, JSON, Excel, XML, raw text, and Parquet files. For other formats, you must create a user-defined function (UDF) for importing the data and instruct <span class="GeneralGUIName1">Xcalar Design</span> to use the UDF during the import.</p>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;The CSV format includes not only comma-separated values but also other values separated by alternate delimiters. The default field delimiter is <span class="UIelement">tab</span> and the default record delimiter is <span class="UIelement">newline (\n)</span>. You can select the delimiter for separating fields and for separating records. </div>
                                                 <h2 class="noPageBreak">Understanding autosave in <span class="GeneralGUIName1">Xcalar Design</span></h2>
                                                 <p><span class="GeneralGUIName1">Xcalar Design</span> saves all your work automatically. You do not need to manually save your changes.</p>
@@ -215,10 +209,10 @@
                                                 <p>Because the <span class="GeneralProductName3">Xcalar</span> cluster supports multiple users,  be aware that your actions on shared entities might affect others. The following list describes the entities shared by all users: </p>
                                                 <ul>
                                                     <li value="1">Published table.</li>
-                                                    <li value="2">Data target.</li>
+                                                    <li value="2">Connector.</li>
                                                     <li value="3">UDF, if creator chooses to share.</li>
-                                                    <li value="4">Published dataflow (in  Advanced Mode).</li>
-                                                    <li value="5">Shared dataset (in Advanced Mode).</li>
+                                                    <li value="4">Published dataflow (in Dataflow Mode).</li>
+                                                    <li value="5">Shared dataset (in Dataflow Mode).</li>
                                                 </ul>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;The creator of a dataset can decide whether to share the dataset with other users, provided that the cluster administrator allows dataset sharing. By default, however, datasets are accessible only to the dataset owner.</div>
                                                 <p>In addition, memory  is shared. The amount of memory used by one user affects the amount of memory available for other users.</p>
@@ -226,14 +220,14 @@
                                                 <p>The following list describes the entities that are not shared among <span class="GeneralProductName3">Xcalar</span> users:</p>
                                                 <ul>
                                                     <li value="1">Result set.</li>
-                                                    <li value="2">Aggregate (in Advanced Mode).</li>
-                                                    <li value="3">Dataset (in Advanced Mode).</li>
+                                                    <li value="2">Aggregate (in Dataflow Mode).</li>
+                                                    <li value="3">Dataset (in Dataflow Mode).</li>
                                                 </ul>
                                                 <p>In addition, the <span class="GeneralGUIName1">Xcalar Design</span> general settings are user-specific. They are not shared.</p>
                                                 <h2 class="noPageBreak">Understanding the license key</h2>
                                                 <p>For all <span class="GeneralGUIName1">Xcalar Design</span> features to be available, the <span class="GeneralProductName3">Xcalar</span> administrator must enter a valid license key  during installation. Without a valid license, you cannot perform SQL&#160;queries, execute  dataflows, and so on. You can, however, perform a limited number of tasks, such as downloading workbooks and exporting data from <span class="GeneralGUIName1">Xcalar Design</span>.</p>
                                                 <p>If you cannot use <span class="GeneralGUIName1">Xcalar Design</span> due to an invalid license, contact your <span class="GeneralProductName3">Xcalar</span> administrator as soon as possible. To ensure uninterrupted  services, make sure that you have a valid license at all times.</p>
-                                                <p>If you are an administrator, you can update the license in the <span class="UIelement">Setup</span> panel of the Monitor. For more information about the Monitor, see <a href="../D_ClusterTasks/L_UseSetup.htm" class="MCXref xref" xrefformat="{para}">Using Administration (Xcalar admin only)</a>.</p>
+                                                <p>If you are an administrator, you can update the license in the <span class="UIelement">Setup</span> panel of the Monitor. For more information about the Monitor, see <a href="../D_ClusterTasks/L_UseSetup.htm" class="MCXref xref" xrefformat="{para}">Configuring Xcalar (admin only)</a>.</p>
                                                 <h2 class="noPageBreak">Displaying  product and license information</h2>
                                                 <p>To display the <span class="GeneralCompanyNameShort">Xcalar</span> product version and the license expiration date, follow these steps:</p>
                                                 <ol>

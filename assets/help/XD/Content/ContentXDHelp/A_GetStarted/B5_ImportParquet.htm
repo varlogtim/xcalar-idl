@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,76 +186,77 @@
                                                     </div>
                                                 </div>
                                                 <h1>Importing from a Parquet file or dataset</h1>
-                                                <p>Parquet datasets are columnar-oriented datasets stored in a nested file structure. The parquet data structure includes schema and metadata files that describe each file, including its location. You can create a table or <span class="GeneralProductName3">Xcalar</span> dataset by importing from a single parquet file or from a parquet dataset: </p>
-                                                <ul>
-                                                    <li value="1">To create a table or <span class="GeneralProductName3">Xcalar</span> dataset from a single parquet file, see <a href="#Creating2" class="MCXref xref" xrefformat="{para}">Importing from a single parquet file</a>. </li>
-                                                    <li value="2">To create a table or <span class="GeneralProductName3">Xcalar</span> dataset from a parquet dataset, see <a href="#Creating3" class="MCXref xref" xrefformat="{para}">Importing from a parquet dataset</a>.</li>
-                                                </ul>
+                                                <p>Parquet datasets are columnar-oriented datasets stored in a nested file structure. The parquet data structure includes schema and metadata files that describe each file, including its location. You can create a table or a <span class="GeneralProductName3">Xcalar</span> dataset by importing from a single parquet file or from a parquet dataset.</p>
                                                 <h2 class="noPageBreak"><a name="Creating2"></a>Importing from a single parquet file</h2>
                                                 <p>Importing from a single parquet file requires the same steps as importing from other data sources.  In the <span class="UIelement">Import Data Source</span> screen, provide the following  information specific to importing a parquet file:</p>
                                                 <ul>
                                                     <li value="1">In the <span class="UIelement">Format</span> field, select <span class="UIelement">Parquet File</span>.</li>
                                                     <li value="2">
                                                         <p>In the <span class="UIelement">Parquet Parser</span> field, select your preferred parser.</p>
-                                                        <div class="Note"> <span class="label">NOTE: </span>As the parquet format has many variants, <span class="GeneralProductName3">Xcalar</span> provides open source options for parsing, including PyArrow and ParquetTools. If your preferred parser fails on a particular parquet file, consider trying again with another option.</div>
+                                                        <div class="Note"> <span class="label">NOTE:</span> As the parquet format has many variants, <span class="GeneralProductName3">Xcalar</span> provides open source options for parsing, including PyArrow and ParquetTools. If your preferred parser fails on a particular parquet file, consider trying again with another option.</div>
                                                     </li>
                                                 </ul>
-                                                <h2 class="noPageBreak"><a name="Creating3"></a>Importing from a parquet dataset</h2>
-                                                <p>Creating a table or <span class="GeneralProductName3">Xcalar</span> dataset from a set of parquet data files requires <span class="GeneralProductName3">Xcalar</span> administrator assistance to create a parquet data target. The instructions also describe how to select specific partition keys and columns of interest for your <span class="GeneralProductName3">Xcalar</span> dataset.</p>
-                                                <p>The following tasks describe how to create a <span class="GeneralProductName3">Xcalar</span> dataset from a parquet dataset:</p>
+                                                <h2 class="noPageBreak"><a name="Creating3"></a>Importing from a set of parquet files</h2>
+                                                <p>Creating a table or a <span class="GeneralProductName3">Xcalar</span> dataset from a set of parquet data files requires a parquet connector. </p>
+                                                <p>To create a <span class="GeneralProductName3">Xcalar</span> dataset from a parquet dataset:</p>
                                                 <ol>
-                                                    <li value="1">Create a data target to access the location where your  parquet data source is stored. For more information about creating a data target, see the <cite>Xcalar Administration Guide</cite>.</li>
-                                                    <li value="2">Create a parquet data target, which works with the first data target to read your  parquet data sources, as described in <a href="#Creating" class="MCXref xref" xrefformat="{para}">Creating a parquet data target</a>.</li>
-                                                    <li value="3">Create a table or <span class="GeneralProductName3">Xcalar</span> dataset, as described in <a href="#Importin" class="MCXref xref" xrefformat="{para}">Importing from a parquet dataset</a>.</li>
+                                                    <li value="1">Create a connector to access the location where your  parquet data source is stored. For more information about creating a connector, see <a href="../D_ClusterTasks/D_CreateDataTarget.htm" class="MCXref xref" xrefformat="{para}">Creating connectors (admin only)</a>.</li>
+                                                    <li value="2">Create a parquet connector, which works with the first connector to read your  parquet data sources, as described in <a href="#Creating" class="MCXref xref" xrefformat="{para}">Creating a parquet connector</a>.</li>
+                                                    <li value="3">Create a table or a <span class="GeneralProductName3">Xcalar</span> dataset, as described in <a href="#Importin" class="MCXref xref" xrefformat="{para}">Importing from a parquet dataset</a>.</li>
                                                 </ol>
-                                                <h3><a name="Creating"></a>Creating a parquet data target</h3>
-                                                <p>Because a parquet data source is columnar, and can be accessed either in traditional row format or as a columnar database, <span class="GeneralProductName3">Xcalar</span> requires two data targets, a standard data target and a parquet data target. A parquet data target is a second-order data target, which is a data-target that uses another data target to access data. </p>
-                                                <p>To create a second-order data target for  parquet data sources:</p>
+                                                <h3><a name="Creating"></a>Creating a parquet connector</h3>
+                                                <p>Because a parquet data source is columnar and it can be accessed either in traditional row format or as a columnar database, <span class="GeneralProductName3">Xcalar</span> requires two connectors:</p>
+                                                <ul>
+                                                    <li value="1">standard connector</li>
+                                                    <li value="2">parquet connector</li>
+                                                </ul>
+                                                <p>A parquet connector, is a second-order connector, which is a data-connector that uses another connector, to access data. </p>
+                                                <p>To create a second-order connector, for  parquet data sources:</p>
                                                 <ol>
-                                                    <li value="1">Log in to <span class="GeneralGUIName1">Xcalar Design</span> as an administrator. From  sidebar, click the  the <span class="UIelement">Data Targets</span> icon.</li>
-                                                    <p>The <span class="UIelement">Data Targets</span> panel appears.</p>
-                                                    <li value="2">Click the <span class="UIelement">Create data target</span> icon.</li>
-                                                    <p>The <span class="UIelement">Create data target</span> page appears.</p>
+                                                    <li value="1">Log in to <span class="GeneralGUIName1">Xcalar Design</span> as an administrator. From  the sidebar, click the <span class="UIelement">Sources </span>icon and then the <span class="UIelement">Connectors </span>icon.</li>
+                                                    <p>The <span class="UIelement">Connectors</span> panel appears.</p>
+                                                    <li value="2">Click the <span class="UIelement">Create connector</span> icon.</li>
+                                                    <p>The <span class="UIelement">Create Connector</span> page appears.</p>
                                                     <li value="3">Do the following:</li>
                                                     <ol style="list-style-type: lower-alpha;">
-                                                        <li value="1">In the <span class="UIelement">Name</span> field, enter a name for the second-order data target.</li>
-                                                        <p>The <span class="UIelement">Target Configuration</span> section appears.</p>
-                                                        <li value="2">From the <span class="UIelement">Target Type</span> list, select <span class="UIelement">Parquet Dataset</span>.</li>
-                                                        <li value="3">In the <span class="UIelement">backingTargetName</span> field, enter the name of the data target that contains the location for accessing the  parquet files. Alternatively, use the <span class="UIelement">Default Shared Root</span> data target. For more information on the Default Shared Root data target, see <a href="B1_MakingDataAccessible.htm#Creating" class="MCXref xref" xrefformat="{para}">Creating a data target (administrator only)</a>.</li>
+                                                        <li value="1">In the <span class="UIelement">Name</span> field, enter a name for the second-order connector.</li>
+                                                        <p>The <span class="UIelement">Connector Configuration</span> section appears.</p>
+                                                        <li value="2">From the <span class="UIelement">Connector Type</span> list, select <span class="UIelement">Parquet Dataset</span>.</li>
+                                                        <li value="3">In the <span class="UIelement">backingTargetName</span> field, enter the name of the connector, that contains the location for accessing the  parquet files. Alternatively, use the <span class="UIelement">Default Shared Root</span> connector. For more information on the <span class="UIelement">Default Shared Root</span> connector, see <a href="../SingleSourcing/connectors/b_understand_data_target_types.htm#Data" class="MCXref xref" xrefformat="{para}">Understanding the connector types</a>.</li>
                                                     </ol>
-                                                    <li value="4">Click <span class="UIelement">ADD</span>.</li>
-                                                    <p>A new data target is created that can be used as a second-order target for  parquet data. </p>
-                                                    <li value="5">Share the <span class="UIelement">Name</span> of this data target with users who need to work with the parquet datasets on the storage location represented by <span class="UIelement">backingTargetName</span>. </li>
+                                                    <li value="4">Click <span class="UIelement">Add</span>.</li>
+                                                    <p>A new connector is created that can be used as a second-order connector for  parquet data. </p>
+                                                    <li value="5">Share the <span class="UIelement">Name</span> of this connector with users who need to work with the parquet datasets on the storage location represented by <span class="UIelement">backingTargetName</span>. </li>
                                                 </ol>
                                                 <h3><a name="Importin"></a>Importing from a parquet dataset</h3>
-                                                <p>To create a table or <span class="GeneralProductName3">Xcalar</span> dataset by importing from an entire or partial parquet dataset, follow these steps: </p>
+                                                <p>To create a table or a <span class="GeneralProductName3">Xcalar</span> dataset by importing from an entire or partial parquet dataset: </p>
                                                 <ol>
                                                     <li value="1">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">Tables</span> or <span class="UIelement">Datasets</span> icon to display the <span class="UIelement">Tables</span> or <span class="UIelement">Datasets</span> panel.</li>
-                                                    <li value="2">Click the <span class="UIelement">Import Data Source</span> icon,</li>
-                                                    <p>The <span class="UIelement">Import Data Source</span> page appears.</p>
-                                                    <li value="3">From the <span class="UIelement">Data Target</span> list, select the parquet data target that was created using the <span class="UIelement">Parquet Dataset</span> target type. Ask your <span class="GeneralProductName3">Xcalar</span> administrator for help if you do not see the data target on the list.</li>
+                                                    <li value="2">Click the <span class="UIelement">Import Data Source</span> icon.</li>
+                                                    <p>The <span class="UIelement">Import Data Source</span> window appears.</p>
+                                                    <li value="3">From the <span class="UIelement">Connectors</span> list, select the parquet connector that was created using the <span class="UIelement">Parquet Dataset</span> connector type. Ask your <span class="GeneralProductName3">Xcalar</span> administrator for help if you do not see the connector on the list.</li>
                                                     <li value="4">From the <span class="UIelement">Data Source Path</span> field, click the <span class="UIelement">BROWSE</span> button.</li>
-                                                    <p>The <span class="UIelement">Browse Data Source</span> page appears.</p>
-                                                    <li value="5">Locate the folder containing your  parquet data source and click its check box, which is located to the left of the folder’s name.</li>
+                                                    <p>The <span class="UIelement">Browse Data Source</span> window appears.</p>
+                                                    <li value="5">Locate the folder containing your  parquet data source and check its check box, which is located to the left of the folder’s name.</li>
                                                     <div class="Note"><span class="label">NOTE: </span>To create a <span class="GeneralProductName3">Xcalar</span> dataset from multiple parquet datasets of a common schema, click the check box for each folder containing a single parquet data source. </div>
-                                                    <li value="6">(Optional) To examine the parquet data source's raw data, click <span class="UIelement">VIEW RAW DATA</span>. For more information, see <a href="B3_SelectDataSource.htm#Viewing" class="MCXref xref" xrefformat="{para}">Viewing raw data</a>.</li>
+                                                    <li value="6">(Optional) To examine the parquet data source's raw data, right click and select <span class="UIelement">VIEW RAW DATA</span>. </li>
                                                     <li value="7">Click<span class="UIelement"> NEXT</span>.</li>
-                                                    <p>The<span class="UIelement"> Import Data Source</span> page appears.</p>
-                                                    <li value="8">In the <span class="UIelement">Table Name</span> or <span class="UIelement">Dataset Name</span> field, enter a name for the table or dataset. Alternatively, use the default name provided.</li>
+                                                    <p>The<span class="UIelement"> Import Data Source</span> window appears.</p>
+                                                    <li value="8">In the <span class="UIelement">Table Name</span> or the <span class="UIelement">Dataset Name</span> field, enter a name for the table or the dataset. Alternatively, use the default name provided.</li>
                                                     <li value="9">Verify that the <span class="UIelement">Format</span> list shows <span class="UIelement">Parquet Dataset</span>.</li>
                                                     <li value="10">(Optional)&#160;If your  parquet data source contains partitioning and you require specific partitioning values in the dataset, expand the <span class="UIelement">Partitions (Advance)</span> section.</li>
                                                     <p>The list of parquet partitions appears. Do one or more of the following:</p>
                                                     <ul style="list-style-type: circle;">
-                                                        <li value="1">To specify a specific value for a partition, in the partition’s field, enter the specific value. For multiple values, separate each value with a comma.</li>
+                                                        <li value="1">Enter a specific value for the partition, in the partition’s field. For multiple values, separate each value with a comma.</li>
                                                         <li value="2">To include all the partition's values, enter an asterisk (<b>*</b>).</li>
                                                     </ul>
                                                     <li value="11">The <span class="UIelement">Columns</span> section configures which columns and their data values are imported into the <span class="GeneralProductName3">Xcalar</span>. </li>
                                                     <div class="Note"><span class="label">NOTE: </span>Partitioning columns are automatically selected, since they contain schema content necessary to import the parquet dataset. These columns are displayed in the <span class="UIelement">Selected Columns</span> list, and cannot be moved to the <span class="UIelement">Available Columns</span> list, which lists the unselected column names in the  parquet data source.</div>
                                                     <p>From the <span class="UIelement">Columns</span> section, do one or more of the following:</p>
                                                     <ul style="list-style-type: circle;">
-                                                        <li value="1">To create a table or dataset with specific columns of interest, from the <span class="UIelement">Available Columns</span> list, click the column name of interest.</li>
+                                                        <li value="1">To create a table or a dataset with specific columns of interest, from the <span class="UIelement">Available Columns</span> list, click the column name of interest.</li>
                                                         <p>The column name is moved to the <span class="UIelement">Selected Columns</span> list.</p>
-                                                        <li value="2">To create a table or dataset from all the columns, from the <span class="UIelement">Available Columns</span> list, click <span class="UIelement">Add All</span>.</li>
+                                                        <li value="2">To create a table or a dataset from all the columns, from the <span class="UIelement">Available Columns</span> list, click <span class="UIelement">Add All</span>.</li>
                                                         <p>All column names are moved to the <span class="UIelement">Selected Columns</span> list.</p>
                                                         <li value="3">To move an unwanted column name back to the <span class="UIelement">Available Columns</span> list, from the <span class="UIelement">Selected Columns </span>list, click the column name.</li>
                                                         <p>The column name is moved back to the <span class="UIelement">Available Columns</span> list.</p>

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Creating, editing, and deleting a dataflow</title>
+        <meta name="author" content="" /><title>Creating and editing a dataflow</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,76 +185,73 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Creating, editing, and deleting a dataflow</h1>
-                                                <p>This topic describes how to create and edit a dataflow. It also describes how to delete a dataflow that you no longer need. It assumes that you are familiar with the purpose of a dataflow and the components of a dataflow, as described in <a href="A_AboutDf.htm" class="MCXref xref" xrefformat="{para}">Understanding dataflows</a>.</p>
+                                                <h1>Creating and editing a dataflow</h1>
+                                                <p>This topic describes how to create and edit a dataflow. It assumes that you are familiar with the purpose and the components of a dataflow, as described in <a href="A_AboutDf.htm" class="MCXref xref" xrefformat="{para}">Understanding a dataflow</a>.</p>
                                                 <h2 class="noPageBreak">Before creating a dataflow</h2>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can start creating a dataflow with any Node, but the dataflow cannot be executed successfully if it does not start with a source. This topic assumes that you want to create a dataflow that you can execute.</div>
-                                                <p>Each dataflow must obtain its data from a source that resides on the cluster. Therefore, verify that you have at least one source before creating a dataflow. A source can be one of the following items:</p>
+                                                <p>You can start creating a dataflow with any operation Node, but the dataflow cannot be executed successfully if it does not start with a data source. Therefore, verify that you have at least one data source before creating a dataflow. A data source can be one of the following items:</p>
                                                 <ul>
-                                                    <li value="1">a dataset created by you</li>
-                                                    <li value="2">a shared dataset created by another user</li>
+                                                    <li value="1">a dataset created by you </li>
+                                                    <li value="2">a shared dataset created and shared by another user</li>
                                                     <li value="3">a table created by you or another user</li>
                                                 </ul>
-                                                <p>You can also start a dataflow from the result set of another dataflow. For information about linking dataflows, see <a href="../C_Export/B_LinkDataflows.htm" class="MCXref xref" xrefformat="{para}">Linking dataflows</a>.</p>
-                                                <h2 class="noPageBreak">Starting the dataflow editor</h2>
-                                                <p>To create or work in a dataflow, click the <span class="UIelement">Dataflows</span> icon, as shown in the following screenshot.</p>
+                                                <p>For more information about importing data into datasets and tables, see <a href="../../A_GetStarted/B6_ImportingData.htm" class="MCXref xref" xrefformat="{para}">Importing data</a>.</p>
+                                                <h2 class="noPageBreak">Opening the dataflow editor</h2>
+                                                <p>To open the dataflow editor, verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.  Then, from the sidebar, click the <span class="UIelement">Dataflows</span> icon, as shown in the following screenshot.</p>
                                                 <p>
                                                     <img src="../../../Resources/Images/XD_screenshots/dataflow-icon-location.png" alt="" title="" />
                                                 </p>
                                                 <h2 class="noPageBreak">Creating a dataflow</h2>
-                                                <p>To create a dataflow, follow these steps:</p>
+                                                <p>To create a dataflow:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>To create a dataflow, click the plus icon in the dataflow editor. You can also click <span class="UIelement">Create new dataflow</span> if it is displayed, as shown in the following screenshot.</p>
-                                                        <p>
-                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-create.png" alt="" title="" />
+                                                        <p>Click the plus icon in the dataflow editor or click the <span class="UIelement">Create new dataflow</span> button if it is displayed, as shown in the following screenshot.</p>
+                                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_assets/xd-dataflow-create.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="883" data-mc-height="395" src="../../../Resources/Images/XD_assets/xd-dataflow-create_thumb_0_150.png" tabindex="" /></a>
                                                         </p>
                                                     </li>
                                                     <li value="2">
-                                                        <p>Select the <span class="UIelement">In</span> Node category. The available Nodes that you can use to bring data in are displayed, as shown in the following screenshot:</p>
-                                                        <p>
-                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-create-source-node.png" alt="" title="" />
+                                                        <p>Select the <span class="UIelement">In</span> Node category. This displays all the Nodes that you can use to bring data in your dataflow:</p>
+                                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/dataflow-create-source-node.png" data-mc-popup-alt=""><img class="MCPopupThumbnail img imgBigImage" data-mc-width="760" data-mc-height="246" src="../../../Resources/Images/XD_screenshots/dataflow-create-source-node_thumb_0_150.png" alt="" title="" tabindex="" /></a>
                                                         </p>
                                                     </li>
-                                                    <li value="3">Click and drag the Dataset or Table Node to the canvas. </li>
+                                                    <li value="3">Click and drag the Dataset or the Table Node to the dataflow canvas. </li>
                                                     <li value="4">
                                                         <p>(Optional) If you want to replace the default dataflow name, enter the name in the tab title and press Enter,</p>
-                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                             <div class="MCDropDownBody dropDownBody">
                                                                 <ul>
                                                                     <li value="1">The name is case sensitive. </li>
                                                                     <li value="2">Length must not exceed 255 characters.</li>
-                                                                    <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or left or right parenthesis.</li>
+                                                                    <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
                                                                 </ul>
                                                             </div>
                                                         </div>
                                                     </li>
                                                 </ol>
-                                                <p>You are ready to configure the Node, as described in <a href="I_NodeConfigAndExecution.htm" class="MCXref xref" xrefformat="{para}">Performing tasks on a Node</a>, or to add more Nodes to the dataflow, as described in <a href="#Editing" class="MCXref xref" xrefformat="{para}">Editing a dataflow</a>.</p>
+                                                <p>You now have a dataflow with one operation Node. At this point, either you can configure the Node in your dataflow, as described in <a href="I_NodeConfigAndExecution.htm#Configur" class="MCXref xref" xrefformat="{para}">Configuring a Node</a>, or continue adding more operation Nodes, as described in <a href="#Editing" class="MCXref xref" xrefformat="{para}">Editing a dataflow</a>.</p>
                                                 <h2 class="noPageBreak"><a name="Editing"></a>Editing a dataflow</h2>
-                                                <p>To edit a dataflow, follow these steps:</p>
+                                                <p>To edit a dataflow:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>To add a Node to a dataflow, follow these steps:</p>
+                                                        <p>To add a Node to a dataflow:</p>
                                                         <ol style="list-style-type: lower-alpha;">
                                                             <li value="1">
-                                                                <p>Click the Node category name to display the Nodes available in the category. </p>
-                                                                <p>Alternatively, enter the name of the Node in the search field. When a drop-down list is displayed in the search field, click the desired Node name. The selected Node is highlighted.</p>
+                                                                <p>Click a Node category name in Dataflow Mode toolbar to display the Nodes available in that category. </p>
+                                                                <p>Alternatively, enter the name of the Node in the search field in the Dataflow Mode toolbar. When a drop-down list is displayed in the search field, click the desired Node name. The selected Node is highlighted.</p>
                                                             </li>
-                                                            <li value="2">Drag the selected Node to the canvas.</li>
+                                                            <li value="2">Drag the selected Node to the dataflow canvas.</li>
                                                         </ol>
                                                     </li>
                                                     <li value="2">
-                                                        <p>(Optional)&#160;If you do not want to keep the default Node name such as Node 1, double-click the Node name and enter the new name. There are no restrictions on the characters for the name. You can also press Enter to start a new line if you want a multi-line Node name displayed under the Node.</p>
+                                                        <p>(Optional)&#160;If you do not want to keep the default Node name such as <span class="UIelement">Node 1</span>, double-click the Node name and enter a new name. There are no restrictions on the characters for the name. You can also press Enter to start a new line if you want a multi-line Node name.</p>
                                                         <p>After you finish entering the name, click anywhere outside the Node name field. You can change the Node name again at any time.</p>
                                                     </li>
                                                     <li value="3">
-                                                        <p>To connect two Nodes, click the anchor of one Node and drag the cursor to any part of the other Node. You can start from the output anchor or input anchor. Depending on the anchor you start from, <span class="GeneralGUIName1">Xcalar Design</span> creates a link to the appropriate anchor of the other Node. </p>
-                                                        <div class="Note"><span class="label">EXAMPLE</span>:&#160; In a dataflow with a Sort Node and Filter Node, drag the cursor from the output anchor of the Sort Node to anywhere on the Filter Node. The dataflow now has a link from the input anchor of the Filter Node to the output anchor of the Sort Node.</div>
-                                                        <p>The Node with the output anchor connected is the parent Node; the Node with the input anchor connected  is the child Node.</p>
+                                                        <p>To connect the two Nodes, click the anchor of one Node and drag the cursor to any part of the other Node. You can start from the output anchor or the input anchor. Depending on the anchor you start from, <span class="GeneralGUIName1">Xcalar Design</span> creates a link to the appropriate anchor of the other Node. </p>
+                                                        <div class="Note"><span class="label">EXAMPLE</span>:&#160; In a dataflow with a dataset Node and a Filter Node, drag the cursor from the output anchor of the dataset Node to anywhere on the Filter Node. The dataflow now has a link from the output anchor of the dataset Node to the input anchor of the Filter Node.</div>
+                                                        <p>In a link, the Node with the output anchor connected is the parent Node and the Node with the input anchor connected  is the child Node.</p>
                                                     </li>
                                                     <li value="4">
-                                                        <p>To change a link, follow one of these steps:</p>
+                                                        <p>To change a link:</p>
                                                         <ul>
                                                             <li style="text-align: justify;" value="1">To remove a link, click a link. After it is highlighted, click <span class="UIelement">Remove Connection</span> in the pop-up.</li>
                                                             <li style="text-align: justify;" value="2">To change the connection, you can either remove the link and make a new connection, or click the input anchor of the child Node and drag the cursor to a new parent Node.</li>
@@ -264,32 +259,24 @@
                                                     </li>
                                                 </ol>
                                                 <h2 class="noPageBreak"><a name="Multi-se"></a>Multi-selecting Nodes</h2>
-                                                <p>You can select more than one Node to perform a task such as removing or moving Nodes. </p>
-                                                <p>To select multiple Nodes, follow these steps:</p>
-                                                <ol>
+                                                <p>You can select more than one Node to perform a task such as removing or moving. </p>
+                                                <p>To select multiple Nodes, do one of the following:</p>
+                                                <ul>
                                                     <li value="1">Hold down the Shift key when you click each Node.</li>
                                                     <li value="2">Drag the cursor to draw a selection box to include the Nodes to be selected.</li>
-                                                </ol>
+                                                </ul>
                                                 <h2 class="noPageBreak">Removing a Node</h2>
-                                                <p>To remove a Node, right click the Node to display a menu. Click <span class="UIelement">Remove</span> in the menu. The Node and all the links to and from the Node are removed.</p>
+                                                <p>To remove a Node, right click the Node and select <span class="UIelement">Remove</span>. The Node and all the links to and from the Node are removed.</p>
                                                 <h2 class="noPageBreak">Repositioning or aligning Nodes</h2>
-                                                <p>For readability, you might want to reposition the Nodes in a dataflow, for example, to avoid having two links  cross each other. Repositioning the Nodes does not affect the execution results, which only depend on the configurations and the order of the Node execution.</p>
-                                                <p>To move or align Nodes in a dataflow, follow these steps:</p>
-                                                <ol>
+                                                <p>For readability, you might want to reposition the Nodes in a dataflow, for example, to avoid having two links  cross each other. Repositioning the Nodes does not affect the execution result, which only depends on the configuration and the order of the Node execution.</p>
+                                                <p>To move or align Nodes in a dataflow:</p>
+                                                <ul>
                                                     <li value="1">To move a single Node, click and drag the selected Node to the desired position.</li>
-                                                    <li value="2">If you want all Nodes to be properly aligned, right click any Node in the dataflow to display a menu. Click <span class="UIelement">Auto Align</span> in the menu.</li>
-                                                </ol>
-                                                <h2 class="noPageBreak">Deleting a dataflow</h2>
-                                                <p>To delete a dataflow, follow these steps:</p>
-                                                <ol>
-                                                    <li value="1">Click the <span class="UIelement">Dataflow</span> icon to display the <span class="UIelement">Dataflows</span> panel.</li>
-                                                    <li value="2">
-                                                        <p>In the  <span class="UIelement">Dataflows</span> panel, locate the dataflow that you want to delete.</p>
-                                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Dataflow deletion is permanent and cannot be undone. You can delete any dataflow, even if it was  created and placed in the Published folder by another user. Confirm with other users that they no longer need the dataset before you delete it.</div>
-                                                    </li>
-                                                    <li value="3">Click the trash can icon to delete the dataflow</li>
-                                                    <li value="4">When the confirmation prompt is displayed, click <span class="UIelement">Confirm</span>.</li>
-                                                </ol>
+                                                    <li value="2">If you want all Nodes to be properly aligned, click anywhere on the dataflow canvas and select <span class="UIelement">Auto Align</span>.</li>
+                                                </ul>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160; <span class="GeneralGUIName1">Xcalar Design</span> saves all your work automatically. You do not need to manually save your changes.</div>
+                                                <h2 class="noPageBreak">Next step</h2>
+                                                <p>If you have not configured the dataflow Nodes or if you want to change the configuration of a Node, see <a href="L_NodeConfig.htm" class="MCXref xref" xrefformat="{para}">Configuring an operation Node</a>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

@@ -94,8 +94,6 @@
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,9 +186,44 @@
                                                     </div>
                                                 </div>
                                                 <h1>Naming conventions in <span class="GeneralGUIName1">Xcalar Design</span></h1>
-                                                <p>This topic lists the naming conventions for all entities that you can name in <span class="GeneralGUIName1">Xcalar Design</span>.</p>
-                                                <h2>Dataset folder, export target, export file</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <p>This topic lists the naming rules for  the components that you can name or rename in <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <div class="Note"><span class="label">RECOMMENDATION:</span> As well as adhering to the <span class="GeneralProductName3">Xcalar</span> naming rules, <span class="GeneralProductName3">Xcalar</span> recommends avoiding any characters that can cause  misinterpretation  and conflicts outside of <span class="GeneralGUIName1">Xcalar Design</span>. <br />For example, limit the use of special and punctuation characters   that may not conform to the naming standards or conventions of languages such as SQL and Python, third-party business intelligence (BI) reporting software, or external data repositories, databases, and platforms.</div>
+                                                <h2 class="noPageBreak">Column</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <p>To avoid any issues from the case sensitivity column naming differences between <span class="GeneralProductName3">Xcalar</span> and <span class="GeneralProductName3">Xcalar</span> SQL, column names are automatically processed into uppercase characters.</p>
+                                                        <ul>
+                                                            <li value="1">Length must not exceed 255 characters.</li>
+                                                            <li value="2">First character must be a letter of the alphabet or an underscore.</li>
+                                                            <li value="3">First character must not start or end with a space.</li>
+                                                            <li value="4">Characters must be A-Z, a-z, 0-9, or underscore (_). </li>
+                                                            <li value="5">Cannot contain special or punctuation characters, such as:<ul><li value="1">caret (^)</li><li value="2">single (') or double (") quote marks </li><li value="3">left (() or right ()) parenthesis</li><li value="4">left ({) or right (}) brace</li><li value="5">forward slash (/) or backslash (\)</li><li value="6">colon (:) or semi-colon (;)</li><li value="7">comma (,)</li><li value="8">period (.)</li><li value="9">single (-) or double hyphen (--)</li></ul></li>
+                                                            <li value="6">Must not be one of the following reserved names:</li>
+                                                            <ul style="list-style-type: circle;">
+                                                                <li value="1"><span class="UIelement">Data</span>
+                                                                </li>
+                                                                <li value="2"><span class="UIelement">None</span>
+                                                                </li>
+                                                                <li value="3"><span class="UIelement">False</span>
+                                                                </li>
+                                                                <li value="4"><span class="UIelement">True</span>
+                                                                </li>
+                                                            </ul>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <h2 class="noPageBreak">Column prefix</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1">Length must not exceed 31 characters.</li>
+                                                            <li value="2">First character must be a letter of the alphabet.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9,  or underscore (_).</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <h2 class="noPageBreak">Dataflow</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case sensitive. </li>
@@ -199,134 +232,115 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <h2>Column</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
-                                                    <div class="MCDropDownBody dropDownBody">
-                                                        <ul>
-                                                            <li value="1">The name is case sensitive if the column is in a dataset; it is case-insensitive if the column is in a table, in which case all letters are displayed in uppercase.</li>
-                                                            <li value="2">
-                                                                <p>The name must consist of alphanumeric characters, spaces, and special characters except the following characters:</p>
-                                                                <ul>
-                                                                    <li value="1">caret (^)</li>
-                                                                    <li value="2">single quote mark (')</li>
-                                                                    <li value="3">double quote mark (")</li>
-                                                                    <li value="4">left or right parenthesis (( ))</li>
-                                                                    <li value="5">left or right square bracket ([ ])</li>
-                                                                    <li value="6">left or right brace ({ })</li>
-                                                                    <li value="7">backslash (\)</li>
-                                                                    <li value="8">colons (:)</li>
-                                                                    <li value="9">comma (,)</li>
-                                                                    <li value="10">period (.)</li>
-                                                                </ul>
-                                                            </li>
-                                                            <li value="3">The name must not begin or end with a space.</li>
-                                                            <li value="4">The name must begin with an underscore or a letter.</li>
-                                                            <li value="5">Length must not exceed 255 characters.</li>
-                                                            <li value="6">The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</li>
-                                                            <li value="7">The name must not be one of the following strings, regardless of capitalization: <ul><li value="1"><span class="UIelement">None</span></li><li value="2"><span class="UIelement">False</span></li><li value="3"><span class="UIelement">True</span></li></ul></li>
-                                                            <li value="8">The name must not contain two consecutive hyphens (--).</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <h2>Column prefix</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
-                                                    <div class="MCDropDownBody dropDownBody">
-                                                        <ul>
-                                                            <li value="1">The name is case sensitive. </li>
-                                                            <li value="2">Length must not exceed 31 characters.</li>
-                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
-                                                            <li value="4">First character must be a letter.</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <h2>Dataset</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the  naming conventions:</a></span>
+                                                <h2 class="noPageBreak">Dataset</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case-sensitive. </li>
                                                             <li value="2">Length must not exceed 255 characters.</li>
-                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
-                                                            <li value="4">First character must be a letter.</li>
+                                                            <li value="3">First character must be a letter of the alphabet.</li>
+                                                            <li value="4"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <h2>Parameter</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <h2 class="noPageBreak">Datasets folder</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case sensitive. </li>
                                                             <li value="2">Length must not exceed 255 characters.</li>
-                                                            <li value="3"> Characters must be A-Z, a-z, or 0-9.</li>
-                                                            <li value="4">No special characters are permitted (for example, underscore, parenthesis, hyphen, or space).</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <h2><a name="Table"></a>Table</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <h2 class="noPageBreak">Export</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1">The name is case sensitive. </li>
+                                                            <li value="2">Length must not exceed 255 characters.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <h2 class="noPageBreak">Parameter</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1">The name is case sensitive. </li>
+                                                            <li value="2">Length must not exceed 255 characters.</li>
+                                                            <li value="3">Characters must be A-Z, a-z, or 0-9.
+</li>
+                                                            <li value="4">Cannot contain special  characters, such as:<ul><li value="1">hyphen (-)</li><li value="2">left (() or right ()) parenthesis</li><li value="3">space</li><li value="4">underscore (_)</li></ul></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <h2 class="noPageBreak"><a name="SQL"></a>SQL code snippet</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">Length must not exceed 255 characters.</li>
-                                                            <li value="2"> Characters must be A-Z, a-z, 0-9,  or underscore (_).</li>
-                                                            <li value="3">First character must be a letter.</li>
-                                                            <li value="4">Letters are displayed in uppercase, but you can enter them in uppercase or lowercase.</li>
+                                                            <li value="2">First character must be a letter of the alphabet.</li>
+                                                            <li value="3"> Characters must be a-z, 0-9, or underscore (_). </li>
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <h2><a name="SQL"></a>SQL code snippet</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
-                                                    <div class="MCDropDownBody dropDownBody">
-                                                        <ul>
-                                                            <li value="1"> Characters must be a-z, 0-9, or underscore (_). </li>
-                                                            <li value="2">First character must be a letter.</li>
-                                                            <li value="3">Length must not exceed 255 characters.</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <h2><a name="SQL function"></a>SQL function</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
-                                                    <div class="MCDropDownBody dropDownBody">
-                                                        <ul>
-                                                            <li value="1">Characters must be A-Z, a-z, 0-9, or underscore (_).</li>
-                                                            <li value="2">The name is case-sensitive. </li>
-                                                            <li value="3">Length must not exceed 255 characters.</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <h2>UDF</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
-                                                    <div class="MCDropDownBody dropDownBody">
-                                                        <ul>
-                                                            <li value="1">Characters must be a-z, 0-9,  hyphen (-), or underscore (_).</li>
-                                                            <li value="2">Letters must be lowercase.</li>
-                                                            <li value="3">First character must be a letter or an underscore.</li>
-                                                            <li value="4">Character length:
-			<ul><li value="1">UDF module name, the length must not exceed 1023 characters.
-			<div class="Note"><span class="label">NOTE: </span>The UDF module name <var>default</var> is reserved by <span class="GeneralProductName3">Xcalar</span>.</div></li><li value="2">UDF function name, the length must not exceed 255 characters.</li><li value="3">UDF module source code, the length must not exceed 10485760 characters.</li></ul></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <h2>Usernames</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the conventions for user names:</a></span>
-                                                    <div class="MCDropDownBody dropDownBody">
-                                                        <ul>
-                                                            <li value="1">The name is case sensitive.</li>
-                                                            <li value="2">Characters must be A-Z, a-z, 0-9, period (.), hyphen (-), or underscore (_).</li>
-                                                            <li value="3">The first character must be a letter.</li>
-                                                            <li value="4">The last character must be a letter or number.</li>
-                                                            <li value="5">Minimum length is 3 characters.</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <h2>Workbook</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the  naming conventions:</a></span>
+                                                <h2 class="noPageBreak"><a name="SQL function"></a>SQL function</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case-sensitive. </li>
                                                             <li value="2">Length must not exceed 255 characters.</li>
-                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or space.</li>
-                                                            <li value="4">First character must be a letter.</li>
-                                                            <li value="5">The name must not be one of the following strings:<ul><li value="1">udf</li><li value="2">udfs</li></ul></li>
-                                                            <li value="6">For the admin user, the name must not be PreUpgrade.</li>
+                                                            <li value="3">Characters must be A-Z, a-z, 0-9, or underscore (_).</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <h2 class="noPageBreak"><a name="Table"></a>Table</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <p>To avoid any issues from the case sensitivity column naming differences between <span class="GeneralProductName3">Xcalar</span> and <span class="GeneralProductName3">Xcalar</span> SQL, column names are automatically processed into uppercase characters.</p>
+                                                        <ul>
+                                                            <li value="1">Length must not exceed 255 characters.</li>
+                                                            <li value="2">First character must be a letter of the alphabet.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9,  or underscore (_).</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <h2 class="noPageBreak"><a name="User-def"></a>User-defined function</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1">Character length:
+			<ul><li value="1">A UDF <span class="UIelement">module</span> name must not exceed 1023 characters.
+			<div class="Note"><span class="label">IMPORTANT:</span> Must not use the reserved name <var>default</var>.</div></li><li value="2">A UDF <span class="UIelement">function</span> name must not exceed 255 characters.</li><li value="3">A UDF <span class="UIelement">module source code</span> file must not exceed 10485760 characters.</li></ul></li>
+                                                            <li value="2">First character must be a letter of the alphabet or an underscore.</li>
+                                                            <li value="3">Characters must be a-z, 0-9,  or underscore (_). </li>
+                                                            <div class="Note"><span class="label">IMPORTANT:</span> Must not use uppercase letters of the alphabet.</div>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <h2 class="noPageBreak">User names</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the conventions for user names:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1">The name is case sensitive.</li>
+                                                            <li value="2">The minimum length is 3 characters.</li>
+                                                            <li value="3">First character must be a letter of the alphabet.</li>
+                                                            <li value="4">Last character must be a letter of the alphabet or a number.</li>
+                                                            <li value="5">Characters must be A-Z, a-z, 0-9, period (.), hyphen (-), or underscore (_).</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <h2 class="noPageBreak">Workbook</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1">The name is case-sensitive. </li>
+                                                            <li value="2">Length must not exceed 255 characters.</li>
+                                                            <li value="3">First character must be a letter of the alphabet.</li>
+                                                            <li value="4">Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or space.</li>
+                                                            <li value="5">Must not be one of the following reserved names:
+		    <ul><li value="1"><span class="UIelement">udf</span></li><li value="2"><span class="UIelement">udfs</span></li><li value="3"><span class="UIelement">preupgrade</span></li></ul></li>
                                                         </ul>
                                                     </div>
                                                 </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,25 +186,34 @@
                                                     </div>
                                                 </div>
                                                 <h1>Publishing a result set to a table</h1>
-                                                <p>IMD stands for insert, modify (update), and delete, which are commonly used data manipulation operations for making changes to data. The  IMD feature tracks  data changes through base tables, known as <span class="UIelement">Published Tables</span>, which support the insert, update, and delete data manipulation operations and enable you to revert to any data state in a Published Table at any given time. </p>
-                                                <p>To export a result set to a <span class="UIelement">Published Table</span> from Advanced Mode:</p>
+                                                <p>To publish a result set in a dataflow to a table:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>Verify that you are in Advanced Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to ADVANCED MODE.</p>
+                                                        <p>Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
                                                     </li>
                                                     <li value="2">
-                                                        <p>Click on the <span class="UIelement">Out</span> category of operations in the Advanced Mode toolbar. </p>
+                                                        <p>Click the <span class="UIelement">Out</span> category of operations in the Dataflow Mode toolbar. </p>
                                                     </li>
-                                                    <li value="3">Drag the <span class="UIelement">PublishIMD</span> Node to the dataflow canvas.</li>
-                                                    <li value="4">Connect a result set you want to export to the <span class="UIelement">PublishIMD</span> Node.</li>
-                                                    <li value="5">Right click on the <span class="UIelement">PublishIMD</span>Node and select <span class="UIelement">Configure </span>from the drop-down menu. The <span class="UIelement">Publish Table</span>panel opens up.</li>
+                                                    <li value="3">Drag the <span class="UIelement">Publish Table</span> Node to the dataflow canvas.</li>
+                                                    <li value="4">Locate the Node with the result set that you want to publish, and connect the Node's output to the <span class="UIelement">Publish Table</span> Node.</li>
+                                                    <li value="5">
+                                                        <p>Right click the <span class="UIelement">Publish Table</span> Node and select <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">Publish Table</span> configuration panel opens up.</p>
+                                                    </li>
                                                     <li value="6">Enter a new table name in the <span class="UIelement">Published Table Name</span> field.</li>
-                                                    <li value="7">By default the <span class="UIelement">No Primary Key</span> checkbox is unchecked. If you want to publish the table with a primary key, uncheck this checkbox.</li>
-                                                    <li value="8">If you uncheck the <span class="UIelement">No Primary Key</span> checkbox, select a column name from the <span class="UIelement">Primary Key</span> column drop-down.</li>
-                                                    <li value="9">Click on <span class="UIelement">Add Another Column</span> button if you want to add another column to the <span class="UIelement">Primary Key</span>. This adds an empty column to the Primary Key. Click on it to select another column name to add to the <span class="UIelement">Primary Key</span> from the drop-down.</li>
-                                                    <li value="10">Repeat the previous step if you want to add more columns to the <span class="UIelement">Primary Key</span>.</li>
-                                                    <li value="11">Leave the IMD Operator field empty, it's optional. If you need to fill this field, do it under the guidance of <span class="GeneralCompanyNameShort">Xcalar</span> Support.</li>
-                                                    <li value="12">Click the <span class="UIelement">Save </span>button. This saves the configuration of the PublishIMD Node and publishes the table on execution.</li>
+                                                    <li value="7">By default the <span class="UIelement">No Primary Key</span> check box is unchecked. If you want to publish the table without a primary key, check this check box.</li>
+                                                    <li value="8">If the <span class="UIelement">No Primary Key</span> check box is unchecked, select a column name from the <span class="UIelement">Primary Key</span> column drop-down.</li>
+                                                    <li value="9">
+                                                        <p>If you want to add another column to the <span class="UIelement">Primary Key</span>, click <span class="UIelement">Add Another Column</span>. This adds an empty column to the Primary Key. Click on it to select another column name to add to the <span class="UIelement">Primary Key</span>.</p>
+                                                    </li>
+                                                    <li value="10">If you want to add more columns to the <span class="UIelement">Primary Key</span>, repeat the previous step.</li>
+                                                    <li value="11">(Optional) Leave the IMD Operator field empty. If you need to fill this field, do it under the guidance of <span class="GeneralCompanyNameShort">Xcalar</span> Support.</li>
+                                                    <li value="12">In the <span class="UIelement">Columns in Table</span> section, select the columns you want to publish to the table.</li>
+                                                    <li value="13">(Optional) Check <span class="UIelement">Select All</span> to select all columns.</li>
+                                                    <li value="14">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>This saves the configuration of the <span class="UIelement">Publish Table</span> Node and publishes the table on execution.</p>
+                                                    </li>
                                                 </ol>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>

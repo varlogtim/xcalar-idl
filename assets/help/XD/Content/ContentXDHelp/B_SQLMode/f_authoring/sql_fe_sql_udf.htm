@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -196,12 +194,12 @@
                                                     <li value="2">The name of the UDF module containing your functions is <span class="UIelement">sql</span>. <br />Only UDF definitions from the <span class="UIelement">sql</span> module are invoked from a SQL&#160;query, which can contain multiple UDF definitions.</li>
                                                     <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> recommends using lowercase for your UDF function names.</div>
                                                 </ul>
-                                                <p>For example, in the following procedure a <span class="UIelement">test</span> UDF is created using a Python string concatenation operator to merge  the row string values from two columns, separated by a colon. The <span class="UIelement">test</span> UDF is inserted into a SQL query that names the SQL table and which columns to combine. </p>
+                                                <p>For example, in the following procedure a <span class="UIelement">test</span> UDF is created using a Python string concatenation operator to merge  the row string values from two columns, separated by a colon. The <span class="UIelement">test</span> UDF is inserted into a SQL query, which names the SQL table and what columns to combine. </p>
                                                 <ol>
                                                     <li value="1">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">UDF</span> icon.</li>
                                                     <p>The <span class="UIelement">User Defined Function</span> panel opens in the SQL WORKSPACE.</p>
                                                     <li value="2">In the <span class="UIelement">User Defined Function</span> code editor, enter the following: </li><pre xml:space="preserve"><code>def test(col1, col2):</code></pre><pre xml:space="preserve"><code>  return str(col1) + ":" +str(col2)</code></pre>
-                                                    <li value="3">From the <span class="UIelement">User Defined Function</span> menu, click the <span class="UIelement">Save File</span> <img src="../../../Resources/Images/XD_assets/xd_udf_save_as.png" /> icon.</li>
+                                                    <li value="3">From the <span class="UIelement">User Defined Function</span> menu, click the <span class="UIelement">Save File</span> icon <img src="../../../Resources/Images/XD_assets/xd_udf_save_as.png" />.</li>
                                                     <p> The SAVE&#160;AS modal window opens.</p>
                                                     <li value="4">In the <span class="UIelement">Save As</span> field, enter <span class="UIelement">sql</span>. </li>
                                                     <div class="Note"><span class="label">IMPORTANT:</span> The name of the UDF module must be <span class="UIelement">sql</span>.</div>
@@ -214,7 +212,7 @@
                                                     </ul>
                                                     <li value="7">Click <span class="UIelement">Execute</span>, which creates the result set.</li>
                                                 </ol>
-                                                <p>For more information about UDFs and how to create them, see <a href="../../D_ClusterTasks/B_UDFUnderstand.htm" class="MCXref xref" xrefformat="{para}">Understanding UDFs</a>.</p>
+                                                <p>For more information about UDFs and how to create them, see <a href="../../D_ClusterTasks/B_UDFUnderstand.htm" class="MCXref xref" xrefformat="{para}">Understanding user-defined functions</a>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

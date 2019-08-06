@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Using a RowNum operation</title>
+        <meta name="author" content="" /><title>Adding row numbers using the Row Num Node</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,21 +185,25 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Using a RowNum operation</h1>
-                                                <p>The <span class="UIelement">RowNum</span> operation adds a derived column to the result set with unique increasing row numbers starting from 1. </p>
-                                                <p>Follow these steps to add <span class="UIelement">RowNum</span> column to a result set:</p>
+                                                <h1>Adding row numbers using the Row Num Node</h1>
+                                                <p>The <span class="UIelement">Row Num</span> Node adds a new derived column to a result set with increasing row numbers starting from 1. </p>
+                                                <p>To add <span class="UIelement">Row Num</span> column to a result set:</p>
                                                 <ol>
-                                                    <li value="1">Click on the <span class="UIelement">Column Ops</span> category of operations in the Advanced Mode toolbar. </li>
-                                                    <li value="2">Drag the <span class="UIelement">RowNum </span>Node to the dataflow canvas. </li>
-                                                    <li value="3">
-                                                        <p>Connect a result set, to which you want to add the RowNum column, to the <span class="UIelement">RowNum</span> Node. See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a> for more information on connecting Nodes and creating dataflows.</p>
+                                                    <li value="1">Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</li>
+                                                    <li value="2">Click on the <span class="UIelement">Column Ops</span> category of operations in the Dataflow Mode toolbar. </li>
+                                                    <li value="3">Drag the <span class="UIelement">Row Num </span>Node to the dataflow canvas. </li>
+                                                    <li value="4">
+                                                        <p>Locate the Node with the result set in which you want to add the row numbers, and connect its output to the <span class="UIelement">Row Num</span> Node. See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a> for more information on connecting Nodes and creating dataflows.</p>
                                                     </li>
-                                                    <li value="4">Right click the <span class="UIelement">RowNum</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu.</li>
-                                                    <li value="5">The <span class="UIelement">Row Number</span> panel is displayed.</li>
-                                                    <li value="6">Enter the text for the <span class="UIelement">New resultant column name</span>.</li>
-                                                    <li value="7">Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set with new derived column containing row numbers is displayed when the Node executes. </li>
+                                                    <li value="5">Right click the <span class="UIelement">Row Num</span> Node and select <span class="UIelement">Configure</span>.</li>
+                                                    <li value="6">The <span class="UIelement">Row Number</span> configuration panel is displayed.</li>
+                                                    <li value="7">Enter a new column name in the <span class="UIelement">New resultant column name</span> field.</li>
+                                                    <li value="8">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a new result set with a new derived column containing row numbers is displayed when the Node executes. </p>
+                                                    </li>
                                                 </ol>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <p>For selecting columns:</p>
                                                         <ul>

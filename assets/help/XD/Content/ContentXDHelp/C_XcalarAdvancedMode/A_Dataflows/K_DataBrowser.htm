@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,43 +186,39 @@
                                                     </div>
                                                 </div>
                                                 <h1><a name="top"></a>Performing tasks in the Data Browser</h1>
-                                                <p>Each result set contains a default column named DATA. You can move your cursor to any row in this column and double click to display the <span class="UIelement">Data Browser</span>. </p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;The DATA&#160;column might be minimized and not completely visible  due to a setting in the <span class="UIelement">General Settings</span> window or the <span class="UIelement">Minimize column</span> option in the column drop-down list. For more information about the general settings, see <a href="../../D_ClusterTasks/K_Monitor.htm#Setting" class="MCXref xref" xrefformat="{para}">Settings</a>. To view the DATA&#160;column, click the minimized DATA column header to display the column drop-down list and select <span class="UIelement">Unminimize column</span>.</div>
-                                                <h2 class="noPageBreak"><a name="dataBrowserContents" class="ForCSH"></a>Contents of the Data Browser</h2>
-                                                <p>The browser displays all columns in the result set. A column is called a field in the Data Browser. The columns are organized in the following categories:</p>
+                                                <p>Each result set in the Dataflow Mode contains a default column named DATA. You can move your cursor to any row in this column and double click to display the <span class="UIelement">Data Browser</span> modal. The purpose of the Data Browser is to:</p>
                                                 <ul>
-                                                    <li value="1">Prefixed fields:&#160;If the source Node of your dataflow is a dataset, the fields from the  data source have a prefix in the name, which is the dataset name. If the result set is from one or multiple Join operations, multiple sets of prefixed fields from multiple data sources are displayed in the Data Browser. Each set has its own prefix.</li>
-                                                    <li value="2">Derived fields:&#160;If the source Node of your dataflow is a table, all fields are derived fields. If the source Node is a dataset, a field created by an operation is a derived field. Derived fields do not have a prefix.</li>
+                                                    <li value="1">Display all the fields of a result set even if they are hidden.</li>
+                                                    <li value="2">Provide the capability to unhide a column of the result set.</li>
+                                                    <li value="3">Provide a search option to search in all the fields of the result set, including the hidden fields.</li>
                                                 </ul>
-                                                <p>For each field, the value in the row from which you display the Data Browser is displayed. For example, in the following screen, the <span class="UIelement">Data Browser</span> for row 1 is displayed.</p>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;The DATA&#160;column might be minimized due to the <span class="UIelement">Minimize column</span> option in the column drop-down list or may not be completely visible  due to a setting in <span class="UIelement">General Settings</span>. To view the minimized DATA&#160;column, click the minimized DATA column header to display the column drop-down list and select <span class="UIelement">Unminimize column</span>. For more information about general settings, see  <a href="H2_GeneralSettings.htm" class="MCXref xref" xrefformat="{para}">Configuring general  settings</a>. </div>
+                                                <h2 class="noPageBreak"><a name="dataBrowserContents" class="ForCSH"></a>Contents of the Data Browser</h2>
+                                                <p>The Data Browser displays all columns in a result set. A column is called a field in the Data Browser. The columns are organized in the following categories:</p>
+                                                <ul>
+                                                    <li value="1">Prefixed fields:&#160;If the source Node of your dataflow is a dataset, the fields from the  data source have a prefix in their names, which is the dataset name. If the result set is from one or multiple Join operations, multiple sets of prefixed fields from multiple data sources are displayed in the Data Browser. Each set has its own prefix.</li>
+                                                    <li value="2">Derived fields:&#160;If the source Node of your dataflow is a table, all fields are the derived fields. A field created by an operation is also a derived field. Derived fields do not have a prefix.</li>
+                                                </ul>
+                                                <p>For each field, the value in the row, from which you display the Data Browser, is displayed. For example, in the following screen, the <span class="UIelement">Data Browser</span> for row 1 is displayed.</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/data-browser-display.png" data-mc-popup-alt=""><img class="MCPopupThumbnail img imgBigImage" data-mc-width="752" data-mc-height="650" src="../../../Resources/Images/XD_screenshots/data-browser-display_thumb_0_150.png" alt="" title="" tabindex="" /></a>
                                                 </p>
-                                                <p>In addition to prefixed and derived fields, the browser displays information about fields that do not exist. For example, suppose  the  Carrier field does not exist in the current row, the  following information is displayed:</p>
+                                                <p>In addition to the prefixed and the derived fields, the Data Browser also displays the information about the hidden fields. For example, suppose  the  Carrier field is hidden in the result set, the  following information is displayed in the Data Browser:</p>
                                                 <p class="CLIoutput">Fields not present in current row</p>
                                                 <p class="CLIoutput">"Carrier": integer</p>
+                                                <p>Clicking on the field name unhides it adds it to the result set.</p>
                                                 <h2 class="noPageBreak">Searching  in the Data Browser</h2>
-                                                <p>If the Data Browser contains a long list of fields, you can easily locate a particular field by searching for it. Click the Search icon to display the search field. Then enter the name of the field, as shown in the following screenshot. The search is not case-sensitive.</p>
-                                                <h2 class="noPageBreak">Specifying the select mode</h2>
-                                                <p>You can add fields in the <span class="UIelement">Data Browser</span> to the Result Set view as described in <a href="#Adding" class="MCXref xref" xrefformat="{para}">Adding a field to the Result Set view</a>. Specify the select mode, which determines how your select fields:</p>
-                                                <ul>
-                                                    <li value="1">Single select mode: If you select this mode, clicking a field name immediately adds the field to the Result Set view.</li>
-                                                    <li value="2">Multi select mode:&#160;If you select this mode, you can select multiple fields and then submit your selection.</li>
-                                                </ul>
-                                                <p>The following screenshot shows how to specify the select mode.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/data-browser-select-mode.png" data-mc-popup-alt=""><img class="MCPopupThumbnail img imgBigImage" data-mc-width="628" data-mc-height="460" src="../../../Resources/Images/XD_screenshots/data-browser-select-mode_thumb_0_150.png" alt="" title="" tabindex="" /></a>
-                                                </p>
-                                                <h3>Sorting fields</h3>
+                                                <p>If the Data Browser contains a long list of fields, you can easily locate a particular field by searching for it. Click the Search icon to display the search field and then enter the name of the field. The search is case-insensitive.</p>
+                                                <h3>Sorting fields in the Data Browser</h3>
                                                 <p>By default, the fields in the <span class="UIelement">Data Browser</span> are arranged in the same order as they are in the dataset. You can sort the fields in ascending or descending order. The following screenshot shows the location of the icon for sorting. </p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/data-browser-sort.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="565" data-mc-height="473" src="../../../Resources/Images/XD_screenshots/data-browser-sort_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/data-browser-sort.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="565" data-mc-height="472" src="../../../Resources/Images/XD_screenshots/data-browser-sort_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
-                                                <h2 class="noPageBreak">Displaying fields from the same row in the Data Browser side-by-side</h2>
-                                                <p>Suppose a row in the Data Browser contains a long list of fields, you can display different sections of the list in panels side-by-side in the browser and scroll each panel independently. In this way, you can view fields simultaneously regardless of the length of the field list. The following screen illustrates how to display different parts of a row in the <span class="state">Data Browser</span>.</p>
-                                                <p>In each panel, you can choose to view all fields, only the derived fields, or only fields with prefixed names.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/data-browser-split-view.png" data-mc-popup-alt=""><img class="MCPopupThumbnail img imgBigImage" data-mc-width="719" data-mc-height="424" src="../../../Resources/Images/XD_screenshots/data-browser-split-view_thumb_0_150.png" alt="" title="" tabindex="" /></a>
+                                                <h2 class="noPageBreak">Displaying Data Browser fields side-by-side</h2>
+                                                <p>If the Data Browser contains a long list of fields, it may be hard to see them simultaneously. In such cases, you can display different sections of the list in side-by-side panels and scroll each panel independently. This enables you to view fields simultaneously regardless of the length of the field list. In each panel, you can select to view all fields, only the derived fields, or only the fields with prefixed names. The following screenshot illustrates how to display different parts of a row in the <span class="state">Data Browser</span>.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/data-browser-split-view.png" data-mc-popup-alt=""><img class="MCPopupThumbnail img imgBigImage" data-mc-width="719" data-mc-height="437" src="../../../Resources/Images/XD_screenshots/data-browser-split-view_thumb_0_150.png" alt="" title="" tabindex="" /></a>
                                                 </p>
                                                 <h2 class="noPageBreak">Comparing rows</h2>
                                                 <p>The <span class="UIelement">Data Browser</span> enables you to compare values in different rows from the same result set. Suppose the <span class="UIelement">Data Browser</span> for row 5 is displayed, you can double click another row in the <span class="UIelement">DATA</span>&#160;column (for example, row 10) to bring its data into the <span class="UIelement">Data Browser</span>. Now you can view the values from two rows side-by-side. </p>
-                                                <p>To compare rows, follow these steps:</p>
+                                                <p>To compare rows:</p>
                                                 <ol>
                                                     <li value="1">Double click a row in the DATA column to display the values of that row in the Data Browser.</li>
                                                     <li value="2">Locate another row that you want to compare. You can scroll to find the row. Double click to select it. The values of the selected row are displayed in the browser.</li>
@@ -233,19 +227,19 @@
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;You can compare data from more than two rows.</div>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/data-browser-compare.png" data-mc-popup-alt=""><img class="MCPopupThumbnail img imgBigImage" data-mc-width="765" data-mc-height="515" src="../../../Resources/Images/XD_screenshots/data-browser-compare_thumb_0_150.png" alt="" title="" tabindex="" /></a>
                                                 </p>
-                                                <h2 class="noPageBreak"><a name="Adding"></a>Adding a field to the Result Set view</h2>
-                                                <p>To add a field currently not displayed in the Result Set view, follow these steps:</p>
+                                                <h2 class="noPageBreak"><a name="Adding"></a>Adding a field to the result set view</h2>
+                                                <p>To add a field currently not displayed in the result set view:</p>
                                                 <ol>
-                                                    <li value="1">Locate the field in the Data Browser that you want to pull from the browser and add to the Result Set view.</li>
-                                                    <li value="2">To add multiple selected fields, go to the next step. To add one or all fields, do one of the following:<ul><li value="1">Click the field name, and the field is immediately added to the Result Set view.</li><li value="2">Click the icon for pulling all fields. All fields are added to the Result Set view and the existing fields are not duplicated. </li></ul></li>
+                                                    <li value="1">Locate the field in the Data Browser that you want to pull from the browser and add to the result set view.</li>
+                                                    <li value="2">To add multiple selected fields, go to the next step. To add one or all fields, do one of the following:<ul><li value="1">Click the field name, and the field is immediately added to the result set view.</li><li value="2">Click the icon for pulling all fields. All missing fields are added to the result set view. </li></ul></li>
                                                     <li value="3">
                                                         <p>To add multiple selected fields, select <span class="UIelement">Multi Select Mode</span> from the <span class="UIelement">Data Browser</span>'s drop-down menu. Then select the fields individually and submit the selection.</p>
                                                     </li>
                                                     <li value="4">
-                                                        <p>If the data type of a field is array or object, you can add an element of the array or object to the Result Set view in the same way as you would add a field. The following screenshot illustrates how to pull elements from an object from the <span>Data Browser</span>: </p>
+                                                        <p>If the data type of a field is an array or an object, you can add an element of that array or the object to the result set view in the same way as you would add any other field. The following screenshot illustrates how to pull elements from an object from the <span>Data Browser</span>: </p>
                                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/data-browser-pull-fields.png" data-mc-popup-alt=""><img class="MCPopupThumbnail img imgBigImage" data-mc-width="587" data-mc-height="594" src="../../../Resources/Images/XD_screenshots/data-browser-pull-fields_thumb_0_150.png" alt="" title="" tabindex="" /></a>
                                                         </p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;Pulling  elements of an array or object to form columns of the result set does not change the dataflow. </div>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;Pulling  elements of an array or an object to form columns of the result set does not change the dataflow. </div>
                                                     </li>
                                                 </ol>
                                                 <p><a href="#top">Go to the top</a>

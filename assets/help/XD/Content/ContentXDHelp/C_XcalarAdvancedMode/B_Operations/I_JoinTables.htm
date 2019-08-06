@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -190,21 +188,22 @@
                                                 <h1><a name="joinTables" class="ForCSH"></a>Joining result sets</h1>
                                                 <p>The Join function works in the same way as the SQL join clause. You can join two result sets or join a result set to itself (perform a self join). You cannot use one operation to join more than two result sets. </p>
                                                 <h2 class="noPageBreak"><a name="Joining"></a>Joining by one or more columns</h2>
-                                                <p>By default, the Join function uses one key from each result set for joining. You can select one column from each result set by which the result sets are joined. You can, however, perform a multi-clause join, which is a Join function that uses pairs of join keys. </p>
-                                                <p>Follow these steps to join the result sets:</p>
+                                                <p>By default, the Join function uses one key from each result set for joining. You can, however, perform a multi-clause join, which is a Join function that uses multiple pairs of join keys. </p>
+                                                <p>To join the result sets:</p>
                                                 <ol>
                                                     <li value="1">
                                                         <p>There are two ways of starting a Join operation - starting from a result set or starting from a <span class="UIelement">Join</span> Node.</p>
-                                                        <ol style="list-style-type: lower-alpha;">
+                                                        <ul>
                                                             <li value="1">
-                                                                <p><span class="UIelement">Starting from a result set</span>: To join by one column, right click the header of a column in one of the result sets. Select <span class="UIelement">Join…</span> from the drop-down menu. The <span class="UIelement">Join</span> panel is displayed and a highlighted <span class="UIelement">Join</span> Node appears in the dataflow canvas. Connect one more result set Node to the <span class="UIelement">Join</span> Node. The <span class="UIelement">Join</span> panel is displayed.</p>
-                                                                <p><span class="label">NOTE</span>:&#160;To join by multiple columns, select all the columns in a result set that you want to join. Then right click the header of one of the selected columns to display the column drop-down menu.</p>
+                                                                <p><span class="UIelement">Starting from a result set</span>: Display the result set that you want to use in a Join operation. Right click the header of a column and select <span class="UIelement">Join</span>. The <span class="UIelement">Join</span> panel is displayed and a <span class="UIelement">Join</span> Node is added in the dataflow canvas. Connect one more result set Node to the <span class="UIelement">Join</span> Node. </p>
+                                                                <p><span class="label">NOTE</span>:&#160;To join by multiple columns, select all the columns in a result set that you want to join. Then, right click the header of one of the selected columns and select <span class="UIelement">Join</span>.</p>
                                                             </li>
-                                                            <li value="2"><span class="UIelement">Starting from a Join Node</span>: <ul><li value="1">Click on the <span class="UIelement">Join</span> category of operations in the Advanced Mode toolbar to display the 3 types of join Nodes. <ul><li value="1"><span class="UIelement">Join</span> Node allows you to join on any of the 7 supported join types. See <a href="#Definiti" class="MCXref xref" xrefformat="{para}">Definition of join types</a> for more details.</li><li value="2"><span class="UIelement">Lookupjoin</span> Node is equivalent to a Left Outer Join.</li><li value="3"><p><span class="UIelement">Filterjoin</span> Node is equivalent to a Left Semi Join.</p></li></ul></li><li value="2">For our example, drag the <span class="UIelement">Join </span>Node to the dataflow canvas. </li><li value="3">Connect two result set Nodes to the <span class="UIelement">Join</span> Node. </li><li value="4">Right click the <span class="UIelement">Join</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu. The <span class="UIelement">Join</span> panel is displayed.</li></ul></li>
-                                                        </ol>
+                                                            <li value="2"><span class="UIelement">Starting from a Join Node</span>: <ol style="list-style-type: lower-alpha;"><li value="1">Click on the <span class="UIelement">Join</span> category of operations in the Dataflow Mode toolbar to display the three types of join Nodes: <ul style="list-style-type: circle;"><li value="1">The <span class="UIelement">Join</span> Node enables you to join on any of the seven supported join types. See <a href="#Definiti" class="MCXref xref" xrefformat="{para}">Definition of join types</a> for more details.</li><li value="2">The <span class="UIelement">Lookup Join</span> Node is equivalent to a Left Outer Join.</li><li value="3"><p>The <span class="UIelement">Filter Join</span> Node is equivalent to a Left Semi Join.</p></li></ul></li><li value="2">For our example, drag the <span class="UIelement">Join </span>Node to the dataflow canvas. </li><li value="3">Locate the two Nodes with the result sets that you want to join and connect their outputs to the <span class="UIelement">Join</span> Node. </li><li value="4"><p>Right click the <span class="UIelement">Join</span> Node and select <span class="UIelement">Configure</span>. </p></li></ol></li>
+                                                        </ul>
+                                                        <p>The <span class="UIelement">Join</span> panel is displayed.</p>
                                                     </li>
                                                     <li value="2">
-                                                        <p>Select the type of Join function to perform in the <span class="UIelement">Join</span> panel. By default, <span class="UIelement">Inner Join</span> is selected as the type of Join operation. The following types of Join operations are supported:</p>
+                                                        <p>Select the type of Join function to perform in the <span class="UIelement">Join</span> panel. By default, <span class="UIelement">Inner Join</span> is selected as the type of Join operation. The following Join operations are supported:</p>
                                                         <ul>
                                                             <li value="1">Inner Join</li>
                                                             <li value="2">Left Outer Join</li>
@@ -214,130 +213,130 @@
                                                             <li value="6">Left Anti Semi Join</li>
                                                             <li value="7">
                                                                 <p>Cross Join</p>
-                                                                <p>See <a href="#Definiti" class="MCXref xref" xrefformat="{para}">Definition of join types</a> for more details on joins.</p>
                                                             </li>
                                                         </ul>
+                                                        <p>See <a href="#Definiti" class="MCXref xref" xrefformat="{para}">Definition of join types</a> for more details on joins.</p>
                                                     </li>
                                                     <li value="3">
-                                                        <p>If you started from a result set, the <span class="UIelement">Left Columns</span> field already displays the column name but you can select a different column. Otherwise click on the <span class="UIelement">Left Columns</span> field and select a column name from the drop-down. This is the left result set.</p>
+                                                        <p>Click on the <span class="UIelement">#1 Input</span> field and select a column name from the drop-down. This is the left input.</p>
                                                     </li>
                                                     <li value="4">
-                                                        <p>Click on the <span class="UIelement">Right Columns</span> field to select a column from the right result set. </p>
-                                                        <p>(Optional)&#160;For a multi-clause join, click <span class="UIelement">Add&#160;Another&#160;Clause</span> to add another pair of columns to join.</p>
-                                                        <p>(Optional) Enter a <span class="UIelement">Filter Eval String</span> if you want to filter the result set. You can use any Map function that returns a Boolean value but you cannot use prefixed columns in this eval string. For example, if you only want to see the results where Carrier is UA, enter: eq($derived_carrier_col_name, "UA") where $derived_carrier_col_name is a derived column for Carriers.</p>
-                                                        <p>(Advanced Option) Click on <span class="UIelement">Join Options</span> and check <span class="UIelement">Null Safe</span> checkbox if you consider the Join condition satisfied when both values in the left and the right columns are NULL.</p>
+                                                        <p>Click on the <span class="UIelement">#2 Input</span> field and select a column name from the drop-down. This is the right input. </p>
+                                                        <p>(Optional)&#160;For a multi-clause join, click <span class="UIelement">Add&#160;Another&#160;Column</span> to add another pair of columns to join on.</p>
+                                                        <p>(Optional) Enter a <span class="UIelement">Filter Eval String</span> if you want to filter the result. You can use any Map function that returns a Boolean value but you cannot use prefixed columns in this eval string. For example, if you only want to see the results where Carrier is UA, enter: eq($derived_carrier_col_name, "UA") where $derived_carrier_col_name is a derived column for Carriers.</p>
+                                                        <p>(Advanced Option) Click on <span class="UIelement">Join Options</span> and check <span class="UIelement">Null Safe</span> check box if you consider the Join condition satisfied when both values in the left and the right columns are NULL.</p>
                                                     </li>
                                                     <li value="5">
                                                         <p>Click <span class="UIelement">Next</span>.</p>
-                                                        <p> <span class="label">NOTE</span>:&#160;For columns to be joined, they must be of the same data type. If the columns in a clause have mismatched data types, an error message is displayed, and you can change one or both columns. After you finish changing the columns, click <span class="UIelement">Next</span>.</p>
+                                                        <div class="Note"> <span class="label">NOTE</span>:&#160;For columns to be joined, they must be of the same data type. If the columns in a clause have mismatched data types, an error message is displayed, and you can change one or both columns. After you finish changing the columns, click <span class="UIelement">Next</span>.</div>
                                                     </li>
-                                                    <li value="6">In the <span class="UIelement">Column Selector</span> section, select the columns from the left and the right result sets to be included in the resultant result set. Click on a column name in <span class="UIelement">Columns To Keep</span> to remove it from the resultant result set. Click on a column in <span class="UIelement">Columns To Drop</span> to add it back to the resultant result set.</li>
-                                                    <li value="7">
-                                                        <p>Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set is displayed when the Node executes. </p>
+                                                    <li value="6">In the <span class="UIelement">Column Selector</span> section, select the columns from the left and the right inputs to be included in the joined result. Click on a column name in <span class="UIelement">Columns To Keep</span> to remove it from the joined result. </li>
+                                                    <li value="7">Click on a column name in <span class="UIelement">Columns To Drop</span> section to add the dropped columns back to the joined result.</li>
+                                                    <li value="8">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a joined result is displayed when the Node executes. </p>
                                                     </li>
                                                 </ol>
                                                 <h2 class="noPageBreak">Improving multi-column join performance</h2>
-                                                <p>If a result set's skew value is high, you might experience performance degradation when running an operation, especially one that uses multiple keys, such as group by, join, or sort. You can improve performance by selecting the column with the most evenly distributed values as the first key. To see how values are distributed within a column, use <span class="UIelement">Profile...</span> in the column drop-down menu.</p>
+                                                <p>If a result set's skew value is high, you might experience performance degradation when running an operation, especially one that uses multiple keys, such as group by, join, or sort. You can improve performance by selecting the column with the most evenly distributed values as the first key. To see how values are distributed within a column, in a result set in Dataflow Mode, right click the column header and select <span class="UIelement">Profile</span>.</p>
                                                 <h2 class="noPageBreak"><a name="Definiti"></a>Definition of join types</h2>
                                                 <p><span class="GeneralProductName3">Xcalar</span> supports the following types of joins:</p>
                                                 <ul>
-                                                    <li value="1"><span class="UIelement">Inner Join</span> - The result set of an Inner Join contains all rows from both result sets that have matching values in the joining columns.</li>
-                                                    <li value="2"><span class="UIelement">Left Outer Join</span> - Selecting Left Outer Join is equivalent to starting from a <span class="UIelement">Lookupjoin</span> Node in the Advanced Mode toolbar. The Left Outer Join returns all rows from the left result set and the matched rows from the right result set. Where there is no match in the right result set, the columns return Null values.</li>
-                                                    <li value="3"><span class="UIelement">Right Outer Join</span> - The Right Outer Join returns all rows from the right result set and the matched rows from the left result set. Where there is no match in the left result set, the columns return Null values.</li>
-                                                    <li value="4"><span class="UIelement">Full Outer Join</span> - The Full Outer Join combines the results of both left and right outer joins and returns all (matched or unmatched) rows from the result sets on both sides of the join clause.</li>
-                                                    <li value="5"><span class="UIelement">Left Semi Join</span> - Selecting Left Semi Join is equivalent to starting from a <span class="UIelement">Filterjoin</span> Node in the Advanced Mode toolbar. A Left Semi Join returns only those rows in the left result set that have a matching row in the right result set.</li>
-                                                    <li value="6"><span class="UIelement">Left Anti Semi Join</span> - A Left Anti Semi Join returns only those rows in the left result set that have no matching row in the right result set.</li>
-                                                    <li value="7"><span class="UIelement">Cross Join</span> - The Cross Join returns a result set which is the number of rows in the first result set multiplied by the number of rows in the second result set. This kind of result is called the Cartesian Product. </li>
+                                                    <li value="1"><span class="UIelement">Inner Join</span> - The result of an Inner Join contains all rows from both the inputs that have matching values in the joining columns.</li>
+                                                    <li value="2"><span class="UIelement">Left Outer Join</span> - Selecting Left Outer Join is equivalent to starting from a <span class="UIelement">Lookup Join</span> Node in the Dataflow Mode toolbar. The Left Outer Join returns all rows from the left input and the matched rows from the right input. Where there is no match in the right input, the columns return Null values.</li>
+                                                    <li value="3"><span class="UIelement">Right Outer Join</span> - The Right Outer Join returns all rows from the right input and the matched rows from the left input. Where there is no match in the left input, the columns return Null values.</li>
+                                                    <li value="4"><span class="UIelement">Full Outer Join</span> - The Full Outer Join combines the results of both the left and the right outer joins and returns all (matched or unmatched) rows from the inputs on both sides of the join clause.</li>
+                                                    <li value="5"><span class="UIelement">Left Semi Join</span> - Selecting Left Semi Join is equivalent to starting from a <span class="UIelement">Filter Join</span> Node in the Dataflow Mode toolbar. A Left Semi Join returns only those rows in the left input that have a matching row in the right input.</li>
+                                                    <li value="6"><span class="UIelement">Left Anti Semi Join</span> - A Left Anti Semi Join returns only those rows in the left input that have no matching row in the right input.</li>
+                                                    <li value="7"><span class="UIelement">Cross Join</span> - The Cross Join returns a result which is the number of rows in the first input multiplied by the number of rows in the second input. This kind of result is called the Cartesian Product. </li>
                                                 </ul>
-                                                <h2 class="noPageBreak"><a name="Using"></a>Using Lookupjoin Node</h2>
-                                                <p>The <span class="UIelement">Lookupjoin</span> Node is used exactly the same way as  the <span class="UIelement">Join</span> Node, described in <a href="#Joining" class="MCXref xref" xrefformat="{para}">Joining by one or more columns</a> except that you cannot choose the join type, it is preselected as Left Outer Join.</p>
-                                                <h2 class="noPageBreak"><a name="Using2"></a>Using Filterjoin Node</h2>
-                                                <p>Follow these steps to join the result sets using Filterjoin:</p>
-                                                <ul>
-                                                    <li value="1">Click on the <span class="UIelement">Join</span> category of operations in the Advanced Mode toolbar to display the 3 types of join Nodes.</li>
-                                                    <li value="2">Drag the <span class="UIelement">Filterjoin </span>Node to the dataflow canvas. </li>
-                                                    <li value="3">Connect two result sets to the <span class="UIelement">Filterjoin</span> Node. </li>
-                                                    <li value="4">Right click the <span class="UIelement">Filterjoin</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu. The <span class="UIelement">Join</span> panel is displayed.</li>
-                                                    <li value="5">Click on the <span class="UIelement">Left Columns</span> field and select a column name from the left result set to join on.</li>
+                                                <h2 class="noPageBreak"><a name="Using"></a>Using a Lookup Join Node</h2>
+                                                <p>The <span class="UIelement">Lookup Join</span> Node is used exactly the same way as  the <span class="UIelement">Join</span> Node, described in <a href="#Joining" class="MCXref xref" xrefformat="{para}">Joining by one or more columns</a> except that you cannot select the join type, it is preselected as Left Outer Join.</p>
+                                                <h2 class="noPageBreak"><a name="Using2"></a>Using a Filter Join Node</h2>
+                                                <p>To join result sets using the Filter Join Node:</p>
+                                                <ol>
+                                                    <li value="1">Click on the <span class="UIelement">Join</span> category of operations in the Dataflow Mode toolbar to display the three types of Join Nodes.</li>
+                                                    <li value="2">Drag the <span class="UIelement">Filter Join </span>Node to the dataflow canvas. </li>
+                                                    <li value="3">Locate the two Nodes with the result sets that you want to join, and connect their outputs to the <span class="UIelement">Filter Join</span> Node. </li>
+                                                    <li value="4">
+                                                        <p>Right click the <span class="UIelement">Filter Join</span> Node and select <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">Join</span> panel is displayed.</p>
+                                                    </li>
+                                                    <li value="5">Click on the <span class="UIelement">#1 Input</span> field and select a column name from the left input to join on.</li>
                                                     <li value="6">
-                                                        <p>Click on the <span class="UIelement">Right Columns</span> field to select a column from the right result set. </p>
-                                                        <p>(Optional)&#160;For a multi-clause join, click <span class="UIelement">Add&#160;Another&#160;Clause</span> to add another pair of columns to join.</p>
-                                                        <p>(Optional) Enter a <span class="UIelement">Filter Eval String</span> if you want to filter the result set. You can use any Map function that returns a Boolean value but you cannot use prefixed columns in this eval string. For example, if you only want to see the results where Carrier is UA, enter: eq($derived_carrier_col_name, "UA") where $derived_carrier_col_name is a derived column for Carriers.</p>
-                                                        <p>(Advanced Option) Click on <span class="UIelement">Join Options</span> and check <span class="UIelement">Null Safe</span> checkbox if you consider the Join condition satisfied when both values in the left and the right columns are NULL.</p>
+                                                        <p>Click on the <span class="UIelement">#2 Input</span> field and select a column name from the right input to join on. </p>
+                                                        <p>(Optional)&#160;For a multi-clause join, click <span class="UIelement">Add&#160;Another&#160;Column</span> to add another pair of columns to join.</p>
+                                                        <p>(Optional) Enter a <span class="UIelement">Filter Eval String</span> if you want to filter the result. You can use any Map function that returns a Boolean value but you cannot use prefixed columns in this eval string. For example, if you only want to see the results where Carrier is UA, enter: eq($derived_carrier_col_name, "UA") where $derived_carrier_col_name is a derived column for Carriers.</p>
+                                                        <p>(Advanced Option) Click on <span class="UIelement">Join Options</span> and check <span class="UIelement">Null Safe</span> check box if you consider the Join condition satisfied when both values in the left and the right columns are NULL.</p>
                                                     </li>
                                                     <li value="7">Click <span class="UIelement">Next</span>.</li>
-                                                    <li value="8">Click on a column name in <span class="UIelement">Columns To Keep</span> to remove it from the resultant result set. Click on a column in <span class="UIelement">Columns To Drop</span> to add it back to the resultant result set.</li>
-                                                    <li value="9">Click <span class="UIelement">Save</span>. A new result set is created as a result of joining the result sets.</li>
-                                                </ul>
-                                                <h2 class="noPageBreak">Renaming columns to avoid column name duplication</h2>
-                                                <p>Because columns in a result set created by a Join operation come from two result sets, it is possible for these columns to have the same name and hence cause a conflict.&#160;If there is potential for a conflict, the <span class="UIelement">Join</span>&#160;panel asks you to rename columns by filling out the <span class="UIelement">New Name</span> field. This is true both for prefixed columns and derived columns.</p>
-                                                <div class="Note"><span class="label">IMPORTANT:</span>&#160;Even if you do not rename a column, you must copy the original name to the <span class="UIelement">New Name</span> field. Do not leave the <span class="UIelement">New Name</span> field blank.</div>
+                                                    <li value="8">Click on a column name in <span class="UIelement">Columns To Keep</span> section to remove it from the joined result. Click on a column name in <span class="UIelement">Columns To Drop</span> section to add it back to the joined result.</li>
+                                                    <li value="9">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and generates a joined result when the Node executes.</p>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Renaming columns to avoid the column name duplication</h2>
+                                                <p>Because columns in a joined result created by a Join operation come from two inputs, it is possible for these columns to have the same names and cause a conflict.&#160;If there is a potential for conflict, the <span class="UIelement">Join</span>&#160;panel renames the columns of one of the inputs in the <span class="UIelement">New Name</span> fields. This is true both for prefixed columns and derived columns.</p>
                                                 <h3>Renaming prefixed columns</h3>
-                                                <p>Fields that exist in different data sources are distinguished from one another by column prefixes. If the result sets being joined have the same prefix (for example, in the case of a self join), and if prefixed columns are in the resultant result set,  change the prefix for one result set or both result sets to eliminate the naming conflict. </p>
-                                                <p>For example, you can change the prefix for the left result set from airlines1 to Left_airlines1 and the prefix for the right result set from airlines1 to Right_airlines1. The resultant result set will have columns named Left_airlines1::Carrier and Right_airlines::Carrier, which no longer conflict with each other. </p>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <p>Fields that exist in different datasets are distinguished from one another by column prefixes. If the inputs being joined have the same prefix (for example, in the case of a self join), and if the prefixed columns are going to be in the joined result, the <span class="UIelement">Join</span>&#160;panel renames the prefix for the second input. You can accept the system generated new prefix or change one or both prefixes to eliminate the naming conflict. </p>
+                                                <p>For example, you can change the prefix for the left input from airlines1 to Left_airlines1 and the prefix for the right input from airlines1 to Right_airlines1. The joined result will have columns named Left_airlines1::Carrier and Right_airlines::Carrier, which no longer conflict with each other. </p>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
-                                                            <li value="1">The name is case sensitive. </li>
-                                                            <li value="2">Length must not exceed 31 characters.</li>
-                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
-                                                            <li value="4">First character must be a letter.</li>
+                                                            <li value="1">Length must not exceed 31 characters.</li>
+                                                            <li value="2">First character must be a letter of the alphabet.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9,  or underscore (_).</li>
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <p>The following screenshot illustrates how to change a prefix:</p>
-                                                <p> </p>
-                                                <p>
-                                                    <img src="../../../Resources/Images/XD_screenshots/xd-join-prefixed-col-rename.png" />
-                                                </p>
-                                                <div class="Note"><span class="label">TIP</span>: If a lot of prefixes need renaming, follow the instructions in <a href="#Renaming" class="MCXref xref" xrefformat="{para}">Renaming in bulk</a> to rename them quickly.</div>
                                                 <h3>Renaming derived columns</h3>
-                                                <p>Derived columns do not have a prefix. Therefore, you must change the column name to avoid name duplication:</p>
+                                                <p>If there is a potential for conflict in the derived columns, the <span class="UIelement">Join </span>panel generates new names for the columns of the second input. You can accept the system generated new names or enter new names in the New Name fields to avoid the name duplication:</p>
                                                 <p>
-                                                    <img src="../../../Resources/Images/XD_screenshots/xd-join-derived-col-rename.png" />
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-join-prefix-rename.png" />
                                                 </p>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
+                                                        <p>To avoid any issues from the case sensitivity column naming differences between <span class="GeneralProductName3">Xcalar</span> and <span class="GeneralProductName3">Xcalar</span> SQL, column names are automatically processed into uppercase characters.</p>
                                                         <ul>
-                                                            <li value="1">The name is case sensitive if the column is in a dataset; it is case-insensitive if the column is in a table, in which case all letters are displayed in uppercase.</li>
-                                                            <li value="2">
-                                                                <p>The name must consist of alphanumeric characters, spaces, and special characters except the following characters:</p>
-                                                                <ul>
-                                                                    <li value="1">caret (^)</li>
-                                                                    <li value="2">single quote mark (')</li>
-                                                                    <li value="3">double quote mark (")</li>
-                                                                    <li value="4">left or right parenthesis (( ))</li>
-                                                                    <li value="5">left or right square bracket ([ ])</li>
-                                                                    <li value="6">left or right brace ({ })</li>
-                                                                    <li value="7">backslash (\)</li>
-                                                                    <li value="8">colons (:)</li>
-                                                                    <li value="9">comma (,)</li>
-                                                                    <li value="10">period (.)</li>
-                                                                </ul>
-                                                            </li>
-                                                            <li value="3">The name must not begin or end with a space.</li>
-                                                            <li value="4">The name must begin with an underscore or a letter.</li>
-                                                            <li value="5">Length must not exceed 255 characters.</li>
-                                                            <li value="6">The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</li>
-                                                            <li value="7">The name must not be one of the following strings, regardless of capitalization: <ul><li value="1"><span class="UIelement">None</span></li><li value="2"><span class="UIelement">False</span></li><li value="3"><span class="UIelement">True</span></li></ul></li>
-                                                            <li value="8">The name must not contain two consecutive hyphens (--).</li>
+                                                            <li value="1">Length must not exceed 255 characters.</li>
+                                                            <li value="2">First character must be a letter of the alphabet or an underscore.</li>
+                                                            <li value="3">First character must not start or end with a space.</li>
+                                                            <li value="4">Characters must be A-Z, a-z, 0-9, or underscore (_). </li>
+                                                            <li value="5">Cannot contain special or punctuation characters, such as:<ul><li value="1">caret (^)</li><li value="2">single (') or double (") quote marks </li><li value="3">left (() or right ()) parenthesis</li><li value="4">left ({) or right (}) brace</li><li value="5">forward slash (/) or backslash (\)</li><li value="6">colon (:) or semi-colon (;)</li><li value="7">comma (,)</li><li value="8">period (.)</li><li value="9">single (-) or double hyphen (--)</li></ul></li>
+                                                            <li value="6">Must not be one of the following reserved names:</li>
+                                                            <ul style="list-style-type: circle;">
+                                                                <li value="1"><span class="UIelement">Data</span>
+                                                                </li>
+                                                                <li value="2"><span class="UIelement">None</span>
+                                                                </li>
+                                                                <li value="3"><span class="UIelement">False</span>
+                                                                </li>
+                                                                <li value="4"><span class="UIelement">True</span>
+                                                                </li>
+                                                            </ul>
                                                         </ul>
                                                     </div>
                                                 </div>
                                                 <div class="Note"><span class="label">TIP</span>: If a lot of derived fields need renaming, follow the instructions in <a href="#Renaming" class="MCXref xref" xrefformat="{para}">Renaming in bulk</a> to rename them quickly.</div>
                                                 <h3><a name="Renaming"></a>Renaming in bulk</h3>
-                                                <p><span class="GeneralGUIName1">Xcalar Design</span> provides a convenient way for you to specify multiple new names.&#160;The following steps are the same for both prefixes and derived column names:</p>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> provides a convenient way for you to rename multiple columns in bulk.&#160;The following steps are same for both the prefixed and the derived column names:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>Click the <span class="UIelement">Rename in bulk</span> icon as shown in the following screenshot to display a pop-up menu:</p>
+                                                        <p>Click the <span class="UIelement">Rename in bulk</span> icon as shown in the following screenshot to display a pop-up:</p>
                                                         <p>
-                                                            <img src="../../../Resources/Images/XD_screenshots/xd-join-col-bulk-rename.png" />
+                                                            <img src="../../../Resources/Images/XD_screenshots/xd-join-renames.png" />
                                                         </p>
                                                     </li>
                                                     <li value="2">
-                                                        <p>In the menu, you can click <span class="UIelement">Copy All</span> to copy existing names to the <span class="UIelement">New Name</span> field. </p>
-                                                        <p>Alternatively, type a string under <span class="UIelement">Copy &amp; Append</span>. The string is appended to each existing name before the name is copied to the <span class="UIelement">New Name</span> field. For example, you can append <span class="UIelement">-left</span> to all the fields.</p>
-                                                        <p>You can enter another string to overwrite what is currently in the <span class="UIelement">New Name</span> field. For example, if you want another string instead of <span class="UIelement">-left</span> to be appended, simply type the new string in the pop-up menu. The change is reflected in the <span class="UIelement">New Name</span> column immediately.</p>
+                                                        <p>You have two options in the pop-up:</p>
+                                                        <ul>
+                                                            <li value="1">To copy existing names to the <span class="UIelement">New Name</span> fields and then update them one by one, click <span class="UIelement">Copy All</span>. </li>
+                                                            <li value="2">
+                                                                <p>Alternatively, enter a string under <span class="UIelement">Copy &amp; Append</span>. The new string is appended to each existing name and copied to the <span class="UIelement">New Name</span>. </p>
+                                                                <p style="font-weight: normal;">For example, you can append <span class="UIelement">-left</span> to all the existing names. You can also enter another string to overwrite what is currently in the <span class="UIelement">New Name</span> field. For example, if you want a different string instead of <span class="UIelement">-left</span> to be appended, enter the new string in the <span class="UIelement">Rename in bulk</span> pop-up. The change is reflected in the <span class="UIelement">New Name</span> column immediately.</p>
+                                                            </li>
+                                                        </ul>
                                                     </li>
                                                 </ol>
                                                 <p><a href="#top">Go to the top</a>

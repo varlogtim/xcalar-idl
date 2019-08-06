@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Cluster tasks">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -93,8 +93,6 @@
         <script src="../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -211,41 +209,39 @@
                                                 <ul>
                                                     <li value="1">Any core dumps caused by a crash.</li>
                                                     <li value="2"><span class="GeneralProductName3">Xcalar</span> configuration (/etc/xcalar/*) and <span class="GeneralProductName3">Xcalar</span>-generated data (/var/opt/xcalar/*).</li>
-                                                    <li value="3">System statistics and configuration, such as number of CPUs, memory, packages installed.</li>
-                                                    <li value="4">System and <span class="GeneralProductName3">Xcalar</span> logs if permissions allow (for example, /var/log/messages, /var/log/httpd/*, /var/log/Xcalar*.log, and /var/log/xcalar/*).</li>
+                                                    <li value="3">System statistics and configuration, such as the number of CPUs, memory, and packages installed.</li>
+                                                    <li value="4">System and <span class="GeneralProductName3">Xcalar</span> logs, if permissions allow, such as those found in /var/log/messages, /var/log/httpd/*, /var/log/Xcalar*.log, or /var/log/xcalar/*.</li>
                                                 </ul>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;The exact information included in the support bundle might vary, depending on the access rights given to <span class="GeneralProductName3">Xcalar</span>. Because by default, <span class="GeneralProductName3">Xcalar</span> does not run as root, the file permissions  set by the system administrator can prevent some information from being sent to <span class="GeneralCompanyNameShort">Xcalar</span>. For example, by default, <span class="GeneralCompanyNameShort">Xcalar</span> cannot collect syslog information unless it has permission to read the syslog file.</div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The exact information included in the support bundle may vary, depending on the access rights given to <span class="GeneralProductName3">Xcalar</span> by you. By default, <span class="GeneralProductName3">Xcalar</span> does not run as the root user, therefore the file permissions  set by your system administrator may prevent some information from being sent to <span class="GeneralCompanyNameShort">Xcalar</span>. For example, by default, <span class="GeneralCompanyNameShort">Xcalar</span> cannot collect system information unless it has permission to read the <span class="UIelement">syslog</span> file.</div>
                                                 <h2 class="noPageBreak"><a name="Generati"></a>Generating a support ticket</h2>
                                                 <p>To generate a support ticket, follow these steps:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>Click the <span class="UIelement">User</span> icon in the top right corner to display a drop-down menu.</p>
+                                                        <p>In the <span class="GeneralGUIName1">Xcalar Design</span> menu, click the <span class="UIelement">User</span> icon and select <span class="UIelement">File Support Ticket</span>.<br />The <span class="UIelement">File Support Ticket</span> modal window is displayed.</p>
                                                     </li>
-                                                    <li value="2">Select <span class="UIelement">File Support Ticket</span> in the drop-down menu. The <span class="UIelement">File Support Ticket</span> modal window is displayed.</li>
-                                                    <li value="3">
-                                                        <p>In the <span class="UIelement">Type of issue</span> field, use the drop-down menu to specify whether you are generating a new ticket or modifying an existing ticket.</p>
-                                                    </li>
-                                                    <li value="4">
-                                                        <p>If you want to file a new ticket, select the severity level of the issue.</p>
-                                                        <p>If you want to modify a ticket, for example, to add comments or to send a support bundle, follow either of these steps:</p>
-                                                        <ul>
-                                                            <li value="1">From the ticket list, which shows all tickets submitted by you, select the ticket to modify. </li>
-                                                            <li value="2">Enter an existing ticket ID, which is for a ticket in your organization, as shown on the <span class="GeneralCompanyNameShort">Xcalar</span> customer portal.</li>
-                                                        </ul>
-                                                    </li>
-                                                    <li value="5">
-                                                        <li value="1">
-                                                            <p>Select or deselect <span class="UIelement">Generate Support Bundle</span>. </p>
-                                                            <div class="Note"><span class="label">NOTE</span>:&#160;Generating a support bundle might take a long time.</div>
-                                                        </li>
-                                                    </li>
-                                                    <li value="6">If the ticket is new, type a subject line and then comments describing your issue.</li>
-                                                    <p> If the ticket is existing, type a comment providing additional information about the issue. </p>
-                                                    <li value="7">Click <span class="UIelement">Generate&#160;Ticket</span> to submit a new ticket or <span class="UIelement">Update&#160;Ticket</span> to modify an existing ticket. When the ticket generation is in progress, the <span class="UIelement">File Support Ticket</span> icon turns gray. After the ticket is generated, the icon resumes its original color (white).</li>
+                                                    <li value="2">In the <span class="UIelement">Type of issue</span> list, select whether you are generating a new ticket or modifying an existing ticket.</li>
                                                 </ol>
+                                                <p>Do one of the following:</p>
+                                                <ul style="list-style-type: circle;">
+                                                    <li value="1">For an existing ticket:</li>
+                                                    <ol style="list-style-type: lower-alpha;">
+                                                        <li value="1">Either, from the <span class="UIelement">Select Ticket</span> table that displays all your submitted tickets, select the ticket that requires changing or in the <span class="UIelement">enter an existing ticket</span> field, enter the existing ticket identification number.</li>
+                                                        <li value="2">Click Update Ticket.</li>
+                                                    </ol>
+                                                    <li value="2">For a new ticket:</li>
+                                                    <ol style="list-style-type: lower-alpha;">
+                                                        <li value="1">From the <span class="UIelement">Severity</span> list, select the severity level of the issue.</li>
+                                                        <li value="2">From the <span class="UIelement">Additional (new) information</span> section, in the <span class="UIelement">Subject</span> field, enter a short description that identifies your issue and then in the <span class="UIelement">Comments</span> field, enter more information about the issue.</li>
+                                                        <li value="3">(Optional) Include additional information about the issue by checking the support bundle check box.</li>
+                                                        <div class="Note"><span class="label">NOTE:</span> Generating a support bundle may take a long time.</div>
+                                                        <li value="4"> Click <span class="UIelement">File Ticket</span>.</li>
+                                                    </ol>
+                                                    <div class="Note"><span class="label">TIP:</span> During the support ticket generation, the <span class="UIelement">File Support Ticket</span> icon turns gray. After the ticket is generated, the icon resumes its original white color.</div>
+                                                </ul>
                                                 <h2 class="noPageBreak">What happens if a support ticket cannot be sent</h2>
-                                                <p>The most common reason for failing to send a support ticket to <span class="GeneralCompanyNameShort">Xcalar</span> is that the <span class="GeneralProductName3">Xcalar</span> cluster is not connected to the Internet. If your ticket includes the support bundle, the bundle stays on the cluster until the Internet connection is available. <span class="GeneralProductName3">Xcalar</span> automatically sends the support bundle as soon as it can use the Internet. </p>
-                                                <p>The contents of the support ticket, excluding the support bundle, can be downloaded when <span class="GeneralProductName3">Xcalar</span> fails to send the ticket. When an error message indicates that the you can download the ticket, follow these steps to manually send the ticket to <span class="GeneralCompanyNameShort">Xcalar</span>:</p>
+                                                <p>The most common reason for failing to send a support ticket to <span class="GeneralCompanyNameShort">Xcalar</span> is that the <span class="GeneralProductName3">Xcalar</span> cluster is not connected to the Internet. If your ticket includes the support bundle, the bundle stays on the cluster until the Internet connection is available. <span class="GeneralProductName3">Xcalar</span> automatically sends the support bundle as soon as a connection to the Internet is established. </p>
+                                                <p>The contents of the support ticket, excluding the support bundle, can be downloaded when <span class="GeneralProductName3">Xcalar</span> fails to send the ticket. When an error message indicates that you can download the ticket, manually send the ticket to <span class="GeneralCompanyNameShort">Xcalar</span>.</p>
+                                                <p>To manually send a support ticket:</p>
                                                 <ol>
                                                     <li value="1">In the <span class="UIelement">File Support Ticket</span> modal window, click <span class="UIelement">Download</span>, which replaces <span class="UIelement">Generate&#160;Ticket</span>.&#160;A&#160;ticket file is created and downloaded to your computer.</li>
                                                     <li value="2">Upload the ticket file from your computer by using the <span class="UIelement">Submit a request</span> link on the portal.</li>
@@ -253,10 +249,9 @@
                                                 <h2 class="noPageBreak">Starting live chat with <span class="GeneralCompanyNameShort">Xcalar</span> technical support</h2>
                                                 <p>To start a live chat with <span class="GeneralCompanyNameShort">Xcalar</span> technical support, follow these steps:</p>
                                                 <ol>
-                                                    <li value="1">Click the <span class="UIelement">User</span> icon to display a drop-down menu.</li>
-                                                    <li value="2">Select <span class="UIelement">Live Chat</span> in the drop-down menu.</li>
-                                                    <li value="3">In the <span class="UIelement">Live Chat</span> modal window, enter your name and email address. A chat log will be automatically sent to the email address after the chat is finished.</li>
-                                                    <li value="4">Click <span class="UIelement">START</span> and wait for a <span class="GeneralProductName3">Xcalar</span> technical support engineer to respond. A support ticket is generated as soon as the <span class="GeneralProductName3">Xcalar</span> technical support engineer starts the chat with you. The ticket ID is saved to your customer portal, which you can refer to later if necessary.</li>
+                                                    <li value="1">In the <span class="GeneralGUIName1">Xcalar Design</span> menu, click the <span class="UIelement">User</span> icon and select <span class="UIelement">Live Chat</span>.<br />The <span class="UIelement">Live Chat</span> modal window is displayed.</li>
+                                                    <li value="2">In the <span class="UIelement">Name</span> and <span class="UIelement">Email</span> fields, enter your name and email address. A chat log is automatically sent to the email address after the chat is finished.</li>
+                                                    <li value="3">Click <span class="UIelement">START</span> and wait for a <span class="GeneralProductName3">Xcalar</span> technical support engineer to respond. A support ticket is generated as soon as the <span class="GeneralProductName3">Xcalar</span> technical support engineer starts the chat with you. The ticket ID is saved to your customer portal, which you can refer to later if necessary.</li>
                                                 </ol>
                                                 <div class="Note"><span class="label">TIP</span>:&#160;At any time during the chat, you can click the icon in the left corner of the <span class="UIelement">Live Chat</span> modal window title bar to send the chat log to your email address.</div>
                                                 <p><a href="#top">Go to the top</a>

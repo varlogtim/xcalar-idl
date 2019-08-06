@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -95,8 +95,6 @@
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -189,129 +187,70 @@
                                                     </div>
                                                 </div>
                                                 <h1>Selecting a data source</h1>
-                                                <p>This topic provides  the steps up to the point where you provide the specifications for <span class="GeneralProductName3">Xcalar</span> to create a table or dataset by importing data from a data source. The exact steps depend on the following factors, which are described  in this topic:</p>
-                                                <ul>
-                                                    <li value="1">Types of data source (for example, whether the data source contains a directory or a file)</li>
-                                                    <li value="2">Whether you want to examine the raw data in a file being considered as a data source</li>
-                                                    <li value="3">Whether you want to import data recursively in a folder</li>
-                                                    <li value="4">(Advanced Mode only) Whether you want to create a single dataset or multiple datasets from multiple files or folders</li>
-                                                </ul>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;You must follow the instructions in <a href="B2_PrepareDataSource.htm" class="MCXref xref">Preparing the data source</a> before you use <span class="GeneralGUIName1">Xcalar Design</span> to import data.</div>
-                                                <h2>Understanding a data source</h2>
-                                                <p>A data source can be a folder, a file, or a combination of folders and files.</p>
-                                                <p><span class="GeneralProductName3">Xcalar</span> allows a data source to include files in different formats. For example, <span class="GeneralProductName3">Xcalar</span> accepts your selection of a CSV file and a JSON&#160;file as a single data source. Having files of different formats in a data source, however, requires an import user defined function (UDF)&#160;to prepare the data when the data is being imported.</p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;If your data source is a parquet file or dataset, follow additional instructions in <a href="B5_ImportParquet.htm" class="MCXref xref">Importing from a Parquet file or dataset</a>.</div>
-                                                <h2><a name="Creating2"></a>Methods to select a data source</h2>
-                                                <p>The following list describes two methods to select the data source:</p>
-                                                <ul>
-                                                    <li value="1">Display the file browser and then navigate to the data source. Use this method if any of these conditions are true:<ul><li value="1">You do not know the exact location of the file or folder to be used as the data source.</li><li value="2">You need to preview the raw data in the data source file before the import.</li><li value="3">You need to recursively import data from a data source folder.</li><li value="4">(Advanced Mode only) You want to create multiple datasets at one time, based on one specified path.</li></ul></li>
-                                                    <li value="2">Type the data source path to select it immediately. Use this method if all of the following conditions are true:<ul><li value="1">You know the exact location of the file or folder to be used as the data source.</li><li value="2">You know   the format and contents of the data source.</li><li value="3">(Advanced Mode only) You are creating one dataset based on the file or folder.</li></ul></li>
-                                                </ul>
-                                                <h2>Selecting the data target</h2>
-                                                <p>To select the data target:</p>
+                                                <p>This topic describes the steps required to select a data source for importing data in <span class="GeneralGUIName1">Xcalar Design</span>. </p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;You must select a connector, as described in <a href="B7_SelectDataTarget.htm" class="MCXref xref">Selecting a connector</a>, before you select a data source.</div>
+                                                <p>After selecting a connector in the <span class="UIelement">Select Data Source Location</span> window, select a <span class="UIelement">Data Source Path</span>. You have a choice of entering the complete path or navigating and selecting the files and folders through the file browser. </p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;If you have chosen a Database or a Generated connector, you do not need to enter a path. For more information on these connectors, see <a href="../SingleSourcing/connectors/b_understand_data_target_types.htm" class="MCXref xref">Understanding the connector types</a>.</div>
+                                                <h2 class="noPageBreak">Entering the complete path to select a data source</h2>
+                                                <p>Use this method if all of the following conditions are true:<ul><li value="1">You know the exact location of the file or the folder to be used as the data source.</li><li value="2">You know   the format and the content of the data source.</li><li value="3">You are creating only one dataset or one table.</li></ul></p>
+                                                <p>To import data from a directory or a file at the specified path:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>Depending on the mode your are in, do one of the following:</p>
-                                                        <ul>
-                                                            <li value="1">In SQL&#160;Mode, click the <span class="UIelement">Tables</span> icon, as illustrated in the following screenshot:</li>
-                                                        </ul>
-                                                        <p>
-                                                            <img src="../../Resources/Images/XD_screenshots/xd-tables-icon-location-sql-mode.png" />
-                                                        </p>
-                                                        <ul>
-                                                            <li value="1">In Advanced Mode, click the <span class="UIelement">Tables</span> icon or  <span class="UIelement">Datasets</span> icon, depending on whether you want to create a table or dataset.</li>
-                                                            <div class="Note"><span class="label">RECOMMENDATION</span>:&#160;You can use a table and a dataset in the same way to begin a dataflow. The decision to create a table or dataset depends on the source data. </div>
-                                                            <p>The following screenshot shows the locations of the <span class="UIelement">Tables</span> and <span class="UIelement">Datasets</span> icons in Advanced Mode:</p>
-                                                            <p>
-                                                                <img src="../../Resources/Images/XD_screenshots/xd-tables-icon-location-adv-mode.png" />
-                                                            </p>
-                                                        </ul>
+                                                        <p>In  the <span class="UIelement">Data Source Path</span> field, enter the path to a file or a folder. </p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;The path is relative to the connector. </div>
                                                     </li>
-                                                    <li value="2">In the <span class="UIelement">Tables</span> or <span class="UIelement">Datasets</span> panel, click the <span class="UIelement">Import Data Source</span> icon. <br />The following screenshots show the location of the icon in each panel:</li>
-                                                    <p>
-                                                        <img src="../../Resources/Images/XD_screenshots/xd-import-data-source-to-table.png" />
-                                                    </p>
-                                                    <p>
-                                                        <img src="../../Resources/Images/XD_screenshots/xd-import-data-source-to-dataset.png" />
-                                                    </p>
-                                                    <li value="3">In the <span class="UIelement">Import Data Source</span> window, select the data target for accessing the data source.</li>
+                                                    <li value="2">
+                                                        <p> Click  <span class="UIelement">Next</span>. </p>
+                                                        <p>The <span class="UIelement">Import Data Source</span> window is displayed.</p>
+                                                        <p>The next step is to import data through the <span class="UIelement">Import Data Source</span> window as described in <a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a>.</p>
+                                                    </li>
                                                 </ol>
-                                                <p>The next step depends on whether you want to browse and select the desired data source file(s), or whether you prefer to enter the exact path to select  a data source immediately.</p>
-                                                <h2><a name="Using"></a>Using the file browser to select the data source</h2>
-                                                <p>Follow one of the steps in this table if you want to browse the files available on the data target  before making a selection. </p>
-                                                <table class="TableStyle-SimpleTable" style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
-                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
-                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
-                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
-                                                    <thead>
-                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
-                                                                <p>If you want to…</p>
-                                                            </th>
-                                                            <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">
-                                                                <p>Enter this in Data Source Path</p>
-                                                            </th>
-                                                            <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">
-                                                                <p>Click this button</p>
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>Locate a folder</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
-                                                                <p>Path to the  folder without a trailing slash (for example, /flightData/2017)</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
-                                                                <p><span class="UIelement">BROWSE</span>
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                                <p>List a folder's contents</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                                <p>Path to the folder with a trailing slash (for example, /flightData/2017/)</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
-                                                                <p><span class="UIelement">BROWSE</span>
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
-                                                                <p>Locate a file</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">
-                                                                <p>Path to the file (for example, /flightData/2017/airlines.csv)</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
-                                                                <p><span class="UIelement">BROWSE</span>
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                                <p>The <span class="UIelement">BROWSE</span> button displays the <span class="UIelement">Browse Data Source</span> window, as described in <a href="#Understa" class="MCXref xref">Overview of the Browse Data Source window</a>.</p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;If the data source path does not exist, the <span class="UIelement">Browse Data Source</span> window is still displayed. It displays the contents of the root directory, from which you can then navigate to the appropriate data source. </div>
-                                                <h3><a name="Understa"></a>Overview of the Browse Data Source window</h3>
-                                                <p>The following screenshot illustrates the <span class="UIelement">Browse Data Source</span> window.</p>
-                                                <p>
-                                                    <img src="../../Resources/Images/XD_screenshots/browse-data-source.png" />
+                                                <h2 class="noPageBreak"><a name="Using"></a>Using the file browser to select the data source</h2>
+                                                <p>Use this method if any of the following conditions is true:<ul><li value="1">You want to preview the raw data in the data source file before the import.</li><li value="2">You want to recursively import data from a data source folder.</li><li value="3">You want to create multiple datasets at one time.</li><li value="4">You do not know the exact location of the file or the folder to be used as the data source.</li></ul></p>
+                                                <p> In the <span class="UIelement">Select Data Source Location</span> window, click <span class="UIelement">BROWSE</span> to browse the directory structure and navigate the folders by double clicking on them: </p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/xd-browse-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="773" data-mc-height="514" src="../../Resources/Images/XD_screenshots/xd-browse-data-source_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
-                                                <h4>Displaying the contents of a folder</h4>
-                                                <p>To display the contents of a particular folder in the <span class="UIelement">Browse Data Source</span> window, double click the folder.  The following screenshot illustrates the result of double clicking the folder named /datasets/usability.</p>
-                                                <p>
-                                                    <img src="../../Resources/Images/XD_screenshots/file-browser-top-sections.png" alt="" title="" />
-                                                </p>
-                                                <h4>Searching for items in the file browser</h4>
-                                                <p> If the folder contains a large number of files or sub-folders, use the <span class="UIelement">Search</span> field  to find relevant files.  </p>
-                                                <p>Typing or clicking in the <span class="UIelement">Search</span> field displays a drop-down list showing different search methods. If you do not select a search method, the search is a plain text search. </p>
-                                                <p>Regardless of the method, the search is case sensitive. Also, the search is recursive.</p>
-                                                <p>The following table explains the different kinds of search. </p>
+                                                <p>Once you have selected a file in the file browser, you can view the raw data (ASCII&#160;or hex) inside the file by right clicking the file name and selecting <span class="UIelement">VIEW&#160;RAW&#160;DATA</span>. The <span class="UIelement">Offset</span> field displays the position of the character where you place the cursor. To go to a character at a particular offset, enter a number in the <span class="UIelement">Skip to</span> field and press Enter.</p>
+                                                <h3>Selecting a single item as a data source </h3>
+                                                <p>If you want to use a single file as a data source without viewing its information, do one of the following:</p>
+                                                <ul>
+                                                    <li value="1">Double click the file in the file browser to go to the <span class="UIelement">Import Data Source</span> window. This method works only if the file icon does not have a check mark. </li>
+                                                    <li value="2">Select the check mark on the file and then click <span class="UIelement">NEXT</span> to go to the <span class="UIelement">Import Data Source</span> window. </li>
+                                                </ul>
+                                                <p>The next step is to import data through the <span class="UIelement">Import Data Source</span> window as described in <a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a>.</p>
+                                                <h3><a name="Selectin"></a>Selecting multiple items as a data source</h3>
+                                                <p>To specify multiple items in the file browser as data source:</p>
+                                                <ol>
+                                                    <li value="1">Use the key combination appropriate for your computer to select multiple items in the file browser. Each selected item is highlighted.</li>
+                                                    <li value="2">
+                                                        <p>Click the check box for an item. A check mark is placed in the box for each selected item. All checked items  are added to the list of data sources:</p>
+                                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/xd-multi-select-file-browser.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="694" data-mc-height="513" src="../../Resources/Images/XD_screenshots/xd-multi-select-file-browser_thumb_0_150.png" tabindex="" /></a>
+                                                        </p>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>(Optional)&#160;To select additional items in another folder, you can navigate to that folder in the file browser and check the check mark on the item to make selection. </p>
+                                                    </li>
+                                                    <li value="4">
+                                                        <p>(Optional)&#160;If you selected a folder as a data source, you can specify that <span class="GeneralProductName3">Xcalar</span> traverses the folder recursively for importing all data in the folder. Click the box preceding the folder path as shown in the following partial screenshot:</p>
+                                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/file-browser-recusive.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="387" data-mc-height="388" src="../../Resources/Images/XD_screenshots/file-browser-recusive_thumb_0_150.png" tabindex="" /></a>
+                                                        </p>
+                                                    </li>
+                                                    <li value="5">
+                                                        <p>If you want to create datasets, and if you have selected multiple items, use the&#160;<span class="UIelement">One Dataset/Multiple&#160;Datasets</span> selector to create one dataset for all items or one dataset per item.</p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;If you want to create a table and you have added multiple items to the list, the contents of each item are concatenated to form a single table. You do not have the option of creating multiple tables with one import.</div>
+                                                        <div class="Note"><span class="label">EXAMPLE</span>:&#160;Suppose you have selected the folder named /data/flightData and the files named /data/airlines2017.csv and /data/airlines2018.csv. If you select <span class="UIelement">Multiple Datasets</span>, you create three datasets, one from each item. If you select <span class="UIelement">One Dataset</span>, you create one dataset comprising of all the three items. The number of datasets that can be created is determined by the number of items on the list. Selecting <span class="UIelement">Multiple Datasets</span> does not create separate datasets for files inside the /data/flightData folder because the folder is considered one item.</div>
+                                                    </li>
+                                                    <li value="6">
+                                                        <p>Click <span class="UIelement">Next</span>. </p>
+                                                        <p>The <span class="UIelement">Import Data Source</span> window is displayed.</p>
+                                                        <p>The next step is to import data through the <span class="UIelement">Import Data Source</span> window as described in <a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a>.</p>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Advanced search options</h2>
+                                                <p>The following section describes the advanced search options available in the file browser. If you don't need to search files, you can go to the next step of importing data through the <span class="UIelement">Import Data Source</span> window as described in <a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a>.</p>
+                                                <h3>Searching for items in the file browser</h3>
+                                                <p> If a folder contains a large number of files or sub-folders, use the <span class="UIelement">Search</span> field  to find the relevant files. Entering text or clicking in the <span class="UIelement">Search</span> field displays a drop-down list showing different search methods. If you do not select a search method, the search is a plain text search. Regardless of the method, the search is always case sensitive and recursive.</p>
+                                                <p>The following table explains the different kinds of search: </p>
                                                 <table style="margin-left: 0;margin-right: auto;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');" class="TableStyle-SimpleTable" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -321,7 +260,7 @@
                                                                 <p>Search method</p>
                                                             </th>
                                                             <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
-                                                                <p>A match is found if…</p>
+                                                                <p>Description</p>
                                                             </th>
                                                         </tr>
                                                     </thead>
@@ -332,7 +271,7 @@
                                                                 </p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p>A path name relative to the current folder is an exact match for the regular expression. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the regular expression is compared to myfiles/file1.txt and myfiles/file2.txt to determine if there is an exact match.</p>
+                                                                <p>A match is found if a path name relative to the current folder is an exact match for the regular expression. </p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
@@ -341,7 +280,7 @@
                                                                 </p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                                <p>A path name relative to the current folder contains the regular expression. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the regular expression is compared to myfiles/file1.txt and myfiles/file2.txt to determine if the relative path name contains the regular expression.</p>
+                                                                <p>A match is found if a path name relative to the current folder contains the regular expression. </p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
@@ -350,7 +289,7 @@
                                                                 </p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p>The file name is an exact match for the glob pattern. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the glob pattern is compared to file1.txt and file2.txt to determine if there is an exact match.</p>
+                                                                <p>A match is found if a file name is an exact match for the glob pattern. </p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
@@ -359,165 +298,43 @@
                                                                 </p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                                <p>The  file name contains the glob pattern. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the glob pattern is compared to file1.txt and file2.txt to determine if the file name contains the glob pattern.</p>
+                                                                <p>A match is found if a file name contains the glob pattern. </p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Plain text search</td>
                                                             <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
-                                                                <p>A path name relative to the current folder contains the search string. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the search string is compared to myfiles/file1.txt and myfiles/file2.txt to determine if the path name contains the search string.</p>
+                                                                <p>A match is found if a path name relative to the current folder contains the search string. </p>
                                                             </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <h4>Searching for files or folders</h4>
                                                 <p>To search for files or folders:</p>
                                                 <ol>
-                                                    <li value="1">In the <span class="UIelement">Search</span> field, enter a search string .</li>
-                                                    <li value="2">If you want to do a <span class="UIelement">regex</span> or <span class="UIelement">glob </span>search, click a search method in the drop-down list from the <span class="UIelement">Search</span> field. If you want to do a  plain text search, press <span class="UIelement">Enter</span>.</li>
+                                                    <li value="1">In the <span class="UIelement">Search</span> field, enter a search string.</li>
+                                                    <li value="2">If you want to do a <span class="UIelement">regex</span> or <span class="UIelement">glob </span>search, select a search method in the drop-down list from the <span class="UIelement">Search</span> field. If you want to do a  plain text search, press <span class="UIelement">Enter</span>.</li>
                                                 </ol>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;You can switch to another search method after the search results are displayed. If a search method is selected, and you want to switch to plain text search, place the cursor in the <span class="UIelement">Search</span> field and then press Enter.</div>
                                                 <div class="Note"><span class="label">TIP</span>: To discard the search result and to display the contents of the current folder again, remove all characters from the <span class="UIelement">Search</span> field and then press Enter. Alternatively, restore the contents of the file browser by clicking the <span class="UIelement">Refresh</span> icon next to the <span class="UIelement">Search</span> field.</div>
-                                                <h4>Selecting an item in the file browser to obtain information about it</h4>
-                                                <p>Before you select an item as a data source, you might want to see information about it. The following table describes how to select an item.</p>
-                                                <table class="TableStyle-SimpleTable" style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
-                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
-                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
-                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
-                                                    <thead>
-                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
-                                                                <p>If you want to…</p>
-                                                            </th>
-                                                            <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">
-                                                                <p>Do this</p>
-                                                            </th>
-                                                            <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">
-                                                                <p>Result</p>
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>See contents of a folder</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
-                                                                <p>Double click the folder</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
-                                                                <p>The items at the top level of the current folder are listed in the file browser.</p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                                <p>See information about a folder</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                                <p>Click the folder once</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
-                                                                <p>The <span class="UIelement">Date Modified</span> section displays the timestamp of the last modification.</p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
-                                                                <p>See information about a file</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">
-                                                                <p>Click the file once</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
-                                                                <p>The <span class="UIelement">Date Modified</span> section displays the timestamp of the last modification. The <span class="UIelement">Size</span> section displays the file size.</p>
-                                                                <p>Optionally, you can view the raw data contained in the selected file. For information about examining the raw data in a file before selecting it as a data source, see <a href="#Viewing" class="MCXref xref">Viewing raw data</a>.</p>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can multi-select items in the same folder. Use the key combination appropriate for your computer to select multiple items in the file browser. Information for the last item selected is displayed.&#160;For example, if you select folder1, file1, and file2, in that order, information for file2 is displayed. </div>
-                                                <h4>Selecting an item as a data source </h4>
-                                                <p>If you want to use a single file as a data source without viewing its information, double click it in the file browser.  </p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;This method works only if the file is not a checked file. (That is, the file does not have a check mark.)</div>
-                                                <p>To see a preview of the data to be imported and specify how data should be imported, follow the instructions in <a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a>.</p>
-                                                <h4><a name="Selectin"></a>Selecting multiple items as a data source</h4>
-                                                <p>Follow these steps to specify multiple items in the file browser as data sources:</p>
-                                                <ol>
-                                                    <li value="1">Use the key combination appropriate for your computer to select multiple items in the file browser. Each selected item is highlighted in blue.</li>
-                                                    <li value="2">
-                                                        <p>Click the check box for an item. A check mark is placed in the box for each selected item. All checked items  are added to the list of data sources. The following screenshot shows how to select two files as data sources:</p>
-                                                        <p>
-                                                            <img src="../../Resources/Images/XD_screenshots/file-browser-multi-select-data-source.png" />
-                                                        </p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;You can uncheck an item  by clicking the check mark again. An unchecked item is removed from the list of data sources.</div>
-                                                    </li>
-                                                    <li value="3">
-                                                        <p>(Optional)&#160;To select additional items in another folder, you can navigate to that folder in the file browser and then make the selections. </p>
-                                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Add the desired items to the list of data sources before navigating away from the current folder.&#160;Otherwise, you lose the selections in the current folder as soon as you go to another folder.&#160;Checked items are not affected when you leave the current folder.</div>
-                                                    </li>
-                                                    <li value="4">
-                                                        <p>(Optional)&#160;If an item selected as a data source is a folder, you can specify that <span class="GeneralProductName3">Xcalar</span> traverses the folder recursively to import all data in the folder. Click the box preceding the folder path as shown in the following partial screenshot:</p>
-                                                        <p>
-                                                            <img src="../../Resources/Images/XD_screenshots/file-browser-recusive.png" />
-                                                        </p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;If the folder contains only sub-folders but no files, you must select <span class="UIelement">Recursive</span>. Otherwise, the folder cannot be used as a data source, and an error message is displayed. </div>
-                                                    </li>
-                                                    <li value="5">
-                                                        <p>(Advanced Mode only) If you want to create datasets, and if the list of selected files and folders contains multiple items, use the&#160;<span class="UIelement">One Dataset/Multiple&#160;Datasets</span> selector to create one dataset for all items or one dataset per item.</p>
-                                                        <div class="Note"> <span class="label">NOTE</span>:&#160;If you want to create a table and you put multiple items on the list, the contents of each item are concatenated to form a single table. You do not have the option of creating multiple tables with one import.</div>
-                                                        <div class="Note"><span class="label">EXAMPLE</span>:&#160;Suppose you have selected the folder named /data/flightData and the files named /data/airlines2017.csv and /data/airlines2018.csv. If you select <span class="UIelement">Multiple Datasets</span>, you create three datasets, one from each item. If you select <span class="UIelement">One Dataset</span>, you create one dataset comprising all three items. The number of datasets that can be created is determined by the number of items on the list. Selecting <span class="UIelement">Multiple Datasets</span> does not create separate datasets for files inside the /data/flightData folder because the folder is considered one item.</div>
-                                                    </li>
-                                                    <li value="6">Click <span class="UIelement">NEXT</span>. The top section of the resultant window shows a preview of the data to be imported. The bottom section displays fields for you to provide specifications for the table or dataset, as described in <a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a>.</li>
-                                                </ol>
-                                                <h4>Selecting all results of a regular expression as a dataset</h4>
+                                                <h3>Selecting all results of a regular expression search</h3>
                                                 <p>To specify all files matching a regular expression as data sources:</p>
                                                 <ol>
-                                                    <li value="1">Use the Browse Data Source window to select the lowest-level folder containing all data source files.</li>
-                                                    <li value="2">In the search field, enter a regular expression, which selects all the appropriate data source files in the current folder, and optionally, its sub-directories.</li>
-                                                    <li value="3">Select <span class="UIelement">regex(match)</span> from the search pull down menu.</li>
-                                                    <li value="4">Modify the regular expression until you confirm that only  appropriate data source files display in the file browser. </li>
+                                                    <li value="1">Use the <span class="UIelement">Browse Data Source</span> window to select the lowest-level folder containing all data source files.</li>
+                                                    <li value="2">In the search field, enter a regular expression, which selects all the appropriate data source files in the current folder, and optionally, its subdirectories.</li>
+                                                    <li value="3">Select <span class="UIelement">regex (match)</span> from the search pull down menu.</li>
+                                                    <li value="4">Modify the regular expression until you are satisfied that only the appropriate data source files are displayed in the file browser. </li>
                                                     <li value="5">In the <span class="UIelement">Selected Files / Folders list</span>, click the <span class="UIelement">Click to Add Regex</span> link. An item is added to the list containing the current folder followed by an editable regular expression, <span> <i>.*$</i></span>. </li>
                                                     <li value="6">Copy the regular expression from the search field, and paste it to replace the <span> <i>.*$</i></span> in the Selected Files / Folders list.</li>
-                                                    <li value="7">To apply the regex to all sub-directories, click the <span class="UIelement">Recursive</span> check box next to your expression.</li>
-                                                    <li value="8">Click <span class="UIelement">NEXT</span>.</li>
+                                                    <li value="7">To apply the regex to all subdirectories, click the <span class="UIelement">Recursive</span> check box next to your expression.</li>
+                                                    <li value="8">
+                                                        <p>Click <span class="UIelement">Next</span>.</p>
+                                                        <p>The <span class="UIelement">Import Data Source</span> window is displayed where you can preview the data and provide specifications for the creation of a table or a dataset, as described in <a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a>.</p>
+                                                    </li>
                                                 </ol>
-                                                <div class="Note"><span style="font-weight: bold;">NOTE</span>:&#160;The search field performs a recursive search, by default. If some data source files are in sub-directories, then your results will only be identical if you click the <span class="UIelement">Recursive</span> check box. </div>
+                                                <div class="Note"><span style="font-weight: bold;">NOTE</span>:&#160;By default, the search field performs a recursive search. If some data source files are in subdirectories, your results will only be identical if you click the <span class="UIelement">Recursive</span> check box. </div>
                                                 <div class="Note"><span style="font-weight: bold;">NOTE</span>:&#160;This topic assumes you are familiar with writing regular expressions (regex). For more information about writing regex, see <a href="https://docs.python.org/3/howto/regex.html#regex-howto">https://docs.python.org/3/howto/regex.html#regex-howto</a>.</div>
-                                                <h3><a name="Viewing"></a>Viewing raw data</h3>
-                                                <p>This section is applicable if you want to select a file as a data source and you want to examine the raw data in the file. </p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You cannot  view raw data in a data source if the data source is a folder.</div>
-                                                <p>You can view the raw data inside a file to make sure that the file is the desired one. Follow these steps to view the raw data of a file:</p>
-                                                <ol>
-                                                    <li value="1">
-                                                        <p>Click a file once to select it for viewing. </p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;Do not double click because doing so selects an item as a data source.</div>
-                                                    </li>
-                                                    <li value="2">Click <span class="UIelement">VIEW&#160;RAW&#160;DATA</span>. You can view the data in ASCII&#160;format or as a hex dump.</li>
-                                                    <p>The following screenshots show how you view the raw data in airlines.csv, in ASCII and in hex code.</p>
-                                                    <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/file-previewer-ascii.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="777" data-mc-height="531" src="../../Resources/Images/XD_screenshots/file-previewer-ascii_thumb_0_150.png" tabindex="" /></a>
-                                                    </p>
-                                                    <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/file-previewer-hex-dump.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="764" data-mc-height="513" src="../../Resources/Images/XD_screenshots/file-previewer-hex-dump_thumb_0_150.png" tabindex="" /></a>
-                                                    </p>
-                                                    <li value="3">(Optional) The <span class="UIelement">Offset</span> field displays the character (ASCII or hex) at the location where your place the cursor. In the <span class="UIelement">Skip to</span> field, type a number and press Enter if you want to go to a character at a particular offset.</li>
-                                                </ol>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;If you want to switch to another file in the same folder for raw data viewing, click the desired file in the file browser. The raw data section is updated with data from the newly selected file. </div>
-                                                <h2>Entering a data source path to select it immediately</h2>
-                                                <p>To import data from a folder or file at the specified path:</p>
-                                                <ol>
-                                                    <li value="1">
-                                                        <p>In  the <span class="UIelement">Data Source Path</span> field, enter the path to a file or a folder. </p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;The path is relative to the data target. For example, if the  data target points to /flightData/2017, and the complete path to the data source file is /flightData/2017/airlines.csv, enter <span class="UIelement">/airlines.csv</span> or <span class="UIelement">airlines.csv</span> in <span class="UIelement">Data Source Path</span>. <span class="GeneralGUIName1">Xcalar Design</span> accepts a path with or without the preceding forward slash&#160;(/).</div>
-                                                        <div class="Note"><span class="label">EXAMPLE</span>:&#160;Enter the folder path, /flightData/2017 or /flightData/2017/, to import data in all files at the top level of the folder.</div>
-                                                        <div class="Note"><span class="label">EXAMPLE</span>:&#160;Enter the file path, /flightData/2017/airlines.csv to import the data in the file.</div>
-                                                    </li>
-                                                    <li value="2">
-                                                        <p> Click  <span class="UIelement">NEXT</span>. To see a preview of the table or dataset and specify how data should be imported, follow the instructions in <a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a>.</p>
-                                                    </li>
-                                                </ol>
-                                                <p>Each data source path that <span class="GeneralGUIName1">Xcalar Design</span> uses to create a table or dataset preview is recorded in the data path history. The next time you click in the <span class="UIelement">Data Source Path</span> field, a drop-down list shows up to 5 previously used data source paths.</p>
-                                                <h2>Next step</h2>
-                                                <p>See a preview of the table or dataset and provide specifications for the creation of a table or dataset as described in this topic:</p>
-                                                <p><a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a>
-                                                </p>
+                                                <h2 class="noPageBreak">Next step</h2>
+                                                <p>Import data through the <span class="UIelement">Import Data Source</span> window as described in <a href="B4_ImportData.htm" class="MCXref xref">Importing a data source</a></p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

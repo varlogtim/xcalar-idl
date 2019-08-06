@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Performing result set tasks </title>
+        <meta name="author" content="" /><title>Understanding the result set window in Dataflow Mode</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -94,8 +94,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -188,150 +186,161 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Performing result set tasks </h1>
-                                                <p><span class="GeneralProductName3">Xcalar</span> creates a result set after it executes a Node. If you execute an entire dataflow or a group of Nodes, <span class="GeneralProductName3">Xcalar</span> creates a result set for each  executed Node.</p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;When you execute a dataflow with optimization, the execution does not create a result set for each Node. The result of such execution is an optimized dataflow. For information about optimized dataflows, see <a href="B_UnderstandDfOptimization.htm" class="MCXref xref">Understanding dataflow execution</a>.</div>
-                                                <h2 class="noPageBreak"><a name="Understa2"></a>Understanding the Node status indicator</h2>
-                                                <p>You can determine whether you can create a result set or view a Node's result set by checking the status of a Node. The following table explains how to interpret the Node status indicator:</p>
-                                                <table class="TableStyle-SimpleTable" style="mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" cellspacing="0">
-                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <h1>Understanding the result set window in Dataflow Mode</h1>
+                                                <p>If you execute a dataflow or a Node, <span class="GeneralProductName3">Xcalar</span> creates a result set for each  executed Node and you can view the data of the result set in a table format. Viewing the result set helps you determine the operations you want to add for developing your data model.  </p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;When you execute a dataflow with optimization, the execution does not create a result set for each Node. For more information about optimized dataflows, see <a href="B_UnderstandDfOptimization.htm" class="MCXref xref">Understanding a dataflow with optimization</a>.</div>
+                                                <h2 class="noPageBreak"><a name="Viewing"></a>Viewing the result set of a Node</h2>
+                                                <p>To view the result set of an executed Node:</p>
+                                                <ol>
+                                                    <li value="1">Right click the Node to display a drop-down.</li>
+                                                    <li value="2">
+                                                        <p>Click <span class="UIelement">View Result</span>. The Result Set view appears above the dataflow canvas. <span class="UIelement">View Result</span> may be disabled if the Node is not executed. </p>
+                                                    </li>
+                                                </ol>
+                                                <p>You can view only one result set at a time. To view the result set of another Node, repeat the steps in this procedure for that Node. </p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can configure the dataflow setting to automatically display the result set after execution. For more information, see <a href="H_SettingsForDf.htm" class="MCXref xref">Configuring dataflow settings</a>.</div>
+                                                <h2 class="noPageBreak">Understanding the result set view</h2>
+                                                <p>In the Dataflow Mode, the result set view consists of the results generated from the execution of a Node, arranged in a tabular format.&#160;The originating Node name is displayed at the top of the result set. The following list describes how you can navigate the result set view:</p>
+                                                <ul>
+                                                    <li value="1">If you have a large number of columns and you need to search for a particular one, enter a partial or complete column name in the result set view search bar. The search is case-insensitive. If there is a match, the column header  is highlighted. Press Enter to see the next match.</li>
+                                                    <li value="2">You can enter the row number in the <span class="UIelement">Skip to rows</span> field to go to a particular row.</li>
+                                                    <li value="3">You can scroll horizontally and vertically.</li>
+                                                </ul>
+                                                <p>By default, the result set view contains a special column called DATA. This column enables you to display a modal window named Data Browser. The main purpose of the Data Browser is to show you all the fields in your result set even if they are hidden. For more information about how to use the Data Browser, see <a href="K_DataBrowser.htm" class="MCXref xref">Performing tasks in the Data Browser</a>.</p>
+                                                <p>The following screenshot illustrates how to search, skip to a particular row, or close a result set:</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/result-set-navigate.png" alt="" title="" />
+                                                </p>
+                                                <h2 class="noPageBreak">Using a cell option in the result set view</h2>
+                                                <p>In the result set view of the Dataflow Mode, you can right click any cell in the result set to perform the following tasks:</p>
+                                                <ul>
+                                                    <li value="1">Add a filter operation. For more information about filter operations, see <a href="../B_Operations/G_FilterValue.htm" class="MCXref xref">Filtering in a result set column</a>. </li>
+                                                    <li value="2">Copy the value in the cell to the clipboard.  </li>
+                                                </ul>
+                                                <h2 class="noPageBreak"><a name="Understa"></a>Understanding the result set menu</h2>
+                                                <p>The result set view in the Dataflow Mode  provides a menu with the following options:</p>
+                                                <ul>
+                                                    <li value="1"><span class="UIelement">Export </span>for exporting data from the result set as described in <a href="../C_Export/A_ExportDfResult.htm" class="MCXref xref">Exporting the result of a dataflow</a>.</li>
+                                                    <li value="2"><span class="UIelement">Change data type</span> for changing the data types of the desired columns as described in <a href="../B_Operations/D_ChangeDataType.htm" class="MCXref xref">Changing the data type of a column</a>.</li>
+                                                    <li value="3"><span class="UIelement">Correlation </span>for displaying the correlation between numeric columns and for displaying the common aggregates as described in <a href="../B_Operations/L_Correlation.htm" class="MCXref xref">Determining the correlation between two columns</a>.</li>
+                                                    <li value="4"><span class="UIelement">Convert to Jupyter DF</span> for creating a Jupyter Notebook from the result set as described in <a href="../D_Jupyter/C1_UsingJupyter.htm" class="MCXref xref">Using Xcalar Design with Jupyter Notebook</a>.</li>
+                                                    <li value="5"><span class="UIelement">Sort columns by name</span> for sorting the columns by column name.</li>
+                                                    <li value="6">
+                                                        <p><span class="UIelement">Sort columns by type</span> for sorting the columns by data type.</p>
+                                                    </li>
+                                                    <li value="7"><span class="UIelement">Sort columns by prefix</span> for sorting the columns by prefix.</li>
+                                                    <li value="8"><span class="UIelement">Resize all coulmns</span> for resizing all columns to fit the size of the headers, size of the content, or size of the headers and the content.</li>
+                                                    <li value="9"><span class="UIelement">Advanced Options</span> for:<ul><li value="1"> Creating an Erroneous Rows result set as described in <a href="../B_Operations/H_ErroneousRows.htm" class="MCXref xref">Creating a result set with erroneous rows only</a>.</li><li value="2"> Creating a Complement result set for a Filter Node result set, which creates a new Filter Node with the same parent Node as the original Filter Node but complements the filter logic. This is useful when you want to see the rows that are excluded from the Filter Node result set.</li><li value="3"><p>Viewing the skew details. The skew value is an indicator for how evenly the data in a result set is distributed across cluster nodes. The value ranges from 0 to 100. If the skew value is 0, the data is perfectly distributed across all cluster nodes. If the skew value is 100, all the data is on one cluster node.</p><div class="Note"><span class="label">NOTE</span>:&#160;Data distribution affects the cluster performance. The more evenly the data is distributed, the faster the operations run on a cluster. If you experience slowness in your result set, check to see if a high skew is the cause of low performance. If so, and if you run this operation frequently, contact <span class="GeneralProductName3">Xcalar</span> for information about improving the performance. You can also refer to the <span class="GeneralProductName3">Xcalar</span> community forum and knowledge base to obtain tips on how to reduce the skew.</div></li></ul></li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Column header menu on a result set</h2>
+                                                <p>Right clicking on the result set column headers in the Dataflow Mode displays the following menu options:</p>
+                                                <table style="mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');width: 100%;margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <caption data-mc-autonum="Table 1 "><span class="autonumber"><span>Table 1 </span></span>In Result Set</caption>
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" style="width: 210px;" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" />
                                                     <thead>
                                                         <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
-                                                                <p>Status indicator color</p>
-                                                            </th>
-                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
-                                                                <p>Description</p>
-                                                            </th>
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Menu item</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Description</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>Clear</p>
-                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Minimize column or Unminimize column</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">To minimize or reset the column width.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Hide column</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">To hide a column. To unhide a column, double click on any row of the DATA column to display the Data Browser modal window. It displays a "Fields not present in current row" section. Click on the field name that you want to unhide and it is added to the result set view. <p>For more information about how to use the DATA column, see <a href="K_DataBrowser.htm" class="MCXref xref">Performing tasks in the Data Browser</a>.</p></td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Text align</td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p>The Node is not configured. For example, immediately after you created a Node, the indicator is clear. You must configure the Node before it is executable. To execute the entire dataflow, all Nodes must be configured.</p>
+                                                                <p>To align the column text to the left, center, or right. You also have the option to wrap the text.</p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                                <p class="tableParagraph">Yellow</p>
+                                                                <p class="tableParagraph">Resize</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                                <p class="tableParagraph">The Node is configured, but it does not have a result set. After you execute the Node, a result set is created.</p>
+                                                                <p class="tableParagraph">To resize all columns to fit the size of the headers, size of the content, or size of the headers and the content.</p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>Green</p>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Change data type</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">To change the data types of the desired columns. </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Sort</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p>The Node was successfully executed. You can view the result set. However, if the result set has been dropped, the indicator remains green, and you must generate the result set to view it again.</p>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">To sort a column  in ascending or descending order. The columns with objects and arrays cannot be sorted. For more information, see <a href="../B_Operations/E1_SortAndQuartile.htm" class="MCXref xref">Sorting a result set and finding quartiles</a>.</p>
                                                             </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Project</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">To optimize the memory usage as described in <a href="../B_Operations/W_Project.htm" class="MCXref xref">Using the Project operation to reduce memory usage</a>.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Round</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">To round a float number to the specified number of decimal places as described in <a href="../B_Operations/S_RoundOperation.htm" class="MCXref xref">Rounding a column value</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Aggregate</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">To aggregate the column values as described in <a href="../B_Operations/M_QuickAggregates.htm" class="MCXref xref">Determining aggregate values</a>.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Filter</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">To filter the column values as described in <a href="../B_Operations/G_FilterValue.htm" class="MCXref xref">Filtering in a result set column</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Group By</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">To use Group By operation on a column as described in <a href="../B_Operations/J_GroupBy.htm" class="MCXref xref">Grouping data in a result set</a>.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Map</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">To map column values to different values as described in <a href="../B_Operations/K_Map.htm" class="MCXref xref">Using a Map function to create new values</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Join</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">To perform a join operation on result sets as described in <a href="../B_Operations/I_JoinTables.htm" class="MCXref xref">Joining result sets</a>.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Set operation</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">To perform a Set operation on result sets as described in <a href="../B_Operations/I1_UnionTables.htm" class="MCXref xref">Performing a Set operation on multiple result sets</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Correlation</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">To display the correlation between numeric columns and to display the common aggregates as described in <a href="../B_Operations/L_Correlation.htm" class="MCXref xref">Determining the correlation between two columns</a>.</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
-                                                                <p class="tableParagraph">Red</p>
+                                                                <p class="tableParagraph">Profile</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
-                                                                <p class="tableParagraph">The Node is incorrectly configured. For example, if a Node in the middle of a dataflow does not have a link to a parent Node, or if you entered invalid information during Node configuration, the Node's status indicator is red. You might be able to execute a Node with a red status indicator, but the result set is meaningful. For example, the result set might contain no rows. </p>
+                                                                <p class="tableParagraph">To display the statistical information about column values as described in <a href="../B_Operations/E_CountOccurrencesOfValues.htm" class="MCXref xref">Using Profile to find the distribution of values in a column</a>.</p>
                                                             </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <p>The following screenshot illustrates the Nodes with different status indicators:</p>
-                                                <p>
-                                                    <img src="../../../Resources/Images/XD_screenshots/node-status.png" alt="" title="" />
-                                                </p>
-                                                <h2 class="noPageBreak">Viewing a result set</h2>
-                                                <p>To view a result set, follow these steps:</p>
-                                                <ol>
-                                                    <li value="1">Right click the Node to display a menu.</li>
-                                                    <li value="2">
-                                                        <p>Click <span class="UIelement">View Result</span>. The Result Set view appears above the canvas.</p>
-                                                        <p>You can view one result set at a time. To select another result set, repeat the steps in this procedure for the desired Node. The result set of the newly selected Node will be displayed.</p>
-                                                    </li>
-                                                </ol>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can configure a dataflow setting to automatically display the result set automatically after execution. </div>
-                                                <h2 class="noPageBreak">Understanding the Result Set view</h2>
-                                                <p>The Result Set view consists of data generated from the execution of a Node, which is arranged in a tabular format.&#160;The result set does not have a title, but <span class="GeneralGUIName1">Xcalar Design</span> indicates from which Node the result set originated. The following list describes how you can navigate the Result Set view:</p>
-                                                <ul>
-                                                    <li value="1">If you have a large number of columns and you need to search for a particular one, enter a partial or complete column name in the search bar. The search is case-insensitive. If there is a match, the column header  is highlighted. Press Enter to see the next match.</li>
-                                                    <li value="2">You can enter the row number to go to a particular row.</li>
-                                                    <li value="3">You can scroll horizontally and vertically.</li>
-                                                </ul>
-                                                <p>By default, the Result Set view contains a special column called DATA. This column enables you to display a modal window named Data Browser. For more information about how to use the Data Browser, see <a href="K_DataBrowser.htm" class="MCXref xref">Performing tasks in the Data Browser</a>.</p>
-                                                <p>The following screenshot illustrates how to search, skip to a particular row, and scroll when you are viewing a result set:</p>
-                                                <p>
-                                                    <img src="../../../Resources/Images/XD_screenshots/result-set-navigate.png" alt="" title="" />
-                                                </p>
-                                                <h2 class="noPageBreak">Changing the appearance of the Result Set view</h2>
-                                                <p>You can change how data is displayed in the result set from the column drop-down list, which appears when you right click the column header. This section describes how you select an option in the list to change the appearance of the result set. Making these changes does not affect the dataflow. </p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;The changes  are temporary. if you  re-execute a Node (for example, after a reconfiguration or reset), the change you made to the result set is not retained. For example, you can hide columns in a result set to reduce clutter; but if you configure and execute the Node again, the columns previously hidden re-appear in the result set.</div>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;The column drop-down list contains other options that you can use as a shortcut to creating an operation in the dataflow. For example, you can add an operation to split a column. Information about these column operations is provided in other topics. </div>
-                                                <h3>Minimizing and unminimizing a column</h3>
-                                                <p>Select <span class="UIelement">Minimize column</span> to make it narrow. To view the contents of the column, mouse over the minimized columh header and then right click to display the drop-down list. Select <span class="UIelement">Unminimize column</span> to revert the column to its original width.</p>
-                                                <h3>Hiding a column</h3>
-                                                <p>Select <span class="UIelement">Hide a column</span> to remove the column from the Result Set view. Hiding a column reduces clutter in the display; it does not  delete the column. You can always add a hidden column back to the Result Set view. For information about adding a column, see <a href="K_DataBrowser.htm#Adding" class="MCXref xref">Adding a field to the Result Set view</a>.</p>
-                                                <h3>Aligning text in a column</h3>
-                                                <p>Select <span class="UIelement">Text align</span>.  Then select <span class="UIelement">Left Align</span>, <span class="UIelement">Right Align</span>, <span class="UIelement">Center Align</span>, or <span class="UIelement">Wrap Text</span>. The <span class="UIelement">Wrap Text</span> option automatically aligns text on the left.</p>
-                                                <h3>Resizing a column</h3>
-                                                <p>Use one of these methods to resize a column:</p>
-                                                <ul>
-                                                    <li value="1">Rest the cursor on the boundary of the column header until the cursor changes to a resize cursor. Then drag left or right.</li>
-                                                    <li value="2">
-                                                        <p>Follow these steps to resize a column:</p>
-                                                        <ol>
-                                                            <li value="1">In the column drop-down menu, select <span class="UIelement">Resize</span>. </li>
-                                                            <li value="2">Select one of the following options:<ul style="list-style-type: circle;"><li value="1"><span class="UIelement">Size to header</span>:&#160; The column width is changed to accommodate the header.</li><li value="2"><span class="UIelement">Size to contents</span>:&#160;The column width is changed to accommodate the widest value in  the column</li><li value="3"><span class="UIelement">Size to fit all</span>:&#160;The column width is changed to accommodate both the header and the widest value in the column.</li></ul></li>
-                                                        </ol>
-                                                    </li>
-                                                </ul>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can resize all columns at the same time through the result set menu. For more information about the menu, see <a href="#Understa" class="MCXref xref">Understanding the result set menu</a>.</div>
-                                                <h2 class="noPageBreak">Sorting a column</h2>
-                                                <p>Select <span class="UIelement">Sort</span> to sort the values  in ascending or descending order. If the column is a string column with numerals in some cells, you can choose to sort the column as numerically.</p>
-                                                <h2 class="noPageBreak">Using a cell option in the Result Set view</h2>
-                                                <p>In the Result Set view, you can right click any cell to perform these tasks:</p>
-                                                <ul>
-                                                    <li value="1">Start a filter or exclude operation in the dataflow. For more information about these operations, see <a href="../B_Operations/G_FilterValue.htm" class="MCXref xref">Filtering in a result set column</a>. </li>
-                                                    <li value="2">Copy the value in the cell to the clipboard.  </li>
-                                                </ul>
-                                                <h2 class="noPageBreak"><a name="Understa"></a>Understanding the result set menu</h2>
-                                                <p>In the Result Set view, <span class="GeneralGUIName1">Xcalar Design</span> provides a menu with options for these purposes:</p>
-                                                <ul>
-                                                    <li value="1">Exporting data from the result set. For more information about exporting data, see <a href="../C_Export/A_ExportDfResult.htm" class="MCXref xref">Exporting the result of a dataflow</a>.</li>
-                                                    <li value="2">Creating a cast operation to change the data types of desired columns. For information about changing data types, see <a href="../B_Operations/D_ChangeDataType.htm" class="MCXref xref">Changing the data type of a column</a>.</li>
-                                                    <li value="3">Displaying correlation between numeric columns and displaying common aggregates. For more information about viewing correlation and common aggregates, see <a href="../B_Operations/E_CountOccurrencesOfValues.htm" class="MCXref xref">Counting occurrences of unique values in a column</a>.</li>
-                                                    <li value="4">Creating a Jupyter Notebook from the result set. For information about Jupyter Notebook, see <a href="../D_Jupyter/C1_UsingJupyter.htm" class="MCXref xref">Using Xcalar Design with Jupyter Notebook</a>.</li>
-                                                    <li value="5">Sorting columns by column name, prefix, or data type.</li>
-                                                    <li value="6">Resizing all columns.</li>
-                                                    <li value="7">Resetting all columns to the original width.</li>
-                                                    <li value="8">Creating an erroneous rows result set or a complement result set.</li>
-                                                </ul>
-                                                <h2 class="noPageBreak">Dropping a result set</h2>
-                                                <p>Dropping a result set enables you to free up cluster memory. The following list describes the scenarios where a result set is dropped:</p>
-                                                <ul>
-                                                    <li value="1">When <span class="GeneralProductName3">Xcalar</span> detects that memory is low, it automatically drops result sets.</li>
-                                                    <li value="2">You can go to the System &gt; Monitor panel to manually drop a result set to free up memory. For more information about the Monitor, see <a href="../../D_ClusterTasks/K_Monitor.htm" class="MCXref xref">Viewing the System status</a>.</li>
-                                                </ul>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can re-create the result set after you drop it.</div>
-                                                <h2 class="noPageBreak">Generating a result set</h2>
-                                                <p>After a result set is dropped, you can re-create it. To generate a result set, follow these steps:</p>
-                                                <ol>
-                                                    <li value="1">Right click a Node in the dataflow for which the result set has been dropped.</li>
-                                                    <li value="2">In the drop-down list, select <span class="UIelement">Generate Result</span>. The result set, which  was dropped, is available again.</li>
-                                                </ol>
-                                                <h2 class="noPageBreak">Locking and unlocking a result set</h2>
-                                                <p>If you do not want a result set to be dropped, either by <span class="GeneralProductName3">Xcalar</span> due to memory pressure or by you, you can lock it. When you remove a Node from the dataflow, however, the result set is dropped even if it is locked.</p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can still perform tasks described in this topic to manipulate the locked result set. For example, you can use the result set menu to sort or resize columns in a locked result set.</div>
-                                                <p>To lock and unlock a result set, whether or not you are currently viewing it, follow these steps:</p>
-                                                <ol>
-                                                    <li value="1">Right click a Node in the dataflow that has a result set. </li>
-                                                    <li value="2">In the drop-down list, select <span class="UIelement">Lock Result</span>. A lock icon is applied to the Node.</li>
-                                                    <li value="3">To unlock a result set, select <span class="UIelement">Unlock Result</span> in the drop-down list.</li>
-                                                </ol>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

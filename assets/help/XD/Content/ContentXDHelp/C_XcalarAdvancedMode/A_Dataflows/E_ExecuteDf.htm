@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -46,6 +46,7 @@
 }
 
 </style>
+        <link href="../../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../../../Resources/Scripts/jquery.min.js">
@@ -93,8 +94,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -188,32 +187,34 @@
                                                     </div>
                                                 </div>
                                                 <h1>Executing a dataflow</h1>
-                                                <p>You can execute a partial dataflow or an entire dataflow. In addition, if the dataflow is built for optimized execution, you can execute the dataflow with or without optimization. For the meaning of optimized execution, see <a href="B_UnderstandDfOptimization.htm" class="MCXref xref" xrefformat="{para}">Understanding dataflow execution</a>.</p>
-                                                <h2 class="noPageBreak">Requirements for dataflow execution</h2>
+                                                <p>This topic describes the steps for executing a dataflow. It assumes that you already have a dataflow as described in <a href="L_WorkingWithDf.htm" class="MCXref xref">Working with a dataflow</a>.</p>
+                                                <p>You can execute a partial dataflow or an entire dataflow. In addition, if the dataflow is built for optimized execution, you can execute the dataflow with or without optimization. For more information about optimized execution, see <a href="B_UnderstandDfOptimization.htm" class="MCXref xref">Understanding a dataflow with optimization</a>.</p>
+                                                <h2 class="noPageBreak">Requirements for a dataflow execution</h2>
                                                 <p>For a dataflow to be executed, all Nodes in the dataflow or the selected part of the dataflow must be executable. The following conditions must be met for a Node to be executable:</p>
                                                 <ul>
                                                     <li value="1">The Node must be configured. </li>
-                                                    <li value="2">
-                                                        <p>The Node must not depend on a <span class="UIelement">Single Value</span> Node that descends from that Node. For example, you cannot execute the dataflow in the following screenshot because the <span class="UIelement">Single Value</span> Node calculates the aggregate value from the result set of the Map Node, which in turn uses the aggregate value in the Map function. If the Single Value Node is linked to Node 4 (<span class="UIelement">Cast</span> Node) instead of the Map Node, you can execute the dataflow.</p>
+                                                    <li value="2">Unless the Node is the source Node (the first Node of a dataflow or a sub-dataflow), the Node must have a parent Node. In addition, all the parent Nodes must be executable.</li>
+                                                    <li value="3">
+                                                        <p>The Node must not depend on a <span class="UIelement">Single Value</span> Node that descends from that Node. For example, you cannot execute the dataflow in the following screenshot because the <span class="UIelement">Single Value</span> Node calculates the aggregate value from the result set of the Map Node, which in turn uses the aggregate value in the Map function. If the Single Value Node is linked to Node 4 (<span class="UIelement">Cast</span> Node) instead of the <span class="UIelement">Map</span> Node, you can execute the dataflow.</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/dataflow-aggregate-after-map.png" alt="" title="" />
                                                         </p>
                                                     </li>
-                                                    <li value="3">Unless the Node is the source Node (the first Node of a dataflow or sub-dataflow), the Node must have a parent Node. A Node might not have a parent Node, for example, due to a removed link. In addition, all the parent Nodes must be executable.</li>
                                                 </ul>
                                                 <h2 class="noPageBreak">Executing a partial dataflow</h2>
-                                                <p>To execute a partial dataflow, follow these steps:</p>
+                                                <p>Executing a partial dataflow is helpful in debugging the dataflow in smaller parts before moving on to the next part. To execute a partial dataflow:</p>
                                                 <ol>
-                                                    <li value="1">Display the dataflow.</li>
+                                                    <li value="1">Display the dataflow in the dataflow editor.</li>
                                                     <li value="2">
-                                                        <p>Select multiple Nodes by using the multi-selection method appropriate to your computer or using the selection rectangle to include the Nodes. For more information about making selections, see <a href="C_CreateEditDeleteDf.htm#Multi-se" class="MCXref xref" xrefformat="{para}">Multi-selecting Nodes</a>.</p>
-                                                        <div class="Note"><span class="label">TIP</span>:&#160;To execute multiple Nodes on the same branch of a dataflow, you can select only the last Node because all its parent Nodes will also be executed.</div>
+                                                        <p>Select multiple Nodes by using the multi-selection method appropriate to your computer or using the selection rectangle to include the Nodes. For more information about making selections, see <a href="C_CreateEditDeleteDf.htm#Multi-se" class="MCXref xref">Multi-selecting Nodes</a>.</p>
                                                     </li>
-                                                    <li value="3">Right click anywhere in the canvas (but not on an unselected Node) to display a list.</li>
-                                                    <li value="4">Click <span class="UIelement">Execute</span>.</li>
+                                                    <li value="3">Right click anywhere in the canvas (but not on an unselected Node) and click <span class="UIelement">Execute</span>.</li>
+                                                    <li value="4">
+                                                        <p>The dataflow is executed and the results are displayed as described in <a href="#Results" class="MCXref xref">Results of executing a dataflow</a>.</p>
+                                                    </li>
                                                 </ol>
                                                 <h2 class="noPageBreak">Executing an entire dataflow</h2>
-                                                <p>Executing an entire dataflow means executing all Nodes in all sub-dataflows in the current dataflow tab. To execute an entire dataflow, follow these steps:</p>
+                                                <p>Executing an entire dataflow means executing all the Nodes of a dataflow including all the sub-dataflows in the current dataflow tab. To execute an entire dataflow:</p>
                                                 <ol>
                                                     <li value="1">Display the dataflow in the dataflow editor.</li>
                                                     <li value="2">
@@ -221,29 +222,104 @@
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/dataflow-execute.png" alt="" title="" />
                                                         </p>
+                                                        <p>The dataflow is executed and the results are displayed as described in <a href="#Results" class="MCXref xref">Results of executing a dataflow</a>.</p>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>While the dataflow is executing, you can click on the red <span class="UIelement">Cancel Execution</span> icon on the top to stop the execution. </p>
                                                     </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Results of executing a dataflow</h2>
-                                                <p>The following list describes what happens after you successfully execute a dataflow:</p>
+                                                <h2 class="noPageBreak"><a name="Results"></a>Results of executing a dataflow</h2>
+                                                <p>The following list describes what happens when you execute a dataflow:</p>
                                                 <ul>
-                                                    <li value="1">When the execution is in progress, the percentage of completion is displayed for each Node.</li>
-                                                    <li value="2">After the execution of a Node is finished, a statistics box is displayed above the Node with the following information:<ul><li value="1">Number of rows in the result set (if applicable to the Node)</li><li value="2">Time taken to complete the execution</li><li value="3">Skew of the result set (if applicable to the Node).</li></ul><div class="Note"><span class="label">NOTE</span>:&#160;Executing a Link out Node does not produce a statistics box. </div></li>
-                                                    <li value="3">
-                                                        <p>If applicable, a result set for each executed Node is available for you to view. If you execute a <span class="UIelement">Single Value</span> Node, you can view the resultant value.</p>
+                                                    <li value="1">The execution starts at the first Node of the dataflow or the partial dataflow.</li>
+                                                    <li value="2">When the execution is in progress, the percentage of completion is displayed for each Node.</li>
+                                                    <li value="3">After the execution of a Node is finished, a statistics box is displayed above the Node with the following information:<ul><li value="1">Number of rows in the result set (if applicable to the Node).</li><li value="2">Time taken to complete the execution.</li><li value="3">Skew of the result set (if applicable to the Node). Clicking on the skew number displays the details of the largest skew number of all the interim operations performed during the execution of the Node. For example, executing a <span class="UIelement">Group By</span> Node may internally perform an index operation and a group by operation. Both the operations generate a skew number and the larger skew number is displayed in the statistics box.</li></ul><div class="Note"><span class="label">NOTE</span>:&#160;Executing a Link Out Node does not produce a statistics box. </div></li>
+                                                    <li value="4">
+                                                        <p>If applicable, a result set for each executed Node is available for you to view by right clicking and selecting <span class="UIelement">View Result</span> on that Node. If you execute a <span class="UIelement">Single Value</span> Node, you can view the resultant value. For understanding the result set window, see <a href="M_WorkingWithResults.htm" class="MCXref xref">Working with result sets</a>.</p>
                                                     </li>
-                                                    <li value="4">All nodes' status indicator turns green. For more information about the status indicator, see <a href="J_ResultSetTasks.htm#Understa2" class="MCXref xref" xrefformat="{para}">Understanding the Node status indicator</a>.</li>
+                                                    <li value="5">As each Node executes, its status indicator changes color. For more information about the status indicator, see <a href="#Understa" class="MCXref xref">Understanding the Node status indicator</a>.</li>
                                                 </ul>
-                                                <h2 class="noPageBreak">Results of executing a dataflow with optimization</h2>
-                                                <p>If you execute a Link out Optimized or Export Optimized Node, a new dataflow tab is displayed, showing the optimized dataflow. This dataflow looks similar to the one you executed but might contain different Nodes. The title for this dataflow tab is in italics, indicating that you cannot rename or edit the dataflow in this tab. </p>
-                                                <p>In the dataflow from which you start the execution, except for the terminal Node, each Node has a yellow status indicator. This is because an optimized version of the dataflow was executed, and the execution did not step through each Node. There is not a result set associated with each Node. In the optimized dataflow, however, each Node has a green status indicator.</p>
-                                                <p>The following list describes what you can do in this dataflow tab:</p>
+                                                <h2 class="noPageBreak"><a name="Understa"></a>Understanding the Node status indicator</h2>
+                                                <p>Every Node in the dataflow has a status indicator. The following table explains the various states of the Node status indicator:</p>
+                                                <table class="TableStyle-SimpleTable" style="mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
+                                                                <p>Status indicator color</p>
+                                                            </th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
+                                                                <p>Description</p>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Clear</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>The Node is not configured. For example, immediately after you add a Node to a dataflow, the status indicator is clear. You must configure the Node before it is executable. To execute the entire dataflow, all Nodes must be configured.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Yellow</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">The Node is configured, but it does not have a result set. After you execute the Node, a result set is created.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Green</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>The Node was successfully executed and you can view its result set. However, if the result set has been dropped, the indicator remains green, and you must generate the result set again to view it.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
+                                                                <p class="tableParagraph">Red</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                                <p class="tableParagraph">The Node is incorrectly configured. For example, if a Node in the middle of a dataflow does not have a link to a parent Node, or if you entered invalid information during the Node configuration. </p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p>The following screenshot illustrates the Nodes with different status indicators:</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/node-status.png" alt="" title="" />
+                                                </p>
+                                                <h2 class="noPageBreak">Tracking the dataflow operations</h2>
+                                                <p>You can track the processing details of your dataflow operations from the <span class="GeneralGUIName1">Xcalar Design</span> <span class="UIelement">Operations</span> panel. To learn more about displaying and canceling an operation, see <a href="../../SingleSourcing/admin_xd/e_display_operation_proc.htm" class="MCXref xref">Displaying the processing details of an operation</a>.</p>
+                                                <h2 class="noPageBreak">Understanding abandoned and SDK dataflow executions</h2>
+                                                <p>If you start a dataflow execution from <span class="GeneralGUIName1">Xcalar Design</span> and while the dataflow is still executing, if you close or refresh your browser window accidentally,  the dataflow is considered abandoned and keeps on executing in the background. When you log into <span class="GeneralGUIName1">Xcalar Design</span> next time, you will see a new dataflow folder called <span class="UIelement">Abandoned executions</span> in the <span class="UIelement">Dataflows</span> panel with a list of all abandoned dataflows. </p>
+                                                <p>Similarly, if a dataflow is executed through the <span class="GeneralProductName3">Xcalar</span> SDK, you will see a new dataflow folder called <span class="UIelement">SDK executions</span> in the <span class="UIelement">Dataflows</span> panel with a list of all the dataflows executed through the SDK. </p>
+                                                <p>Each of these dataflows has a status indicator, which can be in one of the following states:</p>
                                                 <ul>
-                                                    <li value="1">Download an image file for this dataflow. For more information about downloading a dataflow, see <a href="D1_DownloadUploadDf.htm#Download" class="MCXref xref" xrefformat="{para}">Downloading a dataflow</a>.</li>
+                                                    <li value="1">Yellow status indicator indicates that the dataflow is still executing. </li>
+                                                    <li value="2">Green status indicator indicates that the dataflow finished executing successfully.</li>
+                                                    <li value="3">Red status indicator indicates that the dataflow execution was canceled or it failed.</li>
+                                                    <li value="4">Clear status indicator is a rare phenomenon and it indicates that the execution did not start. </li>
+                                                </ul>
+                                                <p>To cancel the execution of a dataflow in these folders:</p>
+                                                <ol>
+                                                    <li value="1">Select the dataflow you want to cancel. Its status indicator must be yellow.</li>
+                                                    <li value="2">Click  the red <span class="UIelement">Cancel Execution</span> icon on top of the dataflow window. The dataflow execution stops and its status indicator turns red.</li>
+                                                </ol>
+                                                <p>What you can or cannot do with a dataflow in these folders:</p>
+                                                <ul>
+                                                    <li value="1"> You can view, cancel execution, publish, duplicate and delete a dataflow. </li>
                                                     <li value="2">
-                                                        <p>Copy Nodes from this dataflow and paste them to another dataflow.</p>
-                                                        <div class="Note"><span class="label">Recommendation</span>:&#160;If you copy  a Dataset Node from an optimized dataflow, you cannot execute it with its configuration or re-configure it in the dataflow where you paste it. Copy and paste only Nodes that are not the Dataset Node from an optimized dataflow. </div>
+                                                        <p>You cannot modify, configure or start execution of a dataflow.</p>
                                                     </li>
                                                 </ul>
+                                                <p>If you delete all the dataflows from any of these two folders, the folder is automatically deleted. </p>
+                                                <h2 class="noPageBreak">Next step</h2>
+                                                <p>The next step is to understand and work with the result sets as described in <a href="M_WorkingWithResults.htm" class="MCXref xref">Working with result sets</a>.</p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

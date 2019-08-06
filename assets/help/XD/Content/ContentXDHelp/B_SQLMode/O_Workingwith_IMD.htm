@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -47,7 +47,6 @@
 
 </style>
         <link href="../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
-        <link href="../../../../../Help/XDP_Help/Content/Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../../Resources/Scripts/jquery.min.js">
@@ -95,8 +94,6 @@
         <script src="../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -190,12 +187,13 @@
                                                     </div>
                                                 </div>
                                                 <h1>Working with  temporal data</h1>
+                                                <div class="Note"><span class="label">NOTE:</span> By default the IMD feature is not enabled in <span class="GeneralGUIName1">Xcalar Design</span>. <br />To enable the IMD  feature, your <span class="GeneralProductName3">Xcalar</span> administrator must log into <span class="GeneralGUIName1">Xcalar Design</span> and from the sidebar, expand the <span class="UIelement">System</span> icon, click the <span class="UIelement">Settings</span> icon, and then in the in the <span class="UIelement">General Settings</span> page, select the <span class="UIelement">Show IMD&#160;screen</span> check box and click <span class="UIelement">Save</span>. </div>
                                                 <p>This section provides information about using the <span class="GeneralGUIName1">Xcalar Design</span> IMD feature to analyze data that is continuously changing.</p>
-                                                <p>For  more information on how to bring your base and delta data into <span class="GeneralProductName3">Xcalar</span> and how to work with temporal data, contact <span class="GeneralProductName3">Xcalar</span> at <a href="mailto:support@xcalar.com" title="Xcalar support email" alt="Xcalar support email">support@xcalar.com</a>.</p>
+                                                <p>For  information on how to bring your base and delta data into <span class="GeneralProductName3">Xcalar</span> and for more information on how to work with temporal data, contact <span class="GeneralProductName3">Xcalar</span> at <a href="mailto:support@xcalar.com" title="Xcalar support email" alt="Xcalar support email">support@xcalar.com</a>.</p>
                                                 <h2 class="noPageBreak"> Working with mutable tables</h2>
                                                 <p>IMD stands for insert, modify (update), and delete, which are commonly used data manipulation operations for making changes to data.  The IMD feature in <span class="GeneralGUIName1">Xcalar Design</span> enables you to process, track changes, and view the data changes from these operations on your most current and historical temporal data for comparison and analysis.</p>
                                                 <p>The  IMD feature tracks  data changes through base tables, known as <span class="UIelement">Published Tables</span>, which support the insert, update, and delete data manipulation operations and enables you to revert to any data state in a Published Table at any given time. </p>
-                                                <div class="Note"><span class="label">NOTE:</span> Though <span class="GeneralProductName3">Xcalar</span> Published Tables are generally updated as part of a <span class="GeneralProductName3">Xcalar</span> batch dataflow pipeline that triggers data changes in real-time, you can also update Published tables from standalone datasets or multiple datasets that contain data timestamps. For more information about configuring a <span class="GeneralProductName3">Xcalar</span> dataflow pipeline for your real-time data changes, contact <span class="GeneralProductName3">Xcalar</span> at <a href="mailto:support@xcalar.com" title="Xcalar support email" alt="Xcalar support email">support@xcalar.com</a>. </div>
+                                                <div class="Note"><span class="label">NOTE:</span> Though <span class="GeneralProductName3">Xcalar</span> Published Tables are generally updated as part of an optimized dataflow pipeline that triggers data changes in real-time, you can also update Published tables from standalone datasets or multiple datasets that contain data timestamps. For more information about configuring a <span class="GeneralProductName3">Xcalar</span> dataflow pipeline for your real-time data changes, contact <span class="GeneralProductName3">Xcalar</span> at <a href="mailto:support@xcalar.com" title="Xcalar support email" alt="Xcalar support email">support@xcalar.com</a>. </div>
                                                 <h2 class="noPageBreak"><a name="IMD"></a><span class="GeneralProductName3">Xcalar</span> IMD table pre-requisite tasks</h2>
                                                 <p>To ensure that your data includes parameters that track data manipulation actions, the following tasks, if applicable, must be completed before generating your Published Table or applying updates from your delta table. </p>
                                                 <ul>
@@ -215,7 +213,12 @@
                                                 <h2 class="noPageBreak">Working with the IMD screen</h2>
                                                 <p>This topic describes how to use the <span class="UIelement">IMD screen</span> to view and analyze your mutable data.</p>
                                                 <h3>Displaying the  IMD screen</h3>
-                                                <p>From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">IMD Panel</span> <img src="../../Resources/Images/XD_assets/xd-imd_icon.png" /> icon, which displays the <span class="UIelement">IMD screen</span> as shown in the following image.</p>
+                                                <div class="Note"><span class="label">NOTE:</span> By default the IMD feature is not enabled in <span class="GeneralGUIName1">Xcalar Design</span>. <br />To enable the IMD  feature, your <span class="GeneralProductName3">Xcalar</span> administrator must log into <span class="GeneralGUIName1">Xcalar Design</span> and from the sidebar, expand the <span class="UIelement">System</span> icon, click the <span class="UIelement">Settings</span> icon, and then in the in the <span class="UIelement">General Settings</span> page, select the <span class="UIelement">Show IMD&#160;screen</span> check box and click <span class="UIelement">Save</span>.</div>
+                                                <p>To display the IMD&#160;screen:</p>
+                                                <ol>
+                                                    <li value="1">Verify that the IMD&#160;feature is enabled. </li>
+                                                    <li value="2">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">Sources</span> icon, then the <span class="UIelement">Tables</span> icon, and then in the Tables panel menu, click the <span class="UIelement">View IMD</span> icon <img src="../../Resources/Images/XD_assets/xd-imd_icon.png" />, which displays the <span class="UIelement">IMD screen</span> as shown in the following image.</li>
+                                                </ol>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/imd_screen.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1039" data-mc-height="503" src="../../Resources/Images/XD_screenshots/imd_screen_thumb_0_150.png" tabindex="" /></a> </p>
                                                 <h2 class="noPageBreak">Understanding the IMD screen</h2>
                                                 <p>The <span class="GeneralGUIName1">Xcalar Design</span> IMD screen contains the following sections for viewing and working with your Published Tables:</p>
@@ -230,8 +233,8 @@
                                                     <li value="4"><span class="UIelement">Published Tables Timeline</span> section, which displays vertical time identifier lines  for the Published table's creation date and subsequent data updates. </li>
                                                 </ul>
                                                 <p>The following table lists the IMD&#160;screen UI elements:</p>
-                                                <table style="width: 100%;margin-left: 0;margin-right: auto;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');" class="TableStyle-SimpleTable" cellspacing="0">
-                                                    <caption data-mc-autonum="Table 11 "><span class="autonumber"><span>Table 11 </span></span>IMD screen elements</caption>
+                                                <table style="width: 100%;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');border-left-style: none;border-left-width: 1px;border-left-color: #000000;border-right-style: none;border-right-width: 1px;border-right-color: #000000;border-top-style: none;border-top-width: 1px;border-top-color: #000000;border-bottom-style: none;border-bottom-width: 1px;border-bottom-color: #000000;margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <caption data-mc-autonum="Table 1 "><span class="autonumber"><span>Table 1 </span></span>IMD screen elements</caption>
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" style="width: 719px;" />
                                                     <thead>
@@ -436,7 +439,8 @@
                                                 <h2 class="noPageBreak"><a name="Understa2"></a>Understanding the Details section</h2>
                                                 <p>The <span class="UIelement">Details</span> section contains information about your Published tables. It includes entries for each data update and lists the Published table's column names and data types.</p>
                                                 <p>Clicking on a Published table in the <span class="UIelement">Published Tables</span> section populates the entry fields in the <span class="UIelement">Details about</span> section, which are described in the following table:</p>
-                                                <table style="width: 100%;mc-table-style: url('../../../../../Help/XDP_Help/Content/Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <table style="width: 100%;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <caption data-mc-autonum="Table 2 "><span class="autonumber"><span>Table 2 </span></span>IMD Details section</caption>
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" />
                                                     <thead>
@@ -472,7 +476,7 @@
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Primary Keys </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                                <p>Displays the .</p>
+                                                                <p>Displays the unique column identifier for each record.</p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
@@ -523,8 +527,8 @@
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <h2 class="noPageBreak"><a name="Understa3"></a>Understanding the <span class="GeneralProductName3">Xcalar</span> Generate Tables popup</h2>
-                                                <p>The <span class="GeneralProductName3">Xcalar</span> <span class="UIelement">Generate tables</span> popup enables you to generate a <span class="GeneralProductName3">Xcalar</span> table  from the Published table using one of the following output types:</p>
+                                                <h2 class="noPageBreak"><a name="Understa3"></a>Understanding the  Generate Tables popup</h2>
+                                                <p>The  <span class="UIelement">Generate tables</span> popup enables you to generate a <span class="GeneralProductName3">Xcalar</span> table  from the Published table using one of the following output types:</p>
                                                 <ul>
                                                     <li class="has-children" value="1"><span class="UIelement">Point in time</span>, which  generates a <span class="GeneralProductName3">Xcalar</span> table for the selected active Published Table comprising all data changes up to that point.</li>
                                                     <li value="2"><span class="UIelement">Latest</span>, which generates a <span class="GeneralProductName3">Xcalar</span>&#160;table for the selected active Published Table comprising all data changes up to the current time.</li>
@@ -533,41 +537,39 @@
                                                 <p>This topic describes how to generate a <span class="GeneralProductName3">Xcalar</span> table that displays current or historical results of the data updates in your Published table. </p>
                                                 <p>To generate a <span class="GeneralProductName3">Xcalar</span>&#160;table to analyze mutable data:</p>
                                                 <ol>
-                                                    <li value="1">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the Sources and Tables icons and then in the Tables panel menu, click the <span class="UIelement">IMD&#160;Panel</span> <img src="../../Resources/Images/XD_assets/xd-imd_icon.png" /> icon.</li>
+                                                    <li value="1">Verify that the IMD&#160;feature is enabled. </li>
+                                                    <li value="2">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">Sources</span> icon, then the <span class="UIelement">Tables</span> icon, and then in the Tables panel menu, click the <span class="UIelement">View IMD</span>  icon <img src="../../Resources/Images/XD_assets/xd-imd_icon.png" /> .</li>
                                                     <p>The <span class="UIelement">IMD screen</span> appears. </p>
-                                                    <li value="2">In the <span class="UIelement">Published Tables</span> section, select the row of the active Published table that is required to produce a <span class="GeneralProductName3">Xcalar</span> table.</li>
-                                                    <li value="3">Depending on which output type you require, do one of the following:</li>
+                                                    <li value="3">In the <span class="UIelement">Published Tables</span> section, select the row of the active Published table that is required to produce a <span class="GeneralProductName3">Xcalar</span> table.</li>
+                                                    <li value="4">Depending on which output type you require, do one of the following:</li>
                                                     <ul style="list-style-type: circle;">
-                                                        <li value="1">To generate <span class="UIelement">Point in time</span> output, click on the Time-bar of the Published table's batch ID that contains the ending time, and then from the <span class="UIelement">Generate Tables pop-up</span>, click  <span class="UIelement">Point in time</span>.</li>
+                                                        <li value="1">To generate <span class="UIelement">Point in time</span> output, click on the Time-bar of the Published table's Batch ID that contains the ending time, and then from the <span class="UIelement">Generate Tables pop-up</span>, click  <span class="UIelement">Point in time</span>.</li>
                                                         <li value="2">To generate <span class="UIelement">Latest</span> output, verify that the row of the Published table that is required to produce a <span class="GeneralProductName3">Xcalar</span> table is highlighted, click on the row, which opens the <span class="UIelement">Generate Tables pop-up</span> element, and then click <span class="UIelement">Latest</span>. </li>
                                                     </ul>
-                                                    <p>A <span class="UIelement">Refresh Tables Completed</span> tooltip appears. </p>
-                                                    <li value="4">(Optional) To generate a <span class="GeneralProductName3">Xcalar</span> table containing specific columns and/or rows, from the <span class="UIelement">Generate Tables pop-up</span>, select the <span class="UIelement">ellipses menu</span> by the side of the <span class="GeneralProductName3">Xcalar</span> table button option and do one the following:</li>
+                                                    <p>A Table Node is created in the Dataflow Mode canvas and is displayed in the Preview section for analysis.</p>
+                                                    <li value="5">(Optional) To generate a <span class="GeneralProductName3">Xcalar</span> table containing specific columns and/or rows, from the <span class="UIelement">Generate Tables pop-up</span>, select the <span class="UIelement">ellipses menu</span> by the side of the <span class="GeneralProductName3">Xcalar</span> table button option and do one the following:</li>
                                                     <ul style="list-style-type: circle;">
                                                         <li value="1">To generate a <span class="GeneralProductName3">Xcalar</span> table containing rows and columns based on a condition:
-				<ol style="list-style-type: lower-alpha;"><li value="1">In the <span class="UIelement">Filter String</span> field, enter the condition as filter text.</li><p>For example, to generate a <span class="UIelement">Latest</span> <span class="GeneralProductName3">Xcalar</span> table that contains only rows of data that was inserted, enter <code>eq(XcalarOpCode, 1)</code>, where the filter syntax for the equal function is <code>function(operand1, operand2)</code>.</p><li value="2"> Click the <span class="GeneralProductName3">Xcalar</span> table option. </li><p>A <span class="UIelement">Refresh Tables Completed</span> tooltip appears.</p></ol><p>For more information on working with filtering in <span class="GeneralGUIName1">Xcalar Design</span>, see <a href="../C_XcalarAdvancedMode/B_Operations/G_FilterValue.htm" class="MCXref xref">Filtering in a result set column</a>.</p></li>
+				<ol style="list-style-type: lower-alpha;"><li value="1">In the <span class="UIelement">Filter String</span> field, enter the condition as filter text.</li><p>For example, to generate a <span class="UIelement">Latest</span> <span class="GeneralProductName3">Xcalar</span> table that contains only rows of data that was inserted, enter <code>eq(XcalarOpCode, 1)</code>, where the filter syntax for the equal function is <code>function(operand1, operand2)</code>.</p><li value="2"> Click the <span class="GeneralProductName3">Xcalar</span> table option. </li><p>A Table Node is created in the Dataflow Mode canvas and is displayed in the Preview section for analysis.</p></ol><p>For more information on working with filtering in <span class="GeneralGUIName1">Xcalar Design</span>, see <a href="../C_XcalarAdvancedMode/B_Operations/G_FilterValue.htm" class="MCXref xref">Filtering in a result set column</a>.</p></li>
                                                         <li value="2">To generate a <span class="GeneralProductName3">Xcalar</span> table containing specific columns:
-				<ol style="list-style-type: lower-alpha;"><li value="1">In the <span class="UIelement">Columns (comma separated)</span> field, enter each column name required in the output followed by a comma.</li><li value="2">Click the <span class="GeneralProductName3">Xcalar</span> table option.</li><p>A <span class="UIelement">Refresh Tables Completed</span> tooltip appears.</p></ol></li>
+				<ol style="list-style-type: lower-alpha;"><li value="1">In the <span class="UIelement">Columns (comma separated)</span> field, enter each column name required in the output followed by a comma.</li><li value="2">Click the <span class="GeneralProductName3">Xcalar</span> table option.</li><p>A Table Node is created in the Dataflow Mode canvas and is displayed in the Preview section for analysis.</p></ol></li>
                                                     </ul>
-                                                    <li value="5">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, select the <span class="UIelement">Worksheets</span> icon.</li>
-                                                    <li value="6">In the <span class="UIelement">Active</span> tab of the <span class="UIelement">Tables</span> panel, open the newly generated <span class="GeneralProductName3">Xcalar</span> table for analysis.</li>
                                                 </ol>
                                                 <h2 class="noPageBreak">Conserving memory by compressing updates</h2>
                                                 <p>The IMD <span class="UIelement">Coalesce</span> function is similar to the <span class="UIelement">Latest</span> function, in that all data changes are combined within the Published table. But unlike the <span class="UIelement">Latest</span> function, the <span class="UIelement">Coalesce</span> function removes all the delta table updates from the Published table's Timeline, which  reduces the Published table's memory consumption. If you have a Published table that contains delta data that is no longer required for analysis, <span class="GeneralProductName3">Xcalar</span> recommends applying the IMD <span class="UIelement">Coalesce</span> function on the Published table. </p>
                                                 <div class="Note"><span class="label">NOTE:</span> As all previous delta table updates are removed from the Published table after applying the  <span class="UIelement">Coalesce</span> function, temporal data is no longer available for analysis.</div>
                                                 <p>To conserve memory by compressing updates:</p>
                                                 <ol>
-                                                    <li value="1">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the Sources icon and then the Tables icon and then in the Tables panel menu, click the <span class="UIelement">IMD&#160;Panel</span> <img src="../../Resources/Images/XD_assets/xd-imd_icon.png" /> icon.</li>
+                                                    <li value="1">Verify that the IMD&#160;feature is enabled. </li>
+                                                    <li value="2">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">Sources</span> icon, then the <span class="UIelement">Tables</span> icon, and then in the Tables panel menu, click the <span class="UIelement">View IMD</span> icon <img src="../../Resources/Images/XD_assets/xd-imd_icon.png" />.</li>
                                                     <p>The <span class="UIelement">IMD screen</span> appears. </p>
-                                                    <li value="2">In the <span class="UIelement">Published Tables</span> section, select the Published Table's check box.</li>
-                                                    <li value="3">(Optional) To generate a worksheet that contains multiple <span class="GeneralProductName3">Xcalar</span> tables from multiple Published tables. For each Published table that is required to produce a <span class="GeneralProductName3">Xcalar</span> table in the worksheet, in the <span class="UIelement">Published Tables</span> section, select the Published table's check box.</li>
-                                                    <li value="4">Click the <span class="UIelement">Coalesce</span> <img src="../../Resources/Images/XD_assets/xd-imd_coalesce_icon.png" /> icon. </li>
+                                                    <li value="3">In the <span class="UIelement">Published Tables</span> section, select the Published Table's check box.</li>
+                                                    <li value="4">Click the <span class="UIelement">Coalesce</span> icon <img src="../../Resources/Images/XD_assets/xd-imd_coalesce_icon.png" />. </li>
                                                     <p>A COALESCE warning message appears, which states that the operation cannot be undone and asks you to confirm the action. </p>
                                                     <li value="5">Click CONFIRM, which:</li>
                                                     <ul>
                                                         <li value="1">Combines all the delta table  updates in the Published table.</li>
                                                         <li value="2">Removes all the delta table updates from the Published table and the Published table's Timeline.</li>
-                                                        <li value="3">Generates a <span class="GeneralProductName3">Xcalar</span> table comprising all the data changes in a new worksheet.</li>
                                                     </ul>
                                                 </ol>
                                                 <div class="Note"><span class="label">RECOMMENDATION:</span> Inactive Published tables use very little memory. Therefore, move all Published tables that you are  not working with into the <span class="UIelement">Inactive Tables</span> section.</div>
@@ -576,16 +578,16 @@
                                                 <ul>
                                                     <li value="1">To display more instances of updated Published tables, click the <span class="UIelement">Load More Updates</span> element. </li>
                                                     <p>Repeat until the <span class="UIelement">Load More Updates</span> tooltip disappears.</p>
-                                                    <li value="2">To revert to the update time-bar limit and conserve memory, click the refresh <img src="../../Resources/Images/XD_assets/xd-refresh-temp-tables.png" /> icon.</li>
+                                                    <li value="2">To revert to the update time-bar limit and conserve memory, click the refresh icon <img src="../../Resources/Images/XD_assets/xd-refresh-temp-tables.png" />.</li>
                                                 </ul>
                                                 <h2 class="noPageBreak">IMD Published table naming conventions</h2>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
+                                                        <p>To avoid any issues from the case sensitivity column naming differences between <span class="GeneralProductName3">Xcalar</span> and <span class="GeneralProductName3">Xcalar</span> SQL, column names are automatically processed into uppercase characters.</p>
                                                         <ul>
-                                                            <li value="1">The name is case sensitive. </li>
-                                                            <li value="2"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or space.</li>
-                                                            <li value="3">First character must be a letter.</li>
-                                                            <li value="4">Length must not exceed 255 characters.</li>
+                                                            <li value="1">Length must not exceed 255 characters.</li>
+                                                            <li value="2">First character must be a letter of the alphabet.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9,  or underscore (_).</li>
                                                         </ul>
                                                     </div>
                                                 </div>

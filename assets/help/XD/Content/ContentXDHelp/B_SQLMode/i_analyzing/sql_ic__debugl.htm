@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,25 +186,25 @@
                                                     </div>
                                                 </div>
                                                 <h2 class="noPageBreak"><a name="Debuggin"></a>Debugging your SQL statement</h2>
-                                                <p>The Advanced Mode enables you to further analyze, troubleshoot, identify potential problems, and make edits for improving the query’s performance and fix any issues.</p>
-                                                <h3>Opening the SQL dataflow in Advanced Mode</h3>
-                                                <p>To open the SQL statement in the Advanced Mode:</p>
+                                                <p>The <span class="UIelement">Dataflow Mode</span> workspace enables you to further analyze, troubleshoot, identify potential problems, and make edits for improving the query’s performance and fix any issues.</p>
+                                                <h3>Opening the SQL dataflow in the Dataflow Mode workspace</h3>
+                                                <p>To open the SQL statement in the <span class="UIelement">Dataflow Mode</span> workspace:</p>
                                                 <ol>
-                                                    <li value="1">From the <span class="UIelement">Previewing</span> section, click <span class="UIelement">Edit in advanced mode</span>.</li>
-                                                    <p>The DEBUG IN ADVANCED MODE message opens, asking if you want to continue. Once the SQL statement dataflow is in the Advance Mode and actions are performed, it becomes an Advanced Mode dataflow and is no longer optimized.</p>
+                                                    <li value="1">From the <span class="UIelement">Preview</span> section, click <span class="UIelement">Debug in dataflow mode</span>.</li>
+                                                    <p>The <span class="UIelement">Debug in dataflow mode</span> message opens, asking if you want to continue. Once actions are performed on the SQL dataflow  in the <span class="UIelement">Dataflow Mode</span> workspace the SQL dataflow is no longer optimized.  </p>
                                                     <li value="2">Click <span class="UIelement">Confirm</span>.</li>
                                                 </ol>
-                                                <p>The SQL statement is now displayed in the  Advanced Mode canvas as a regular dataflow.</p>
-                                                <div class="Note"><span class="label">IMPORTANT:</span> Any changes made to the SQL statement dataflow in the Advanced Mode are NOT reflected in the SQL statement. For more information on how to bring your changes back into the query statement, see <a href="sql_id_dataflow_to_sqlfunct.htm#Converti" class="MCXref xref" xrefformat="{para}">Converting a dataflow into a SQL function</a>.</div>
-                                                <h3>Understanding the Advanced Mode for debugging a SQL&#160;function</h3>
-                                                <p>In the Advanced Mode your SQL&#160;dataflow is now in a configurable state that enables you to make changes whilst troubleshooting. </p>
-                                                <p>You may notice some subtle operator differences  from those that appear in the <span class="UIelement">Previewing</span> section of the SQL Workspace. This is because in the <span class="UIelement">Previewing</span> section  the SQL statement is displayed as an optimized dataflow that does not allow debugging, whereas in the Advanced Mode the dataflow is not optimized to enable step by step execution and debugging.</p>
-                                                <p>For more information on the Advanced Mode workspace features and Node attributes, see <a href="../../C_XcalarAdvancedMode/AboutXcalarAdvancedMode.htm" class="MCXref xref" xrefformat="{para}">Working in Advanced Mode</a>.</p>
+                                                <p>The SQL statement is now displayed in the  Dataflow Mode canvas as a regular dataflow.</p>
+                                                <div class="Note"><span class="label">IMPORTANT:</span> Any changes made to the SQL dataflow in the Dataflow Mode workspace are NOT reflected in the SQL statement. For more information on how to bring your changes back into the query statement, see <a href="sql_id_dataflow_to_sqlfunct.htm#Converti" class="MCXref xref" xrefformat="{para}">Converting a dataflow into a SQL function</a>.</div>
+                                                <h3>Understanding the Dataflow Mode for debugging a SQL&#160;function</h3>
+                                                <p>In the Dataflow Mode your SQL&#160;dataflow is now in a configurable state that enables you to make changes whilst troubleshooting. </p>
+                                                <p>You may notice some subtle operator differences in the Dataflow Mode workspace from those that are in the <span class="UIelement">Preview</span> section of the SQL Mode workspace. This is because in the SQL Mode workspace,  the SQL dataflow is displayed as an optimized dataflow that does not allow debugging. Whereas, in the Dataflow Mode workspace the dataflow is not optimized, which enables step by step execution and debugging.</p>
+                                                <p>For more information on the Dataflow Mode workspace features and Node attributes, see <a href="../../C_XcalarAdvancedMode/AboutXcalarAdvancedMode.htm" class="MCXref xref" xrefformat="{para}">Working in Dataflow Mode</a>.</p>
                                                 <div class="Note"><span class="label">TIP:</span> Rename the dataflow as soon as possible, as this will identify the SQL statement as a regular dataflow. You may also want to use a name that identifies the dataflow as a dataflow used for debugging.<br />To rename the SQL dataflow, double-click the tab name and enter a new name. </div>
                                                 <h3>Executing the dataflow</h3>
-                                                <p>Before you can continue to analyze, debug, or make changes you must first run the dataflow  in the Advance Mode.</p>
-                                                <p>To execute the dataflow, from the Advanced Mode's menu bar, click  <span class="UIelement">Execute All</span>.</p>
-                                                <p>As each phase of the dataflow runs a visual representation of the percentage completed is displayed and the performance results (Node Information) appear above each of the operator Nodes.</p>
+                                                <p>Before you can continue to analyze, debug, or make changes you must first run the dataflow  in the <span class="UIelement">Dataflow Mode</span> workspace.</p>
+                                                <p>To execute the dataflow, from the Dataflow Mode's menu bar, click  <span class="UIelement">Execute All</span>.</p>
+                                                <p>As each phase of the dataflow runs, a visual representation of the percentage completed is displayed and the performance results (Node Information) appear above each of the operator Nodes.</p>
                                                 <p>Once the execution of the dataflow is completed, you can now:</p>
                                                 <ul>
                                                     <li value="1">View more in-depth configuration details about the operator. </li>
@@ -214,11 +212,11 @@
                                                 </ul>
                                                 <ul>
                                                     <li value="1">To make changes to the operator or other Node components, in the Node component panel, click <span class="UIelement">edit</span>. </li>
-                                                    <p>For more information on how to configure the Node operators and other Node components, see <a href="../../C_XcalarAdvancedMode/AboutXcalarAdvancedMode.htm" class="MCXref xref" xrefformat="{para}">Working in Advanced Mode</a>.</p>
+                                                    <p>For more information on how to configure the Node operators and other Node components, see <a href="../../C_XcalarAdvancedMode/AboutXcalarAdvancedMode.htm" class="MCXref xref" xrefformat="{para}">Working in Dataflow Mode</a>.</p>
                                                 </ul>
-                                                <p>Any changes made to the dataflow in the Advanced Mode are NOT reflected in the SQL statement. When you are satisfied with your changes, do one of the following:</p>
+                                                <p>Any changes made to the dataflow in the Dataflow Mode are NOT reflected in the SQL statement. When you are satisfied with your changes, do one of the following:</p>
                                                 <ul>
-                                                    <li value="1">Keep the dataflow as is and run it as an optimized dataflow. For more information, see <a href="../../C_XcalarAdvancedMode/A_Dataflows/B_UnderstandDfOptimization.htm" class="MCXref xref" xrefformat="{para}">Understanding dataflow execution</a>.</li>
+                                                    <li value="1">Keep the dataflow as is and run it as an optimized dataflow. For more information, see <a href="../../C_XcalarAdvancedMode/A_Dataflows/B_UnderstandDfOptimization.htm" class="MCXref xref" xrefformat="{para}">Understanding a dataflow with optimization</a>.</li>
                                                     <li value="2">Manually add the changes back into the SQL statement's code from the <span class="UIelement">SQL Editor</span>.</li>
                                                     <li value="3">Create an SQL function from the dataflow and include it as part of your SQL query or as a standalone query.</li>
                                                     <p> For more information, see <a href="sql_id_dataflow_to_sqlfunct.htm#Converti" class="MCXref xref" xrefformat="{para}">Converting a dataflow into a SQL function</a>.</p>

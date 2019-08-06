@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,29 +186,31 @@
                                                     </div>
                                                 </div>
                                                 <h1>Using parameters in a dataflow</h1>
-                                                <p>Parameters provide you a convenient way to use fixed string values in a dataflow. You can re-use the same parameter at multiple places in any dataflow in a workbook. Parameters are always of type String and they are local to a workbook. </p>
-                                                <h2 class="noPageBreak">General steps for parameterizing an operation</h2>
-                                                <p>Follow these steps to parameterize an operation:</p>
+                                                <p>Parameters provide you a convenient way to pass different string values in each execution of a dataflow. You can reuse the same parameter at multiple places in any dataflow in a workbook. Parameters are always of type String and they are local to a workbook. </p>
+                                                <h2 class="noPageBreak">Typical steps for parametrizing an operation</h2>
+                                                <p>To parametrize an operation:</p>
                                                 <ol>
                                                     <li value="1">Create a parameter.</li>
                                                     <li value="2">Assign a value to the parameter.</li>
                                                     <li value="3">Pass the parameter to the operation.</li>
                                                 </ol>
-                                                <div class="Note"><span class="label">Recommendation</span>:  If you do not want to create a parameter, you can type the desired value where a parameter should be placed but the best practice is to define a parameter instead of entering the value directly, where possible.  </div>
+                                                <div class="Note"><span class="label">Recommendation</span>:  If you do not want to create a parameter, you can enter the desired value where a parameter should be placed but the best practice is to define a parameter instead of entering the value directly, where possible.  </div>
                                                 <h2 class="noPageBreak">Parameter naming guidelines</h2>
-                                                <p>When creating a parameter, remember to choose a name that describes the meaning of the parameter. </p>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <p>When creating a parameter, remember to select a name that describes the meaning of the parameter. </p>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case sensitive. </li>
                                                             <li value="2">Length must not exceed 255 characters.</li>
-                                                            <li value="3"> Characters must be A-Z, a-z, or 0-9.</li>
-                                                            <li value="4">No special characters are permitted (for example, underscore, parenthesis, hyphen, or space).</li>
+                                                            <li value="3">Characters must be A-Z, a-z, or 0-9.
+</li>
+                                                            <li value="4">Cannot contain special  characters, such as:<ul><li value="1">hyphen (-)</li><li value="2">left (() or right ()) parenthesis</li><li value="3">space</li><li value="4">underscore (_)</li></ul></li>
                                                         </ul>
                                                     </div>
                                                 </div>
+                                                <p>Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
                                                 <h2 class="noPageBreak"><a name="Creating"></a>Creating a parameter</h2>
-                                                <p>Follow these steps to create a parameter:</p>
+                                                <p>To create a parameter:</p>
                                                 <ol>
                                                     <li value="1">Click the <span class="UIelement">PARAMETERS</span> button in the top right corner of the <span class="GeneralGUIName1">Xcalar Design</span> to display the parameters window.</li>
                                                     <li value="2">Enter the parameter name in the <span style="font-weight: bold;">Input New Parameter</span> field and click the <span style="font-weight: bold;">CREATE&#160;NEW&#160;PARAMETER</span> button.</li>
@@ -218,22 +218,22 @@
                                                     <li value="4">Values are automatically saved. Click outside the parameters window to close it.</li>
                                                 </ol>
                                                 <h2 class="noPageBreak"><a name="Displayi"></a>Displaying parameters</h2>
-                                                <p>When customizing an operation which supports parameters, you can see the list of parameters configured in the workbook. To display a list of both the parameters and their values, click the <span class="UIelement">PARAMETERS</span> button in the top right corner of the <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <p>When customizing an operation which supports parameters, you can see the list of parameters already defined in the workbook. To display a list of existing parameters and their values, click the <span class="UIelement">PARAMETERS</span> button in the top right corner of the <span class="GeneralGUIName1">Xcalar Design</span>.</p>
                                                 <h2 class="noPageBreak">Deleting a parameter</h2>
-                                                <p>Follow these steps to delete a parameter from the parameters table:</p>
+                                                <p>To delete a parameter from the parameters window:</p>
                                                 <ol>
                                                     <li value="1">Click the <span class="UIelement">PARAMETERS</span> button in the top right corner of the <span class="GeneralGUIName1">Xcalar Design</span> to display the parameters window.</li>
                                                     <li value="2">Locate the parameter to be deleted and then click the <span class="UIelement">x</span> icon in the <span class="UIelement">Action</span> column.</li>
                                                 </ol>
                                                 <h2 class="noPageBreak"><a name="Passing"></a>Passing a parameter</h2>
-                                                <p>The exact steps for passing a parameter depend on what you want to parameterize. For example, if you want to filter the airlines result set based on the carrier name, follow these steps:</p>
+                                                <p>The exact steps for passing a parameter depend on what you want to parametrize. For example, if you want to filter the airlines result set based on the carrier name:</p>
                                                 <ol>
                                                     <li value="1">
                                                         <p>Create a parameter called mycarrier as shown in the following screenshot and assign it the value UA:</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-parameter-table.png" />
                                                         </p>
-                                                        <p>Hover on the parameter name to display the copy icon next to it and click it to copy the parameter name to the clipboard.</p>
+                                                        <p>Hover on the parameter name to display the copy icon and click it to copy the parameter name to the clipboard.</p>
                                                     </li>
                                                     <li value="2">
                                                         <p>In the <span class="UIelement">Filter </span>Node configuration panel, enter the parameter name enclosed in angular brackets &lt;mycarrier&gt; or if you already copied the parameter name, paste it in the <span class="UIelement">Operand 2 (b)</span> field, as shown in the following screenshot:</p>
@@ -241,7 +241,10 @@
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-parameter-use.png" />
                                                         </p>
                                                     </li>
-                                                    <li value="3">Click the <span class="UIelement">Save </span>button. The configuration is saved and the filtered result set is displayed when the Node executes.</li>
+                                                    <li value="3">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The configuration is saved and the filtered result set is displayed when the Node executes.</p>
+                                                    </li>
                                                 </ol>
                                                 <p>&#160;</p>
                                                 <p><a href="#top">Go to the top</a>

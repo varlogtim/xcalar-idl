@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,74 +186,79 @@
                                                     </div>
                                                 </div>
                                                 <h1>Changing the data type of a column</h1>
-                                                <p>In a result set, you can change the data type of a column. Changing the data type of a column creates a new column. For information about the data types supported by <span class="GeneralProductName3">Xcalar</span> and the results of casting strings to numeric values, see <a href="../../E_Reference/B_DataTypes.htm" class="MCXref xref" xrefformat="{para}">Data types supported</a>.</p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Changing the data type to and from the float type might cause a value to lose precision.&#160;Read <a href="../../E_Reference/B_DataTypes.htm" class="MCXref xref" xrefformat="{para}">Data types supported</a> to understand the effects of type casting a column.</div>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> enables you to change the data type of a column in a result set. Changing the data type of a column creates a new column. For information about the data types supported by <span class="GeneralProductName3">Xcalar</span> and the results of casting strings to numeric values, see <a href="../../E_Reference/B_DataTypes.htm" class="MCXref xref" xrefformat="{para}">Data types supported</a>.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Changing the data type to and from float might cause a value to lose its precision.&#160;Read <a href="../../E_Reference/B_DataTypes.htm" class="MCXref xref" xrefformat="{para}">Data types supported</a> to understand the effects of type casting a column.</div>
+                                                <p>Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
                                                 <h2 class="noPageBreak">Methods for changing the data type in a result set</h2>
                                                 <p>You can change the data type of a column in the following ways:</p>
                                                 <ul>
-                                                    <li value="1">Use the <span class="UIelement">Change data type</span> option in the column drop-down list or in the <span class="UIelement">Menu</span> drop-down list when you view the result set.</li>
-                                                    <li value="2">Add a Cast operation to the dataflow.</li>
-                                                    <li value="3">Use a Map function to type cast a column.</li>
+                                                    <li value="1">Add a <span class="UIelement">Cast</span> operation to the dataflow.</li>
+                                                    <li value="2">Use the <span class="UIelement">Change data type</span> option from the result set view <span class="UIelement">Menu</span>.</li>
+                                                    <li value="3">Use a <span class="UIelement">Map</span> function to type cast a column.</li>
                                                 </ul>
+                                                <h2 class="noPageBreak">Adding a Cast operation to the dataflow</h2>
+                                                <p>To add  a <span class="UIelement">Cast</span> operation Node in the dataflow:</p>
+                                                <ol>
+                                                    <li value="1">Click the <span class="UIelement">Column Ops</span> category of operations in the Dataflow Mode toolbar to display the <span class="UIelement">Cast</span> Node. </li>
+                                                    <li value="2">Drag the <span class="UIelement">Cast</span> Node to the dataflow canvas.</li>
+                                                    <li value="3">Locate an existing Node with a result set column that you want to cast, and connect the Node's output to the <span class="UIelement">Cast</span> Node.</li>
+                                                    <li value="4">
+                                                        <p>Right click the <span class="UIelement">Cast</span> Node and select  <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">Cast</span>configuration panel is displayed. For information about configuring the <span class="state">Cast</span> Node, see <a href="#Configur" class="MCXref xref" xrefformat="{para}">Configuring a Cast Node</a>.</p>
+                                                    </li>
+                                                    <li value="5">Execute the <span class="UIelement">Cast</span> Node.</li>
+                                                </ol>
+                                                <h2 class="noPageBreak"><a name="Configur"></a>Configuring a Cast Node</h2>
+                                                <p>To configure a <span class="UIelement">Cast</span> Node in the <span class="UIelement">Cast</span> configuration panel:</p>
+                                                <ol>
+                                                    <li value="1">To add a column to the list of columns to cast, click a column displayed in the <span class="UIelement">Not being casted</span> section.</li>
+                                                    <li value="2">(Optional) You can also enter a part of the column name to search for the column. If there is a match, the column name is highlighted for you to click and add.</li>
+                                                    <li value="3">The <span class="UIelement">Current Name</span> field displays the name of the selected column. You can change the column by clicking the down arrow and selecting another column in the drop-down.</li>
+                                                    <li value="4">In the <span class="UIelement">New Name</span> field, accept the suggested column name or enter a different name for the column after the cast operation.</li>
+                                                    <li value="5">In the <span class="UIelement">New Type</span> field, select the new data type for the column.</li>
+                                                    <li value="6">Repeat the previous steps for all columns that you want to cast.</li>
+                                                    <li value="7">
+                                                        <p>Click <span class="UIelement">Save</span>.</p>
+                                                        <p>The configuration is saved and the new result set is generated when the Node executes.</p>
+                                                    </li>
+                                                </ol>
                                                 <h2 class="noPageBreak">Using the <span class="UIelement">Change data type</span> option</h2>
-                                                <p>To change the data type for one or more columns from the result set, follow these steps:</p>
+                                                <p>To change the data type for one or more columns from the result set:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>Display the result set in which you want to set the data type of a column.</p>
+                                                        <p>Display the result set in which you want to change the data type of a column.</p>
                                                     </li>
                                                     <li value="2">
                                                         <p>Follow one of these steps:</p>
                                                         <ul>
-                                                            <li value="1">Right click the column for which you want to change the data type to display a drop-down menu.</li>
-                                                            <li value="2">Right click <span class="UIelement">Menu</span> in the result set view to display a drop-down list.</li>
+                                                            <li value="1">Right click the column for which you want to change the data type to display a drop-down.</li>
+                                                            <li value="2">Right click <span class="UIelement">Menu</span> in the result set view to display a drop-down.</li>
                                                         </ul>
                                                     </li>
-                                                    <li value="3">Click the <span class="UIelement">Change data type</span> option. A <span class="UIelement">Cast</span> Node is created in the dataflow, and the <span class="UIelement">Cast</span> panel is displayed. For information about configuring the <span class="state">Cast</span> Node, see <a href="#Configur" class="MCXref xref" xrefformat="{para}">Configuring a Cast Node</a>.</li>
+                                                    <li value="3">
+                                                        <p>Click <span class="UIelement">Change data type</span>. </p>
+                                                        <p>A <span class="UIelement">Cast</span> Node is created in the dataflow, and the <span class="UIelement">Cast</span> configuration panel is displayed. For information about configuring the <span class="state">Cast</span> Node, see <a href="#Configur" class="MCXref xref" xrefformat="{para}">Configuring a Cast Node</a>.</p>
+                                                    </li>
                                                     <li value="4">Execute the <span class="UIelement">Cast</span> Node.</li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Adding a Cast operation to the dataflow</h2>
-                                                <p>To add  a <span class="UIelement">Cast</span> operation Node to the dataflow, follow these steps:</p>
-                                                <ol>
-                                                    <li value="1">From the Columns operation category, select the <span class="UIelement">Cast</span> Node.</li>
-                                                    <li value="2">Add the <span class="UIelement">Cast</span> Node to the dataflow.</li>
-                                                    <li value="3">Link the <span class="UIelement">Cast</span> Node  to the appropriate parent Node.</li>
-                                                    <li value="4">Right click the <span class="UIelement">Cast</span> Node and click the <span class="UIelement">Configure</span> option. The <span class="UIelement">Cast</span> panel is displayed. For information about configuring the <span class="state">Cast</span> Node, see <a href="#Configur" class="MCXref xref" xrefformat="{para}">Configuring a Cast Node</a>.</li>
-                                                    <li value="5">Execute the <span class="UIelement">Cast</span> Node.</li>
-                                                </ol>
-                                                <h2 class="noPageBreak"><a name="Configur"></a>Configuring a Cast Node</h2>
-                                                <p>To configure a <span class="UIelement">Cast</span> Node, follow these steps in the <span class="UIelement">Cast</span> panel:</p>
-                                                <ol>
-                                                    <li value="1">Click a column displayed in the <span class="UIelement">Cast</span> panel. You can also type a part of the column name to search for the column. If there is a match, the column name is highlighted.</li>
-                                                    <li value="2">The <span class="UIelement">Current Name</span> field shows the name of the column selected. You can change it by clicking the down arrow and selecting another column in the drop-down list.</li>
-                                                    <li value="3">In the <span class="UIelement">New Name</span> field, accept the suggested column name or enter a new name for the column after the data type is assigned to it.</li>
-                                                    <li value="4">In the <span class="UIelement">New Type</span>, click the down arrow to display a list of data types. Click the one appropriate for the new column.</li>
-                                                    <li value="5">Repeat steps 2 to 4 for all columns that you want to cast.</li>
-                                                    <li value="6">Click <span class="UIelement">Save</span>.</li>
-                                                    <li value="7">If the <span class="UIelement">Cast</span> Node is not executed automatically, execute the Node. Now the result set contains the new columns with the specified data type.</li>
-                                                </ol>
-                                                <h2 class="noPageBreak">Changing an unknown data type to a valid data type</h2>
-                                                <p>If the source Node of the dataflow is a dataset that contains an array or object column, you can create columns by pulling fields in the array or object in the Data Browser. For information about pulling fields from the Data Browser to a result set, see <a href="../A_Dataflows/K_DataBrowser.htm" class="MCXref xref" xrefformat="{para}">Performing tasks in the Data Browser</a>.</p>
-                                                <p>To cast the newly created column to a data type, follow these steps:</p>
-                                                <ol>
-                                                    <li value="1">Right click the <span class="UIelement">Dataset</span> Node, which is the source Node of the dataflow.</li>
-                                                    <li value="2">Click <span class="UIelement">Configure</span> in the menu. The Dataset panel is displayed, with the current dataset selected.</li>
-                                                    <li value="3">Click <span class="UIelement">Next</span> in the <span class="UIelement">Dataset</span> panel.</li>
-                                                    <li value="4">Click <span class="UIelement">Add Column</span>. Enter the new column's name and select the desired data type.</li>
-                                                    <li value="5">Click <span class="UIelement">Save</span>. </li>
-                                                    <li value="6">If the <span class="UIelement">Dataset</span> Node is not executed automatically, execute the Node. Now the result set contains the new column with the specified data type.</li>
-                                                </ol>
                                                 <h2 class="noPageBreak">Using the Map operation</h2>
-                                                <p>To use the Map operation to cast a column, follow these steps:</p>
+                                                <p>You can use a Map operation to cast a column:</p>
                                                 <ol>
-                                                    <li value="1">From the Columns operation category, select the <span class="UIelement">Map</span> Node.</li>
-                                                    <li value="2">Add the <span class="UIelement">Map</span> Node to the dataflow.</li>
-                                                    <li value="3">Link the <span class="UIelement">Map</span> Node to the appropriate parent Node.</li>
-                                                    <li value="4">Right click the <span class="UIelement">Map</span> Node and click the <span class="UIelement">Configure</span> option. The <span class="UIelement">Map</span> panel is displayed.</li>
-                                                    <li value="5">Select the type-casting category, and then the function for setting the type. </li>
-                                                    <li value="6">In the input field, click the down arrow to display a list of columns, then select the column to cast.</li>
-                                                    <li value="7">Enter the name of the resultant column name. </li>
-                                                    <li value="8">Click <span class="UIelement">Save</span>. </li>
-                                                    <li value="9">If the <span class="UIelement">Map</span> Node is not executed automatically, execute the Node. Now the result set contains the new column with the specified data type.</li>
+                                                    <li value="1"> Click the <span class="UIelement">Column Ops</span> category of operations in the Dataflow Mode toolbar to display the <span class="UIelement">Map</span> Node.</li>
+                                                    <li value="2">Drag the <span class="UIelement">Map</span> Node to the dataflow canvas.</li>
+                                                    <li value="3">Locate an existing Node with a result set column that you want to Map, and connect the Node's output to the <span class="UIelement">Map</span> Node.</li>
+                                                    <li value="4">
+                                                        <p>Right click the <span class="UIelement">Map</span> Node and select <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">Map</span> configuration panel is displayed.</p>
+                                                    </li>
+                                                    <li value="5">In the <span class="UIelement">Category</span> section, select <span class="UIelement">type-casting</span>, and then in the <span class="UIelement">Function</span> section, select the new data type. </li>
+                                                    <li value="6">Click the <span class="UIelement">Value</span> field and select a column to cast.</li>
+                                                    <li value="7">Accept the system generated new column name or enter a new name in <span class="UIelement">New Resultant Column Name</span>. </li>
+                                                    <li value="8">(Optional) To add more cast operations, click <span class="UIelement">Apply Additional Functions</span> and repeat steps 5 to 7.</li>
+                                                    <li value="9">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The configuration is saved and generates the new column when the Node executes.</p>
+                                                    </li>
                                                 </ol>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>

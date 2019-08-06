@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,8 +186,8 @@
                                                     </div>
                                                 </div>
                                                 <h1>Using an Explode operation</h1>
-                                                <p>The <span class="UIelement">Explode</span> operation works only on the String column types. It divides a column string into multiple substrings based on the specified delimiter and each substring gets a new row in a derived column. </p>
-                                                <p>For example, if you perform the Explode operation on the following userData result set on the years_active column:</p>
+                                                <p>The Explode operation unpacks the substrings of a column string value into multiple rows of a new column. It works only on the String column types. </p>
+                                                <p>For example, if you perform the Explode operation on the following userData result set on the years_active column using delimiter "-":</p>
                                                 <p>
                                                     <img src="../../../Resources/Images/XD_screenshots/xd-explode-before.png" />
                                                 </p>
@@ -197,22 +195,28 @@
                                                 <p>
                                                     <img src="../../../Resources/Images/XD_screenshots/xd-explode-after.png" />
                                                 </p>
-                                                <p>Follow these steps to use <span class="UIelement">Explode</span>operation on a result set:</p>
+                                                <p>To use <span class="UIelement">Explode</span>operation on a result set in a dataflow:</p>
                                                 <ol>
-                                                    <li value="1">Click on the <span class="UIelement">Row Ops</span> category of operations in the Advanced Mode toolbar. </li>
-                                                    <li value="2">Drag the <span class="UIelement">Explode</span> Node to the dataflow canvas. </li>
-                                                    <li value="3">
-                                                        <p>Connect a result set, to the <span class="UIelement">Explode</span> Node. See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a> for more information on connecting Nodes and creating dataflows.</p>
+                                                    <li value="1">Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</li>
+                                                    <li value="2">Click the <span class="UIelement">Row Ops</span> category of operations in the Dataflow Mode toolbar. </li>
+                                                    <li value="3">Drag the <span class="UIelement">Explode</span> Node to the dataflow canvas. </li>
+                                                    <li value="4">
+                                                        <p>Locate the Node with the result set on which you want to perform the <span class="UIelement">Explode</span> operation, and connect its output to the  <span class="UIelement">Explode</span> Node. See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a> for more information on connecting Nodes and creating dataflows.</p>
                                                     </li>
-                                                    <li value="4">Right click the <span class="UIelement">Explode</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu.</li>
-                                                    <li value="5">The <span class="UIelement">Explode String</span> panel is displayed.</li>
-                                                    <li value="6">Select a column in the <span class="UIelement">Column to explode</span> drop-down. </li>
+                                                    <li value="5">
+                                                        <p>Right click the <span class="UIelement">Explode</span> Node and select <span class="UIelement">Configure</span>.</p>
+                                                        <p>The <span class="UIelement">Explode String</span> configuration panel is displayed.</p>
+                                                    </li>
+                                                    <li value="6">Select a column in the <span class="UIelement">Column to explode</span> to unpack or explode. </li>
                                                     <li value="7">Enter a string for the <span class="UIelement">Delimiter</span>. </li>
-                                                    <li value="8"><span class="UIelement">New resultant column name</span> is already filled up based on the <span class="UIelement">Column to explode</span> field. Enter new text in this field to choose a different resultant column name.</li>
-                                                    <li value="9">Check the <span class="UIelement">Include only erroneous row</span> checkbox if you only want to see the rows which produce error because of this operation. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a result set with only erroneous rows</a>.</li>
-                                                    <li value="10">Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set is displayed when the Node executes. The new result set contains the column string exploded in substrings in new rows.</li>
+                                                    <li value="8"><span class="GeneralGUIName1">Xcalar Design</span> fills in the <span class="UIelement">New resultant column name</span> field based on the <span class="UIelement">Column to explode</span> field. Enter new text in this field to select a different resultant column name.</li>
+                                                    <li value="9">Check the <span class="UIelement">Include only erroneous row</span> check box if you only want to see only the rows which produce error because of this operation. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a result set with erroneous rows only</a>.</li>
+                                                    <li value="10">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a new result set is displayed when the Node executes. </p>
+                                                    </li>
                                                 </ol>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <p>For selecting columns:</p>
                                                         <ul>

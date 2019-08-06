@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Using UDFs</title>
+        <meta name="author" content="" /><title>Creating and managing user-defined functions</title>
         <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,76 +185,148 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1><a name="Using" class="ForCSH"></a>Using UDFs</h1>
-                                                <p>This section describes the tasks related to UDFs (user-defined functions). To see examples of UDFs, see <a href="../E_Reference/H1_UdfExamples.htm" class="MCXref xref" xrefformat="{para}">User-defined function (UDF) examples</a>. </p>
-                                                <h2 class="noPageBreak">Creating a UDF in <span class="GeneralGUIName1">Xcalar Design</span></h2>
-                                                <p>UDFs created by one  <span class="GeneralGUIName1">Xcalar Design</span> user can be read and copied by all other <span class="GeneralGUIName1">Xcalar Design</span> users, so they can accomplish similar tasks. </p>
-                                                <p>You define one or multiple UDFs in a Python module. You can create a module in these ways:</p>
+                                                <h1><a name="Using" class="ForCSH"></a>Creating and managing user-defined functions</h1>
+                                                <p>This section describes the tasks related to user-defined function (UDF) modules. </p>
+                                                <h2 class="noPageBreak">Understanding UDF Manager</h2>
+                                                <p>The <span class="UIelement">UDF Manager</span> helps you manage user-defined function (UDF) modules. To display the UDF Manager, from the sidebar, click the <span class="UIelement">System</span> icon and then the <span class="UIelement">UDF Manager</span> icon <img src="../../Resources/Images/XD_assets/xd-file-manager.png" />. The UDF Manager is displayed with the following two folders at the root level:</p>
+                                                <ul>
+                                                    <li value="1">sharedUDFs: This folder contains the UDF modules shared among all users and all workbooks. By default, it contains one UDF file called <span class="UIelement">default.py</span> with a few built-in UDFs.</li>
+                                                    <li value="2">workbook: The UDFs stored in this folder are owned by individual workbooks. A workbook cannot use a UDF owned by another workbook unless it is a shared UDF.</li>
+                                                </ul>
+                                                <p>You can navigate the UDF folders by double clicking the folder names. Once you select a UDF module in a folder, the following actions are available to you:</p>
+                                                <ul>
+                                                    <li value="1">Open</li>
+                                                    <li value="2">Download</li>
+                                                    <li value="3">Delete</li>
+                                                    <li value="4">Duplicate</li>
+                                                    <li value="5">Copy to</li>
+                                                    <li value="6">Share</li>
+                                                    <li value="7">Upload</li>
+                                                </ul>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160; If you are not in a workbook, all the actions are disabled. If you are in a workbook and select multiple modules, the <span class="UIelement">Open</span>, <span class="UIelement">Duplicate</span>, <span class="UIelement">Copy to</span> and <span class="UIelement">Share</span> actions are disabled.</div>
+                                                <h2 class="noPageBreak">Creating a user-defined function in <span class="GeneralGUIName1">Xcalar Design</span></h2>
+                                                <p>The <span class="GeneralProductName3">Xcalar</span> user-defined functions (UDFs) are written in Python language. One Python module can contain multiple UDFs. The UDF created by one user cannot be used by other users unless the UDF is shared. However, all UDFs can be viewed and copied by all <span class="GeneralGUIName1">Xcalar Design</span> users. </p>
+                                                <p>You can create a UDF module in any of the following ways:</p>
                                                 <ul>
                                                     <li value="1">Enter the code directly in the <span class="UIelement">User Defined Function</span> panel.</li>
-                                                    <li value="2">Upload Python code from your computer to the <span class="UIelement">File Manager</span>. </li>
+                                                    <li value="2">Upload the Python code from your computer to the <span class="UIelement">UDF Manager</span>. </li>
                                                     <li value="3">Use the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window to display a UDF&#160;template and then use the&#160;Jupyter notebook editor to modify the code in the template. For more information about using the Jupyter Notebook, see <a href="../C_XcalarAdvancedMode/D_Jupyter/C1_UsingJupyter.htm" class="MCXref xref" xrefformat="{para}">Using Xcalar Design with Jupyter Notebook</a>.</li>
                                                 </ul>
-                                                <h3>Entering the code directly</h3>
-                                                <p>Follow these steps to write the UDF code directly in <span class="UIelement">User Defined Function</span> panel and then save it:</p>
+                                                <h3><a name="Entering"></a>Entering the user-defined function code directly</h3>
+                                                <p>To enter the user-defined function (UDF) code directly in the <span class="UIelement">User Defined Function</span> panel:</p>
                                                 <ol>
-                                                    <li value="1">Click the <span class="UIelement">UDF</span> icon (<img src="../../Resources/Images/XD_assets/xd-udfs.png" />)   towards the bottom of the sidebar to display the <span class="UIelement">User Defined Function</span> panel.&#160;</li>
-                                                    <li value="2">Click the drop-down arrow to display a list of existing modules. Select one to use it as a template. Alternatively, select <span class="UIelement">New Module</span> if you want to start with an empty module.</li>
+                                                    <li value="1">Use one of the following methods to display the <span class="UIelement">User Defined Function</span> panel:<ol style="list-style-type: lower-alpha;"><li value="1">From the sidebar, click the <span class="UIelement">UDF</span> icon <img src="../../Resources/Images/XD_assets/xd-udfs.png" />.&#160;</li><li value="2">From the sidebar, click the <span class="UIelement">System</span> icon and then the <span class="UIelement">UDF Manager</span> icon <img src="../../Resources/Images/XD_assets/xd-file-manager.png" />.</li></ol></li>
+                                                    <li value="2">In the <span class="UIelement">User Defined Function</span> panel, click the drop-down arrow to display the list of existing modules and select <span class="UIelement">New Module</span>.</li>
                                                     <li value="3">Enter the code in the panel.</li>
                                                     <li value="4">
-                                                        <p>Click on the <span class="UIelement">Save File</span> icon (<img src="../../Resources/Images/XD_assets/xd-save-udf.png" />) on the top to save the code. A modal <span class="UIelement">SAVE AS</span> window appears, where you can type in a new file name with extension py. </p>
-                                                        <div class="Note"><span class="label">NOTE:</span>&#160;Module names are case insensitive. If you type letters in uppercase, <span class="GeneralGUIName1">Xcalar Design</span> displays them in lowercase when listing the modules. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref" xrefformat="{para}">UDF naming conventions</a> for information about name requirements.</div>
+                                                        <p>Click on the <span class="UIelement">Save File</span> icon <img src="../../Resources/Images/XD_assets/xd-save-udf.png" /> on the top of the panel to save the code. </p>
+                                                        <p>A <span class="UIelement">SAVE AS</span> modal appears where you can enter a new module name with extension py. The default location for saving the module is:</p>
+                                                        <p><code>/workbook/&lt;current user name&gt;/&lt;current workbook name&gt;/</code>
+                                                        </p>
+                                                        <p>You can save the UDF in the default location or navigate to save it in the <span class="UIelement">sharedUDFs</span> folder. The UDFs saved in the <span class="UIelement">sharedUDFs</span> folder are shared with all other users. </p>
+                                                        <div class="Note"><span class="label">NOTE:</span>&#160;Module names are case insensitive. If you type letters in uppercase, <span class="GeneralGUIName1">Xcalar Design</span> displays them in lowercase when listing the modules. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref" xrefformat="{para}">User-defined function name requirements</a> for information about name requirements.</div>
                                                     </li>
                                                     <li value="5">
-                                                        <p> If a module with the same name already exists, a dialog box asks whether you want to overwrite the existing module. If so, click <span class="UIelement">Confirm</span>. Otherwise, click <span class="UIelement">Cancel</span> and then rename the module.</p>
+                                                        <p> Click <span class="UIelement">Save</span>. If a module with the same name already exists, a modal asks whether you want to overwrite the existing module. If so, click <span class="UIelement">Confirm</span>. Otherwise, click <span class="UIelement">Cancel</span> and enter a different name.</p>
                                                     </li>
                                                 </ol>
-                                                <div class="Note"><span style="font-weight: bold;">Note</span>: Overwriting a functioning UDF&#160;with a non-functional one can cause  the execution of some operations (for example <span class="UIelement">Map</span> or import which invoke the UDF) to fail. The best practice is to apply disciplined versioning to your UDFs.  </div>
-                                                <div class="Note"><span class="label">TIP</span>: When editing a UDF, you can use the keyboard shortcut appropriate for your  operating system to search for or replace a string. For example, if you run <span class="GeneralGUIName1">Xcalar Design</span> in a browser on Microsoft Windows, press the Ctrl and F keys to search for a string, and the Ctrl, Shift, and F keys to replace a string.</div>
-                                                <h3>Uploading  a UDF module</h3>
-                                                <p>Follow these steps to upload a  file as a UDF&#160;module from your computer to your cluster:</p>
+                                                <div class="Note"><span style="font-weight: bold;">Note</span>: Overwriting a functioning UDF&#160;with a non-functional UDF can cause  the execution of some operations (for example <span class="UIelement">Map</span> or import which invoke the UDF) to fail. The best practice is to apply disciplined versioning to your UDFs.  </div>
+                                                <div class="Note"><span class="label">TIP</span>: When editing a UDF, you can use the keyboard shortcut appropriate for your  operating system to search for or to replace a string. For example, if you run <span class="GeneralGUIName1">Xcalar Design</span> in a browser on Microsoft Windows, press the Ctrl and F keys to search for a string, and the Ctrl, Shift, and F keys to replace a string.</div>
+                                                <h3><a name="Uploadin"></a>Uploading  a user-defined function module</h3>
+                                                <p>To upload a  file as a user-defined function (UDF)&#160;module from your computer to your <span class="GeneralProductName3">Xcalar</span> cluster:</p>
                                                 <ol>
-                                                    <li value="1">Click the UDF icon (<img src="../../Resources/Images/XD_assets/xd-udfs.png" />)   towards the bottom of the sidebar to display the <span class="UIelement">User Defined Function</span> panel.</li>
-                                                    <li value="2">Open the <span class="UIelement">File Manager</span> by clicking on the <span class="UIelement">Open File Manager</span> icon (<img src="../../Resources/Images/XD_assets/xd-open-file-manager.png" />) in <span class="UIelement">User Defined Function</span> panel. <span class="UIelement">File Manager</span> window opens up and displays the existing UDF modules.</li>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">System</span> icon and then the <span class="UIelement">UDF Manager</span> icon. <br />The  <span class="UIelement">UDF Manager</span> is displayed.</li>
+                                                    <li value="2">
+                                                        <p>Navigate to the folder where you want to upload the UDF module by double clicking the folder names in the <span class="UIelement">UDF Manager</span>. </p>
+                                                        <div class="Note"><span class="label">NOTE:</span> The <span class="UIelement">Upload</span> button may be disabled if you navigate to a folder where you do not have the write-permission. For example, if you selected some other user's folder. Every user has write-permission in the following folders: <code>/workbook/&lt;current user&gt;/&lt;current workbook name&gt;/</code> and <code>/sharedUDFs/</code></div>
+                                                    </li>
                                                     <li value="3">
-                                                        <p>Click on the <span class="UIelement">Upload</span> button in the top right corner. </p>
-                                                        <div class="Note"><span class="label">NOTE:</span> The <span class="UIelement">Upload</span> button may be disabled if you navigate to a UDF folder where you do not have write permission.</div>
+                                                        <p> Click the <span class="UIelement">Upload</span> button in the top right corner. <br />The file browser modal is displayed.</p>
                                                     </li>
                                                     <li value="4">
-                                                        <p>Navigate to the folder on your computer which contains the file you want to upload. Select a file with extension py or txt. If the file has valid Python code, it is uploaded and the file name with extension py appears in the <span class="UIelement">File Manager</span>, otherwise an error is reported.</p>
+                                                        <p>Navigate to the folder on your computer which contains the file you want to upload, select a file with extension py or txt and click <span class="UIelement">Open</span>. </p>
+                                                        <p>If the file has valid Python code, it is uploaded and the file name with extension py appears in the <span class="UIelement">UDF Manager</span>, otherwise an error is reported. If  a file with the same name already exists, it is replaced with the new file.</p>
+                                                    </li>
+                                                </ol>
+                                                <div class="Note"><span class="label">NOTE:</span> If the file name does not follow the naming conventions, an error message notifies you that the name is invalid. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref" xrefformat="{para}">User-defined function name requirements</a> for naming requirements.</div>
+                                                <h2 class="noPageBreak">Downloading a user-defined function module</h2>
+                                                <p>To download a   user-defined function (UDF)&#160;module from your <span class="GeneralProductName3">Xcalar</span> cluster to your computer:</p>
+                                                <ol>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">System</span> icon and then the <span class="UIelement">UDF Manager</span> icon. <br />The <span class="UIelement">UDF Manager</span> is displayed.</li>
+                                                    <li value="2">Navigate to the desired folder by double clicking the folder name in the <span class="UIelement">UDF Manager </span>and select the desired UDF module. </li>
+                                                    <li value="3">Click <span class="UIelement">Download</span> from the <span class="UIelement">Action</span> drop-down menu to download the selected module to your computer.</li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Editing a user-defined function module</h2>
+                                                <p>You can only edit the UDFs in the following folders: <code>/workbook/&lt;current user&gt;/&lt;current workbook name&gt;/</code> and <code>/sharedUDFs</code>. To edit an existing user-defined function (UDF) module:</p>
+                                                <ol>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">System</span> icon and then the <span class="UIelement">UDF Manager</span> icon. <br />The <span class="UIelement">UDF Manager</span> is displayed.</li>
+                                                    <li value="2">Navigate to the desired folder by double clicking the folder name in the <span class="UIelement">UDF Manager</span> and select the desired UDF module. </li>
+                                                    <li value="3"> Edit the module in one of the following ways:<ul><li value="1">Click <span class="UIelement">Open</span> from the <span class="UIelement">Action</span> drop-down menu to edit the code in the <span class="UIelement">User Defined Function</span> panel. </li><li value="2">Click <span class="UIelement">Download</span> from the <span class="UIelement">Action</span> drop-down menu  to download the selected module to your computer. Modify the module by using an editor on your computer. Upload the file after you finish editing.</li><li value="3">Click <span class="UIelement">Open</span> from the <span class="UIelement">Action</span> drop-down menu to display the code in the <span class="UIelement">User Defined Function</span> panel. Copy the desired module code to the Jupyter Notebook or to an external UDF&#160;editor and edit it. Paste the new module code back into the <span class="UIelement">User Defined Function</span> panel. </li></ul></li>
+                                                    <li value="4">Click <span class="UIelement">Save</span> icon <img src="../../Resources/Images/XD_assets/xd-save-udf.png" />. </li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Deleting a user-defined function&#160;module</h2>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Be sure you understand the effects of deleting a user-defined function (UDF)&#160;module before you proceed.&#160;You cannot undo the deletion of a UDF module. </div>
+                                                <p>To delete a UDF&#160;module:</p>
+                                                <ol>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">System</span> icon and then the <span class="UIelement">UDF Manager</span> icon. <br />The <span class="UIelement">UDF Manager</span> is displayed.</li>
+                                                    <li value="2">Navigate to the desired folder by double clicking the folder name in the <span class="UIelement">UDF Manager</span> and select the UDF module you want to delete. </li>
+                                                    <li value="3">
+                                                        <p>Click <span class="UIelement">Delete</span> from the <span class="UIelement">Action</span> drop-down menu. </p>
+                                                        <p>A confirmation dialog box opens up. </p>
+                                                        <div class="Note"><span class="label">NOTE:</span> The <span class="UIelement">Delete</span> button may be disabled if you navigate to a folder where you do not have the write-permission. For example, if you selected some other user's folder. Every user has write-permission in the following folders: <code>/workbook/&lt;current user&gt;/&lt;current workbook name&gt;/</code> and <code>/sharedUDFs/</code></div>
+                                                    </li>
+                                                    <li value="4">
+                                                        <p>Click <span class="UIelement">Confirm </span>and the module is deleted. </p>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Copying a user-defined function&#160;module</h2>
+                                                <p>To copy a user-defined function (UDF)&#160;module:</p>
+                                                <ol>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">System</span> icon and then the <span class="UIelement">UDF Manager</span> icon. <br />The <span class="UIelement">UDF Manager</span> is displayed.</li>
+                                                    <li value="2">Navigate to the desired folder by double clicking the folder name in the <span class="UIelement">UDF Manager</span> and select the UDF module you want to copy. </li>
+                                                    <li value="3">Click <span class="UIelement">Copy</span> from the <span class="UIelement">Action</span> drop-down menu. A <span class="UIelement">COPY FILE</span> dialog box opens up. </li>
+                                                    <li value="4">
+                                                        <p>Select a folder where you have the write-permission. Every user has write-permission in the following folders:</p>
+                                                        <p><code>/workbook/&lt;current user&gt;/&lt;current workbook name&gt;/</code>
+                                                        </p>
+                                                        <p><code>/sharedUDFs/</code>
+                                                        </p>
                                                     </li>
                                                     <li value="5">
-                                                        <p> If a file with the same name already exists, it is replaced with the new file.</p>
-                                                        <div class="Note"><span class="label">NOTE:</span> If the original file name does not follow the naming conventions, an error message notifies you that the name is invalid. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref" xrefformat="{para}">UDF naming conventions</a> for naming requirements.</div>
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The module is saved if you have the write-permission in the selected folder. </p>
                                                     </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Downloading a UDF module</h2>
-                                                <p>Follow these steps to download a   UDF&#160;module from your cluster to your computer:</p>
+                                                <h2 class="noPageBreak">Duplicating a user-defined function&#160;module</h2>
+                                                <p>To duplicate a user-defined function (UDF)&#160;module:</p>
                                                 <ol>
-                                                    <li value="1">Click the UDF icon (<img src="../../Resources/Images/XD_assets/xd-udfs.png" />)   towards the bottom of the sidebar to display the <span class="UIelement">User Defined Function</span> panel.</li>
-                                                    <li value="2">Click the <span class="UIelement">Open File Manager</span> icon (<img src="../../Resources/Images/XD_assets/xd-open-file-manager.png" />) in the <span class="UIelement">User Defined Function</span> panel. </li>
-                                                    <li value="3">Navigate to the desired folder by double clicking on the folder name and select the desired UDF file. </li>
-                                                    <li value="4">Click <span class="UIelement">Download</span> from the <span class="UIelement">Action</span> drop-down menu to download the desired module to your computer.</li>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">System</span> icon and then the <span class="UIelement">UDF Manager</span> icon. <br />The <span class="UIelement">UDF Manager</span> is displayed.</li>
+                                                    <li value="2">Navigate to the desired folder by double clicking the folder names in the <span class="UIelement">UDF Manager</span> and select the UDF module you want to duplicate. </li>
+                                                    <li value="3">
+                                                        <p>Click <span class="UIelement">Duplicate</span> from the <span class="UIelement">Action</span> drop-down menu.  </p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;The <span class="UIelement">Duplicate</span> action is disabled if you do not have the write-permission in the selected folder. For example, if you selected some other user's workbook folder. Every user has write-permission in the following folders: <code>/workbook/&lt;current user&gt;/&lt;current workbook name&gt;/</code> and <code>/sharedUDFs/</code></div>
+                                                    </li>
+                                                    <li value="4">
+                                                        <p>A duplicate module with a running number at the end is created in the same folder. </p>
+                                                    </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Editing a UDF module</h2>
-                                                <p>Follow these steps to edit an existing UDF module:</p>
+                                                <h2 class="noPageBreak">Sharing a user-defined function&#160;module</h2>
+                                                <p>The creator of a user-defined function (UDF)&#160;can choose to share a UDF module, which can then be used by all other users in any workbook on the <span class="GeneralProductName3">Xcalar</span> cluster. To share a UDF&#160;module:</p>
                                                 <ol>
-                                                    <li value="1">Click the UDF icon (<img src="../../Resources/Images/XD_assets/xd-udfs.png" />)   towards the bottom of the sidebar to display the <span class="UIelement">User Defined Function</span> panel.</li>
-                                                    <li value="2">Select the Open File Manager icon (<img src="../../Resources/Images/XD_assets/xd-open-file-manager.png" />) in <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed. </li>
-                                                    <li value="3">Select the desired module.</li>
-                                                    <li value="4">Edit the module in one of the following ways:<ul><li value="1">Click <span class="UIelement">Open</span> from the <span class="UIelement">Action</span> drop-down menu to edit the code in <span class="UIelement">User Defined Function</span> panel. </li><li value="2">Click <span class="UIelement">Download</span> from the <span class="UIelement">Action</span> drop-down menu  to download the desired module to your computer. Modify the module by using an editor on your computer. Upload the file after you finish editing.</li><li value="3">Click <span class="UIelement">Open</span> from the <span class="UIelement">Action</span> drop-down menu to display the code in <span class="UIelement">User Defined Function</span> panel. Copy the desired module code to Jupyter Notebook or external UDF&#160;editor. Paste new module code back into the UDF&#160;editor. </li></ul></li>
-                                                    <li value="5">Click <span class="UIelement">Save</span> icon (<img src="../../Resources/Images/XD_assets/xd-save-udf.png" />) to save it. Optionally, add a version number string to the module name and then save it.</li>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">System</span> icon and then the <span class="UIelement">UDF Manager</span> icon. <br />The <span class="UIelement">UDF Manager</span> is displayed.</li>
+                                                    <li value="2">Navigate to the current workbook's folder (<code>/workbook/&lt;current user&gt;/&lt;current workbook name&gt;/</code>) by double clicking the folder names in the <span class="UIelement">UDF Manager</span>.</li>
+                                                    <li value="3">Select the UDF module you want to share. </li>
+                                                    <li value="4">
+                                                        <p>Click <span class="UIelement">Share</span> from the <span class="UIelement">Action</span> drop-down menu. </p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;You can only share the UDF modules from your current workbook. The <span class="UIelement">Share</span> action is disabled if you are not in your current workbook folder - <code>/workbook/&lt;current user&gt;/&lt;current workbook name&gt;/</code></div>
+                                                    </li>
+                                                    <li value="5">
+                                                        <p>The selected module is copied in the sharedUDFs folder. If a module with that name already exists, it is overwritten. </p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;At load time, the UDF modules are first searched in the current workbook and then in the sharedUDFs folder. This enables users to customize a shared UDF by copying it to their workbook folder and then customizing it without changing the module name.</div>
+                                                    </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Deleting a UDF&#160;module</h2>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Be sure you understand the effects of deleting a UDF&#160;module before you proceed.&#160;You cannot undo UDF module deletion. </div>
-                                                <p>Follow these steps to delete a UDF&#160;module:</p>
-                                                <ol>
-                                                    <li value="1">Click the UDF icon (<img src="../../Resources/Images/XD_assets/xd-udfs.png" />)   towards the bottom of the sidebar to display the <span class="UIelement">User Defined Function</span> panel.</li>
-                                                    <li value="2">Select the <span class="UIelement">Open File Manager</span> icon (<img src="../../Resources/Images/XD_assets/xd-open-file-manager.png" />) in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
-                                                    <li value="3">Select the UDF module you want to delete. </li>
-                                                    <li value="4">Click <span class="UIelement">Delete</span> from the <span class="UIelement">Action</span> drop-down menu. A confirmation dialog box opens up. </li>
-                                                    <li value="5">Click <span class="UIelement">Confirm </span>and the module is deleted. The <span class="UIelement">Delete</span> action is disabled if you do not have permission to delete the file.</li>
-                                                </ol>
+                                                <h2 class="noPageBreak">Next step</h2>
+                                                <p>See examples of UDFs in <a href="../E_Reference/H1_UdfExamples.htm" class="MCXref xref" xrefformat="{para}">User-defined function  examples</a>. </p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

@@ -95,8 +95,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -192,10 +190,7 @@
                                                 <p><span class="GeneralProductName3">Xcalar</span> SQL&#160;supports <span class="GeneralProductName3">Xcalar</span> Defined Functions (XDF) inserted directly in the SQL query statement. </p>
                                                 <h3>Understanding the XDF data type data format syntax</h3>
                                                 <p>When including an XDF in your query you must include the function's output data type format.</p>
-                                                <p> The data type  is prefixed before the function name using the first initial of the data type, followed by <span class="UIelement">xdf</span> and then an underscore (_). </p>
-                                                <p>For example, here is the syntax for the <span class="UIelement">wordCount</span> XDF whose output data format is integer:</p>
-                                                <p><code><span class="UIelement">ixdf_wordCount(</span><var>column_name</var><span class="UIelement">)</span></code>
-                                                </p>
+                                                <p> The data type  is prefixed before the function name using the first initial of the data type, followed by <span class="UIelement">xdf</span> and then an underscore (_), as shown in the below table: </p>
                                                 <table style="mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 969px;" class="TableStyle-SimpleTable" cellspacing="0">
                                                     <caption data-mc-autonum="Table 1 "><span class="autonumber"><span>Table 1 </span></span>XDF prefix function name syntax</caption>
                                                     <col class="TableStyle-SimpleTable-Column-Column1" style="width: 311px;" />
@@ -272,7 +267,20 @@
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <div class="Note"><span class="label">NOTE:</span> When appropriate, <span class="GeneralProductName3">Xcalar</span> recommends using XDFs rather than UDFs in your SQL query statements as they   return more data type formats and process faster.</div>
+                                                <p>For example, here is the syntax for the <span class="UIelement">wordCount</span> XDF whose output data format is integer:</p>
+                                                <p><code><span class="UIelement">ixdf_wordCount(</span><var>column_name</var><span class="UIelement">)</span></code>
+                                                </p>
+                                                <h4>Example of an XDF in SQL </h4>
+                                                <p>Below is a SQL query statement that will count the number of words in a column using the  <span class="UIelement">wordCount</span> XDF. </p>
+                                                <div class="Code"><span class="UIelement">SELECT ixdf_wordCount(<var>table</var>.<var>colname</var>) FROM <var>table</var>;</span>
+                                                </div>
+                                                <p>Where,</p>
+                                                <ul>
+                                                    <li value="1"><var>table</var> is the name of the table that contains the column whose words are to be counted.</li>
+                                                    <li value="2"><var>colname</var> is the name of the column whose words are to be counted.</li>
+                                                </ul>
+                                                <p>For more information, see <a href="../../E_Reference/I_MapFunctions.htm" class="MCXref xref">Map functions</a>.</p>
+                                                <div class="Note"><span class="label">NOTE:</span> When appropriate, <span class="GeneralProductName3">Xcalar</span> recommends using XDFs rather than UDFs in your SQL query statements. This is because they   process faster and are able to return more data type formats than UDFs.</div>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

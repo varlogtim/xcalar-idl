@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Sorting a column and finding quartiles</title>
+        <meta name="author" content="" /><title>Sorting a result set and finding quartiles</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,79 +185,76 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Sorting a column and finding quartiles</h1>
-                                                <p>You can sort values in a column so that values are displayed in ascending or descending order. </p>
-                                                <h2 class="noPageBreak"><a name="Sorting"></a>Sorting values in a column</h2>
-                                                <p>Follow these steps to sort a column:</p>
+                                                <h1>Sorting a result set and finding quartiles</h1>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> enables you to sort columns in a result set so that the values are displayed in an ascending or descending order. </p>
+                                                <p>To sort columns in a result set, verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
+                                                <h2 class="noPageBreak">Sorting a result set using the Sort Node</h2>
+                                                <p>To sort a result set using a <span class="UIelement">Sort</span> Node:</p>
+                                                <ol>
+                                                    <li value="1">Select the <span class="UIelement">Row Ops</span> category in the <span class="UIelement">Dataflow Mode Toolbar</span>.</li>
+                                                    <li value="2">Drag the <span class="UIelement">Sort</span> Node to the dataflow canvas. </li>
+                                                    <li value="3">Locate the Node with the result set in which you want to sort the columns, and connect its output to the <span class="UIelement">Sort</span> Node. See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a> for more information on connecting Nodes and creating dataflows.</li>
+                                                    <li value="4">
+                                                        <p>Right click the <span class="UIelement">Sort</span> Node and select <span class="UIelement">Configure</span> to display the <span class="UIelement">Sort</span> configuration panel. </p>
+                                                    </li>
+                                                    <li value="5">In the <span class="UIelement">Columns to sort</span> section, click on the <span class="UIelement">Column name</span> field  and select a column to sort on. </li>
+                                                    <li value="6">Select the sort order for the selected column - Ascending or Descending.</li>
+                                                    <li value="7">(Optional) To add more columns to sort on, click <span class="UIelement">Add Column</span> and select another column and the sort order.</li>
+                                                    <li value="8">(Optional) To remove a column from the <span class="UIelement">Columns to sort </span>section, hover over the column name and click on the cancel icon (x).</li>
+                                                    <li value="9">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a sorted result set is displayed when the Node executes. </p>
+                                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;Sorting by this method preserves the result of sort operation in the subsequent operations but a <span class="UIelement">Sort </span>Node in the middle of a dataflow is not recommended for performance reasons.</div>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak"><a name="Sorting"></a>Sorting a result set from the column header</h2>
+                                                <p>To sort a column in a result set:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>In the column drop-down menu, select <span class="UIelement">Sort</span>. A pop-up is displayed for you to specify whether the values are sorted in ascending or descending order. Alternatively, click one of the triangles, in the column header, which indicates the direction of the sort, as shown in the following screenshot:</p>
+                                                        <p>Right click the result set column header and select <span class="UIelement">Sort</span>. A pop-up is displayed for you to specify whether the values are sorted in ascending or descending order. Alternatively, click one of the stacked triangles in the column header, which indicates the direction of the sort, as shown in the following screenshot:</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-sort-from-header.png" />
                                                         </p>
                                                     </li>
                                                     <li value="2">
                                                         <p>If the data type of the column is&#160;String and <span class="GeneralGUIName1">Xcalar Design</span> determines that most of the values in the column are numeric, it displays the <span class="UIelement">Sort Suggestion</span> dialog box. Depending on the desired method of sorting, click <span class="UIelement">Alphabetically</span> or <span class="UIelement">Numerically</span>. </p>
-                                                        <div class="Note"><span class="label">NOTE:</span>&#160;If you select <span class="UIelement">Numerically</span>, a derived column is created based on the original column, with its data type  set to Integer or Float, depending on whether <span class="GeneralGUIName1">Xcalar Design</span> detects a significant number of values in floating point format.</div>
+                                                        <div class="Note"><span class="label">NOTE:</span>&#160;If you select <span class="UIelement">Numerically</span>, a derived column is created based on the original column, with its data type  set to Integer or Float, depending on whether <span class="GeneralGUIName1">Xcalar Design</span> detects a significant number of values as Floats or Integers.</div>
                                                     </li>
                                                     <li value="3">
                                                         <p>The column header  for a sorted column shows the direction of the sort. The following screenshot shows the column header of a column  sorted in descending order:</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-sort-order.png" />
                                                         </p>
-                                                        <p><span class="label">IMPORTANT:</span>&#160;Sorting by this method only affects how the rows are displayed. Subsequent operations do not preserve the result of the sort. For example, you can sort on a column named <span class="UIelement">Age</span> to display rows ordered by age. Later if you perform an arithmetic function to sum two other columns, the resultant result set displayed after the function is in the original, unsorted order. The rows are no longer sorted by <span class="UIelement">Age</span>.</p>
-                                                    </li>
-                                                </ol>
-                                                <h2 class="noPageBreak">Sorting a result set starting from a dataflow Node</h2>
-                                                <p>You can sort a result set starting from a dataflow Node.  Follow these steps to sort a result set starting from a <span class="UIelement">Sort</span> Node:</p>
-                                                <ol>
-                                                    <li value="1">Select the <span class="UIelement">Row Ops</span> category in the <span class="UIelement">Advanced Mode Toolbar</span>, to display the <span class="UIelement">Sort</span> Node.</li>
-                                                    <li value="2">Drag the <span class="UIelement">Sort</span> Node to the dataflow canvas. </li>
-                                                    <li value="3">Connect an existing result set Node to the <span class="UIelement">Sort</span> Node. See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a> for more information on connecting Nodes and creating dataflows.</li>
-                                                    <li value="4">
-                                                        <p>Right click on the <span class="UIelement">Sort</span> Node and click on the <span class="UIelement">Configure</span> menu to display the <span class="UIelement">Sort</span> panel. </p>
-                                                    </li>
-                                                    <li value="5">Click on the <span class="UIelement">Column name</span> field in the <span class="UIelement">Columns to sort</span> section to display the columns available for sort in a drop-down. Select a column. </li>
-                                                    <li value="6">Choose the sort order for the column - Ascending or Descending.</li>
-                                                    <li value="7">Click on the <span class="UIelement">Add Column</span> button to add more columns to sort on. Select the sort order for each column.</li>
-                                                    <li value="8">Click on the cancel icon in the column name to remove the column from the <span class="UIelement">Columns to sort </span>section.</li>
-                                                    <li value="9">
-                                                        <p>Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set is displayed when the Node executes. </p>
-                                                        <p><span class="label">IMPORTANT:</span>&#160;Sorting by this method preserves the result of sort operation in the subsequent operations but a <span class="UIelement">Sort </span>Node in the middle of a dataflow it is not recommended for performance reasons.</p>
+                                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;Sorting by this method only affects how the rows are displayed in the user interface. Subsequent operations do not preserve the result of the sort. For example, you can sort on a column named <span class="UIelement">Age</span> to display rows ordered by age. Later if you perform an arithmetic function to sum two other columns, the new result set displayed after the function is in the original, unsorted order. The rows are no longer sorted by <span class="UIelement">Age</span>.</div>
                                                     </li>
                                                 </ol>
                                                 <h2 class="noPageBreak">Sorting a result set on multiple columns</h2>
-                                                <p>To sort a result set on multiple columns, repeat the steps in <a href="#Sorting" class="MCXref xref" xrefformat="{para}">Sorting values in a column</a> for each column. Alternatively, use the method described in this section, in which you select all the columns before the sort takes place. If you use this method, you are not given the option to sort a String column numerically.</p>
-                                                <p>Follow these steps to sort a result set on multiple columns:</p>
+                                                <p>To sort a result set on multiple columns, repeat the steps in <a href="#Sorting" class="MCXref xref" xrefformat="{para}">Sorting a result set from the column header</a> for each column. Alternatively, use the method described in this section, in which you select all the columns before the sort takes place. If you use this method, you are not given the option to sort a String column numerically.</p>
+                                                <p>To sort a result set on multiple columns:</p>
                                                 <ol>
-                                                    <li value="1">To sort a particular column first, display the column options from that column. Then select <span class="UIelement">Sort</span> to display the  pop-up. </li>
-                                                    <li value="2">Click <span class="UIelement">Advanced …</span> in the pop-up to display the <span class="UIelement">Sort</span> panel. The column name is displayed in the <span class="UIelement">Sort</span> panel.</li>
-                                                    <li value="3">
-                                                        <p>Select another column (by clicking anywhere in the column) as the second column to be sorted. Repeat this step for each additional column that you want to sort.</p>
-                                                        <p>To deselect a column, click the column again.</p>
-                                                        <p>The column names are listed in the <span class="UIelement">Sort</span> panel in the same order as you select the columns. Also, each column header is associated with a number (for example, 1, 2, and so on), indicating the order in which the columns will be sorted. </p>
+                                                    <li value="1">
+                                                        <p>Select multiple columns in the result set. </p>
                                                     </li>
-                                                    <li value="4">In the <span class="UIelement">Sort</span> panel, for each selected column, specify whether the sort is in ascending or descending order.</li>
-                                                    <li value="5">Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set is displayed when the Node executes. </li>
+                                                    <li value="2">
+                                                        <p>Right click a selected column's header and select <span class="UIelement">Sort</span> -&gt; <span class="UIelement">Advanced</span>. </p>
+                                                        <p>The <span class="UIelement">Sort</span> configuration panel is displayed and the selected columns are added in the <span class="UIelement">Columns to sort</span> section automatically in the same order as you selected the columns. </p>
+                                                    </li>
+                                                    <li value="3">For each column in the <span class="UIelement">Columns to sort</span> section, select the sort order.</li>
+                                                    <li value="4">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a new result set is displayed when the Node executes. </p>
+                                                    </li>
                                                 </ol>
                                                 <p>The following screenshot is an example showing the column headers after a multi-column sort:</p>
                                                 <p>
                                                     <img src="../../../Resources/Images/XD_screenshots/xd-sort-multi-col.png" />
                                                 </p>
+                                                <p>The sort triangle in the header displays a number (for example, 1, 2, and so on) to indicate the sort key order. </p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;The column you sort on most recently becomes the primary sort key. For example, after sorting on the DayOfWeek and AirTime columns, if you sort on the Distance column, <span class="GeneralProductName3">Xcalar</span> updates the numbers in the column headers: The sort key number for Distance is 1, the sort key number for DayOfWeek is 2, and the sort key number for AirTime is 3. </div>
                                                 <h2 class="noPageBreak">Improving multi-column sort performance</h2>
-                                                <p>If a result set's skew value is high, you might experience performance degradation when running an operation, especially one that uses multiple keys, such as group by, join, or sort. You can improve performance by selecting the column with the most evenly distributed values as the first key. To see how values are distributed within a column, use <span class="UIelement">Profile...</span> in the column drop-down menu.</p>
-                                                <h2 class="noPageBreak">Using a single sort key again after sorting with multiple keys</h2>
-                                                <p>Suppose your result set is currently sorted on two columns. If you want to sort the result set only on one of these columns instead, sort the column again in the same direction as you did. </p>
-                                                <div class="Example"><span class="label">EXAMPLE</span>: if the result set is currently sorted on the DayOfWeek and AirTime columns, but you want to change the result set such that it is sorted on DayOfWeek only, you can sort DayOfWeek in the same direction (for example, in ascending order) as before. Doing so keeps the DayOfWeek column sorted but removes AirTime as a sort key.&#160;The values in AirTime are no longer unsorted.</div>
+                                                <p>If a result set's skew value is high, you might experience performance degradation when running an operation, especially one that uses multiple keys, such as group by, join, or sort. You can improve performance by selecting the column with the most evenly distributed values as the first key. To see how values are distributed within a column, in a result set in Dataflow Mode, right click the column header and select <span class="UIelement">Profile</span>.</p>
                                                 <h2 class="noPageBreak">Finding quartiles in a column</h2>
-                                                <p>Follow these steps to determine the quartiles  in a column:</p>
-                                                <ol>
-                                                    <li value="1"> Right click the column header to display the column drop-down menu.</li>
-                                                    <li value="2">
-                                                        <p>Click <span class="UIelement">Profile…</span> in the drop-down menu. The <span class="UIelement">Profile</span> modal window containing the quartile summary section is displayed. If the column is already sorted, the quartiles are displayed automatically. Otherwise, click <span class="UIelement">Generate</span> in the bottom right corner to create the quartile summary. The following screenshot shows an example of the quartile summary.</p>
-                                                    </li>
-                                                </ol>
+                                                <p>To determine the quartiles  in a column of a result set, right click the column header and select <span class="UIelement">Profile</span>. The <span class="UIelement">Profile</span> modal containing the quartile summary section is displayed. If the column is already sorted, the quartiles are displayed automatically. Otherwise, click <span class="UIelement">Generate</span> in the bottom right corner to create the quartile summary. </p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

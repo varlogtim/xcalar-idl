@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Getting started|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,116 +186,107 @@
                                                     </div>
                                                 </div>
                                                 <h1>Managing workbooks</h1>
-                                                <p> This topic describes the tasks for existing workbooks. </p>
-                                                <p>For the following tasks, see <a href="../A_GetStarted/C_CreateWorkbook.htm" class="MCXref xref" xrefformat="{para}">Creating and activating a workbook</a>:</p>
-                                                <ul>
-                                                    <li value="1">Creating a workbook</li>
-                                                    <li value="2">Naming a workbook</li>
-                                                    <li value="3">Adding a workbook description</li>
-                                                </ul>
-                                                <p>The following tasks are described in this topic:</p>
-                                                <ul>
-                                                    <li value="1">Activating a workbook.</li>
-                                                    <li value="2">Deactivating a  workbook.</li>
-                                                    <li value="3">Switching between workbooks.</li>
-                                                    <li value="4">Deleting an inactive workbook.</li>
-                                                    <li value="5">Duplicating a workbook.</li>
-                                                    <li value="6">Downloading a workbook.</li>
-                                                    <li value="7">Uploading a workbook.</li>
-                                                </ul>
-                                                <p>The following screenshot provides an overview of workbook cards in the Workbook Browser.</p>
-                                                <p>
-                                                    <img src="../../Resources/Images/XD_screenshots/workbook-browser.png" alt="" title="" />
-                                                </p>
-                                                <h2 class="noPageBreak">Understanding workbook activation</h2>
-                                                <p>A workbook's state can be active or inactive. In the Workbook Browser, the card for an active workbook is blue, and the card for an inactive workbook is white.</p>
-                                                <p>Logging in and out of <span class="GeneralGUIName1">Xcalar Design</span> does not affect the state of a workbook. However, if the <span class="GeneralProductName3">Xcalar</span> cluster is stopped and then started again, all workbooks become inactive, and you must activate them again before working on your data.</p>
-                                                <p>Multiple workbooks can be active at the same time. However, you can have only one browser tab for each active workbook. For example, you cannot display the same workbook in two browser tabs.</p>
-                                                <div class="Note"><span class="label">Recommendation</span>:&#160;Deactivating a workbook releases memory. If the cluster is low on memory, deactivate workbooks that you are not currently using. </div>
-                                                <p>For the steps for activating a workbook, see <a href="../A_GetStarted/C_CreateWorkbook.htm" class="MCXref xref" xrefformat="{para}">Creating and activating a workbook</a>:</p>
-                                                <h2 class="noPageBreak">Deactivating a workbook</h2>
-                                                <div class="Note"><span class="label">NOTE</span>: <span class="GeneralGUIName1">Xcalar Design</span> cannot deactivate a workbook  if an operation in the workbook is in progress. An error message is displayed. </div>
-                                                <p>To deactivate a workbook, follow these steps:</p>
-                                                <ol>
-                                                    <li value="1">In the Workbook Browser, locate the workbook card for the workbook you want to deactivate.</li>
-                                                    <li value="2">Click the ellipsis icon on the workbook card and select <span class="UIelement">Deactivate Workbook</span>. </li>
-                                                    <li value="3">When the confirmation modal window is displayed, click <span class="UIelement">Confirm</span>. </li>
-                                                </ol>
+                                                <p> This topic describes the tasks for managing existing workbooks. To learn about creating and activating a workbook, see <a href="../A_GetStarted/C_CreateWorkbook.htm" class="MCXref xref">Creating and activating a workbook</a>:</p>
+                                                <p>You must be in the <span class="UIelement">Workbook Browser</span> to manage your workbooks. If not, click the <span class="UIelement">Workbooks</span> icon <img src="../../Resources/Images/XD_assets/xd-workbook-browser.png" style="width: 24px;height: 24px;" /> in the upper left corner of the <span class="GeneralGUIName1">Xcalar Design</span> window. The <span class="UIelement">Workbook Browser</span> is displayed.</p>
                                                 <h2 class="noPageBreak">Switching between workbooks</h2>
-                                                <p>Switching workbooks means displaying a workbook to replace the one that is currently displayed in a browser tab.  The workbook you switched from remains active.</p>
-                                                <p>To switch from one workbook to another, follow these steps:</p>
+                                                <p>Switching between workbooks means displaying a workbook to replace the one that is currently displayed in a browser tab.  The workbook you switched from, still remains active. </p>
+                                                <p>To switch from one workbook to another:</p>
                                                 <ol>
-                                                    <li value="1">Click the Workbook icon to display the Workbook Browser. This closes the workbook in the current browser tab.</li>
-                                                    <li value="2">Locate the workbook card for the workbook to which you want to switch.</li>
-                                                    <li value="3">
-                                                        <p>Follow one of these steps:</p>
+                                                    <li value="1">In the <span class="UIelement">Workbook Browser</span>, locate the workbook card for the workbook to which you want to switch.</li>
+                                                    <li value="2">
+                                                        <p>Do one of the following:</p>
                                                         <ul>
-                                                            <li value="1">Click anywhere (except the preview icon and ellipsis icon) on the workbook card.  A confirmation modal window is displayed. To display the workbook in the current browser tab, click <span class="UIelement">Confirm</span>.</li>
-                                                            <li value="2">Click the ellipsis icon on the workbook card and select <span class="UIelement">Open workbook in new tab</span>. The workbook is displayed in a new browser tab.</li>
+                                                            <li value="1">
+                                                                <p>If you want to open the workbook in the current tab, click anywhere except the ellipsis icon on the workbook card. </p>
+                                                                <p> The workbook is opened in the current tab.</p>
+                                                            </li>
+                                                            <li value="2">
+                                                                <p>If you want to open the workbook in a new tab, click the ellipsis icon and then select the <span class="UIelement">Open workbook in new tab</span> option from the drop-down.  </p>
+                                                                <p>The workbook is opened in a new  tab. </p>
+                                                                <p>The option <span class="UIelement">Open workbook in new tab</span> is disabled if the workbook is already open in the current tab.</p>
+                                                            </li>
                                                         </ul>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;If you try to switch from a workbook containing an operation in progress, a warning message is displayed. Wait until the execution is complete or cancel the operation before you switch out of the workbook.</div>
                                                     </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Deleting a workbook</h2>
-                                                <p>You can delete a workbook only if it is inactive.</p>
-                                                <p>Deleting a workbook has the following  effects:</p>
-                                                <ul>
-                                                    <li value="1">All aggregates and result sets in the workbook  are deleted. They are not recoverable after the deletion.</li>
-                                                    <li value="2">UDFs in the workbook are deleted.</li>
-                                                </ul>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;You cannot undo workbook deletions. The removal of the workbook and its associated items is permanent. Therefore, download a workbook as a backup before you delete the workbook. For information about downloading workbooks, see <a href="#Understa" class="MCXref xref" xrefformat="{para}">Understanding workbook downloads</a>.</div>
-                                                <p>To delete a workbook, follow these steps:</p>
-                                                <ol>
-                                                    <li value="1">If the workbook is not inactive, deactivate it.</li>
-                                                    <li value="2">Click the ellipsis icon and select <span class="UIelement">Delete Workbook</span>.</li>
-                                                    <li value="3">When the confirmation modal window is displayed, click <span class="UIelement">Confirm</span>. </li>
-                                                </ol>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The name of the current workbook is displayed at the end of the URL in each tab.  </div>
                                                 <h2 class="noPageBreak">Duplicating a workbook</h2>
-                                                <p>You can duplicate an active or inactive workbook. The following list describes what are duplicated:</p>
+                                                <p>Duplicating a workbook is helpful when you want to try a different variation of your data model without losing the current one. You can duplicate a workbook whether it is active or inactive. When duplicating a workbook, the following items of the original workbook are duplicated:</p>
                                                 <ul>
-                                                    <li value="1">All dataflows and aggregates.</li>
-                                                    <li value="2">SQL&#160;snippets.</li>
-                                                    <li value="3">All UDFs in the original workbook.</li>
-                                                    <li value="4">Jupyter Notebooks associated with the original workbook.</li>
+                                                    <li value="1">All dataflows and aggregates</li>
+                                                    <li value="2">All SQL&#160;snippets</li>
+                                                    <li value="3">All workbook user-defined functions (UDFs)</li>
+                                                    <li value="4">Jupyter Notebooks associated with the workbook</li>
                                                 </ul>
-                                                <p>To duplicate a workbook, click the ellipsis icon on the workbook card and select <span class="UIelement">Duplicate Workbook</span>. A new workbook card is displayed, with a workbook name based on the original name. Initially, the new workbook is inactive.</p>
-                                                <h2 class="noPageBreak"><a name="Understa"></a>Understanding workbook downloads</h2>
-                                                <p>You might want to download a workbook so that you or another user can upload it, either to the same or another <span class="GeneralProductName3">Xcalar</span> instance. The following list describes possible scenarios where you want to download a workbook:</p>
+                                                <p>To duplicate a workbook, click the ellipsis icon on the workbook card and select <span class="UIelement">Duplicate Workbook</span>. A new workbook is created with a new workbook name based on the original name and a corresponding workbook card is displayed in the <span class="UIelement">Workbook Browser</span>. Initially, this new workbook is inactive.</p>
+                                                <h2 class="noPageBreak"><a name="Understa"></a>Understanding a workbook download</h2>
+                                                <p>You might want to download a workbook so that you can share it with another user or upload it to another node in the <span class="GeneralProductName3">Xcalar</span> cluster. The following list describes a few scenarios when you may want to download a workbook:</p>
                                                 <ul>
-                                                    <li value="1">Handing off a workbook to other users:&#160;After executing SQL&#160;queries or performing interactive modeling on data from a data source, you can download the workbook and share it with other  users, who can use it in one of the following ways:<ul><li value="1">As a template to build a similar data pipeline.</li><li value="2">Continue building SQL&#160;queries in SQL&#160;Mode.</li><li value="3">Continue modeling through the dataflows in Advanced Mode.</li></ul></li>
-                                                    <li value="2">Archiving or backing up a workbook: After some complex SQL&#160;queries or operations, you might want to download the workbook before proceeding with further steps. Because the downloaded workbook contains all the relevant workbook information, such as UDFs and Jupyter Notebooks, it serves as a copy of the workbook to which you can revert if needed.</li>
-                                                    <li value="3">Diagnosing workbook activation problems:&#160;If for some reason a workbook cannot be activated, you can download it and send the workbook file to <span class="GeneralCompanyNameShort">Xcalar</span> for evaluation. In addition, if a fix for your particular workbook problem is available on another <span class="GeneralProductName3">Xcalar</span> instance, you can upload the workbook to that <span class="GeneralProductName3">Xcalar</span> instance.</li>
+                                                    <li value="1"><span class="UIelement">Handing off a workbook to other users</span>:&#160;After building your data model, you can download the workbook and share it with other  users, who can use it:<ul><li value="1">As a template to build a similar data model.</li><li value="2">To continue building the existing data model.</li></ul></li>
+                                                    <li value="2"><span class="UIelement">Archiving or backing up a workbook</span>: After building your data models, you might want to download the workbook as a backup before proceeding further. </li>
+                                                    <li value="3"><span class="UIelement">Diagnosing workbook activation problems</span>:&#160;If for some reason a workbook cannot be activated, you can download it and send the workbook file to <span class="GeneralCompanyNameShort">Xcalar</span> for evaluation. In addition, if a fix for your particular workbook problem is available on another <span class="GeneralProductName3">Xcalar</span> instance, you can upload the workbook to that <span class="GeneralProductName3">Xcalar</span> instance.</li>
+                                                    <li value="4"><span class="UIelement">Uploading the workbook to another node</span>: After you have completed your data model, you can download it and then upload it on another <span class="GeneralProductName3">Xcalar</span> instance to execute it.</li>
                                                 </ul>
                                                 <div class="Note"><span class="label">NOTE</span>: Any Jupyter Notebook that references the workbook is also downloaded.</div>
                                                 <h3>Understanding the workbook file</h3>
                                                 <p>The downloaded workbook is called a workbook file, which is a compressed archive, with a .tar.gz file name extension. <span class="GeneralGUIName1">Xcalar Design</span> downloads the workbook to the download location on your computer, based on your browser's download setting.</p>
-                                                <p>The unpacked contents of the workbook file are in open and accessible formats, such as Python and JSON. The file includes all the assets and information required for <span class="GeneralProductName3">Xcalar</span> to re-create the workbook after you upload the workbook file.</p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;To ensure that the workbook file can be unpacked and replayed by <span class="GeneralProductName3">Xcalar</span>, do not modify the workbook file in any way after the download, unless you are advised to do so by <span class="GeneralCompanyNameShort">Xcalar</span> technical support.</div>
-                                                <h3><a name="Understa2"></a>Understanding UDFs in a downloaded workbook</h3>
-                                                <p>A UDF&#160;module named <span class="UIelement">default</span> is provided by <span class="GeneralCompanyNameShort">Xcalar</span>. This UDF module is unmodifiable by users and is shared by all workbooks. </p>
-                                                <p>All other UDFs are created by users. The creator of a UDF&#160;can choose to share the UDF. A&#160;shared UDF&#160;can be used by all workbooks on the cluster.</p>
-                                                <p>The following list describes which UDFs are included or excluded in the downloaded workbook:</p>
+                                                <p>The unpacked contents of the workbook file are in open and accessible formats, such as Python and JSON. The file includes all the assets and information required for <span class="GeneralProductName3">Xcalar</span> to re-create the workbook after you upload the workbook file on a <span class="GeneralProductName3">Xcalar</span> node.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;To ensure that the workbook file can be unpacked and used by <span class="GeneralProductName3">Xcalar</span>, do not modify the workbook file in any way after the download, unless you are advised to do so by <span class="GeneralCompanyNameShort">Xcalar</span> technical support.</div>
+                                                <h3><a name="Understa2"></a>Understanding user-defined functions in a downloaded workbook</h3>
+                                                <p>The following list describes which user-defined functions (UDFs) are included or excluded in the downloaded workbook:</p>
                                                 <ul>
                                                     <li value="1">All UDFs created in the workbook are included. After the workbook is uploaded and activated, the uploaded workbook uses the  UDFs unpacked from the workbook file. </li>
-                                                    <li value="2">Shared UDFs created by another user but used in the workbook are not included. </li>
-                                                    <li value="3">The default UDF module is not included, whether or not the workbook uses any functions in the module.</li>
+                                                    <li value="2">Shared UDFs used in the workbook are not included. </li>
+                                                    <li value="3">The <span class="UIelement">default </span>UDF module is not included even if it is used in the workbook. This is an unmodifiable UDF module provided by <span class="GeneralCompanyNameShort">Xcalar</span> and it is shared by all the workbooks. This UDF module is present in every <span class="GeneralProductName3">Xcalar</span> instance.</li>
                                                 </ul>
                                                 <h3>Differences between downloading a workbook and downloading a dataflow</h3>
                                                 <p>Downloading a workbook might seem very similar to downloading a dataflow. However, there are differences between the two procedures. The following list describes the differences, which helps you decide whether to download a workbook or a dataflow:</p>
                                                 <ul>
-                                                    <li value="1">A workbook might contain multiple related dataflows. When you download a workbook, all dataflows in the workbook are downloaded. Therefore, if you need to transfer related dataflows from one workbook to another or from you to another user, download a workbook.</li>
-                                                    <li value="2">The downloaded workbook file contains more assets than a downloaded dataflow file. For example, all UDFs created in a workbook are included in the downloaded workbook file, but only the UDFs used in a dataflow are included in the downloaded dataflow file.</li>
+                                                    <li value="1">A workbook might contain multiple related dataflows. When you download a workbook, all dataflows in the workbook are downloaded. Therefore, if you need to transfer all related dataflows from one workbook to another or from you to another user, download a workbook.</li>
+                                                    <li value="2">The downloaded workbook file contains more assets than a downloaded dataflow file. For example, all user-defined functions (UDFs) created in a workbook are included in the downloaded workbook file, but only the UDFs used in a dataflow are included in the downloaded dataflow file.</li>
                                                 </ul>
                                                 <h3>Downloading a workbook</h3>
-                                                <p>To download a workbook, click the ellipsis icon on the workbook card and select <span class="UIelement">Download Workbook</span>. The workbook file with the<span class="UIelement"> .xlrwb.tar.gz</span> filename extension is created in the download location of your computer. </p>
-                                                <div class="Note"><span class="label">IMPORTANT:</span> Do not modify the contents of this file.</div>
+                                                <p>To download a workbook, click the ellipsis icon on the workbook card in the <span class="UIelement">Workbook Browser</span> and select <span class="UIelement">Download Workbook</span>. The workbook file with the<span class="UIelement"> .xlrwb.tar.gz</span> extension is downloaded in the download location of your computer. </p>
                                                 <h2 class="noPageBreak">Uploading a workbook</h2>
                                                 <p>You can upload a workbook file to a <span class="GeneralProductName3">Xcalar</span> instance if the workbook was created on a <span class="GeneralProductName3">Xcalar</span> instance running a compatible version. Upload might fail if you try to upload a workbook to a <span class="GeneralProductName3">Xcalar</span> instance with an earlier version than the version from which you downloaded the workbook.</p>
                                                 <div class="Note"><span class="label">NOTE</span>: Any Jupyter Notebook that references the workbook is also uploaded.</div>
                                                 <p>To upload a workbook:</p>
                                                 <ol>
-                                                    <li value="1">In the Workbook Browser, locate the <span class="UIelement">New Workbook</span> card and click <span class="UIelement">Browse</span> on the card. <br />A window is displayed for you to navigate to the location where the downloaded workbook file is saved.</li>
-                                                    <li value="2">Select the workbook file and click <span class="UIelement">Open</span>. <br />After the upload is finished, a workbook card is displayed in the Workbook Browser.&#160;The workbook is initially inactive. You are ready to perform workbook tasks on this workbook as usual.</li>
+                                                    <li value="1">In the <span class="UIelement">Workbook Browser</span>, locate the <span class="UIelement">New Workbook</span> card and click <span class="UIelement">Browse</span> on the card. <br />A window is displayed for you to navigate and select a workbook file on your computer.</li>
+                                                    <li value="2">Select the workbook file and click <span class="UIelement">Open</span>. <br />After the upload is finished, a workbook card is displayed in the <span class="UIelement">Workbook Browser</span>.&#160;The workbook is initially inactive. You are ready to perform workbook tasks on this workbook as usual.</li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Deactivating a workbook</h2>
+                                                <p>Deactivating a workbook releases the memory associated with that workbook. If the cluster is low on memory, deactivate a few workbooks that you are not currently using. </p>
+                                                <p>To deactivate a workbook:</p>
+                                                <ol>
+                                                    <li value="1">In the <span class="UIelement">Workbook Browser</span>, locate the workbook card for the workbook you want to deactivate.</li>
+                                                    <li value="2">
+                                                        <p>Click the ellipsis icon on the workbook card and select <span class="UIelement">Deactivate Workbook</span>. </p>
+                                                        <p>The <span class="UIelement">DEACTIVATE WORKBOOK</span> modal window is displayed.</p>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>Click <span class="UIelement">Confirm</span>. </p>
+                                                        <p>The workbook is deactivated.</p>
+                                                    </li>
+                                                </ol>
+                                                <div class="Note"><span class="label">NOTE</span>: You  cannot deactivate a workbook  if an operation in the workbook is in progress; <span class="GeneralGUIName1">Xcalar Design</span> displays an error. </div>
+                                                <h2 class="noPageBreak">Deleting a workbook</h2>
+                                                <p>Deleting a workbook has the following  effects:</p>
+                                                <ul>
+                                                    <li value="1">All aggregates and result sets in the workbook  are deleted. They are not recoverable after the deletion.</li>
+                                                    <li value="2">All user-defined functions (UDFs) in the workbook are deleted.</li>
+                                                </ul>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;You cannot undo workbook deletions. The removal of the workbook and its associated items is permanent. Therefore, download a workbook as a backup before you delete the workbook. For information about downloading workbooks, see <a href="#Understa" class="MCXref xref">Understanding a workbook download</a>.</div>
+                                                <p>You can delete a workbook only if it is inactive. To delete a workbook:</p>
+                                                <ol>
+                                                    <li value="1">If the workbook is active, deactivate it.</li>
+                                                    <li value="2">
+                                                        <p>Click the ellipsis icon and select <span class="UIelement">Delete Workbook</span>. </p>
+                                                        <p>The <span class="UIelement">DELETE WORKBOOK</span> modal is displayed.</p>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>Click <span class="UIelement">Confirm</span>. </p>
+                                                        <p>The workbook is permanently deleted.</p>
+                                                    </li>
                                                 </ol>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>

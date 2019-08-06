@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Cluster tasks">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Viewing the System status</title>
+        <meta name="author" content="" /><title>Monitoring the system statistics</title>
         <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,91 +185,23 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Viewing the System status</h1>
-                                                <p>The <span class="UIelement">System</span> icon in the sidebar enables you to view the status of <span class="GeneralProductName2">Xcalar Compute Engine</span> and specify the  <span class="GeneralGUIName1">Xcalar Design</span> environment. This section describes the various states you can check within the <span class="UIelement">System</span>. </p>
-                                                <h2 class="noPageBreak"><a name="Monitoring" class="ForCSH"></a>Operations</h2>
-                                                <p><span class="GeneralGUIName1">Xcalar Design</span> keeps a record of all operations since you logged in and displays information about them. Follow these steps to display the list of the operations and their status:</p>
-                                                <ol>
-                                                    <li value="1">
-                                                        <p>Click <span class="UIelement">System</span> icon (<img src="../../Resources/Images/XD_assets/xd-system.png" />)  in the sidebar to monitor the system status. By default, the <span class="UIelement">Operations</span> panel is displayed with the list of all operations. The following partial screenshot illustrates the icons in the <span class="UIelement">Operations</span> panel that control how the list of operations is displayed. </p>
-                                                        <p>
-                                                            <img src="../../Resources/Images/XD_screenshots/xd-operations-icons.png" />
-                                                        </p>
-                                                        <ol style="list-style-type: lower-alpha;">
-                                                            <li value="1">Clicking the first icon displays all operations.</li>
-                                                            <li value="2">Clicking the second icon displays the failed operations.</li>
-                                                            <li value="3">Clicking the third icon displays the operations in progress.</li>
-                                                            <li value="4">Clicking the fourth icon displays the completed operations.</li>
-                                                            <li value="5">Clicking  the fifth icon lets you remove the selected operations from the list.</li>
-                                                        </ol>
-                                                        <div class="Note"><span class="label">NOTE:</span>&#160;The icon for removing an operation only affects the operation list in the <span class="UIelement">Operations</span> panel. It does not affect the output of the operation.&#160;For example, a result set created by a <span class="UIelement">Filter</span> function remains in the workbook even after you remove the <span class="UIelement">Filter</span> function from the <span class="UIelement">Operations</span> panel.</div>
-                                                    </li>
-                                                    <li value="2">
-                                                        <p>Select an operation in the <span class="UIelement">Operations</span> panel to see detailed information about it. For example, you can see how long the operation took to complete. </p>
-                                                        <div class="Note"><span class="label">NOTE</span>: Some operations are grayed out. They represent the ones automatically generated by <span class="GeneralProductName2">Xcalar Compute Engine</span>. You can configure <span class="GeneralGUIName1">Xcalar Design</span> to hide the system generated operations from this list. See <a href="#Setting" class="MCXref xref">Settings</a> for more information.</div>
-                                                    </li>
-                                                </ol>
-                                                <h3>Canceling an operation</h3>
-                                                <p>If for any reason you want to terminate an operation that is in progress, click on the <span class="UIelement">System</span> icon in the sidebar. By default, the <span class="UIelement">Operations</span> panel is displayed with the list of all operations. Select the one you want to terminate and then click the <span class="UIelement">Cancel</span> icon either in the <span class="UIelement">Operations</span> panel or the <span class="UIelement">Operation Details</span> window. </p>
-                                                <div class="Note"><span class="label">TIP</span>:&#160;There is another method for canceling an operation. You can cancel it when <span class="GeneralGUIName1">Xcalar Design</span> displays the clock icon on the workbook indicating the operation is in progress. If you mouse over the icon, it changes to a cancellation icon, which you can click  to stop the operation. </div>
-                                                <h2 class="noPageBreak"><a name="Monitor"></a>Monitor </h2>
-                                                <p>The <span class="UIelement">Monitor</span> icon (<img src="../../Resources/Images/XD_assets/xd-monitor.png" />) under the <span class="UIelement">System</span> icon in the sidebar displays the <span class="GeneralProductName2">Xcalar Compute Engine</span> statistics. The <span class="UIelement">Monitor</span> panel contains the following controls:</p>
+                                                <h1><a name="Monitor"></a>Monitoring the system statistics</h1>
+                                                <p>The <span class="UIelement">Monitor</span> icon <img src="../../Resources/Images/XD_assets/xd-monitor.png" /> under the <span class="UIelement">System</span> icon in the sidebar displays the <span class="GeneralProductName2">Xcalar Compute Engine</span> statistics. The <span class="UIelement">Monitor</span> panel contains the following controls:</p>
                                                 <ul>
                                                     <li value="1">The Memory Usage, the Swap Usage and the CPU switches control whether the Memory, the Swap and the CPU usage graphs are displayed in the <span class="UIelement">Statistics</span> window or not. </li>
                                                     <li value="2">The <span class="UIelement">Graph Interval</span> slider controls the granularity of data points in the graph. By default it is set to 3 seconds. </li>
-                                                    <li value="3">The <span class="UIelement">Release Memory</span> option lets you drop the result sets of your workbook to release the memory associated with it. For more information about memory usage and how to release memory by dropping result sets, see <a href="I_UnderstandMemoryUse.htm" class="MCXref xref">Understanding memory usage</a>. </li>
+                                                    <li value="3">The <span class="UIelement">Release Memory</span> option lets you drop the result sets of your workbook to release the memory associated with it. For more information about memory usage by result sets, see <a href="../C_XcalarAdvancedMode/B_Operations/X_ResultsetMemory.htm" class="MCXref xref" xrefformat="{para}">Effect of a result set on memory consumption</a>. </li>
                                                 </ul>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;Both the <span class="UIelement">Graph Interval</span> slider and the <span class="UIelement">Release Memory</span> options are grayed out if you are not in a workbook.</div>
                                                 <p>The <span class="UIelement">Statistics</span> window on the right displays the following statistics:</p>
                                                 <ul>
                                                     <li value="1">The first linear graph on the top displays the total Memory, the total Swap space and the average CPU usage by all nodes.</li>
                                                     <li value="2">The <span class="UIelement">Memory</span> donut chart displays the total memory usage by all nodes in the following buckets:<ol><li value="1"><span class="UIelement"> OS Free</span> is the free memory on the cluster.</li><li value="2"><span class="UIelement">OS Used</span> is the memory used by non Xcalar applications on the cluster.</li><li value="3"><span class="UIelement">Xcalar Free</span> is the free memory that is still available to <span class="GeneralProductName2">Xcalar Compute Engine</span>.</li><li value="4">The next 4 items together make up the total memory used by <span class="GeneralProductName2">Xcalar Compute Engine</span>:<ul style="list-style-type: square;"><li value="1"><span class="UIelement">Other Users' Result Sets</span> is the memory used by the result sets of other users on <span class="GeneralGUIName1">Xcalar Design</span>.</li><li value="2"><span class="UIelement">Your Result Sets</span> is the memory used by your result sets.</li><li value="3"><span class="UIelement">Published Tables</span> is the memory used by all tables.</li><li value="4"><p><span class="UIelement">Datasets</span> is the memory used by all datasets.</p></li></ul><p>Item number 3 and 4 together make up the total memory <span class="GeneralProductName2">Xcalar Compute Engine</span> can use.</p><p>Item number 1, 2 and 4 together make up the total OS memory.</p><p>You can toggle between the absolute numbers and the percentages by clicking on the node data below the donut chart.</p></li></ol></li>
-                                                    <li value="3">The <span class="UIelement">Swap</span> donut chart displays the current swap space usage by all nodes. You can toggle between the absolute numbers and the percentages by clicking on the node data below the donut chart.</li>
+                                                    <li value="3">The <span class="UIelement">Swap</span> donut chart displays the current swap space usage by all nodes. You can toggle between the absolute numbers and the percentages by clicking on the node data below the donut chart. If users experience slowness when running operations, view the swap chart to see if the cluster is using the swap space. If so, consider increasing the amount of physical memory on your cluster, because the use of swap indicates that the physical memory is full.</li>
                                                     <li value="4">The <span class="UIelement">CPU</span> usage donut chart displays the average CPU usage of all nodes, as percentages.</li>
                                                     <li value="5">The <span class="UIelement">NETWORK</span> donut chart displays the amount of data sent and received by the nodes.</li>
                                                 </ul>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can also view the high level statistics at any time by clicking the system status icon (<img src="../../Resources/Images/XD_assets/xd-system-health.png" />) next to the user icon in the top right corner of <span class="GeneralGUIName1">Xcalar Design</span>.</div>
-                                                <h2 class="noPageBreak">Extensions</h2>
-                                                <p>The <span class="UIelement">Extensions</span> icon (<img src="../../Resources/Images/XD_assets/xd-extensions.png" />) under the <span class="UIelement">System</span> icon in the sidebar displays the <span class="UIelement">Extensions Marketplace</span>. For information about managing Extensions, see <a href="../C_XcalarAdvancedMode/B_Operations/Q_Extensions.htm#top" class="MCXref xref"></a>.</p>
-                                                <h2 class="noPageBreak">Tutorial Workbooks</h2>
-                                                <p>The <span class="UIelement">Tutorial Workbooks</span> icon (<img src="../../Resources/Images/XD_assets/xd-tutorials.png" />) under the <span class="UIelement">System</span> icon in the sidebar, displays the tutorials provided by <span class="GeneralCompanyNameShort">Xcalar</span> to help you learn various topics. Downloading a tutorial opens up a new workbook with relevant  dataflows, datasets, tables and sql snippets already setup for that particular tutorial. Follow the instructions in the tutorial to explore and learn various tasks. </p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You need an Internet connection to download these tutorials. </div>
-                                                <h2 class="noPageBreak">File Manager</h2>
-                                                <p>The <span class="UIelement">File Manager</span> icon (<img src="../../Resources/Images/XD_assets/xd-file-manager.png" />) under the <span class="UIelement">System</span> icon in the sidebar displays the <span class="UIelement">File Manager</span> for user-defined function (UDF) files. It has two folders by default:</p>
-                                                <ul>
-                                                    <li value="1">sharedUDFs: This folder contains the UDF files shared among all users. By default it contains one UDF file called default.py.</li>
-                                                    <li value="2">workbook: All the UDF files created by users are saved under this folder.</li>
-                                                </ul>
-                                                <p>You can navigate these folders by double clicking on them. Once you select a UDF file (a file with py extension) in a folder, following actions are available to you:</p>
-                                                <ul>
-                                                    <li value="1"><span class="UIelement">Open</span>: Selecting this action opens the selected UDF file in the <span class="UIelement">User Defined Function</span> panel. </li>
-                                                    <li value="2"><span class="UIelement">Download</span>: Selecting this action downloads the UDF file on your computer.</li>
-                                                    <li value="3"><span class="UIelement">Delete</span>: Selecting this action deletes the UDF file from the cluster after confirmation.</li>
-                                                    <li value="4"><span class="UIelement">Duplicate</span>: Selecting this action makes a copy of the UDF file with a running number added to the new file name.</li>
-                                                    <li value="5"><span class="UIelement">Copy to...</span>: Selecting this action allows you to create a copy of the UDF file that you can save with a different name in a different folder where you have write permission.</li>
-                                                    <li value="6"><span class="UIelement">Share</span>: Selecting this action copies the UDF file in the sharedUDFs folder, if it does not exist there already.</li>
-                                                </ul>
-                                                <p><span class="UIelement">Open</span>, <span class="UIelement">Duplicate</span>, <span class="UIelement">Copy to</span> and <span class="UIelement">Share</span> actions are not available, if you have selected multiple files.</p>
-                                                <p><span class="UIelement">Delete</span>, <span class="UIelement">Duplicate</span>, <span class="UIelement">Copy to </span>and <span class="UIelement">Share</span> actions are not available, if you are not in a workbook.</p>
-                                                <p>Additionally, an <span class="UIelement">Upload</span> button is available to you when you are in a folder with write permission. The <span class="UIelement">Upload</span> button allows you to browse your computer and upload a text file containing valid Python code. </p>
-                                                <h2 class="noPageBreak"><a name="Setting"></a><a name="GeneralSettings" class="ForCSH"></a>Settings</h2>
-                                                <p>The <span class="UIelement">Settings</span> icon (<img src="../../Resources/Images/XD_assets/xd-settings.png" />) under the <span class="UIelement">System</span> icon in the sidebar provides a way for you to customize the environment in which you run <span class="GeneralGUIName1">Xcalar Design</span>. </p>
-                                                <h3>Understanding <span class="GeneralProductName3">Xcalar</span> settings</h3>
-                                                <p>Some settings are available both to administrators as well as to users. User settings take precedence over administrator settings. These settings determine the following <span class="GeneralGUIName1">Xcalar Design</span> behavior:</p>
-                                                <ul>
-                                                    <li value="1">Whether the <span class="UIelement">DATA</span> column is displayed when <span class="GeneralGUIName1">Xcalar Design</span> creates a result set.</li>
-                                                    <li value="2">Whether the operations list displayed by the <span class="UIelement">System</span> includes operations started automatically by <span class="GeneralProductName2">Xcalar Compute Engine</span>. If you exclude these operations, the list only shows the operations started by you. For example, the ProfileSort operation is an automatic operation.</li>
-                                                    <li value="3">How often <span class="GeneralGUIName1">Xcalar Design</span> saves your changes. The range is from 10 seconds to 600 seconds.</li>
-                                                </ul>
-                                                <p>The adminstrators get two additional settings:</p>
-                                                <ul>
-                                                    <li value="1">Whether the users can share a <span class="UIelement">Dataset</span>.</li>
-                                                    <li value="2">The duration of inactivity after which the user is automatically logged out. The range is from 10 minutes to 120 minutes.</li>
-                                                </ul>
-                                                <p>For fields that accept a numeric value, you can type the value or drag the slider to make a change.</p>
-                                                <h2 class="noPageBreak">Administration</h2>
-                                                <p>If you log in as an administrator, an additional <span class="UIelement">Administration</span> icon (<img src="../../Resources/Images/XD_assets/xd-administration.png" />) is available under <span class="UIelement">System</span> icon in the sidebar. See <a href="L_UseSetup.htm" class="MCXref xref">Using Administration (Xcalar admin only)</a> for information about how to set up the cluster, configure system parameters, manage users and view the log files through this icon.</p>
-                                                <p>&#160;</p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can also view the high level statistics at any time by clicking the system status icon <img src="../../Resources/Images/XD_assets/xd-system-health.png" /> next to the user icon in the top right corner of <span class="GeneralGUIName1">Xcalar Design</span>.</div>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

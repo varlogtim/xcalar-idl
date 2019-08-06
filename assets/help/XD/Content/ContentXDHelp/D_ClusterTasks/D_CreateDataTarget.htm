@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Creating connectors (admin only)</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true">
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../Home.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                                <div class="search-filter-wrapper">
+                                                    <div class="search-filter">
+                                                        <div class="search-filter-content">
+                                                            <ul>
+                                                                <li>All Files</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <section class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <div class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Creating connectors (admin only)</h1>
+                                                <p>This section describes how to create a <span class="GeneralProductName3">Xcalar</span> Connector, which enables you to access your source data. </p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Depending on the connector type, you may need to perform pre-tasks before you can create a connector. For information about the required tasks, see the <cite>Xcalar Installation and Administration Guide</cite>.</div>
+                                                <div class="Note"><span class="label">NOTE:</span> The following procedure assumes that you are logged into <span class="GeneralGUIName1">Xcalar Design</span> as a user with administrative privileges and that you are in a Workbook.</div>
+                                                <p>You can create a connector whether you are in a SQL&#160;Mode or Dataflow Mode workspace. </p>
+                                                <p>To create a connector:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>From the sidebar, click the <span class="UIelement">Sources</span> icon <img src="../../Resources/Images/XD_assets/xd_sources_icon.png" />, then the <span class="UIelement">Connectors</span> icon <img src="../../Resources/Images/XD_assets/xd_connectors_icon.png" />, and then from the <span class="UIelement">Connectors</span> panel, click the <span class="UIelement">Create connector</span>  icon <img src="../../Resources/Images/XD_assets/xd_create_connector.png" />, as shown in the following screenshot:</p>
+                                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/connector_create.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="601" data-mc-height="260" src="../../Resources/Images/XD_screenshots/connector_create_thumb_0_150.png" tabindex="" /></a>
+                                                        </p>
+                                                    </li>
+                                                    <li value="2">
+                                                        <p>From the <span class="UIelement">Create Connector</span> window, in the <span class="UIelement">Name</span> field, enter a name for the connector. </p>
+                                                    </li>
+                                                    <li value="3">From the <span class="UIelement">Connector Type</span> list, select the connector type that best suites your source data's storage repository and access authentication method. For more information, see <a href="../SingleSourcing/connectors/b_understand_data_target_types.htm" class="MCXref xref" xrefformat="{para}">Understanding the connector types</a>.</li>
+                                                    <li value="4">
+                                                        <p>Based on the selected connector type, entry fields appear that require  access credentials, connection input, and the location of the connector's source data storage.</p>
+                                                        <p>For example, if you select the <span class="UIelement">Shared File System</span> connector type, enter the path for the <span class="GeneralProductName3">Xcalar</span> cluster's shared storage mount area.</p>
+                                                    </li>
+                                                    <li value="5">
+                                                        <p>(Optional) Verify each field's entry values. </p>
+                                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;Once the connector is created, you cannot make changes, such as modifying a connector's name or a mount point's path. If the connector entry values change, a new connector must be created.</div>
+                                                    </li>
+                                                    <li value="6">
+                                                        <p>Click <span class="UIelement">Add</span>.</p>
+                                                        <p>The SUCCESS message appears, informing you that the connector was created and added  it into the <span class="UIelement">Connectors</span> lists.</p>
+                                                    </li>
+                                                </ol>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Before deleting a connector, verify that there are no workbooks depending on the datasets that are imported from the connector. When a connector is deleted,  workbooks containing data from the deleted connector can no longer be activated after a cluster restart.</div>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a data-close="true"></a>
+                </div>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>

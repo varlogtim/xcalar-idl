@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Making source data accessible</title>
+        <meta name="author" content="" /><title>Accessing and preparing a data source</title>
         <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -46,7 +46,6 @@
 }
 
 </style>
-        <link href="../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../../Resources/Scripts/jquery.min.js">
@@ -94,8 +93,6 @@
         <script src="../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -188,142 +185,19 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Making source data accessible</h1>
-                                                <p>Importing a data source means telling <span class="GeneralGUIName1">Xcalar Design</span> to derive metadata from one or multiple files containing raw data. These files must be stored at a location accessible to all <span class="GeneralProductName3">Xcalar</span> nodes for <span class="GeneralGUIName1">Xcalar Design</span> to import them.</p>
-                                                <p>This topic describes the steps for ensuring that the source data files are accessible for <span class="GeneralProductName3">Xcalar</span> to import. Some of these steps require configuring the storage system where the source data files reside. If you do not have the appropriate access privileges, contact your system administrator.</p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;If you are a <span class="GeneralProductName3">Xcalar</span> user, read this topic to understand data targets. Most of the information in this topic, however, is for the <span class="GeneralProductName3">Xcalar</span> cluster administrator, who has the privilege to create or edit data targets.</div>
-                                                <h2 class="noPageBreak"><a name="Understa2"></a>Understanding data targets</h2>
-                                                <p><span class="GeneralProductName3">Xcalar</span> can import data from various storage platforms, be they on cloud or on on-premises platforms. When you import data, you must provide information about the storage location and the method used by your <span class="GeneralProductName3">Xcalar</span> instance to access the location.&#160;A data target contains the specifications of the storage location and the access method. At the time of importing data, you select a path on a data target, and <span class="GeneralGUIName1">Xcalar Design</span> will process the file or files in the specified path according to the specifications.  <span class="GeneralProductName3">Xcalar</span> provides a predefined data target, but you can create additional ones. </p>
-                                                <p>For example, your data target can be a Microsoft Azure Storage Account, an Amazon Simple Storage Service (S3) account, or an NFS file system mounted on your <span class="GeneralProductName3">Xcalar</span> cluster. Depending on the target type, <span class="GeneralGUIName1">Xcalar Design</span> accesses the files by using the authentication method described in the target.</p>
-                                                <p>For information about how the data target type affects the way <span class="GeneralGUIName1">Xcalar Design</span> accesses the data source, see <a href="#Data" class="MCXref xref">Data target types</a>.</p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can create or delete data targets only if you are the cluster administrator.&#160;Contact the cluster administrator if your data source is not located on any of the existing data targets.</div>
-                                                <h2 class="noPageBreak">Understanding the default data target</h2>
-                                                <p>The Default Shared Root target is provided by default. It is the file system mounted on the / directory of each <span class="GeneralProductName3">Xcalar</span> cluster node. Its data target type is Shared File System. </p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You cannot delete or rename a predefined data target.</div>
-                                                <h2 class="noPageBreak"><a name="Data"></a>Data target types</h2>
-                                                <p>To access source data stored at a location other than a shared file system, create a data target. When creating a data target, specify its type. The data target type determines what information you must provide for authentication when your <span class="GeneralProductName3">Xcalar</span> instance tries to access the data source.</p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;The phrase <em>environmental credentials</em> in the data type name means that the credentials for accessing the data source are set up outside of the data target creation process.</div>
-                                                <p>The following table describes the data target types. </p>
-                                                <table style="margin-left: 0;margin-right: auto;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');" class="TableStyle-SimpleTable" cellspacing="0">
-                                                    <col class="TableStyle-SimpleTable-Column-Column1" style="width: 20px;" />
-                                                    <col class="TableStyle-SimpleTable-Column-Column2" style="width: 853px;" />
-                                                    <thead>
-                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Data target type</th>
-                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Description</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Azure Blob Storage Account with Environmental Credentials</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">An Azure Storage account accessible with the  account information stored in the environment variables, which are AZURE_STORAGE_ACCOUNT and AZURE_STORAGE_ACCESS_KEY.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Azure Blob Storage Account with SAS Token</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">An Azure Storage account that you access with a shared access signature (SAS) token.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>Custom Target</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p>An advanced feature that requires a thorough understanding of how <span class="GeneralProductName3">Xcalar</span> uses UDFs to import various kinds of data sources. Contact <span class="GeneralProductName3">Xcalar</span> Professional Services for information about this target type.</p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                                <p class="tableParagraph">Database Connector Target</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                                <p class="tableParagraph">A SQL&#160;database. </p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Google Cloud Storage Account with Environmental Credentials</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">A Google Cloud account for which you set up the account credentials by following the instructions from Google.&#160;For information about Google Cloud account authentication, see <a href="https://cloud.google.com/storage/docs/authentication">https://cloud.google.com/storage/docs/authentication.</a></td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">HttpFs with Kerberos</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">An HDFS file system that uses Kerberos for authentication and is accessed through the HttpFS protocol.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">HttpFs</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">An HDFS file system that  is accessed through the HttpFS protocol.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Secured MapR Cluster Account</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">An account on a MapR cluster that a user can access with credentials  created for that user on the MapR cluster.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p class="tableParagraph">Secured MapR Cluster Account Impersonation</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p class="tableParagraph">A MapR cluster that allows a <span class="GeneralProductName3">Xcalar</span> user to access by using an authorized MapR cluster account. </p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Generated</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">A dataset created by an import UDF. The data exists in memory only, not in a storage system. This data target type is not common; it is used mainly by advanced users for testing purposes. </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Parquet Dataset</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">A  Parquet format data source. </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">S3 Account with Environmental Credentials</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">An S3 account that you access with the Boto 3 credentials. These credentials are contained in an AWS configuration file on your cluster.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">S3 Account with Specified Credentials</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">An S3 account that you access with the credentials created for the S3 account. You must specify the credentials for the S3 account when you create the target.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Shared File System</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">A mount point with the same directory name across all nodes, to which the same file system is attached. For example, for each node, you can mount on /mnt/data  an NFS file system named airlinesData that resides on a storage system.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Single Node Filesystem</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">A file system that exists only on a single node. When importing from a target of this type, you specify the node number followed by the path of the source data file, and <span class="GeneralProductName3">Xcalar</span> imports only from the specified node.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Symmetric Pre-sharded Filesystem</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                                <p>A directory with the same name on each node, which contains different files you created by sharding a large file.</p>
-                                                                <div class="Example"> <span class="label">EXAMPLE</span>:&#160;You can split a data source file named airlines.csv into airlines1.csv, airlines2.csv, airlines3.csv, and airlines4.csv. Then save two of these files to /airlinesData on node 0 and the other two files to /airlinesData on node 1. After you create a data target of the Symmetric Pre-sharded Filesystem type for /airlinesData, you can import  all four files from this target.</div>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">WebHDFS with Kerberos</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">An HDFS file system that uses Kerberos for authentication and is accessed through the WebHDFS protocol.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">WebHDFS</td>
-                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">An HDFS file system that  is accessed through the WebHDFS protocol.</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                                <h2><a name="Creating"></a>Creating a data target (administrator only)</h2>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Depending on the data target type, you need to perform steps before creating a data target. For information about the required steps, see the <cite>Xcalar Administration Guide</cite>.</div>
-                                                <p>You can create a data target whether you are in SQL&#160;Mode or Advanced Mode. To create a data target, follow these steps:</p>
+                                                <h1>Accessing and preparing a data source</h1>
+                                                <p>This topic describes the steps to access and prepare a data source for <span class="GeneralProductName3">Xcalar</span> to import. </p>
+                                                <h2 class="noPageBreak">Understanding a data source</h2>
+                                                <p>The term <em>data source</em> refers to the files or directory containing the raw data. The raw data you want to query or analyze can be in one file or in multiple files in the same directory or in different directories. <span class="GeneralProductName3">Xcalar</span> can import data from various storage platforms in cloud or on-premises.</p>
+                                                <p>To access and prepare a data source for import:</p>
                                                 <ol>
                                                     <li value="1">
-                                                        <p>Click the <span class="UIelement">Datasets</span> icon if the <span class="UIelement">Data Targets</span> icon is not already shown. The following screenshot taken in SQL&#160;Mode shows the location of the <span class="UIelement">Data Targets</span> icon.</p>
-                                                        <p>
-                                                            <img src="../../Resources/Images/XD_screenshots/data-target-create.png" />
-                                                        </p>
+                                                        <p><span class="UIelement">Define a connector</span>. A connector is a way to provide the storage location and the access method for <span class="GeneralProductName3">Xcalar</span> instance to access the data source. To learn more about connectors, see <a href="G_UnderstandDataTargets.htm" class="MCXref xref" xrefformat="{para}">Understanding connectors</a>.</p>
                                                     </li>
-                                                    <li value="2">In the <span class="UIelement">Data Targets</span> panel, click any data target icon to display information about the data target. If your desired data target does not exist, click the <span class="UIelement">Create Data Target</span> icon to start creating a data target.</li>
-                                                    <li value="3">In the <span class="UIelement">Create Data Target</span> window, enter the name of the data target. For example, you can create a data target named airlinesInfo.</li>
-                                                    <li value="4">Select the appropriate data target type. Depending on the type, you must enter additional information in the fields displayed. For example, if the type is <span class="UIelement">Shared File System</span>, enter the mount point on each node for the shared storage.</li>
-                                                    <li value="5">Click <span class="UIelement">ADD</span>. </li>
+                                                    <li value="2">
+                                                        <p><span class="UIelement">Verify the data source format</span>. Verify the format of your data source so that <span class="GeneralProductName3">Xcalar</span> can properly import the data. To learn more about verifying the format of a data source, see <a href="B2_PrepareDataSource.htm" class="MCXref xref" xrefformat="{para}">Understanding the data source format requirements</a>.</p>
+                                                    </li>
                                                 </ol>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;After you create a data target, you cannot edit its information, such as the name, the mount point for a Shared File System target, and so on. To change the information, you must delete the target and create a target with the desired information.</div>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Before deleting a data target, make sure that no workbooks on the cluster depend on the data imported from the data target. After a cluster restart, you cannot activate a workbook containing data from the deleted target.</div>
-                                                <h2>Next step</h2>
-                                                <p>Prepare the source data files located at the data target by following the instructions in this topic:</p>
-                                                <p><a href="B2_PrepareDataSource.htm" class="MCXref xref">Preparing the data source</a>
-                                                </p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

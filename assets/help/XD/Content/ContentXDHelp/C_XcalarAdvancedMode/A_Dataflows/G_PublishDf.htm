@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -189,18 +187,18 @@
                                                 </div>
                                                 <h1>Publishing a dataflow</h1>
                                                 <p>After building a dataflow, you can publish it so that other users on the same cluster can access your dataflow. Publishing a dataflow enables you to easily collaborate with others on a dataflow, because it does not require the transfer of a dataflow file from one user to another. This topic lists the tasks you can and cannot perform on a published dataflow. It also describes the procedure for publishing a dataflow.</p>
-                                                <h2 class="noPageBreak">Tasks you can do with a published dataflow</h2>
-                                                <p>After a dataflow is published, all users, including the creator of the dataflow, have the same access rights to it. The following list describes the tasks that you can do with a published dataflow</p>
+                                                <h2 class="noPageBreak">Tasks you can perform on a published dataflow</h2>
+                                                <p>After a dataflow is published, all users, including the creator of the dataflow, have the same access rights to it. The tasks you can perform on a published dataflow</p>
                                                 <ul>
-                                                    <li value="1">Viewing the published dataflow</li>
+                                                    <li value="1">Viewing the published dataflow.</li>
                                                     <li value="2">Copying the published dataflow.</li>
                                                     <li value="3">Deleting the published dataflow.</li>
-                                                    <li value="4">Configuring Nodes. </li>
+                                                    <li value="4">Configuring Nodes.</li>
                                                     <li value="5">Resetting Nodes.</li>
-                                                    <li value="6">Executing Nodes or the published dataflows, if the dataflow uses a dataset to which you have access.</li>
+                                                    <li value="6">Executing Nodes of the published dataflows, if the dataflow uses a dataset to which you have access.</li>
                                                 </ul>
-                                                <h2 class="noPageBreak">Tasks you cannot do with a published dataflow</h2>
-                                                <p>The following list describes the tasks that you cannot do with a published dataflow</p>
+                                                <h2 class="noPageBreak">Tasks you cannot perform on a published dataflow</h2>
+                                                <p>The tasks you cannot do with a published dataflow:</p>
                                                 <ul>
                                                     <li value="1">Renaming the published dataflow.</li>
                                                     <li value="2">
@@ -208,14 +206,14 @@
                                                         <ul>
                                                             <li value="1">Configuring the links</li>
                                                             <li value="2">Renaming Nodes</li>
-                                                            <li value="3">Adding, deleting, or moving Nodes.</li>
+                                                            <li value="3">Adding, deleting, or moving Nodes</li>
                                                         </ul>
                                                     </li>
                                                     <li value="3">Publishing the published dataflow.</li>
                                                     <li value="4">Automatically aligning or manually repositioning the Nodes.</li>
                                                 </ul>
                                                 <h2 class="noPageBreak">Publishing a dataflow</h2>
-                                                <p>To publish a dataflow, follow these steps:</p>
+                                                <p>To publish a dataflow:</p>
                                                 <ol>
                                                     <li value="1">Display the dataflow you want to publish. It must be a dataflow not in the Published folder.</li>
                                                     <li value="2">
@@ -225,7 +223,7 @@
                                                         </p>
                                                     </li>
                                                     <li value="3">
-                                                        <p>In the <span class="UIelement">Publish Dataflow</span> modal window, specify the published dataflow's name using one of these methods:</p>
+                                                        <p>In the <span class="UIelement">Publish Dataflow</span> modal window, specify the published dataflow's name using one of the following methods:</p>
                                                         <ul>
                                                             <li value="1">Enter the published dataflow's name after /Published/ in the <span class="UIelement">Destination dataflow name</span> field.</li>
                                                             <li value="2">Click <span class="UIelement">Browse</span>. Navigate to the desired location in the Published folder. Type the name in the <span class="UIelement">Save As</span> field, and then click <span class="UIelement">Save</span>.</li>
@@ -233,9 +231,9 @@
                                                         <p>With either method, you can create sub-folders in the path to the published dataflow. For example, you can enter <span class="UIelement">user1/airlines/2001/df1</span> in the <span class="UIelement">Destination dataflow name</span> field. The dataflow named <span class="UIelement">df1</span> will be published in the <span class="UIelement">Published/user1/airlines/2001</span> folder.</p>
                                                     </li>
                                                     <li value="4">(Optional) If you want datasets used in the dataflow to be shared, click the <span class="UIelement">Share datasets used in the dataflow</span> check box. This ensures that the user accessing the published dataflow can execute the dataset Node in the dataflow even if that user does not own a dataset by the same name.</li>
-                                                    <li value="5">Click <span class="UIelement">Confirm</span>. The dataflow is placed in the Published folder, as shown in the <span class="UIelement">Dataflows</span> panel and is available for other users to use. For information about how to use a published dataflow, see <a href="G1_UsePublishedDf.htm" class="MCXref xref" xrefformat="{para}">Using a published dataflow</a>.</li>
+                                                    <li value="5">Click <span class="UIelement">Confirm</span>. The dataflow is placed in the Published folder, as shown in the <span class="UIelement">Dataflows</span> panel and is available for other users to use. </li>
                                                 </ol>
-                                                <p>&#160;</p>
+                                                <li value="12">For information about how to use a published dataflow, see <a href="G1_UsePublishedDf.htm" class="MCXref xref" xrefformat="{para}">Using a published dataflow</a>.</li>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

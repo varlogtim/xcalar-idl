@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -191,30 +189,30 @@
                                                 <p>The following topics provide an abridged set of instructions for importing your data  into <span class="GeneralGUIName1">Xcalar Design</span>. For the complete set of importing topic instructions, see the <span class="UIelement">Getting Started</span> section.</p>
                                                 <p>Before you get started with importing your data, read the following sections:</p>
                                                 <ul>
-                                                    <li value="1"><a href="../../A_GetStarted/GettingStarted.htm" class="MCXref xref" xrefformat="{para}">Getting started</a>
+                                                    <li value="1"><a href="../../A_GetStarted/Overview.htm" class="MCXref xref" xrefformat="{para}">Xcalar Design overview</a>
                                                     </li>
-                                                    <li value="2"><a href="../../A_GetStarted/A_Requirements.htm" class="MCXref xref" xrefformat="{para}">Requirements for Xcalar Design</a>
-                                                    </li>
-                                                    <li value="3"><a href="../../A_GetStarted/B_BasicConcepts.htm" class="MCXref xref" xrefformat="{para}">Basic Xcalar concepts</a>
+                                                    <li value="2"><a href="../../A_GetStarted/D_Accessing.htm" class="MCXref xref" xrefformat="{para}">Accessing Xcalar Design</a>
                                                     </li>
                                                 </ul>
                                                 <h2 class="noPageBreak">Preparing the data source</h2>
-                                                <p>Before importing your data into <span class="GeneralGUIName1">Xcalar Design</span> there are some data preparation considerations and guidelines that <span class="GeneralProductName3">Xcalar</span> recommends for an error free import. For more information, see <a href="../../A_GetStarted/B2_PrepareDataSource.htm" class="MCXref xref" xrefformat="{para}">Preparing the data source</a>.</p>
+                                                <p>Before importing your data into <span class="GeneralGUIName1">Xcalar Design</span> there are some data preparation considerations and guidelines that <span class="GeneralProductName3">Xcalar</span> recommends for an error free import. For more information, see <a href="../../A_GetStarted/B2_PrepareDataSource.htm" class="MCXref xref" xrefformat="{para}">Understanding the data source format requirements</a>.</p>
                                                 <h2 class="noPageBreak">Selecting a data source</h2>
                                                 <div class="Note"><span class="label">NOTE:</span> The following procedure assumes that you are logged into <span class="GeneralGUIName1">Xcalar Design</span> and that you are in a Workbook.</div>
                                                 <p>To select a data source:</p>
                                                 <ol>
-                                                    <li value="1">Verify that the post-installation tasks are completed and that you have access to your source data through a data target.</li>
-                                                    <li value="2">Verify that you are in SQL Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch  to <span class="UIelement">SQL MODE</span> . </li>
-                                                    <li value="3">From the  sidebar, click the <span class="UIelement">Sources</span> icon, which expands to reveal the <span class="UIelement">Tables</span> icon.</li>
-                                                    <li value="4"> Click the <span class="UIelement">Tables</span> icon and then in the Tables panel, click the <span class="UIelement">Import Data Source</span> icon. </li>
-                                                    <div class="Note"><span class="label">TIP</span>: If you accidentally click the <span class="UIelement">View IMD</span>&#160;icon, you can switch back to the <span class="UIelement">Tables</span> panel by clicking on the <span class="UIelement">View Tables</span> icon in menu bar of the Published Tables section. <br /><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/sql_view_imd_tables.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="180" data-mc-height="82" src="../../../Resources/Images/XD_screenshots/sql_view_imd_tables_thumb_0_40.png" tabindex="" /></a></div>
-                                                    <li value="5">In the <span class="UIelement">Select Data Source Location</span> page by the <span class="UIelement">Data Source Path</span> field, select <span class="UIelement">Browse</span>.</li>
+                                                    <li value="1">Verify that the post-installation tasks are completed and that you have access to your source data through a connector.</li>
+                                                    <li value="2">Verify that you are in the <span class="UIelement">SQL Mode</span> workspace. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to <span class="UIelement">SQL Mode</span> . </li>
+                                                    <li value="3">From the  sidebar, click the <span class="UIelement">Sources</span> icon <img src="../../../Resources/Images/XD_assets/xd_sources_icon.png" />, which expands to reveal the <span class="UIelement">Tables</span> icon.</li>
+                                                    <li value="4"> Click the <span class="UIelement">Tables</span> icon <img src="../../../Resources/Images/XD_assets/xd_tables_icon.png" /> and then in the Tables panel, click the <span class="UIelement">Import Data Source</span> icon <img src="../../../Resources/Images/XD_assets/xd_import_tbl.png" />. </li>
+                                                    <div class="Note"><span class="label">TIP</span>: (IMD users only) If  you accidentally click the <span class="UIelement">View IMD</span>&#160;icon, you can switch back to the <span class="UIelement">Tables</span> panel by clicking on the <span class="UIelement">View Tables</span> icon in menu bar of the Published Tables section. <br /><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/sql_view_imd_tables.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="180" data-mc-height="82" src="../../../Resources/Images/XD_screenshots/sql_view_imd_tables_thumb_0_40.png" tabindex="" /></a></div>
+                                                    <p>The Select Data Source Location page opens.</p>
+                                                    <li value="5">Verify that the <span class="UIelement">Connector</span> list is displaying the correct connector to your data source.</li>
+                                                    <li value="6">In the <span class="UIelement">Data Source Path</span> section, select <span class="UIelement">Browse</span>.</li>
                                                     <p>The <span class="UIelement">Browse Data Source</span> window opens.</p>
-                                                    <li value="6"> From the file browser, locate your source data. For more information on browsing for your data, see <a href="../../A_GetStarted/B3_SelectDataSource.htm#Using" class="MCXref xref" xrefformat="{para}">Using the file browser to select the data source</a>.</li>
+                                                    <li value="7"> From the file browser, locate your source data. For more information on browsing for your data, see <a href="../../A_GetStarted/B3_SelectDataSource.htm#Using" class="MCXref xref" xrefformat="{para}">Using the file browser to select the data source</a>.</li>
                                                     <div class="Note"><span class="label">IMPORTANT</span>: You can import multiple objects, such as a folder or a selection of files, that contain the data for analysis into <span class="GeneralProductName3">Xcalar</span>. Before selecting multiple objects, verify that each object adheres to the same format and schema.</div>
                                                     <div class="Note"><span class="label">NOTE:</span> You can only import data from one worksheet of an Excel workbook.</div>
-                                                    <li value="7">Do one of the following:</li>
+                                                    <li value="8">Do one of the following:</li>
                                                     <ul style="list-style-type: circle;">
                                                         <li value="1">For a single file, double-click the file, which takes you directly to the <span class="UIelement">Import Data Source</span> window.</li>
                                                         <li value="2">For multiple file objects:</li>

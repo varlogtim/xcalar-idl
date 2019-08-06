@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Using a Round operation</title>
+        <meta name="author" content="" /><title>Rounding a column value</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,18 +185,22 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Using a Round operation</h1>
-                                                <p>The <span class="UIelement">Round</span> operation rounds a Float number to specified number of decimal places. The operation generates a derived column as a result. </p>
-                                                <p>Follow these steps to round the values of a column:</p>
+                                                <h1>Rounding a column value</h1>
+                                                <p>The <span class="UIelement">Round</span> operation rounds a Float number to the specified number of decimal places and generates a derived column as a result. </p>
+                                                <p>To round the values of a column:</p>
                                                 <ol>
-                                                    <li value="1">There are two ways of starting the rounding operation - starting from a result set or starting from a <span class="UIelement">Round</span> Node:<ol style="list-style-type: lower-alpha;"><li value="1"><span class="UIelement">Starting from a result set</span>: In the result set column drop-down menu, select <span class="UIelement">Round...</span>. Please note that <span class="UIelement">Round...</span> menu is available only for columns with Float values. The <span class="UIelement">Round Operation</span> panel is displayed.</li><li value="2"><p><span class="UIelement">Starting from a Round Node</span>: Click on the <span class="UIelement">Column Ops</span> category of operations in the Advanced Mode toolbar. Drag the <span class="UIelement">Round </span>Node to the dataflow canvas. Connect a result set to the <span class="UIelement">Round</span> Node. Right click the <span class="UIelement">Round</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu. The <span class="UIelement">Round Operation</span> panel is displayed.</p><p><span class="label">NOTE</span>:&#160;See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a> for more information on connecting Nodes and creating dataflows.</p></li></ol></li>
-                                                    <li value="2">If you started from a result set, the <span class="UIelement">Column to round</span> column is already filled in. Otherwise choose a column from the <span class="UIelement">Column to round</span> drop-down.</li>
-                                                    <li value="3">Enter a value for <span class="UIelement">Number of decimals to keep</span>. The default value is 0, meaning the resultant value has no decimal places.</li>
-                                                    <li value="4"><span class="GeneralProductName3">Xcalar</span> fills out the <span class="UIelement">New resultant column name</span> based on the <span class="UIelement">Column to round</span> value. You can change the resultant column name by entering a different text.</li>
-                                                    <li value="5">(Optional) Check the <span class="UIelement">Include only erroneous rows</span> checkbox to get only those rows that produce error because of the rounding operation. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a result set with only erroneous rows</a>.</li>
-                                                    <li value="6">Click <span class="UIelement">Save</span>. The configuration is saved and a new result set is displayed with new derived column containing rounded values when the Node executes.</li>
+                                                    <li value="1">Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</li>
+                                                    <li value="2">There are two ways of starting the <span class="UIelement">Round</span> operation - starting from a result set and starting from a <span class="UIelement">Round</span> Node:<ul><li value="1"><p><span class="UIelement">Starting from a result set</span>: Display the result set with the column on which you want to perform the <span class="UIelement">Round</span> operation. Right click the  result set column header and select <span class="UIelement">Round</span>. The <span class="UIelement">Round Operation</span> configuration panel is displayed.</p><div class="Note"><span class="label">NOTE</span>:&#160;The <span class="UIelement">Round</span> option is available only for columns with Float values. </div></li><li value="2"><p><span class="UIelement">Starting from a Round Node</span>: Click on the <span class="UIelement">Column Ops</span> category of operations in the Dataflow Mode toolbar. Drag the <span class="UIelement">Round </span>Node to the dataflow canvas. Locate the Node with the result set column on which you want to perform the <span class="UIelement">Round</span> operation, and connect its output to the <span class="UIelement">Round</span> Node. Right click the <span class="UIelement">Round</span> Node and select <span class="UIelement">Configure</span>. The <span class="UIelement">Round Operation</span> configuration panel is displayed.</p><div class="Note"><span class="label">NOTE</span>:&#160;See <a href="../A_Dataflows/C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a> for more information on connecting Nodes and creating dataflows.</div></li></ul></li>
+                                                    <li value="3">If you started from a result set, the <span class="UIelement">Column to round</span> column is already filled in. Otherwise, select a column from the <span class="UIelement">Column to round</span> drop-down.</li>
+                                                    <li value="4">Enter a value for <span class="UIelement">Number of decimals to keep</span>. The default value is 0, meaning the resultant value will have no decimal places.</li>
+                                                    <li value="5"><span class="GeneralProductName3">Xcalar</span> fills out the <span class="UIelement">New resultant column name</span> based on the <span class="UIelement">Column to round</span> name. You can change the resultant column name by entering a different name.</li>
+                                                    <li value="6">(Optional) Check the <span class="UIelement">Include only erroneous rows</span> check box to get only those rows that produce error because of the rounding operation. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a result set with erroneous rows only</a>.</li>
+                                                    <li value="7">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The configuration is saved and a new result set is displayed with the new derived column containing rounded values when the Node executes.</p>
+                                                    </li>
                                                 </ol>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <p>For selecting columns:</p>
                                                         <ul>

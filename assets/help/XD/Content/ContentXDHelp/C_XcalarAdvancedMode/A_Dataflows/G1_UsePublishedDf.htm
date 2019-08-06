@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -191,37 +189,42 @@
                                                 <p>This topic describes the tasks you can perform on a published dataflow.</p>
                                                 <div class="Note"><span class="label">IMPORTANT</span>:&#160;A published dataflow is shared among all users on the cluster. If another user changes or deletes a published dataflow when you are using it, you see an alert message. If you want to keep the published dataflow without the other user's changes, copy the published dataflow currently in your dataflow tab, paste it to a new dataflow tab, and save it under a new name. </div>
                                                 <h2 class="noPageBreak"><a name="Viewing"></a>Viewing a published dataflow</h2>
-                                                <p>To view a published dataflow, follow these steps:</p>
+                                                <p>To view a published dataflow:</p>
                                                 <ol>
-                                                    <li value="1">Click the Dataflow icon to open the <span class="UIelement">Dataflows</span> panel.</li>
-                                                    <li value="2">Click the folder named Published in the <span class="UIelement">Dataflows</span> panel. The contents of the Published folder are displayed.</li>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">Dataflow Panel</span> icon to open the <span class="UIelement">Dataflows</span> panel.</li>
+                                                    <li value="2">Click the folder named <span class="UIelement">Published</span> in the <span class="UIelement">Dataflows</span> panel. The contents of the <span class="UIelement">Published</span> folder are displayed.</li>
                                                     <li value="3">Click the published dataflow in the <span class="UIelement">Dataflows</span> panel to display the dataflow in the dataflow editor.</li>
                                                 </ol>
                                                 <h2 class="noPageBreak">Copying a published dataflow</h2>
                                                 <ol>
                                                     <li value="1">Display a published dataflow as described in <a href="#Viewing" class="MCXref xref" xrefformat="{para}">Viewing a published dataflow</a>.</li>
-                                                    <li value="2">Right click anywhere in the tab displaying the published dataflow to display a menu.</li>
-                                                    <li value="3">Click <span class="UIelement">Select All</span> in the menu.</li>
-                                                    <li value="4">Use the keyboard combination (for example, Ctrl-C) to copy the selection.</li>
+                                                    <li value="2">Right click anywhere in the tab displaying the published dataflow and click <span class="UIelement">Select All</span> in the drop-down.</li>
+                                                    <li value="3">Use the keyboard combination (for example, Ctrl-C) to copy the selection.</li>
                                                 </ol>
                                                 <h2 class="noPageBreak">Deleting a published dataflow</h2>
-                                                <p>You can delete a published dataflow regardless of whether you are the creator of the dataflow. Also, you can delete a published dataflow when another user is using it.</p>
+                                                <p>You can delete a published dataflow regardless of whether you are the creator of the dataflow or not. Also, you can delete a published dataflow even if another user is using it.</p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;Deletion of a published dataflow cannot be undone. </div>
-                                                <p>To delete a published dataflow, follow these steps:</p>
+                                                <p>To delete a published dataflow:</p>
                                                 <ol>
-                                                    <li value="1">Click the Dataflow icon to open the Dataflows panel.</li>
-                                                    <li value="2">Navigate to the Published folder in the Dataflows panel.</li>
-                                                    <li value="3">Locate the published dataflow and then click the trashcan icon. A confirmation message is displayed.</li>
-                                                    <li value="4">Click <span class="UIelement">Confirm</span>. The published dataflow is removed from the Published folder.</li>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">Dataflow Panel</span> icon to open the <span class="UIelement">Dataflows</span> panel.</li>
+                                                    <li value="2">Navigate to the <span class="UIelement">Published</span> folder in the Dataflows panel.</li>
+                                                    <li value="3">
+                                                        <p>Locate the published dataflow and hover over it to display the trash can icon. Click the trash can icon. </p>
+                                                        <p>A confirmation message is displayed.</p>
+                                                    </li>
+                                                    <li value="4">
+                                                        <p>Click <span class="UIelement">Confirm</span>. </p>
+                                                        <p>The published dataflow is removed from the <span class="UIelement">Published</span> folder.</p>
+                                                    </li>
                                                 </ol>
                                                 <h2 class="noPageBreak">Duplicating a published dataflow</h2>
                                                 <p>Duplicating a published dataflow requires the same steps as duplicating a dataflow, as described in  <a href="D_DuplicateDf.htm" class="MCXref xref" xrefformat="{para}">Duplicating a dataflow</a></p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;The resultant dataflow is created in the Home folder. It is not a published dataflow.</div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The resultant dataflow is created in the <span class="UIelement">Home</span> folder. It is not a published dataflow.</div>
                                                 <h2 class="noPageBreak">Downloading a published dataflow</h2>
-                                                <p>Downloading a published dataflow requires the same steps as downloading a dataflow, as described in <a href="D1_DownloadUploadDf.htm" class="MCXref xref" xrefformat="{para}">Downloading and uploading a dataflow</a>.</p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;When you upload a dataflow that was downloaded from the Published folder, it is not automatically uploaded to the Published folder. You can specify whether or not the uploaded dataflow is published.</div>
+                                                <p>Downloading a published dataflow requires the same steps as downloading a dataflow, as described in <a href="D2_DownloadDf.htm" class="MCXref xref" xrefformat="{para}">Downloading a dataflow</a>.</p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;When you upload a dataflow that was downloaded from the <span class="UIelement">Published</span> folder, it is not automatically uploaded to the <span class="UIelement">Published</span> folder. </div>
                                                 <h2 class="noPageBreak">Configuring, executing, and resetting Nodes in a published dataflow</h2>
-                                                <p>You can configure the Nodes in a published dataflow, execute them, or reset them, in the same way as you do in any dataflow. </p>
+                                                <p>You can configure the Nodes in a published dataflow, execute them, or reset them, in the same way as you do in any other dataflow. </p>
                                                 <h2 class="noPageBreak">Executing a published dataflow</h2>
                                                 <p>You can execute a published dataflow with or without optimization in the same way as you do in any dataflow.</p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;If you do not have the dataset used in the published dataflow, and the user who published the dataflow did not share the dataset, your attempt to execute the published dataflow fails.</div>

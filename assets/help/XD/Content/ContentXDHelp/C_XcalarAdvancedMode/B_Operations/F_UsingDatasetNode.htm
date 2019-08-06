@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Using a Dataset Node</title>
+        <meta name="author" content="" /><title>Using a dataset in a dataflow</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -93,8 +93,6 @@
         <script src="../../../../Resources/Scripts/MadCapSearch.js">
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
-        </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
         </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -187,32 +185,47 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Using a Dataset Node</h1>
-                                                <p>A <span class="UIelement">Dataset</span> Node is one of the starting Nodes of a dataflow. It reads the data from a data source and displays it in a result set. For more information on dataset, see <a href="../A_Dataflows/F_ManageDatasets.htm" class="MCXref xref" xrefformat="{para}">Managing datasets</a>.</p>
-                                                <p>Follow these steps to use a <span class="UIelement">Dataset</span> Node in a dataflow:</p>
+                                                <h1>Using a dataset in a dataflow</h1>
+                                                <p> To read your raw data into <span class="GeneralProductName3">Xcalar</span>, you can import it into a table or into a dataset. If you do not know the format of the raw data, you must import it into a dataset and then extract the parts you want for your data modeling. </p>
+                                                <p>Once you have a dataset, start building a dataflow with a <span class="UIelement">Dataset</span> Node:  </p>
                                                 <ol>
-                                                    <li value="1">Click on the <span class="UIelement">In</span> category of operations in the Advanced Mode toolbar to display the <span class="UIelement">Dataset</span> Node. </li>
-                                                    <li value="2">Drag the <span class="UIelement">Dataset</span> Node to the dataflow canvas. </li>
-                                                    <li value="3">Right click the <span class="UIelement">Dataset</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu. The <span class="UIelement">Dataset</span> panel is displayed.</li>
-                                                    <li value="4">Select a dataset to use in the dataflow. If a dataset does not appear in the list or is inactive, close the <span class="UIelement">Dataset </span>panel and load or activate the dataset first.</li>
-                                                    <li value="5">The Prefix field is already filled in based on the dataset name you choose. You can enter text in this field to choose a different result set name.</li>
-                                                    <li value="6">Click the <span class="UIelement">Next </span>button. The <span class="UIelement">Column Schema</span> of the dataset is displayed.</li>
-                                                    <li value="7">Click on <span class="UIelement">X</span> before a column name if you don't want that column in the resultant result set. Or, click on <span class="UIelement">CLEAR ALL</span> field to remove all the column names from the result set.</li>
-                                                    <li value="8">Click on <span class="UIelement">Add Column</span> to add an empty column name to the <span class="UIelement">Column Schema</span>.</li>
-                                                    <li value="9">Click on the empty <span class="UIelement">Column Name</span> field to select a column name from the drop-down. The <span class="UIelement">Column Type</span> field is automatically filled up when you select a column name.</li>
-                                                    <li value="10">Repeat the last two steps to add as many columns as you want.</li>
-                                                    <li value="11">Once you have added all the columns you need, click on the <span class="UIelement">Save </span>button. This saves the configuration of the <span class="UIelement">Dataset </span>Node and generates the result set when executed.</li>
+                                                    <li value="1">Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</li>
+                                                    <li value="2">Click the <span class="UIelement">In</span> category of operations in the Dataflow Mode toolbar to display the <span class="UIelement">Dataset</span> Node. </li>
+                                                    <li value="3">Drag the <span class="UIelement">Dataset</span> Node to the dataflow canvas. </li>
+                                                    <li value="4">
+                                                        <p>Right click the <span class="UIelement">Dataset</span> Node and select <span class="UIelement">Configure</span>. </p>
+                                                        <p>The <span class="UIelement">Dataset</span> configuration panel is displayed with a list of datasets. You can sort the datasets by Name, Size and Type. By default the datasets are not sorted in any order. You can also preview an active dataset by clicking the eye icon in front of the dataset name.</p>
+                                                    </li>
+                                                    <li value="5">
+                                                        <p>Select a dataset in the list to use in your dataflow. </p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;If the desired dataset does not appear in the list, import the dataset first. For more information on importing a dataset, see <a href="../../A_GetStarted/B4_ImportData.htm" class="MCXref xref" xrefformat="{para}">Importing a data source</a>. If the dataset appears inactive, activate the dataset by clicking the <span class="UIelement">Activate</span> link.</div>
+                                                    </li>
+                                                    <li value="6">(Optional) The <span class="UIelement">Prefix </span>field is filled in based on the dataset name you select. If you prefer a different prefix for the columns in the result set, enter a different text in this field.</li>
+                                                    <li value="7">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The configuration is saved and generates a result set on execution.</p>
+                                                    </li>
                                                 </ol>
-                                                <h2 class="noPageBreak">Changing the source of a dataset Node</h2>
-                                                <p>Follow these steps to change the source of a dataset:</p>
+                                                <h2 class="noPageBreak">Changing the source of a Dataset Node</h2>
+                                                <p>If you want to change the dataset used in your <span class="UIelement">Dataset </span>Node:</p>
                                                 <ol>
-                                                    <li value="1">Right click on the <span class="UIelement">Dataset</span> Node in a dataflow and select <span class="UIelement">Configure</span> menu item from the drop-down.</li>
-                                                    <li value="2">Select a different dataset as source and click the <span class="UIelement">Next</span> button. The <span class="UIelement">Column Schema</span> of the dataset is displayed.</li>
-                                                    <li value="3">Click on <span class="UIelement">X</span> before a column name if you don't want that column in the resultant result set. Or, click on <span class="UIelement">CLEAR ALL</span> field to remove all the column names from the result set.</li>
-                                                    <li value="4">Click on <span class="UIelement">Add Column</span> to add an empty column name to the <span class="UIelement">Column Schema</span>.</li>
-                                                    <li value="5">Click on the empty <span class="UIelement">Column Name</span> field to select a column name from the drop-down. The <span class="UIelement">Column Type</span> field is automatically filled up when you select a column name.</li>
-                                                    <li value="6">Repeat the last two steps to add as many columns as you want.</li>
-                                                    <li value="7">Click the <span class="UIelement">Save</span> button: <ol style="list-style-type: lower-alpha;"><li value="1">If the <span class="UIelement">Dataset</span> Node is not connected to any other Node, under certain conditions, another <span class="UIelement">Dataset</span> panel is displayed for you to map the previous dataset columns to the new dataset columns. Click <span class="UIelement">Save</span> and the configuration is saved in the <span class="UIelement">Dataset </span>Node and generates a result set on execution. </li><li value="2">If the <span class="UIelement">Dataset</span> Node's output is connected to another Node, another <span class="UIelement">Dataset</span> panel is displayed for you to map the previous dataset columns to the new dataset columns. This mapping is needed so that the connecting Node understands the new input. The connecting Node's status may turn red if you don't do this mapping. Follow these steps to do the mapping:<ul><li value="1">Click on each of the <span class="UIelement">Previous Columns</span> field and select a column from the drop-down to map to the <span class="UIelement">New Name</span>. Leave it blank if there is no column in the <span class="UIelement">Previous Columns</span> to map to the <span class="UIelement">New Name</span>. </li><li value="2">Click on the <span class="UIelement">Save</span> button. The configuration is saved in the Dataset Node and generates a result set on execution.</li></ul></li></ol></li>
+                                                    <li value="1">
+                                                        <p>Right click on the <span class="UIelement">Dataset</span> Node in the dataflow and select <span class="UIelement">Configure</span>.</p>
+                                                        <p>The <span class="UIelement">Dataset</span> configuration panel is displayed with a list of datasets.</p>
+                                                    </li>
+                                                    <li value="2">Select a different dataset from the list.</li>
+                                                    <li value="3">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>If the <span class="UIelement">Dataset</span> Node is not connected to any Node, the new configuration is saved and generates a result set on execution.</p>
+                                                        <p> If the <span class="UIelement">Dataset</span> Node is connected to another Node, another <span class="UIelement">Dataset</span> panel is displayed for you to map the previous dataset columns to the new dataset columns. This mapping is needed so that the connected Node understands the new dataset. The connected Node's status may turn red if you don't do this mapping. Follow these steps to do the mapping:</p>
+                                                        <ol style="list-style-type: lower-alpha;">
+                                                            <li value="1">Click on each of the <span class="UIelement">Previous Columns</span> field and select a column from the drop-down to map to the <span class="UIelement">New Name</span>. Leave it blank if there is no column in the <span class="UIelement">Previous Columns</span> to map to the <span class="UIelement">New Name</span>.</li>
+                                                            <li value="2">
+                                                                <p>Click <span class="UIelement">Save</span>. </p>
+                                                                <p>The configuration is saved in the <span class="UIelement">Dataset</span> Node and generates a result set on execution.</p>
+                                                            </li>
+                                                        </ol>
+                                                    </li>
                                                 </ol>
                                                 <p>&#160;</p>
                                                 <p><a href="#top">Go to the top</a>

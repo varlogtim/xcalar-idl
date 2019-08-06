@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -188,7 +186,7 @@
                                                     </div>
                                                 </div>
                                                 <h2 class="noPageBreak"><a name="Converti"></a>Converting a dataflow into a SQL function</h2>
-                                                <p>This topic discusses how to convert a dataflow from the Advanced Mode into a SQL function that can be used in your SQL statements.</p>
+                                                <p>This topic discusses how to convert a dataflow from the Dataflow Mode into a SQL function that can be used in your SQL statements.</p>
                                                 <p>After debugging, <span class="GeneralGUIName1">Xcalar Design</span> provides the following options for bringing your changes back into your SQL query:</p>
                                                 <ul>
                                                     <li value="1">Manually adding your changes as SQL code into the SQL query statement.</li>
@@ -196,7 +194,7 @@
                                                 </ul>
                                                 <p>To convert a dataflow into a SQL function:</p>
                                                 <ol>
-                                                    <li value="1">Verify that you are in the Advanced Mode and that your dataflow is visible in its dataflow canvas.</li>
+                                                    <li value="1">Verify that you are in the Dataflow Mode workspace and that your dataflow is visible in its dataflow canvas.</li>
                                                     <li value="2">From the Tab bar, click the <span class="UIelement">+ New SQL function</span> button.</li>
                                                     <p>The New SQL Function window appears.</p>
                                                     <li value="3">In the <span class="UIelement">Number of parameters</span> field, enter the number of <span class="UIelement">Input</span> Nodes you require, which is the same as the number of tables in your SQL statement dataflow.</li>
@@ -209,16 +207,16 @@
                                                     <li value="8">Copy the Nodes by pressing <span class="UIelement">Ctrl +c</span>, or your operating system's equivalent keyboard shortcut.</li>
                                                     <li value="9">From the Tab menu, click the tab that contains the new SQL function.</li>
                                                     <p>The SQL function canvas displays.</p>
-                                                    <div class="Note"><span class="label">TIP:</span> The SQL function tab contains the <img src="../../../Resources/Images/XD_assets/xd_sqlfunction_icon.png" /> icon</div>
+                                                    <div class="Note"><span class="label">TIP:</span> The SQL function tab contains the <span class="UIelement">New SQL&#160;function</span> icon <img src="../../../Resources/Images/XD_assets/xd_sqlfunction_icon.png" /> .</div>
                                                     <li value="10">Press <span class="UIelement">Ctrl + v</span>, or your operating system's equivalent keyboard shortcut, which pastes the Nodes that you copied from the dataflow canvas into the SQL function canvas.</li>
-                                                    <div class="Note"><span class="label">NOTE:</span> The SQL function feature of the Advanced Mode has its own set of Node components. Therefore, not all the Nodes from the SQL dataflow are pasted into the SQL function canvas, such as the Input and Output Nodes. For Nodes components that were not pasted into the SQL function canvas, from the SQL&#160;Function toolbar, drag and drop the Nodes you require  into the SQL&#160;function canvas and configure. For more information on how to configure Node's, see <a href="../../C_XcalarAdvancedMode/B_Operations/AboutOperations.htm" class="MCXref xref" xrefformat="{para}">Understanding the Node operators</a>.</div>
+                                                    <div class="Note"><span class="label">NOTE:</span> The SQL function feature of the Dataflow Mode has its own set of Node components. Therefore, not all the Nodes from the SQL dataflow are pasted into the SQL function canvas, such as the Input and Output Nodes. For Node components that were not pasted into the SQL function canvas, from the SQL&#160;Function toolbar, drag and drop the Nodes you require  into the SQL&#160;function canvas and configure. For more information on how to configure Node's, see <a href="../../C_XcalarAdvancedMode/B_Operations/AboutOperations.htm" class="MCXref xref" xrefformat="{para}">Understanding the operation Nodes</a>.</div>
                                                     <li value="11">For each <span class="UIelement">Input</span> Node, do the following:</li>
                                                     <ol style="list-style-type: lower-alpha;">
                                                         <li value="1">Select the <span class="UIelement">Input</span> Node, right-click and select <span class="UIelement">Configure</span>.</li>
-                                                        <li value="2">From the <span class="UIelement">SQL Function Input</span> panel, click in the <span class="UIelement">Source Table (For testing only)</span> field and select a table,  in the same order as each table in the dataflow.</li>
+                                                        <li value="2">In the same order as each table in the dataflow, from the <span class="UIelement">SQL Function Input</span> panel, click in the <span class="UIelement">Source Table (For testing only)</span> field and select a table .</li>
                                                         <li value="3">From the <span class="UIelement">Column Schema</span> section, verify the schema columns and data types.</li>
                                                         <li value="4">Click <span class="UIelement">Save</span>.</li>
-                                                        <div class="Note"><span class="label">NOTE:</span> If  the <span class="UIelement">Auto preview the results after execution</span> setting is enabled, the table is displayed in the Advanced Mode's previewing section. You can enable the <span class="UIelement">Auto preview the results after execution</span> setting from the <span class="UIelement">Dataflow Settings</span> modal window by clicking the <span class="UIelement">Dataflow settings</span> <img src="../../../Resources/Images/XD_assets/xd_dataflow_settings_icon.png" /> icon in the <span class="GeneralGUIName1">Xcalar Design</span> menu bar.</div>
+                                                        <div class="Note"><span class="label">NOTE:</span> If  the <span class="UIelement">Auto preview the results after execution</span> setting is enabled, the table is displayed in the Dataflow Mode's previewing section. You can enable the <span class="UIelement">Auto preview the results after execution</span> setting from the <span class="UIelement">Dataflow Settings</span> modal window by clicking the <span class="UIelement">Dataflow settings</span> icon <img src="../../../Resources/Images/XD_assets/xd_dataflow_settings_icon.png" /> in the <span class="GeneralGUIName1">Xcalar Design</span> menu bar.</div>
                                                     </ol>
                                                     <li value="12">Connect the <span class="UIelement">Input</span> and <span class="UIelement">Output</span> Nodes to the operator Nodes in the same order as the dataflow by clicking one of the Node's anchors and dragging your cursor to the connecting Node.</li>
                                                     <li value="13">(Optional) As you connect each Node, right-click and select <span class="UIelement">Execute</span>, which tests each phase of the SQL function.</li>

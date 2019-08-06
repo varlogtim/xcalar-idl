@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -94,8 +94,6 @@
         </script>
         <script src="../../../../Resources/Scripts/MadCapTopic.js">
         </script>
-        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
-        </script>
         <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
     </head>
@@ -189,66 +187,48 @@
                                                 </div>
                                                 <h1>Using <span class="GeneralGUIName1">Xcalar Design</span> with Jupyter Notebook</h1>
                                                 <p><span class="GeneralGUIName1">Xcalar Design</span>
-             includes the Jupyter Notebook interactive Python development environment. Jupyter facilitates your creation of user-defined functions (UDFs) by enabling you to write code directly in the browser, to access and interactively work with samples of your modeling data, to run and debug code in a comparable Python environment to your cluster,  and to annotate your work.</p>
+             includes the Jupyter Notebook interactive Python development environment. Jupyter facilitates the creation of user-defined functions (UDFs) by enabling you to write code directly in the browser, to access and interactively work with samples of your modeling data, to run and debug code in a comparable Python environment to your cluster,  and to annotate your work.</p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;This topic assumes that you are familiar with Jupyter Notebook. For more information about the Jupyter Notebook user interface, such as for running code and generating documents, see <a href="https://jupyter-notebook.readthedocs.io/">https://jupyter-notebook.readthedocs.io</a>.</div>
                                                 <p>"The term <em>notebook</em> used in the  <span class="GeneralGUIName1">Xcalar Design</span> online help refers to Jupyter Notebook."</p>
                                                 <h2 class="noPageBreak">Programming language supported</h2>
-                                                <p>While Jupyter Notebook can run code that is written in various programming languages, the Jupyter Notebook accessed from  <span class="GeneralGUIName1">Xcalar Design</span> supports only Python 3.6 for helping you write <span class="GeneralProductName3">Xcalar</span> user-defined functions (UDF). </p>
-                                                <h2 class="noPageBreak">Relationship between a notebook and a <span class="GeneralGUIName1">Xcalar Design</span> workbook</h2>
-                                                <p>You can create more than one notebook for each workbook. Each notebook is stored in a directory named for your workbook. You can use <span class="GeneralGUIName1">Xcalar Design</span> to create well-commented <span style="font-weight: bold;">Code Snippets</span> that help you write UDFs and work with your data. Remember that the purpose of opening a notebook is to use Python to analyze data from a data source file or a <span class="GeneralProductName3">Xcalar</span> result set.</p>
-                                                <div class="Note"><span class="label">NOTE:</span> <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you do not run the Connection Code Snippet cell from another user's workbook, as this may end your modeling session without opportunity to save work.</div>
+                                                <p>While Jupyter Notebook can run code that is written in various programming languages, the Jupyter Notebook accessed from  <span class="GeneralGUIName1">Xcalar Design</span> supports only Python 3.6 for helping you write <span class="GeneralProductName3">Xcalar</span> UDFs. </p>
+                                                <h2 class="noPageBreak">Relationship between a Jupyter Notebook and a <span class="GeneralGUIName1">Xcalar Design</span> workbook</h2>
+                                                <p>You can create more than one Jupyter Notebook for each workbook. Each notebook is stored in a directory named for your workbook. You can use <span class="GeneralGUIName1">Xcalar Design</span> to create well-commented <span style="font-weight: bold;">Code Snippets</span> that help you write UDFs and work with your data. Remember that the purpose of opening a notebook is to use Python to analyze data from a data source file or a <span class="GeneralProductName3">Xcalar</span> result set.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>: <span class="GeneralProductName3">Xcalar</span> recommends not running the <span class="UIelement">Connection Code Snippet</span> cell from another user's Jupyter notebook as this may end your <span class="GeneralGUIName1">Xcalar Design</span> session without an opportunity to save your work.</div>
                                                 <div class="Example"><span class="label">EXAMPLE</span>:&#160;Your current active workbook is named Workbook1. Suppose you created a notebook earlier named MyNotebook2 when the workbook named Workbook2 was active. Using MyNotebook2 for data from Workbook1 might cause errors. To work on data from Workbook1, create a new notebook specifically for Workbook1.</div>
-                                                <h2 class="noPageBreak">Naming a notebook</h2>
-                                                <p>After you create a notebook, follow these Jupyter Notebook naming conventions to name the notebook:</p>
+                                                <h2 class="noPageBreak">Naming a Jupyter Notebook</h2>
+                                                <p>After you create a Juypyter Notebook, follow these Jupyter Notebook naming conventions to name the notebook:</p>
                                                 <ul>
                                                     <li value="1">The name must contain at least one character.</li>
                                                     <li value="2">The name is case-sensitive.</li>
                                                     <li value="3">The name does not contain any of the following:<ul><li value="1">colon (<b>:</b>)</li><li value="2">forward slash (<b>/</b>)</li><li value="3">backslash (<b>\</b>).</li></ul></li>
                                                 </ul>
-                                                <h2 class="noPageBreak"><a name="Publishi"></a>Publishing data from a result set to a notebook</h2>
-                                                <p>You can publish a result set to a notebook and then you can use Jupyter Notebook for data analysis or visualization for the published rows.</p>
-                                                <div class="Note"><span class="label">RECOMMENDATION</span>:&#160;<span class="GeneralProductName3">Xcalar</span> recommends that you do not publish more than 1000 rows  to a notebook at one time. Publishing more than 100 rows might take a long time.</div>
-                                                <ol>
-                                                    <li value="1">
-                                                        <p>Click on the <span class="UIelement">Out</span> category of operations in the Advanced Mode toolbar to display the <span class="UIelement">Jupyter</span> Node.</p>
-                                                    </li>
-                                                    <li value="2">Drag the <span class="UIelement">Jupyter</span> Node to the dataflow canvas. </li>
-                                                    <li value="3">Connect the result set, you want to publish, to the <span class="UIelement">Jupyter </span>Node.</li>
-                                                    <li value="4">Right click the <span class="UIelement">Jupyter</span> Node and choose <span class="UIelement">Configure</span> from the drop-down menu. The <span class="UIelement">Jupyter</span> panel is displayed.</li>
-                                                    <li value="5">Enter the <span class="UIelement">Number of rows</span> you want to publish. The default and the maximum value is 1000.</li>
-                                                    <li value="6">Rename any column names by clicking on the column name field in <span class="UIelement">Rename columns</span> section.</li>
-                                                    <li value="7">Click the <span class="UIelement">Save </span>button. The configuration is saved and the result set is generated on execution.</li>
-                                                    <li value="8">Right click on the <span class="UIelement">Jupyter</span> Node and select <span class="UIelement">View Result</span> from the drop-down to view the notebook.</li>
-                                                    <li value="9">A <span class="UIelement">Rename</span> modal window is displayed for you to rename the Jupyter notebook name. Enter a name and click the <span class="UIelement">Rename</span> button.</li>
-                                                    <li value="10">The result set is saved to the Jupyter notebook name you chose.</li>
-                                                    <li value="11">Depending on whether you have an open notebook, the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window shows one of the following:<ol><li value="1">The Jupyter Notebook dashboard with a file tree, which lists the notebooks created for all workbooks. You can manage your notebooks by opening a notebook for editing or uploading a notebook.</li><li value="2"><p>The notebook editor with the contents of the open notebook. You can edit the contents as you normally would in Jupyter Notebook.</p><p><span class="label">IMPORTANT</span>:&#160;Do not edit the <span class="GeneralProductName3">Xcalar</span> connection code snippet, which is necessary for <span class="GeneralGUIName1">Xcalar Design</span> to work with  the notebook. The code is in the first cell of the notebook. If you accidentally change the code, you can restore the code by following the instructions in <a href="#Connecti" class="MCXref xref" xrefformat="{para}">Connecting a notebook to an active workbook</a>.</p></li></ol><p>The following partial screenshot shows an example of the connection code snippet:</p><p><img src="../../../Resources/Images/XD_screenshots/xd-jupyter-nb-editor.png" /></p></li>
-                                                </ol>
-                                                <p>&#160;</p>
+                                                <p>You can publish a result set to a notebook and then you can use Jupyter Notebook for data analysis or visualization for the published rows. For more information, see <a href="D1_PublishResultsToJupyter.htm" class="MCXref xref" xrefformat="{para}">Publishing a result set to a Jupyter Notebook</a>.</p>
                                                 <p>In addition to managing or editing your notebook, you can add the following <span style="font-weight: bold;">Code Snippets</span> using the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window:</p>
                                                 <ul>
                                                     <li value="1">Connect to <span class="GeneralProductName3">Xcalar</span> Workbook</li>
                                                     <li value="2">Create Map UDF</li>
                                                     <li value="3">Create Import UDF</li>
                                                 </ul>
-                                                <h2 class="noPageBreak">Opening a notebook not connected to the active workbook</h2>
-                                                <p>Opening a notebook not associated with the current workbook will result in viewing as read-only. If you download and then upload a notebook, the notebook is editable and <span class="GeneralGUIName1">Xcalar Design</span> will automatically replace the connection code snippet with one appropriate to your workbook.</p>
-                                                <div class="Note"><span style="font-weight: bold;">Important</span>: Do not play the connection code snippet of another user's Jupyter notebook. Such an action may end your <span class="GeneralGUIName1">Xcalar Design</span> session and log you out, without an opportunity to save your work.</div>
-                                                <h2 class="noPageBreak"><a name="Connecti"></a>Connecting a notebook to an active workbook</h2>
-                                                <p>After uploading a notebook, you can connect it to an active workbook, regardless of which workbook you used when the notebook was first created. </p>
+                                                <h2 class="noPageBreak">Opening a Jupyter Notebook not connected to the active workbook</h2>
+                                                <p>Opening a Jupyter Notebook not associated with the current workbook results in read-only access. If you download and then upload a Jupyter Notebook, the notebook is editable and <span class="GeneralGUIName1">Xcalar Design</span> automatically replaces the <span class="UIelement">Connection Code Snippet</span> cell with one appropriate for your workbook.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>: <span class="GeneralProductName3">Xcalar</span> recommends not running the <span class="UIelement">Connection Code Snippet</span> cell from another user's Jupyter notebook as this may end your <span class="GeneralGUIName1">Xcalar Design</span> session without an opportunity to save your work.</div>
+                                                <h2 class="noPageBreak"><a name="Connecti"></a>Connecting a Jupyter Notebook to an active workbook</h2>
+                                                <p>After uploading a Jupyter Notebook, you can connect it to an active workbook, regardless of which workbook you used when the notebook was first created. </p>
                                                 <p>You can also use the following procedure to re-establish the connection to the active workbook. For example, if you accidentally modified the <span class="GeneralProductName3">Xcalar</span> connection code snippet and you want to restore it to its original form, you can complete the procedure for <span class="GeneralGUIName1">Xcalar Design</span> to re-enter the code in the notebook.</p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can establish a connection between a notebook and the active workbook. You cannot connect a notebook to any other workbook.</div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can establish a connection between a Jupyter Notebook and the active workbook. You cannot connect a Jupyter Notebook to any other workbook.</div>
                                                 <p>To add a new connection code snippet, follow these steps:</p>
                                                 <ol>
                                                     <li value="1">At the top of the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window, click <span class="UIelement">CODE&#160;SNIPPETS</span>, which displays a drop-down menu.</li>
                                                     <li value="2">
                                                         <p>Select <span class="UIelement">Connect to <span class="GeneralProductName3">Xcalar</span> Workbook</span>, which creates a new cell beneath the current cell in the notebook. The new cell contains the snippet to connect the notebook to the current workbook.</p>
-                                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;If the notebook has another cell with the connection code snippet for a workbook other than the current workbook, best practice is to  delete that cell. A notebook with connections to multiple workbooks causes errors. </div>
+                                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;A Jupyter Notebook with connections to multiple workbooks cause errors. When a Jupyter Notebook has a cell connecting to a workbook other than the current workbook, delete that cell. </div>
                                                     </li>
                                                     <li value="3">Move the new connection snippet cell to the top of your workbook. </li>
                                                 </ol>
-                                                <h2 class="noPageBreak"><a name="CreateUDF"></a>Creating a UDF with a <span class="GeneralProductName3">Xcalar</span> UDF&#160;template</h2>
+                                                <h2 class="noPageBreak"><a name="CreateUDF"></a>Creating a UDF with the <span class="GeneralProductName3">Xcalar</span> UDF&#160;template</h2>
                                                 <p><span class="GeneralGUIName1">Xcalar Design</span>'s integrated Jupyter Notebook
-             provides you with the following UDF&#160;templates in the code snippets list: </p>
+             provides you with the following user-defined function (UDF)&#160;templates in the code snippets list: </p>
                                                 <ul>
                                                     <li value="1">Create Map UDF, which contains a function definition to modify and instructions on writing and testing a map UDF.</li>
                                                     <li value="2">Create Import UDF, which contains a function definition to modify and instructions on writing and testing an import UDF&#160;for importing a file with custom  data source format.</li>
@@ -256,15 +236,15 @@
                                                 <p>The following section describes how to  display a UDF template and modify the code. </p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;If you want to create an import UDF, start Jupyter Notebook from the <span class="UIelement">Import Data Source</span> window.</div>
                                                 <p>The procedure  requires that you assign a name to the module containing the function and a name to the function.</p>
-                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage">The following list describes the naming conventions:</a></span>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
-                                                            <li value="1">Characters must be a-z, 0-9,  hyphen (-), or underscore (_).</li>
-                                                            <li value="2">Letters must be lowercase.</li>
-                                                            <li value="3">First character must be a letter or an underscore.</li>
-                                                            <li value="4">Character length:
-			<ul><li value="1">UDF module name, the length must not exceed 1023 characters.
-			<div class="Note"><span class="label">NOTE: </span>The UDF module name <var>default</var> is reserved by <span class="GeneralProductName3">Xcalar</span>.</div></li><li value="2">UDF function name, the length must not exceed 255 characters.</li><li value="3">UDF module source code, the length must not exceed 10485760 characters.</li></ul></li>
+                                                            <li value="1">Character length:
+			<ul><li value="1">A UDF <span class="UIelement">module</span> name must not exceed 1023 characters.
+			<div class="Note"><span class="label">IMPORTANT:</span> Must not use the reserved name <var>default</var>.</div></li><li value="2">A UDF <span class="UIelement">function</span> name must not exceed 255 characters.</li><li value="3">A UDF <span class="UIelement">module source code</span> file must not exceed 10485760 characters.</li></ul></li>
+                                                            <li value="2">First character must be a letter of the alphabet or an underscore.</li>
+                                                            <li value="3">Characters must be a-z, 0-9,  or underscore (_). </li>
+                                                            <div class="Note"><span class="label">IMPORTANT:</span> Must not use uppercase letters of the alphabet.</div>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -301,7 +281,7 @@
                                                             <li value="1">Type the module name.</li>
                                                             <li value="2">Type the function name.</li>
                                                         </ol>
-                                                        <p>Data target and data source path relative to the data target are automatically populated from your selected data source files.</p>
+                                                        <p>The connector and data source path relative to the connector are automatically populated from your selected data source files.</p>
                                                     </li>
                                                     <li value="4">Click <span class="UIelement">Confirm</span>. Jupyter Notebook displays a notebook cell containing specially-generated code:<ul><li value="1"><p>A&#160;function definition for you to modify by entering custom code to convert your data source content and yield Python dictionary format rows.</p></li><li value="2">Test code, which will execute on 100 rows of data from the selected data source file(s) when you run the cell.</li></ul></li>
                                                     <li value="5">
