@@ -75,11 +75,6 @@ class ExportSQLTableModal {
         this._$exportDest.val(driverText);
         this._$exportDest.data("name", driverName);
         this.renderDriverArgs();
-        const driver: ExportDriver = this._dataModel.exportDrivers.find((driver) => {
-            return driver.name == driverName;
-        });
-        this._selectedDriver = driverName;
-        this._dataModel.setUpParams(driver, this._$modal);
     }
 
     private _filterColumns(keyword: string) {
@@ -219,6 +214,7 @@ class ExportSQLTableModal {
             });
             expList.setupListeners();
         });
+        this._dataModel.setUpParams(driver, this._$modal);
         $("#exportSQLTableModal .argsSectionBox").removeClass("xc-hidden");
     }
 
