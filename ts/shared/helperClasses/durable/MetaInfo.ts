@@ -11,6 +11,8 @@ class MetaInfo extends Durable {
 
         this.TILookup = options.TILookup || {};
         this.statsCols = options.statsCols;
+        // QueryManager is maintaining the query load/commit
+        // but we still keep it here for backward compatible
         this.query = options.query || [];
         // a simple key,value paris, no constructor
         this.tablePrefix = options.tablePrefix;
@@ -49,8 +51,7 @@ class MetaInfo extends Durable {
             "TILookup": this._saveTables(),
             "statsCols": Profile.getCache(),
             "sqlcursor": Log.getCursor(),
-            "tablePrefix": TableComponent.getPrefixManager().getCache(),
-            "query": QueryManager.getCache()
+            "tablePrefix": TableComponent.getPrefixManager().getCache()
         }
     }
 

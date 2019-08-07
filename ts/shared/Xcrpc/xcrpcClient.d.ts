@@ -14,6 +14,7 @@ declare module 'xcalar' {
         constructor(client: XceClient);
         lookup(request: proto.xcalar.compute.localtypes.KvStore.LookupRequest): Promise<proto.xcalar.compute.localtypes.KvStore.LookupResponse>;
         addOrReplace(request: proto.xcalar.compute.localtypes.KvStore.AddOrReplaceRequest): Promise<void>;
+        multiAddOrReplace(request: ProtoTypes.KvStore.MultiAddOrReplaceRequest): Promise<void>;
         deleteKey(request: proto.xcalar.compute.localtypes.KvStore.DeleteKeyRequest): Promise<void>;
         append(request:proto.xcalar.compute.localtypes.KvStore.AppendRequest): Promise<void>;
         setIfEqual(request:proto.xcalar.compute.localtypes.KvStore.SetIfEqualRequest): Promise<{noKV:boolean}>;
@@ -1077,6 +1078,13 @@ declare namespace proto.xcalar.compute.localtypes {
             setKey(value: ScopedKey): void;
             setPersist(value: boolean): void;
             setValue(value: KeyValue): void;
+        }
+
+        export class MultiAddOrReplaceRequest {
+            setKeysList(value: Array<string>): void;
+            setScope(value: Workbook.WorkbookScope): void;
+            setPersist(value: boolean): void;
+            setValuesList(value: Array<KeyValue>): void;
         }
 
         export class DeleteKeyRequest {

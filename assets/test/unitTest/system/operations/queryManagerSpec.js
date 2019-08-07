@@ -46,6 +46,25 @@ describe('QueryManager Test', function() {
             }).remove();
             Log.getLogs = cachedGetLogs;
         });
+
+        it("restore should sort queries", function() {
+            var cachedGetLogs = Log.getLogs;
+            Log.getLogs = function() {
+                return [];
+            };
+            const time = Date.now();
+            QueryManager.restore([{name: "unitTest3", time: time}, {name: "unitTest4", time: time - 10}]);
+            expect($queryList.text().indexOf("unitTest3")).to.be.gt(-1);
+            expect($queryList.text().indexOf("unitTest4")).to.be.gt(-1);
+            expect(queryLists[-1].name).to.equal("unitTest3");
+            expect(queryLists[-2].name).to.equal("unitTest4");
+            delete queryLists[-2];
+            delete queryLists[-1];
+            $queryList.find(".xcQuery").filter(function() {
+                return $(this).find('.name') === "unitTest3" || $(this).find('.name') === "unitTest4";
+            }).remove();
+            Log.getLogs = cachedGetLogs;
+        })
     });
 
     describe("general functions", function() {

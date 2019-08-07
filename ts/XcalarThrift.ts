@@ -5060,6 +5060,34 @@ XcalarKeyPut = function(
     return PromiseHelper.convertToJQuery(promise);
 };
 
+XcalarKeyMultiPut = function(
+    kvMap: Map<string, string>,
+    persist: boolean,
+    scope: number,
+    scopeInfo?: Xcrpc.KVStore.ScopeInfo
+): XDPromise<void> {
+    if (kvMap == null) {
+        return PromiseHelper.reject("kvMap is not defined");
+    }
+
+    if (persist == null) {
+        persist = false;
+    }
+
+    if (scope == null) {
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
+    }
+
+    const Xcrpc_scope = mapThrifttoXcrpcScope(scope);
+    //now, use global userName and sessionName as scopeInfo
+    //might change in the future
+    scopeInfo = scopeInfo || {userName: userIdName, workbookName: sessionName};
+    const promise = Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getKVStoreService().multiAddOrReplace({
+        kvMap: kvMap, kvScope: Xcrpc_scope, persist:persist, scopeInfo: scopeInfo
+    });
+    return PromiseHelper.convertToJQuery(promise);
+}
+
 XcalarKeyDelete = function(
     key: string,
     scope: number,

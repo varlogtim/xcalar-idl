@@ -60,10 +60,6 @@ describe("MetaInfo Constructor Test", function() {
         expect(newMetaInfo.getStatsMeta()).not.to.have.property("testTable");
         expect(newMetaInfo.getLogCMeta()).not.to.equal(-2);
         expect(newMetaInfo.getTpfxMeta()).not.to.have.property("testPrefix");
-
-        var queryList = newMetaInfo.getQueryMeta();
-        if (queryList.length > 0) {
-            expect(queryList[0].name).not.to.equal("testQuery");
-        }
+        expect(newMetaInfo.getQueryMeta().length).to.equal(0);
     });
 });

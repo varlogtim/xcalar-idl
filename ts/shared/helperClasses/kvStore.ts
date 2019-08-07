@@ -109,9 +109,18 @@ class KVStore {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         this._getMetaInfo()
-        .then((meta) => {
-            let gInfosMeta: MetaInfDurable = meta || {};
-            return this._restoreWKBKInfoHelper(gInfosMeta);
+        .then( (meta: MetaInfDurable) => {
+            const gInfosMeta: MetaInfDurable = meta || <MetaInfDurable>{};
+            // Fetch queries from new kvstore keys
+            // Combine them with those originally in gInfo
+            return QueryManager.loadFromStorage(gInfosMeta.query)
+            .then((queries) => {
+                gInfosMeta.query = queries;
+                return gInfosMeta;
+            });
+        })
+        .then((meta: MetaInfDurable) => {
+            return this._restoreWKBKInfoHelper(meta);
         })
         .then(deferred.resolve)
         .fail((error) => {
@@ -243,6 +252,9 @@ class KVStore {
         const storageStore = new KVStore(KVStore.getKey("gStorageKey"), gKVScope.WKBK);
         storageStore.put(metaInfo.serialize(), true)
         .then(() => {
+            return QueryManager.commit();
+        })
+        .then(() => {
             return Log.commit();
         })
         .then(() => {
@@ -267,6 +279,7 @@ class KVStore {
 
     /* ============ Instance Properties and Methods ========== */
     private key: string;
+    private keys: string[];
     private scope: number;
 
     /**
@@ -274,8 +287,14 @@ class KVStore {
      * @param key
      * @param scope
      */
-    public constructor(key: string, scope: number) {
-        this.key = key;
+    public constructor(key: string | string[], scope: number) {
+        if (Array.isArray(key)) {
+            this.keys = key.map(v => v);
+            this.key = this.keys[0];
+        } else {
+            this.key = key;
+            this.keys = [key];
+        }
         this.scope = scope;
     }
 
@@ -294,6 +313,34 @@ class KVStore {
             }
         })
         .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    public multiGet(): XDPromise<Map<string, string>> {
+        // XXX TODO: replace with new API KvStoreService.multiGet
+        const result = new Map<string, string>();
+        const deferred: XDDeferred<Map<string, string>> = PromiseHelper.deferred();
+
+        // Create a promise list for every keys
+        const getKeys = this.keys.map((key) => {
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
+            const kvStore = new KVStore(key, this.scope);
+            kvStore.get()
+            .then((value) => {
+                result.set(key, value);
+            })
+            .always(() => {
+                deferred.resolve();
+            });
+            return deferred.promise();
+        });
+
+        // Run/Resolve the promises in batch
+        PromiseHelper.when(...getKeys)
+        .always(() => {
+            deferred.resolve(result);
+        });
 
         return deferred.promise();
     }
@@ -357,6 +404,43 @@ class KVStore {
             this.commitCheck(noCommitCheck)
             .then(function() {
                 return XcalarKeyPut(key, value, persist, scope, scopeInfo);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        }
+    }
+
+    /**
+     * multiPut
+     * @param values
+     * @param persist
+     * @param noCommitCheck
+     * @param scopeInfo
+     */
+    public multiPut(
+        values: string[],
+        persist: boolean,
+        noCommitCheck: boolean = false,
+        scopeInfo?:{userName:string, workbookName: string}
+    ): XDPromise<void> {
+        const scope: number = this.scope;
+        const kvMap: Map<string, string> = this.keys.reduce((map, key, index) => {
+            const value = values[index];
+            if (value != null) {
+                map.set(key, value);
+            }
+            return map;
+        }, new Map<string, string>());
+
+        if (noCommitCheck) {
+            return XcalarKeyMultiPut(kvMap, persist, scope, scopeInfo);
+        } else {
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
+            this.commitCheck(noCommitCheck)
+            .then(function() {
+                return XcalarKeyMultiPut(kvMap, persist, scope, scopeInfo);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);

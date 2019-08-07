@@ -1,4 +1,6 @@
 const expect = require('chai').expect;
+const { ErrorType } = require('xcalarsdk').Error;
+
 exports.testSuite = function(KVstoreService, KVSCOPE, STATUS,  SessionService, SessionSCOPE) {
     let newKey = new Set();
     let newKeyWorkbook = new Set();
@@ -171,6 +173,75 @@ exports.testSuite = function(KVstoreService, KVSCOPE, STATUS,  SessionService, S
                 console.log("addOrReplace() did not replace a exised key value successfully in global scope");
                 expect.fail(null, null, err.error);
             }
+        });
+
+        it("multiAddOrReplace() should not work in global scope", async function() {
+            const kvMap = new Map();
+            kvMap.set('multiadddrop/gtest', 'anyvalue');
+            let error = null;
+            try {
+                await KVstoreService.multiAddOrReplace({
+                    kvMap: kvMap, persist: false, kvScope: KVSCOPE.GLOBAL
+                });
+            } catch(err) {
+                error = err;
+            }
+
+            expect(error).to.not.be.null;
+            expect(error.type).to.equal(ErrorType.UNKNOWN); // This is thrown from client code(limitation of backend)
+        });
+
+        it("multiAddOrReplace() should work in workbook scope", async function() {
+            const keys = ['multiadddrop/gtest1', 'multiadddrop/gtest2'];
+            keys.forEach((key) => { newKeyWorkbook.add(key); });
+            const values1 = ['value1_1', 'value1_2']; // Initial values
+            const values2 = ['value2_1', 'value2_2']; // Modified values
+            const kvMap1 = keys.reduce((map, key, index) => {
+                map.set(key, values1[index]);
+                return map;
+            }, new Map());
+            const kvMap2 = keys.reduce((map, key, index) => {
+                map.set(key, values2[index]);
+                return map;
+            }, new Map());
+
+            let error = null;
+            let newResult = null;
+            let replaceResult = null;
+            try {
+                // New keys
+                await KVstoreService.multiAddOrReplace({
+                    kvMap: kvMap1, persist: false, kvScope: KVSCOPE.WORKBOOK, scopeInfo:scopeInfo
+                });
+                newResult = [];
+                for (const key of keys) {
+                    newResult.push(await KVstoreService.lookup({
+                        keyName: key, kvScope: KVSCOPE.WORKBOOK, scopeInfo: scopeInfo
+                    }));
+                }
+                // Replace
+                await KVstoreService.multiAddOrReplace({
+                    kvMap: kvMap2, persist: false, kvScope: KVSCOPE.WORKBOOK, scopeInfo:scopeInfo
+                });
+                replaceResult = [];
+                for (const key of keys) {
+                    replaceResult.push(await KVstoreService.lookup({
+                        keyName: key, kvScope: KVSCOPE.WORKBOOK, scopeInfo: scopeInfo
+                    }));
+                }
+            } catch(err) {
+                error = err;
+            }
+
+            expect(error).to.be.null;
+            // Check result of new keys
+            expect(newResult).to.not.be.null;
+            expect(newResult.length).to.equal(keys.length);
+            expect(newResult.map(v => v.value)).to.deep.equal(values1);
+            // Check result for replace
+            expect(replaceResult).to.not.be.null;
+            expect(replaceResult.length).to.equal(keys.length);
+            expect(replaceResult.map(v => v.value)).to.deep.equal(values2);
         });
 
         it("deleteKey() should delete an existed key in global scope", async function () {
@@ -354,12 +425,20 @@ exports.testSuite = function(KVstoreService, KVSCOPE, STATUS,  SessionService, S
         });
 
         after(async function() {
-            newKey.forEach(async function(val){
-                await KVstoreService.deleteKey({ keyName: val, kvScope:KVSCOPE.GLOBAL});
-            });
-            newKeyWorkbook.forEach(async function(val){
-                await KVstoreService.deleteKey({ keyName: val, kvScope:KVSCOPE.WORKBOOK, scopeInfo:scopeInfo});
-            });
+            for (const val of newKey) {
+                try {
+                    await KVstoreService.deleteKey({ keyName: val, kvScope:KVSCOPE.GLOBAL});
+                } catch {
+                    // Ignore the error and continue
+                }
+            }
+            for (const val of newKeyWorkbook) {
+                try {
+                    await KVstoreService.deleteKey({ keyName: val, kvScope:KVSCOPE.WORKBOOK, scopeInfo:scopeInfo});
+                } catch {
+                    // Ignore the error and continue
+                }
+            }
         });
     });
 }

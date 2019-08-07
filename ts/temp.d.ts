@@ -656,6 +656,12 @@ declare var XcalarResumeSched: any;
 declare var XcalarKeyLookup: any;
 declare var XcalarKeyList: any;
 declare var XcalarKeyPut: any;
+declare var XcalarKeyMultiPut: (
+    kvMap: Map<string, string>,
+    persist: boolean,
+    scope: number,
+    scopeInfo?: Xcrpc.KVStore.ScopeInfo
+) => XDPromise<void>;
 declare var XcalarKeyDelete: any;
 declare var XcalarKeySetIfEqual: any;
 declare var XcalarKeySetBothIfEqual: any;

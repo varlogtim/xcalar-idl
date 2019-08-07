@@ -336,6 +336,7 @@ namespace QueryManager {
                 canceledQueries[id] = queryLists[id];
             }
 
+            removeQueryFromStorage(queryLists[id]);
             delete queryLists[id];
             const $query:JQuery = $queryList.find('.query[data-id="' + id + '"]');
             if ($query.hasClass('active')) {
@@ -605,10 +606,10 @@ namespace QueryManager {
     /**
      * QueryManager.getCache
      */
-    export function getCache(): XcQueryDurable[] {
+    export function getCache(): { key: string, value: XcQueryDurable }[] {
         // used for saving query info for browser refresh
         // put minimal query properties into an array and order by start time
-        const queryObjs: XcQueryDurable[] = [];
+        const queryObjs: { key: string, value: XcQueryDurable }[] = [];
         let abbrQueryObj: XcQueryDurable;
         let key: string | number;
         const queryMap: object = {}; // we store queries into a map first to overwrite any
@@ -622,17 +623,70 @@ namespace QueryManager {
             }
         }
         for (const i in queryMap) {
-            queryObjs.push(queryMap[i]);
+            queryObjs.push({ key: i, value: queryMap[i] });
         }
-        queryObjs.sort(querySqlSorter);
+        queryObjs.sort(querySqlSorterWithValue);
         return queryObjs;
     };
+
+    /**
+     * Fetch/Parse queries from kvstore, and return the result
+     * @param extraQueries for backward compatible; it can be fetched from gInfo key
+     */
+    export function loadFromStorage(extraQueries?: XcQueryDurable[]): XDPromise<XcQueryDurable[]> {
+        // List all the query keys
+        return KVStore.list(getKvKeyPattern(), gKVScope.WKBK)
+        // Read all the keys
+        .then(({ keys }) => {
+            const kvstore = new KVStore(keys, gKVScope.WKBK);
+
+            return kvstore.multiGet()
+            .then((kvMap) => {
+                // Parse the values
+                const queries: Array<XcQueryDurable> = new Array();
+                for (const content of kvMap.values()) {
+                    try {
+                        queries.push(JSON.parse(content));
+                    } catch {
+                        // Do nothing, just skip the invalid value
+                    }
+                }
+                // Concat with extra list passed in argument
+                // The extra list is read from gInfo(for backward compatible)
+                if (extraQueries != null) {
+                    for (const query of extraQueries) {
+                        queries.push(query);
+                    }
+                }
+                return queries;
+            });
+        })
+    }
+
+    export function commit(): XDPromise<void> {
+        const kvPrefix = getKvKeyPrefix();
+
+        // Add/Update queries
+        // Create lists of keys and values, which have the same order
+        const valueList: string[] = [];
+        const keyList: string[] = [];
+        getCache().forEach(({ key, value }) => {
+            valueList.push(JSON.stringify(value));
+            keyList.push(`${kvPrefix}/${key}`);
+        });
+        // Update kvstore
+        const kvstore = new KVStore(keyList, gKVScope.WKBK);
+        return kvstore.multiPut(valueList, true);
+    }
 
     /**
      * QueryManager.restore
      * @param queries
      */
-    export function restore(queries: XcQueryDurable[]): void {
+    export function restore(queriesUnsorted: XcQueryDurable[]): void {
+        const queries = queriesUnsorted.concat([]);
+        queries.sort(querySqlSorter);
+
         QueryManager.toggleSysOps(UserSettings.getPref("hideSysOps"));
         if (!queries) {
             return;
@@ -769,6 +823,13 @@ namespace QueryManager {
         return query.getIndexTables();
     };
 
+    function getKvKeyPrefix(): string {
+        return KVStore.getKey("gQueryListPrefix");
+    }
+
+    function getKvKeyPattern(): string {
+        return `^${getKvKeyPrefix()}/.+`;
+    }
 
     /**
      * used to split query into array of subqueries by semicolons
@@ -799,7 +860,16 @@ namespace QueryManager {
         }
     }
 
-        /**
+    function removeQueryFromStorage(xcQuery: XcQuery): XDPromise<void> {
+        if (xcQuery == null) {
+            return PromiseHelper.resolve();
+        }
+        const [_, key] = xcQuery.getDurable();
+        const kvstore = new KVStore(`${getKvKeyPrefix()}/${key}`, gKVScope.WKBK);
+        return kvstore.delete();
+    }
+
+    /**
      *
      * @param str
      */
@@ -2098,6 +2168,10 @@ namespace QueryManager {
                 }
             });
         }
+    }
+
+    function querySqlSorterWithValue(a, b): number {
+        return querySqlSorter(a.value, b.value);
     }
 
     function querySqlSorter(a, b): number {

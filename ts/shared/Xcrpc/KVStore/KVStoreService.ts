@@ -53,6 +53,8 @@ class KVStoreService {
         }
     }
 
+    // This will be replaced by multiAddOrReplace
+    // But multiAddOrReplace doesn't support global scope for now
     public async addOrReplace(param: {
         key: string, value: string, persist: boolean, kvScope: number,
         scopeInfo?: KvScopeInfo
@@ -78,6 +80,51 @@ class KVStoreService {
             await kvService.addOrReplace(request);
         } catch (e) {
             this._parseError(e, "addOrReplace");
+        }
+    }
+
+    /**
+     * Add/Replace multiple keys.
+     * !!! It doesn't support global scope for now !!!
+     * @param param
+     */
+    public async multiAddOrReplace(param: {
+        kvMap: Map<string, string>, persist: boolean,
+        kvScope: number, scopeInfo?: KvScopeInfo
+    }): Promise<void> {
+        try {
+            // Destruct arguments
+            const { kvMap, persist, kvScope, scopeInfo } = param;
+            const keyList: Array<string> = [];
+            const valueList: Array<string> = [];
+            kvMap.forEach((value, key) => {
+                keyList.push(key);
+                valueList.push(value);
+            });
+
+            // Limitation: only support wb scope for now, should be removed later
+            if (kvScope === KVSCOPE.GLOBAL) {
+                throw new Error('global scope multiAddOrReplace not supported');
+            }
+
+            // Create reqeust object
+            const request = new ProtoTypes.KvStore.MultiAddOrReplaceRequest();
+            request.setKeysList(keyList);
+            request.setValuesList(valueList.map((value) => {
+                const vObj = new ProtoTypes.KvStore.KeyValue();
+                vObj.setText(value);
+                return vObj;
+            }));
+            request.setPersist(persist);
+            request.setScope(createScopeMessage({
+                scope: kvScope, scopeInfo: scopeInfo
+            }));
+
+            // Call the service api
+            const kvService = new ApiKVStore(this._apiClient);
+            await kvService.multiAddOrReplace(request);
+        } catch(e) {
+            this._parseError(e, 'multiAddOrReplace');
         }
     }
 
