@@ -245,6 +245,7 @@ module.exports = {
             browser.executeNode(".operator.publishIMD");
             testConfig.IMDNames = ["PUBTESTE2E"];
             browser
+            .pause(2000) // don't know why but need to wait for modalbackground to fade out
             .click("#dataStoresTab")
             .click("#sourceTblButton")
             .click("#datastoreMenu .table .iconSection .refresh")
@@ -289,9 +290,6 @@ module.exports = {
                     .setValue("#IMDTableOpPanel .pubTableInput", input.source)
                     .moveToElement("#pubTableList li:not(.xc-hidden)", 2, 2)
                     .mouseButtonUp("left")
-                    .click("#IMDTableOpPanel .bottomSection .switch")
-                    .waitForElementVisible("#IMDTableOpPanel .advancedEditor", 1000)
-                    .click("#IMDTableOpPanel .next")
                     .submitAdvancedPanel("#IMDTableOpPanel", JSON.stringify(input, null, 4));
             });
 

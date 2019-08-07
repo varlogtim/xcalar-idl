@@ -51,8 +51,9 @@ function replay(testConfig, tags) {
         'new tabs': function(browser) {
             browser.waitForElementNotVisible("#initialLoadScreen", 100000);
             // close intro popup if visible
-            browser.isVisible("#intro-popover", results => {
-                if (results.value) {
+
+            browser.isPresent("#intro-popover", (isPresent) => {
+                if (isPresent) {
                     browser.click("#intro-popover .cancel");
                     browser.pause(1000);
                 }
