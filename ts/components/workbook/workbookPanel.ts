@@ -98,10 +98,15 @@ namespace WorkbookPanel {
             }
         });
 
-        // this is to fix the issue when scroll, status box will be off position
         $workbookPanel.find(".mainContent").on("scroll", function() {
             if ($workbookPanel.is(":visible")) {
+                // this is to fix the issue when scroll, status box will be off position
                 StatusBox.forceHide();
+            }
+
+            if ($wkbkMenu.is(":visible")) {
+                // This closes the workbook menu when scrolling
+                xcMenu.close();
             }
         });
     };
