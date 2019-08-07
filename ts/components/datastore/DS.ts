@@ -2202,7 +2202,7 @@ namespace DS {
     }
 
     function focusOnForm(): void {
-        DSForm.show(false);
+        DataSourceManager.startImport(false);
     }
 
     function restoreDS(

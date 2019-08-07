@@ -300,6 +300,10 @@ window.TestSuite = (function($, TestSuite) {
             var self = this;
             var deferred = PromiseHelper.deferred();
             $("#importDataButton").click(); // button to initiate import dataset
+            if ($("#dsForm-source").is(":visible")) {
+                // cloud version have this extra step
+                $("#dsForm-source .more").click();
+            }
             $("#dsForm-target input").val(gDefaultSharedRoot);
             $("#filePath").val(url);
             $("#dsForm-path").find(".confirm").click(); // go to the next step

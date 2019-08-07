@@ -229,6 +229,12 @@ class TblSourcePreview {
         }
 
         this._getInfoSection().html(html);
+
+        if (isLoading) {
+            DataSourceManager.switchStep(DataSourceManager.ImportSteps.Result);
+        } else {
+            DataSourceManager.switchStep(null);
+        }
     }
 
     private _getNextStepButton(): HTML {

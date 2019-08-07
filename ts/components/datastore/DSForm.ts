@@ -4,35 +4,12 @@ namespace DSForm {
     let historyPathsSet = {};
 
     /**
-     * DSForm.View
-     */
-    export enum View {
-        "Path" = "DSForm",
-        "Browser" = "FileBrowser",
-        "Preview" = "DSPreview"
-    };
-
-    /**
      * DSForm.setup
      */
     export function setup(): void {
         $pathCard = $("#dsForm-path");
         $filePath = $("#filePath");
-
         setupPathCard();
-        DSPreview.setup();
-        FileBrowser.setup();
-
-        // click to go to form section
-        $("#datastoreMenu .iconSection .import").click(function() {
-            let $btn = $(this);
-            $btn.blur();
-            let createTableMode: boolean = $btn.hasClass("createTable");
-            DSForm.show(createTableMode);
-            xcTooltip.transient($("#filePath"), {
-                "title": TooltipTStr.Focused
-            }, 800);
-        });
     }
 
     /**
@@ -47,50 +24,10 @@ namespace DSForm {
 
     /**
      * DSForm.show
-     * @param createTableMode
      */
-    export function show(createTableMode?: boolean): void {
-        if (createTableMode != null) {
-            DSPreview.setMode(createTableMode);
-        }
-        DSForm.switchView(DSForm.View.Path);
+    export function show(): void {
+        DataSourceManager.switchView(DataSourceManager.View.Path);
         $filePath.focus();
-    }
-
-    /**
-     * DSForm.switchView
-     */
-    export function switchView(view: DSForm.View): void {
-        let $cardToSwitch: JQuery = null;
-        let wasInPreview = !$("#dsForm-preview").hasClass("xc-hidden");
-        switch (view) {
-            case DSForm.View.Path:
-                $cardToSwitch = $pathCard;
-                break;
-            case DSForm.View.Browser:
-                $cardToSwitch = $("#fileBrowser");
-                break;
-            case DSForm.View.Preview:
-                $cardToSwitch = $("#dsForm-preview");
-                break;
-            default:
-                console.error("invalid view");
-                return;
-        }
-
-        if (wasInPreview) {
-            DSPreview.cancelLaod();
-        }
-
-        $cardToSwitch.removeClass("xc-hidden")
-        .siblings().addClass("xc-hidden");
-
-        let $dsFormView = $("#dsFormView");
-        if (!$dsFormView.is(":visible")) {
-            $dsFormView.removeClass("xc-hidden");
-            DSTable.hide();
-            TblSourcePreview.Instance.close();
-        }
     }
 
     /**

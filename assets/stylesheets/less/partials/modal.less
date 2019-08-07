@@ -1338,6 +1338,42 @@
     }
 }
 
+#s3ConfigModal {
+    width: 710px;
+    height: 375px;
+
+    .modalMain {
+        height: ~"calc(100% - 92px)";
+        padding: 25px;
+    }
+
+    .xc-loadView {
+        width: 100%;
+        height: 100%;
+
+        .animatedEllipsisWrapper {
+            height: 30px;
+            width: 100px;
+            .center-align;
+        }
+    }
+
+    .formRow {
+        .flex-display;
+        height: 30px;
+        line-height: 30px;
+        margin-bottom: 13px;
+
+        label {
+            .flex(0 0 140px);
+        }
+
+        input {
+            .flex(1 1 auto);
+        }
+    }
+}
+
 html.microsoft {
     #leftJoin, #rightJoin {
         .flex(none) !important;
@@ -4054,8 +4090,6 @@ html.microsoft {
 #tooltipModal {
     // XXX TODO: Revisit this UI with Maggie once more than two walkthroughs exist.
     .size(@width: 400px, @height: 200px);
-    border: 1px solid @color-border-softGray;
-
 
     .modalMain {
         padding: 0;

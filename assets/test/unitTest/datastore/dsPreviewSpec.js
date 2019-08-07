@@ -2664,7 +2664,7 @@ describe("Dataset-DSPreview Test", function() {
                 "skipRows": 1
             });
             // selection of range needs it to be visible
-            DSForm.switchView(DSForm.View.Preview);
+            DataSourceManager.switchView(DataSourceManager.View.Preview);
         });
 
         it("should apply highligher", function() {
@@ -2856,11 +2856,11 @@ describe("Dataset-DSPreview Test", function() {
             });
             var $button = $form.find(".cancel");
             var oldGetLicense = XVM.getLicenseMode;
-            var oldForm = DSForm.show;
+            var oldForm = DataSourceManager.startImport;
             var oldFileBrowser = FileBrowser.show;
             var test1 = test2 = false;
 
-            DSForm.show = function() { test1 = true; };
+            DataSourceManager.startImport = function() { test1 = true; };
             FileBrowser.show = function() { test2 = true; };
 
             // case 1
@@ -2886,7 +2886,7 @@ describe("Dataset-DSPreview Test", function() {
             expect(test2).to.be.true;
 
             XVM.getLicenseMode = oldGetLicense;
-            DSForm.show = oldForm;
+            DataSourceManager.startImport = oldForm;
             FileBrowser.show = oldFileBrowser;
         });
 

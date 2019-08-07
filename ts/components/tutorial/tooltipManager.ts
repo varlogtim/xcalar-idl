@@ -284,8 +284,11 @@ namespace TooltipManager {
         }
         switch(interact_div) {
             case (hardcodedInteractives.DatasetCreateTablePanel):
+                DataSourceManager.startImport(false);
+                MainMenu.open(true);
+                break;
             case (hardcodedInteractives.SQLCreateTablePanel):
-                DSForm.show();
+                DataSourceManager.startImport(true);
                 MainMenu.open(true);
                 break;
             default:

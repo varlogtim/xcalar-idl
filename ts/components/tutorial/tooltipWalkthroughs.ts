@@ -3,14 +3,11 @@ namespace TooltipWalkthroughs {
     let seenDataflow = false;
     let SQLModeName = "SQL Mode";
     let ADVModeName = "Dataflow Mode";
-    let WorkbookTutorialName = "Tutorial Workbook Walkthrough";
     let storedWorkbookWalkthrough: {info: WalkthroughInfo, walkthrough: TooltipInfo[], options: any};
-    let tempName = "Temporary Walkthrough";
     let storedTempWalkthrough: {info: WalkthroughInfo, walkthrough: TooltipInfo[], options: any};
 
     // TODO: Add flight tests for whenever this file has added walkthroughs.
-
-    function readWalkthrough(file: File) {
+    function readWalkthrough(file: File): XDPromise<any> {
         if (file == null) {
             return PromiseHelper.reject();
         }
@@ -131,116 +128,143 @@ namespace TooltipWalkthroughs {
         );
     }
 
-
     export function SQLModeWalkthrough(): void {
         // NOTE: If this is changed, please change the associated unit test
-        TooltipManager.start({
+        // at tooltipFLightSpec.js
+        let cloudSteps: TooltipInfo[] = [{
+            highlight_div: "#dsForm-source .location.file",
+            interact_div: "#dsForm-source .location.file",
+            text: "The Import file section enables you to upload a file as data source",
+            type: TooltipType.Text
+        }, {
+            highlight_div: "#dsForm-source .location.s3",
+            interact_div: "#dsForm-source .location.s3",
+            text: "The Amazon S3 Location section enables you to select a s3 bucket as data source",
+            type: TooltipType.Text
+        }, {
+            highlight_div: "#dsForm-source .location.database",
+            interact_div: "#dsForm-source .location.database",
+            text: "The Database Location section enables you to select a database as data source",
+            type: TooltipType.Text
+        }, {
+            highlight_div: "#dsForm-source .more",
+            interact_div: "#dsForm-source .more",
+            text: "Click the More Connectores button enables you to select more advacned connectors to connect your data source",
+            type: TooltipType.Text
+        }];
+
+        let onPremSteps: TooltipInfo[] = [{
+            highlight_div: "#dsForm-path .cardMain",
+            text: "This panel enables you to locate your data.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: "#dsForm-target",
+            text: "Choose a connector to access your data. Connectors must be created before data can be imported from them.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: "#filePath",
+            text: "Enter the path to your data source for the selected connector.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: "#dsForm-path .cardMain .browse",
+            text: "This button enables you to locate your data source for the associated connector.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: "#dsForm-path .btn-submit",
+            text: "This button enables you to preview the data source.",
+            type: TooltipType.Text,
+        },
+        {
+            highlight_div: "#dsForm-path",
+            text: "After importing, your data will be previewable within this panel." +
+            " It can then be queried within the SQL Workspace.",
+            type: TooltipType.Text
+        }];
+
+        let dataStoreSteps: TooltipInfo[] = XVM.isCloud() ? cloudSteps : onPremSteps;
+        let steps: TooltipInfo[] = [{
+            highlight_div: "#homeBtn",
+            text: "Welcome to Xcalar Design. This tooltip walkthrough will familiarize " +
+            "you with some of the UI for Xcalar Design's SQL Mode.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: "#menuBar",
+            text: "The sidebar enables you to access various features within Xcalar Design.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: "#dataStoresTab",
+            text: "The Sources icon enables you to create connectors, and import data as a dataset or table.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: "#sqlTab",
+            text: "The SQL Workspace icon enables you to apply SQL to manipulate your data and create data models.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: "#monitorTab",
+            text: "The System icon provides tools for monitoring, managing, and troubleshooting the Xcalar cluster.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: "#dataStoresTab",
+            interact_div: "#dataStoresTab .mainTab",
+            text: "Let's get started with importing a table. Click the Sources icon to open it.",
+            type: TooltipType.Click
+        },
+        {
+            highlight_div: "#sourceTblButton",
+            interact_div: "#sourceTblButton",
+            text: "Click the Tables icon to manage and create new tables.",
+            type: TooltipType.Click
+        },
+        ...dataStoreSteps, // insert datastore steps
+        {
+            highlight_div: "#sqlWorkSpace",
+            interact_div: "#sqlWorkSpace",
+            text: "Click the SQL Workspace icon to start working in SQL.",
+            type: TooltipType.Click,
+        },
+        {
+            highlight_div: "#sqlEditorSpace",
+            text: "The SQL Editor is where you can write, modify, and execute SQL Query Statements.",
+            type: TooltipType.Text,
+        },
+        {
+            highlight_div: "#sqlTableListerArea",
+            text: "The Preview section enables you to view information about your tables and results.",
+            type: TooltipType.Text,
+        },
+        {
+            highlight_div: "#sqlWorkSpacePanel .historySection",
+            text: "The History section provides detail about past SQL executions.",
+            type: TooltipType.Text,
+        },
+        {
+            highlight_div: "#bottomMenuBarTabs",
+            interact_div: "#bottomMenuBarTabs #helpMenuTab.sliderBtn",
+            text: "Click the Help icon to get help and support.",
+            type: TooltipType.Click
+        },
+        {
+            highlight_div: "#tutorialResource",
+            text: " This concludes the tour of the SQL Mode UI. " +
+            "To get more hands-on, you can view the tutorial workbooks.",
+            type: TooltipType.Text
+        }];
+        TooltipManager.start(
+            {
                 tooltipTitle: "SQL Mode",
                 background: true,
                 startScreen: TooltipStartScreen.SQLWorkspace
             },
-            [{
-                highlight_div: "#homeBtn",
-                text: "Welcome to Xcalar Design. This tooltip walkthrough will familiarize " +
-                "you with some of the UI for Xcalar Design's SQL Mode.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#menuBar",
-                text: "The sidebar enables you to access various features within Xcalar Design.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#dataStoresTab",
-                text: "The Sources icon enables you to create connectors, and import data as a dataset or table.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#sqlTab",
-                text: "The SQL Workspace icon enables you to apply SQL to manipulate your data and create data models.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#monitorTab",
-                text: "The System icon provides tools for monitoring, managing, and troubleshooting the Xcalar cluster.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#dataStoresTab",
-                interact_div: "#dataStoresTab .mainTab",
-                text: "Let's get started with importing a table. Click the Sources icon to open it.",
-                type: TooltipType.Click
-            },
-            {
-                highlight_div: "#sourceTblButton",
-                interact_div: "#sourceTblButton",
-                text: "Click the Tables icon to manage and create new tables.",
-                type: TooltipType.Click
-            },
-            {
-                highlight_div: "#dsForm-path .cardMain",
-                text: "This panel enables you to locate your data.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#dsForm-target",
-                text: "Choose a connector to access your data. Connectors must be created before data can be imported from them.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#filePath",
-                text: "Enter the path to your data source for the selected connector.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#dsForm-path .cardMain .browse",
-                text: "This button enables you to locate your data source for the associated connector.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#dsForm-path .btn-submit",
-                text: "This button enables you to preview the data source.",
-                type: TooltipType.Text,
-            },
-            {
-                highlight_div: "#dsForm-path",
-                text: "After importing, your data will be previewable within this panel." +
-                " It can then be queried within the SQL Workspace.",
-                type: TooltipType.Text
-            },
-            {
-                highlight_div: "#sqlWorkSpace",
-                interact_div: "#sqlWorkSpace",
-                text: "Click the SQL Workspace icon to start working in SQL.",
-                type: TooltipType.Click,
-            },
-            {
-                highlight_div: "#sqlEditorSpace",
-                text: "The SQL Editor is where you can write, modify, and execute SQL Query Statements.",
-                type: TooltipType.Text,
-            },
-            {
-                highlight_div: "#sqlTableListerArea",
-                text: "The Preview section enables you to view information about your tables and results.",
-                type: TooltipType.Text,
-            },
-            {
-                highlight_div: "#sqlWorkSpacePanel .historySection",
-                text: "The History section provides detail about past SQL executions.",
-                type: TooltipType.Text,
-            },
-            {
-                highlight_div: "#bottomMenuBarTabs",
-                interact_div: "#bottomMenuBarTabs #helpMenuTab.sliderBtn",
-                text: "Click the Help icon to get help and support.",
-                type: TooltipType.Click
-            },
-            {
-                highlight_div: "#tutorialResource",
-                text: " This concludes the tour of the SQL Mode UI. " +
-                "To get more hands-on, you can view the tutorial workbooks.",
-                type: TooltipType.Text
-            }],
+            steps,
             0,
             {
                 closeOnModalClick: true,
@@ -251,6 +275,7 @@ namespace TooltipWalkthroughs {
 
     export function AdvModeWalkthrough(): void {
         // NOTE: If this is changed, please change the associated unit test
+        // at tooltipFLightSpec.js
         TooltipManager.start({
                 tooltipTitle: "Dataflow Mode",
                 background: true,

@@ -50,9 +50,6 @@ namespace XVM {
             licensee = license.licensee;
             compressedLicense = license.compressedLicense;
 
-            // XXX TODO: make it to work
-            license.cloud = true;
-            cloud = license.cloud || false
             if (license.isExpired) {
                 console.log(license);
                 const error: string = xcStringHelper.replaceMsg(ErrTStr.LicenseExpire, {
@@ -228,6 +225,8 @@ namespace XVM {
      * XVM.isCloud
      */
     export function isCloud(): boolean {
+        // XXX enable cloud for 2.2 dev work
+        cloud = true
         return cloud;
     }
 

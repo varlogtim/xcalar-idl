@@ -38,28 +38,6 @@ describe("Dataset-DSForm Test", function() {
             DSForm.__testOnly__.resetForm();
             expect($filePath.val()).to.be.empty;
         });
-
-        it("should switch view", function() {
-            // error case
-            DSForm.switchView(null);
-            assert.isTrue($pathCard.is(":visible"));
-
-            var tests = [{
-                "view": DSForm.View.Browser,
-                "$ele": $("#fileBrowser")
-            }, {
-                "view": DSForm.View.Preview,
-                "$ele": $("#dsForm-preview")
-            }, {
-                "view": DSForm.View.Path,
-                "$ele": $pathCard
-            }];
-
-            tests.forEach(function(test) {
-                DSForm.switchView(test.view);
-                assert.isTrue(test.$ele.is(":visible"));
-            });
-        });
     });
 
     describe("Inner getter and setter test", function() {

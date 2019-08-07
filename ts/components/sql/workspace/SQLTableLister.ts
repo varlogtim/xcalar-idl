@@ -457,7 +457,7 @@ class SQLTableLister extends AbstractSQLResultView {
         $mainContent.on("click", ".createTable", (event) => {
             $(event.currentTarget).blur();
             MainMenu.openPanel("datastorePanel", "sourceTblButton");
-            DSForm.show(true);
+            DataSourceManager.startImport(true);
         });
 
         $mainContent.on("click", ".name span", (event) => {

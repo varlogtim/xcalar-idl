@@ -349,7 +349,7 @@ class TblSource {
     }
 
     private _focusOnForm(): void {
-        DSForm.show(true);
+        DataSourceManager.startImport(true);
     }
 
     private _reFocusOnTable(tableName: string): void {

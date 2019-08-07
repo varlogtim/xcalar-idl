@@ -41,6 +41,11 @@ describe("Datastore-DSTargetManger Test", function() {
             expect(res).to.be.false;
         });
 
+        it("DSTargetManager.getS3Targets should work", function() {
+            let res = DSTargetManager.getS3Targets();
+            expect(res).to.be.an("array");
+        });
+
         it("DSTargetManager.getTargetTypeList should work", function(done) {
             var $targetTypeList = $("#dsTarget-type");
             $targetTypeList.find("ul").empty();
@@ -53,6 +58,94 @@ describe("Datastore-DSTargetManger Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+
+        it("DSTargetManager.renderS3Config should work", function() {
+            let html = DSTargetManager.renderS3Config();
+            // has 5 formRow
+            expect(html.split("formRow").length).to.equal(6);
+        });
+    });
+
+    describe("Create S3 Target Test", function() {
+        let oldStatus;
+
+        before(function() {
+            oldStatus = StatusBox.show;
+            StatusBox.show = () => {};
+        });
+
+        it("should fail with invalid name", function(done) {
+            let $name = $('<input value="">');
+            DSTargetManager.createS3Target($name, $(), $())
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.undefined;
+                done();
+            });
+        });
+
+        it("should fail with params", function(done) {
+            let name = xcHelper.randName("test");
+            let $name = $('<input value="' + name + '">');
+            let $params = $('<div>' +
+                                '<div class="formRow">' +
+                                    '<input value="">' +
+                                '</div>' +
+                            '</div>');
+            $("#container").append($params);
+
+            DSTargetManager.createS3Target($name, $params, $())
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.undefined;
+                done();
+            })
+            .always(function() {
+                $params.remove();
+            });
+        });
+
+        it("should create target", function(done) {
+            let name = xcHelper.randName("test");
+            let $name = $('<input value="' + name + '">');
+            let $params = $('<div>' +
+                                '<div class="formRow">' +
+                                    '<input value="arg">' +
+                                '</div>' +
+                            '</div>');
+            $("#container").append($params);
+            let oldCreate = XcalarTargetCreate;
+            let oldRefresh = DSTargetManager.refreshTargets;
+            let called = false;
+            XcalarTargetCreate = () => {
+                called = true;
+                return PromiseHelper.resolve();
+            };
+            DSTargetManager.refreshTargets = () => PromiseHelper.resolve();
+
+            DSTargetManager.createS3Target($name, $params, $())
+            .then(function(targetName) {
+                expect(called).to.be.true;
+                expect(targetName).to.equal(name);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarTargetCreate = oldCreate;
+                DSTargetManager.refreshTargets = oldRefresh;
+                $params.remove();
+            });
+        });
+
+        after(function() {
+            StatusBox.show = oldStatus;
         });
     });
 

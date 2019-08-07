@@ -9,6 +9,11 @@ describe("Dataset-DS Test", function() {
     var user;
     var oldKVPut;
 
+    var verifyCurrentNum = (testNum) => {
+        var currentNum = Number($(".numDataStores").eq(0).text());
+        expect(currentNum).to.equal(testNum);
+    };
+
     before(function(done){
         UnitTest.onMinMode();
         console.clear();

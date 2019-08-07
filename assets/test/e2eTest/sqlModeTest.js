@@ -126,6 +126,7 @@ module.exports = {
                     .click(".import.createTable")
                     .clearValue("#filePath")
                     .setValue("#filePath", query.path + fileName)
+                    .click("#dsForm-source .more") // in case it's a cloud version, go to the dsForm card
                     .click("#dsForm-path .confirm")
                     .waitForElementVisible("#dsForm-tblSchema .xc-textArea", 100000)
                     .execute(() => {

@@ -5,12 +5,33 @@ class DataSourceManager {
     private static _isMenOpen: boolean;
 
     /**
+     * DataSourceManager.View
+     */
+    public static View =  {
+        "Source": "DSSource",
+        "S3": "S3Config",
+        "Path": "DSForm",
+        "Browser": "FileBrowser",
+        "Preview": "DSPreview"
+    };
+
+    public static ImportSteps = {
+        "Source": "source",
+        "Preview": "preview",
+        "Result": "result"
+    };
+
+    /**
      * DataSourceManager.setup
      */
     public static setup(): void {
         DS.setup();
         this._setupViews();
+        DSSource.setup();
         DSForm.setup();
+        DSS3Config.setup();
+        DSPreview.setup();
+        FileBrowser.setup();
         DSTable.setup();
         DSTargetManager.setup();
         this._setupMenus();
@@ -20,6 +41,102 @@ class DataSourceManager {
         // restore list view if saved and ellipsis the icon
         let preference: boolean = UserSettings.getPref('datasetListView');
         this._toggleViewDisplay(preference, true);
+        DataSourceManager.startImport(XVM.isSQLMode());
+    }
+
+    /**
+     * DataSourceManager.setMode
+     * update the source panel top bar's text
+     * @param createTableMode
+     */
+    public static setMode(createTableMode: boolean): void {
+        if (createTableMode != null) {
+            DSPreview.setMode(createTableMode);
+            let $topBar = $("#datastore-in-view-topBar");
+            if (createTableMode) {
+                $topBar.find(".tab.result").text("Table");
+            } else {
+                $topBar.find(".tab.result").text("Dataset");
+            }
+        }
+    }
+
+    /**
+     * DataSourceManager.startImport
+     * show the first step import screen
+     * @param createTableMode
+     */
+    public static startImport(createTableMode: boolean): void {
+        DataSourceManager.setMode(createTableMode);
+        DSSource.show();
+    }
+
+    /**
+     * DataSourceManager.switchStep
+     * update the source panel top bar's active tab
+     * @param step
+     */
+    public static switchStep(step: string | null): void {
+        let $panel = $("#datastore-in-view");
+        let $topBar = $("#datastore-in-view-topBar");
+        $topBar.find(".tab").removeClass("active");
+        if (step) {
+            $panel.addClass("import");
+            $topBar.find(".tab." + step).addClass("active");
+        } else {
+            $panel.removeClass("import");
+        }
+    }
+
+    /**
+     * DataSourceManager.switchView
+     */
+    public static switchView(view: string): void {
+        let $cardToSwitch: JQuery = null;
+        let wasInPreview = !$("#dsForm-preview").hasClass("xc-hidden");
+        let step = null;
+
+        switch (view) {
+            case DataSourceManager.View.Source:
+                $cardToSwitch = $("#dsForm-source");
+                step = DataSourceManager.ImportSteps.Source;
+                break;
+            case DataSourceManager.View.S3:
+                step = DataSourceManager.ImportSteps.Source;
+                $cardToSwitch = $("#dsForm-s3Config");
+                break;
+            case DataSourceManager.View.Path:
+                step = DataSourceManager.ImportSteps.Source;
+                $cardToSwitch = $("#dsForm-path");
+                break;
+            case DataSourceManager.View.Browser:
+                step = DataSourceManager.ImportSteps.Source;
+                $cardToSwitch = $("#fileBrowser");
+                break;
+            case DataSourceManager.View.Preview:
+                step = DataSourceManager.ImportSteps.Preview;
+                $cardToSwitch = $("#dsForm-preview");
+                break;
+            default:
+                console.error("invalid view");
+                return;
+        }
+
+        if (wasInPreview) {
+            DSPreview.cancelLaod();
+        }
+
+        $cardToSwitch.removeClass("xc-hidden")
+        .siblings().addClass("xc-hidden");
+
+        let $dsFormView = $("#dsFormView");
+        if (!$dsFormView.is(":visible")) {
+            $dsFormView.removeClass("xc-hidden");
+            DSTable.hide();
+            TblSourcePreview.Instance.close();
+        }
+
+        DataSourceManager.switchStep(step);
     }
 
     /**
@@ -127,6 +244,14 @@ class DataSourceManager {
 
             this._toggleViewDisplay(isListView, false);
         });
+
+        // set up the import button
+        $("#datastoreMenu .iconSection .import").click(function() {
+            let $btn = $(this);
+            $btn.blur();
+            let createTableMode: boolean = $btn.hasClass("createTable");
+            DataSourceManager.startImport(createTableMode);
+        });
     }
 
     // toggle between list view and grid view
@@ -179,7 +304,7 @@ class DataSourceManager {
         DS.resize();
 
         if (wasInTableScreen) {
-            DSForm.show(false);
+            DataSourceManager.startImport(false);
         }
     }
 
@@ -199,7 +324,7 @@ class DataSourceManager {
         }
 
         if (wasInDatasetScreen) {
-            DSForm.show(true);
+            DataSourceManager.startImport(true);
         }
     }
 

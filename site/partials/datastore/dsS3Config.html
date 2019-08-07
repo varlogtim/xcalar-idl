@@ -1,0 +1,36 @@
+<div id="dsForm-s3Config" class="cardContainer xc-hidden">
+  <div class="cardInstruction oneLine">
+    <i class="icon xi-info-circle"></i>
+    <div class="text">
+      <span>Select a S3 bucket</span>
+    </div>
+  </div>
+  <div class="cardMain">
+    <div class="content target">
+      <label>S3 Bucket:</label>
+      <!-- s3 bucket dropdown -->
+      <div class="dropDownList bucket">
+        <input class="text" type="text" placeholder="Select a S3 bucket" spellcheck="false" disabled>
+        <div class="iconWrapper">
+          <i class="icon xi-arrow-down"></i>
+        </div>
+        <!-- s3 bucket Menu -->
+        <div class="list">
+          <ul></ul>
+          include "../../util/menuScrollArea.html"
+        </div>
+      </div>
+    </div>
+    <div class="content path">
+      <label>File Path:</label>
+      <div class="dropDownList">
+        <input type="text" spellcheck="false">
+      </div>
+      <!-- <button class="btn btn-secondary browse" type="button"><%= dicts.common.Browse %>...</button> -->
+    </div>
+  </div>
+  <div class="cardBottom">
+    <button class="btn btn-submit confirm"><%= dicts.common.Next %></button>
+    <button class="btn btn-clear cancel"><%= dicts.common.Clear %></button>
+  </div>
+</div>

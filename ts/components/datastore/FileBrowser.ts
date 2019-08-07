@@ -164,7 +164,7 @@ namespace FileBrowser {
         }
         setMode();
         updateActiveFileInfo(null);
-        DSForm.switchView(DSForm.View.Browser);
+        DataSourceManager.switchView(DataSourceManager.View.Browser);
 
         addKeyBoardEvent();
         addResizeEvent();

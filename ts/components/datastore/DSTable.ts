@@ -31,7 +31,7 @@ class DSTable {
             // error case
             return;
         }
-        this._showTableView(dsId);
+        this._showTableView(dsId, false);
         this._updateTableInfoDisplay(dsObj, false, false);
         this._setupViewAfterError(error, isFetchError, noRetry, isImportError);
     }
@@ -51,7 +51,7 @@ class DSTable {
         let viewer = this._newViewer(dsObj);
         let notLastDSError: string = "not last ds";
 
-        this._showTableView(dsId);
+        this._showTableView(dsId, isLoading);
         // update date part of the table info first to make UI smooth
         this._updateTableInfoDisplay(dsObj, true, false);
 
@@ -319,10 +319,15 @@ class DSTable {
         return viewer;
     }
 
-    private static _showTableView(dsId: string): void {
+    private static _showTableView(dsId: string, isLoading: boolean): void {
         this._getDSTableViewEl().removeClass("xc-hidden");
         this._getContainer().data("id", dsId);
         DSForm.hide();
+        if (isLoading) {
+            DataSourceManager.switchStep(DataSourceManager.ImportSteps.Result);
+        } else {
+            DataSourceManager.switchStep(null);
+        }
     }
 
     private static _resetLoading(): void {

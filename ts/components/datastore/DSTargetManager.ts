@@ -1,6 +1,7 @@
 namespace DSTargetManager {
     let targetSet = {};
     let typeSet = {};
+    let hasLoadTypeList: boolean;
     let $gridView: JQuery;
     let $targetCreateCard: JQuery;
     let $targetInfoCard: JQuery;
@@ -11,6 +12,7 @@ namespace DSTargetManager {
     let udfFuncListItems: string;
     let udfModuleHint: InputDropdownHint;
     let udfFuncHint: InputDropdownHint;
+    const s3Target: string = "s3fullaccount";
 
     /**
      * DSTargetManager.setup
@@ -20,6 +22,7 @@ namespace DSTargetManager {
         $targetCreateCard = $("#dsTarget-create-card");
         $targetInfoCard = $("#dsTarget-info-card");
         $targetTypeList = $("#dsTarget-type");
+        hasLoadTypeList = false;
 
         addEventListeners();
         setupGridMenu();
@@ -156,7 +159,10 @@ namespace DSTargetManager {
     /**
      * DSTargetManager.getTargetTypeList
      */
-    export function getTargetTypeList(): XDPromise<void> {
+    export function getTargetTypeList(useCache?: boolean): XDPromise<void> {
+        if (useCache && hasLoadTypeList) {
+            return PromiseHelper.resolve();
+        }
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let updateTargetType = function() {
             let typeNames: string[] = [];
@@ -187,6 +193,7 @@ namespace DSTargetManager {
                 typeSet[targetType.type_id] = targetType;
             });
             updateTargetType();
+            hasLoadTypeList = true;
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -212,6 +219,72 @@ namespace DSTargetManager {
      */
     export function updateUDF(listXdfsObj: any): void {
         updateUDFList(listXdfsObj);
+    }
+
+    /**
+     * DSTargetManager.getS3Targets
+     */
+    export function getS3Targets(): string[] {
+        let targets: string[] = [];
+        for (let name in targetSet) {
+            let target = targetSet[name];
+            if (target.type_id === s3Target) {
+                targets.push(name);
+            }
+        }
+        return targets;
+    }
+
+    /**
+     * DSTargetManager.renderS3Config
+     */
+    export function renderS3Config(): HTML {
+        let html = "";
+        const typeId: string = s3Target;
+        try {
+            let targetType = typeSet[typeId];
+            return getTargetTypeParamOptions(targetType.parameters);
+        } catch (e) {
+            console.error(e);
+        }
+        return html;
+    }
+
+    /**
+     * DSTargetManager.createS3Target
+     * @param $form
+     */
+    export function createS3Target(
+        $name: JQuery,
+        $params: JQuery,
+        $submitBtn: JQuery
+    ): XDPromise<string> {
+        let targetName: string | null = validateTargetName($name);
+        if (targetName == null) {
+            // invalid case
+            return PromiseHelper.reject();
+        }
+
+        let targetParams = validateParams($params);
+        if (targetParams == null) {
+            // invalid case
+            return PromiseHelper.reject();
+        }
+        let args = {
+            targetName,
+            targetType: s3Target,
+            targetParams
+        };
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
+
+        createTarget(args, $submitBtn)
+        .then(() => {
+            deferred.resolve(targetName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+
     }
 
     function addEventListeners(): void {
@@ -263,7 +336,8 @@ namespace DSTargetManager {
             event.preventDefault();
             let targetName: string = $gridView.find(".grid-unit.active").data("name");
             MainMenu.openPanel("datastorePanel", "inButton");
-            $("#importDataButton").click();
+            DataSourceManager.setMode(XVM.isSQLMode());
+            DSForm.show();
             DSForm.setDataTarget(targetName);
         });
     }
@@ -838,11 +912,8 @@ namespace DSTargetManager {
         });
     }
 
-    function validateForm($form: JQuery): [string, string, any] | null {
-        let $targetName = $("#dsTarget-name");
-        let targetType: string = $("#dsTarget-type .text").data("id");
-        let targetName: string = $targetName.val();
-        let targetParams = {};
+    function validateTargetName($targetName: JQuery): string | null {
+        let targetName: string = $targetName.val().trim();
         let eles = [{
             $ele: $targetName
         }, {
@@ -862,13 +933,32 @@ namespace DSTargetManager {
                     return $(this).data("name") === targetName;
                 }).length > 0;
             }
-        }, {
-            $ele: $("#dsTarget-type .text")
         }];
 
-        $form.find(".params .formRow").each(function() {
-            var $param = $(this);
-            var $input = $(this).find("input:visible");
+        if (xcHelper.validate(eles)) {
+            return targetName;
+        } else {
+            return null;
+        }
+    }
+
+    function validateTargetType(): string {
+        let valid: boolean = xcHelper.validate([{
+            $ele: $("#dsTarget-type .text")
+        }]);
+        if (valid) {
+            return $("#dsTarget-type .text").data("id");
+        } else {
+            return null;
+        }
+    }
+
+    function validateParams($params: JQuery): object {
+        let targetParams = {};
+        let eles = [];
+        $params.find(".formRow").each(function() {
+            let $param = $(this);
+            let $input = $param.find("input:visible");
             if ($input.length &&
                 (!$input.hasClass("optional") || $input.val().trim() !== "")) {
                 eles.push({$ele: $input});
@@ -877,10 +967,39 @@ namespace DSTargetManager {
         });
 
         if (xcHelper.validate(eles)) {
-            return [targetType, targetName, targetParams];
+            return targetParams;
         } else {
             return null;
         }
+    }
+
+    function validateForm($form: JQuery): {
+        targetType: string,
+        targetName: string,
+        targetParams: any
+    } | null {
+        let targetName: string | null = validateTargetName($("#dsTarget-name"));
+        if (targetName == null) {
+            // invalid case
+            return null;
+        }
+
+        let targetType: string = validateTargetType();
+        if (targetType == null) {
+            // invalid case
+            return null;
+        }
+
+        let targetParams = validateParams($form.find(".params"));
+        if (targetParams == null) {
+            // invalid case
+            return null;
+        }
+        return {
+            targetType,
+            targetName,
+            targetParams
+        };
     }
 
     function resetForm(): void {
@@ -893,6 +1012,88 @@ namespace DSTargetManager {
         $("#dsTarget-name").val("").focus();
     }
 
+    function checkMountPoint(
+        targetType: string,
+        targetParams: {mountpoint?: string}
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if ((!targetType) || (targetType !== "shared")) {
+            deferred.resolve();
+        } else {
+            let url: string = targetParams.mountpoint;
+            XcalarListFiles({
+                targetName: gDefaultSharedRoot,
+                path: url
+            })
+            .then(() => {
+                deferred.resolve();
+            })
+            .fail(() => {
+                let errorLog = xcStringHelper.replaceMsg(DSTargetTStr.MountpointNoExists, {
+                    mountpoint: url
+                });
+                deferred.reject({
+                    log: errorLog,
+                    invalidMountPoint: true
+                });
+            });
+        }
+        return deferred.promise();
+    }
+
+    function errorParser(log: string): string {
+        try {
+            return log.split("ValueError:")[1].split("\\")[0];
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }
+
+    function createTarget(
+        args: {
+            targetType: string,
+            targetName: string,
+            targetParams: any
+        },
+        $submitBtn: JQuery
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let {targetType, targetName, targetParams} = args;
+        if (targetParams.listUdf) {
+            let udfPath = validateUDF();
+            if (udfPath == null) {
+                return PromiseHelper.reject();
+            }
+            targetParams.listUdf = udfPath;
+        }
+        xcUIHelper.toggleBtnInProgress($submitBtn, true);
+
+        xcUIHelper.disableSubmit($submitBtn);
+        checkMountPoint(targetType, targetParams)
+        .then(() => {
+            return XcalarTargetCreate(targetType, targetName, targetParams);
+        })
+        .then(() => {
+            return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
+        })
+        .then(() => {
+            xcUIHelper.toggleBtnInProgress($submitBtn, true);
+            xcUIHelper.showSuccess(SuccessTStr.Target);
+            deferred.resolve();
+        })
+        .fail((error) => {
+            // fail case being handled in submitForm
+            xcUIHelper.toggleBtnInProgress($submitBtn, false);
+            deferred.reject(error);
+        })
+        .always(() => {
+            xcUIHelper.enableSubmit($submitBtn);
+        });
+
+        return deferred.promise();
+    }
+
     function submitForm(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let $form = $("#dsTarget-form");
@@ -900,50 +1101,24 @@ namespace DSTargetManager {
         let $submitBtn = $("#dsTarget-submit").blur();
 
         let args = validateForm($form);
-        if (!args) {
+        if (args == null) {
+            // invalid case
             return PromiseHelper.reject();
         }
-        let params = args[2];
-        if (params.listUdf) {
-            let udfPath = validateUDF();
-            if (udfPath == null) {
-                return PromiseHelper.reject();
-            }
-            params.listUdf = udfPath;
-        }
-        xcUIHelper.toggleBtnInProgress($submitBtn, true);
-        let errorParser = function(log) {
-            try {
-                return log.split("ValueError:")[1].split("\\")[0];
-            } catch (e) {
-                console.error(e);
-                return null;
-            }
-        };
 
-        xcUIHelper.disableSubmit($submitBtn);
-        checkMountPoint()
-        .then(function() {
-            return XcalarTargetCreate.apply(this, args);
-        })
-        .then(function() {
-            return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
-        })
+        createTarget(args, $submitBtn)
         .then(() => {
-            xcUIHelper.toggleBtnInProgress($submitBtn, true);
-            xcUIHelper.showSuccess(SuccessTStr.Target);
             resetForm();
-            let $grid = $gridView.find('.target[data-name="' + args[1] + '"]');
+            let $grid = $gridView.find('.target[data-name="' + args.targetName + '"]');
             if ($grid.length) {
                 selectTarget($grid);
             }
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             // fail case being handled in submitForm
-            xcUIHelper.toggleBtnInProgress($submitBtn, false);
             if (error.invalidMountPoint) {
-                var $mountpointInput =  $form.find("label[data-name=mountpoint]")
+                let $mountpointInput =  $form.find("label[data-name=mountpoint]")
                                         .closest(".formRow")
                                         .find(".xc-input:visible");
                 StatusBox.show(FailTStr.Target, $mountpointInput, false, {
@@ -955,36 +1130,8 @@ namespace DSTargetManager {
                 });
             }
             deferred.reject(error);
-        })
-        .always(function() {
-            xcUIHelper.enableSubmit($submitBtn);
         });
 
-        function checkMountPoint() {
-            let innerDeferred = PromiseHelper.deferred();
-            if ((!args) || (args[0] !== "shared")) {
-                innerDeferred.resolve();
-            } else {
-                let url: string = args[2].mountpoint;
-                XcalarListFiles({
-                    targetName: gDefaultSharedRoot,
-                    path: url
-                })
-                .then(function() {
-                    innerDeferred.resolve();
-                })
-                .fail(function() {
-                    let errorLog = xcStringHelper.replaceMsg(DSTargetTStr.MountpointNoExists, {
-                        mountpoint: url
-                    });
-                    innerDeferred.reject({
-                        log: errorLog,
-                        invalidMountPoint: true
-                    });
-                });
-            }
-            return innerDeferred.promise();
-        }
         return deferred.promise();
     }
 }

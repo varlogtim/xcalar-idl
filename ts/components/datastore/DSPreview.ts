@@ -509,7 +509,7 @@ namespace DSPreview {
         restore: boolean
     ) {
         xcUIHelper.enableSubmit($form.find(".confirm"));
-        DSForm.switchView(DSForm.View.Preview);
+        DataSourceManager.switchView(DataSourceManager.View.Preview);
 
         if (isCreateTableMode()) {
             $previewCard.addClass("createTable");
@@ -593,7 +593,7 @@ namespace DSPreview {
             if (!$previewCard.hasClass("xc-hidden") &&
                 !$previewCard.hasClass("createTable")
             ) {
-                DSForm.show(true);
+                DataSourceManager.startImport(true);
             }
         }
     }
@@ -919,7 +919,7 @@ namespace DSPreview {
             clearPreviewTable(tableName);
             createTableMode = null;
             if (backToFormCard) {
-                DSForm.show(null);
+                DataSourceManager.startImport(null);
             } else {
                 // XXX changet to support multiple of paths
                 FileBrowser.show(targetName, fileBrowserPath, true);

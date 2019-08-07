@@ -1,4 +1,4 @@
-describe("Data Source Manager Test", function() {
+describe("DataSourceManager Test", function() {
     var $mainTabCache;
 
     before(function() {
@@ -22,12 +22,91 @@ describe("Data Source Manager Test", function() {
         assert.isFalse($("#datastore-target-view").is(":visible"));
     });
 
-    window.verifyCurrentNum = (testNum) => {
-        var currentNum = Number($(".numDataStores").eq(0).text());
-        expect(currentNum).to.equal(testNum);
-    }
+    it("should switch view", function() {
+        // error case
+        DataSourceManager.switchView(null);
+        var tests = [{
+            "view": DataSourceManager.View.Source,
+            "$ele": $("#dsForm-source")
+        }, {
+            "view": DataSourceManager.View.S3,
+            "$ele": $("#dsForm-s3Config")
+        }, {
+            "view": DataSourceManager.View.Browser,
+            "$ele": $("#fileBrowser")
+        }, {
+            "view": DataSourceManager.View.Preview,
+            "$ele": $("#dsForm-preview")
+        }, {
+            "view": DataSourceManager.View.Path,
+            "$ele": $("#dsForm-path")
+        }];
+
+        let oldIsCloud = XVM.isCloud;
+        // test cloud
+        XVM.isCloud = () => true;
+        tests.forEach(function(test) {
+            DataSourceManager.switchView(test.view);
+            assert.isTrue(test.$ele.is(":visible"));
+        });
+
+        // test on non-cloud case
+        XVM.isCloud = () => false;
+        tests.forEach(function(test) {
+            DataSourceManager.switchView(test.view);
+            assert.isTrue(test.$ele.is(":visible"));
+        });
+
+        XVM.isCloud = oldIsCloud;
+    });
+
+    it("DataSourceManager.setMode should work", function() {
+        let $tab = $("#datastore-in-view-topBar").find(".tab.result");
+        let wasCreateMode = $tab.text() === "Table";
+        // case 1
+        DataSourceManager.setMode(true);
+        expect($tab.text()).to.equal("Table");
+        // case 2
+        DataSourceManager.setMode(false);
+        expect($tab.text()).to.equal("Dataset");
+
+        // restore
+        DataSourceManager.setMode(wasCreateMode);
+    });
+
+    it("DataSourceManager.switchStep should work", function() {
+        // case 1
+        let $panel = $("#datastore-in-view");
+        let $topBar = $("#datastore-in-view-topBar");
+        for (let key in DataSourceManager.ImportSteps) {
+            let step = DataSourceManager.ImportSteps[key];
+            DataSourceManager.switchStep(step);
+            if (!$topBar.find(".tab." + step).hasClass("active")) {
+                console.error("switch", step, "fails");
+            }
+            expect($topBar.find(".tab." + step).hasClass("active")).to.be.true;
+            expect($panel.hasClass("import")).to.be.true;
+        }
+
+        // null case
+        DataSourceManager.switchStep(null);
+        expect($panel.hasClass("import")).to.be.false;
+    });
+
+    it("DataSourceManager.startImport should work", function() {
+        let oldFunc = DSSource.show;
+        let called = false;
+        DSSource.show = () => called = true;
+
+        DataSourceManager.startImport(XVM.isSQLMode());
+        expect(called).to.be.true;
+
+        DSSource.show = oldFunc;
+    });
 
     after(function() {
+        // restore to initial screen
+        DataSourceManager.startImport(XVM.isSQLMode());
         // go back to previous tab
         $mainTabCache.click();
         UnitTest.offMinMode();

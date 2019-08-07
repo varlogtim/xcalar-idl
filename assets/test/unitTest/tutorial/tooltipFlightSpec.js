@@ -75,7 +75,107 @@ describe("Tooltip Flight Test", function(done) {
         expect($("#intro-popover").is(":visible")).to.be.false;
     });
 
-    it("should do the entire Sql mode walkthrough successfully", function() {
+    it("should do the entire Sql mode walkthrough for cloud successfully", function() {
+        let oldIsCloud = XVM.isCloud;
+        XVM.isCloud = () => true;
+        TooltipWalkthroughs.startWalkthrough("SQL Mode")
+
+        //home tip
+        expect($("#homeBtn").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //MenuBar tip
+        expect($("#menuBar").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //datastore tip
+        expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //sqltab tip
+        expect($("#sqlTab").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //monitor tip
+        expect($("#monitorTab").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //datastore click tip
+        expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#dataStoresTab .mainTab").click();
+
+        //sourcetbl click tip
+        expect($("#sourceTblButton").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#sourceTblButton").click();
+
+        expect(MainMenu.isMenuOpen()).to.be.true;
+        expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
+
+        //dsSource locaion file
+        expect($("#dsForm-source .location.file").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //dsSource locaion s3
+        expect($("#dsForm-source .location.s3").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //dsSource locaion database
+        expect($("#dsForm-source .location.database").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //dsSource more
+        expect($("#dsForm-source .more").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // sql workspace tip
+        expect($("#sqlWorkSpace").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#sqlWorkSpace").click();
+
+        //sql editor
+        expect($("#sqlEditorSpace").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //sql table tip
+        expect($("#sqlTableListerArea").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        //sql history tip
+        expect($("#sqlWorkSpacePanel .historySection").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        // help button tip
+        expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+
+        // help walkthrough tip
+        expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
+        expect($("#intro-popover").is(":visible")).to.be.true;
+        $("#intro-popover .next").click();
+
+        expect($("#intro-popover").is(":visible")).to.be.false;
+        XVM.isCloud = oldIsCloud;
+    });
+
+
+    it("should do the entire Sql mode walkthrough for on prem successfully", function() {
+        let oldIsCloud = XVM.isCloud;
+        XVM.isCloud = () => false;
         TooltipWalkthroughs.startWalkthrough("SQL Mode")
 
         //home tip
@@ -177,6 +277,6 @@ describe("Tooltip Flight Test", function(done) {
         $("#intro-popover .next").click();
 
         expect($("#intro-popover").is(":visible")).to.be.false;
+        XVM.isCloud = oldIsCloud;
     });
-
 });

@@ -119,7 +119,108 @@ html.safari {
 
 #datastore-in-view {
     .viewSection {
-        .size(100%, 100%);
+        width: 100%;
+        height: 100%;
+    }
+
+    #datastore-in-view-topBar {
+        display: none;
+        height: @height-card-header;
+    }
+
+    &.import {
+        #datastore-in-view-topBar {
+            display: block;
+        }
+
+        .viewSection {
+            height: ~"calc(100% - @{height-card-header})";
+        }
+
+        #dsTableView, #pTblView {
+            .cardHeader {
+                display: none;
+            }
+        }
+    }
+}
+
+#datastore-in-view-topBar {
+    background-color: @color-bg-topBarGray2;
+
+    .tabs {
+        float: left;
+    }
+
+    .tab {
+        @bg: @color-bg-tab-blue;
+        @active-bg: @color-font-link-blue;
+
+        background-color: @bg;
+        color: @color-font-edge;
+        height: @height-card-header;
+        line-height: @height-card-header;
+        float: right; // reverse the order for z-index of style to work
+        width: 156px;
+        text-align: center;
+        font-size: 16px;
+        position: relative;
+        padding-right: 20px;
+
+        &:after, &:before {
+            position: absolute;
+            content: '';
+            border-top: 18px solid transparent;
+            border-bottom: 18px solid transparent;
+            border-left: 20px solid;
+        }
+            
+        &:after {
+            right: 2px;
+            border-left-color: @bg;
+        }
+
+        &:before {
+            right: 0px;
+            border-left-color: white;
+        }
+
+        &:first-child {
+            &:after, &:before {
+                background-color: @color-bg-topBarGray2;
+            }
+
+            &:before {
+                border-color: transparent;
+            }
+        }
+
+        &.active {
+            background-color: @active-bg;
+            color: @color-white;
+            font-weight: bold;
+
+            + .tab {
+                &:before {
+                    background-color: @active-bg;
+                }
+            }
+
+            &:after {
+                border-left-color: @active-bg;
+            }
+
+            &:before {
+                background-color: @bg;
+            }
+
+            &:first-child {
+                &:before {
+                    background-color: @color-bg-topBarGray2;
+                }
+            }
+        }
+
     }
 }
 
@@ -611,8 +712,92 @@ table.datasetTable {
 }
 /* End Of DS Table Section */
 
+/* Source Card */
+#dsForm-source {
+    height: 100%;
+
+    .cardMain {
+        padding: 40px 30px;
+        border-bottom: 1px solid @color-border-softGray;
+        max-height: ~"calc(100% - 56px)";
+        overflow-y: auto;
+
+        .clickable {
+            .rounded(18px);
+            border: 1px solid @color-bg-dropdown-gray;
+            background-color: @color-bg-list-hover-blue;
+            font-size: 18px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+
+            &:hover {
+                box-shadow: 0 2px 4px 0 @color-border-menubar-grey;
+            }
+
+            &:active {
+                border-color: @color-font-link-blue;
+            }
+        }
+
+        .contentSection {
+            .flex-display;
+            flex-wrap: wrap;
+
+            > div {
+                .flex(0 0 245px);
+                width: 245px;
+                height: 175px;
+                margin: 20px;
+                padding: 30px;
+            }
+
+            .img {
+                height: 75px;
+                margin: 0 auto;
+
+                i {
+                    font-size: 66px;
+                    color: @color-font-link-blue;
+                }
+
+                img {
+                    width: 100px;
+                }
+            }
+
+            .description {
+                margin-top: 10px;
+            }
+        }
+
+        .bottomSection {
+            @h: 47px;
+
+            margin-top: 50px;
+            height: @h;
+
+            .more {
+                width: 450px;
+                height: @h;
+                line-height: @h;
+                margin: 0 auto;
+            }
+        }
+    }
+}
+/* End of Source Card */
+
+/* S3 Config Card */
+#dsForm-s3Config {
+    #dsForm-path;
+}
+/* End of S3 config card */
+
 /* Path Card */
 #dsForm-path {
+    height: 100%;
+
     &.target-database,
     &.target-generated {
         .browse {
@@ -623,18 +808,23 @@ table.datasetTable {
 
     #dsForm-target {
         min-width: 100px;
-
     }
 
     #dsForm-targetMenu {
         li {
             border-bottom: 1px solid @color-border-softGray;
+        }
+    }
+
+    .list {
+        li {
             &.createNew {
                 color: @color-font-link-blue;
                 font-weight: bold;
-            }
+            } 
         }
     }
+
     .cardInstruction {
         b {
             color: @color-font-link-blue;
@@ -1514,16 +1704,9 @@ table.datasetTable {
         }
     }
 
-    .cardHeader {
-        background-color: @color-bg-topBarGray2;
-        .title {
-            color: @color-font-form-gray;
-        }
-    }
-
     .cardWrap {
         .position(relative);
-        .size(@height: ~"calc(100% - 36px)", @width: 100%);
+        .size(@height: 100%, @width: 100%);
     }
 
     .cardMain {
