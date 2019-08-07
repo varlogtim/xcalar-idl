@@ -2,7 +2,7 @@ import * as React from "react";
 
 type CheckboxProps = {
     checked: boolean;
-    onClick;
+    onClick?;
 };
 export default function Checkbox(props: CheckboxProps) {
     const {checked, onClick} = props;
