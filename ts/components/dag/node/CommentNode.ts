@@ -7,7 +7,7 @@ class CommentNode {
     private display: {x: number, y: number, height: number, width: number};
 
     public static generateId(): string {
-        this.uid = this.uid || new XcUID("comment");
+        this.uid = this.uid || new XcUID("comment", true);
         return this.uid.gen();
     }
 

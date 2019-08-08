@@ -36,7 +36,7 @@ abstract class DagNode extends Durable {
     };
 
     public static generateId(): string {
-        this.uid = this.uid || new XcUID(DagNode.KEY);
+        this.uid = this.uid || new XcUID(DagNode.KEY, true);
         return this.uid.gen();
     }
 

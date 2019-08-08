@@ -1,11 +1,16 @@
 class XcUID {
     public static SDKPrefix: string = "XcalarSDK-";
     private _prefix: string;
+    private _keepPrefix: boolean;
     private _count: number;
-    private _generator: (prefix: string, count: number) => string;
+    private _generator: (prefix: string, count: number, keepPrefix?: boolean) => string;
 
-    public constructor(prefix: string) {
+    /**
+     * keepPrefix: if true, will use prefix regardless if xcHelper.isNodeJs is true
+     */
+    public constructor(prefix: string, keepPrefix: boolean = false) {
         this._prefix = prefix;
+        this._keepPrefix = keepPrefix;
         this._count = 0;
         this._generator = this._defaultGenerator;
     }
@@ -18,7 +23,7 @@ class XcUID {
      * Generate new id
      */
     public gen(): string {
-        const id: string = this._generator(this._prefix, this._count);
+        const id: string = this._generator(this._prefix, this._count, this._keepPrefix);
         this._count++;
         return id;
     }
@@ -31,10 +36,14 @@ class XcUID {
         this._generator = func;
     }
 
-    private _defaultGenerator(prefix: string, count: number): string {
+    private _defaultGenerator(prefix: string, count: number, keepPrefix: boolean = false): string {
         var id: string;
         if (xcHelper.isNodeJs()) {
-            id = XcUID.SDKPrefix;
+            if (prefix && keepPrefix) {
+                id = prefix;
+            } else {
+                id = XcUID.SDKPrefix;
+            }
         } else {
             const activeWKBNK: string = WorkbookManager.getActiveWKBK();
             const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
