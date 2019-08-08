@@ -1629,8 +1629,8 @@ namespace DS {
 
             commitDSChange();
             let msgOptions = {
-                "newDataSet": true,
-                "dataSetId": dsObj.getId()
+                "newDataset": true,
+                "datasetId": dsObj.getId()
             };
             Transaction.done(txId, {
                 msgOptions: msgOptions
@@ -1729,15 +1729,13 @@ namespace DS {
         $grid: JQuery,
         dsObj: DSObj,
         options: {
-            forceRemove?: boolean,
             noDeFocus?: boolean,
             failToShow?: boolean,
-            noLog?: boolean,
-            noAlert?: boolean
+            noAlert?: boolean,
+            txId?: number
         }
     ): XDPromise<void> {
         options = options || {};
-        let forceRemove: boolean = options.forceRemove || false;
         let dsName = dsObj.getFullName();
         let dsId = dsObj.getId();
         let isShowDSTable: boolean = (DSTable.getId() === dsId ||
@@ -1745,27 +1743,14 @@ namespace DS {
         let noDeFocus: boolean = (options.noDeFocus || !isShowDSTable ||  false);
         let failToShow: boolean = options.failToShow || false;
 
-
         $grid.removeClass("active")
              .addClass("inactive deleting")
              .append('<div class="waitingIcon"></div>');
 
         $grid.find(".waitingIcon").fadeIn(200);
 
-        let sql = {
-            "operation": SQLOps.DestroyDS,
-            "dsName": dsName,
-            "dsId": dsId
-        };
-        let txId = Transaction.start({
-            "operation": SQLOps.DestroyDS,
-            "sql": sql,
-            "track": true,
-            "steps": 1
-        });
-
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        destroyDataset(dsName, txId)
+        destroyDataset(dsName, options.txId)
         .then(() => {
             // remove ds obj
             removeDS(dsId);
@@ -1773,10 +1758,6 @@ namespace DS {
                 focusOnForm();
             }
 
-            Transaction.done(txId, {
-                "noLog": options.noLog,
-                "noCommit": true
-            });
             deferred.resolve();
         })
         .fail((error) => {
@@ -1784,19 +1765,9 @@ namespace DS {
             $grid.removeClass("inactive")
                  .removeClass("deleting");
 
-            let noAlert: boolean = options.noAlert || false;
-            if (forceRemove) {
-                removeDS(dsId);
-            } else if (failToShow) {
+            if (failToShow) {
                 $grid.show();
-                noAlert = true;
             }
-
-            Transaction.fail(txId, {
-                "failMsg": DSTStr.DelDSFail,
-                "error": error,
-                "noAlert": noAlert
-            });
             deferred.reject(error);
         });
 
@@ -2034,9 +2005,30 @@ namespace DS {
         var datasets = [];
         var folders = [];
         var dirId = curDirId;
+        const dsNames: string[] = [];
+        dsIds.forEach((dsId) => {
+            const dsObj = DS.getDSObj(dsId);
+            if (!dsObj.beFolder()) {
+                dsNames.push(dsObj.getName());
+            }
+        });
+        let txId;
+        if (dsNames.length) { // no transaction if only deleting folders
+            let sql = {
+                "operation": SQLOps.DestroyDS,
+                "dsNames": dsNames,
+                "dsIds": dsIds
+            };
+            txId = Transaction.start({
+                "operation": SQLOps.DestroyDS,
+                "sql": sql,
+                "track": true,
+                "steps": dsNames.length
+            });
+        }
 
         dsIds.forEach(function(dsId) {
-            promises.push(removeOneDSHelper(dsId, failures, datasets, folders));
+            promises.push(removeOneDSHelper(dsId, failures, datasets, folders, txId));
         });
 
         PromiseHelper.when.apply(this, promises)
@@ -2061,10 +2053,26 @@ namespace DS {
                 });
                 commitDSChange();
                 MemoryAlert.Instance.check(true);
+                Transaction.done(txId, {
+                    "noCommit": true
+                });
             } else if (folders.length) {
                 changeDSInfo(dirId, {
                     action: "delete",
                     dsIds: removedDSIds
+                });
+                if (dsNames.length) {
+                    Transaction.fail(txId, {
+                        "failMsg": DSTStr.DelDSFail,
+                        "error": failures[0],
+                        "noAlert": true
+                    });
+                }
+            } else {
+                Transaction.fail(txId, {
+                    "failMsg": DSTStr.DelDSFail,
+                    "error": failures[0],
+                    "noAlert": true
                 });
             }
 
@@ -2075,7 +2083,7 @@ namespace DS {
         return deferred.promise();
     }
 
-    function removeOneDSHelper(dsId, failures, datasets, folders) {
+    function removeOneDSHelper(dsId, failures, datasets, folders, txId) {
         var dsObj = DS.getDSObj(dsId);
         var dsName = dsObj.getName();
         var err;
@@ -2111,7 +2119,10 @@ namespace DS {
             var isCanel = ($grid.data("txid") != null);
             var def = isCanel
                       ? DS.cancel($grid)
-                      : delDSHelper($grid, dsObj, {"noAlert": true});
+                      : delDSHelper($grid, dsObj, {
+                          "noAlert": true,
+                          "txId": txId
+                        });
             def
             .then(function() {
                 datasets.push(dsId);

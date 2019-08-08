@@ -139,9 +139,12 @@ namespace Log {
         });
 
         addLog(xcLog, willCommit);
-
         scrollToBottom();
         updateUndoRedoState();
+
+        if (typeof mixpanel !== "undefined") {
+            xcMixpanel.transactionLog(xcLog);
+        }
     };
 
     export function errorLog(title, options, cli, error) {

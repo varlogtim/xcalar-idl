@@ -268,9 +268,9 @@ enum SQLOps {
     RenameOrphanTable = "renameTemporaryTable",
     DeleteTable = "deleteTable",
     DeleteAgg = "deleteAggregate",
-    PreviewDS = "previewDataSet",
-    DestroyPreviewDS = "destroyPreviewDataSet",
-    DestroyDS = "destroyDataSet",
+    PreviewDS = "previewDataset",
+    DestroyPreviewDS = "destroyPreviewDataset",
+    DestroyDS = "destroyDataset",
     ExportTable = "exportTable",
     Query = "xcalarQuery",
     Retina = "runBatchDataflow",
@@ -329,7 +329,8 @@ enum SQLOps {
     EditComment = "editComment",
     EditNodeTitle = "editNodeTitle",
     DagBulkOperation = "dagBulkOperation",
-    DeleteDataflow = "deleteDataflow"
+    DeleteDataflow = "deleteDataflow",
+    DataflowExecution = "Dataflow Execution"
 }
 
 enum XcalarMode {

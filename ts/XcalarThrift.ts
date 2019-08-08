@@ -1332,12 +1332,20 @@ XcalarDatasetDelete = function(
 
     const deferred: XDDeferred<void> = PromiseHelper.deferred();
     const dsName: string = parseDS(datasetName);
+    const workItem: WorkItem = xcalarDatasetDeleteWorkItem(dsName);
+
+    const query: string = JSON.stringify({
+        "operation": XcalarApisTStr[workItem.api],
+        "args": workItem.input.datasetDeleteInput
+    });
+    Transaction.startSubQuery(txId, "Destroy Dataset", dsName, query);
 
     xcalarDatasetDelete(tHandle, dsName)
-    .then(function() {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
+            Transaction.log(txId, query, null, ret.timeElapsed);
             deferred.resolve();
         }
     })

@@ -110,6 +110,8 @@ window.UnitTest = (function(UnitTest, $) {
             xcMixpanel.errorEvent = () => {};
         }
 
+        xcMixpanel.transactionLog = () => {};
+
 
         var prevPct = null;
         window.mochaPct = 0;

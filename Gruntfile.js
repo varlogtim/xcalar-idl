@@ -2930,9 +2930,9 @@ module.exports = function(grunt) {
         var extraTags = [];
         if (IS_WATCH_TASK || BLDTYPE == DEV) {
             extraTags = extraTags.concat(
-                ['assets/dev/shortcuts.js', 'assets/js/mixpanel/mixpanel.js']);
+                ['assets/dev/shortcuts.js', 'assets/js/mixpanel/xcMixpanel.js']);
         } else {
-            extraTags.push('assets/js/mixpanel/mixpanelAzure.js');
+            extraTags.push('assets/js/mixpanel/xcMixpanelAzure.js');
         }
         // script tags just used by Xcalar Design EE app for nwjs set ups
         if (PRODUCT === XPE) {

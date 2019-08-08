@@ -919,6 +919,9 @@ declare namespace xcMixpanel {
     export function forDev(): boolean;
     export function getElementPath(HTMLElement): string;
     export function errorEvent(type: string, info: any): void;
+    export function transactionLog(any): void;
+    export function pageLoadEvent(): void;
+    export function pageUnlooadEvent(): void;
 }
 
 declare namespace Msal {

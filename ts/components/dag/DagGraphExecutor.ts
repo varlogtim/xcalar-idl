@@ -442,7 +442,7 @@ class DagGraphExecutor {
             }
             let nodeIds = nodes.map(node => node.getId());
 
-            let operation = "Dataflow execution";
+            let operation = SQLOps.DataflowExecution;
             let queryMeta: string = null;
             if (nodes.length === 1) {
                 operation = nodes[0].getType();
@@ -596,9 +596,9 @@ class DagGraphExecutor {
             const nodeIds: DagNodeId[] = [...nodeIdsSet];
             this._graph.lockGraph(nodeIds, this);
             const txId: number = Transaction.start({
-                operation: "Dataflow execution",
+                operation: SQLOps.DataflowExecution
                 trackDataflow: true,
-                sql: {operation: "Dataflow execution"},
+                sql: {operation: SQLOps.DataflowExecution},
                 track: true,
                 tabId: this._graph.getTabId(),
                 nodeIds: nodeIds

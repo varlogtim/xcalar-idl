@@ -237,7 +237,9 @@ class KVStore {
         // remove any unnecessary orphan tables
         .then(() => TblManager.refreshOrphanList(true))
         .then(() => {
-            TblManager.deleteTables(gOrphanTables, TableType.Orphan, true, false);
+            if (gOrphanTables.length) {
+                TblManager.deleteTables(gOrphanTables, TableType.Orphan, true, false);
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);

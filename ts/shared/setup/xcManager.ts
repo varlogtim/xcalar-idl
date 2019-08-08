@@ -78,6 +78,10 @@ namespace xcManager {
             return XVM.initializeMode();
         })
         .then(function() {
+            // window.mixpanel.track = (...args) => {
+            //     console.log("track", args);
+            // };
+
             try {
                 $("#topMenuBarTabs").removeClass("xc-hidden");
                 MainMenu.setup();
@@ -134,7 +138,7 @@ namespace xcManager {
                 gMinModeOn = false; // turn off min mode
             }
 
-            setupStatus = SetupStatus["Success"];
+            setupStatus = SetupStatus.Success;
 
             console.log('%c ' + CommonTxtTstr.XcWelcome + ' ',
             'background-color: #5CB2E8; ' +
@@ -144,11 +148,15 @@ namespace xcManager {
             // start heartbeat check
             XcSupport.heartbeatCheck();
 
-            if(!window["isBrowserSupported"]) {
+            if (!window["isBrowserSupported"]) {
                 Alert.error(AlertTStr.UnsupportedBrowser, "", {
                     msgTemplate: AlertTStr.BrowserVersions,
                     sizeToText: true
                 });
+            }
+
+            if (typeof mixpanel !== "undefined") {
+                xcMixpanel.pageLoadEvent();
             }
 
             return TooltipWalkthroughs.checkFirstTimeTooltip();
@@ -901,6 +909,9 @@ namespace xcManager {
         };
         window.onunload = function(): void {
             LiveHelpModal.Instance.userLeft();
+            if (typeof mixpanel !== "undefined") {
+                xcMixpanel.pageUnloadEvent();
+            }
         };
 
         let winResizeTimer: number;

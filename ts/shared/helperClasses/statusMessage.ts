@@ -16,14 +16,14 @@ namespace StatusMessage {
 
     interface ShowDoneNotificationOptions {
         indexNotification?: boolean,
-        newDataSet?: boolean,
-        dataSetId?: string,
+        newDataset?: boolean,
+        datasetId?: string,
         title?: string
     }
 
     interface DoneNotificationListenersOptions {
-        newDataSet?: boolean,
-        dataSetId?: string
+        newDataset?: boolean,
+        datasetId?: string
     }
 
     class StatusMsg {
@@ -627,7 +627,7 @@ namespace StatusMessage {
                 }
                 const $popup = $(this);
 
-                if ($popup.hasClass('failed') && options.newDataSet) {
+                if ($popup.hasClass('failed') && options.newDataset) {
                     return;
                 }
 
@@ -642,12 +642,12 @@ namespace StatusMessage {
                         $tableWrap.mousedown();
                     }
 
-                } else if (options.newDataSet) {
+                } else if (options.newDataset) {
                     $('#dataStoresTab').click();
                     if (!$("#inButton").hasClass("active")) {
                         $('#inButton').click();
                     }
-                    DS.getGrid(options.dataSetId).click();
+                    DS.getGrid(options.datasetId).click();
                 }
 
                 if ($popup.siblings().length === 0) {
