@@ -191,9 +191,12 @@ class JupyterUDFModal {
                     let dagTab = DagTabManager.Instance.getTabById(tabId);
                     if (dagTab) {
                         let graph = dagTab.getGraph();
-                        if (graph && $li.data("nodeid")) {
-                            let dagNode = graph.getNode($li.data("nodeid"));
-                            table = XcDagTableViewer.getTableFromDagNode(dagNode);
+                        let nodeId = $li.data("nodeid")
+                        if (graph && nodeId) {
+                            let dagNode = graph.getNode(nodeId);
+                            if (dagNode) {
+                                table = XcDagTableViewer.getTableFromDagNode(dagNode);
+                            }
                         }
                     }
                 }
@@ -305,6 +308,9 @@ class JupyterUDFModal {
                             if (nodeTitle) {
                                 displayNameHtml += " - " + nodeTitle;
                             }
+                        } else if (nodeId.includes(".profile.")) {
+                            // could be a table generated from a profile
+                            return;
                         }
                     }
                     displayName = displayNameHtml;
