@@ -1361,20 +1361,46 @@ declare class LoadErrorStatsT {
 		numDirOpenFailure?: number,
 	});
 }
-declare class EvalErrorStatsT {
+declare class FailureDescT {
+	numRowsFailed: number;
+	failureDesc: string;
+	constructor(args?: {
+		numRowsFailed?: number,
+		failureDesc?: string
+	});
+}
+declare class EvalXdfErrorStatsT {
 	numUnsubstituted: number;
 	numUnspportedTypes: number;
 	numMixedTypeNotSupported: number;
 	numEvalCastError: number;
 	numDivByZero: number;
-	numEvalFunctionError: number;
+	numMiscError: number;
+	numTotal: number;
 	constructor(args?: {
 		numUnsubstituted?: number,
 		numUnspportedTypes?: number,
 		numMixedTypeNotSupported?: number,
 		numEvalCastError?: number,
 		numDivByZero?: number,
-		numEvalFunctionError?: number,
+		numMiscError?: number,
+		numTotal?: number
+	});
+}
+declare class EvalUdfErrorStatsT {
+	numEvalUdfError:  number;
+	failureDescArr: FailureDescT[];
+	constructor(args?: {
+		numEvalUdfError?: number,
+		failureDescArr?: FailureDescT[]
+	});
+}
+declare class EvalErrorStatsT {
+	evalXdfErrorStats: EvalXdfErrorStatsT;
+	evalUdfErrorStats: EvalUdfErrorStatsT;
+	constructor(args?: {
+		evalXdfErrorStats?: EvalXdfErrorStatsT,
+		evalUdfErrorStats?: EvalUdfErrorStatsT
 	});
 }
 declare class OpErrorStatsT {
@@ -1385,6 +1411,14 @@ declare class OpErrorStatsT {
 		loadErrorStats?: LoadErrorStatsT,
 		indexErrorStats?: IndexErrorStatsT,
 		evalErrorStats?: EvalErrorStatsT,
+	});
+}
+declare class OpFailureInfoT {
+	numRowsFailedTotal: number;
+	failureDescArr: FailureDescT[];
+	constructor(args?: {
+		numRowsFailedTotal?: number,
+		failureDescArr?: FailureDescT[]
 	});
 }
 declare class XcalarApiOpDetailsT {
@@ -1927,6 +1961,7 @@ declare class XcalarApiDagNodeT {
 	numChildren: number;
 	children: string[];
 	status: number;
+	opFailureInfo: OpFailureInfoT;
 	constructor(args?: {
 		name?: XcalarApiDagNameT,
 		tag?: string,
@@ -1954,6 +1989,7 @@ declare class XcalarApiDagNodeT {
 		numChildren?: number,
 		children?: string[],
 		status?: number,
+		opFailureInfo?: OpFailureInfoT
 	});
 }
 declare class XcalarApiDagOutputT {

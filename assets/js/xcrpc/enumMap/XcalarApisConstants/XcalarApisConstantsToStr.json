@@ -23,6 +23,8 @@
     "2048" : "XcalarApiMaxDagNodeCommentLen",
     "1023" : "XcalarApiMaxUrlLen",
     "255" : "XcalarApiSessionNameLen",
-    "1024" : "XcalarApiSessionDescrLen"
+    "1024" : "XcalarApiSessionDescrLen",
+    "10240" : "XcalarApiMaxFailureDescLen",
+    "5" : "XcalarApiMaxFailures"
 }
 

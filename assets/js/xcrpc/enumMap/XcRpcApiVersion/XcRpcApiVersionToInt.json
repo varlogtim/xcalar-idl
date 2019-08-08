@@ -9,7 +9,7 @@
     "KvStoreVersionSignature" : 52044399,
     "LicenseVersionSignature" : 69608712,
     "OperatorVersionSignature" : 136359256,
-    "ParentChildVersionSignature" : 133980912,
+    "ParentChildVersionSignature" : 226563296,
     "ProtoFieldValueVersionSignature" : 117723183,
     "ProtoMsgVersionSignature" : 49525254,
     "PublishedTableVersionSignature" : 21442408,
@@ -27,6 +27,6 @@
     "WorkbookVersionSignature" : 57235854,
     "XDFVersionSignature" : 188684344,
     "XcalarEnumTypeVersionSignature" : 222419149,
-    "ProtoAPIVersionSignature" : 10845916
+    "ProtoAPIVersionSignature" : 45392118
 }
 

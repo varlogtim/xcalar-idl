@@ -870,7 +870,8 @@ proto.ChildEvalRequest.prototype.toObject = function(opt_includeInstance) {
 proto.ChildEvalRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     ptrInput: (f = msg.getPtrInput()) && proto.ParentChildShmPtr.toObject(includeInstance, f),
-    ptrOutput: (f = msg.getPtrOutput()) && proto.ParentChildShmPtr.toObject(includeInstance, f)
+    ptrOutput: (f = msg.getPtrOutput()) && proto.ParentChildShmPtr.toObject(includeInstance, f),
+    icvmode: jspb.Message.getFieldWithDefault(msg, 3, false)
   };
 
   if (includeInstance) {
@@ -917,6 +918,10 @@ proto.ChildEvalRequest.deserializeBinaryFromReader = function(msg, reader) {
       reader.readMessage(value,proto.ParentChildShmPtr.deserializeBinaryFromReader);
       msg.setPtrOutput(value);
       break;
+    case 3:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setIcvmode(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -960,6 +965,13 @@ proto.ChildEvalRequest.serializeBinaryToWriter = function(message, writer) {
       2,
       f,
       proto.ParentChildShmPtr.serializeBinaryToWriter
+    );
+  }
+  f = message.getIcvmode();
+  if (f) {
+    writer.writeBool(
+      3,
+      f
     );
   }
 };
@@ -1022,6 +1034,23 @@ proto.ChildEvalRequest.prototype.clearPtrOutput = function() {
  */
 proto.ChildEvalRequest.prototype.hasPtrOutput = function() {
   return jspb.Message.getField(this, 2) != null;
+};
+
+
+/**
+ * optional bool icvMode = 3;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.ChildEvalRequest.prototype.getIcvmode = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 3, false));
+};
+
+
+/** @param {boolean} value */
+proto.ChildEvalRequest.prototype.setIcvmode = function(value) {
+  jspb.Message.setProto3BooleanField(this, 3, value);
 };
 
 
@@ -6673,7 +6702,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.ProtoParentChildResponse.oneofGroups_ = [[1,2,3,4,5]];
+proto.ProtoParentChildResponse.oneofGroups_ = [[1,2,3,4,5,6]];
 
 /**
  * @enum {number}
@@ -6684,7 +6713,8 @@ proto.ProtoParentChildResponse.PayloadCase = {
   GROUP_ID: 2,
   PC_BUF: 3,
   XDB_GET_META: 4,
-  XDB_GET_LOCAL_ROWS: 5
+  XDB_GET_LOCAL_ROWS: 5,
+  NUM_ROWS_FAILED_TOTAL: 6
 };
 
 /**
@@ -6727,7 +6757,8 @@ proto.ProtoParentChildResponse.toObject = function(includeInstance, msg) {
     groupId: jspb.Message.getFieldWithDefault(msg, 2, ""),
     pcBuf: (f = msg.getPcBuf()) && proto.ParentChildBuf.toObject(includeInstance, f),
     xdbGetMeta: (f = msg.getXdbGetMeta()) && proto.XdbGetMetaResponse.toObject(includeInstance, f),
-    xdbGetLocalRows: (f = msg.getXdbGetLocalRows()) && proto.XdbGetLocalRowsResponse.toObject(includeInstance, f)
+    xdbGetLocalRows: (f = msg.getXdbGetLocalRows()) && proto.XdbGetLocalRowsResponse.toObject(includeInstance, f),
+    numRowsFailedTotal: jspb.Message.getFieldWithDefault(msg, 6, 0)
   };
 
   if (includeInstance) {
@@ -6787,6 +6818,10 @@ proto.ProtoParentChildResponse.deserializeBinaryFromReader = function(msg, reade
       var value = new proto.XdbGetLocalRowsResponse;
       reader.readMessage(value,proto.XdbGetLocalRowsResponse.deserializeBinaryFromReader);
       msg.setXdbGetLocalRows(value);
+      break;
+    case 6:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setNumRowsFailedTotal(value);
       break;
     default:
       reader.skipField();
@@ -6854,6 +6889,13 @@ proto.ProtoParentChildResponse.serializeBinaryToWriter = function(message, write
       5,
       f,
       proto.XdbGetLocalRowsResponse.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {number} */ (jspb.Message.getField(message, 6));
+  if (f != null) {
+    writer.writeUint64(
+      6,
+      f
     );
   }
 };
@@ -7005,6 +7047,35 @@ proto.ProtoParentChildResponse.prototype.clearXdbGetLocalRows = function() {
  */
 proto.ProtoParentChildResponse.prototype.hasXdbGetLocalRows = function() {
   return jspb.Message.getField(this, 5) != null;
+};
+
+
+/**
+ * optional uint64 num_rows_failed_total = 6;
+ * @return {number}
+ */
+proto.ProtoParentChildResponse.prototype.getNumRowsFailedTotal = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+};
+
+
+/** @param {number} value */
+proto.ProtoParentChildResponse.prototype.setNumRowsFailedTotal = function(value) {
+  jspb.Message.setOneofField(this, 6, proto.ProtoParentChildResponse.oneofGroups_[0], value);
+};
+
+
+proto.ProtoParentChildResponse.prototype.clearNumRowsFailedTotal = function() {
+  jspb.Message.setOneofField(this, 6, proto.ProtoParentChildResponse.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ProtoParentChildResponse.prototype.hasNumRowsFailedTotal = function() {
+  return jspb.Message.getField(this, 6) != null;
 };
 
 
