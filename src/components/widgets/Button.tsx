@@ -4,9 +4,8 @@ type ButtonProps = {
     children: string | React.ReactChildren;
     className: string;
     onClick;
-    ref?: React.RefObject<HTMLButtonElement>;
 };
-export default function Button(props: ButtonProps) {
+let Button = React.forwardRef((props: ButtonProps, ref: any) => {
     const { children, className, onClick } = props;
     const classNames: string[] = ["btn"];
     classNames.push(className);
@@ -16,8 +15,10 @@ export default function Button(props: ButtonProps) {
             type="button"
             className={classNames.join(" ")}
             onClick={onClick}
+            ref={ref}
         >
             { children }
         </button>
     )
-}
+});
+export default Button;
