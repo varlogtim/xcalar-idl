@@ -48,7 +48,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
             c = e.getElementsByTagName("script")[0];
             c.parentNode.insertBefore(b, c);
             xcMixpanel.init();
-            xcMixpanel.addListenersForDev();
+            xcMixpanel.addListeners();
         }
     };
     xcMixpanel.forDev = function() {
@@ -57,33 +57,10 @@ window.xcMixpanel = (function($, xcMixpanel) {
     xcMixpanel.init = function() {
         window.mixpanel.init("574bbb62b63c814dd820da904059fb94");
     };
-    xcMixpanel.addListenersForDev = function() {
+    xcMixpanel.addListeners = function() {
         var lastBlur;
         var jupyterFocus;
-        function getPathStr(ele) {
-            var path = ele.prop("tagName");
-            if (ele.attr("id")) {
-                path += "#" + ele.attr("id");
-            }
-            if (ele.attr("class")) {
-                path += "." + ele.attr("class");
-            }
-            return path;
-        }
-        function getElementPath(element) {
-            try {
-                var path = getPathStr($(element));
-                var parents = $(element).parentsUntil("body");
-                for (var i = 0; (i < parents.length) && (path.length <= 255); i++) {
-                    path += "|";
-                    path += getPathStr($(parents).eq(i), path);
-                }
-                return path;
-            } catch (err) {
-                // Do not affect our use with XD
-                return "Error case: " + err;
-            }
-        }
+
         $(window).load(function() {
             var name = XcUser.getCurrentUserName();
             if (name){
@@ -197,5 +174,69 @@ window.xcMixpanel = (function($, xcMixpanel) {
             }
         }
     };
+
+    xcMixpanel.errorEvent = (type, info) => {
+        const prevMouseDownInfo = gMouseEvents.getLastMouseDownTargetsSerialized();
+        let eventInfo = {
+            "Timestamp": xcTimeHelper.now(),
+            "lastMouseDownEl": prevMouseDownInfo.el,
+            "lastMouseDownTime": prevMouseDownInfo.time,
+            "lastMouseDownParents": prevMouseDownInfo.parents,
+            "prevMouseDowns": prevMouseDownInfo.prevMouseDowns
+        };
+        switch (type) {
+            case ("XDCrash"):
+                let mixPanelStack = [...info.stack];
+                mixPanelStack.shift();
+                let workbookName = "";
+                try {
+                    workbookName = WorkbookManager.getWorkbook(
+                                WorkbookManager.getActiveWKBK()).name;
+                } catch (e) {
+                    // ignore
+                }
+                mixpanel["track"]("XdCrash", {
+                    ...eventInfo,
+                    "error": info.msg,
+                    "url": info.url,
+                    "line": info.line,
+                    "column": info.column,
+                    "stack": JSON.stringify(mixPanelStack),
+                    "txCache": JSON.stringify(Transaction.getCache()),
+                    "userName": userIdName,
+                    "workbook": workbookName
+                });
+                break;
+            default:
+                break;
+        }
+    };
+
+    const getPathStr = (ele) => {
+        var path = ele.prop("tagName");
+        if (ele.attr("id")) {
+            path += "#" + ele.attr("id");
+        }
+        if (ele.attr("class")) {
+            path += "." + ele.attr("class");
+        }
+        return path;
+    }
+
+    const getElementPath = (element) => {
+        try {
+            var path = getPathStr($(element));
+            var parents = $(element).parentsUntil("body");
+            for (var i = 0; (i < parents.length) && (path.length <= 255); i++) {
+                path += "|";
+                path += getPathStr($(parents).eq(i), path);
+            }
+            return path;
+        } catch (err) {
+            // Do not affect our use with XD
+            return "Error case: " + err;
+        }
+    }
+    xcMixpanel.getElementPath = getElementPath;
     return (xcMixpanel);
 }(jQuery, {}));

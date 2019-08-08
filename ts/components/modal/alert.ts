@@ -141,7 +141,13 @@ namespace Alert {
             detail: log,
             isAlert: true
         });
-        return Alert.show(alertOptions);
+        const id: string = Alert.show(alertOptions);
+        if (typeof mixpanel !== "undefined") {
+            xcMixpanel.errorEvent("alertError", {
+                errorMsg: msg
+            });
+        }
+        return id;
     }
 
     /**
@@ -277,7 +283,7 @@ namespace Alert {
 
     function hasOtherModalOpen(): boolean {
         return $(".modalContainer:visible:not(#alertModal):" +
-        "not(.noBackground)").length > 0 && 
+        "not(.noBackground)").length > 0 &&
         $(".modalBackground").length === 0; // XXX a hack to exclude react modal
     }
 

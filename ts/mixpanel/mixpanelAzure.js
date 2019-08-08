@@ -111,5 +111,84 @@ window.xcMixpanel = (function($, xcMixpanel) {
             });
         });
     };
+
+    xcMixpanel.errorEvent = (type, info) => {
+        const prevMouseDownInfo = gMouseEvents.getLastMouseDownTargetsSerialized();
+        let eventInfo = {
+            "Timestamp": xcTimeHelper.now(),
+            "lastMouseDownEl": prevMouseDownInfo.el,
+            "lastMouseDownTime": prevMouseDownInfo.time,
+            "lastMouseDownParents": prevMouseDownInfo.parents,
+            "prevMouseDowns": prevMouseDownInfo.prevMouseDowns
+        };
+        switch (type) {
+            case ("statusBoxError"):
+                mixpanel["track"]("statusBoxError", {
+                    ...eventInfo,
+                    "errorMsg": info.text,
+                    "Element": xcMixpanel.getElementPath(info.$target[0]),
+
+                });
+                break;
+            case ("alertError"):
+                mixpanel["track"]("alertError", {
+                    ...eventInfo,
+                    "errorMsg": info.msg,
+                });
+                break;
+            case ("XDCrash"):
+                let mixPanelStack = [...info.stack];
+                mixPanelStack.shift();
+                let workbookName = "";
+                try {
+                    workbookName = WorkbookManager.getWorkbook(
+                                WorkbookManager.getActiveWKBK()).name;
+                } catch (e) {
+                    // ignore
+                }
+                mixpanel["track"]("XdCrash", {
+                    ...eventInfo,
+                    "error": info.msg,
+                    "url": info.url,
+                    "line": info.line,
+                    "column": info.column,
+                    "stack": JSON.stringify(mixPanelStack),
+                    "txCache": JSON.stringify(Transaction.getCache()),
+                    "userName": userIdName,
+                    "workbook": workbookName
+                });
+                break;
+            default:
+                break;
+        }
+    };
+
+    const getPathStr = (ele) => {
+        var path = ele.prop("tagName");
+        if (ele.attr("id")) {
+            path += "#" + ele.attr("id");
+        }
+        if (ele.attr("class")) {
+            path += "." + ele.attr("class");
+        }
+        return path;
+    }
+
+    const getElementPath = (element) => {
+        try {
+            var path = getPathStr($(element));
+            var parents = $(element).parentsUntil("body");
+            for (var i = 0; (i < parents.length) && (path.length <= 255); i++) {
+                path += "|";
+                path += getPathStr($(parents).eq(i), path);
+            }
+            return path;
+        } catch (err) {
+            // Do not affect our use with XD
+            return "Error case: " + err;
+        }
+    }
+    xcMixpanel.getElementPath = getElementPath;
+
     return (xcMixpanel);
 }(jQuery, {}));

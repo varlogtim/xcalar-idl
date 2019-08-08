@@ -105,6 +105,12 @@ window.UnitTest = (function(UnitTest, $) {
             $('#xc').toggleClass('large');
         });
 
+        xcMixpanel = window.xcMixpanel || {};
+        if (!xcMixpanel.errorEvent) {
+            xcMixpanel.errorEvent = () => {};
+        }
+
+
         var prevPct = null;
         window.mochaPct = 0;
         consolePct();

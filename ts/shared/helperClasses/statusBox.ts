@@ -55,6 +55,7 @@ namespace StatusBox {
         public show(text: string, $target: JQuery, formMode?: boolean, options: StatusDisplayerOpions = <StatusDisplayerOpions>{}): void {
             if (!$target.length) {
                 // XXX this shouldn't happen but it has before
+                console.error($target, "statusBox target not found");
                 return;
             } else if ($target.length > 1) {
                 $target = $target.eq(0);
@@ -71,6 +72,12 @@ namespace StatusBox {
             $target.scrollintoview({duration: 0});
             this.setupPosition(options.offsetX, options.offsetY);
             this.setupHideOption(options.preventImmediateHide, options.delayHide);
+            if (typeof mixpanel !== "undefined") {
+                xcMixpanel.errorEvent("statusBoxError", {
+                    text: text,
+                    $target: $target
+                });
+            }
         }
 
         public forceHide(): void {

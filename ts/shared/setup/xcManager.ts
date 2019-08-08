@@ -1081,72 +1081,23 @@ namespace xcManager {
         }
 
         window.onerror = function(msg: string|Event, url: string, line: number, column: number, error: Error): void {
-            let mouseDownTargetHTML: string = "";
-            const parentsHTML: string[] = [];
-            const lastTargets: JQuery[] = gMouseEvents.getLastMouseDownTargets();
-            const $lastTarget: JQuery = lastTargets[0];
-            const prevTargetsHtml: string[][] = [];
-
-            // get last 3 mousedown elements and parents
-            if ($lastTarget && !$lastTarget.is(document)) {
-                mouseDownTargetHTML = $lastTarget.clone().empty()[0].outerHTML;
-
-                $lastTarget.parents().each(function() {
-                    if (!this.tagName) {
-                        return;
-                    }
-                    let html: string = "<" + this.tagName.toLowerCase();
-                    $.each(this.attributes, function() {
-                        if (this.specified) {
-                            html += ' ' + this.name + '="' + this.value + '"';
-                        }
-                    });
-                    html += ">";
-                    parentsHTML.push(html);
-                });
-
-                for (let i = 1; i < lastTargets.length; i++) {
-                    const prevTargetParents: string[] = [];
-                    lastTargets[i].parents().addBack().each(function() {
-                        if (!this.tagName) {
-                            return;
-                        }
-                        let html: string = "<" + this.tagName.toLowerCase();
-                        $.each(this.attributes, function() {
-                            if (this.specified) {
-                                html += ' ' + this.name + '="' + this.value +
-                                        '"';
-                            }
-                        });
-                        html += ">";
-                        prevTargetParents.unshift(html);
-                    });
-
-                    prevTargetsHtml.push(prevTargetParents);
-                }
-            }
-
-            const mouseDownTime: number = gMouseEvents.getLastMouseDownTime();
+            const prevMouseDownInfo = gMouseEvents.getLastMouseDownTargetsSerialized();
             let stack: string[] = null;
             if (error && error.stack) {
                 stack = error.stack.split("\n");
             }
 
-            let info: object = {
+            let info = {
                 "error": msg,
                 "url": url,
                 "line": line,
                 "column": column,
-                "lastMouseDown": {
-                    "el": mouseDownTargetHTML,
-                    "time": mouseDownTime,
-                    "parents": parentsHTML,
-                    "prevMouseDowns": prevTargetsHtml
-                },
+                "lastMouseDown": prevMouseDownInfo,
                 "stack": stack,
                 "txCache": xcHelper.deepCopy(Transaction.getCache()),
                 "browser": window.navigator.userAgent,
                 "platform": window.navigator.platform,
+                "logCursor": Log.getCursor()
             };
             if (window["debugOn"]) {
                 xcConsole.log(msg, url + ":" + line + ":" + column, {stack: stack});
@@ -1166,10 +1117,12 @@ namespace xcManager {
                 const promise = Log.commitErrors();
 
                 if (typeof mixpanel !== "undefined") {
-                    const timestamp: number = (new Date()).getTime();
-                    mixpanel["track"]("XdCrash", {
-                        "Timestamp": timestamp,
-                        "errorMsg": JSON.stringify(info)
+                    xcMixpanel.errorEvent("XDCrash", {
+                        msg: msg,
+                        url: url,
+                        line: line,
+                        column: column,
+                        stack: stack
                     });
                 }
 

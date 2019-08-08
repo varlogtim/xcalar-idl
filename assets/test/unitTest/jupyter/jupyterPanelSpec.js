@@ -124,11 +124,14 @@ describe("JupyterPanel Test", function() {
             xcMixpanel.forDev = function() {
                 return true;
             };
+            var cacheFn3 = xcMixpanel.errorEvent;
+            xcMixpanel.errorEvent = () => {};
             sendMessage({action: "mixpanel"})
             .then(function() {
                 expect(called).to.be.true;
                 mixpanel.track = cacheFn;
                 xcMixpanel.forDev = cacheFn2;
+                xcMixpanel.errorEvent = cacheFn3;
                 done();
             })
             .fail(function() {
@@ -362,6 +365,7 @@ describe("JupyterPanel Test", function() {
                 return [tab];
             }
 
+
             MainMenu.openPanel = function(type) {
                 expect(type).to.equal("dagPanel");
                 called1 = true;
@@ -392,6 +396,8 @@ describe("JupyterPanel Test", function() {
             var prevText = $("#fileFormat .text").val();
             $("#fileFormat .text").val(text);
 
+
+
             var called1 = false;
             var called2 = false;
             var cache1 = MainMenu.openPanel;
@@ -404,10 +410,14 @@ describe("JupyterPanel Test", function() {
                 called2 = true;
             });
 
+            var cacheFn3 = xcMixpanel.errorEvent;
+            xcMixpanel.errorEvent = () => {};
+
             JupyterPanel.__testOnly__.showDSForm("a", "b");
             expect(called1).to.be.true;
             expect(called2).to.be.true;
             MainMenu.openPanel = cache1;
+            xcMixpanel.errorEvent = cacheFn3;
 
             if (wasHidden) {
                 $("#dsForm-preview").addClass("xc-hidden");

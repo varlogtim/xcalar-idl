@@ -911,6 +911,8 @@ declare namespace TPrefix {
 declare namespace xcMixpanel {
     export function setup(): void;
     export function forDev(): boolean;
+    export function getElementPath(HTMLElement): string;
+    export function errorEvent(type: string, info: any): void;
 }
 
 declare namespace Msal {
