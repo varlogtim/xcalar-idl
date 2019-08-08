@@ -28,6 +28,10 @@ namespace xcConsole {
             }
         } else {
             if (isDebugOn()) {
+                if (args[2] && args[2].stack) {
+                    stack = args[2].stack;
+                    args.splice(2, 1);
+                }
                 console.log.apply(this, args.concat([stack]));
                 logs.push({msg: args, stack: stack});
                 showAlert(args, stack);

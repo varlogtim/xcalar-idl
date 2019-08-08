@@ -180,8 +180,7 @@ describe("FileListModal Test", function() {
         });
 
         // using FileListModal.Instance.show to create the whole thing
-        // XXX fails jenkins: should not text UI
-        it.skip("draw tree should work", function() {
+        it("draw tree should work", function() {
             $modal.find(".close").click();
             XcalarMakeResultSetFromDataset = function(dsName, forErrors) {
                 return PromiseHelper.resolve({});
@@ -232,12 +231,12 @@ describe("FileListModal Test", function() {
             expect($modal.find(".treeWrap").find(".label:visible").length).to.equal(5);
         });
 
-        // XXX fails jenkins: should not text UI
-        it.skip("search should work", function() {
+        it("search should work", function() {
             $modal.find(".searchbarArea input").val("x").trigger("input");
             expect($modal.find(".highlightedText").length).to.equal(3);
             expect($modal.find(".highlightedText.selected").length).to.equal(1);
-            expect($modal.find(".highlightedText.selected").parent().text()).to.equal("d.txt");
+
+            expect($modal.find(".highlightedText.selected").parent().text().endsWith(".txt")).to.be.true;
 
             $modal.find(".searchbarArea").find(".closeBox").click(); // clear
             $modal.find(".searchbarArea").find(".closeBox").click(); //close

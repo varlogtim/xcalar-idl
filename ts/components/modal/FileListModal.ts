@@ -10,7 +10,7 @@ class FileListModal {
     }
 
     private _modalHelper: ModalHelper;
-    private _searchHelper: SearchBar;
+    private _searchBar: SearchBar;
     private _nodesMap: {[key: string]: FileTreeNode};
     private _roots: {[key: string]: FileTreeNode};
     private _curResultSetId: string;
@@ -23,7 +23,7 @@ class FileListModal {
             defaultWidth: 400,
             defaultHeight: 400
         });
-       
+
         this._addEventListeners();
         this._setupSearch();
     }
@@ -81,7 +81,7 @@ class FileListModal {
             $modal.removeClass("load");
         });
     }
-    
+
     private _getModal(): JQuery {
         return $("#fileListModal");
     }
@@ -90,7 +90,7 @@ class FileListModal {
         let $modal = this._getModal();
         $modal.find(".treeWrap").empty();
         this._modalHelper.clear();
-        this._searchHelper.clearSearch();
+        this._searchBar.clearSearch();
         $modal.find(".searchbarArea").addClass("closed");
         this._nodesMap = null;
         this._roots = null;
@@ -123,7 +123,7 @@ class FileListModal {
         let $searchInput = $searchArea.find("input");
         let text: string = $searchInput.val().toLowerCase();
         if (text === "") {
-            this._searchHelper.clearSearch();
+            this._searchBar.clearSearch();
             return;
         }
 
@@ -142,10 +142,10 @@ class FileListModal {
             });
             $(this).html(foundText);
         });
-        this._searchHelper.updateResults($content.find('.highlightedText'));
+        this._searchBar.updateResults($content.find('.highlightedText'));
 
-        if (this._searchHelper.numMatches !== 0) {
-            this._scrollMatchIntoView(this._searchHelper.$matches.eq(0));
+        if (this._searchBar.numMatches !== 0) {
+            this._scrollMatchIntoView(this._searchBar.$matches.eq(0));
         }
     }
 
@@ -321,29 +321,26 @@ class FileListModal {
     private _setupSearch(): void {
         let $modal = this._getModal();
         let $searchArea = $modal.find(".searchbarArea");
-        let self = this;
-        this._searchHelper = new SearchBar($searchArea, {
+        this._searchBar = new SearchBar($searchArea, {
             "removeSelected": function() {
                 $modal.find('.selected').removeClass('selected');
             },
             "highlightSelected": function($match) {
                 $match.addClass("selected");
             },
-            "scrollMatchIntoView": self._scrollMatchIntoView,
+            "scrollMatchIntoView": this._scrollMatchIntoView.bind(this),
             "$list": $modal.find(".treeWrap"),
             "removeHighlight": true,
-            "toggleSliderCallback": self._searchText,
-            "onInput": function() {
-                self._searchText();
-            }
+            "toggleSliderCallback": this._searchText.bind(this),
+            "onInput": this._searchText.bind(this)
         });
 
         let $searchInput = $searchArea.find("input");
         $searchArea.find(".closeBox").click(() => {
             if ($searchInput.val() === "") {
-                this._searchHelper.toggleSlider();
+                this._searchBar.toggleSlider();
             } else {
-                this._searchHelper.clearSearch(() => {
+                this._searchBar.clearSearch(() => {
                     $searchInput.focus();
                 });
             }

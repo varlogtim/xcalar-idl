@@ -1148,7 +1148,12 @@ namespace xcManager {
                 "browser": window.navigator.userAgent,
                 "platform": window.navigator.platform,
             };
-            xcConsole.log(msg, url + ":" + line + ":" + column);
+            if (window["debugOn"]) {
+                xcConsole.log(msg, url + ":" + line + ":" + column, {stack: stack});
+            } else {
+                xcConsole.log(msg, url + ":" + line + ":" + column);
+            }
+
 
             Log.errorLog("Console error", null, null, info);
 
