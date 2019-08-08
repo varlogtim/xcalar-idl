@@ -76,14 +76,20 @@ class DagView {
         let startingWidth: number = 0;
         const allNodeInfos = [];
         let overallMaxDepth = 0;
-
         for (let i in trees) {
             const tree = trees[i];
             const nodes = {};
+            let showingProgressTips: boolean = false;
             for (let j in tree) {
                 let node: DagNode = tree[j];
                 if (node.getChildren().length === 0) {
-                    DagView._alignNodes(node, nodes, startingWidth);
+                    if (!showingProgressTips) {
+                        showingProgressTips = DagView.$dagView.hasClass("showProgressTips") && searchForTooltip(node, new Set());
+                        if (showingProgressTips && startingWidth > 0) { // don't adjust the first row of nodes
+                            startingWidth += (2/3); // must be divisible by 3 because vertNodeSpacing == 60
+                        }
+                    }
+                    DagView._alignNodes(node, nodes, startingWidth, showingProgressTips);
                 }
             }
 
@@ -115,6 +121,7 @@ class DagView {
                     }
                 });
             }
+
             startingWidth = (maxWidth + 1);
         }
         const graphHeight = DagView.vertNodeSpacing * (startingWidth - 1) + DagView.gridSpacing;
@@ -132,6 +139,25 @@ class DagView {
             nodeInfos: allNodeInfos,
             maxX: Math.round(maxX),
             maxY: Math.round(maxY)
+        }
+
+        function searchForTooltip(node: DagNode, seen: Set<DagNodeId>) {
+            if (node.getState() === DagNodeState.Complete) {
+                return true;
+            }
+            if (seen.has(node.getId())) {
+                return false;
+            }
+            seen.add(node.getId());
+            let parents = node.getParents();
+            for (let i = 0; i < parents.length; i++) {
+                let parent = parents[i];
+                let hasTooltip = searchForTooltip(parent, seen);
+                if (hasTooltip) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -572,9 +598,9 @@ class DagView {
     private static _alignNodes(
         node: DagNode,
         seen: {[key: string]: {depth: number, width: number}},
-        width: number
+        width: number,
+        showingProgressTips: boolean
     ): void {
-        let showingProgressTips: boolean = DagView.$dagView.hasClass("showProgressTips") && searchForTooltip(node, new Set());
         let greatestWidth = width;
         let takenCoors = new Map();
         let widthUnit = 1;
@@ -686,25 +712,6 @@ class DagView {
                     }
                 }
             }
-        }
-
-        function searchForTooltip(node: DagNode, seen: Set<DagNodeId>) {
-            if (node.getState() === DagNodeState.Complete) {
-                return true;
-            }
-            if (seen.has(node.getId())) {
-                return false;
-            }
-            seen.add(node.getId());
-            let parents = node.getParents();
-            for (let i = 0; i < parents.length; i++) {
-                let parent = parents[i];
-                let hasTooltip = searchForTooltip(parent, seen);
-                if (hasTooltip) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         function widthCondense(node, oldWidth, width) {
