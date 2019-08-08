@@ -117,7 +117,7 @@ class DagNodeAggregate extends DagNode {
             let oldAgg = DagAggManager.Instance.getAgg(oldAggName);
             if (oldAgg.value != null) {
                 // We're replacing the value so we need to delete it
-                promise = DagAggManager.Instance.removeAgg(oldAgg.dagName, true);
+                promise = DagAggManager.Instance.removeAgg(oldAggName, true);
             }
         }
         PromiseHelper.alwaysResolve(promise)
