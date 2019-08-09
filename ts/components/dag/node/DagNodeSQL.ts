@@ -1177,19 +1177,6 @@ class DagNodeSQL extends DagNode {
         let dropAsYouGo;
         let sqlFunctions;
         try {
-            if (replaceParam) {
-                // paramterize SQL
-                const parameters = DagNodeInput.getParamsInVal(sqlQueryStr);
-                const paramService = this.getRuntime().getDagParamService();
-                paramService.updateSQLParamMap(
-                    options.originalSQLNode || this, parameters);
-                sqlQueryStr = xcStringHelper.replaceMsg(sqlQueryStr,
-                    paramService.getParamMap(), true);
-                // DagParamManager.Instance.updateSQLParamMap(
-                //                    options.originalSQLNode || this, parameters);
-                // sqlQueryStr = xcStringHelper.replaceMsg(sqlQueryStr,
-                //                   DagParamManager.Instance.getParamMap(), true);
-            }
             // set all options
             self.setIdentifiers(options.identifiers);
             identifiers = self.getIdentifiers();

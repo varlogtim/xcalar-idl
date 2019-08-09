@@ -508,6 +508,7 @@ SQLErrTStr = {
     "EvalOnlyChildAttr": "Eval list's only child should be AttributeReference in non-groupingexpressions list",
     "UnsupportedColType": "Unsupported column type: ",
     "UDFColumnMismatch": "UDF columns mismatch",
+    "ParameterMismatch": "Parameter names mismatch",
     "InvalidLogicalPlan": "Invalid logical plan",
     "InvalidXcalarQuery": "Invalid Xcalar Query String",
     "InvalidPageInfo": "Invalid Xcalar result set page",
@@ -561,7 +562,8 @@ SQLErrTStr = {
     "NoRightRowNumCol": "No right row number column in right outer join",
     "Warning": "SQL Warning",
     "MultiQueries": "Multi-queries not supported in dataflow mode.",
-    "InvalidColName": "Invalid column name found. A name can only begin with a letter or underscore(_), not contain the following characters: ^.',\":()[]{}\\ or space, and use fewer than 255 characters. Please rename before sql node: "
+    "InvalidColName": "Invalid column name found. A name can only begin with a letter or underscore(_), not contain the following characters: ^.',\":()[]{}\\ or space, and use fewer than 255 characters. Please rename before sql node: ",
+    "UnexpectedParam": "Unexpected single parameter"
 };
 
 SQLInfoTStr = {

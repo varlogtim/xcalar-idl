@@ -1375,8 +1375,10 @@ class DagNodeExecutor {
                 startTime: new Date()
             });
             node.updateSQLQueryHistory();
+            let finalQueryStrParamReplaced: string = DagNodeInput.replaceParameters(
+                    finalQueryStr, this.getRuntime().getDagParamService().getParamMap());
 
-            return XIApi.query(self.txId, queryId, finalQueryStr, options);
+            return XIApi.query(self.txId, queryId, finalQueryStrParamReplaced, options);
         })
         .then(function(_res) {
             node.getSQLQuery().columns = node.getColumns();

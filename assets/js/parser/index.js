@@ -1,66 +1,10 @@
 var antlr4 = require('antlr4/index');
-// For SQL
-var SqlBaseLexer = require('./base/SqlBaseLexer.js').SqlBaseLexer;
-var SqlBaseParser = require('./base/SqlBaseParser.js').SqlBaseParser;
-var SqlVisitor = require('./SqlVisitor.js').SqlVisitor;
 
 // For XEval
 var XEvalBaseLexer = require('./base/XEvalBaseLexer.js').XEvalBaseLexer;
 var XEvalBaseParser = require('./base/XEvalBaseParser.js').XEvalBaseParser;
 var XEvalVisitor = require('./XEvalVisitor.js').XEvalVisitor;
 var XcErrorListener = require('./XcErrorListener').XcErrorListener;
-
-class SqlParser {
-    static genParser(sqlStatement) {
-        var chars = new antlr4.InputStream(sqlStatement);
-        var lexer = new SqlBaseLexer(chars);
-        var tokens  = new antlr4.CommonTokenStream(lexer);
-        var parser = new SqlBaseParser(tokens);
-        parser.buildParseTrees = true;
-        return parser;
-    }
-    static getMultipleQueriesViaParser(sqlStatement) {
-        var parser = this.genParser(sqlStatement);
-        var tree = parser.statements();
-        var visitor = new SqlVisitor();
-        visitor.visitStatements(tree);
-
-        return visitor.statements;
-    }
-    static getTableIdentifiers(sqlStatement) {
-        var parser = this.genParser(sqlStatement);
-        var tree = parser.statement();
-        var visitor = new SqlVisitor();
-        visitor.visitTables(tree);
-        var identifiers = [];
-        visitor.tableIdentifiers.forEach((identifier) => {
-            if (visitor.namedQueries.indexOf(identifier) === -1) {
-                identifiers.push(identifier);
-            }
-        });
-        return identifiers;
-    }
-
-    static getSQLTableFunctions(sqlStatement) {
-        var parser = this.genParser(sqlStatement);
-        var tree = parser.statement();
-
-        var visitor = new SqlVisitor();
-        var newStatement = visitor.getFunctions(tree).trim();
-
-        return {sqlFunctions: visitor.sqlFunctions,
-                sqlQuery: newStatement};
-    }
-
-    static getPreStatements(sqlStatement) {
-        var parser = this.genParser(sqlStatement);
-        var tree = parser.statement();
-
-        var visitor = new SqlVisitor();
-        return visitor.getPreStatements(tree);
-    }
-}
-exports.SqlParser = SqlParser;
 
 class XEvalParser {
     static parseEvalStr(evalStr, throwFlag) {

@@ -276,7 +276,7 @@ class SQLEditorSpace {
             let executePromiseArray: XDPromise<any>[] = [];
             const struct = {
                 sqlQuery: sqls,
-                ops: ["identifier", "sqlfunc", "command"],
+                ops: ["identifier", "sqlfunc", "command", "parameters"],
                 isMulti: (sqls.indexOf(";") > -1)
             };
             SQLUtil.sendToPlanner("", "parse", struct)

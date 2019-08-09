@@ -72,6 +72,7 @@ interface SQLAccumulator {
     subqueryArray?: SQLSubqueryStruct[];
     numOps?: number;
     udfs?: string[];
+    params?: string[];
     isDistinct?: boolean;
     noAssignOp?: boolean;
     operator?: string;

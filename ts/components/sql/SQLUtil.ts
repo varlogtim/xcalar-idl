@@ -66,7 +66,7 @@ class SQLUtil {
         const deferred: XDDeferred<SQLParserStruct> = PromiseHelper.deferred();
         const struct = {
             sqlQuery: sql,
-            ops: ["identifier", "sqlfunc"],
+            ops: ["identifier", "sqlfunc", "parameters"],
             isMulti: false
         };
         SQLUtil.sendToPlanner("", "parse", struct)

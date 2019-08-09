@@ -1,4 +1,3 @@
-
 const SQLPushDownDriver = {
     "Project": SQLProject,
     "Filter": SQLFilter,
@@ -745,6 +744,8 @@ class SQLCompiler {
             } else {
                 node.colType = SQLColumnType.String;
             }
+        } else if (curOpName === "XCEParameter") {
+            node.colType = SQLColumnType.String;
         } else if (curOpName === SQLCompiler._getSparkExpression("If")) {
             if (SQLCompiler.getColType(node.children[1]) == null) {
                 node.colType = SQLCompiler.getColType(node.children[2]);
@@ -1325,7 +1326,8 @@ class SQLCompiler {
         if (opName in SparkExprToXdf ||
             opName === SQLCompiler._getSparkExpression("aggregate.AggregateExpression") ||
             opName === SQLCompiler._getSparkExpression("ScalarSubquery") ||
-            opName === SQLCompiler._getSparkExpression("XCEPassThrough")) {
+            opName === SQLCompiler._getSparkExpression("XCEPassThrough") ||
+            opName === SQLCompiler._getSparkExpression("XCEParameter")) {
             let numLeftPar: number = 0;
             if (opName.indexOf("aggregate.") === 0) {
                 if (opName === "aggregate.AggregateExpression") {
@@ -1459,6 +1461,12 @@ class SQLCompiler {
                 condTree.subqueryTree.subqVarName = subqVarName;
                 acc.subqueryArray.push({subqueryTree: condTree.subqueryTree});
                 outStr += condTree.subqueryTree.aggType + "(^" + subqVarName + ")";
+            } else if (opName === "XCEParameter") {
+                outStr = '"' + condTree.value.name.toUpperCase() + '"';
+                if (acc.hasOwnProperty("params")) {
+                    acc.params.push(condTree.value.name.substring(1,
+                                    condTree.value.name.length - 1).toUpperCase());
+                }
             } else {
                 if (acc && acc.hasOwnProperty("numOps")) {
                     acc.numOps += 1;
@@ -1598,6 +1606,7 @@ class SQLCompiler {
                                         aggEvalStructArray: aggEvalStructArray,
                                         numOps: 0,
                                         udfs: [],
+                                        params: [],
                                         subqueryArray: subqueryArray};
                 const evalStr = SQLCompiler.genEvalStringRecur(treeNode, acc, options);
 
@@ -1609,10 +1618,12 @@ class SQLCompiler {
                                                      evalList[i][0].name, true);
                     colStruct.colId = evalList[i][0].exprId.id;
                 }
-                // XCEPASSTHROUGH -> UDF_NAME
+                // XCEPASSTHROUGH -> UDF_NAME, XCEPARAMETER -> PARAM_NAME
                 colStruct.colName = newColName;
                 newColName = SQLCompiler.cleanseColName(
+                             SQLCompiler.replaceParamName(
                              SQLCompiler.replaceUDFName(newColName, acc.udfs),
+                             acc.params),
                              false, true);
                 colStruct.colType = SQLCompiler.getColType(treeNode);
                 if (newColName !== colStruct.colName) {
@@ -1639,26 +1650,37 @@ class SQLCompiler {
                     evalStruct.operator = acc.operator;
                     evalStruct.arguments = acc.arguments;
                 }
-                if (evalList[i].length === 2 && (!options || !options.groupBy)
-                    && (evalList[i][1].class ===
+                if (evalList[i].length === 2 && (!options || !options.groupBy)) {
+                    if (evalList[i][1].class ===
                     "org.apache.spark.sql.catalyst.expressions.AttributeReference"
                     || evalList[i][1].class ===
-                    "org.apache.spark.sql.catalyst.expressions.Literal")) {
-                    // This is a special alias case
-                    SQLUtil.assert(evalList[i][1].dataType, SQLErrTStr.NoDataType);
-                    if (evalList[i][1].value !== null) {
+                    "org.apache.spark.sql.catalyst.expressions.Literal") {
+                        // This is a special alias case
+                        SQLUtil.assert(evalList[i][1].dataType, SQLErrTStr.NoDataType);
+                        if (evalList[i][1].value !== null) {
+                            const dataType = SQLCompiler.convertSparkTypeToXcalarType(
+                                                        evalList[i][1].dataType);
+                            evalStruct.evalStr = dataType + "(" +
+                                                evalStruct.evalStr + ")";
+                        } else {
+                            evalStruct.evalStr = "int(" + evalStruct.evalStr + ")";
+                        }
+                        evalStruct.numOps += 1;
+                    } else if (evalList[i][1].class ===
+                        "org.apache.spark.sql.catalyst.expressions.XCEParameter") {
                         const dataType = SQLCompiler.convertSparkTypeToXcalarType(
-                                                       evalList[i][1].dataType);
+                                                evalList[i][1].paramType);
                         evalStruct.evalStr = dataType + "(" +
-                                             evalStruct.evalStr + ")";
-                    } else {
-                        evalStruct.evalStr = "int(" + evalStruct.evalStr + ")";
+                                            evalStruct.evalStr + ")";
+                        evalStruct.numOps += 1;
                     }
-                    evalStruct.numOps += 1;
                 }
                 evalStructArray.push(evalStruct);
             } else {
                 const curColStruct = evalList[i][0];
+                SQLUtil.assert(curColStruct.class !==
+                    "org.apache.spark.sql.catalyst.expressions.XCEParameter",
+                    SQLErrTStr.UnexpectedParam);
                 if (curColStruct.class !==
                     "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                     SQLUtil.assert(options && options.groupBy && curColStruct.class ===
@@ -1927,6 +1949,19 @@ class SQLCompiler {
                 return match;
             }
             return udfs[i++];
+        });
+    }
+
+    static replaceParamName(name: string, params: string[]): string {
+        let i = 0;
+        const re = new RegExp(SQLPrefix.paramPrefix, "g");
+        return name.toUpperCase().replace(re, function(match) {
+            if (i === params.length) {
+                // Should always match, otherwise throw an error
+                SQLUtil.assert(false, SQLErrTStr.ParameterMismatch);
+                return match;
+            }
+            return params[i++];
         });
     }
 

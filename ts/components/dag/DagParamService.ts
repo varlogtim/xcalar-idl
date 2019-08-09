@@ -19,13 +19,6 @@ class DagParamService {
         return plainMap;
     }
 
-    public updateSQLParamMap(node: DagNodeSQL, params?: string[]): void {
-        if (this._hasManager()) {
-            return DagParamManager.Instance.updateSQLParamMap(node, params);
-        }
-        // Don't need to do anything in expServer execution path
-    }
-
     private _hasManager(): boolean {
         return typeof DagParamManager !== 'undefined';
     }

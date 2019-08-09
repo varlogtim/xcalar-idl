@@ -255,6 +255,7 @@ enum SparkExprToXdf {
 
 enum SQLPrefix {
     udfPrefix = "XCEPASSTHROUGH",
+    paramPrefix = "XCEPARAMETER()",
     logicalOpPrefix = "org.apache.spark.sql.catalyst.plans.logical"
 }
 
