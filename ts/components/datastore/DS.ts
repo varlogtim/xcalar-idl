@@ -3362,6 +3362,8 @@ namespace DS {
             if (txId != null) {
                 Transaction.done(txId, {});
             }
+            // clear error
+            dsObj.setError(undefined);
             deferred.resolve();
         })
         .fail((error) => {

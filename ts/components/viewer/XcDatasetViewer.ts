@@ -57,13 +57,14 @@ class XcDatasetViewer extends XcViewer {
             return this.dataset.fetch(0, this.initialNumRowsToFetch);
         })
         .then((ret) => {
-            const {jsons, jsonKeys} = ret;
-            if (this.dataset.getError() != null) {
-                return PromiseHelper.reject(DSTStr.PointErr);
+            try {
+                const {jsons, jsonKeys} = ret;
+                this.totalRows = this.dataset.getNumEntries();
+                this._getSampleTable(jsonKeys, jsons);
+                deferred.resolve();
+            } catch (e) {
+                deferred.reject(e.message);
             }
-            this.totalRows = this.dataset.getNumEntries();
-            this._getSampleTable(jsonKeys, jsons);
-            deferred.resolve();
         })
         .fail(deferred.reject);
 

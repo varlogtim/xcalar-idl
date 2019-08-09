@@ -52,28 +52,6 @@ describe("XcDatasetViewer Test", function() {
         });
     });
 
-    it("render should reject error case", function(done) {
-        let viewer = createDatasetViewer();
-        let called = 0;
-        viewer._fetchSchema =
-        viewer._getSampleTable =
-        viewer.dataset.fetch = () => {
-            called++;
-            return PromiseHelper.resolve({jsons: [],  jsonKeys: []});
-        };
-        viewer.dataset.setError("test");
-
-        viewer.render($())
-        .then(function() {
-            done("fail");
-        })
-        .fail(function(error) {
-            expect(called).to.equal(2);
-            expect(error).to.equal(DSTStr.PointErr);
-            done();
-        });
-    });
-
     it("setDisplaySchema should work", function() {
         let viewer = createDatasetViewer();
         let testSchema = [{"name": "test", "type": ColumnType.string}];

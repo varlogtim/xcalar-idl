@@ -85,8 +85,6 @@ class DSTable {
                 // when network is slow and user trigger another
                 // get sample table code will goes here
                 return PromiseHelper.reject(notLastDSError);
-            } else if (dsObj.getError() != null) {
-                return PromiseHelper.reject(DSTStr.PointErr);
             }
             clearTimeout(timer);
             this._setupViewAfterLoading(dsObj);
