@@ -11,6 +11,7 @@ class RestoreDataset extends EventEmitter {
             needRestore = result.value;
         });
         this.api.perform(() => {
+            let datasetName = "";
             if (needRestore) {
                 console.log("restoring dataset");
                 this.api.moveToElement("#dagNodeMenu li.restoreDataset", 10, 1)
@@ -19,13 +20,19 @@ class RestoreDataset extends EventEmitter {
                     .pause(1000)
                     .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
                     .mouseButtonClick('left')
+                    .getText(`#dsListSection .grid-unit:last-child`, function(result) {
+                        datasetName = result.value;
+                        //cb(datasetName);
+                    })
                     .waitForElementVisible('#dsTableContainer .datasetTable', 100000)
                     .moveToElement('#modelingDataflowTab', 1, 1)
                     .mouseButtonClick('left');
             }
+
+            this.emit('complete');
         });
 
-        this.emit('complete');
+
         return this;
     }
 }

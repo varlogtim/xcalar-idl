@@ -110,6 +110,7 @@ class RecreateNodes extends EventEmitter {
                                     .waitForElementVisible("#alertModal", 2000)
                                     .click("#alertActions .confirm")
                                     .waitForElementNotVisible("#alertModal", 5000)
+                                    .waitForElementNotVisible("#modalBackground", 5000)
                                     .pause(1000) // wait for the alert to close fully
                                     .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
                                         + `[data-childnodeid="${childId}"]`

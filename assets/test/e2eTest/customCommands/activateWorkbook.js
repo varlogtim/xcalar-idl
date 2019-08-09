@@ -6,21 +6,26 @@ class ActivateWorkbook extends EventEmitter {
         .pause(2000)
         .click(".workbookBox .content.activate")
         .pause(10000)
-        .waitForElementNotVisible("#initialLoadScreen", 100000);
+        .waitForElementNotVisible("#initialLoadScreen", 100000)
+        .pause(3000);
         this.api.isPresent("#intro-popover", (isPresent) => {
             if (isPresent) {// close intro popup if visible
                 this.api.click("#intro-popover .cancel");
-                this.api.pause(1000);
+                this.api.pause(3000);
             }
 
             this.api.isVisible("#alertModal", results => {
                 if (results.value) { // close alert modal if visible
-                    this.api.click("#alertModal .cancel:first-child");
-                    this.api.pause(1000);
+                    this.api
+                    .click("#alertModal .cancel:first-child")
+
                 }
+                this.api
+                .waitForElementNotVisible("#modalBackground")
+                .pause(3000);
 
                 if (isUpgrade) {
-                    this.api.waitForElementVisible("#dagListSection .fileName .name", 10000)
+                    this.api.waitForElementVisible("#dagListSection .fileName .name", 100000)
                     .click("#dagListSection .fileName .name");
                 }
 

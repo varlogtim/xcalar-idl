@@ -50,6 +50,32 @@ module.exports = {
             });
 
         }
+        browser
+        .click("#dataStoresTab");
+        browser.isVisible("#datastoreMenu .menuSection.in", (results) => {
+            if (results.value) {
+                /* is visible, good */
+            } else {
+                browser.click("#inButton");
+            }
+            browser
+            .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
+            .mouseButtonClick('right')
+            .waitForElementVisible("#gridViewMenu", 1000)
+            .click("#gridViewMenu .deactivate")
+            .waitForElementVisible("#alertModal", 10000)
+            .click("#alertModal .confirm")
+            .waitForElementVisible("#dsListSection .grid-unit:last-child.inActivated", 20000)
+            .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
+            .mouseButtonClick('right')
+            .waitForElementVisible("#gridViewMenu", 1000)
+            .click("#gridViewMenu .delete")
+            .waitForElementVisible("#alertModal", 10000)
+            .click("#alertModal .confirm")
+            .waitForElementNotVisible("#modalBackground", 10000)
+            .pause(3000);
+        });
+
         browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
     },
 
@@ -486,7 +512,9 @@ module.exports = {
                 browser
                 .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"]')
                 .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
-                .restoreDataset('.dataflowArea.active .operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .main');
+                .restoreDataset('.dataflowArea.active .operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .main', (res) => {
+                    // console.log("dataset: " + res);
+                });
             });
         }
     },
@@ -640,16 +668,28 @@ module.exports = {
                 .executeNode(".operator.sql")
                 .moveToElement(`.dataflowArea.active .operator.sql .main`, 10, 20)
                 .mouseButtonClick('right')
-                .waitForElementVisible("#dagNodeMenu", 1000);
-                browser.moveToElement("#dagNodeMenu li.viewResult", 10, 1)
-
+                .waitForElementVisible("#dagNodeMenu", 1000)
+                .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
                 .mouseButtonClick('left')
                 .waitForElementVisible('#dagViewTableArea .totalRows', 20000);
 
             browser.getText('#dagViewTableArea .totalRows', ({value}) => {
                 browser.assert.equal(value, "0");
             });
+            // reset the dataset node so we can delete the dataset at cleanup
+            browser
+            .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"]', 30, 15)
+            .mouseButtonClick('right')
+            .waitForElementVisible("#dagNodeMenu", 1000)
+            .moveToElement("#dagNodeMenu li.resetNode", 10, 1)
+            .mouseButtonClick('left')
+            .waitForElementVisible('#alertModal', 10000)
+            .click('#alertModal .confirm')
+            .waitForElementNotVisible("#modalBackground", 10000)
+            .pause(3000);
         }
+
+
     },
 
     //validate bottom dataflow which came from embedded retina
