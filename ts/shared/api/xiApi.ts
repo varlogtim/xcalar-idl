@@ -2672,7 +2672,7 @@ namespace XIApi {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarDeleteTable(tableName, txId, undefined, deleteCompletely)
         .then(function(ret) {
-            XIApi.deleteIndexTable(tableName);
+            cleanUpIndexTable(txId, tableName);
             deferred.resolve(ret);
         })
         .fail((error) => {
@@ -2744,7 +2744,7 @@ namespace XIApi {
                 if (state === DgDagStateT.DgDagStateReady ||
                     state === DgDagStateT.DgDagStateDropped
                 ) {
-                    XIApi.deleteIndexTable(tableName);
+                    cleanUpIndexTable(txId, tableName);
                     return null;
                 } else {
                     hasError = true;
@@ -3116,6 +3116,10 @@ namespace XIApi {
         }
     };
 
+    /**
+     * XIAPi.deleteIndexTable
+     * @param indexTable
+     */
     export function deleteIndexTable(indexTable: string): void {
         if (reverseIndexMap[indexTable]) {
             const tableName = reverseIndexMap[indexTable].tableName;
@@ -3124,6 +3128,24 @@ namespace XIApi {
             delete reverseIndexMap[indexTable];
         }
     };
+
+    function deleteIndexTableCache(txId: number, tableName: string): XDPromise<void> {
+        let cache = indexTableCache[tableName];
+        let tables = [];
+        if (cache) {
+            for (let col in cache) {
+                let indexTable = cache[col].tableName;
+                console.info("delete", indexTable)
+                tables.push(indexTable);
+            }
+        }
+        return XIApi.deleteTableInBulk(txId, tables);
+    }
+
+    function cleanUpIndexTable(txId: number, tableName: string): void {
+        XIApi.deleteIndexTable(tableName);
+        deleteIndexTableCache(txId, tableName);
+    }
 
     export function clearIndexTable(): void {
         indexTableCache = {};
