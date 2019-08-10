@@ -248,3 +248,7 @@ class MemoryAlert {
         return noTable;
     }
 }
+
+if (typeof runEntity !== "undefined") {
+    runEntity.MemoryAlert = MemoryAlert;
+}
