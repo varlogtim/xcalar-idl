@@ -1715,6 +1715,8 @@ describe("DagNodeExecutor Test", () => {
             };
         let node = DagViewManager.Instance.getActiveDag().newNode(nodeInfo);
         let outNode = createNode(DagNodeType.DFOut, null, DagNodeSubType.DFOutOptimized);
+        const parentNode = createNode();
+        outNode.connectToParent(parentNode);
         node.getLinkedNodeAndGraph = () => {
             return {
                 graph: new DagGraph(),

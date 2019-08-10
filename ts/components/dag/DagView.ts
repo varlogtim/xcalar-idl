@@ -3351,38 +3351,7 @@ class DagView {
                 if (tableName.includes("#")) {
                     generalTableName = tableName.split("#")[0] + ".*";
                 }
-                DagTblManager.Instance.deleteTable(generalTableName, true, true);
-                // Delete the node's table now
-                var sql = {
-                    "operation": SQLOps.DeleteTable,
-                    "tables": [tableName],
-                    "tableType": TableType.Unknown
-                };
-                var txId = Transaction.start({
-                    "operation": SQLOps.DeleteTable,
-                    "sql": sql,
-                    "steps": 1,
-                    "track": true
-                });
-                let deleteQuery: {}[] = [{
-                    operation: "XcalarApiDeleteObjects",
-                    args: {
-                        namePattern: tableName,
-                        srcType: "Table"
-                    }
-                }];
-                XIApi.deleteTables(txId, deleteQuery, null)
-                    .then(() => {
-                        Transaction.done(txId, {noLog: true});
-                    })
-                    .fail((error) => {
-                        Transaction.fail(txId, {
-                            "failMsg": "Deleting Tables Failed",
-                            "error": error,
-                            "noAlert": true,
-                            "title": "DagView"
-                        });
-                    });
+                DagUtil.deleteTable(generalTableName, true);
             }
         });
 
@@ -3398,6 +3367,8 @@ class DagView {
             .then(() => {
                 // remove optimized dataflow tab if opened
                 DagTabManager.Instance.removeTab(retinaName);
+                let tableName: string = DagTabOptimized.getOutputTableName(retinaName);
+                DagUtil.deleteTable(tableName, false);
             })
             .fail((error) => {
                 // most likely failed due to connectionMeta reset being called

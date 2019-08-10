@@ -169,6 +169,7 @@ class DagTblManager {
     }
 
     /**
+     * DagTblManager.Instance.deleteTable
      * Deletes table(s) (if a regex is specified) from the
      * @param name Table name
      * @param forceDelete if true, deletes locked tables. if false, ignores locked tables

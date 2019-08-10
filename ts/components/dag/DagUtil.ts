@@ -8,6 +8,51 @@ class DagUtil {
     public static scrollIntoView($el: JQuery, $container: JQuery): boolean {
         return this._isInView($el, $container, true);
     }
+    
+    /**
+     * DagUtil.deleteTable
+     * @param tableName
+     * @param regEx
+     */
+    public static deleteTable(tableName: string, regEx: boolean): XDPromise {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        DagTblManager.Instance.deleteTable(tableName, true, regEx);
+        // Delete the node's table now
+        var sql = {
+            "operation": SQLOps.DeleteTable,
+            "tables": [tableName],
+            "tableType": TableType.Unknown
+        };
+        var txId = Transaction.start({
+            "operation": SQLOps.DeleteTable,
+            "sql": sql,
+            "steps": 1,
+            "track": true
+        });
+        let deleteQuery: {}[] = [{
+            operation: "XcalarApiDeleteObjects",
+            args: {
+                namePattern: tableName,
+                srcType: "Table"
+            }
+        }];
+        XIApi.deleteTables(txId, deleteQuery, null)
+        .then(() => {
+            Transaction.done(txId, {noLog: true});
+            deferred.resolve();
+        })
+        .fail((error) => {
+            Transaction.fail(txId, {
+                "failMsg": "Deleting Tables Failed",
+                "error": error,
+                "noAlert": true,
+                "title": "DagView"
+            });
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
 
     // XXX TODO: combine with the scrollMatchIntoView function in DagTabSearchBar
     private static _isInView(

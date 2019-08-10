@@ -90,6 +90,10 @@ class DagTabOptimized extends DagTabProgress {
         return deferred.promise();
     }
 
+    /**
+     * DagTabOptimized.getOutputTableName
+     * @param retinaName
+     */
     public static getOutputTableName(retinaName: string): string {
         let outputTableName = "table_";
         let nameSplit = retinaName.split("_");
@@ -159,7 +163,12 @@ class DagTabOptimized extends DagTabProgress {
         this._isDeleted = true;
         this._queryCheckId++;
 
-        XcalarDeleteRetina(this._queryName)
+        let retinaName: string = this._queryName;
+        XcalarDeleteRetina(retinaName)
+        .then(() => {
+            let tableName: string = DagTabOptimized.getOutputTableName(retinaName);
+            DagUtil.deleteTable(tableName, false);
+        })
         .then(deferred.resolve)
         .fail((error) => {
             this._isDeleted = false;

@@ -787,7 +787,8 @@ class DagGraph extends Durable {
             new DagGraphExecutor(orderedNodes, clonedGraph, {
                 optimized: true,
                 noReplaceParam: noReplaceParam,
-                sqlNodes: sqlNodes
+                sqlNodes: sqlNodes,
+                synthesizeDFOut: true
             })
         );
         return executor.getBatchQuery();

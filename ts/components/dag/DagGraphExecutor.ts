@@ -19,6 +19,7 @@ class DagGraphExecutor {
     private _finishedNodeIds: Set<DagNodeId>;
     private _isRestoredExecution: boolean; // if restored after browser refresh
     private _internalAggNames: Set<string>; // aggs created in this graph.
+    private _synthesizeDFOut: boolean; // if true, will treat link out as synthesize op. only happen in optimized DF
 
     public static readonly stepThroughTypes = new Set([DagNodeType.PublishIMD,
         DagNodeType.IMDTable, DagNodeType.UpdateIMD, DagNodeType.Extension,
@@ -48,6 +49,7 @@ class DagGraphExecutor {
             sqlNodes?: Map<string, DagNodeSQL>,
             hasProgressGraph?: boolean,
             isRestoredExecution?: boolean
+            synthesizeDFOut?: boolean
         } = {}
     ) {
         this._nodes = nodes;
@@ -55,6 +57,7 @@ class DagGraphExecutor {
         this._isOptimized = options.optimized || false;
         this._allowNonOptimizedOut = options.allowNonOptimizedOut || false;
         this._isNoReplaceParam = options.noReplaceParam || false;
+        this._synthesizeDFOut = options.synthesizeDFOut || false;
         this._isCanceled = false;
         this._queryName = options.queryName;
         this._parentTxId = options.parentTxId;
@@ -551,10 +554,14 @@ class DagGraphExecutor {
     // the dataflow
     // also stores a map of new table names to their corresponding nodes
     public getBatchQuery(forExecution: boolean = false): XDPromise<{queryStr: string, destTables: string[]}> {
-        // get rid of link out node to get the correct query and destTable
-        const nodes: DagNode[] = this._nodes.filter((node) => {
-            return node.getType() !== DagNodeType.DFOut;
-        });
+        let nodes: DagNode[] = this._nodes;
+        if (!this._synthesizeDFOut) {
+            // get rid of link out node to get the correct query and destTable
+            nodes = this._nodes.filter((node) => {
+                return node.getType() !== DagNodeType.DFOut ||
+                node.getSubType() === DagNodeSubType.DFOutOptimized;
+            });
+        }
         const deferred: XDDeferred<{queryStr: string, destTables: string[]}> = PromiseHelper.deferred();
         const promises = [];
         const udfContext = this._getUDFContext();
@@ -639,10 +646,13 @@ class DagGraphExecutor {
      * should have [queryFn, queryFn query], op, [query , query]
      */
     private _getAndExecuteBatchQuery(txId: number, nodes: DagNode[]): XDPromise<{queryStr: string, destTables: string[]}> {
-        // get rid of link out node to get the correct query and destTable
-        nodes = nodes.filter((node) => {
-            return node.getType() !== DagNodeType.DFOut;
-        });
+        if (!this._synthesizeDFOut) {
+            // get rid of link out node to get the correct query and destTable
+            nodes = nodes.filter((node) => {
+                return node.getType() !== DagNodeType.DFOut ||
+                node.getSubType() === DagNodeSubType.DFOutOptimized;
+            });
+        }
 
         const promises = [];
         const udfContext = this._getUDFContext();
@@ -1223,7 +1233,6 @@ class DagGraphExecutor {
         if (!this._isOptimizedActiveSession) {
             outputTableName = "";
         }
-        console.log(outputTableName);
         this._createRetina(retinaParameters, tabName, outputTableName)
         .then((dagTab) => {
             this._optimizedExecuteInProgress = true;
@@ -1356,7 +1365,8 @@ class DagGraphExecutor {
                         }
                     } else {  // df out node
                         return {
-                            columnName: col.sourceName,
+                            // columnName: col.sourceName,
+                            columnName: col.destName, // a temp fix for SDK 733 introduce a synthesize step before it
                             headerAlias: col.destName
                         }
                     }
