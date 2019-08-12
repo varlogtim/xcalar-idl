@@ -291,10 +291,12 @@ class XcQuery extends Durable {
             if (this.sqlNum == null || state === QueryStatus.Cancel) {
                 abbrQueryObj.name = this.name;
                 abbrQueryObj.queryStr = this.getQuery();
+                abbrQueryObj.fullName = this.fullName;
                 key = this.fullName
             } else if (state === QueryStatus.Error) {
                 abbrQueryObj.queryStr = this.getQuery();
                 abbrQueryObj.error = this.error;
+                abbrQueryObj.fullName = this.fullName;
                 key = this.fullName
             } else {
                 key = this.sqlNum;

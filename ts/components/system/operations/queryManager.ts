@@ -677,7 +677,7 @@ namespace QueryManager {
                           // undo so we skip
             }
 
-            fullName = name;
+            fullName = queries[i].fullName || name;
             query = new XcQuery({
                 "version": queries[i].version,
                 "name": name,
