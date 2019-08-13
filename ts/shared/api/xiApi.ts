@@ -254,7 +254,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve({newTableName, newKeys});
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -432,7 +435,10 @@ namespace XIApi {
             // the temp cols for normal join is empty
             deferred.resolve([]);
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -705,7 +711,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -1019,7 +1028,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -1245,7 +1257,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve(newTableName);
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -1334,7 +1349,10 @@ namespace XIApi {
                 deferred.resolve({value: aggVal, aggName: dstAggName, toDelete: toDelete});
             }
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -1588,7 +1606,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve({newTableName, prefix});
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -1852,7 +1873,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve(newTableName);
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -2284,7 +2308,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve(newTableName);
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -2318,7 +2345,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve(newTableName);
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -2465,7 +2495,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simuldateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }
@@ -2503,7 +2536,10 @@ namespace XIApi {
         .then(() => {
             deferred.resolve(newTableName);
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            endSimulate(simulateTxId);
+            deferred.reject(err);
+        });
 
         return deferred.promise();
     }

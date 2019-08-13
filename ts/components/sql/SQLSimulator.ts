@@ -86,8 +86,12 @@ class SQLSimulator {
                     orderColumns: orderCols
                 });
             })
-            .fail(deferred.reject);
+            .fail((err) => {
+                SQLSimulator.fail(txId);
+                deferred.reject(err)
+            });
         } else {
+            SQLSimulator.end(txId);
             deferred.resolve({
                 xcQueryString: xcQueryString,
                 newTableName: tableName,

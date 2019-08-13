@@ -761,7 +761,13 @@ class DagGraphExecutor {
             destTables.push(destTable);
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            Transaction.fail(simulateId, {
+                error: err,
+                noAlert: true
+            });
+            deferred.reject(err);
+        });
         return deferred.promise();
     }
 
@@ -1166,7 +1172,6 @@ class DagGraphExecutor {
                     "Execute Optimized to re-execute";
             }
             Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.ProfileFailed,
                 "error": error,
                 "noAlert": true
             });
