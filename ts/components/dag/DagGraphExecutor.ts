@@ -24,6 +24,18 @@ class DagGraphExecutor {
         DagNodeType.IMDTable, DagNodeType.UpdateIMD, DagNodeType.Extension,
         DagNodeType.Custom, DagNodeType.CustomInput, DagNodeType.CustomOutput]);
 
+    public static hasUDFError(queryNode: XcalarApiDagNodeT): boolean {
+        // for udfError to be true, numRowsFailedTotal must be > 0 and
+        // node must not have icv
+        return (queryNode &&
+                queryNode.opFailureInfo &&
+                queryNode.opFailureInfo.numRowsFailedTotal > 0 &&
+                    !(queryNode.input &&
+                    queryNode.input.mapInput &&
+                    queryNode.input.mapInput.icv === true)
+                );
+    }
+
     public constructor(
         nodes: DagNode[],
         graph: DagGraph,
@@ -921,7 +933,7 @@ class DagGraphExecutor {
                     this._dagIdToDestTableMap.delete(nodeId);
                     if (node.getType() === DagNodeType.Map) {
                         let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
-                        if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.numRowsFailedTotal > 0) {
+                        if (DagGraphExecutor.hasUDFError(nodeInfo)) {
                             (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
                         }
                     }

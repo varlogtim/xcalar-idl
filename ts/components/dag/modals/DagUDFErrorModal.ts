@@ -61,6 +61,9 @@ class DagUDFErrorModal {
         let html: HTML = "";
         let count = 0;
         errorInfo.failureDescArr.forEach(err => {
+            if (!err.numRowsFailed) {
+                return;
+            }
             count += err.numRowsFailed;
             let numFails = xcStringHelper.numToStr(err.numRowsFailed);
             let desc = xcStringHelper.escapeHTMLSpecialChar(err.failureDesc);
@@ -70,6 +73,9 @@ class DagUDFErrorModal {
             </div>`;
         });
         this._$modal.find(".errorList").html(html);
+        if (count === 0) {
+            this._$modal.find(".errorList").html(`<div class="noErrors">N/A</div>`);
+        }
         if (count < errorInfo.numRowsFailedTotal) {
             this._$modal.addClass("hasExtraErrors");
             this._$modal.find(".extraErrors").removeClass("xc-hidden");
@@ -121,7 +127,7 @@ class DagUDFErrorModal {
         let parentNode = node.getParents()[0];
 
         let oldTitle = node.getTitle().trim();
-        let newTitle = oldTitle.length ? (oldTitle + "- Error") : "Error";
+        let newTitle = oldTitle.length ? (oldTitle + "- Failed Rows") : "Failed Rows";
         let input = node.getParam();
         input.icv = true;
 

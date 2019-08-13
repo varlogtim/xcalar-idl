@@ -231,14 +231,13 @@ class DagSubGraph extends DagGraph {
                         }
                     }
                 }
-                if (node.getState() === DagNodeState.Complete ||
-                    node.getState() === DagNodeState.Error) {
-                    if (node.getType() === DagNodeType.Map) {
+                if ((node.getState() === DagNodeState.Complete ||
+                    node.getState() === DagNodeState.Error) &&
+                    node.getType() === DagNodeType.Map) {
                         let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
-                        if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.numRowsFailedTotal > 0) {
+                        if (DagGraphExecutor.hasUDFError(nodeInfo)) {
                             (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
                         }
-                    }
                 }
             }
         }
@@ -288,14 +287,12 @@ class DagSubGraph extends DagGraph {
             let node: DagNode = this.getNode(nodeId);
             if (node != null) {
                 node.updateProgress(nodeIdInfos.get(nodeId), true, true);
-                if (node.getState() === DagNodeState.Complete ||
-                    node.getState() === DagNodeState.Error) {
-
-                    if (node.getType() === DagNodeType.Map) {
-                        let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
-                        if (nodeInfo && nodeInfo.opFailureInfo && nodeInfo.opFailureInfo.numRowsFailedTotal > 0) {
-                            (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
-                        }
+                if ((node.getState() === DagNodeState.Complete ||
+                    node.getState() === DagNodeState.Error) &&
+                    node.getType() === DagNodeType.Map) {
+                    let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
+                    if (DagGraphExecutor.hasUDFError(nodeInfo)) {
+                        (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
                     }
                 }
             }
