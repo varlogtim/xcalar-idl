@@ -66,7 +66,7 @@ class DagNodeIMDTableInput extends DagNodeInput {
                 },
                 "type": {
                   "$id": "#/properties/eval/schema/properties/type",
-                  "type": "string",
+                  "type": ["string", "null"],
                   "enum": [
                         ColumnType.integer,
                         ColumnType.float,
@@ -77,7 +77,8 @@ class DagNodeIMDTableInput extends DagNodeInput {
                         ColumnType.mixed,
                         ColumnType.object,
                         ColumnType.array,
-                        ColumnType.unknown
+                        ColumnType.unknown,
+                        null
                     ],
                   "title": "The type Schema",
                   "default": "",
