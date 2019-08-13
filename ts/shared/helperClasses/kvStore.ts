@@ -226,14 +226,17 @@ class KVStore {
         promise
         .then(() => {
             // must come after Log.restore
+            let archiveList: XcQuery[];
             try {
-                QueryManager.restore(metaInfo.getQueryMeta());
+                archiveList = QueryManager.restore(metaInfo.getQueryMeta());
             } catch (e) {
                 console.error(e);
             }
-            // remove any unnecessary orphan tables
-            return TblManager.refreshOrphanList(true);
-        }).then(() => {
+            return QueryManager.archive(archiveList);
+        })
+        // remove any unnecessary orphan tables
+        .then(() => TblManager.refreshOrphanList(true))
+        .then(() => {
             TblManager.deleteTables(gOrphanTables, TableType.Orphan, true, false);
             deferred.resolve();
         })

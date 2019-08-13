@@ -32,39 +32,50 @@ describe('QueryManager Test', function() {
     });
 
     describe("restore", function() {
-        it("restore should work", function() {
-            var cachedGetLogs = Log.getLogs;
+        let cachedGetLogs;
+
+        before(function() {
+            cachedGetLogs = Log.getLogs;
             Log.getLogs = function() {
                 return [];
             };
-            QueryManager.restore([{name: "unitTest2"}]);
-            expect($queryList.text().indexOf("unitTest2")).to.be.gt(-1);
-            expect(queryLists[-1].name).to.equal("unitTest2");
-            delete queryLists[-1];
-            $queryList.find(".xcQuery").filter(function() {
-                return $(this).find('.name') === "unitTest2";
-            }).remove();
+        });
+
+        after(function() {
             Log.getLogs = cachedGetLogs;
         });
 
+        afterEach(function() {
+            $queryList.find(".xc-query").remove();
+            for (const key of Object.keys(queryLists)) {
+                delete queryLists[key];
+            }
+        });
+
+        it("restore should work", function() {
+            QueryManager.restore([{name: "unitTest2", time: Date.now()}]);
+            expect($queryList.text().indexOf("unitTest2")).to.be.gt(-1);
+            expect(queryLists[-1].name).to.equal("unitTest2");
+        });
+
         it("restore should sort queries", function() {
-            var cachedGetLogs = Log.getLogs;
-            Log.getLogs = function() {
-                return [];
-            };
             const time = Date.now();
             QueryManager.restore([{name: "unitTest3", time: time}, {name: "unitTest4", time: time - 10}]);
             expect($queryList.text().indexOf("unitTest3")).to.be.gt(-1);
             expect($queryList.text().indexOf("unitTest4")).to.be.gt(-1);
             expect(queryLists[-1].name).to.equal("unitTest3");
             expect(queryLists[-2].name).to.equal("unitTest4");
-            delete queryLists[-2];
-            delete queryLists[-1];
-            $queryList.find(".xcQuery").filter(function() {
-                return $(this).find('.name') === "unitTest3" || $(this).find('.name') === "unitTest4";
-            }).remove();
-            Log.getLogs = cachedGetLogs;
-        })
+        });
+
+        it("restore should return archive queries", function() {
+            const time = Date.now();
+            const lifeTime = 90 * 24 * 3600 * 1000;
+            const archiveList = QueryManager.restore([{name: "unitTest3", time: time - lifeTime - 1000 * 10}, {name: "unitTest4", time: time}]);
+            expect(archiveList.length).to.equal(1);
+            expect($queryList.text().indexOf("unitTest3")).to.equal(-1);
+            expect($queryList.text().indexOf("unitTest4")).to.be.gt(-1);
+            expect(queryLists[-1].name).to.equal("unitTest4");
+        });
     });
 
     describe("general functions", function() {

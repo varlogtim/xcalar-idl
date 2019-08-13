@@ -663,6 +663,44 @@ namespace QueryManager {
         })
     }
 
+    /**
+     * Delete from active query kvstore keys, and add to archive keys
+     * @param xcQueries List of queries need to be archived
+     */
+    export function archive(xcQueries: XcQuery[]): XDPromise<void> {
+        if (xcQueries == null || xcQueries.length === 0) {
+            return PromiseHelper.resolve();
+        }
+
+        // Create archive/active kv pairs
+        const kvArchivePrefix = getKvKeyArchivePrefix();
+        const kvActivePrefix = getKvKeyPrefix();
+        const archiveKeys = [];
+        const activeKeys = [];
+        const values = [];
+        xcQueries.forEach((xcQuery) => {
+            const [ durable, key ] = xcQuery.getDurable();
+            const value = JSON.stringify(durable);
+            archiveKeys.push(`${kvArchivePrefix}/${key}`);
+            activeKeys.push(`${kvActivePrefix}/${key}`);
+            values.push(value);
+        });
+
+        // Store archive keys
+        const kvstore = new KVStore(archiveKeys, gKVScope.WKBK);
+        return kvstore.multiPut(values, true)
+        // Delete active keys
+        .then(() => {
+            const removeActive = activeKeys.map((key) => {
+                const kvstore = new KVStore(key, gKVScope.WKBK);
+                return kvstore.delete();
+            });
+            return PromiseHelper.alwaysResolve(
+                PromiseHelper.when(...removeActive)
+            );
+        });
+    }
+
     export function commit(): XDPromise<void> {
         const kvPrefix = getKvKeyPrefix();
 
@@ -682,15 +720,17 @@ namespace QueryManager {
     /**
      * QueryManager.restore
      * @param queries
+     * @returns List of XcQuery need to be archived
      */
-    export function restore(queriesUnsorted: XcQueryDurable[]): void {
-        const queries = queriesUnsorted.concat([]);
-        queries.sort(querySqlSorter);
+    export function restore(queriesUnsorted: XcQueryDurable[]): Array<XcQuery> {
+        const archiveList = new Array<XcQuery>();
 
         QueryManager.toggleSysOps(UserSettings.getPref("hideSysOps"));
-        if (!queries) {
-            return;
+        if (!queriesUnsorted) {
+            return archiveList;
         }
+        const queries = queriesUnsorted.concat([]);
+        queries.sort(querySqlSorter);
 
         const logs: XcLog[] = Log.getLogs();
         const errorLogs: XcLog[] = Log.getErrorLogs();
@@ -753,9 +793,13 @@ namespace QueryManager {
                 "cancelable": null,
                 "queryMeta": queries[i].queryMeta
             });
-            queryLists[i - numQueries] = query; // using negative keys for
-            // restored queries
-            html += getQueryHTML(query, true);
+            if (needArchive(query)) {
+                archiveList.push(query);
+            } else {
+                queryLists[i - numQueries] = query; // using negative keys for
+                // restored queries
+                html += getQueryHTML(query, true);
+            }
         }
 
         if (html) {
@@ -765,6 +809,8 @@ namespace QueryManager {
 
             focusOnQuery($queryList.find(".query").last());
         }
+
+        return archiveList;
     };
 
     /**
@@ -827,8 +873,17 @@ namespace QueryManager {
         return KVStore.getKey("gQueryListPrefix");
     }
 
+    function getKvKeyArchivePrefix(): string {
+        return KVStore.getKey("gQueryArchivePrefix");
+    }
+
     function getKvKeyPattern(): string {
         return `^${getKvKeyPrefix()}/.+`;
+    }
+
+    function needArchive(xcQuery: XcQuery): boolean {
+        const lifeTime = 90 * 24 * 3600 * 1000; // 90 days
+        return Date.now() - xcQuery.getTime() > lifeTime;
     }
 
     /**
