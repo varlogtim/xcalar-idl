@@ -24,17 +24,13 @@ class DedupPlan {
 
         // Check duplicate with hash
         const nodeHash = DedupPlan.__generateHash(node);
-        if (node.value.operation === "XcalarApiJoin"
-            && node.value.args.joinType === "crossJoin") {
+        if (node.value.operation === "XcalarApiJoin") {
             if (nodeHashMap[nodeHash]) {
                 let find = false;
                 for (let i = 0; i < nodeHashMap[nodeHash].length; i++) {
-                    if (DedupPlan.__isSameCrossJoin(nodeHashMap[nodeHash][i], node)) {
+                    if (DedupPlan.__isSameJoinFilter(nodeHashMap[nodeHash][i], node)) {
                         node.dupOf = nodeHashMap[nodeHash][i];
-                        node.colNameMaps = [jQuery.extend(true, {},
-                                                         node.colNameMaps[0],
-                                                         node.colNameMaps[1],
-                                                         node.crossCheckMap)];
+                        DedupPlan.__generateColNameMap(nodeHashMap[nodeHash][i], node, aggregateNameMap);
                         find = true;
                         break;
                     }
@@ -59,17 +55,17 @@ class DedupPlan {
         return retNode;
     }
 
-    static __isSameCrossJoin(crossNode: XcOpNode, node: XcOpNode): boolean {
+    static __isSameJoinFilter(baseNode: XcOpNode, node: XcOpNode): boolean {
         const crossCheckMap = {};
         for (let i = 0; i < node.value.args.columns[1].length; i++) {
             if (node.value.args.columns[1][i].destColumn !=
-                    crossNode.value.args.columns[1][i].destColumn) {
+                    baseNode.value.args.columns[1][i].destColumn) {
                 crossCheckMap[node.value.args.columns[1][i].destColumn] =
-                                    crossNode.value.args.columns[1][i].destColumn;
+                                    baseNode.value.args.columns[1][i].destColumn;
             }
         }
         node.crossCheckMap = crossCheckMap;
-        return crossNode.value.args.evalString === XDParser.XEvalParser
+        return baseNode.value.args.evalString === XDParser.XEvalParser
                 .replaceColName(node.value.args.evalString, crossCheckMap, {}, true);
     }
 
@@ -94,7 +90,12 @@ class DedupPlan {
                 delete value.args.newField;
                 break;
             case ("XcalarApiJoin"):
-                delete value.args.columns;
+                for (let i = 0; i < value.args.columns[0].length; i++) {
+                    delete value.args.columns[0][i].destColumn;
+                }
+                for (let i = 0; i < value.args.columns[1].length; i++) {
+                    delete value.args.columns[1][i].destColumn;
+                }
                 delete value.args.evalString;
                 break;
             case ("XcalarApiUnion"):
