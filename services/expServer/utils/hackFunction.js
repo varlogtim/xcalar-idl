@@ -225,14 +225,23 @@ function hackFunction() {
     class ProgCol {
         constructor(options) {
             options = options || {};
-            this.backName = options.backName;
-            this.name = options.name;
+            this.name = options.name || "";
+            this.backName = options.backName || this.name;
+            this.prefix = xcHelper.parsePrefixColName(this.backName).prefix;
             this.type = options.type || null;
             this.width = 100;
             this.isNewCol = false;
             this.userStr = options.userStr;
             this.func = options.func;
             this.sizedTo = options.sizedTo
+        }
+
+        getFrontColName(includePrefix = false) {
+            let name = this.name || "";
+            if (includePrefix) {
+                name = xcHelper.getPrefixColName(this.prefix, name);
+            }
+            return name;
         }
 
         getBackColName() {

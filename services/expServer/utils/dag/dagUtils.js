@@ -9,6 +9,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     jQuery.md5 = require('../../../../3rd/jQuery-MD5-master/jquery.md5.js');
 
     global.Thrift = Thrift = require("../../../../assets/js/thrift/thrift.js").Thrift;
+    global.xcHelper = require("../../dagHelper/xcHelper.js").xcHelper;
 
     require("../../../../assets/lang/en/jsTStr.js");
     require("../../dagHelper/enums.js");
@@ -42,7 +43,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // The order of these is needed as there's dependancies between the files.
     global.Durable = require("../../dagHelper/Durable.js").Durable;
     global.DagGraph = require("../../dagHelper/DagGraph.js").DagGraph;
-    global.xcHelper = require("../../dagHelper/xcHelper.js").xcHelper;
     global.xcStringHelper = require("../../dagHelper/xcStringHelper.js").xcStringHelper;
     global.xcTimeHelper = require("../../dagHelper/xcTimeHelper.js").xcTimeHelper;
     global.DagHelper = require("./DagHelperIndex.js").DagHelper
