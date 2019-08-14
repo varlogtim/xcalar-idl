@@ -3689,6 +3689,19 @@ html.microsoft {
 #aboutModal {
     .size(@width: 400px, @height: 425px);
     bottom: auto;
+
+    &.cloud {
+        height: 260px;
+
+        .licenseSection {
+            display: none;
+        }
+
+        .modalMain {
+            height: 260px;
+        }
+    }
+
     .modalHeader {
         .size(@height: 25px);
         background-color: @color-about-gradient-top;

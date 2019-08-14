@@ -365,11 +365,20 @@ namespace DS {
      */
     export function toggleSharing(disable: boolean): void {
         disableShare = disable || false;
+        let isCloud = XVM.isCloud();
+        if (isCloud) {
+            disableShare = true;
+        }
         if (disableShare) {
             $gridView.addClass("disableShare");
-            xcTooltip.add($gridMenu.find(".share"), {
-                title: DSTStr.DisableShare
-            });
+            if (isCloud) {
+                $gridMenu.find(".share, .unshare").addClass("xc-hidden");
+            } else {
+                $gridMenu.find(".share, .unshare").removeClass("xc-hidden");
+                xcTooltip.add($gridMenu.find(".share"), {
+                    title: DSTStr.DisableShare
+                });
+            }
         } else {
             $gridView.removeClass("disableShare");
         }
@@ -963,6 +972,7 @@ namespace DS {
         }[] = [];
         let path: string[] = [];
         let folder: DSObj = sharedOnly ? DS.getDSObj(DSObjTerm.SharedFolderId) : homeFolder;
+        let isCloud: boolean = XVM.isCloud();
         populate(folder, path);
 
         function populate(el: DSObj, path: string[]) {
@@ -970,6 +980,9 @@ namespace DS {
                 let name: string = el.getName();
                 if (name === ".") {
                     name = "";
+                }
+                if (isCloud && name === DSObjTerm.SharedFolder) {
+                    return;
                 }
                 path.push(name);
                 el.eles.forEach(function(el) {
@@ -1161,6 +1174,10 @@ namespace DS {
         let $grid = DS.getGrid(DSObjTerm.SharedFolderId);
         // grid should be the first on in grid view
         $grid.prependTo($gridView);
+        if (XVM.isCloud()) {
+            // cloud deployment don't show it
+            $grid.remove();
+        }
         return folder;
     }
 

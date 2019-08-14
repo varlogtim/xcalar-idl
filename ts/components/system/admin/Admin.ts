@@ -15,10 +15,11 @@ namespace Admin {
      */
     export function setup(): void {
         let posingAsUser = isPostAsUser();
+        let isAdmin: boolean = Admin.isAdmin() && !XVM.isCloud();
         setupAdminStatusBar(posingAsUser);
         setupMonitorConfig();
 
-        if (Admin.isAdmin()) {
+        if (isAdmin) {
             $('#container').addClass('admin');
             $("#userNameArea").html('<i class="icon xi-user-setting"></i>');
         }
@@ -34,7 +35,7 @@ namespace Admin {
         $menuPanel = $('#monitorMenu-setup');
         $userList = $menuPanel.find('.userList');
 
-        if (Admin.isAdmin()) {
+        if (isAdmin) {
             addUserListListeners();
             addMonitorMenuSupportListeners();
             refreshUserList(true, false);

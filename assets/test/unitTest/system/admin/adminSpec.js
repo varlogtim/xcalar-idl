@@ -3,13 +3,16 @@ describe("Admin Test", function() {
     var $userList;
     var oldSend;
     var oldIsAdmin;
+    var oldIsCloud;
 
     before(function() {
         UnitTest.onMinMode();
         cachedGetItem = xcLocalStorage.getItem;
         $userList = $("#monitorMenu-setup .userList");
         oldIsAdmin = Admin.isAdmin;
+        oldIsCloud = XVM.isCloud;
         Admin.isAdmin = () => true;
+        XVM.isCloud = () => false;
 
         // function hashFnv32a(str, asString, seed) {
         //     /*jshint bitwise:false */
@@ -29,7 +32,7 @@ describe("Admin Test", function() {
         // }
 
         function isAdmin() {
-            return XcUser.CurrentUser.isAdmin();
+            return XcUser.CurrentUser.isAdmin() && !XVM.isCloud();
         }
 
         // function setAdmin(userId) {
@@ -648,5 +651,6 @@ describe("Admin Test", function() {
         UnitTest.offMinMode();
         XcSocket.Instance.sendMessage = oldSend;
         Admin.isAdmin = oldIsAdmin;
+        XVM.isCloud = oldIsCloud;
     });
 });

@@ -368,7 +368,7 @@ namespace DSTargetManager {
                 classes += " bgOpts";
             }
             let $deleteLi = $gridMenu.find('.targetOpt[data-action="delete"]');
-            if (isDefaultTarget($grid.data("name")) || (!Admin.isAdmin())) {
+            if (isDefaultTarget($grid.data("name")) || !isModifiable()) {
                 $deleteLi.addClass("unavailable");
                 xcTooltip.add($deleteLi, {
                     title: DSTargetTStr.NoDelete
@@ -417,6 +417,10 @@ namespace DSTargetManager {
             }
             clearSelectedTarget();
         });
+    }
+
+    function isModifiable(): boolean {
+        return Admin.isAdmin() || XVM.isCloud();
     }
 
     function isDefaultTarget(targetName: string): boolean {

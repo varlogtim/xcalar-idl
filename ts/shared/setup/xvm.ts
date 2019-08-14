@@ -241,7 +241,10 @@ namespace XVM {
             return false;
         }
 
-        if (Admin.isAdmin()) {
+        if (XVM.isCloud()) {
+            // cloud deployment skip the check
+            return false;
+        } else if (Admin.isAdmin()) {
             // admin skip the check
             return false;
         } else if (typeof numUsers !== "number" || numUsers <= 0) {
