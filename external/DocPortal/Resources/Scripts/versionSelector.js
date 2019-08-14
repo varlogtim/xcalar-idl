@@ -10,8 +10,8 @@ window.VersionSelector = (function($, VersionSelector) {
             "container": "#contentBody",
             "bounds": "#contentBody"
         }).setupListeners();
-        $("#versionSelectorList input").val("Version 2.0.0");
-        $(".Version-2_0_0").show();
+        $("#versionSelectorList input").val("Version 2.1.0");
+        $(".Version-2_1_0").show();
     };
 
     function showVersion(versionText) {
