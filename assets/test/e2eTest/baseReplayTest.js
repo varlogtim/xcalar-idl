@@ -5,19 +5,11 @@ function replay(testConfig, tags) {
     const testTabMapping = new Map(); // WB tabName => newTabName
     const testDfIdMapping = new Map(); // WB df_id => new df_id
     const testTabDfMapping = new Map(); // tabName => dfId
+    const testNodeIdMapping = new Map(); // tabName => nodeMap
+    let linkOutOptimizedTable;
 
     function buildTestUrl(browser, testConfig) {
         return `${browser.globals.launchUrl}testSuite.html?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${browser.globals.user}&id=0`
-    }
-
-    function findValidateNodeIndex(linkOutName, nodeInfos) {
-        for (let i = 0; i < nodeInfos.length; i ++) {
-            const nodeInfo = nodeInfos[i];
-            if (nodeInfo.type === 'link out' && nodeInfo.input.name === linkOutName) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     return {
@@ -101,6 +93,8 @@ function replay(testConfig, tags) {
                 browser.switchTab(newTabName)
                 .recreateNodes(testTabs[tabName].nodes, testTabDfMapping.get(tabName), testDfIdMapping, function(result) {
                     testConfig.IMDNames = result.IMDNames;
+
+                    testNodeIdMapping.set(newTabName, result.nodeIdMap);
                     console.log(result);
                 });
             }
@@ -141,68 +135,87 @@ function replay(testConfig, tags) {
             }
         },
 
-        'execute': function(browser) {
+        'execute optimized nodes first': function(browser) {
             for (const tabName of Object.keys(testTabs)) {
                 const newTabName = testTabMapping.get(tabName);
                 const numOfNodes = testTabs[tabName].nodes.length;
-                // used for checking completed nodes
-                const numOfCustomNodes = testTabs[tabName].nodes.filter((node) => {
-                    return node.type === "custom";
-                }).length;
 
-
-
-                const linkOutNode = testTabs[tabName].nodes.find((node) => {
-                    return node.subType === "link out Optimized";
+                const linkOutOptimizedNode = testTabs[tabName].nodes.find((node) => {
+                    return node.type === "link out" &&
+                        node.title === "optimized";
                 });
+                if (linkOutOptimizedNode) {
+                    browser.switchTab(newTabName);
+                    browser.waitForElementNotPresent(".dataflowArea.active.locked");
+                    let linkOutNodeId = testNodeIdMapping.get(newTabName)[linkOutOptimizedNode.nodeId];
 
-                browser
-                    .switchTab(newTabName)
+                    let selector = '.operator[data-nodeid="' + linkOutNodeId + '"]';
+                    browser
+                        .moveToElement(".dataflowArea.active " + selector, 30, 15)
+                        .mouseButtonClick('right')
+                        .waitForElementVisible("#dagNodeMenu", 1000)
+                        .moveToElement("#dagNodeMenu li.createNodeOptimized", 10, 1)
+                        .waitForElementNotPresent(".dataflowArea.active.locked")
+                        .mouseButtonClick('left')
+                        .waitForElementNotPresent('.dataflowArea ' + selector + '.locked', numOfNodes * 20000);
+
+                    browser.execute(execFunctions.getTableNameFromOptimizedGraph, [], ({value}) => {
+                        linkOutOptimizedTable = value;
+                    });
+                }
+            }
+        },
+
+        'execute': function(browser) {
+            // let linkOutOptimizedTable;
+            for (const tabName of Object.keys(testTabs)) {
+                browser.perform(() => {
+                    const newTabName = testTabMapping.get(tabName);
+                    const numOfNodes = testTabs[tabName].nodes.length;
+                    // used for checking completed nodes
+                    const numOfCustomNodes = testTabs[tabName].nodes.filter((node) => {
+                        return node.type === "custom";
+                    }).length;
+                    console.log("numOfCustomNodes: " + numOfCustomNodes);
+                    browser
+                    .switchTab(newTabName);
+
+                    const linkInOptimizedNode = testTabs[tabName].nodes.find((node) => {
+                        return node.type === "link in" &&
+                            node.title === "optimized";
+                    });
+
+                    if (linkInOptimizedNode && linkOutOptimizedTable) {
+                        let linkInNodeId = testNodeIdMapping.get(newTabName)[linkInOptimizedNode.nodeId];
+                        const input = JSON.parse(JSON.stringify(linkInOptimizedNode.input));
+                        const schema = linkInOptimizedNode.schema;
+                        input.source = linkOutOptimizedTable;
+                        input.schema = schema;
+                        browser
+                        .openOpPanel('.operator[data-nodeid="' + linkInNodeId + '"]')
+                        .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), 100000);
+                    }
+
+                    browser
                     .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
                         browser.assert.ok(result.value.length > 0);
                     })
                     .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
                         browser.assert.ok(result.value.length < numOfNodes);
+                    })
+                    .executeAll(numOfNodes * 20000)
+                    .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
+                        browser.assert.equal(result.value.length, 0); // link out optimized not executed
+                    })
+                    .saveScreenshot("nwscreenshot1.png")
+                    .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
+                        console.log("nodes", result.value);
+                        console.log("result: " + result.value.length, "numOfNode: " + numOfNodes);
+                        browser.assert.equal(result.value.length - numOfCustomNodes, numOfNodes);
                     });
-                    if (linkOutNode) {
-                        // if there's an optimized node present, get all the nodeIds
-                        // of the other nodes and execute those, leaving the optimized
-                        // node out
-                        browser.executeAllNonOptimized(numOfNodes * 20000);
-                    } else {
-                        browser.executeAll(numOfNodes * 20000);
-                    }
-
-                    if (linkOutNode) {
-                        browser.elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
-                            browser.assert.equal(result.value.length, 1); // link out optimized not executed
-                        })
-                        .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
-                            browser.assert.equal(result.value.length - numOfCustomNodes, numOfNodes - 1);
-                        });
-                    } else {
-                        browser.elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
-                            browser.assert.equal(result.value.length, 0); // link out optimized not executed
-                        })
-                        .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
-                            browser.assert.equal(result.value.length - numOfCustomNodes, numOfNodes);
-                        });
-                    }
 
                     browser.waitForElementNotPresent(".dataflowArea.active.locked");
-
-                    if (linkOutNode) {
-                        // let linkOutNodeId = linkOutNode.nodeId;
-                        let selector = '.operator[data-subtype="link out Optimized"]';
-                        browser
-                            .moveToElement(".dataflowArea.active " + selector, 30, 15)
-                            .mouseButtonClick('right')
-                            .waitForElementVisible("#dagNodeMenu", 1000)
-                            .moveToElement("#dagNodeMenu li.executeNodeOptimized", 10, 1)
-                            .waitForElementNotPresent(".dataflowArea.active.locked")
-                            .mouseButtonClick('left')
-                            .waitForElementPresent('.dataflowArea ' + selector + '.state-Complete', numOfNodes * 20000);
-                    }
+                });
             }
         },
 
@@ -210,10 +223,17 @@ function replay(testConfig, tags) {
             // The validation nodes must be DFLinkOut
             for (const {dfName, nodeName} of testConfig.validation) {
                 const newTabName = testTabMapping.get(dfName);
-                const nodeIndex = findValidateNodeIndex(nodeName, testTabs[dfName].nodes);
+
+                const linkOutNode = testTabs[dfName].nodes.find((node) => {
+                    return node.type === "link out" &&
+                           node.input.name === nodeName;
+                });
+
+                let linkOutNodeId = testNodeIdMapping.get(newTabName)[linkOutNode.nodeId];
+
                 browser
                     .switchTab(newTabName)
-                    .moveToElement(`.dataflowArea.active .operator:nth-child(${nodeIndex + 1}) .main`, 10, 20)
+                    .moveToElement(`.dataflowArea.active .operator[data-nodeid="${linkOutNodeId}"] .main`, 10, 20)
                     .mouseButtonClick('right')
                     .waitForElementVisible("#dagNodeMenu", 1000)
                     .moveToElement("#dagNodeMenu li.viewResult", 10, 1)

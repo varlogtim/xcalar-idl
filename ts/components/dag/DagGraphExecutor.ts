@@ -1110,8 +1110,7 @@ class DagGraphExecutor {
                 if (this._isCanceled) {
                     return PromiseHelper.reject(DFTStr.Cancel);
                 }
-                // let outputTableName: string = this._getRetinaTableName();
-                // return this._createRetina(retinaParams, tabName, outputTableName);
+
                 return this._createAndExecuteRetina(retinaParams);
             })
             .then(deferred.resolve)
@@ -1204,7 +1203,11 @@ class DagGraphExecutor {
         let retinaName: string = retinaParameters.retinaName;
         const tabName: string = this._getOptimizedDataflowTabName();
 
-        let outputTableName: string = this._getRetinaTableName();
+        let outputTableName: string = DagTabOptimized.getOutputTableName(retinaName);
+        if (!this._isOptimizedActiveSession) {
+            outputTableName = "";
+        }
+        console.log(outputTableName);
         this._createRetina(retinaParameters, tabName, outputTableName)
         .then((dagTab) => {
             this._optimizedExecuteInProgress = true;
@@ -1358,15 +1361,6 @@ class DagGraphExecutor {
             userName: uName,
             sessionName: sessName
         }
-    }
-
-    private _getRetinaTableName(): string {
-        let parentTabId: string = this._graph.getTabId();
-        let outputTableName: string = this._isOptimizedActiveSession ?
-                                "table_" + parentTabId + "_" +
-                                this._optimizedLinkOutNode.getId() +
-                                Authentication.getHashId() : "";
-        return outputTableName;
     }
 
     private _createRetina(

@@ -90,6 +90,21 @@ class DagTabOptimized extends DagTabProgress {
         return deferred.promise();
     }
 
+    public static getOutputTableName(retinaName: string): string {
+        let outputTableName = "table_";
+        let nameSplit = retinaName.split("_");
+        outputTableName = "table";
+        try {
+            for (let i = 1; i < nameSplit.length - 2; i++) {
+                outputTableName += "_" + nameSplit[i];
+            }
+            outputTableName += "#t_" + nameSplit[nameSplit.length - 2] + "_" +
+                                nameSplit[nameSplit.length - 1];
+        } catch (e) {}
+
+        return outputTableName;
+    }
+
     private _fromSDK: boolean;
 
     constructor(options: {

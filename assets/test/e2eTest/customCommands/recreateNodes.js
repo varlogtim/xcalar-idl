@@ -4,7 +4,7 @@ const execFunctions = require('../lib/execFunctions');
 class RecreateNodes extends EventEmitter {
     command(nodeInfos, dfId, dfIdMapping, cb) {
         const self = this;
-        const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [], nodeTypes: [] };
+        const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [], nodeTypes: [], nodeIdMap: {} };
         let customOutputMap = new Map();
         let customNodesMap = new Map();
 
@@ -77,6 +77,7 @@ class RecreateNodes extends EventEmitter {
                         commandResult.nodeElemIDs.push(ELEMENT);
                         commandResult.nodeIDs.push(nodeId);
                         commandResult.nodeTypes.push(nodeInfo.type);
+                        commandResult.nodeIdMap[nodeInfo.nodeId] = nodeId;
                     }
                 );
             });
@@ -158,7 +159,7 @@ class RecreateNodes extends EventEmitter {
                             this.api.waitForElementNotPresent("#formWaitingBG", 3000)
                                 .click('#dfLinkOutPanel .argsSection .inputWrap .checkbox.checked');
                         }
-                        if (nodeInfo.subType === "link out Optimized") {
+                        if (nodeInfo.title === "optimized") {
                             this.api.waitForElementNotPresent("#formWaitingBG", 3000)
                                 .click("#dfLinkOutPanel .selectAllWrap .checkbox");
                         }

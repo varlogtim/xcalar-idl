@@ -97,5 +97,12 @@ module.exports = {
 
     downloadWorkbook: function(wkbkName) {
         WorkbookManager.downloadWKBK(wkbkName);
-    }
+    },
+
+    getTableNameFromOptimizedGraph: function() {
+        const nodes = DagViewManager.Instance.getActiveDag().getSortedNodes();
+        let tableName = nodes[nodes.length - 1].table;
+        return tableName;
+    },
+
 };

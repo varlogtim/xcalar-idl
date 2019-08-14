@@ -19,7 +19,8 @@ module.exports = {
         browser
             .url(browser.globals.buildTestUrl(browser, browser.globals.user))
             .waitForElementVisible('#container', 10000)
-            .waitForElementVisible('#container.noWorkbook', 10000);
+            .waitForElementVisible('#container.noWorkbook', 10000)
+            .waitForElementNotVisible("#modalBackground", 100000);
     },
 
     after: function(browser) {

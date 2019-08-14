@@ -986,6 +986,7 @@ class DagNodeExecutor {
             }
         })
         .then((finaTable: string) => {
+            this.node.beCompleteState();
             deferred.resolve(finaTable);
         })
         .fail(deferred.reject);

@@ -185,6 +185,15 @@ abstract class DagTabProgress extends DagTab {
             if (this._isDoneExecuting) {
                 this._inProgress = false;
                 DagViewManager.Instance.endOptimizedDFProgress(this._id, queryStateOutput);
+                // set table for last node in optimized dataflow
+                if (this instanceof DagTabOptimized) {
+                    let sortedNodes = this._dagGraph.getSortedNodes();
+                    let lastNode = sortedNodes[sortedNodes.length - 1];
+                    if (!(lastNode instanceof DagNodeExport) && !lastNode.getTable()) {
+                        let tableName = DagTabOptimized.getOutputTableName(this._queryName);
+                        lastNode.setTable(tableName, true);
+                    }
+                }
                 this._dagGraph.setExecutor(null);
                 if (this._isFocused) {
                     DagTopBar.Instance.setState(this);
