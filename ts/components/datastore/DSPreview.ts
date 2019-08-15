@@ -54,11 +54,10 @@ namespace DSPreview {
     // UI cache
     let lastUDFModule: string = null;
     let lastUDFFunc: string = null;
-    let backToFormCard: boolean = false;
     let rowsToFetch: number = 40;
     let previewId: number;
-    let fileBrowserPath: string = "/";
     let createTableMode: boolean = null;
+    let _backCB: Function = null; // go back callback
 
     // constant
     const defaultRowsToFech: number = 40;
@@ -505,7 +504,7 @@ namespace DSPreview {
      */
     export function show(
         options: DSPreviewOptions,
-        lastPath: string,
+        backCB: Function,
         restore: boolean
     ) {
         xcUIHelper.enableSubmit($form.find(".confirm"));
@@ -519,16 +518,9 @@ namespace DSPreview {
 
         resetPreviewFile();
         hideHeadersWarning();
-
-        if (lastPath != null) {
-            fileBrowserPath = lastPath;
-            backToFormCard = false;
-        } else {
-            backToFormCard = true;
-        }
-
         resetForm();
 
+        _backCB = backCB;
         if (restore) {
             restoreForm(options);
         } else {
@@ -912,17 +904,17 @@ namespace DSPreview {
 
         // back button
         $form.on("click", ".cancel", function() {
-            let targetName = loadArgs.getTargetName();
+            let backCB = _backCB;
             // cancels udf load
             cancelRunningPreview();
             resetForm();
             clearPreviewTable(tableName);
             createTableMode = null;
-            if (backToFormCard) {
-                DataSourceManager.startImport(null);
-            } else {
+            if (typeof backCB === "function") {
                 // XXX changet to support multiple of paths
-                FileBrowser.show(targetName, fileBrowserPath, true);
+                backCB();
+            } else {
+                DataSourceManager.startImport(null);
             }
         });
 
@@ -1495,6 +1487,7 @@ namespace DSPreview {
                                           .removeClass("cancelState");
         $previewWrap.find(".loadHidden").removeClass("hidden");
         toggleSubmitButton(false);
+        _backCB = null;
     }
 
     function resetPreviewRows(): void {
@@ -6698,9 +6691,9 @@ namespace DSPreview {
             rawData = newData || null;
         };
 
-        __testOnly__.setBackToFormCard = function(flag) {
-            backToFormCard = flag;
-        };
+        __testOnly__.setCB = function(cb) {
+            _backCB = cb;
+        }
 
         var oldIsCreateTableMode;
         __testOnly__.setIsCreateTableMode = function(flag) {

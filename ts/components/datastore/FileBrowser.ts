@@ -29,6 +29,7 @@ namespace FileBrowser {
     let fileBrowserId: string;
     let searchId: string;
 
+    let _backCB: Function;
     let dragInfo: any = {};
 
     /* Contants */
@@ -156,7 +157,8 @@ namespace FileBrowser {
     export function show(
         targetName: string,
         path: string,
-        restore: boolean
+        restore: boolean,
+        backCB?: Function
     ): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!restore) {
@@ -169,7 +171,7 @@ namespace FileBrowser {
         addKeyBoardEvent();
         addResizeEvent();
         fileBrowserId = xcHelper.randName("browser");
-
+        _backCB = backCB;
 
         setTarget(targetName);
 
@@ -943,6 +945,7 @@ namespace FileBrowser {
         $fileBrowser.removeClass("loadMode errorMode");
         $fileBrowserMain.find(".searchLoadingSection").hide();
         fileBrowserId = null;
+        _backCB = undefined;
     }
 
     function cleanContainer(
@@ -980,8 +983,13 @@ namespace FileBrowser {
     }
 
     function backToForm(): void {
+        let cb = _backCB;
         clearAll();
-        DSForm.show();
+        if (typeof cb === "function") {
+            cb();
+        } else {
+            DSForm.show();
+        }
     }
 
     function redirectHandler(path: string): XDPromise<void> {
@@ -1314,7 +1322,8 @@ namespace FileBrowser {
         };
         setHistoryPath();
 
-        DSPreview.show(options, curDir, false);
+        let cb = () => FileBrowser.show(targetName, curDir, true);
+        DSPreview.show(options, cb, false);
     }
 
     function searchFiles(

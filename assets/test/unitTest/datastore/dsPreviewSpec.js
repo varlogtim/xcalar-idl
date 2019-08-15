@@ -2850,44 +2850,28 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should click cancel to back to form", function() {
-            loadArgs.set({
-                targetName: gDefaultSharedRoot,
-                files: [{path: "/abc"}]
-            });
             var $button = $form.find(".cancel");
-            var oldGetLicense = XVM.getLicenseMode;
             var oldForm = DataSourceManager.startImport;
-            var oldFileBrowser = FileBrowser.show;
             var test1 = test2 = false;
 
             DataSourceManager.startImport = function() { test1 = true; };
-            FileBrowser.show = function() { test2 = true; };
+            var cb = () => test2 = true;
 
             // case 1
-            loadArgs.set({
-                targetName: gDefaultSharedRoot,
-                files: [{path: "/abc"}]
-            });
-            XVM.getLicenseMode = function() { return XcalarMode.Oper; };
-            DSPreview.__testOnly__.setBackToFormCard(true);
+            DSPreview.__testOnly__.setCB(null);
             $button.click();
             expect(test1).to.be.true;
             expect(test2).to.be.false;
-            test1 = false;
 
             // case 2
-            loadArgs.set({
-                targetName: gDefaultSharedRoot,
-                files: [{path: "/abc"}]
-            });
-            DSPreview.__testOnly__.setBackToFormCard(false);
+            test1 = false;
+            DSPreview.__testOnly__.setCB(cb);
             $button.click();
             expect(test1).to.be.false;
             expect(test2).to.be.true;
 
-            XVM.getLicenseMode = oldGetLicense;
+            DSPreview.__testOnly__.setCB(null);
             DataSourceManager.startImport = oldForm;
-            FileBrowser.show = oldFileBrowser;
         });
 
         it("should click dsForm-writeUDF to trigger jupyer", function() {

@@ -31,8 +31,10 @@ namespace DSForm {
 
         if (XVM.isCloud()) {
             $pathCard.find(".cardBottom .link").removeClass("xc-hidden");
+            resetForm();
         } else {
             $pathCard.find(".cardBottom .link").addClass("xc-hidden");
+            // on prem don't reset form
         }
     }
 
@@ -229,7 +231,9 @@ namespace DSForm {
         }
         let targetName = getDataTarget();
         let path = getFilePath(null);
-        FileBrowser.show(targetName, path, false);
+        let cb = () => restoreFromPreview(targetName, path);
+        resetForm();
+        FileBrowser.show(targetName, path, false, cb);
     }
 
     function goToPreview(): void {
@@ -242,10 +246,18 @@ namespace DSForm {
             DSForm.addHistoryPath(targetName, path);
         }
 
+        let cb = () => restoreFromPreview(targetName, path);
+        resetForm();
         DSPreview.show({
             targetName: targetName,
             files: [{path: path}]
-        }, null, false);
+        }, cb, false);
+    }
+
+    function restoreFromPreview(targetName: string, path: string): void {
+        DSForm.show();
+        setDataTarget(targetName);
+        $filePath.val(path);
     }
 
     /* Unit Test Only */

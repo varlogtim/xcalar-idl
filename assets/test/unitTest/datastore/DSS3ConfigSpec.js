@@ -63,7 +63,21 @@ describe("DSS3Config Test", function() {
             targetName: "target",
             files: [{path: "path"}]
         });
+        expect($card.find(".path input").val()).to.equal("");
+        DSPreview.show = oldFunc;
+    });
 
+    it("back from preview should restore form", function() {
+        var oldFunc = DSPreview.show;
+        DSPreview.show = function(_arg, cb) {
+            cb();
+        };
+
+        $dropdown.find("input").val("target");
+        $card.find(".path input").val("path");
+        $card.find(".confirm").click();
+
+        expect($card.find(".path input").val()).to.equal("path");
         DSPreview.show = oldFunc;
     });
 

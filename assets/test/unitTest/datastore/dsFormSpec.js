@@ -162,6 +162,19 @@ describe("Dataset-DSForm Test", function() {
             $filePath.val("test");
             $pathCard.find(".confirm").click();
             expect(test).to.be.true;
+            expect($filePath.val()).to.equal(""); // form will be clear
+            DSPreview.show = oldFunc;
+        });
+
+        it("back from preview should restore form", function() {
+            var oldFunc = DSPreview.show;
+            DSPreview.show = function(_arg, cb) {
+                cb();
+            };
+
+            $filePath.val("test");
+            $pathCard.find(".confirm").click();
+            expect($filePath.val()).to.equal("/test/");
             DSPreview.show = oldFunc;
         });
 

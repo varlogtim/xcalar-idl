@@ -8,6 +8,7 @@ namespace DSS3Config {
      */
     export function show(): void {
         DataSourceManager.switchView(DataSourceManager.View.S3);
+        _clear();
         _focusOnPath();
     }
 
@@ -106,10 +107,18 @@ namespace DSS3Config {
             return;
         }
         let {path, targetName} = res;
+        let cb = () => restoreFromPreview(targetName, path);
+        _clear();
         DSPreview.show({
             targetName: targetName,
             files: [{path: path}]
-        }, null, false);
+        }, cb, false);
+    }
+
+    function restoreFromPreview(targetName: string, path: string): void {
+        DSS3Config.show();
+        _getTargetSection().find("input").val(targetName);
+        _getPathInput().val(path);
     }
 
     function _clear(): void {
