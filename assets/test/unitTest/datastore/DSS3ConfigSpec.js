@@ -76,6 +76,19 @@ describe("DSS3Config Test", function() {
         expect($card.find(".path input").val()).to.equal("");
     });
 
+
+    it("should go back", function() {
+        let oldFunc = DataSourceManager.startImport;
+        let called;
+        DataSourceManager.startImport = (arg) => called = arg;
+        $card.find(".path input").val("path");
+        $card.find(".cardBottom .link").click();
+        expect(called).to.equal(null);
+        expect($card.find(".path input").val()).to.equal("");
+
+        DataSourceManager.startImport = oldFunc;
+    });
+
     after(function() {
         $dropdown.find("input").val("");
         DataSourceManager.startImport(XVM.isSQLMode());

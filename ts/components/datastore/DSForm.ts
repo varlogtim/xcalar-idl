@@ -28,6 +28,12 @@ namespace DSForm {
     export function show(): void {
         DataSourceManager.switchView(DataSourceManager.View.Path);
         $filePath.focus();
+
+        if (XVM.isCloud()) {
+            $pathCard.find(".cardBottom .link").removeClass("xc-hidden");
+        } else {
+            $pathCard.find(".cardBottom .link").addClass("xc-hidden");
+        }
     }
 
     /**
@@ -202,6 +208,12 @@ namespace DSForm {
             if (event.which === keyCode.Enter) {
                 $pathCard.find(".browse").click();
             }
+        });
+
+        $pathCard.find(".cardBottom .link").click(function() {
+            resetForm();
+            // back to data source panel
+            DataSourceManager.startImport(null);
         });
     }
 

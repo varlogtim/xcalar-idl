@@ -173,6 +173,18 @@ describe("Dataset-DSForm Test", function() {
             expect($filePath.closest(".dropDownList").find("li").eq(0).text()).to.equal("/test/");
         });
 
+        it("should go to start import step when click back", function() {
+            let oldFunc = DataSourceManager.startImport;
+            let called;
+            DataSourceManager.startImport = (arg) => called = arg;
+            $filePath.val("test");
+            $pathCard.find(".cardBottom .link").click();
+            expect(called).to.equal(null);
+            expect($filePath.val()).to.equal("");
+            
+            DataSourceManager.startImport = oldFunc;
+        });
+
         after(function() {
             DSForm.__testOnly__.resetForm();
         });

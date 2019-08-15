@@ -32,12 +32,6 @@ namespace DSS3Config {
         let $card = _getCard();
         _addDropdownListeners();
 
-        // open file browser
-        // $card.on("click", ".browse", function() {
-        //     $(this).blur();
-        //     goToBrowse();
-        // });
-
         $card.on("click", ".confirm", function() {
             _submitForm();
         });
@@ -46,11 +40,11 @@ namespace DSS3Config {
             _clear();
         });
 
-        // $filePath.on("keydown", function(event) {
-        //     if (event.which === keyCode.Enter) {
-        //         $pathCard.find(".browse").click();
-        //     }
-        // });
+        $card.find(".cardBottom .link").click(function() {
+            // back to data source panel
+            _clear();
+            DataSourceManager.startImport(null);
+        });
     }
 
     function _addDropdownListeners(): void {
