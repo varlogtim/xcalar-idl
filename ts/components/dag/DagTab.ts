@@ -246,7 +246,7 @@ abstract class DagTab extends Durable {
     }
 
     protected _deleteTableHelper(): XDPromise<void> {
-        DagTblManager.Instance.deleteTable(this._id + "_dag_*", true, true);
+        DagTblManager.Instance.deleteTable(this._id + "_dag_.*", true, true);
         return PromiseHelper.alwaysResolve(DagTblManager.Instance.forceDeleteSweep());
     }
 

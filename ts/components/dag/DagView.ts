@@ -3315,7 +3315,7 @@ class DagView {
             if (nodeType !== DagNodeType.DFIn && nodeType !== DagNodeType.DFOut) {
                 let generalTableName = tableName;
                 if (tableName.includes("#")) {
-                    generalTableName = tableName.split("#")[0] + "*";
+                    generalTableName = tableName.split("#")[0] + ".*";
                 }
                 DagTblManager.Instance.deleteTable(generalTableName, true, true);
                 // Delete the node's table now
