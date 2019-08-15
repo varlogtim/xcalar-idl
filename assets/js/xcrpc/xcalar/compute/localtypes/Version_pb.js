@@ -64,7 +64,9 @@ proto.xcalar.compute.localtypes.Version.GetVersionResponse.toObject = function(i
     thriftVersionSignatureFull: jspb.Message.getFieldWithDefault(msg, 2, ""),
     thriftVersionSignatureShort: jspb.Message.getFieldWithDefault(msg, 3, 0),
     xcrpcVersionSignatureFull: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    xcrpcVersionSignatureShort: jspb.Message.getFieldWithDefault(msg, 5, 0)
+    xcrpcVersionSignatureShort: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    clusterId: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    clusterGen: jspb.Message.getFieldWithDefault(msg, 7, 0)
   };
 
   if (includeInstance) {
@@ -120,6 +122,14 @@ proto.xcalar.compute.localtypes.Version.GetVersionResponse.deserializeBinaryFrom
     case 5:
       var value = /** @type {number} */ (reader.readUint32());
       msg.setXcrpcVersionSignatureShort(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setClusterId(value);
+      break;
+    case 7:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setClusterGen(value);
       break;
     default:
       reader.skipField();
@@ -182,6 +192,20 @@ proto.xcalar.compute.localtypes.Version.GetVersionResponse.serializeBinaryToWrit
   if (f !== 0) {
     writer.writeUint32(
       5,
+      f
+    );
+  }
+  f = message.getClusterId();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
+  f = message.getClusterGen();
+  if (f !== 0) {
+    writer.writeUint64(
+      7,
       f
     );
   }
@@ -260,6 +284,36 @@ proto.xcalar.compute.localtypes.Version.GetVersionResponse.prototype.getXcrpcVer
 /** @param {number} value */
 proto.xcalar.compute.localtypes.Version.GetVersionResponse.prototype.setXcrpcVersionSignatureShort = function(value) {
   jspb.Message.setProto3IntField(this, 5, value);
+};
+
+
+/**
+ * optional string cluster_id = 6;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Version.GetVersionResponse.prototype.getClusterId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/** @param {string} value */
+proto.xcalar.compute.localtypes.Version.GetVersionResponse.prototype.setClusterId = function(value) {
+  jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional uint64 cluster_gen = 7;
+ * @return {number}
+ */
+proto.xcalar.compute.localtypes.Version.GetVersionResponse.prototype.getClusterGen = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+};
+
+
+/** @param {number} value */
+proto.xcalar.compute.localtypes.Version.GetVersionResponse.prototype.setClusterGen = function(value) {
+  jspb.Message.setProto3IntField(this, 7, value);
 };
 
 

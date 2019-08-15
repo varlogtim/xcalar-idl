@@ -6,7 +6,7 @@
     "LibQmNumLoopCheckingState" : 4,
     "LibQmNumLoopCancelQuery" : 5,
     "LibQmQaYelpUserPath" : 6,
-    "LibQmQaJoinRetinaDir" : 7,
+    "LibQmQaNonstopRetinaDir" : 7,
     "LibQmQaErrorRetinaDir" : 8,
     "LibQmQueryLatencyOptimized" : 9
 }

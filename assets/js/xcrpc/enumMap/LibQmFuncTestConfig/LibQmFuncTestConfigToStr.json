@@ -5,8 +5,8 @@
     "3" : "LibQmNumCancellationThread",
     "4" : "LibQmNumLoopCheckingState",
     "5" : "LibQmNumLoopCancelQuery",
-    "6" : "LibQmQaYelpUserPath",
-    "7" : "LibQmQaJoinRetinaDir",
+    "6" : "LibQmQaYelpUserPath2",
+    "7" : "LibQmQaNonstopRetinaDir",
     "8" : "LibQmQaErrorRetinaDir",
     "9" : "LibQmQueryLatencyOptimized"
 }
