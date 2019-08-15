@@ -440,6 +440,13 @@ enum DataSourceSchemaEvent {
     ValidateSchema = "ValidateSchema",
 }
 
+enum ExportDriverPrettyNames {
+    SingleCSV = "Single CSV file",
+    MultipleCSV = "Multiple CSV files",
+    FastCSV = "Multiple CSV files using only ASCII delimiters",
+    LegacyUDF = "Custom export using a UDF (deprecated)"
+}
+
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
     global.WSTableType = WSTableType;

@@ -10,17 +10,17 @@ class ExportOpPanelModel extends BaseOpPanelModel {
         ["fast_csv", "multiple_csv", "single_csv", "legacy_udf"]
 
     private static XDPrettyNames: {[key: string]: string} = {
-        "single_csv": "Single CSV file",
-        "multiple_csv": "Multiple CSV files",
-        "fast_csv": "Multiple CSV files using only ASCII delimiters",
-        "legacy_udf": "Custom export using a UDF (deprecated)"
+        "single_csv": ExportDriverPrettyNames.SingleCSV,
+        "multiple_csv": ExportDriverPrettyNames.MultipleCSV,
+        "fast_csv": ExportDriverPrettyNames.FastCSV,
+        "legacy_udf": ExportDriverPrettyNames.LegacyUDF
     }
 
     private static DriverFromPretty: {[key: string]: string} = {
-        "Single CSV file": "single_csv",
-        "Multiple CSV files": "multiple_csv",
-        "Multiple CSV files using only ASCII delimiters": "fast_csv",
-        "Custom export using a UDF (deprecated)": "legacy_udf"
+        [ExportDriverPrettyNames.SingleCSV]: "single_csv",
+        [ExportDriverPrettyNames.MultipleCSV]: "multiple_csv",
+        [ExportDriverPrettyNames.FastCSV]: "fast_csv",
+        [ExportDriverPrettyNames.LegacyUDF]: "legacy_udf"
     }
 
     public static convertPrettyName(name: string) {

@@ -164,7 +164,7 @@ class ExportSQLTableModal {
         driverName = ExportOpPanelModel.convertPrettyName(driverName) || driverName;
         if (driverName == "") {
             driverName = "fast_csv";
-            this._$exportDest.val("Multiple CSV files using only ASCII delimiters");
+            this._$exportDest.val(ExportDriverPrettyNames.FastCSV);
             this._$exportDest.data("name", "fast_csv");
         } else if (driverName == this._selectedDriver) {
             return;
