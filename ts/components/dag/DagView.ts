@@ -3339,7 +3339,7 @@ class DagView {
                 }];
                 XIApi.deleteTables(txId, deleteQuery, null)
                     .then(() => {
-                        Transaction.done(txId, {noSql: true});
+                        Transaction.done(txId, {noLog: true});
                     })
                     .fail((error) => {
                         Transaction.fail(txId, {

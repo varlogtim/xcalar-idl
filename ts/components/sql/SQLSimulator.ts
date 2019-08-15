@@ -14,7 +14,7 @@ class SQLSimulator {
     static end(txId: number): string {
         const query = Transaction.done(txId, {
             "noNotification": true,
-            "noSql": true
+            "noLog": true
         });
         return query;
     }

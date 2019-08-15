@@ -83,7 +83,7 @@ class DagNodeAggregate extends DagNode {
 
         PromiseHelper.when(...promises)
         .then(() => {
-            Transaction.done(txId, {noSql: true});
+            Transaction.done(txId, {noLog: true});
             deferred.resolve();
         })
         .fail((error) => {

@@ -727,7 +727,7 @@ class DagNodeSQL extends DagNode {
         .then(function(finalizedTableName) {
             cliArray.push(Transaction.done(txId, {
                 "noNotification": true,
-                "noSql": true
+                "noLog": true
             }));
             const ret = {
                 finalizedTableName: finalizedTableName,
@@ -738,7 +738,7 @@ class DagNodeSQL extends DagNode {
         .fail(function() {
             Transaction.done(txId, {
                 "noNotification": true,
-                "noSql": true
+                "noLog": true
             });
             deferred.reject(SQLErrTStr.FinalizingFailed);
         });

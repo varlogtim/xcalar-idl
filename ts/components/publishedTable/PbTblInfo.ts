@@ -240,7 +240,7 @@ class PbTblInfo {
         .then(() => {
             Transaction.done(txId, {
                 "noCommit": true,
-                "noSql": true
+                "noLog": true
             });
             deferred.resolve();
         })

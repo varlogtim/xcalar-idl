@@ -167,7 +167,7 @@ namespace ExtensionManager {
     /*
     options: {
         noNotification: boolean, to hide success message pop up
-        noSql: boolean, if set true, not add to sql log,
+        noLog: boolean, if set true, not add to sql log,
         closeTab: boolean, if true, close view when pass before run check
         formOpenTime: the open time of the form,
         noFailAlert: boolean, to hide error alert
@@ -254,7 +254,7 @@ namespace ExtensionManager {
                 }
                 const query = Transaction.done(txId, {
                     noNotification: true,
-                    noSql: true,
+                    noLog: true,
                     noCommit: true
                 });
                 const finalTable = ext.getTable(finalTableName);

@@ -3158,7 +3158,7 @@ namespace DSPreview {
             .then(() => {
                 Transaction.done(txId, {
                     "noCommit": true,
-                    "noSql": true
+                    "noLog": true
                 });
                 deferred.resolve(true);
             })
@@ -3387,7 +3387,7 @@ namespace DSPreview {
             // not cache to sql log, only show when fail
             Transaction.done(txId, {
                 "noCommit": true,
-                "noSql": true
+                "noLog": true
             });
 
             deferred.resolve();
@@ -5193,7 +5193,7 @@ namespace DSPreview {
         }
     ): XDPromise<boolean> {
         let deferred: XDDeferred<boolean> = PromiseHelper.deferred();
-        
+
         let format: string = detectRes.format;
         if (format === DSFormat.SpecialJSON) {
             format = formatMap.UDF;
@@ -5340,7 +5340,7 @@ namespace DSPreview {
             if (detectArgs.fieldDelim !== "") {
                 applyFieldDelim(detectArgs.fieldDelim);
             }
-        } 
+        }
         detectArgs.hasHeader = detectRes.hasHeader;
 
         if (detectArgs.hasHeader) {

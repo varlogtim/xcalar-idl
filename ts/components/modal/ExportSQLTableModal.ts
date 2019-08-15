@@ -405,7 +405,7 @@ class ExportSQLTableModal {
         .then(() => {
             Transaction.done(txId, {
                 noNotification: true,
-                noSql: true,
+                noLog: true,
                 noCommit: true
             });
             this._closeModal();

@@ -107,7 +107,7 @@ declare interface TransactionDoneOptions {
     msgTable?: string | number,
     msgOptions?: object,
     noCommit?: boolean,
-    noSql?: boolean,
+    noLog?: boolean,
     sql?: object,
     title?: string,
     queryStateOutput?: any

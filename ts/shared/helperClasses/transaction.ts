@@ -30,7 +30,7 @@ namespace Transaction {
         msgTable?: TableId,
         msgOptions?: object,
         noCommit?: boolean,
-        noSql?: boolean,
+        noLog?: boolean,
         sql?: object,
         title?: string,
         queryStateOutput?: any
@@ -250,7 +250,7 @@ namespace Transaction {
         // add sql
         const willCommit = !options.noCommit;
         let queryNum: number;
-        if (options.noSql) {
+        if (options.noLog) {
             queryNum = null;
         } else if (!has_require) {
             const cli: string = txLog.getCli();

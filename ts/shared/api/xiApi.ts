@@ -3203,7 +3203,7 @@ namespace XIApi {
     function endSimulate(txId: number): string {
         let query: string = Transaction.done(txId, {
             noNotification: true,
-            noSql: true,
+            noLog: true,
             noCommit: true
         });
         return query;

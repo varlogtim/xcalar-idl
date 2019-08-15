@@ -1519,7 +1519,7 @@ namespace DS {
                     console.error("Unspported action!");
                     return;
             }
-    
+
             sortDS(arg.dir);
             dsInfoMeta.setVersionId(arg.id);
         } catch (e) {
@@ -1732,7 +1732,7 @@ namespace DS {
             forceRemove?: boolean,
             noDeFocus?: boolean,
             failToShow?: boolean,
-            noSql?: boolean,
+            noLog?: boolean,
             noAlert?: boolean
         }
     ): XDPromise<void> {
@@ -1774,7 +1774,7 @@ namespace DS {
             }
 
             Transaction.done(txId, {
-                "noSql": options.noSql,
+                "noLog": options.noLog,
                 "noCommit": true
             });
             deferred.resolve();
@@ -2324,7 +2324,7 @@ namespace DS {
                 .then(() => {
                     Transaction.done(txId, {
                         "noCommit": true,
-                        "noSql": true
+                        "noLog": true
                     });
                 })
                 .fail((error) => {

@@ -489,7 +489,7 @@ class DagGraphExecutor {
                 });
 
                 Transaction.done(txId, {
-                    noSql: true,
+                    noLog: true,
                 });
                 return PromiseHelper.alwaysResolve(MemoryAlert.Instance.check());
             })
@@ -602,7 +602,7 @@ class DagGraphExecutor {
                 Transaction.log(txId, queryStr, undefined, timeElapsed, {
                     queryName: queryName
                 });
-                Transaction.done(txId, { noSql: true});
+                Transaction.done(txId, { noLog: true});
                 MemoryAlert.Instance.check();
                 deferred.resolve();
             })
@@ -721,7 +721,7 @@ class DagGraphExecutor {
         .then((destTable) => {
             let queryStr: string = Transaction.done(simulateId, {
                 noNotification: true,
-                noSql: true,
+                noLog: true,
                 noCommit: true
             });
             let queries: {operation: string, args: any, tag?: string}[];
@@ -1159,7 +1159,7 @@ class DagGraphExecutor {
 
             Transaction.done(txId, {
                 noNotification: true,
-                noSql: true,
+                noLog: true,
                 noCommit: true
             });
         })
