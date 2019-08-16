@@ -1105,7 +1105,6 @@ namespace xcManager {
                 xcConsole.log(msg, url + ":" + line + ":" + column);
             }
 
-
             Log.errorLog("Console error", null, null, info);
 
             // if debugOn, xcConsole.log will show it's own error

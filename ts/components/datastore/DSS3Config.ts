@@ -24,6 +24,10 @@ namespace DSS3Config {
         return _getCard().find(".pathSection");
     }
 
+    function _getMultiDSSection(): JQuery {
+        return _getCard().find(".multiDS");
+    }
+
     function _getPathInput(): JQuery {
         return _getPathSection().find(".path input");
     }
@@ -37,14 +41,8 @@ namespace DSS3Config {
         let $path = $pathSection.find(".content").eq(0).clone();
         $path.find("input").val("");
         $pathSection.append($path);
+        _getMultiDSSection().removeClass("xc-hidden");
         return $path;
-    }
-
-    function _removePath($el: JQuery) {
-        if (_getPathInput().length <= 1) {
-            return; // error case handler
-        }
-        $el.closest(".content").remove();
     }
 
     function _addEventListeners(): void {
@@ -56,22 +54,27 @@ namespace DSS3Config {
             _submitForm();
         });
 
-        $card.on("click", ".cancel", function() {
-            _clear();
-        });
-
         $card.on("click", ".addPath", function() {
             _addPath();
         });
 
-        $card.on("click", ".removePath", function() {
-            _removePath($(this));
-        });
-
-        $card.find(".cardBottom .link").click(function() {
+        $card.find(".back").click(function() {
             // back to data source panel
             _clear();
             DataSourceManager.startImport(null);
+        });
+
+        _getMultiDSSection().on("click", ".switch", function() {
+            let $switch = $(this);
+            if ($switch.hasClass("on")) {
+                $switch.removeClass("on");
+                $switch.next().removeClass("highlighted");
+                $switch.prev().addClass("highlighted");
+            } else {
+                $switch.addClass("on");
+                $switch.prev().removeClass("highlighted");
+                $switch.next().addClass("highlighted");
+            }
         });
     }
 
@@ -117,12 +120,15 @@ namespace DSS3Config {
         $path.each((_i, el) => {
             let $ele = $(el);
             let path: string = $ele.val().trim();
-            eles.push({ $ele });
-            paths.push({ path });
+            if (path !== "") {
+                paths.push({ path });
+            }
         });
-
+        if (paths.length === 0) {
+            // when all path is empty
+            eles.push({ $ele: $path.eq(0) });
+        }
         let valid: boolean = xcHelper.validate(eles);
-        
         if (!valid) {
             return null;
         }
@@ -140,12 +146,16 @@ namespace DSS3Config {
             return;
         }
         let {paths, targetName} = res;
+        let multiDS: boolean = _getMultiDSSection().find(".switch").hasClass("on");
+        if (paths.length === 1) {
+            multiDS = false;
+        }
         let cb = () => _restoreFromPreview(targetName, paths);
         _clear();
         DSPreview.show({
             targetName: targetName,
             files: paths,
-            multiDS: false,
+            multiDS: multiDS,
         }, cb, false);
     }
 
@@ -176,5 +186,6 @@ namespace DSS3Config {
                 $path.remove();
             }
         });
+        _getMultiDSSection().addClass("xc-hidden");
     }
 }

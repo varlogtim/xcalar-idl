@@ -30,10 +30,12 @@ namespace DSForm {
         $filePath.focus();
 
         if (XVM.isCloud()) {
-            $pathCard.find(".cardBottom .link").removeClass("xc-hidden");
+            $pathCard.find(".cardBottom .clear").addClass("xc-hidden");
+            $pathCard.find(".cardBottom .back").removeClass("xc-hidden");
             resetForm();
         } else {
-            $pathCard.find(".cardBottom .link").addClass("xc-hidden");
+            $pathCard.find(".cardBottom .clear").removeClass("xc-hidden");
+            $pathCard.find(".cardBottom .back").addClass("xc-hidden");
             // on prem don't reset form
         }
     }
@@ -204,7 +206,9 @@ namespace DSForm {
             goToPreview();
         });
 
-        $pathCard.on("click", ".cancel", resetForm);
+        $pathCard.on("click", ".clear", function() {
+            resetForm();
+        });
 
         $filePath.on("keydown", function(event) {
             if (event.which === keyCode.Enter) {
@@ -212,7 +216,7 @@ namespace DSForm {
             }
         });
 
-        $pathCard.find(".cardBottom .link").click(function() {
+        $pathCard.on("click", ".back", function() {
             resetForm();
             // back to data source panel
             DataSourceManager.startImport(null);

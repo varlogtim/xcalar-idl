@@ -6,6 +6,7 @@
     </div>
   </div>
   <div class="cardMain">
+    <!-- connector -->
     <div class="content target">
       <label>S3 Connector:</label>
       <!-- s3 connector dropdown -->
@@ -21,20 +22,34 @@
         </div>
       </div>
     </div>
+    <!-- path -->
     <div class="pathSection">
       <div class="content path">
         <label>Data Source Path:</label>
-        <i class="removePath icon xi-trash xc-action" data-toggle="tooltip" data-placement="top" data-container="body" data-title="Remove path"></i>
         <div class="dropDownList">
           <input type="text" spellcheck="false">
         </div>
-        <button class="btn btn-secondary addPath" type="button">Add path</button>
+        <i class="addPath icon xi-plus-circle-outline xc-action" data-toggle="tooltip" data-placement="top" data-container="body" data-title="Add path"></i>
+      </div>
+    </div>
+    <!-- import option -->
+    <div class="content multiDS">
+      <label>Import As:</label>
+      <div class="dropDownList switchWrap">
+        <div class="switchLabel highlighted">
+          <%= dicts.common.OneDataset %>
+        </div>
+        <div class="xc-switch switch">
+          <div class="slider"></div>
+        </div>
+        <div class="switchLabel">
+          <%= dicts.common.MultiDatasets %>
+        </div>
       </div>
     </div>
   </div>
   <div class="cardBottom">
     <button class="btn btn-submit confirm"><%= dicts.common.Next %></button>
-    <button class="btn btn-clear cancel"><%= dicts.common.Clear %></button>
-    <span class="link xc-action"><%= dicts.common.Back %></span>
+    <button class="btn btn-secondary back"><%= dicts.common.Cancel %></button>
   </div>
 </div>

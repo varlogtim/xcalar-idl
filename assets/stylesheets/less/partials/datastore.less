@@ -743,6 +743,7 @@ table.datasetTable {
         .contentSection {
             .flex-display;
             flex-wrap: wrap;
+            justify-content: center;
 
             > div {
                 .flex(0 0 245px);
@@ -802,18 +803,11 @@ table.datasetTable {
         .path {
             position: relative;
 
-            .removePath {
-                position: absolute;
-                left: 125px;
-                font-size: 15px;
-                color: @color-font-edge;
+            .addPath {
+                margin-left: 10px;
+                font-size: 17px;
+                color: @color-font-link-blue;
                 line-height: 30px;
-            }
-
-            &:first-child {
-                .removePath {
-                    display: none;
-                }
             }
 
             &:not(:first-child) {
@@ -828,6 +822,16 @@ table.datasetTable {
                 }
             }
         }
+    }
+
+    .cardBottom {
+        .confirm {
+            margin-right: 160px;
+        }
+    }
+
+    .switchWrap {
+        .fileBrowser .fileBrowserMain .fileInfoContainer .fileInfoBottom .switchWrap;
     }
 }
 /* End of S3 config card */
@@ -931,14 +935,6 @@ table.datasetTable {
         padding-right: 0;
         padding-top: 10px;
         padding-bottom: 20px;
-
-        .link {
-            text-decoration: underline;
-            color: @color-font-link-blue;
-            margin-right: 15px;
-            line-height: 30px;
-            float: right;
-        }
     }
 }
 /* End of Path Card */
@@ -1629,7 +1625,7 @@ table.datasetTable {
                     }
                 }
 
-                .switchWrap{
+                .switchWrap {
                     margin: 0 auto 16px auto;
                     width: 250px;
                     display: flex;

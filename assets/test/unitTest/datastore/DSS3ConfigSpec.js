@@ -55,9 +55,14 @@ describe("DSS3Config Test", function() {
         expect($card.find(".path input").length).to.equal(2);
     });
 
-    it("should remove path", function() {
-        $card.find(".removePath").eq(0).click();
-        expect($card.find(".path input").length).to.equal(1);
+    it("should toggle switch multiDS", function() {
+        let $switch = $card.find(".multiDS .switch");
+        let hasOn = $switch.hasClass("on");
+        $switch.click();
+        expect($switch.hasClass("on")).to.equal(!hasOn);
+        // case 2
+        $switch.click();
+        expect($switch.hasClass("on")).to.equal(hasOn);
     });
 
     it("should submit", function() {
@@ -66,7 +71,7 @@ describe("DSS3Config Test", function() {
         DSPreview.show = (arg) => { test = arg; };
 
         $dropdown.find("input").val("target");
-        $card.find(".path input").val("path");
+        $card.find(".path input").eq(0).val("path");
         $card.find(".confirm").click();
 
         expect(test).to.deep.equal({
@@ -74,7 +79,7 @@ describe("DSS3Config Test", function() {
             files: [{path: "path"}],
             multiDS: false
         });
-        expect($card.find(".path input").val()).to.equal("");
+        expect($card.find(".path input").eq(0).val()).to.equal("");
         DSPreview.show = oldFunc;
     });
 
@@ -85,31 +90,21 @@ describe("DSS3Config Test", function() {
         };
 
         $dropdown.find("input").val("target");
-        $card.find(".path input").val("path");
+        $card.find(".path input").eq(0).val("path");
         $card.find(".confirm").click();
 
-        expect($card.find(".path input").val()).to.equal("path");
+        expect($card.find(".path input").eq(0).val()).to.equal("path");
         DSPreview.show = oldFunc;
     });
-
-    it("should clear", function() {
-        $dropdown.find("input").val("target");
-        $card.find(".path input").val("path");
-        $card.find(".cancel").click();
-
-        expect($dropdown.find("input").val()).to.equal("target");
-        expect($card.find(".path input").val()).to.equal("");
-    });
-
 
     it("should go back", function() {
         let oldFunc = DataSourceManager.startImport;
         let called;
         DataSourceManager.startImport = (arg) => called = arg;
-        $card.find(".path input").val("path");
-        $card.find(".cardBottom .link").click();
+        $card.find(".path input").eq(0).val("path");
+        $card.find(".back").click();
         expect(called).to.equal(null);
-        expect($card.find(".path input").val()).to.equal("");
+        expect($card.find(".path input").eq(0).val()).to.equal("");
 
         DataSourceManager.startImport = oldFunc;
     });

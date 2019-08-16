@@ -191,7 +191,7 @@ describe("Dataset-DSForm Test", function() {
             let called;
             DataSourceManager.startImport = (arg) => called = arg;
             $filePath.val("test");
-            $pathCard.find(".cardBottom .link").click();
+            $pathCard.find(".back").click();
             expect(called).to.equal(null);
             expect($filePath.val()).to.equal("");
             
