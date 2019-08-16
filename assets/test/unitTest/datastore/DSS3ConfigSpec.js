@@ -7,7 +7,7 @@ describe("DSS3Config Test", function() {
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
         $card = $("#dsForm-s3Config");
-        $dropdown = $card.find(".dropDownList.bucket");
+        $dropdown = $card.find(".dropDownList.connector");
     });
 
     it("should show the card", function() {
@@ -22,7 +22,7 @@ describe("DSS3Config Test", function() {
         expect($lis.eq(0).hasClass("createNew")).to.be.true;
     });
 
-    it("should click create new to create new s3 bucket", function() {
+    it("should click create new to create new s3 connector", function() {
         let oldFunc = S3ConfigModal.Instance.show;
         let called = false;
         S3ConfigModal.Instance.show = () => called = true;
@@ -50,6 +50,16 @@ describe("DSS3Config Test", function() {
         StatusBox.show = oldStatus;
     });
 
+    it("should add path", function() {
+        $card.find(".addPath").click();
+        expect($card.find(".path input").length).to.equal(2);
+    });
+
+    it("should remove path", function() {
+        $card.find(".removePath").eq(0).click();
+        expect($card.find(".path input").length).to.equal(1);
+    });
+
     it("should submit", function() {
         let oldFunc = DSPreview.show;
         let test = null;
@@ -61,7 +71,8 @@ describe("DSS3Config Test", function() {
 
         expect(test).to.deep.equal({
             targetName: "target",
-            files: [{path: "path"}]
+            files: [{path: "path"}],
+            multiDS: false
         });
         expect($card.find(".path input").val()).to.equal("");
         DSPreview.show = oldFunc;

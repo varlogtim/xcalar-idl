@@ -13,6 +13,7 @@ interface DSPreviewOptions {
     typedColumns?: {colName: string, colType: string}[];
     advancedArgs?: any;
     targetName?: string;
+    multiDS?: boolean;
 }
 
 namespace DSPreview {

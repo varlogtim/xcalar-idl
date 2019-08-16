@@ -139,12 +139,12 @@ namespace TooltipWalkthroughs {
         }, {
             highlight_div: "#dsForm-source .location.s3",
             interact_div: "#dsForm-source .location.s3",
-            text: "The Amazon S3 Location section enables you to select a s3 bucket as data source",
+            text: "The Amazon S3 Location section enables you to select a Amazon S3 connector to connecto to your data source",
             type: TooltipType.Text
         }, {
             highlight_div: "#dsForm-source .location.database",
             interact_div: "#dsForm-source .location.database",
-            text: "The Database Location section enables you to select a database as data source",
+            text: "The Database Location section enables you to select a database connector to connect to your data source",
             type: TooltipType.Text
         }, {
             highlight_div: "#dsForm-source .more",

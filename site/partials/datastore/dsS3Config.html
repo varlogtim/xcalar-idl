@@ -2,31 +2,34 @@
   <div class="cardInstruction oneLine">
     <i class="icon xi-info-circle"></i>
     <div class="text">
-      <span>Select a S3 bucket</span>
+      <span>Select a Amazozn S3 connector</span>
     </div>
   </div>
   <div class="cardMain">
     <div class="content target">
-      <label>S3 Bucket:</label>
-      <!-- s3 bucket dropdown -->
-      <div class="dropDownList bucket">
-        <input class="text" type="text" placeholder="Select a S3 bucket" spellcheck="false" disabled>
+      <label>S3 Connector:</label>
+      <!-- s3 connector dropdown -->
+      <div class="dropDownList connector">
+        <input class="text" type="text" placeholder="Select a S3 connector" spellcheck="false" disabled>
         <div class="iconWrapper">
           <i class="icon xi-arrow-down"></i>
         </div>
-        <!-- s3 bucket Menu -->
+        <!-- s3 connector Menu -->
         <div class="list">
           <ul></ul>
           include "../../util/menuScrollArea.html"
         </div>
       </div>
     </div>
-    <div class="content path">
-      <label>File Path:</label>
-      <div class="dropDownList">
-        <input type="text" spellcheck="false">
+    <div class="pathSection">
+      <div class="content path">
+        <label>Data Source Path:</label>
+        <i class="removePath icon xi-trash xc-action" data-toggle="tooltip" data-placement="top" data-container="body" data-title="Remove path"></i>
+        <div class="dropDownList">
+          <input type="text" spellcheck="false">
+        </div>
+        <button class="btn btn-secondary addPath" type="button">Add path</button>
       </div>
-      <!-- <button class="btn btn-secondary browse" type="button"><%= dicts.common.Browse %>...</button> -->
     </div>
   </div>
   <div class="cardBottom">

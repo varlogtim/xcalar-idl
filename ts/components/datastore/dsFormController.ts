@@ -31,8 +31,8 @@ class DSFormController {
     public constructor() {
     }
 
-    public set(options): void {
-        options = options || {};
+    public set(options: DSPreviewOptions): void {
+        options = options || <any>{};
         this.previewSet = {};
         this.headersList = [];
         this.originalHeadersList = [];

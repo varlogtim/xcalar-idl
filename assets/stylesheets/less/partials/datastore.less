@@ -791,6 +791,44 @@ table.datasetTable {
 /* S3 Config Card */
 #dsForm-s3Config {
     #dsForm-path;
+
+    .cardMain {
+        padding-bottom: 20px;
+    }
+
+    .pathSection {
+        margin-top: 15px;
+
+        .path {
+            position: relative;
+
+            .removePath {
+                position: absolute;
+                left: 125px;
+                font-size: 15px;
+                color: @color-font-edge;
+                line-height: 30px;
+            }
+
+            &:first-child {
+                .removePath {
+                    display: none;
+                }
+            }
+
+            &:not(:first-child) {
+                label {
+                    visibility: hidden;
+                }
+            }
+
+            &:not(:last-child) {
+                .addPath {
+                    display: none;
+                }
+            }
+        }
+    }
 }
 /* End of S3 config card */
 
@@ -1563,6 +1601,7 @@ table.datasetTable {
                             text-transform: none;
                             cursor: pointer;
                             max-width: ~"calc(100% - 80px)";
+                            user-select: text;
                         }
 
                         input {

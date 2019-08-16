@@ -120,7 +120,11 @@ namespace DSTargetManager {
             let html: HTML = targets.map(function(targetName) {
                 return "<li>" + targetName + "</li>";
             }).join("");
-            let dsFormHtml: HTML = `<li class="createNew adminOnly">+ Create New Connector</li>` + html;
+            let classes = "createNew";
+            if (!XVM.isCloud()) {
+                classes += " adminOnly";
+            }
+            let dsFormHtml: HTML = `<li class="${classes}">+ Create New Connector</li>` + html;
             $("#dsForm-targetMenu ul").html(dsFormHtml);
             JupyterUDFModal.Instance.refreshTarget(html);
 
