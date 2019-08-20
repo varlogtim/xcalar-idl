@@ -19,8 +19,6 @@ class XDFManager {
      * But in expServer, these kind of information has to be provided explicitly, as expServer is running in a stateless manner.
      */
     public setup(options?: {userName: string, sessionId: string, listXdfsObj}): XDPromise<void> {
-        const self = this;
-
         if (options != null) {
             const { userName, sessionId, listXdfsObj} = options;
             const fns = xcHelper.filterUDFsByUserSession(
@@ -31,7 +29,7 @@ class XDFManager {
                     fn.displayName = fn.fnName.split('/').pop();
                 }
             }
-            self._setupOperatorsMap(fns);
+            this._setupOperatorsMap(fns);
             this._isSetup = true;
             this._setupDeferred.resolve();
             return PromiseHelper.resolve();
@@ -42,11 +40,11 @@ class XDFManager {
                     return xdf.category === FunctionCategoryT.FunctionCategoryUdf;
                 }));
                 const fns: any[] = xcHelper.filterUDFs(listXdfsObj.fnDescs);
-                self._setupOperatorsMap(fns);
+                this._setupOperatorsMap(fns);
 
                 this._setupDeferred.resolve();
             })
-            .fail(function(error) {
+            .fail((error) => {
                 Alert.error("List XDFs failed", error.error);
                 this._setupDeferred.reject(error);
             })
