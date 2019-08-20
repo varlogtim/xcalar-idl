@@ -18,7 +18,11 @@ class DFLinkOutOpPanel extends BaseOpPanel {
                 this._renderColumns();
             });
             this._initialize(dagNode);
-            this._restorePanel();
+            this._restorePanel(this.dagNode.getParam());
+            if (BaseOpPanel.isLastModeAdvanced) {
+                this._switchMode(true);
+                this._updateMode(true);
+            }
         });
     }
 
@@ -27,6 +31,32 @@ class DFLinkOutOpPanel extends BaseOpPanel {
             return;
         }
         super.hidePanel(isSubmit);
+    }
+
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        if (toAdvancedMode) {
+            const param: DagNodeDFOutInputStruct = this._validate(true) || {
+                "name": "",
+                "linkAfterExecution": false,
+                "columns": []
+            };
+            const paramStr = JSON.stringify(param, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            this._editor.setValue(paramStr);
+        } else {
+            try {
+                const param = this._validateAdvancedMode();
+                if (param["error"]) {
+                    return <{error: string}>param;
+                }
+                this.model.updateColumns(param["columns"]);
+                this._restorePanel(<DagNodeDFOutInputStruct>param);
+                return null;
+            } catch (e) {
+                return {error: e};
+            }
+        }
+        return null;
     }
 
     public refreshColumns(): void {
@@ -48,8 +78,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         }
     }
 
-    private _restorePanel(): void {
-        const param: DagNodeDFOutInputStruct = this.dagNode.getParam();
+    private _restorePanel(param: DagNodeDFOutInputStruct): void {
         this._getLinkOutNameInput().val(param.name);
         this.needsColumns = this.dagNode.getSubType() === DagNodeSubType.DFOutOptimized ? true : false;
 
@@ -61,6 +90,18 @@ class DFLinkOutOpPanel extends BaseOpPanel {
             $checkbox.removeClass("checked");
         }
         this._renderColumns();
+    }
+
+    private _convertAdvConfigToModel(): DagNodeDFOutInputStruct {
+        const input = JSON.parse(this._editor.getValue());
+        if (JSON.stringify(input, null, 4) !== this._cachedBasicModeParam) {
+            // don't validate if no changes made, just allow to go to basic
+            const error = this._dagNode.validateParam(input);
+            if (error) {
+                throw new Error(error.error);
+            }
+        }
+        return input;
     }
 
     private _addEventListeners(): void {
@@ -117,16 +158,25 @@ class DFLinkOutOpPanel extends BaseOpPanel {
     }
 
     private _submitForm(): void {
-        const args: DagNodeDFOutInputStruct = this._validate();
-        if (args == null) {
+        let args: DagNodeDFOutInputStruct | {error: any};
+        if (this._isAdvancedMode()) {
+            try {
+                args = this._validateAdvancedMode();
+            } catch (e) {
+                return;
+            }
+        } else {
+            args = this._validate();
+        }
+        if (args == null || args["error"]) {
             // invalid case
             return;
         }
-        this.dagNode.setParam(args);
+        this.dagNode.setParam(<DagNodeDFOutInputStruct>args);
         this.close(true);
     }
 
-    private _validate(): DagNodeDFOutInputStruct {
+    private _validate(ignore: boolean = false): DagNodeDFOutInputStruct {
         const $input: JQuery = this._getLinkOutNameInput();
         const name: string = $input.val().trim();
         const columns = this.model.getColumnList();
@@ -134,13 +184,16 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         const takenNames = {};
         for (const colInfo of columns) {
             if (colInfo.isSelected) {
-                let destName: string;
-                const parsedName = xcHelper.parsePrefixColName(colInfo.name);
-                if (parsedName.prefix) {
-                    destName = parsedName.prefix + "_" + parsedName.name;
-                } else {
-                    destName = parsedName.name;
+                let destName: string = colInfo.destName;
+                if (!destName) {
+                    const parsedName = xcHelper.parsePrefixColName(colInfo.name);
+                    if (parsedName.prefix) {
+                        destName = parsedName.prefix + "_" + parsedName.name;
+                    } else {
+                        destName = parsedName.name;
+                    }
                 }
+
                 destName = xcHelper.autoName(destName, takenNames, null, "_");
                 takenNames[destName] = true;
                 selectedColumns.push({
@@ -149,30 +202,33 @@ class DFLinkOutOpPanel extends BaseOpPanel {
                 });
             }
         }
-        const isValid: boolean = xcHelper.validate([{
-            $ele: $input
-        }, {
-            $ele: $input,
-            check: () => {
-                return this._isNonUniqueName(name);
-            },
-            error: OpPanelTStr.DFLinkOutNameDup
-        }, {
-                $ele: this._getPanel().find(".columnsToExport"),
+        let isValid: boolean = true;
+        if (!ignore) {
+            isValid = xcHelper.validate([{
+                $ele: $input
+            }, {
+                $ele: $input,
                 check: () => {
-                    if (this.needsColumns) {
-                        return selectedColumns.length === 0;
-                    } else {
-                        return false;
-                    }
+                    return this._isNonUniqueName(name);
                 },
-                error: ErrTStr.NoColumns
-            }
-        ]);
+                error: OpPanelTStr.DFLinkOutNameDup
+            }, {
+                    $ele: this._getPanel().find(".columnsToExport"),
+                    check: () => {
+                        if (this.needsColumns) {
+                            return selectedColumns.length === 0;
+                        } else {
+                            return false;
+                        }
+                    },
+                    error: ErrTStr.NoColumns
+                }
+            ]);
+        }
 
         if (isValid) {
             const noLink: boolean = this._getOptionCheckbox()
-            .find(".checkbox").hasClass("checked");
+                                        .find(".checkbox").hasClass("checked");
             return {
                 name: name,
                 linkAfterExecution: !noLink,
@@ -180,6 +236,50 @@ class DFLinkOutOpPanel extends BaseOpPanel {
             };
         } else {
             return null;
+        }
+    }
+
+    private _validateAdvancedMode() {
+        let args: DagNodeDFOutInputStruct;
+        let error: string;
+        try {
+            args = this._convertAdvConfigToModel();
+
+            let sourceColSet = new Set();
+            let destColSet = new Set();
+            if (!args.columns || !(args.columns instanceof Array)) {
+                error = "Must have array property: columns"
+            };
+            for (let i = 0; i < args.columns.length; i++){
+                if (sourceColSet.has(args.columns[i].sourceName)) {
+                    error = xcStringHelper.replaceMsg(ErrTStr.DuplicateSourceColName, {
+                        col: args.columns[i].sourceName
+                    });
+                    break;
+                }
+                if (destColSet.has(args.columns[i].destName)) {
+                    error = xcStringHelper.replaceMsg(ErrTStr.DuplicateDestColName, {
+                        col: args.columns[i].destName
+                    });
+                    break;
+                }
+                if (destColSet)
+                error = xcHelper.validateColName(args.columns[i].destName, true, false, true);
+                if (error) {
+                    break;
+                }
+                sourceColSet.add(args.columns[i].sourceName);
+                destColSet.add(args.columns[i].destName);
+            }
+        } catch (e) {
+            error = e;
+        }
+
+        if (error == null) {
+            return args;
+        } else {
+            StatusBox.show(error, this.$panel.find(".advancedEditor"));
+            return {error: error};
         }
     }
 
@@ -203,7 +303,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
     private _renderColumns(): void {
         const columnList = this.model.getColumnList();
         const $panel = this._getPanel();
-        if (columnList.length == 0) {
+        if (columnList.length === 0) {
             this._$colList.empty();
             $panel.find(".noColsHint").show();
             $panel.find(".selectAllWrap").hide();

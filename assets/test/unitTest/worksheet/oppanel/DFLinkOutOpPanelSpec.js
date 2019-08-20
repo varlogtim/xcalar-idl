@@ -107,9 +107,112 @@ describe("DFLinkOutOpPanel Test", function() {
                 ]
             });
         });
+
     });
 
+    describe("advanced mode validation", () => {
+        it("should detect duplicate source cols", () => {
+            cache1 = dfLinkOutPanel._convertAdvConfigToModel;
+            dfLinkOutPanel._convertAdvConfigToModel = () => {
+                return {
+                    columns: [{
+                        sourceName: "a",
+                        destName: "b"
+                    },{
+                        sourceName: "a",
+                        destName: "b"
+                    }]
+                };
+            };
 
+            let res = dfLinkOutPanel._validateAdvancedMode();
+            expect(res.error).to.equal('Source column name "a" is duplicated');
+            dfLinkOutPanel._convertAdvConfigToModel = cache1;
+        });
+        it("should detect duplicate dest cols", () => {
+            cache1 = dfLinkOutPanel._convertAdvConfigToModel;
+            dfLinkOutPanel._convertAdvConfigToModel = () => {
+                return {
+                    columns: [{
+                        sourceName: "a",
+                        destName: "b"
+                    },{
+                        sourceName: "c",
+                        destName: "b"
+                    }]
+                };
+            };
+
+            let res = dfLinkOutPanel._validateAdvancedMode();
+            expect(res.error).to.equal('Dest column name "b" is duplicated');
+            dfLinkOutPanel._convertAdvConfigToModel = cache1;
+        });
+        it("should detect invalid dest col name", () => {
+            cache1 = dfLinkOutPanel._convertAdvConfigToModel;
+            dfLinkOutPanel._convertAdvConfigToModel = () => {
+                return {
+                    columns: [{
+                        sourceName: "a",
+                        destName: "b"
+                    },{
+                        sourceName: "c",
+                        destName: "3"
+                    }]
+                };
+            };
+
+            let res = dfLinkOutPanel._validateAdvancedMode();
+            expect(res.error).to.equal('Invalid name: a name can only begin with a letter or underscore(_).');
+            dfLinkOutPanel._convertAdvConfigToModel = cache1;
+        });
+        it("should pass with valid col names", () => {
+            cache1 = dfLinkOutPanel._convertAdvConfigToModel;
+            dfLinkOutPanel._convertAdvConfigToModel = () => {
+                return {
+                    columns: [{
+                        sourceName: "a",
+                        destName: "b"
+                    },{
+                        sourceName: "c",
+                        destName: "d"
+                    }]
+                };
+            };
+
+            let res = dfLinkOutPanel._validateAdvancedMode();
+            expect(res.error).to.be.undefined;
+            dfLinkOutPanel._convertAdvConfigToModel = cache1;
+        });
+    });
+
+    describe("switching modes", function() {
+        it("should switch mode", function() {
+            let res = dfLinkOutPanel._switchMode(true);
+            expect(res).to.equal(null);
+            res = dfLinkOutPanel._switchMode(false);
+            expect(res).to.equal(null);
+        });
+    });
+
+    describe("submit advanced mode", () => {
+        it("should submit", () => {
+            dfLinkOutPanel._switchMode(true);
+            dfLinkOutPanel._updateMode(true);
+            dfLinkOutPanel._editor.setValue(JSON.stringify({
+                name: "out",
+                linkAfterExecution: true,
+                columns: [{sourceName: "a", destName: "b"}]
+            }));
+            expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.false;
+            dfLinkOutPanel._submitForm();
+            expect($('#dfLinkOutPanel').hasClass("xc-hidden")).to.be.true;
+            expect(node.getParam()).to.deep.equal({
+                name: "out",
+                linkAfterExecution: true,
+                columns: [{sourceName: "a", destName: "b"}]
+            });
+        });
+    });
 
     after(function() {
         dfLinkOutPanel.close();

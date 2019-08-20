@@ -325,9 +325,9 @@ class BaseOpPanel {
             // was generate by the preview table column menu
             this._exitCallback();
         }
-        if (!(this instanceof DFLinkOutOpPanel)) {
-            BaseOpPanel.isLastModeAdvanced = this.advancedMode;
-        }
+
+        BaseOpPanel.isLastModeAdvanced = this.advancedMode;
+
         return true;
     }
 

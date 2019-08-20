@@ -13,7 +13,7 @@ class DFLinkOutOpPanelModel {
         });
         const param: DagNodeDFOutInputStruct = this.dagNode.getParam();
         const columns = param.columns;
-        this._updateColumns(columns);
+        this.updateColumns(columns);
     }
 
     public getColumns(): ProgCol[] {
@@ -44,7 +44,8 @@ class DFLinkOutOpPanelModel {
         return;
     }
 
-    private _updateColumns(columns) {
+    // DFLinkOutOpPanelModelColumnInfo[] | { sourceColumn: string, destColumn: string }[]
+    public updateColumns(columns) {
         this.tableColumns = this.dagNode.getParents().map((parentNode) => {
             return parentNode.getLineage().getColumns(false, true);
         })[0] || [];
@@ -55,12 +56,14 @@ class DFLinkOutOpPanelModel {
         });
 
         this.columnList = this.tableColumns.map(col => {
+            let modelCol = columns.find((column) => {
+                return column.sourceName === col.getBackColName() ||
+                       column.name === col.getBackColName();
+            });
             return {
                 name: col.getBackColName(),
-                isSelected: columns.find((column) => {
-                    return column.sourceName === col.getBackColName() ||
-                           column.name === col.getBackColName();
-                }) != null,
+                destName: (modelCol && modelCol.destName) ? modelCol.destName : null,
+                isSelected: modelCol != null,
                 type: col.getType()
             }
         });
@@ -70,6 +73,6 @@ class DFLinkOutOpPanelModel {
         const selectedCols = this.columnList.filter(col => {
             return col.isSelected;
         });
-        this._updateColumns(selectedCols);
+        this.updateColumns(selectedCols);
     }
 }

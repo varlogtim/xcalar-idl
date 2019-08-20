@@ -200,7 +200,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this.close(true);
     }
 
-    private _validate(ingore: boolean = false): {
+    private _validate(ignore: boolean = false): {
         linkOutName: string,
         dataflowId: string,
         source: string,
@@ -211,7 +211,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         const dataflowId: string = this._dataflowNameToId($dfInput.val().trim());
         const linkOutName: string = $linkOutInput.val().trim();
         let isValid: boolean = false;
-        if (ingore) {
+        if (ignore) {
             isValid = true;
         } else if (this._source) {
             isValid = true;
@@ -233,7 +233,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
             return null;
         }
 
-        const schema = this._schemaSection.getSchema(ingore);
+        const schema = this._schemaSection.getSchema(ignore);
         if (isValid && schema != null) {
             return {
                 dataflowId: dataflowId,

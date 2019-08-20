@@ -194,6 +194,7 @@ declare type ExportOpPanelModelColumnInfo = {
 
 declare type DFLinkOutOpPanelModelColumnInfo = {
     name: string;
+    destName: string;
     isSelected: boolean;
     type: string;
 }
