@@ -27,9 +27,11 @@
           <!-- columns-->
           <div class="row exportColumnsSection formRow">
             <div class="subHeading clearfix">
-                <div class="label"><%= dicts.exportView.colsToExport %> (For optimized dataflow):</div>
+                <div class="label">Select columns (optimized executions only):</div>
             </div>
-            <p><%= dicts.exportView.colInstr %></p>
+            <p>
+              Select the columns you want in the optimized execution results. The column selection is required for optimized executions only.
+            </p>
             <div class="selectAllWrap">
                 <div class="checkbox">
                     <i class="icon xi-ckbox-empty fa-13"></i>
@@ -39,7 +41,7 @@
             </div>
             <div class="columnsToExport columnsWrap flexWrap clearfix">
                 <ul class="cols"></ul>
-                <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
+                <div class="hint noColsHint empty">No columns are available for selection</div>
             </div>
             <!-- rename section -->
             <div class="renameSection clearfix xc-hidden">
