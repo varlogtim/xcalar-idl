@@ -4,11 +4,20 @@ describe("Datastore-DSTargetManger Test", function() {
     var getNumTargets = function() {
         return Number($(".numDSTargets").eq(0).text());
     };
+    var oldIsCloud;
 
-    before(function() {
+    before(function(done) {
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
         UnitTest.onMinMode();
+
+        oldIsCloud = XVM.isCloud;
+        XVM.isCloud = () => false;
+
+        DSTargetManager.refreshTargets()
+        .always(() => {
+            done();
+        });
     });
 
     describe("Public API Test", function() {
@@ -371,5 +380,6 @@ describe("Datastore-DSTargetManger Test", function() {
         // go back to previous tab
         $mainTabCache.click();
         UnitTest.offMinMode();
+        XVM.isCloud = oldIsCloud;
     });
 });

@@ -13,6 +13,7 @@ namespace DSTargetManager {
     let udfModuleHint: InputDropdownHint;
     let udfFuncHint: InputDropdownHint;
     const s3Target: string = "s3fullaccount";
+    const cloudTargetBlackList: string[] = ["shared", "sharednothingsymm", "sharednothingsingle"]
 
     /**
      * DSTargetManager.setup
@@ -194,7 +195,10 @@ namespace DSTargetManager {
         XcalarTargetTypeList()
         .then(function(typeList) {
             typeList.forEach(function(targetType) {
-                typeSet[targetType.type_id] = targetType;
+                let typeId = targetType.type_id;
+                if (isAccessibleTarget(typeId)) {
+                    typeSet[typeId] = targetType;
+                }
             });
             updateTargetType();
             hasLoadTypeList = true;
@@ -435,10 +439,16 @@ namespace DSTargetManager {
         return defaultTargetList.includes(targetName);
     }
 
+    function isAccessibleTarget(targetType: string): boolean {
+        return !XVM.isCloud() || !cloudTargetBlackList.includes(targetType);
+    }
+
     function cacheTargets(targetList): string[] {
         targetSet = {};
         targetList.forEach(function(target) {
-            targetSet[target.name] = target;
+            if (isAccessibleTarget(target.type_id)) {
+                targetSet[target.name] = target;
+            }
         });
         return Object.keys(targetSet).sort();
     }

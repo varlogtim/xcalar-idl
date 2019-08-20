@@ -115,8 +115,17 @@ describe("JupyterUDFModal Test", function() {
     });
 
     describe("Import modal test", function() {
-        before(function() {
+        var oldIsCloud;
+
+        before(function(done) {
             JupyterUDFModal.Instance.show("newImport");
+            oldIsCloud = XVM.isCloud;
+            XVM.isCloud = () => false;
+
+            DSTargetManager.refreshTargets()
+            .always(() => {
+                done();
+            });
         });
 
         it ("target list should work", function() {
@@ -225,6 +234,7 @@ describe("JupyterUDFModal Test", function() {
 
         after(function() {
             $modal.find(".close").click();
+            XVM.isCloud = oldIsCloud;
         });
     });
 
