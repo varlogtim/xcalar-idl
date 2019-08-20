@@ -2173,7 +2173,9 @@ class DagView {
                 Object.keys(spliceInfos).forEach((removedNodeId) => {
                     const relatedSpliceInfo = spliceInfos[removedNodeId];
                     Object.keys(relatedSpliceInfo).forEach((relatedNodeId) => {
-                        if (relatedSpliceInfo[relatedNodeId]) {
+                        const spliceList = relatedSpliceInfo[relatedNodeId];
+                        if (Array.isArray(spliceList) && spliceList.indexOf(true) >= 0) {
+                            // This child node supports index splicing
                             splicingNodeSet.add(relatedNodeId);
                         }
                     });
