@@ -166,7 +166,11 @@ class SQLDagExecutor {
 
         this._status = SQLStatus.Running;
         SQLResultSpace.Instance.showProgressDataflow(true);
-        this._tempGraph.execute([this._sqlNode.getId()])
+
+        this._restoreTables()
+        .then(() => {
+            return this._tempGraph.execute([this._sqlNode.getId()]);
+        })
         .then(() => {
             finalTableName = this._sqlNode.getTable();
             columns = this._sqlNode.getColumns();
@@ -318,6 +322,27 @@ class SQLDagExecutor {
 
     private _saveDataflow(): XDPromise<void> {
         return PromiseHelper.alwaysResolve(this._tempTab.save());
+    }
+
+    private _restoreTables(): XDPromise<void> {
+        // auto activate all inactive tables first
+        try {
+            let tablesToActivate: string[] = [];
+            for (let key in this._identifiers) {
+                let tableName: string = this._identifiers[key];
+                let table: PbTblInfo = PTblManager.Instance.getTableByName(tableName);
+                if (table != null && table.active === false) {
+                    tablesToActivate.push(tableName);
+                }
+            }
+
+            return PromiseHelper.alwaysResolve(
+                PTblManager.Instance.activateTables(tablesToActivate, true)
+            );
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.resolve();
+        }
     }
 }
 

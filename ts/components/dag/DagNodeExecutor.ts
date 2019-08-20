@@ -1139,7 +1139,7 @@ class DagNodeExecutor {
             limitedRows = null;
         }
 
-        PromiseHelper.alwaysResolve(XcalarRestoreTable(params.source))
+        this._restoreIMDTable(params.source)
         .then(() => {
             return XcalarRefreshTable(params.source, newTableName,
                 -1, params.version, self.txId, params.filterString,
@@ -1151,6 +1151,16 @@ class DagNodeExecutor {
         })
         .fail(deferred.reject);
         return deferred.promise();
+    }
+
+    private _restoreIMDTable(tableName: string): XDPromise<void> {
+        if (typeof PTblManager === "undefined") {
+            return PromiseHelper.alwaysResolve(XcalarRestoreTable(tableName));
+        } else {
+            return PromiseHelper.alwaysResolve(
+                PTblManager.Instance.activateTables([tableName], true)
+            );
+        }
     }
 
     private _jupyter(): XDPromise<string> {

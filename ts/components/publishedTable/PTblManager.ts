@@ -414,7 +414,7 @@ class PTblManager {
      * PTblManager.Instance.activateTables
      * @param tableNames
      */
-    public activateTables(tableNames: string[]): XDPromise<void> {
+    public activateTables(tableNames: string[], noAlert?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let succeeds: string[] = [];
         let failures: string[] = [];
@@ -438,7 +438,7 @@ class PTblManager {
             return PromiseHelper.chain(promises);
         })
         .then(() => {
-            if (failures.length > 0) {
+            if (failures.length > 0 && !noAlert) {
                 let error: string = failures.join("\n");
                 Alert.error(IMDTStr.ActivatingFail, error);
             }
@@ -449,7 +449,9 @@ class PTblManager {
             deferred.resolve();
         })
         .fail((error) => {
-            Alert.error(IMDTStr.ActivatingFail, error);
+            if (!noAlert) {
+                Alert.error(IMDTStr.ActivatingFail, error);
+            }
             deferred.reject(error);
         });
 

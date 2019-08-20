@@ -881,7 +881,7 @@ describe("DagNodeExecutor Test", () => {
         });
 
         const executor = new DagNodeExecutor(node, txId);
-        const oldRestore = XcalarRestoreTable;
+        const oldRestore = PTblManager.Instance.activateTables;
         const oldRefresh = XcalarRefreshTable;
         const oldGetMeta = XcalarGetTableMeta;
 
@@ -889,8 +889,8 @@ describe("DagNodeExecutor Test", () => {
             return PromiseHelper.resolve({metas: []});
         }
 
-        XcalarRestoreTable = (source) => {
-            expect(source).to.equal("testTable");
+        PTblManager.Instance.activateTables = (tables) => {
+            expect(tables[0]).to.equal("testTable");
             return PromiseHelper.resolve();
         };
 
@@ -920,7 +920,7 @@ describe("DagNodeExecutor Test", () => {
             done("fail");
         })
         .always(() => {
-            XcalarRestoreTable = oldRestore;
+            PTblManager.Instance.activateTables = oldRestore;
             XcalarRefreshTable = oldRefresh;
             XcalarGetTableMeta = oldGetMeta;
         });
