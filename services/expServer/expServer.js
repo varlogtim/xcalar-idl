@@ -121,7 +121,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                   return res.status(502).send('ECONNREFUSED proxy error causing 502');
                }
             }
-            xcConsole.error('error on proxy', err); },
+            xcConsole.error('error on proxy', err);
+        },
         limit: payloadSizeLimit ,
         parseReqBody: true  // GUI-13416 - true is necessary for thrift to work
     }));
@@ -164,6 +165,16 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             return req.originalUrl;
         },
         proxyErrorHandler: function(err) {
+            switch (err && err.code) {
+               case 'ECONNRESET': {
+                  xcConsole.error('ECONNRESET error on proxy', err);
+                  return res.status(502).send('ECONNRESET proxy error causing 502');
+               }
+               case 'ECONNREFUSED': {
+                  xcConsole.error('ECONNREFUSED error on proxy', err);
+                  return res.status(502).send('ECONNREFUSED proxy error causing 502');
+               }
+            }
             xcConsole.error('error on proxy', err);
         },
         limit: payloadSizeLimit
