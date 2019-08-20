@@ -177,7 +177,7 @@ describe("Export Operator Panel Test", function() {
             exportOpPanel.renderDriverArgs();
             expect($("#exportOpPanel .secret_optional_param").length).to.equal(1);
             var $param = $("#exportOpPanel .secret_optional_param").eq(0);
-            expect($param.find(".label").text()).to.equal("secret optional param (optional):");
+            expect($param.find(".label").text()).to.equal("(Optional) secret optional param:");
             expect($param.find("input").attr("type")).to.equal("password");
         });
 

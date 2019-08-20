@@ -498,11 +498,11 @@ class ExportOpPanelModel extends BaseOpPanelModel {
         argHtml = '';
         argHtml = '<div class="exportArg formRow ' + param.name.replace(/ /g,"_") + ' ' + type + 'Arg">' +
             '<div class="subHeading clearfix">' +
-                '<div class="label">' + labelName
+                '<div class="label">'
         if (param.optional) {
-            argHtml += ' (optional)'
+            argHtml += '(Optional) '
         }
-        argHtml += ':</div>' +
+        argHtml += labelName + ':</div>' +
             '</div>' +
             '<p class="instrText">' + param.description + '</p>';
         if (param.type == "target") {
