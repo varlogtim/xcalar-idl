@@ -11,6 +11,8 @@ class SQLTableSchema extends AbstractSQLResultView {
         this._getContainer().removeClass("xc-hidden");
         this._updateTableName(tableInfo.name);
         this._render(tableInfo);
+        const $schemaHeader = this._getMainSection().find(".header");
+        $schemaHeader.find(".row > div").css({"width": ""});
     }
 
     public showError(errorString: string): void {

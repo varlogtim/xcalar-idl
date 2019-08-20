@@ -753,7 +753,7 @@
             @w-other: (@w-creteTime + @w-status) / 3;
 
             > div {
-                width: ~"calc(33% - @{w-other})";
+                width: ~"calc(100% / 3 - @{w-other})";
             }
 
             .createTime {
@@ -805,8 +805,8 @@
 #sqlTableSchemaArea {
     .mainSection {
         .row {
-            @w-primaryKey: 150px;
-            @w-other: @w-primaryKey;
+            @w-other: 150px;
+            @w-primaryKey: @w-other * 2;
 
             > div {
                 width: ~"calc(50% - @{w-other})";

@@ -89,10 +89,12 @@ abstract class AbstractSQLResultView {
                 $section.css("left", 0);
 
                 let rowWidth: number[] = this._getColumnsWidth($section.closest(".row"));
-                this._resizeColums(rowWidth);
+                this._resizeColums(rowWidth, false);
             },
             stop: () => {
                 this._getMainSection().removeClass("resizing");
+                let rowWidth: number[] = this._getColumnsWidth($section.closest(".row"));
+                this._resizeColums(rowWidth, true);
             }
         });
     }
@@ -109,15 +111,19 @@ abstract class AbstractSQLResultView {
         return rowWidth;
     }
 
-    protected _resizeColums(rowWidth: number[] | null): void {
+    protected _resizeColums(rowWidth: number[] | null, percentage: boolean): void {
         if (rowWidth == null) {
             return;
         }
         let $section = this._getMainSection();
+        let total: number = rowWidth.reduce((total, width) => total + width, 0);
         $section.find(".row").each((_inex, el) => {
             let $row = $(el);
             $row.find("> div").each((index, el) => {
-                $(el).outerWidth(rowWidth[index]);
+                let width = percentage
+                ? rowWidth[index] / total * 100 + "%"
+                : rowWidth[index];
+                $(el).outerWidth(width);
             });
         });
     }
