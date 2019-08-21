@@ -710,7 +710,7 @@ class MenuHelper {
         if (options.toggle && $menu.is(":visible")) {
             return "closeMenu";
         }
-
+        let open: boolean;
         switch (menuId) {
             case ('tableMenu'):
                 // case that should close table menu
@@ -729,7 +729,10 @@ class MenuHelper {
                 ) {
                     return "closeMenu";
                 }
-                MenuHelper.updateColDropdown($subMenu, tableId, options);
+                open = MenuHelper.updateColDropdown($subMenu, tableId, options);
+                if (!open) {
+                    return "closeMenu";
+                }
                 if (options.multipleColNums) {
                     $menu.data('columns', options.multipleColNums);
                     $menu.data('colNums', options.multipleColNums);
@@ -744,7 +747,10 @@ class MenuHelper {
                 if (options.isUnSelect && !options.shiftKey) {
                     return "closeMenu";
                 }
-                MenuHelper.updateTdDropdown($dropdownIcon, $menu, tableId, options);
+                open = MenuHelper.updateTdDropdown($dropdownIcon, $menu, tableId, options);
+                if (!open) {
+                    return "closeMenu";
+                }
                 break;
             default:
                 TblManager.unHighlightCells();
@@ -870,17 +876,21 @@ class MenuHelper {
         $menu: JQuery,
         tableId: TableId,
         options: DropdownOptions
-    ): void {
+    ): boolean {
         // If the tdDropdown is on a non-filterable value, we need to make the
         // filter options unavailable
-        const tableCol: ProgCol = gTables[tableId].tableCols[options.colNum - 1];
+        const table: TableMeta = gTables[tableId];
+        if (table == null) {
+            console.error("error case, td dropdown cannot find table");
+            return false;
+        }
+        const tableCol: ProgCol = table.tableCols[options.colNum - 1];
         const columnType: string = tableCol.type;
         // allow fnfs but not array elements, multi-type, or anything but
         // valid types
         let notAllowed: boolean = ($div.find('.blank').length > 0);
         let cellCount: number = 0;
         let isMultiCell: boolean = false;
-        const table: TableMeta =  gTables[tableId];
         const cells: TableCell[] = [];
         for (let row in table.highlightedCells) {
             for (let col in table.highlightedCells[row]) {
@@ -955,6 +965,7 @@ class MenuHelper {
 
         MenuHelper.toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,
                                     notAllowed, options, tableId);
+        return true;
     }
 
     private static updateTableDropdown($menu: JQuery, options: DropdownOptions): void {
@@ -970,8 +981,13 @@ class MenuHelper {
         $subMenu: JQuery,
         tableId: TableId,
         options: DropdownOptions
-    ): void {
-        const progCol: ProgCol = gTables[tableId].getCol(options.colNum);
+    ): boolean {
+        const table: TableMeta = gTables[tableId];
+        if (table == null) {
+            console.error("error case, col dropdown cannot find table");
+            return false;
+        }
+        const progCol: ProgCol = table.getCol(options.colNum);
         const $lis: JQuery = $subMenu.find(".typeList");
         $lis.removeClass("unavailable");
         xcTooltip.remove($lis);
@@ -982,6 +998,7 @@ class MenuHelper {
         } else {
             $subMenu.find(".changeDataType").removeClass("isKnownType");
         }
+        return true;
     }
 
 
@@ -1121,6 +1138,10 @@ class MenuHelper {
         const $jsonTd: JQuery = $table.find('.row' + rowNum).find('td.col' + colNum);
 
         const table: TableMeta = gTables[tableId];
+        if (table == null) {
+            console.error("error case, unnested dropdown cannot find table");
+            return;
+        }
         const progCol: ProgCol = table.getCol(colNum);
         const isArray: boolean = (progCol.getType() === ColumnType.array);
         let openSymbol: string = "";
