@@ -224,8 +224,9 @@ function thriftLog(
             }
         } else {
             // XXX We might need to include connection status 502 (Proxy error)
-            if (status === StatusT.StatusConnReset ||
-                status === StatusT.StatusConnRefused) {
+            if (status === StatusT.StatusConnReset) {
+                console.error("Child node crashed, not a critical error");
+            } else if (status === StatusT.StatusConnRefused) {
                 // This is bad, connection was lost so UI cannot do anything
                 // LOCK THE SCREEN
                 if (typeof xcManager !== "undefined" &&
