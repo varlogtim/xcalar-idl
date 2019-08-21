@@ -94,12 +94,6 @@ export declare class SelectEvalArgs {
 }
 
 // Operator node
-export declare class Annotations {
-    columns: ColumnArgs[]
-    constructor(args?: {
-        columns?: ColumnArgs[],
-    });
-}
 
 export declare class OperationNode {
     operation: string;
@@ -107,14 +101,12 @@ export declare class OperationNode {
     tag: string;
     state: number;
     args: object;
-    annotations: Annotations;
     constructor(args?: {
         operation?: string,
         comment?: string,
         tag?: string,
         state?: string,
         args?: object,
-        annotations?: Annotations,
     });
 }
 

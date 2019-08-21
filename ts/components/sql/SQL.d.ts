@@ -207,6 +207,5 @@ interface SQLOptimizedStruct {
 interface XcOperator {
     operation: string;
     args: any;
-    annotations?: any;
     state?: string;
 }

@@ -286,16 +286,19 @@ class SelectPushDown {
         }
         let valid = true;
         let hasAvg = false;
-        // Change gb, add select gb, check & handle avg, create annotation
+        // Change gb, add select gb, check & handle avg, create synthesize to drop temp columns
         const newEvals = jQuery.extend(true, [], gbNode.value.args.eval);
         const selectGBs = [];
         const extraMapEvals = [];
-        const annotations = {columns: indexCols.map(function(colName) {
-            return {sourceColumn: colName};
-        })};
-        const selectColumns = annotations.columns.map(function(col) {
-            if (selectStruct[col.sourceColumn]) {
-                return {sourceColumn: selectStruct[col.sourceColumn],
+        const annotations = curNode.value.args.groupAll ? [] :
+            curNode.value.args.key.map(function(keyStruct) {
+                return {sourceColumn: keyStruct.name,
+                        destColumn: keyStruct.name,
+                        columnType: keyStruct.type};
+            });
+        const selectColumns = annotations.map(function(col) {
+            if (selectStruct.colNameMap[col.sourceColumn]) {
+                return {sourceColumn: selectStruct.colNameMap[col.sourceColumn],
                         destColumn: col.sourceColumn};
             } else {
                 return col;
@@ -331,7 +334,8 @@ class SelectPushDown {
                     [aggColName] || aggColName, newField: tempSelectCNTColName});
                 selectGBs.push({func: "sum" + numericPart, arg: selectStruct.colNameMap
                     [aggColName] || aggColName, newField: tempSelectSUMColName});
-                annotations.columns.push({sourceColumn: curEval.newField});
+                annotations.push({sourceColumn: curEval.newField,
+                                  destColumn: curEval.newField});
                 selectColumns.push({sourceColumn: tempSelectCNTColName});
                 selectColumns.push({sourceColumn: tempSelectSUMColName});
                 extraMapEvals.push({evalString: "div" + numericPart + "("
@@ -342,7 +346,8 @@ class SelectPushDown {
                 newEvals[j].evalString = "sumInteger(" + tempColName + ")";
                 selectGBs.push({func: "count", arg: selectStruct.colNameMap
                         [aggColName] || aggColName, newField: tempColName});
-                annotations.columns.push({sourceColumn: curEval.newField});
+                annotations.push({sourceColumn: curEval.newField,
+                                  destColumn: curEval.newField});
                 selectColumns.push({sourceColumn: tempColName});
             } else {
                 const opNameTrunc = opName.substring(0,3);
@@ -353,40 +358,75 @@ class SelectPushDown {
                 newEvals[j].evalString = opName + "(" + tempColName + ")";
                 selectGBs.push({func: opName, arg: selectStruct.colNameMap
                         [aggColName] || aggColName, newField: tempColName});
-                annotations.columns.push({sourceColumn: curEval.newField});
+                annotations.push({sourceColumn: curEval.newField,
+                                  destColumn: curEval.newField});
                 selectColumns.push({sourceColumn: tempColName});
             }
         }
         if (!valid) {
             return true;
         }
+        const newSynStruct = {dest: gbNode.name,
+                              columns: annotations};
+        const newSynNode = new XcOpNode(gbNode.name,
+                                        {operation: "XcalarApiSynthesize",
+                                         args: newSynStruct},
+                                        []);
+        gbNode.value.args.eval = newEvals;
         if (hasAvg) {
             const newGBTableName = xcHelper.getTableName(gbNode.name)
                                     + "_GBCOPY_" + Authentication.getHashId();
+            const newMapTableName = xcHelper.getTableName(gbNode.name)
+                                        + "_GBMAP_" + Authentication.getHashId();
             const newMapStruct = {source: newGBTableName,
-                                dest: gbNode.name,
+                                dest: newMapTableName,
                                 eval: extraMapEvals,
                                 icv: false};
-            const newMapNode = new XcOpNode(gbNode.name,
+            const newMapNode = new XcOpNode(newMapTableName,
                                             {operation: "XcalarApiMap",
-                                             args: newMapStruct,
-                                             annotations: annotations},
+                                             args: newMapStruct},
                                             [newGBTableName]);
             newMapNode.children = [gbNode];
+            newMapNode.parents = [newSynNode];
+            newSynNode.children = [newMapNode];
+            newSynNode.sources = [newMapTableName];
+            newSynNode.value.args.source = newMapTableName;
             if (gbNode.parents.length === 0) {
                 // GB node is root
-                gbNode.replaceWith = newMapNode;
+                gbNode.replaceWith = newSynNode;
             } else {
-                newMapNode.parents = gbNode.parents;
-                newMapNode.parents.forEach(function(node) {
+                newSynNode.parents = gbNode.parents;
+                newSynNode.parents.forEach(function(node) {
                     while (node.children.indexOf(gbNode) != -1) {
                         const index = node.children.indexOf(gbNode);
-                        node.children[index] = newMapNode;
+                        node.children[index] = newSynNode;
                     }
                 });
             }
             gbNode.value.args.dest = newGBTableName;
+            gbNode.name = newGBTableName;
             gbNode.parents = [newMapNode];
+        } else {
+            const newGBTableName = xcHelper.getTableName(gbNode.name)
+                                    + "_GBCOPY_" + Authentication.getHashId();
+            newSynNode.children = [gbNode];
+            newSynNode.sources = [newGBTableName];
+            newSynNode.value.args.source = newGBTableName;
+            if (gbNode.parents.length === 0) {
+                // GB node is root
+                gbNode.replaceWith = newSynNode;
+            } else {
+                newSynNode.parents = gbNode.parents;
+                newSynNode.parents.forEach(function(node) {
+                    while (node.children.indexOf(gbNode) != -1) {
+                        const index = node.children.indexOf(gbNode);
+                        node.children[index] = newSynNode;
+                    }
+                });
+            }
+            gbNode.value.args.dest = newGBTableName;
+            gbNode.name = newGBTableName;
+            gbNode.parents = [newSynNode];
         }
         const newTableName = xcHelper.getTableName(curNode.name) + "_SELECTCOPY_"
                                 + Authentication.getHashId();
@@ -400,10 +440,6 @@ class SelectPushDown {
         delete newSelectStruct.colNameMap;
         const newSelectNode = new XcOpNode(newTableName, newSelectStruct,
                                            [newSelectStruct.args.source]);
-        gbNode.value.args.eval = newEvals;
-        if (!hasAvg) {
-            gbNode.value.annotations = annotations;
-        }
         if (curNode.value.operation === "XcalarApiIndex") {
             const newIndexTableName = xcHelper.getTableName(curNode.name) +
                                       "_INDEXCOPY_" + Authentication.getHashId();

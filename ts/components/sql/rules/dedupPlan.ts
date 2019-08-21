@@ -355,7 +355,7 @@ class DedupPlan {
                             }
                         }
                         if (node.value.operation != "XcalarApiAggregate") {
-                            node.parents[i].value.args.source = node.dupOf.name;
+                            node.parents[i].value.args.source = node.dupOf.value.args.dest;
                         }
                     }
                     node.parents[i].indexOn = node.indexOn;
@@ -379,7 +379,7 @@ class DedupPlan {
                         for (let j = 0; j < node.parents[i].value.args.source.length; j++) {
                             if (node.parents[i].value.args.source[j] === node.name
                                 && node.value.operation != "XcalarApiAggregate") {
-                                node.parents[i].value.args.source[j] = node.dupOf.name;
+                                node.parents[i].value.args.source[j] = node.dupOf.value.args.dest;
                             }
                         }
                     }
