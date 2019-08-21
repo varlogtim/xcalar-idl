@@ -10,6 +10,8 @@ describe("DagSchemaPopup Test", function() {
     let filterNodeId;
     let sqlNodeId;
     let $popup;
+    let dagSchemaPopup;
+    let dagGraph;
 
     before(function(done) {
         console.log("Dag Schema Popup Test");
@@ -21,6 +23,7 @@ describe("DagSchemaPopup Test", function() {
             $popup = $("#dagSchemaPopup");
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            dagGraph = DagViewManager.Instance.getActiveDag();
             $dagView = $("#dagView");
             $dfWrap = $dagView.find(".dataflowWrap");
             $dfArea = $dfWrap.find(".dataflowArea.active");
@@ -189,8 +192,6 @@ describe("DagSchemaPopup Test", function() {
                 }
             ];
 
-
-
             dagView.validateAndPaste(JSON.stringify(nodeInfos));
             groupByNodeId = $dfArea.find(".operator.groupBy").data("nodeid");
             datasetNodeId = $dfArea.find(".operator.dataset").data("nodeid");
@@ -202,61 +203,72 @@ describe("DagSchemaPopup Test", function() {
         });
     });
 
-    it("test state should be correct", function() {
-        expect($dfArea.find(".operator").length).to.equal(6);
-    });
+    describe("general tests", function() {
+        it("test state should be correct", function() {
+            expect($dfArea.find(".operator").length).to.equal(6);
+        });
 
-    it("should show", function() {
-        expect($popup.is(":visible")).to.be.false;
-        DagSchemaPopup.Instance.show(groupByNodeId);
-        expect($popup.is(":visible")).to.be.true;
-    });
+        it("should show", function() {
+            $popup = $(".dagSchemaPopup");
+            expect($popup.length).to.equal(0);
+            dagSchemaPopup = new DagSchemaPopup(groupByNodeId, tabId);
+            $popup = $(".dagSchemaPopup");
+            expect($popup.length).to.equal(1);
+            expect($popup.is(":visible")).to.be.true;
+        });
 
-    it("should hide on mousedown", function() {
-        expect($popup.is(":visible")).to.be.true;
-        $(document).mousedown();
-        expect($popup.is(":visible")).to.be.false;
-    });
+        it("should hide on mousedown", function() {
+            expect($popup.is(":visible")).to.be.true;
+            $(document).mousedown();
+            expect($popup.is(":visible")).to.be.false;
+            $popup = $(".dagSchemaPopup");
+            expect($popup.length).to.equal(0);
+        });
 
-    it("should have correct rows", function() {
-        DagSchemaPopup.Instance.show(groupByNodeId);
-        expect($popup.find("li").length).to.equal(4);
+        it("should have correct rows", function() {
+            dagSchemaPopup = new DagSchemaPopup(groupByNodeId, tabId);
+            $popup = $(".dagSchemaPopup");
+            expect($popup.find("li").length).to.equal(4);
 
-        expect($popup.find("li").eq(0).attr("class")).to.equal("changeType-remove");
-        expect($popup.find("li").eq(0).text()).to.equal("-moneyclass_id");
+            expect($popup.find("li").eq(0).attr("class")).to.equal("changeType-remove");
+            expect($popup.find("li").eq(0).text()).to.equal("-moneyclass_id");
 
-        expect($popup.find("li").eq(1).attr("class")).to.equal("changeType-remove hidden");
-        expect($popup.find("li").eq(1).text()).to.equal("-stringclasses::class_name");
+            expect($popup.find("li").eq(1).attr("class")).to.equal("changeType-remove hidden");
+            expect($popup.find("li").eq(1).text()).to.equal("-stringclasses::class_name");
 
-        expect($popup.find("li").eq(2).attr("class")).to.equal("changeType-add");
-        expect($popup.find("li").eq(2).text()).to.equal("+integergbCol");
-        expect($popup.find("li").eq(3).attr("class")).to.equal("");
-        expect($popup.find("li").eq(3).text()).to.equal("booleanmapCol");
-        DagSchemaPopup.Instance._close();
-    });
+            expect($popup.find("li").eq(2).attr("class")).to.equal("changeType-add");
+            expect($popup.find("li").eq(2).text()).to.equal("+integergbCol");
+            expect($popup.find("li").eq(3).attr("class")).to.equal("");
+            expect($popup.find("li").eq(3).text()).to.equal("booleanmapCol");
+            dagSchemaPopup.remove();
+        });
 
-    it("should show replace", function() {
-        DagSchemaPopup.Instance.show(castNodeId);
-        expect($popup.find("li").length).to.equal(3);
-        expect($popup.find("li").eq(0).attr("class")).to.equal("changeType-replace changeType-remove");
-        expect($popup.find("li").eq(0).text()).to.equal("+integerclasses::class_id");
-        expect($popup.find("li").eq(1).attr("class")).to.equal("changeType-replace");
-        expect($popup.find("li").eq(1).text()).to.equal("+moneyclass_id");
-        expect($popup.find("li").eq(2).attr("class")).to.equal("changeType-hidden hidden");
-        expect($popup.find("li").eq(2).text()).to.equal("stringclasses::class_name");
-        DagSchemaPopup.Instance._close();
-    });
+        it("should show replace", function() {
+            dagSchemaPopup = new DagSchemaPopup(castNodeId, tabId);
+            $popup = $(".dagSchemaPopup");
+            expect($popup.find("li").length).to.equal(3);
+            expect($popup.find("li").eq(0).attr("class")).to.equal("changeType-replace changeType-remove");
+            expect($popup.find("li").eq(0).text()).to.equal("+integerclasses::class_id");
+            expect($popup.find("li").eq(1).attr("class")).to.equal("changeType-replace");
+            expect($popup.find("li").eq(1).text()).to.equal("+moneyclass_id");
+            expect($popup.find("li").eq(2).attr("class")).to.equal("changeType-hidden hidden");
+            expect($popup.find("li").eq(2).text()).to.equal("stringclasses::class_name");
+            dagSchemaPopup.remove();
+        });
 
-    it("should handle no columns", function() {
-        DagSchemaPopup.Instance.show(filterNodeId);
-        expect($popup.find("li").length).to.equal(0);
-        expect($popup.find(".content").text()).to.equal("No fields present");
-        DagSchemaPopup.Instance._close();
+        it("should handle no columns", function() {
+            dagSchemaPopup = new DagSchemaPopup(filterNodeId, tabId);
+            $popup = $(".dagSchemaPopup");
+            expect($popup.find("li").length).to.equal(0);
+            expect($popup.find(".content").text()).to.equal("No fields present");
+            dagSchemaPopup.remove();
+        });
     });
 
     describe("clicking on li", function() {
         before(function() {
-            DagSchemaPopup.Instance.show(groupByNodeId);
+            dagSchemaPopup = new DagSchemaPopup(groupByNodeId, tabId);
+            $popup = $(".dagSchemaPopup");
         });
         it("should show 4 highlighted operators", function() {
             expect($dfArea.find(".operator.lineageSelected").length).to.equal(0);
@@ -345,21 +357,21 @@ describe("DagSchemaPopup Test", function() {
         });
 
         it("should handle hidden column in current node", function() {
-            DagSchemaPopup.Instance._close();
-            DagSchemaPopup.Instance.show(castNodeId);
+            dagSchemaPopup.remove();
+            dagSchemaPopup = new DagSchemaPopup(castNodeId, tabId);
+            $popup = $(".dagSchemaPopup");
 
             $popup.find("li").eq(2).trigger(fakeEvent.mouseup);
             expect($dfArea.find(".lineageTip").length).to.equal(2);
 
             expect($dfArea.find(".lineageTip").eq(0).text()).to.equal("Hidden");
             expect($dfArea.find(".lineageTip").eq(1).text()).to.equal("Created");
-            DagSchemaPopup.Instance._close();
+            dagSchemaPopup.remove();
         });
 
         describe("sql node", function() {
             let sqlNode;
             before(function() {
-                DagSchemaPopup.Instance._close();
                 sqlNode = DagViewManager.Instance.getActiveDag().getNode(sqlNodeId);
                 const xcQueryString = JSON.stringify([
                     {
@@ -434,7 +446,9 @@ describe("DagSchemaPopup Test", function() {
             });
 
             it("should have correct rows", function() {
-                DagSchemaPopup.Instance.show(sqlNodeId);
+                dagSchemaPopup = new DagSchemaPopup(sqlNodeId, tabId);
+                $popup = $(".dagSchemaPopup");
+
                 expect($popup.find("li").length).to.equal(4);
                 expect($popup.find("li").eq(0).attr("class")).to.equal("changeType-replace changeType-remove");
                 expect($popup.find("li").eq(0).text()).to.equal("+stringclasses::class_name");
@@ -518,7 +532,7 @@ describe("DagSchemaPopup Test", function() {
     });
 
     after(function(done) {
-        DagSchemaPopup.Instance._close();
+        dagSchemaPopup.remove();
         let dagTab =  DagTabManager.Instance.getTabById(tabId);
 
         DagTabManager.Instance.removeTab(tabId);

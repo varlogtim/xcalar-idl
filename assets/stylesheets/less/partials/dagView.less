@@ -2131,15 +2131,106 @@
     }
 }
 
-#dagSchemaPopup {
+.dagSchemaPopup {
+    font-size: 13px;
+
+    &.active {
+        display: block !important;
+    }
+    &.hasHiddenCols {
+        .cell.hidden {
+            display: block;
+        }
+    }
+    .ui-icon-gripsmall-diagonal-se {
+        visibility: hidden;
+    }
+    &:hover {
+        .ui-icon-gripsmall-diagonal-se {
+            visibility: visible;
+        }
+    }
+    .title {
+        .text {
+            margin-left: 0px !important;
+        }
+    }
+    .modalMain {
+        height: ~"calc(100% - 67px)";
+        overflow: hidden;
+        border-bottom-left-radius: 18px;
+        border-bottom-right-radius: 18px;
+    }
+    .heading {
+        height: 34px;
+        line-height: 34px;
+        display: flex;
+        background-color: #F5F8FA;
+
+        > div {
+            text-align: center;
+        }
+    }
+    .type {
+        min-width: 96px;
+        max-width: 96px;
+        padding-right: 4px;
+    }
+    .field {
+        flex: 1 1 auto;
+        padding: 0px 6px;
+    }
+    .cell.hidden {
+        min-width: 70px;
+        max-width: 70px;
+        display: none;
+    }
+
+    .cell {
+        border-left: 1px solid #c7d4df;
+        border-bottom: 1px solid #c7d4df;
+        .textOverflowOneLine;
+    }
+
+    .cell:first-child {
+        border-left: none;
+    }
+
+    .content {
+        overflow: auto;
+        height: ~"calc(100% - 34px)";
+    }
+
     .replaceSection {
         border-top: 1px solid @color-border-monitor-label;
         border-bottom: 1px solid @color-border-monitor-label;
         margin-top: -1px;
         position: relative;
+
+        li {
+            line-height: 30px;
+            height: 30px;
+        }
         .changeWrap {
             visibility: hidden;
         }
+        li .cell {
+            border-bottom: none;
+        }
+
+        li:nth-child(2) {
+            margin-top: -2px;
+        }
+
+        .arrow {
+            position: absolute;
+            left: 2px;
+            top: 14px;
+            color: @color-bg-apple-green;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
     }
     .changeType-add {
         color: @color-bg-apple-green;
@@ -2166,61 +2257,61 @@
             }
         }
     }
-    li.hidden {
-        .name {
-            width: ~"calc(100% - 108px)" !important;
-            margin-right: 2px;
-        }
-        .xi-hide {
-            font-size: 12px;
-            float: right;
-            margin-top: 5px;
-            margin-right: 4px;
-            color: @color-bg-cardHeader !important;
-        }
+
+    .xi-hide {
+        font-size: 19px;
+        text-align: center;
+        color: @color-bg-cardHeader !important;
+        width: 100%;
+        line-height: 34px;
     }
 
-    li > div:first-child {
-        width: 82px;
-    }
     .changeWrap {
-        width: 7px;
+        width: 2px;
         min-height: 10px; // if no height, changeWrap with no content will not
         // take up width
         text-align: center;
+        margin-left: 2px;
         float: left;
     }
     .iconWrap {
         float: left;
-    }
-    .name {
-        padding-right: 0px;
-        width: ~"calc(100% - 92px)";
-    }
-
-    .arrow {
-        position: absolute;
-        left: 2px;
-        top: 7px;
-        color: @color-bg-apple-green;
-        font-weight: bold;
-        font-size: 16px;
+        width: 30px;
+        text-align: center;
+        margin-top: 2px;
     }
 
-    &.noChange {
-        li > div:first-child {
-            width: 75px;
+    li {
+        display: flex;
+        line-height: 34px;
+        height: 34px;
+        &:hover {
+            background-color: #F5F8FA;
         }
-        .changeWrap {
-            display: none;
+        &.selected {
+            // .field {
+            //     color : @color-font-link-blue;
+            // }
+
+            outline: 1px solid @color-border-pinkish-grey2;
+            background-color: @color-dag-schema-selected;
+
         }
-        .name {
-            width: ~"calc(100% - 85px)";
+        .type {
+            color: @color-bg-select-blue;
         }
+    }
+
+    .noFields {
+        display: inline-block;
+        float: left;
+        width: 100%;
+        line-height: 40px;
+        text-align: center;
     }
 }
 
-.schemaPopup, .udfPopup {
+.schemaPopup{
     position: fixed;
     top: 100px;
     display: none;
@@ -2398,60 +2489,6 @@
             display: inline-block;
         }
     }
-    .rowCount .value {
-        width: auto !important;
-    }
-    .nodeInfoHeader {
-        display: none;
-        overflow: hidden;
-        .text {
-            text-indent: 22px !important;
-            padding: 0 4px;
-            width: 80px;
-        }
-        .value {
-            text-indent: 1px !important;
-            width: ~"calc(100% - 80px)" !important;
-            // min-width: 142px;
-            padding: 0 4px;
-            > span {
-                width: ~"calc(100% - 20px)";
-                display: inline-block;
-                .textOverflowOneLine;
-            }
-        }
-        > div {
-            position: relative;
-            margin: 0 0;
-            .sort {
-                .position(absolute, @top: 0, @right: 0px);
-                font-size: 10px;
-                .size(20px, 20px);
-                line-height: 20px;
-                text-indent: 0px;
-                text-align: center;
-                cursor: pointer;
-            }
-        }
-    }
-    .nodeInfoContent {
-        display: none;
-        border-bottom: 1px solid @color-border-pinkish-grey2;
-        li {
-            > div {
-                cursor: default;
-                &:first-child {
-                    padding-left: 24px;
-                }
-            }
-            &.slight > div {
-                color: @color-bg-tahiti-gold;
-            }
-            &.heavy > div {
-                color: @color-error-border;
-            }
-        }
-    }
 
     .heading {
         font-size: 11px;
@@ -2480,14 +2517,7 @@
             }
         }
     }
-
-    &.shiftLeft {
-        &:after {
-            display: none;
-        }
-    }
-
-    .content, .nodeInfoContent {
+    .content {
         overflow-y: auto;
         overflow-x: hidden;
         padding: 0px;
@@ -2557,25 +2587,6 @@
     }
 }
 
-.udfPopup {
-    .heading {
-        > div:first-child {
-            text-indent: 4px;
-        }
-    }
-    .content.heading {
-        .type {
-            text-indent: 4px;
-        }
-        .field {
-            width:  ~"calc(100% - 86px)";;
-        }
-        .message {
-            text-align: center;
-            padding-top: 20px;
-        }
-    }
-}
 .canvas {
     .position(absolute, @top: 0, @left: -40px);
     z-index: 0;

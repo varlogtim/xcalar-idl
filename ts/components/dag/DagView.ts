@@ -31,13 +31,14 @@ class DagView {
     private static titleLineHeight = 11;
     public static inConnectorWidth = 6;
     private lockedNodeIds = {};
-    private configLockedNodeIds = new Set();
+    private configLockedNodeIds: Set<DagNodeId> = new Set();
     private static dagEventNamespace = 'DagView';
     private static udfErrorColor = "#F15840";
     private static mapNodeColor = "#89D0E0";
 
-    private isSqlPreview = false;
+    private isSqlPreview: boolean = false;
     private _isFocused: boolean;
+    private schemaPopups: Map<DagNodeId, DagSchemaPopup> = new Map();
 
     constructor($dfArea: JQuery, graph: DagGraph, containerSelector: string, dagTab?: DagTab) {
         this.$dfArea = $dfArea;
@@ -1537,7 +1538,6 @@ class DagView {
     }
 
 
-
     /**
      * DagView.autoAddNode
      * @param parentNodeId
@@ -2857,14 +2857,30 @@ class DagView {
 
     public focus(): void {
         this._isFocused = true;
+        this.schemaPopups.forEach(schemaPopup => {
+            schemaPopup.show();
+        });
     }
 
     public unfocus(): void {
         this._isFocused = false;
+        this.schemaPopups.forEach(schemaPopup => {
+            schemaPopup.hide();
+        });
     }
 
     public isFocused(): boolean {
         return this._isFocused;
+    }
+
+    public close(): void {
+        this.schemaPopups.forEach(schemaPopup => {
+            schemaPopup.remove();
+        });
+    }
+
+    public getSchemaPopup(id: DagNodeId): DagSchemaPopup {
+        return this.schemaPopups.get(id);
     }
 
     public getGraph(): DagGraph {
@@ -2891,6 +2907,14 @@ class DagView {
         if (tableViewerNode && tableViewerNode.getId() === nodeId) {
             DagTable.Instance.refreshTable();
         }
+    }
+
+    public addSchemaPopup(schemaPopup: DagSchemaPopup): void {
+        this.schemaPopups.set(schemaPopup.getId(), schemaPopup);
+    }
+
+    public removeSchemaPopup(id: DagNodeId): void {
+        this.schemaPopups.delete(id);
     }
 
     private _getOperationTime(): string {
@@ -3146,6 +3170,11 @@ class DagView {
                     hasLinkOut = true;
                 }
                 $node.remove();
+                let schemaPopup: DagSchemaPopup = this.schemaPopups.get(nodeId);
+                if (schemaPopup) {
+                    schemaPopup.remove();
+                }
+                this.removeSchemaPopup(nodeId);
                 this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
                 this.$dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                 this.$dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {

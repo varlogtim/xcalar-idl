@@ -990,14 +990,21 @@ class DagViewManager {
         if (!this._setup) {
             return;
         }
+        let dagView: DagView;
         if (!graph) {
-            const dagView: DagView = this.dagViewMap.get(graphId);
+            dagView = this.dagViewMap.get(graphId);
+
             if (dagView) {
                 graph = dagView.getGraph();
             }
+        } else {
+            dagView = this.dagViewMap.get(graph.getTabId());
         }
         if (!graph) {
             return;
+        }
+        if (dagView) {
+            dagView.close();
         }
         DagView.cleanupClosedTab(graph);
         this.dagViewMap.delete(graph.getTabId());

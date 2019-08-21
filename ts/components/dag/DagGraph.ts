@@ -2262,10 +2262,10 @@ class DagGraph extends Durable {
 
     private _traverseResetLineage(node: DagNode): Set<DagNode> {
         const traversedSet: Set<DagNode> = new Set();
-        node.getLineage().reset();
+        node.resetLineage();
         traversedSet.add(node);
         this._traverseChildren(node, (node: DagNode) => {
-            node.getLineage().reset();
+            node.resetLineage();
             traversedSet.add(node);
         });
         return traversedSet;

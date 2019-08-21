@@ -101,6 +101,7 @@ enum DagNodeEvents {
     DescriptionChange = "DescriptionChange",
     LineageSourceChange = "DagNodeLineageSourceChange",
     LineageChange = "DagNodeLineageChange",
+    LineageReset = "DagNodeLineageReset",
     ParamChange = "DagNodeParamChange",
     StateChange = "DagNodeStateChange",
     ResultSetChange = "DagNodeResultSetChange",

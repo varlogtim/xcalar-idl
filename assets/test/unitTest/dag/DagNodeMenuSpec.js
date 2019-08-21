@@ -1463,19 +1463,22 @@ describe("DagNodeMenu Test", function() {
         });
 
         it("viewSchema", function(){
-            var called = false;
-            var cachedFn = DagSchemaPopup.Instance.show;
 
             DagView.selectNode($dfArea.find(".operator"));
 
-            DagSchemaPopup.Instance.show = function() {
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            var called = false;
+            var cachedFn = dagView.addSchemaPopup;
+
+            dagView.addSchemaPopup = (schemaPopup) => {
+                schemaPopup.remove();
                 called = true;
             };
 
             $dfArea.find(".operator .main").contextmenu();
             $menu.find(".viewSchema").trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
-            DagSchemaPopup.Instance.show = cachedFn;
+            dagView.addSchemaPopup = cachedFn;
         });
 
         it("exitOpPanel", function(){

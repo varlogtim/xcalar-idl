@@ -225,7 +225,7 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.autoAlign(tabId);
                     break;
                 case ("viewSchema"):
-                    DagSchemaPopup.Instance.show(dagNodeIds[0]);
+                    _showDagSchemaPopup(dagNodeIds[0], tabId);
                     break;
                 case ("exitOpPanel"):
                     exitOpPanel();
@@ -1032,4 +1032,21 @@ namespace DagNodeMenu {
             console.error(e);
         }
     }
+
+    function _showDagSchemaPopup(nodeId, tabId) {
+        let dagNode = DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        if (dagNode == null) {
+            console.error("error case");
+            return;
+        }
+        let dagView = DagViewManager.Instance.getActiveDagView();
+        let oldPopup = dagView.getSchemaPopup(nodeId);
+        if (oldPopup) {
+            oldPopup.bringToFront();
+        } else {
+            let schemaPopup = new DagSchemaPopup(nodeId, tabId);
+            dagView.addSchemaPopup(schemaPopup);
+        }
+    }
+
 }

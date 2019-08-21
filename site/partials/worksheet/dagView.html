@@ -86,43 +86,4 @@
     </div>
 
     include "dagNodeMenu.html"
-
-    <div id="dagSchemaPopup" class="schemaPopup">
-        <div id="dagSchemaPopupTitle" class="title">
-          <div class="titleContentWrap">
-            <span class="tableName"><%= dicts.dag.schema %></span>
-            <span class="numCols" title=""></span>
-          </div>
-          <div class="close" data-container="body"
-             data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
-            <i class="icon xi-close"></i>
-          </div>
-        </div>
-        <span class="background"></span>
-        <!-- <div class="rowCount subHeader">
-          <div class="text"><%= dicts.queryGraph.numRows %></div>
-          <div class="value"></div>
-          <i class="icon xi-error error" data-toggle="tooltip" data-placement="right" data-container="body" data-original-title="<%= dicts.dataflow.heavySkew %>" data-tipclasses="zIndex10000"></i>
-          <i class="icon xi-warning error" data-toggle="tooltip" data-placement="right" data-container="body" data-original-title="<%= dicts.dataflow.slightSkew %>" data-tipclasses="zIndex10000"></i>
-          <i class="icon xi-arrow-down expand xc-action"></i>
-        </div> -->
-        <div class="nodeInfoHeader subHeader">
-          <div class="text active">
-            <%= dicts.queryGraph.node %>
-            <i class="icon xi-sort sort"></i>
-          </div>
-          <div class="value">
-            <span class="innerText">
-              <%= dicts.queryGraph.numRowsPct %>
-            </span>
-            <i class="icon xi-sort sort"></i>
-          </div>
-        </div>
-        <div class="nodeInfoContent"></div>
-        <div class="heading">
-            <div class="type"><%= dicts.queryGraph.type %></div>
-            <div class="field"><%= dicts.queryGraph.field %></div>
-        </div>
-        <div class="content"></div>
-      </div>
 </div>

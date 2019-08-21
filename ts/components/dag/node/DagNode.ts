@@ -135,9 +135,17 @@ abstract class DagNode extends Durable {
      * @param event {string} event name
      * @param callback {Function} call back of the event
      */
-    public registerEvents(event, callback): DagNode {
+    public registerEvents(event: DagNodeEvents, callback: Function): DagNode {
         this.events._events[event] = callback;
         return this;
+    }
+
+    /**
+     * remove an event from the node
+     * @param event {string} event name
+     */
+    public unregisterEvent(event: DagNodeEvents) {
+        delete this.events._events[event];
     }
 
     /**
@@ -606,6 +614,13 @@ abstract class DagNode extends Durable {
      */
     public getLineage(): DagLineage {
         return this.lineage;
+    }
+
+    public resetLineage(): void {
+        this.lineage.reset();
+        this.events.trigger(DagNodeEvents.LineageReset, {
+            node: this
+        });
     }
 
     public setParam(_param?: any, noAutoExecute?: boolean): boolean | void {
@@ -1419,7 +1434,7 @@ abstract class DagNode extends Durable {
 
     protected _clearConnectionMeta(): void {
         this._removeTable();
-        this.lineage.reset(); // lineage will change
+        this.resetLineage(); // lineage will change
     }
 
     // Custom dagNodes will have their own serialize/deserialize for

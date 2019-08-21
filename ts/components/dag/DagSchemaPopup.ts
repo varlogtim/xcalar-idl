@@ -1,39 +1,59 @@
 class DagSchemaPopup {
-    private static _instance: DagSchemaPopup;
     private _$popup: JQuery;
     private _nodeId: DagNodeId;
     private _tabId: string;
     private _dagNode: DagNode;
     private _tableColumns: ProgCol[];
+    private _dagView: DagView;
 
-    public static get Instance() {
-        return this._instance || (this._instance = new this());
-    }
-
-    private constructor() {
-        this._$popup = $("#dagSchemaPopup");
-        this._addEventListeners();
-    }
-
-    public show(nodeId: DagNodeId): void {
-        const self = this;
+    public constructor(nodeId: DagNodeId, tabId: string) {
         this._nodeId = nodeId;
-        this._tabId = DagViewManager.Instance.getActiveDag().getTabId();
-        this._dagNode = DagViewManager.Instance.getActiveDag().getNode(this._nodeId);
-        if (this._dagNode == null) {
-            console.error("error case");
+        this._tabId = tabId;
+        this._dagNode = DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        this._show();
+        this._setupEvents();
+    }
+
+    public getId(): DagNodeId {
+        return this._nodeId;
+    }
+
+    public show() {
+        this._$popup.addClass("active");
+    }
+
+    public hide() {
+        this._$popup.removeClass("active");
+    }
+
+    public remove() {
+        this._close();
+    }
+
+    public bringToFront() {
+        let $allPopups = $("#dagView").find(".dagSchemaPopup");
+        if ($allPopups.index(this._$popup) === $allPopups.length - 1) {
+            // if popup is already at the end, don't move
             return;
         }
+        this._$popup.appendTo("#dagView");
+    }
+
+    private _show(): void {
+        this._$popup = $(this._getHtml());
+        this._$popup.appendTo("#dagView");
+        this._addEventListeners();
+        this._dagView = DagViewManager.Instance.getActiveDagView();
 
         this._$popup.addClass("active");
         DagViewManager.Instance.getNode(this._nodeId, this._tabId).addClass("lineageStart");
         xcTooltip.hideAll();
-        $(document).on('mousedown.hideDagSchema', function(event) {
+        $(document).on('mousedown.hideDagSchema', (event) => {
             const $target = $(event.target);
-            if ($target.closest('#dagSchemaPopup').length === 0 &&
+            if ($target.closest('.dagSchemaPopup').length === 0 &&
                 !$target.is("#dagView .dataflowWrap") &&
                 !$target.is("#dagView .dataflowArea")) {
-                self._close();
+                this._close();
             }
         });
 
@@ -50,7 +70,6 @@ class DagSchemaPopup {
             self._clearLineage();
             const $li: JQuery = $(this);
             const $name: JQuery = $li.find(".name");
-            self._$popup.find("li.selected").removeClass("selected");
             $li.addClass("selected");
             const colName: string = $name.text();
             const destCol: string = $name.data('destcol').trim();
@@ -79,12 +98,13 @@ class DagSchemaPopup {
             });
         });
 
-        this._$popup.find(".close").click(function() {
+        // not using click because mousedown replaces popup
+        this._$popup.find(".close").mouseup(function() {
             self._close();
         });
 
         this._$popup.draggable({
-            handle: '#dagSchemaPopupTitle',
+            handle: '#dagSchemaPopupTitle-'  + this._nodeId,
             cursor: '-webkit-grabbing',
             containment: "window"
         });
@@ -95,10 +115,14 @@ class DagSchemaPopup {
             minWidth: 200,
             containment: "document"
         });
+
+        this._$popup.mousedown(() => {
+            this.bringToFront();
+        });
     }
 
     private _fillColumns(): void {
-        const lineage = this._dagNode.getLineage()
+        const lineage = this._dagNode.getLineage();
         this._tableColumns = lineage.getColumns() || [];
         let hiddenColumns = lineage.getHiddenColumns();
         const changes = lineage.getChanges();
@@ -198,8 +222,6 @@ class DagSchemaPopup {
 
         numCols += this._tableColumns.length;
 
-        let noChange = (html === "<ul>");
-
         // list columns that have no change (have not been seen)
 
         this._tableColumns.forEach(progCol => {
@@ -226,10 +248,10 @@ class DagSchemaPopup {
         html += "</ul>";
 
         this._$popup.find(".content").html(html);
-        if (noChange) {
-            this._$popup.addClass("noChange");
+        if (this._$popup.find(".xi-hide").length) {
+            this._$popup.addClass("hasHiddenCols");
         } else {
-            this._$popup.removeClass("noChange");
+            this._$popup.removeClass("hasHiddenCols");
         }
     }
 
@@ -238,10 +260,16 @@ class DagSchemaPopup {
         const rect: ClientRect = $node[0].getBoundingClientRect();
         let top: number = Math.max(5, rect.top);
         let left: number = Math.max(5, rect.left);
-        let defaultWidth = 300;
-        let defaultHeight = 266;
+        let defaultWidth = 320;
+        let defaultHeight =  260;
         let rightBoundary: number = $(window).width() - 5;
         let bottomBoundary: number = $(window).height() - 5;
+        if (this._$popup.hasClass("hasHiddenCols")) {
+            defaultWidth += 40;
+        }
+        if (this._$popup.find("li").length > 4) {
+            defaultHeight += 60;
+        }
 
         this._$popup.css("width", "auto");
         let width = Math.min(defaultWidth, this._$popup.outerWidth());
@@ -268,14 +296,16 @@ class DagSchemaPopup {
     }
 
     private _close(): void {
-        this._$popup.removeClass("active");
+        this._$popup.remove();
         $(document).off('.hideDagSchema');
-        this._$popup.find(".content").empty();
         DagViewManager.Instance.getNode(this._nodeId, this._tabId).removeClass("lineageStart");
+        this._dagNode.unregisterEvent(DagNodeEvents.LineageReset);
+        this._clearLineage();
+        this._dagView.removeSchemaPopup(this._nodeId);
         this._dagNode = null;
         this._nodeId = null;
         this._tabId = null;
-        this._clearLineage();
+        xcTooltip.hideAll();
     }
 
     private _liTemplate(
@@ -297,30 +327,63 @@ class DagSchemaPopup {
                         '  data-tipclasses="highZindex" data-original-title="Field is hidden from result set"></i>' : "";
         let html: HTML =
             '<li class="' + liClass + '">' +
-                '<div>' +
+                '<div class="cell type">' +
                     '<span class="changeWrap">' + changeIcon + '</span>' +
                     '<span class="iconWrap">' +
-                        '<i class="icon fa-13 xi-' + type + '"></i>' +
+                        '<i class="icon fa-17 xi-' + type + '"></i>' +
                     '</span>' +
                     '<span class="text">' + type + '</span>' +
                 '</div>' +
                 '<div title="' + xcStringHelper.escapeDblQuoteForHTML(name) +
-                '" class="name" ' +
+                '" class="name field cell" ' +
                 `data-destcol="${destColName}" ` +
                 'data-backname="' + backName + '">' +
                     name +
                 '</div>' +
+                '<div class="cell hidden">' +
                 hideIcon +
-                // '<div>' +
-                // // XX SAMPLE DATA GOES HERE
-                // '</div>' +
+                '</div>' +
             '</li>';
         return html;
     }
 
     private _clearLineage() {
-        $("#dagView").find(".lineageSelected").removeClass("lineageSelected");
-        $("#dagView").find(".lineageTip").remove();
-        $("#dagView").removeClass("hideProgressTips");
+        const $dagView = $("#dagView");
+        $dagView.find(".lineageSelected").removeClass("lineageSelected");
+        $dagView.find(".lineageTip").remove();
+        $dagView.removeClass("hideProgressTips");
+        $dagView.find(".dagSchemaPopup li.selected").removeClass("selected");
+    }
+
+    private _getHtml() {
+        let html = `<div class="dagSchemaPopup modalContainer style-new">
+            <div id="dagSchemaPopupTitle-${this._nodeId}" class="header">
+                <div class="title">
+                    <span class="tableName text">Schema</span>
+                </div>
+                <div class="close" data-container="body"
+                    data-toggle="tooltip" title="" data-original-title="Close">
+                    <i class="icon xi-close"></i>
+                </div>
+            </div>
+            <div class="modalMain">
+                <div class="heading">
+                    <div class="type cell">Type</div>
+                    <div class="field cell">Field</div>
+                    <div class="hidden cell">Hidden</div>
+                </div>
+                <div class="content"></div>
+                </div>
+            </div>`;
+
+        return html;
+    }
+
+    private _setupEvents(): void {
+        this._dagNode
+        .registerEvents(DagNodeEvents.LineageReset, _info => {
+            this._clearLineage();
+            this._fillColumns();
+        });
     }
 }
