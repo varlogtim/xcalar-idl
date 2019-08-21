@@ -1055,7 +1055,11 @@ class DagGraphExecutor {
         while (stack.length > 0) {
             const currentNode: DagNode = stack.pop();
             if (currentNode.getType() === DagNodeType.DFIn) {
-                linkInNodes.push(<DagNodeDFIn>currentNode);
+                let linkInNode: DagNodeDFIn = <DagNodeDFIn>currentNode;
+                // exclude link with source node
+                if (!linkInNode.hasSource()) {
+                    linkInNodes.push(linkInNode);
+                }
             } else {
                 currentNode.getParents().forEach((parentNode) => {
                     stack.push(parentNode);
