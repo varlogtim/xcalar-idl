@@ -440,6 +440,12 @@ namespace DSTargetManager {
     }
 
     function isAccessibleTarget(targetType: string): boolean {
+        if (typeof gDefaultSharedRootAccess !== "undefined" &&
+            gDefaultSharedRootAccess == true
+        ) {
+            // XXX TODO: remove this backdoor when there is better way
+            return true;
+        }
         return !XVM.isCloud() || !cloudTargetBlackList.includes(targetType);
     }
 
