@@ -473,6 +473,7 @@ declare var GB: number;
 declare var TB: number;
 declare var PB: number;
 declare var helpHashTags: any;
+declare var XCALARVERSION: string;
 declare var gScrollbarWidth: number;
 declare var gMaxDivHeight: number;
 declare var gMaxEntriesPerPage: number;

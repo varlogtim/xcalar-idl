@@ -28,6 +28,7 @@
     "google-protobuf": "^3.0.0",
     "grunt": "^1.0.2",
     "grunt-assets-inline": "1.2.0",
+    "grunt-cache-breaker": "^2.0.1",
     "grunt-chmod": "^1.1.1",
     "grunt-cleanempty": "^1.0.4",
     "grunt-cli": "^1.2.0",

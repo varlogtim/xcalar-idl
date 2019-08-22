@@ -135,6 +135,7 @@ var DEBUG = "debug";
 var BUILD_REACT = "build_react";
 
 // Other Tasks
+var TEST = "test";
 var WATCH_PLUGIN = 'customWatch';
 var WATCH = 'watch';
 // cli options for watch functionality
@@ -599,7 +600,12 @@ var VALID_TASKS = {
         [BUILD_REACT]: {
             [BLD_TASK_KEY]: true,
             [DESC_KEY]:
-                "Build react"
+                "\n\t\tBuild react"
+        },
+        [TEST]: {
+            [BLD_TASK_KEY]:false,
+            [DESC_KEY]:
+                ""
         },
         ["init"]: {
             [BLD_TASK_KEY]:false,
@@ -746,6 +752,8 @@ var EXCLUDE_UGLIFY_TARGETS_FROM_POST_MINIFICATION_TASKS = [];
 // (for updating script tags after minification)
 var MINIFICATION_FILEPATH_MAPPING = 'jsFilepathMapping';
 
+// Version filepath
+var XCALARVERSION_PATH_REL = 'ts/Version.js';
 // config filepath
 var CONFIG_FILE_PATH_REL_BLD = 'assets/js/config.js'; // path rel. to build root
 
@@ -1584,6 +1592,24 @@ module.exports = function(grunt) {
             },
         },
 
+        // Append a timestamp to 'all.min.js' & 'core.min.js' which are both located in 'index.html'
+        cachebreaker: {
+            build: {
+                options: {
+                    match: ['.*.js', '\\.css'],
+                    replacement: function() {
+                        var version = require(SRCROOT + XCALARVERSION_PATH_REL).XCALARVERSION;
+                        return version;
+                    }
+                },
+                files: {
+                    // for test use, the config will be overwritten
+                    // by cachebreakerbuild task
+                    src: ['xcalar-gui/index.html']
+                }
+            }
+        },
+
         /**
             Watch plugin:
             Runs chron job, monitoring for changes in files specified in 'files' attr.
@@ -1743,6 +1769,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-sed');
     grunt.loadNpmTasks('grunt-touch');
     grunt.loadNpmTasks('grunt-webpack');
+    grunt.loadNpmTasks('grunt-cache-breaker');
 
     /**
         WATCH WORKFLOW INITIALIZATION:
@@ -1890,9 +1917,8 @@ module.exports = function(grunt) {
     grunt.task.registerTask(DEV, "Default build for frontend developers", function() {
 
         grunt.task.run("build");
-
         grunt.task.run('touch');  // creates assets/js/config.js if it does not exist
-
+        grunt.task.run('cachebreakerbuild');
         grunt.task.run("finalize");
 
     });
@@ -1935,7 +1961,7 @@ module.exports = function(grunt) {
         // rel paths.  Also, if config file minified want to make sure
         // correct config file is set prior to minification
         grunt.task.run("minify_js");
-
+        grunt.task.run('cachebreakerbuild');
         grunt.task.run("finalize");
 
     });
@@ -1961,7 +1987,7 @@ module.exports = function(grunt) {
         // -> because config.js gets minified atow,
         // and a custom config.js is needed for trunk blds and that
         // gets generated during synWithThrift
-
+        grunt.task.run('cachebreakerbuild');
         grunt.task.run("finalize");
 
     });
@@ -3496,7 +3522,7 @@ module.exports = function(grunt) {
     });
 
     grunt.task.registerTask("build_react", function() {
-        grunt.log.writeln("test, test")
+        grunt.log.writeln("\nBuild React\n");
         runShellCmd("rsync -r " + SRCROOT + "src " + BLDROOT + " " + "--exclude xcalar")
         grunt.task.run("webpack:react");
     });
@@ -4554,6 +4580,24 @@ module.exports = function(grunt) {
             grunt.task.run("display_summary");
         }
 
+    });
+
+    grunt.task.registerTask("cachebreakerbuild", function() {
+        var htmlBldAbsPath = BLDROOT + htmlMapping.dest;
+        var htmlBldFilPaths = HTML_BUILD_FILES.map(function(path) {
+            return htmlBldAbsPath + path;
+        });
+        var config = grunt.config("cachebreaker");
+        // grunt.log.writeln("\nconfig", config, "\n")
+
+        config.build.files.src = htmlBldFilPaths;
+        grunt.config("cachebreaker", config);
+        grunt.task.run("cachebreaker:build");
+    });
+
+    grunt.task.registerTask("test", function() {
+        grunt.log.writeln("\nFeel free to use this task for testing purpose\n");
+        // grunt.task.run("cachebreaker:build");
     });
 
     function touch_epoch_npm_modules() {
@@ -6007,11 +6051,11 @@ module.exports = function(grunt) {
         grunt.log.debug("Tasks requested: "+ tasksRequested);
 
         if (tasksRequested.length === 0 && !grunt.option('help')) {
+            var validTasks = Object.keys(VALID_TASKS).map(function(task) {
+                return "grunt " + task;
+            })
             grunt.fail.fatal("You need to specify grunt <TASK>. Examples: \n" +
-            "grunt dev\n" +
-            "grunt watch --html --less --js --ts --ctor\n" +
-            "grunt installer\n" +
-            "grunt trunk\n");
+            validTasks.join("\n"));
         }
 
         var bldTaskRequested = false;
