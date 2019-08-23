@@ -2131,8 +2131,9 @@
     }
 }
 
-.dagSchemaPopup {
-    font-size: 13px;
+.dagSchemaPopup.modalContainer.style-new {
+    font-size: 12px;
+    @row-height: 28px;
 
     &.active {
         display: block !important;
@@ -2150,20 +2151,67 @@
             visibility: visible;
         }
     }
-    .title {
-        .text {
-            margin-left: 0px !important;
+    .header {
+        height: 58px;
+        padding: 0px 22px;
+        line-height: 58px;
+
+        .title {
+            width: ~"calc(100% - 40px)";
+            .textOverflowOneLine;
+            font-size: 20px;
+            margin-top: 0px;
+
+            .tableName {
+                margin-left: 0px;
+                top: 0px;
+            }
+        }
+        .pinArea {
+            position: absolute;
+            top: 0px;
+            right: 40px;
+            height: 58px;
+            cursor: pointer;
+            .icon {
+                line-height: 58px;
+                font-size: 18px;
+            }
+        }
+
+        .close {
+            line-height: @row-height;
+            top: 0px;
+            height: 58px;
+            .icon {
+                line-height: 58px;
+                font-size: 18px;
+            }
         }
     }
+
+    .xi-pinned {
+        display: none;
+    }
+    &.pinned {
+        .xi-pinned {
+            display: block;
+        }
+        .xi-unpinned {
+            display: none;
+        }
+    }
+
     .modalMain {
-        height: ~"calc(100% - 67px)";
+        height: ~"calc(100% - 58px)";
         overflow: hidden;
         border-bottom-left-radius: 18px;
         border-bottom-right-radius: 18px;
+        .text-selection;
     }
     .heading {
-        height: 34px;
-        line-height: 34px;
+        height: @row-height;
+        line-height: @row-height;
         display: flex;
         background-color: #F5F8FA;
 
@@ -2198,7 +2246,7 @@
 
     .content {
         overflow: auto;
-        height: ~"calc(100% - 34px)";
+        height: ~"calc(100% - @{row-height})";
     }
 
     .replaceSection {
@@ -2208,8 +2256,8 @@
         position: relative;
 
         li {
-            line-height: 30px;
-            height: 30px;
+            line-height: 24px;
+            height: 24px;
         }
         .changeWrap {
             visibility: hidden;
@@ -2225,7 +2273,7 @@
         .arrow {
             position: absolute;
             left: 2px;
-            top: 14px;
+            top: 10px;
             color: @color-bg-apple-green;
             font-weight: bold;
             font-size: 16px;
@@ -2259,11 +2307,11 @@
     }
 
     .xi-hide {
-        font-size: 19px;
+        font-size: 18px;
         text-align: center;
         color: @color-bg-cardHeader !important;
         width: 100%;
-        line-height: 34px;
+        line-height: @row-height;
     }
 
     .changeWrap {
@@ -2271,7 +2319,7 @@
         min-height: 10px; // if no height, changeWrap with no content will not
         // take up width
         text-align: center;
-        margin-left: 2px;
+        margin-left: 3px;
         float: left;
     }
     .iconWrap {
@@ -2283,16 +2331,12 @@
 
     li {
         display: flex;
-        line-height: 34px;
-        height: 34px;
+        line-height: @row-height;
+        height: @row-height;
         &:hover {
             background-color: #F5F8FA;
         }
         &.selected {
-            // .field {
-            //     color : @color-font-link-blue;
-            // }
-
             outline: 1px solid @color-border-pinkish-grey2;
             background-color: @color-dag-schema-selected;
 

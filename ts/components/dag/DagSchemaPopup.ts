@@ -51,6 +51,7 @@ class DagSchemaPopup {
         $(document).on('mousedown.hideDagSchema', (event) => {
             const $target = $(event.target);
             if ($target.closest('.dagSchemaPopup').length === 0 &&
+                !this._$popup.hasClass("pinned") &&
                 !$target.is("#dagView .dataflowWrap") &&
                 !$target.is("#dagView .dataflowArea")) {
                 this._close();
@@ -118,6 +119,14 @@ class DagSchemaPopup {
 
         this._$popup.mousedown(() => {
             this.bringToFront();
+        });
+
+        this._$popup.find(".pinArea").mouseup(() => {
+            if (this._$popup.hasClass("pinned")) {
+                this._$popup.removeClass("pinned");
+            } else {
+                this._$popup.addClass("pinned");
+            }
         });
     }
 
@@ -330,7 +339,7 @@ class DagSchemaPopup {
                 '<div class="cell type">' +
                     '<span class="changeWrap">' + changeIcon + '</span>' +
                     '<span class="iconWrap">' +
-                        '<i class="icon fa-17 xi-' + type + '"></i>' +
+                        '<i class="icon fa-16 xi-' + type + '"></i>' +
                     '</span>' +
                     '<span class="text">' + type + '</span>' +
                 '</div>' +
@@ -359,9 +368,15 @@ class DagSchemaPopup {
         let html = `<div class="dagSchemaPopup modalContainer style-new">
             <div id="dagSchemaPopupTitle-${this._nodeId}" class="header">
                 <div class="title">
-                    <span class="tableName text">Schema</span>
+                    <span class="tableName text">Schema: ${this._dagNode.getTitle()}</span>
                 </div>
-                <div class="close" data-container="body"
+                <div class="pinArea">
+                    <i class="icon xi-unpinned" data-container="body" data-placement="top auto"
+                    data-toggle="tooltip" title="" data-original-title="Pin"></i>
+                    <i class="icon xi-pinned" data-container="body" data-placement="top auto"
+                    data-toggle="tooltip" title="" data-original-title="Unpin"></i>
+                    </div>
+                <div class="close" data-container="body" data-placement="top auto"
                     data-toggle="tooltip" title="" data-original-title="Close">
                     <i class="icon xi-close"></i>
                 </div>
