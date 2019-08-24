@@ -762,7 +762,7 @@ body {
 }
 
 #userMenu {
-    .size(@min-width: 130px, @max-width: 90vw, @width: auto);
+    .size(@min-width: 140px, @max-width: 90vw, @width: auto);
     text-align: center;
     z-index: @z-index-useMenu;
     background-color: @color-white;
@@ -784,6 +784,37 @@ body {
     .divider {
         border: 1px solid @color-border-menugray;
         border-top: none;
+    }
+
+    .credits {
+        &.warning {
+            .xi-warning {
+                display: block;
+            }
+        }
+        .num {
+            float: left;
+            .textOverflowOneLine;
+        }
+        .xi-warning {
+            display: none;
+            color: @color-macaroni-and-cheese;
+            float: left;
+            font-size: 12px;
+            line-height: 18px;
+            padding-left: 4px;
+        }
+        .add {
+            font-size: 10px;
+            color: @color-font-link-blue;
+            float: right;
+            line-height: 18px;
+            padding-left: 8px;
+            padding-right: 4px;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
 }
 

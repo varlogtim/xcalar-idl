@@ -376,7 +376,8 @@ ErrTStr = {
     'InvalidDFDownload': 'Invalid dataflow to download',
     'UnsaveDFDownload': 'Cannot download unsaved dataflow. Please save changes first',
     "NoPrimaryKey": "Published tables must have a primary key.",
-    'DsNotFound': 'Result not found. It may be caused by dataflow change or errors in the dataflow, please reconfigure the node and try execute again.'
+    'DsNotFound': 'Result not found. It may be caused by dataflow change or errors in the dataflow, please reconfigure the node and try execute again.',
+
 };
 
 ErrWRepTStr = {
@@ -709,7 +710,8 @@ AlertTStr = {
     "DFLinkShouldLinkError": "The Dataflow Output for '<inName>' must be manually " +
         "executed before the output can be used.",
     "SharedCustomOpDeleteTitle": "Delete",
-    "ShardCustomOpDeleteMsg": "Are you sure you want to delete the operator?"
+    "ShardCustomOpDeleteMsg": "Are you sure you want to delete the operator?",
+    "LowOnCredits": "This is a reminder that you are running low on credits. To add more credits, go to the account dropdown and select add credits. There, you will be able to add credits or contact customer service."
 };
 
 ErrorMessageTStr = {

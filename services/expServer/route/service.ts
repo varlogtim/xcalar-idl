@@ -1,6 +1,7 @@
 import { Router } from "express";
 export const router = Router();
 import serviceManager from "../controllers/serviceManager"
+import cloudManager from "../controllers/cloudManager"
 import support from "../utils/expServerSupport";
 import * as xcConsole from "../utils/expServerXcConsole";
 import { httpStatus } from "../../../assets/js/httpStatus";
@@ -292,8 +293,9 @@ router.post("/service/stopCloud", [support.checkAuth], (req, res) => {
     cloudManager.stopCluster();
     res.status(httpStatus.OK).send();
 });
-router.post("/service/getCredits", [support.checkAuth], (req, res) => {
-    cloudManager.updateCredits();
-    res.status(httpStatus.OK).send();
+
+router.get("/service/getCredits", [support.checkAuth], (req, res) => {
+    const numCredits: number = cloudManager.getNumCredits();
+    res.status(httpStatus.OK).send(JSON.stringify(numCredits));
 });
 // End of service calls

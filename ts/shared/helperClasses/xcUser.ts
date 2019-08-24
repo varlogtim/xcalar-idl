@@ -1,8 +1,11 @@
 
 class XcUser {
+    public static creditWarningLimit: number = 0; // XXX temporary
     private static _currentUser: XcUser;
     private static _isLogoutTimerOn: boolean = false;
     private static readonly _logOutWarningTime = 60; // in seconds
+    private static _creditUsageInterval = null;
+    private static _creditUsageCheckTime = 60 * 1000;
 
     public static get CurrentUser(): XcUser {
         return this._currentUser;
@@ -170,6 +173,29 @@ class XcUser {
         if (XcUser.CurrentUser) {
             XcUser.CurrentUser.logout();
         }
+    }
+
+    private static _checkCreditUsageHelper() {
+        xcHelper.sendRequest("GET", "/service/getCredits")
+        .then((num) => {
+            try {
+                num = JSON.parse(num);
+            } catch (e) {
+               // ignore
+            }
+            UserMenu.Instance.updateCredits(num);
+        })
+        .fail(() => {
+            UserMenu.Instance.updateCredits(null);
+        });
+    }
+
+    public static creditUsageCheck() {
+        this._checkCreditUsageHelper();
+        clearInterval(this._creditUsageInterval);
+        this._creditUsageInterval = setInterval(() => {
+            this._checkCreditUsageHelper();
+        }, this._creditUsageCheckTime);
     }
 
     private _username: string;

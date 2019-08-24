@@ -169,11 +169,24 @@
 
 .modalContainer.style-new {
     @header-h: 67px;
-
     border-radius: 18px;
     box-shadow: 0 4px 7px 1px @color-font-form-gray;
     background-color: @color-white;
     color: @color-font-form-gray;
+
+    &.compact {
+        .modalHeader {
+            border-bottom: none;
+            padding: 0px;
+            height: 44px;
+            line-height: 60px;
+            text-align: left;
+            font-size: 20px;
+        }
+        .ui-icon-gripsmall-diagonal-se {
+            opacity: 0; // hides the icon
+        }
+    }
 
     .header, .modalHeader {
         height: @header-h;
@@ -187,16 +200,28 @@
         .title {
             margin-top: 2px;
             color: @color-font-form-gray;
+            text-align: left;
+        }
 
-            .xi-warning {
-                color: #f6b243;
-                font-size: 26px;
-            }
+        .text {
+            text-transform: none;
+            font-size: 20px;
+        }
 
-            .xi-info-circle {
-                color: @color-font-link-blue;
-                font-size: 26px;
-            }
+        .xi-warning {
+            color: #f6b243;
+            font-size: 26px;
+        }
+
+        .xi-info-circle {
+            color: @color-font-link-blue;
+            font-size: 26px;
+        }
+
+        .title {
+            margin-top: 2px;
+            color: @color-font-form-gray;
+            text-align: left;
 
             .text {
                 font-size: 20px;
@@ -210,8 +235,8 @@
         .close {
             cursor: pointer;
             position: absolute;
-            top: 11px;
-            right: 11px;
+            top: 18px;
+            right: 16px;
 
             .size(@width: 22px, @height: 22px);
 
@@ -227,6 +252,7 @@
     .modalTopMain {
         background-color: @color-white;
     }
+
     .ui-resizable-se {
         bottom: -5px;
         right: -5px;
@@ -1562,6 +1588,24 @@ html.microsoft {
         }
     }
 
+    &.style-new {
+        .modalHeader {
+            border-bottom: none;
+            padding: 0px;
+            height: 44px;
+            line-height: 60px;
+            text-align: left;
+            font-size: 20px;
+        }
+
+        .modalBottom {
+            .flex(0 0 60px);
+            .btn {
+                width: 150px;
+            }
+        }
+    }
+
     &.highZindex {
         z-index: @z-index-locked + 2;
     }
@@ -1835,10 +1879,21 @@ html.microsoft {
     width: 636px;
     height: @modal-h;
 
+
+    &.compact {
+        .header {
+            border-bottom: none;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            height: 44px;
+            line-height: 60px;
+        }
+    }
+
     &.noCheckbox {
-        height: @modal-h - @checkbox-h !important;
+        height: @modal-h - @checkbox-h;
         .content {
-            height: @modal-h - @header-h - 1px - @checkbox-h;
+            min-height: @modal-h - @header-h - 1px - @checkbox-h;
 
             .checkboxSection {
                 display: none;
@@ -1847,14 +1902,14 @@ html.microsoft {
     }
 
     .content {
-        height: @modal-h - @header-h - 1px;
+        min-height: @modal-h - @header-h - 1px;
         padding: 22px;
         font-size: 14px;
 
         .message {
             font-weight: normal;
-            margin-bottom: 15px;
-            min-height: 38px;
+            padding-bottom: 15px;
+            min-height: 53px;
 
             b {
                 color: @color-font-link-blue;

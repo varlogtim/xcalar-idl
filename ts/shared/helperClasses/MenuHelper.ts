@@ -820,6 +820,7 @@ class MenuHelper {
         // positioning if dropdown is on the right side of screen
         const rightBoundary: number = $(window).width() - 5;
         if ($menu[0].getBoundingClientRect().right > rightBoundary) {
+            $menu.css("left", 0); // move all the way left so we get correct width
             left = rightBoundary - $menu.width();
             $menu.css('left', left).addClass('leftColMenu');
         }

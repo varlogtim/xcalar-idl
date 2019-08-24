@@ -29,8 +29,9 @@ namespace Alert {
         logout?: boolean; // want user to logout case
         msgTemplate?: string; // can include html tags
         buttons?: AlertButton[]; // buttons to show instead of confirm button
-        newStyling?: boolean;
         radioButtons?: RadioButton[]
+        compact?: boolean;
+        newStyle?: boolean;
     }
 
     export interface AlertOptions extends BasicAlertOptions {
@@ -41,8 +42,8 @@ namespace Alert {
         detail?: string; // detail of the error/message
         isAlert?: boolean; // if it is an alert or a confirm
         isCheckBox?: boolean; // if checkbox is enabled or disabled
-        hideButtons?: string[]; // array of button class names to hide, values can be: logout, downloadLog, or cancel,
-
+        hideButtons?: string[]; // array of button class names to hide, values can be: logout, downloadLog, or cancel
+        size?: string; // "small", "medium", "large" (widths)
     }
 
     export interface AlertErrorOptions extends BasicAlertOptions {}
@@ -83,10 +84,7 @@ namespace Alert {
 
         // call it here because Alert.show() may be called when another alert is visible
         reset();
-        if (options.newStyling) {
-            $modal.addClass("style-new");
-        }
-
+        setStyling(options);
         setTitle(options.title);
         setMessage(options.msg, options.msgTemplate);
         setDetail($modal, options.detail);
@@ -103,8 +101,8 @@ namespace Alert {
         modalHelper.setup(getExtraOptions(options));
 
         setButtonSize($modal);
-        setModalSize($modal, options.sizeToText);
-
+        setModalSize($modal, options.sizeToText, options);
+        modalHelper.center({verticalQuartile: true});
         return id;
     }
 
@@ -247,7 +245,7 @@ namespace Alert {
         // remove all event listener
         $modal.off(".alert");
         $modal.find(".confirm, .cancel, .close").show();
-        $modal.removeClass("style-new");
+        $modal.removeClass("style-new compact");
         $modal.find(".alertRadioButtons").empty();
         $modal.removeClass("hasRadioButtons");
     }
@@ -352,7 +350,7 @@ namespace Alert {
         }
     }
 
-    function setModalSize($modal: JQuery, sizeToText: boolean): void {
+    function setModalSize($modal: JQuery, sizeToText: boolean, options: AlertOptions): void {
         if (typeof isBrowserIE !== 'undefined' && isBrowserIE) { // all text will be on 1 line otherwise
             const width: number = $modal.width();
             setTimeout(() => {
@@ -371,12 +369,29 @@ namespace Alert {
                 $modal.height(height);
                 modalHelper.center({verticalQuartile: true});
             }
+        } else {
+            if (options.compact) {
+                $modal.width(450);
+                $modal.resizable( "option", "minWidth", 450);
+            } else {
+                $modal.width(580);
+                $modal.resizable( "option", "minWidth", 580);
+            }
         }
     }
 
     function setTitle(title: string): void {
         const modalTitle: string = title || AlertTStr.Title;
-        $("#alertHeader").find(".text").text(modalTitle);
+        $("#alertHeader").find(".text").html(modalTitle);
+    }
+
+    function setStyling(options: AlertOptions): void {
+        let $modal = getModal();
+        if (options.compact) {
+            $modal.addClass("style-new compact");
+        } else if (options.newStyle) {
+            $modal.addClass("style-new");
+        }
     }
 
     function setMessage(msg: string | null, msgTemplate?: string): void {

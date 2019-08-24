@@ -15,7 +15,8 @@ interface ModalHelperOptions {
     center?: ModalHelperCenterOptions,
     open?: Function,
     close?: Function,
-    noResize?: boolean
+    noResize?: boolean,
+    sizeCallBack?: Function
 }
 
 interface ModalHelperCenterOptions {
@@ -231,7 +232,9 @@ class ModalHelper {
         xcTooltip.hideAll();
 
         // resize modal
-        if (options.sizeToDefault) {
+        if (options.sizeCallBack) {
+            options.sizeCallBack();
+        } else if (options.sizeToDefault) {
             self.__resizeToDefault();
         } else {
             self.__resizeToFitScreen();

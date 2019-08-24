@@ -1,21 +1,22 @@
-import * as xcConsole from "../utils/expServerXcConsole.js";
 // ExpServer side
+import * as xcConsole from "../utils/expServerXcConsole.js";
+var request = require('request-promise-native');
+
 class CloudManager {
-    private clusterUrl: string;
+    private clusterUrl: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod";
     private s3Url: string;
     private cfnId: string;
     private userId: string;  // identity_id returned from cognito
-    private jQuery: any;
+    private _numCredits: number = null;
+    private _updateCreditsInterval;
+    private _updateCreditsTime: number = 1 * 60 * 1000; // check every minute
+    private _userName: string = "test@xcalar.com"; // XXX temporary
 
     public constructor() {
-        require("jsdom/lib/old-api").env("", (err, window) => {
-            if (err) {
-                xcConsole.error('require in expServerSupport', err);
-                return;
-            }
-            this.jQuery = require("jquery")(window);
-        });
+        this._fetchCredits();
+        this._updateCredits();
     }
+
     public setup(token: string): void {
         // TO-DO Get the credentials using the token, setup DynamoDB & CFN client
     }
@@ -45,31 +46,62 @@ class CloudManager {
         return null;
     }
 
-    async updateCredits(): Promise<any> {
-        // TO-DO update dynamoDB by periodically deducting the credit.
-        // Using the returned value (updated field) to do isLowCredit() validation
+    public getNumCredits(): number {
+        return this._numCredits;
+    }
 
-        // XXX not working, possibly due to CORS?
-        this.jQuery.ajax({
-            "type": "POST",
-            "data": JSON.stringify({"userName": "wlu@xcalar.com"}),
-            "contentType": "application/json",
-            "url": "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/get",
-            "cache": false,
-            success: (data: string) => {
-                xcConsole.log('get credits', data);
-                // deferredOut.resolve({
-                //     "status": httpStatus.OK,
-                //     "logs": JSON.stringify(data)
-                // });
-            },
-            error: (err) => {
-                xcConsole.error('get credits failed', err);
-                // deferredOut.reject(err);
-                return;
+    // should only be called once in constructor and then recursively, otherwise
+    // user's credits will be deducted unnecessarily
+    private async _updateCredits(): Promise<any> {
+        clearTimeout(this._updateCreditsInterval);
+
+        this._updateCreditsInterval = setTimeout(() => {
+            this._updateCreditsHelper();
+        }, this._updateCreditsTime);
+
+        return this._numCredits;
+    }
+
+    // deducts credits, gets credits, and calls _updateCredits which calls itself
+    private async _updateCreditsHelper(): Promise<void> {
+        try {
+            await this._deductCredits();
+        } catch (e) {
+            xcConsole.error(e.error);
+        }
+
+        try {
+            await this._fetchCredits();
+        } catch (e) {
+            xcConsole.error(e);
+        }
+        this.updateCredits();
+    }
+
+    private async _fetchCredits(): Promise<number> {
+        try {
+            const data: {status: number, credits: number} = await request.post({
+                url: this.clusterUrl + "/billing/get",
+                body: {"userName": this._userName},
+                json: true
+            });
+            let credits: number = null;
+            if (data && data.credits != null) {
+                credits = data.credits;
             }
-        });
-        return null;
+            this._credits = credits;
+            return credits;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    private async _deductCredits(): Promise<void> {
+        return await request.post({
+                url: this.clusterUrl + "/billing/deduct",
+                body: {"userName": this._userName},
+                json: true
+            });
     }
 }
 

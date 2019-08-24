@@ -20,7 +20,7 @@ describe('ExpServer Service Test', function() {
     var oldCheckAuth;
     var oldCheckAuthAdmin;
     var oldUpdateUserActivity;
-    var oldStopCluster
+    var oldStopCluster;
     this.timeout(10000);
 
     // Test begins
@@ -292,6 +292,15 @@ describe('ExpServer Service Test', function() {
             url: 'http://localhost:12224/service/stopCloud'
         };
         request.post(data, function (err, res, body){
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+    it("get credits should work", function(done) {
+        var data = {
+            url: 'http://localhost:12224/service/getCredits'
+        };
+        request.get(data, function (err, res, body){
             expect(res.statusCode).to.equal(200);
             done();
         });

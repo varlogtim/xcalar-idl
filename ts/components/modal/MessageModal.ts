@@ -9,6 +9,9 @@ class MessageModal {
     }
 
     private _modalHelper: ModalHelper;
+    private _defaultWidth: number = 636;
+    private _defaultHeight: number = 223;
+    private _heightNoCheckbox: number = 193;
 
     private constructor() {
         this._modalHelper = new ModalHelper(this._getModal(), {
@@ -26,7 +29,8 @@ class MessageModal {
         this._setMessage(options.msg);
         this._setCheckBox(options.isCheckBox);
         this._setButtons(options);
-        this._modalHelper.setup();
+        this._setStyling(options);
+        this._modalHelper.setup({sizeCallBack: this._sizeModal.bind(this, options)});
     }
 
     private _getModal(): JQuery {
@@ -81,7 +85,7 @@ class MessageModal {
     private _setButtons(options: Alert.AlertOptions): void {
         let $modal = this._getModal();
         let $confirmBtn = $modal.find(".confirm");
-        
+
         if (options.isAlert) {
             $modal.find(".cancel").text(AlertTStr.Close);
             $confirmBtn.hide();
@@ -108,5 +112,45 @@ class MessageModal {
             e.stopPropagation();
             $(e.currentTarget).find(".checkbox").toggleClass("checked");
         });
+    }
+
+    private _setStyling(options: Alert.AlertOptions): void {
+        const $modal: JQuery = this._getModal();
+        if (options.compact) {
+            $modal.addClass("compact");
+        } else {
+            $modal.removeClass("compact");
+        }
+    }
+
+    private _sizeModal(options: Alert.AlertOptions): void {
+        const $modal: JQuery = this._getModal();
+        let height: number;
+        if (options.isCheckBox) {
+            height = this._defaultHeight;
+        } else {
+            height = this._heightNoCheckbox;
+        }
+        $modal.height(height);
+        $modal.show(); // show to get height/width
+
+        if (options.size) {
+            switch (options.size) {
+                case ("medium"):
+                    $modal.width(500);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            $modal.width(this._defaultWidth);
+        }
+
+        if (options.sizeToText) {
+            let headerHeight = $modal.find(".header").outerHeight();
+            let contentHeight = $modal.find(".content").outerHeight();
+            $modal.height(contentHeight + headerHeight);
+        }
+        $modal.hide(); // hide after we get width/height
     }
 }
