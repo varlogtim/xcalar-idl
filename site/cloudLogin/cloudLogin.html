@@ -1,0 +1,216 @@
+<html>
+
+<head>
+  <!-- <link rel="stylesheet" type="text/css" href="../assets/stylesheets/css/installer.css" /> -->
+  <link href="../assets/stylesheets/css/login.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" type="text/css" href="../assets/stylesheets/css/cloudLogin.css" />
+</head>
+
+<body>
+  <div id="logo" class="xc-logo" style="display: block">
+    <div class="innerShadow"></div>
+    <i class="icon xd-logo-bw"></i>
+  </div>
+  <div id="loginContainer" style="display: block">
+    <div class="outerWrap">
+      <header>
+        <h2 class="loginHeader" id="loginTitle" style="display: none">Login to Xcalar Design!</h2>
+        <h2 class="loginHeader" id="signupTitle" style="display: none">Hello and welcome to Xcalar Design!</h2>
+        <h2 class="loginHeader" id="clusterTitle" style="display: none">Select your Cluster Size</h2>
+        <h2 class="loginHeader" id="verifyTitle" style="display: none">Confirm Your Account</h2>
+      </header>
+    </div>
+    <div id="loadingBar">
+      <div class="innerBar animated"></div>
+    </div>
+    <div class="outerWrap">
+      <div id="formArea">
+
+        <!-- login -->
+        <div id="loginForm" class="clearfix" autocomplete="off" style="display: none">
+          <div class="section">
+            <label for="loginNameBox">
+              <input id="loginNameBox" name="noautocomplete" type="text" class="input" autocomplete="off"
+                spellcheck="false" autofocus required>
+              <div class="label">EMAIL</div>
+            </label>
+          </div>
+          <div class="section">
+            <label for="loginPasswordBox">
+              <input id="loginPasswordBox" name="noautocomplete2" class="input" type="password" autocomplete="off">
+              <div class="label">PASSWORD</div>
+            </label>
+          </div>
+          <div id="forgotSection" class="auth-section">
+            <a class="auth-link">Forgot Password?</a>
+          </div>
+          <button id="loginButton" class="btn login btn-disabled"><span class="text">LOG IN</span></button>
+          <div class="signupSection auth-section">
+            <a class="signup-login auth-link">Create an account</a>
+          </div>
+        </div>
+
+
+
+        <!-- signup -->
+        <div id="signupForm" autocomplete="off" style="display: none">
+          <div class="nameSection section">
+            <input id="signup-firstName" class="input" required autocomplete="off">
+            <div class="label">First Name</div>
+          </div>
+          <div class="nameSection section">
+            <input id="signup-lastName" class="input" required autocomplete="off">
+            <div class="label">Last Name</div>
+          </div>
+          <div class="section">
+            <input id="signup-company" class="input" required autocomplete="off">
+            <div class="label">Company</div>
+          </div>
+          <div class="section">
+            <input id="signup-email" class="input" type="email" required autocomplete="off">
+            <div class="label">Email</div>
+          </div>
+          <div class="section confirmSection">
+            <input id="signup-confirmEmail" class="input" type="email" required autocomplete="off">
+            <div class="label">Confirm Email</div>
+          </div>
+          <div class="section">
+            <input id="signup-password" class="input" type="password" required autocomplete="off">
+            <div class="label">Password</div>
+          </div>
+          <div class="section confirmSection">
+            <input id="signup-confirmPassword" class="input" type="password" required autocomplete="off">
+            <div class="label">Confirm Password</div>
+          </div>
+          <div class="section submitSection clearfix">
+            <div class="part termPart clearfix">
+              <div class="text">
+                <label for="signup-termCheck">I agree to the <a id="signup-term" class="auth-link" href="https://xcalar.com/end-user-license-agreement/" target="_blank">EULA</a></label>
+              </div>
+              <input id="signup-termCheck" type="checkbox" class="checkbox" required>
+            </div>
+            <div class="part clearfix">
+              <input id="signup-submit" class="btn signup btn-disabled" value="SIGN UP">
+            </div>
+          </div>
+          <div class="loginSection auth-section">
+            <a class="signup-login auth-link">Already have an account? Log In</a>
+          </div>
+          <div class="loginSection">
+            <a class="verify">VERIFY CODE SCREEN</a>
+          </div>
+        </div>
+
+
+        <!-- verify -->
+        <div id="verifyForm" autocomplete="off" style="display: none">
+          <div class="section">
+            <input id="verify-code" class="input" required autocomplete="off">
+            <div class="label">Verification Code</div>
+          </div>
+          <div class="section submitSection clearfix">
+            <div class="part clearfix">
+              <input id="verify-submit" class="btn signup" value="VERFIY">
+            </div>
+          </div>
+          <div class="loginSection">
+            <a class="verify">SIGNUP SCREEN</a>
+          </div>
+          <div class="loginSection">
+            <a class="cluster">CLUSTER SCREEN</a>
+          </div>
+        </div>
+
+
+        <!-- cluster -->
+        <form id="clusterForm" style="display: none">
+          <div class="title">
+            Select the option below that fits your needs.
+          </div>
+          <div class="radioButtonGroup">
+            <div class="choice radioButton" data-option='Extra Small Cluster' data-size='m5.xlarge'>
+              <div class="radio">
+                <i class="icon xi-radio-selected"></i>
+                <i class="icon xi-radio-empty"></i>
+              </div>
+              <div class="label">
+                Extra Small Cluster - <b>1 units / hour</b>
+              </div>
+            </div>
+            <div class="choice radioButton" data-option='Small Cluster' data-size='m5.2xlarge'>
+              <div class="radio">
+                <i class="icon xi-radio-selected"></i>
+                <i class="icon xi-radio-empty"></i>
+              </div>
+              <div class="label">
+                Small Cluster - <b>2 units / hour</b>
+              </div>
+            </div>
+            <div class="choice radioButton" data-option='Medium Cluster' data-size='m5.4xlarge'>
+              <div class="radio">
+                <i class="icon xi-radio-selected"></i>
+                <i class="icon xi-radio-empty"></i>
+              </div>
+              <div class="label">
+                Medium Cluster - <b>4 units / hour</b>
+              </div>
+            </div>
+            <div class="choice radioButton" data-option='Large Cluster' data-size='m5.8xlarge'>
+              <div class="radio">
+                <i class="icon xi-radio-selected"></i>
+                <i class="icon xi-radio-empty"></i>
+              </div>
+              <div class="label">
+                Large Cluster - <b>8 units / hour</b>
+              </div>
+            </div>
+            <div class="choice radioButton" data-option='Extra Large Cluster' data-size='m5.12xlarge'>
+              <div class="radio">
+                <i class="icon xi-radio-selected"></i>
+                <i class="icon xi-radio-empty"></i>
+              </div>
+              <div class="label">
+                Extra Large Cluster - <b>12 units / hour</b>
+              </div>
+            </div>
+            <div class="choice radioButton" data-option='Super Large Cluster' data-size='m5.16xlarge'>
+              <div class="radio">
+                <i class="icon xi-radio-selected"></i>
+                <i class="icon xi-radio-empty"></i>
+              </div>
+              <div class="label">
+                Super Large Cluster - <b>16 units / hour</b>
+              </div>
+            </div>
+            <div class="choice radioButton" data-option='Mega Large Cluster' data-size='m5.24xlarge'>
+              <div class="radio">
+                <i class="icon xi-radio-selected"></i>
+                <i class="icon xi-radio-empty"></i>
+              </div>
+              <div class="label">
+                Mega Large Cluster - <b>24 units / hour</b>
+              </div>
+            </div>
+          </div>
+          <div class="section buttonSection">
+            <input class="btn next btn-disabled" id="deployBtn" type="button" value="Deploy">
+          </div>
+          <div class="loginSection">
+            <a class="cluster">VERIFY SCREEN</a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</body>
+
+<script src="../3rd/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../3rd/bower_components/aws-sdk/dist/aws-sdk.min.js"></script>
+<script src="../3rd/bower_components/amazon-cognito-identity-js/dist/aws-cognito-sdk.min.js"></script>
+<script src="../3rd/bower_components/amazon-cognito-identity-js/dist/amazon-cognito-identity.min.js"></script>
+<script src="../3rd/bower_components/crypto-js/crypto-js.js"></script>
+<script src="../assets/js/shared/helperClasses/XcStorage.js" type="text/javascript"></script>
+<script src="../assets/js/cloudLogin/cloudLogin.js"></script>
+
+</html>

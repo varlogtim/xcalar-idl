@@ -133,6 +133,7 @@ var INSTALLER = "installer";
 var DEV = "dev";
 var DEBUG = "debug";
 var BUILD_REACT = "build_react";
+var BUILD_CLOUD_LOGIN = "build_cloud_login"
 
 // Other Tasks
 var TEST = "test";
@@ -149,6 +150,7 @@ var WATCH_TARGET_JS = "js";
 var WATCH_FLAG_INITIAL_BUILD_CSS = "buildcss";
 var WATCH_OP_LIVE_RELOAD = "livereload";
 var WATCH_TARGET_REACT = "react";
+var WATCH_TARGET_CLOUD_LOGIN = "cloud_login";
 
 // Global booleans to track which task. Can be both
 var IS_BLD_TASK = false;
@@ -162,6 +164,7 @@ var WATCH_FILETYPES = {
     [WATCH_TARGET_JS]: '',
     [WATCH_TARGET_CTOR]: '',
     [WATCH_TARGET_REACT]: '',
+    [WATCH_TARGET_CLOUD_LOGIN]: '',
 };
 
 var USE_TS_WATCH_STAGING=false; // way to limit tsc build during watch task runs
@@ -224,6 +227,12 @@ var expServerTSMapping = {
     required: ['services/expServer']};
 var reactMapping = {
         src:  'src/',
+};
+var cloudLoginMapping = {
+    src:  'site/cloudLogin/',
+    files: '**/*.html',
+    dest: 'cloudLogin/',
+    exclude: [],
 };
 
 // help content src in the actual src tree, for each product type
@@ -398,6 +407,8 @@ var VALID_OPTIONS = {
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in " + CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD + " and re-gen constructor file(s) as result"},
     [WATCH_TARGET_REACT]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in the project souce @ " + reactMapping.src + " as a result of any changes"},
+    [WATCH_TARGET_CLOUD_LOGIN]:
+        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in the project souce @ " + cloudLoginMapping.src + " as a result of any changes"},
     [WATCH_FLAG_INITIAL_BUILD_CSS]:
         { [FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Build CSS portion of build before you start watch task" },
 
@@ -606,6 +617,11 @@ var VALID_TASKS = {
             [BLD_TASK_KEY]:false,
             [DESC_KEY]:
                 ""
+        },
+        [BUILD_CLOUD_LOGIN]: {
+            [BLD_TASK_KEY]: true,
+            [DESC_KEY]:
+                "Build Cloud Login"
         },
         ["init"]: {
             [BLD_TASK_KEY]:false,
@@ -3527,6 +3543,14 @@ module.exports = function(grunt) {
         grunt.task.run("webpack:react");
     });
 
+    grunt.task.registerTask("build_cloud_login_watch", function() {
+        grunt.task.run("build_cloud_login");
+    });
+
+    grunt.task.registerTask("build_cloud_login", function() {
+        runShellCmd("rsync -r " + SRCROOT + cloudLoginMapping.src + " " + BLDROOT + cloudLoginMapping.dest +" " + "--exclude xcalar")
+    });
+
     grunt.task.registerTask("cleanup_package", function() {
         var webpack_paths_to_clean = ["assets/js/parser/", "assets/js/shared/Xcrpc/", reactMapping.src];
         for (var webpack_req of webpack_paths_to_clean) {
@@ -5561,6 +5585,10 @@ module.exports = function(grunt) {
                 taskList.push("build_react_watch");
                 determinedRebuildProcess = true;
                 break;
+            case WATCH_TARGET_CLOUD_LOGIN:
+                taskList.push("build_cloud_login_watch");
+                determinedRebuildProcess = true;
+                break;
             default:
                 grunt.fail.fatal("Could not determine type of watched file: " +
                     filepath);
@@ -5790,6 +5818,7 @@ module.exports = function(grunt) {
             SRCROOT + typescriptMapping.src + "/**/*.js", SRCROOT + "assets/lang/" + "**/*.js"];
         WATCH_FILETYPES[WATCH_TARGET_CTOR] = [SRCROOT + 'site/render/template/constructor.template.js'];
         WATCH_FILETYPES[WATCH_TARGET_REACT] = [SRCROOT + reactMapping.src + "**/*"];
+        WATCH_FILETYPES[WATCH_TARGET_CLOUD_LOGIN] = [SRCROOT + cloudLoginMapping.src + "**/*"];
     }
 
     function displayHelpMenu() {
