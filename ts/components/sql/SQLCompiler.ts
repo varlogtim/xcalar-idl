@@ -1326,7 +1326,7 @@ class SQLCompiler {
             opName === SQLCompiler._getSparkExpression("aggregate.AggregateExpression") ||
             opName === SQLCompiler._getSparkExpression("ScalarSubquery") ||
             opName === SQLCompiler._getSparkExpression("XCEPassThrough")) {
-            let hasLeftPar = false;
+            let numLeftPar: number = 0;
             if (opName.indexOf("aggregate.") === 0) {
                 if (opName === "aggregate.AggregateExpression") {
                     if (acc) {
@@ -1401,7 +1401,7 @@ class SQLCompiler {
                         if (acc.noAssignOp) {
                             acc.numOps += 1;
                             outStr += opString + "(";
-                            hasLeftPar = true;
+                            numLeftPar++;
                         } else {
                             acc.operator = opString;
                             if (opString === "first" || opString === "last") {
@@ -1414,7 +1414,7 @@ class SQLCompiler {
                             }
                             if (options.xcAggregate) {
                                 outStr += opString + "(";
-                                hasLeftPar = true;
+                                numLeftPar++;
                             }
                         }
                     } else {
@@ -1442,7 +1442,7 @@ class SQLCompiler {
                             opString += "Integer";
                         }
                         outStr += opString + "(";
-                        hasLeftPar = true;
+                        numLeftPar++;
                     }
                 }
             } else if (opName.indexOf("ScalarSubquery") === 0) {
@@ -1473,7 +1473,7 @@ class SQLCompiler {
                     } else {
                         outStr += "sql:" + condTree.value.name + "(";
                     }
-                    hasLeftPar = true;
+                    numLeftPar++;
                     if (acc.hasOwnProperty("udfs")) {
                         acc.udfs.push(condTree.value.name.toUpperCase());
                     }
@@ -1483,8 +1483,11 @@ class SQLCompiler {
                     if (opString === "if") {
                         switch (condTree.colType) {
                             case ("int"):
-                            case ("bool"):
                                 opString = "ifInt";
+                                break;
+                            case ("bool"):
+                                opString = "bool(ifInt";
+                                numLeftPar++;
                                 break;
                             case ("string"):
                                 opString = "ifStr";
@@ -1497,7 +1500,7 @@ class SQLCompiler {
                         }
                     }
                     outStr += opString + "(";
-                    hasLeftPar = true;
+                    numLeftPar++;
                 }
             }
             for (let i = 0; i < condTree.value["num-children"]; i++) {
@@ -1507,8 +1510,9 @@ class SQLCompiler {
                     outStr += ",";
                 }
             }
-            if (hasLeftPar) {
+            while (numLeftPar > 0) {
                 outStr += ")";
+                numLeftPar--;
             }
         } else {
             // When it's not op
