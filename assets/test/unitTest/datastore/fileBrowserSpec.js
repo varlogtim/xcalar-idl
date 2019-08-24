@@ -362,19 +362,19 @@ describe("Dataset-File Browser Test", function() {
 
         it("toggling 'recursive' flag should work", function() {
             // Only one clickable bc there is only one folder
-            expect($infoContainer.find(".xi-ckbox-empty:not(.xc-disabled)").length)
+            expect($infoContainer.find(".fileList .checkbox:not(.checked):not(.xc-disabled)").length)
                                                     .to.equal(1);
             var $folder = $infoContainer
-                               .find(".xi-ckbox-empty:not(.xc-disabled)").eq(0);
+                               .find(".fileList .checkbox:not(.checked):not(.xc-disabled)").eq(0);
             $folder.click();
-            expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(1);
+            expect($infoContainer.find(".fileList .checkbox.checked").length).to.equal(1);
             $folder.click();
-            expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(0);
+            expect($infoContainer.find(".fileList .checkbox.checked").length).to.equal(0);
 
             $infoContainer.find(".selectAll").click();
-            expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(1);
+            expect($infoContainer.find(".fileList .checkbox.checked").length).to.equal(1);
             $infoContainer.find(".selectAll").click();
-            expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(0);
+            expect($infoContainer.find(".fileList .checkbox.checked").length).to.equal(0);
         });
 
         it("toggle single/multi ds switch should work", function() {

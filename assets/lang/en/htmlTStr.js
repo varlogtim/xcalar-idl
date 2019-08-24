@@ -5,7 +5,6 @@ module.exports = {
         "XD": bldVars.prodName,
         "Agree": "Agree",
         "Add": "Add",
-        "AddRegex": "Click to add regex",
         "Advanced": "Advanced",
         "AdvancedOpts": "Advanced Options",
         "Apply": "Apply",

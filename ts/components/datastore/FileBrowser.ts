@@ -326,11 +326,6 @@ namespace FileBrowser {
             },
         }, ".checkBox .icon");
 
-        // close file browser
-        $fileBrowser.on("click", ".cancel", function() {
-            backToForm();
-        });
-
         $("#fileBrowserRefresh").click(function(event) {
             $(this).blur();
             // the first option in pathLists
@@ -395,26 +390,24 @@ namespace FileBrowser {
             let $span = $(html).appendTo($pickedFileList).find(".text");
             refreshFileListEllipsis($span, true);
             updateButtons();
+            updateSelectAll();
         });
 
         $infoContainer.on("click", ".selectAll", function() {
             // Toggle all recursive flags
-            let $unchecked = $infoContainer.find(".xi-ckbox-empty:not(.xc-disabled)");
+            let $unchecked = $infoContainer.find(".fileList .checkbox:not(.checked):not(.xc-disabled)");
             if ($unchecked.length > 0) {
-                checkCkBox($unchecked);
+                $unchecked.addClass("checked");
             } else {
-                uncheckCkBox($infoContainer.find(".xi-ckbox-selected"));
+                $infoContainer.find(".fileList .checkbox.checked").removeClass("checked");
             }
+            updateSelectAll();
         });
 
-        $infoContainer.on("click", ".xi-ckbox-selected, .xi-ckbox-empty", function() {
+        $infoContainer.on("click", ".fileList .checkbox", function() {
             // Uncheck single recursive flag
-            let $checkBox = $(this);
-            if ($checkBox.hasClass("xi-ckbox-selected")) {
-                uncheckCkBox($checkBox);
-            } else {
-                checkCkBox($checkBox);
-            }
+            $(this).toggleClass("checked");
+            updateSelectAll();
         });
 
         $infoContainer.on("click", ".pickedFileList .close", function() {
@@ -435,6 +428,7 @@ namespace FileBrowser {
             // you are on another path
             $li.remove();
             updateButtons();
+            updateSelectAll();
         });
 
         $infoContainer.on("click", ".switch", function() {
@@ -467,6 +461,11 @@ namespace FileBrowser {
         // confirm to open a ds
         $infoContainer.on("click", ".confirm", function() {
             submitForm(null);
+        });
+
+        // close file browser
+        $infoContainer.on("click", ".cancel", function() {
+            backToForm();
         });
 
         // goes to folder location of file on click
@@ -1253,8 +1252,8 @@ namespace FileBrowser {
                 let path: string
                 if ($li.hasClass("regex")) {
                     path = $li.data("path");
-                    let recursive: boolean = $li.find(".icon").eq(1)
-                                           .hasClass("xi-ckbox-selected");
+                    let recursive: boolean = $li.find(".checkbox")
+                                           .hasClass("checked");
                     let searchKey: string = $li.find("input").val();
                     let pattern: string;
                     if (searchKey === "") {
@@ -1280,8 +1279,8 @@ namespace FileBrowser {
                     });
                 } else {
                     path = $li.data("fullpath");
-                    let recursive: boolean = $li.find(".icon").eq(1)
-                                           .hasClass("xi-ckbox-selected");
+                    let recursive: boolean = $li.find(".checkbox")
+                                           .hasClass("checked");
                     let isFolder: boolean = ($li.data("type") === "Folder");
 
                     files.push({
@@ -2343,32 +2342,38 @@ namespace FileBrowser {
             let escName = xcStringHelper.escapeDblQuoteForHTML(name);
             let isFolder = file.attr.isDirectory;
             let fileType: string = isFolder ? "Folder" : xcHelper.getFormat(name);
-            let ckBoxClass: string = isFolder ? "xi-ckbox-empty" : "xi-ckbox-empty xc-disabled";
+            let ckBoxClass: string = isFolder ? "checkbox" : "checkbox xc-disabled";
             let fullPath = getFullPath(escDir + escName, isFolder);
             let displayPath = getFullPath(curDir + name, isFolder);
             if (preChecked) {
-                ckBoxClass = "xi-ckbox-selected";
+                ckBoxClass = "checkbox checked";
             }
 
             return '<li data-name="' + escName + '"' +
                    ' data-fullpath="' + fullPath + '"' +
                    ' data-type="' + fileType + '">' +
+                        '<span class="' + ckBoxClass + '">' +
+                            '<i class="icon xi-ckbox-empty"></i>' +
+                            '<i class="icon xi-ckbox-selected"></i>' +
+                        '</span>' +
+                        '<span class="text">' + displayPath + '</span>' +
                         '<span class="close xc-action">' +
                             '<i class="icon xi-trash"></i>' +
                         '</span>' +
-                        '<i class="icon checkbox ' + ckBoxClass + '"></i>' +
-                        '<span class="text">' + displayPath + '</span>' +
                     '</li>';
         } else {
             // For the case where we add input box for regex
             return '<li class="regex" data-path="' + escDir + '">' +
+                        '<span class="checkbox">' +
+                            '<i class="icon xi-ckbox-empty"></i>' +
+                            '<i class="icon xi-ckbox-selected"></i>' +
+                        '</span>' +
+                        '<span class="text">' + curDir + '</span>' +
+                        '<input class="xc-input" value=".*$"></input>' +
                         '<span class="close xc-action">' +
                             '<i class="icon xi-trash"></i>' +
                         '</span>' +
-                        '<i class="icon checkbox xi-ckbox-empty"></i>' +
-                        '<span class="text">' + curDir + '</span>' +
-                        '<input class="xc-input" value=".*$"></input>' +
-                   '</li>';
+                    '</li>';
         }
     }
 
@@ -2417,6 +2422,7 @@ namespace FileBrowser {
             }
         }
         updateButtons();
+        updateSelectAll();
     }
 
     function updateButtons(): void {
@@ -2435,9 +2441,9 @@ namespace FileBrowser {
         }
         // Enable / disable buttons
         if (len === 0) {
-            $infoContainer.find(".fileInfoBottom .btn").addClass("xc-disabled");
+            $infoContainer.find(".fileInfoBottom .confirm").addClass("xc-disabled");
         } else {
-            $infoContainer.find(".fileInfoBottom .btn").removeClass("xc-disabled");
+            $infoContainer.find(".fileInfoBottom .confirm").removeClass("xc-disabled");
         }
     }
 
@@ -2470,6 +2476,21 @@ namespace FileBrowser {
 
     function uncheckCkBox($checkBox: JQuery): void {
         $checkBox.removeClass("xi-ckbox-selected").addClass("xi-ckbox-empty");
+    }
+
+    function updateSelectAll(): void {
+        let $checkbox = $infoContainer.find(".selectAll");
+        if ($infoContainer.find("li .checkbox:not(.xc-disabled)").length === 0) {
+            $checkbox.removeClass("checked");
+            return;
+        }
+        let $unchecked = $infoContainer.find("li .checkbox:not(.checked):not(.xc-disabled)");
+        if ($unchecked.length === 0) {
+            // all checked
+            $checkbox.addClass("checked");
+        } else {
+            $checkbox.removeClass("checked");
+        }
     }
 
     function togglePickedFiles($grid: JQuery): void {

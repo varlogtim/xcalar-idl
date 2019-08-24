@@ -744,32 +744,6 @@ table.datasetTable {
             .flex-display;
             flex-wrap: wrap;
             justify-content: center;
-
-            > div {
-                .flex(0 0 245px);
-                width: 245px;
-                height: 175px;
-                margin: 20px;
-                padding: 30px;
-            }
-
-            .img {
-                height: 75px;
-                margin: 0 auto;
-
-                i {
-                    font-size: 66px;
-                    color: @color-font-link-blue;
-                }
-
-                img {
-                    width: 100px;
-                }
-            }
-
-            .description {
-                margin-top: 10px;
-            }
         }
 
         .bottomSection {
@@ -784,6 +758,40 @@ table.datasetTable {
                 line-height: @h;
                 margin: 0 auto;
             }
+        }
+    }
+
+    .location {
+        .flex(0 0 245px);
+        width: 245px;
+        height: 175px;
+        margin: 20px;
+        padding: 30px;
+
+        .img {
+            height: 75px;
+            margin: 0 auto;
+
+            i {
+                font-size: 66px;
+                color: @color-font-link-blue;
+            }
+
+            img {
+                width: 100px;
+            }
+        }
+
+        .description {
+            margin-top: 10px;
+        }
+
+        .next {
+            display: none;
+            font-size: 45px;
+            color: @color-font-link-blue;
+            position: relative;
+            top: 15px;
         }
     }
 }
@@ -1524,37 +1532,46 @@ table.datasetTable {
             .fileInfoMid {
                 .size(@width: 100%);
                 .flex(1 0 auto);
-                padding: 16px;
+                padding: 16px 0;
                 border-bottom: 1px solid @color-border-softGray;
 
-                .clearAll, .close {
-                    text-align: center;
-                    display: inline-block;
-                    padding-right: 8px;
-                    width: 43px;
-                    border-right: 1px solid @color-border-softGray3;
+                > div {
+                    padding-left: 16px;
+                    padding-right: 16px;
                 }
 
-                .selectAll, .checkbox {
-                    margin-left: 9px;
+                .addRegex {
+                    float: right;
+                    width: 100px;
+                }
+
+                .icon:not(.qMark) {
+                    font-size: 14px;
+                }
+
+                .checkbox {
                     margin-right: 3px;
+                    color: @color-font-link-blue;
+                    position: relative;
+                    top: 9px;
                 }
 
                 .pickedFiles {
+                    padding-top: 8px;
+                    padding-bottom: 8px;
                     border-bottom: 1px solid @color-border-softGray3;
 
                     .clearAll {
-                        color: @color-font-link-blue;
-                        text-decoration: underline;
                         white-space: normal;
-                        padding-bottom: 8px;
-                    }
-
-                    .addRegex {
                         float: right;
-                        position: relative;
-                        bottom: -10px;
-                        padding-bottom: 8px;
+                        color: @color-bg-cardHeader;
+                        font-size: 12px;
+
+                        .icon {
+                            position: relative;
+                            top: 2px;
+                            margin-left: 2px;
+                        }
                     }
 
                     .qMark {
@@ -1569,45 +1586,34 @@ table.datasetTable {
                     height: ~"calc(100% - 77px)";
                     width: 100%;
 
-                    ul {
-                        width: 100%;
-                    }
-
                     li {
                         display: flex;
                         align-items: center;
-
-                        .checkbox, .close, .text {
-                            padding-top: 8px;
-                        }
-
-                        .icon {
-                            font-size: 14px;
-                        }
+                        padding-top: 8px;
 
                         .close {
-                            color: @color-arc-sysused;
+                            color: @color-bg-cardHeader;
+                           .flex(0 0 14px);
                         }
 
                         .checkbox {
-                            color: @color-font-link-blue;
+                            .flex(0 0 16px);
                         }
 
                         .text {
                             text-transform: none;
                             cursor: pointer;
-                            max-width: ~"calc(100% - 80px)";
                             user-select: text;
+                            .flex(1 1 auto);
                         }
 
                         input {
                             height: 16px;
                             margin-left: 5px;
+                            margin-right: 5px;
                             padding: 0 5px;
                             font-size: 13px;
                             width: 70px;
-                            position: relative;
-                            top: 5px;
                         }
                     }
                 }

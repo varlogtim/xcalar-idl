@@ -1,15 +1,8 @@
 <!-- File Browser -->
-<div id="fileBrowser" class="cardContainer xc-hidden fileBrowser">
+<div id="fileBrowser" class="cardContainer xc-hidden fileBrowser style-new">
   <!-- File Browser Header -->
   <header class="cardHeader">
-    <div class="title"><%= dicts.fileBrowser.header %>
-      <!-- <div class="hint intro-icon" id="browseDatasourceWA3"   data-toggle="tooltip" data-container="body" data-title="<%= dicts.introTStr.wa3Tip %>" data-placement="top">
-        <i class="white icon xi_smart fa-16"></i>
-      </div> -->
-    </div>
-    <div class="headerClose">
-      <i class="icon xc-action xi-close cancel"></i>
-    </div>
+    <div class="title"><%= dicts.fileBrowser.header %></div>
   </header>
   <!-- File Browser Instruction -->
   <section class="cardInstruction oneLine">
@@ -139,16 +132,21 @@
           <div id="fileInfoMid" class="fileInfoMid">
             <div class="infoTitle">
               <span><%= dicts.common.SelectedFiles %></span>
+              <button class="addRegex btn btn-secondary">
+                Add regex
+              </button>
             </div>
             <div class="pickedFiles">
-              <span class="clearAll xc-action">
-                <%= dicts.common.ClearAll %>
+              <span class="selectAll checkbox xc-action">
+                <i class="icon xi-ckbox-empty"></i>
+                <i class="icon xi-ckbox-selected"></i>
               </span>
-              <span class="selectAll xc-action"><%= dicts.dsForm.Recursive %></span>
+              <span><%= dicts.dsForm.Recursive %></span>
               <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="Import folders recursively" data-placement="top"></i>
-              <button class="addRegex btn btn-secondary">
-                <%= dicts.common.AddRegex %>
-              </button>
+              <span class="clearAll xc-action">
+                  <%= dicts.common.ClearAll %>
+                  <i class="icon xi-trash"></i>
+              </span>
             </div>
             <div class="fileList">
               <ul class="pickedFileList"></ul>
@@ -170,6 +168,7 @@
               </div>
             </div>
             <div class="buttonSection">
+              <button type="button" class="btn btn-cancel cancel"><%= dicts.common.Cancel %></button>
               <button type="button" class="btn btn-submit confirm xc-disabled"><%= dicts.common.Next %></button>
             </div>
           </div>
