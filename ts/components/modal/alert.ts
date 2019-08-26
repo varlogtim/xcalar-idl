@@ -9,6 +9,11 @@ namespace Alert {
         tooltip?: string; // tooltip to add
     }
 
+    interface RadioButton {
+        label: string,
+        className: string
+    }
+
     interface BasicAlertOptions {
         onConfirm?: Function; // callback to trigger when click confirm button
         onCancel?:  Function; // callback to trigger when click cancel button
@@ -24,6 +29,8 @@ namespace Alert {
         logout?: boolean; // want user to logout case
         msgTemplate?: string; // can include html tags
         buttons?: AlertButton[]; // buttons to show instead of confirm button
+        newStyling?: boolean;
+        radioButtons?: RadioButton[]
     }
 
     export interface AlertOptions extends BasicAlertOptions {
@@ -34,7 +41,8 @@ namespace Alert {
         detail?: string; // detail of the error/message
         isAlert?: boolean; // if it is an alert or a confirm
         isCheckBox?: boolean; // if checkbox is enabled or disabled
-        hideButtons?: string[]; // array of button class names to hide, values can be: logout, downloadLog, or cancel
+        hideButtons?: string[]; // array of button class names to hide, values can be: logout, downloadLog, or cancel,
+
     }
 
     export interface AlertErrorOptions extends BasicAlertOptions {}
@@ -75,6 +83,9 @@ namespace Alert {
 
         // call it here because Alert.show() may be called when another alert is visible
         reset();
+        if (options.newStyling) {
+            $modal.addClass("style-new");
+        }
 
         setTitle(options.title);
         setMessage(options.msg, options.msgTemplate);
@@ -82,6 +93,7 @@ namespace Alert {
         setInstruction($modal, options.instr, options.instrTemplate);
         setCheckBox($modal, options.isCheckBox);
         setButtons($modal, options);
+        setRadioButtons($modal, options);
 
         if (options.lockScreen) {
             setLockScreen($modal);
@@ -183,13 +195,14 @@ namespace Alert {
      * @param id
      * @param msg
      */
-    export function updateMsg(id: string, msg: string): void {
+    export function updateMsg(id: string, msg: string): boolean {
         const $modal: JQuery = getModal();
         if (id == null || $modal.data("id") !== id) {
             console.error("wrong alert id!");
-            return;
+            return false;
         }
         $("#alertContent .text").text(msg);
+        return true
     }
 
     /**
@@ -234,6 +247,9 @@ namespace Alert {
         // remove all event listener
         $modal.off(".alert");
         $modal.find(".confirm, .cancel, .close").show();
+        $modal.removeClass("style-new");
+        $modal.find(".alertRadioButtons").empty();
+        $modal.removeClass("hasRadioButtons");
     }
 
     function getModal(): JQuery {
@@ -347,9 +363,11 @@ namespace Alert {
             });
         } else if (sizeToText) {
             const $section: JQuery = $("#alertContent");
-            const diff: number = $section.find(".text").height() - $section.height();
+            const diff: number = ($section.find(".text").outerHeight() +
+                                $section.find(".alertRadioButtons").outerHeight()) -
+                                $section.height();
             if (diff > 0) {
-                const height: number = Math.min($modal.height() + diff, $(window).height());
+                const height: number = Math.min($modal.height() + diff + 10, $(window).height());
                 $modal.height(height);
                 modalHelper.center({verticalQuartile: true});
             }
@@ -458,7 +476,12 @@ namespace Alert {
         }
 
         if (options.buttons) {
-            $modal.find(".cancel").text(AlertTStr.Cancel);
+            if (options.isAlert) {
+                $modal.find(".cancel").text(AlertTStr.Close);
+            } else {
+                $modal.find(".cancel").text(AlertTStr.Cancel);
+            }
+
             $confirmBtn.hide();
             options.buttons.forEach((btnOption: AlertButton) => {
                 let className: string = "funcBtn";
@@ -518,6 +541,28 @@ namespace Alert {
             for (var i = 0; i < options.hideButtons.length; i++) {
                 $modal.find("." + options.hideButtons[i]).hide();
             }
+        }
+    }
+
+    function setRadioButtons($modal: JQuery, options: AlertOptions): void {
+        $modal.on("click", ".radioButton", function() {
+            $modal.find(".radioButton").removeClass("active");
+            $(this).addClass("active");
+        });
+
+        if (options.radioButtons) {
+            $modal.addClass("hasRadioButtons");
+            options.radioButtons.forEach((btn, i ) => {
+                let active = (i === 0) ? " active" : ""
+                let html = `<div class="radioButton xc-action ${btn.className} ${active}">
+                    <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                    </div>
+                    <div class="label">${btn.label}</div>
+                </div>`;
+                $modal.find(".alertRadioButtons").append(html);
+            });
         }
     }
 

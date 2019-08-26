@@ -1,0 +1,34 @@
+<div id="logoutModal" class="modalContainer style-new shadow" style="display:none;">
+    <!-- Alert Modal Header -->
+    <header class="modalHeader">
+      <i class="icon xi-warning"></i>
+      <span class="text">Shut down cluster or keep running?</span>
+      <div class="close">
+        <i class="icon xi-close"></i>
+      </div>
+    </header>
+      <section class="modalMain">
+          <div class="text">Before you log out, would you like to shut down your cluster immediately or leave the cluster running?</div>
+          <div class="radioButtonGroup">
+            <div class="radioButton xc-action shutDown active">
+                <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                </div>
+                <div class="label">Shut down cluster</div>
+            </div>
+            <div class="radioButton xc-action ignore">
+                <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                </div>
+                <div class="label">Leave cluster running</div>
+            </div>
+          </div>
+      </section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+      <button type="button" class="btn confirm">Log Out</button>
+      <button type="button" class="btn cancel"><%= dicts.common.Cancel %></button>
+    </section>
+  </div>

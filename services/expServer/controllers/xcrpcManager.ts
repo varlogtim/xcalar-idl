@@ -1,4 +1,5 @@
 import * as net from "net";
+import TransactionManager from "./transactionManager";
 
 interface ResponseMsg {
     error?: string,
@@ -25,7 +26,25 @@ class XcrpcManager {
 
         reqSizeBuf.writeUInt32LE(reqBuf.length, 0);
         reqSizeBuf.writeUInt32LE(0, 4); // Assume that our message size fits in 4 bytes
-
+        let operationName = "xcrpc";
+        let noTransaction = false;
+        try {
+            // find operation name
+            // if request is kvStore lookup gInfo-1-commitKey then do not track
+            // transaction as it's an auto-generated (by XD) api call
+            let reqBody = proto.ProtoMsg.deserializeBinary(Array.from(reqBuf)).getRequest().getServic().getBody();
+            operationName = reqBody.getTypeName() || "xcrpc";
+            if (operationName === "xcalar.compute.localtypes.KvStore.LookupRequest") {
+                let bodyValue = proto.xcalar.compute.localtypes.KvStore.LookupRequest.deserializeBinary(reqBody.getValue());
+                noTransaction = (bodyValue.getKey().getName() === "gInfo-1-commitKey");
+            }
+        } catch (e) {
+            // ignore errors, it's ok
+        }
+        let txId;
+        if (!noTransaction) {
+            txId = TransactionManager.start(operationName);
+        }
         let socket: net.Socket = net.createConnection({ path: udsPath });
         socket.setTimeout(timeoutMs);
         socket.setKeepAlive(true);
@@ -82,9 +101,15 @@ class XcrpcManager {
             response = {"error": err.name + ": " + err.message};
         });
         socket.on('timeout', function() {
+            if (!noTransaction) {
+                TransactionManager.done(txId);
+            }
             socket.destroy(new Error("XCE connection timed out"));
         });
         socket.on('close', function(hadError) {
+            if (!noTransaction) {
+                TransactionManager.done(txId);
+            }
             let errCode: number = hadError ? 500 : 200;
             res.status(errCode).json(response);
         });

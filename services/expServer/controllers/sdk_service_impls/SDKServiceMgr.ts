@@ -1,5 +1,6 @@
 import { ServiceInfo } from "xcalar";
 import * as xcConsole from "../../utils/expServerXcConsole";
+import TransactionManager from "../transactionManager";
 
 class SDKServiceMgr {
     private static _instance = null;
@@ -48,13 +49,13 @@ class SDKServiceMgr {
         return anyWrapper;
     }
 
-    handleService(protoReqMsg: Buffer): Promise<any> {
+    handleService(protoReqMsg: Buffer): XDPromise<any> {
         let deferred: any = PromiseHelper.deferred();
         let pMsg: any = proto.ProtoMsg.deserializeBinary(
                                             Array.from(protoReqMsg));
         let serviceReqMsg: any = pMsg.getRequest().getServic();
         let serviceName: string = serviceReqMsg.getServicename();
-        if(!(serviceName in this._SERVICEREGISTRY)) {
+        if (!(serviceName in this._SERVICEREGISTRY)) {
             //The service is not implemented in expserver
             //need to route it to backend
             deferred.resolve({reqHandled: false, resp: null});
@@ -73,6 +74,7 @@ class SDKServiceMgr {
                     `Method name:: ${methodName}`);
         let aReqMsg: any = this.unpackTo(serviceReqMsg.getBody().getValue(),
                                 serviceName, methodName);
+        let txId: number = TransactionManager.start(serviceName + ":" + methodName);
         methodHandle(aReqMsg)
         .then((res: any): void => {
             var anyRes = this.packFrom(res, serviceName, methodName);
@@ -83,6 +85,9 @@ class SDKServiceMgr {
         })
         .fail((err: any): void => {
             deferred.reject(err);
+        })
+        .always(() => {
+            TransactionManager.done(txId);
         });
         return deferred.promise();
     }

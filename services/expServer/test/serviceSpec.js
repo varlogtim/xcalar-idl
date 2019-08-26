@@ -7,6 +7,9 @@ describe('ExpServer Service Test', function() {
     var service = require(__dirname + '/../../expServer/route/service.js');
     var serviceManager = require(__dirname +
             '/../../expServer/controllers/serviceManager.js').default;
+    var cloudManager = require(__dirname + "/../../expServer/controllers/cloudManager.js").default;
+    var userActivityManager = require(__dirname + "/../../expServer/controllers/userActivityManager.js").default;
+
     var oldMasterExec;
     var oldSlaveExec;
     var oldRemoveSession;
@@ -16,6 +19,8 @@ describe('ExpServer Service Test', function() {
     var oldGetMatch;
     var oldCheckAuth;
     var oldCheckAuthAdmin;
+    var oldUpdateUserActivity;
+    var oldStopCluster
     this.timeout(10000);
 
     // Test begins
@@ -39,6 +44,8 @@ describe('ExpServer Service Test', function() {
         oldSetPatch = support.setHotPatch;
         oldCheckAuth = support.checkAuthImpl;
         oldCheckAuthAdmin = support.checkAuthAdminImpl;
+        oldUpdateUserActivity = userActivityManager.updateUserActivity;
+        oldStopCluster = cloudManager.stopCluster;
 
         support.masterExecuteAction = fakeFunc;
         support.slaveExecuteAction = fakeFunc;
@@ -52,6 +59,8 @@ describe('ExpServer Service Test', function() {
         support.setHotPatch = fakeFunc;
         support.checkAuthImpl = fakeCheck;
         support.checkAuthAdminImpl = fakeCheck;
+        userActivityManager.updateUserActivity = fakeFunc;
+        cloudManager.stopCluster = fakeFunc;
     });
 
     after(function() {
@@ -67,6 +76,8 @@ describe('ExpServer Service Test', function() {
         support.setHotPatch = oldSetPatch;
         support.checkAuthImpl = oldCheckAuth;
         support.checkAuthAdminImpl = oldCheckAuthAdmin;
+        userActivityManager.updateUserActivity = oldUpdateUserActivity;
+        cloudManager.stopCluster = oldStopCluster;
     });
 
     it("service.convertToBase64 should work", function() {
@@ -262,6 +273,26 @@ describe('ExpServer Service Test', function() {
         request.post(data, function (err, res, body){
             console.log("res is:" + JSON.stringify(res));
             expect(JSON.parse(res.body).status).to.equal(200);
+            done();
+        });
+    });
+
+    it("update user activity should work", function(done) {
+        var data = {
+            url: 'http://localhost:12224/service/updateUserActivity'
+        };
+        request.post(data, function (err, res, body){
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it("update stop cloud should work", function(done) {
+        var data = {
+            url: 'http://localhost:12224/service/stopCloud'
+        };
+        request.post(data, function (err, res, body){
+            expect(res.statusCode).to.equal(200);
             done();
         });
     });

@@ -12,8 +12,8 @@ router.post("/service/xce", function(req, res) {
     req.setTimeout(defaultSQLTimeout);
     let reqBuf: Buffer = Buffer.from(req.body.data, 'base64');
 
-   serviceMgr.handleService(reqBuf)
-   .then(function(ret: any): void  {
+    serviceMgr.handleService(reqBuf)
+    .then(function(ret: any): void  {
        const reqHandled: boolean = ret.reqHandled;
        const resp: any = ret.resp;
        if(!reqHandled) {
@@ -21,10 +21,10 @@ router.post("/service/xce", function(req, res) {
            return;
        }
        res.status(200).json({"data": resp});
-   })
-   .fail(function(err: any): void {
+    })
+    .fail(function(err: any): void {
         res.status(500).json({"error": err.error});
-   });
+    });
 });
 
 // Below part is only for unit test

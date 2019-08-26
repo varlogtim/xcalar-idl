@@ -16,6 +16,16 @@
         box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
     }
 
+    .ui-icon-gripsmall-diagonal-se {
+        visibility: hidden;
+    }
+
+    &:hover {
+        .ui-icon-gripsmall-diagonal-se {
+            visibility: visible;
+        }
+    }
+
     .innerModalContainer {
         .flex-display;
         .flex-direction(column);
@@ -165,13 +175,18 @@
     background-color: @color-white;
     color: @color-font-form-gray;
 
-    .header {
+    .header, .modalHeader {
         height: @header-h;
         padding: 22px;
         border-bottom: 1px solid @color-border-softGray;
+        background-color: @color-white;
+        color: @color-font-form-gray;
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
 
         .title {
             margin-top: 2px;
+            color: @color-font-form-gray;
 
             .xi-warning {
                 color: #f6b243;
@@ -209,6 +224,9 @@
         }
     }
 
+    .modalTopMain {
+        background-color: @color-white;
+    }
     .ui-resizable-se {
         bottom: -5px;
         right: -5px;
@@ -1421,7 +1439,7 @@
 
         label {
             font-weight: bold;
-            text-transform: capitalize; 
+            text-transform: capitalize;
         }
 
         input {
@@ -1595,7 +1613,7 @@ html.microsoft {
         }
     }
 
-    .funcBtn {
+    .funcBtn:not(.btn-primary) {
         .btn-clear;
 
         &.inActive {
@@ -1721,6 +1739,16 @@ html.microsoft {
         }
     }
 
+    .alertRadioButtons {
+        flex-direction: column;
+        width: 100%;
+        padding: 5px 20px;
+
+        .radioButton {
+            font-size: 14px;
+        }
+    }
+
     .modalBottom {
         .flex(0 0 56px);
         .btn {
@@ -1752,6 +1780,52 @@ html.microsoft {
 
 }
 /* End Of Alert Modal */
+
+#logoutModal {
+    .size(@width: 500px, @height: 240px, @min-width:500px, @min-height: 240px);
+
+    .modalHeader {
+        display: flex;
+        padding: 0px 22px;
+        line-height: 60px;
+        height: 60px;
+        border-bottom: none;
+        text-transform: none;
+
+        .text {
+            font-size: 20px;
+            padding-left: 10px;
+            width: auto;
+        }
+
+        .icon, .close {
+            line-height: 60px;
+            top: 0px;
+        }
+        .xi-warning {
+            color: @color-macaroni-and-cheese;
+        }
+    }
+    .modalMain {
+        height: ~"calc(100% - 120px)";
+        padding: 0px 22px;
+        font-weight: 500;
+    }
+    .radioButtonGroup {
+        flex-direction: column;
+        width: 100%;
+        padding: 10px 0px;
+        font-weight: 600;
+
+        .radioButton {
+            font-size: 14px;
+            margin: 5px 0px;
+        }
+    }
+    .modalBottom {
+        height: 60px;
+    }
+}
 
 #messageModal {
     @modal-h: 223px;

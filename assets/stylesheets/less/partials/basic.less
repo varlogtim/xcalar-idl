@@ -765,8 +765,25 @@ body {
     .size(@min-width: 130px, @max-width: 90vw, @width: auto);
     text-align: center;
     z-index: @z-index-useMenu;
-    #userName.selected {
-        background-color: inherit;
+    background-color: @color-white;
+
+    #userName {
+        font-weight: 600;
+        &.selected {
+            background-color: inherit;
+        }
+    }
+    li {
+        background-color: @color-white;
+        color: @color-font-form-gray;
+        font-weight: 500;
+        &.selected {
+            background-color: @color-selectedCell-light;
+        }
+    }
+    .divider {
+        border: 1px solid @color-border-menugray;
+        border-top: none;
     }
 }
 

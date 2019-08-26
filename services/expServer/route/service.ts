@@ -2,10 +2,12 @@ import { Router } from "express";
 export const router = Router();
 import serviceManager from "../controllers/serviceManager"
 import support from "../utils/expServerSupport";
-import * as xcConsole from "../utils/expServerXcConsole"
+import * as xcConsole from "../utils/expServerXcConsole";
 import { httpStatus } from "../../../assets/js/httpStatus";
 import * as fs from "fs";
 require("../utils/dag/dagUtils");
+import cloudManager from "../controllers/cloudManager";
+import UserActivityManager from "../controllers/userActivityManager";
 
 // Start of service calls
 // Master request
@@ -279,5 +281,19 @@ router.get("/service/logs/slave",
 
 router.get("/service/getTime", function(req, res) {
     res.status(httpStatus.OK).send(JSON.stringify(Date.now()));
+});
+
+router.post("/service/updateUserActivity", [support.checkAuth], (req, res) => {
+    UserActivityManager.updateUserActivity();
+    res.status(httpStatus.OK).send();
+});
+
+router.post("/service/stopCloud", [support.checkAuth], (req, res) => {
+    cloudManager.stopCluster();
+    res.status(httpStatus.OK).send();
+});
+router.post("/service/getCredits", [support.checkAuth], (req, res) => {
+    cloudManager.updateCredits();
+    res.status(httpStatus.OK).send();
 });
 // End of service calls

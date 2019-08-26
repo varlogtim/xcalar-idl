@@ -26,6 +26,7 @@ class SocketUtil {
 
     public userInfos: any;
     private _0x8ad4: string[];
+    private _ioSockets;
 
     private constructor() {
         this.userInfos = {};
@@ -90,6 +91,7 @@ class SocketUtil {
         cookieParser: express.RequestHandler) {
         let io: socketio.Server = socketio(server);
         io.use(sharedsession(session, cookieParser, { autoSave: true }));
+        SocketUtil.getInstance._ioSockets = io.sockets; // make available outside of this function
 
         io.sockets.on("connection", (socket: socketio.Socket): void => {
             /*  kinds of emit to use:
@@ -371,6 +373,21 @@ class SocketUtil {
             });
         }
     };
+
+    public sendClusterStopWarning() {
+        if (!this._ioSockets) return;
+        this._ioSockets.emit("clusterStopWarning");
+    }
+
+    public logoutMessage() {
+        if (!this._ioSockets) return;
+        this._ioSockets.emit("logoutMessage");
+    }
+
+    public sendConsoleMsg(args) {
+        if (!this._ioSockets) return;
+        this._ioSockets.emit("consoleMsg", args);
+    }
 }
 
 const socket = SocketUtil.getInstance;

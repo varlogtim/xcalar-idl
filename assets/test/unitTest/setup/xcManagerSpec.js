@@ -272,7 +272,7 @@ describe("xcManager Test", function() {
             expect(called).to.be.false;
             $menu.find(".help").trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
-            
+
             HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
         });
 
@@ -310,7 +310,7 @@ describe("xcManager Test", function() {
             expect(called).to.be.false;
             $menu.find(".walkthroughs").trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
-            
+
             HelpPanel.Instance.openHelpResource = oldHelpPanelOpen;
         });
 
@@ -385,6 +385,8 @@ describe("xcManager Test", function() {
                 test = true;
                 return PromiseHelper.resolve()
             };
+            var oldIsCloud = XVM.isCloud;
+            XVM.isCloud = () => false;
             // normal moouseup not work
             $("#logout").mouseup();
             expect(test).to.be.false;
@@ -392,6 +394,7 @@ describe("xcManager Test", function() {
             expect(test).to.be.true;
 
             xcManager.unload = oldFunc;
+            XVM.isCloud = oldIsCloud;
         });
     });
 

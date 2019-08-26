@@ -809,7 +809,11 @@ namespace xcManager {
             if (event.which !== 1) {
                 return;
             }
-            XcUser.CurrentUser.logout();
+            if (XVM.isCloud()) {
+                LogoutModal.Instance.show();
+            } else {
+                XcUser.CurrentUser.logout();
+            }
         });
     }
 

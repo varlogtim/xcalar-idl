@@ -30,7 +30,7 @@ class CloudManager {
 
     /**
      * Start the cluster given a size
-     * @param config 
+     * @param config
      */
     async startCluster(config?: {}): Promise<any> {
         // TO-DO

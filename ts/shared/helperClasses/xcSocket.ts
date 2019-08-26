@@ -180,6 +180,21 @@ class XcSocket {
             XcUser.checkCurrentUser();
         });
 
+        socket.on('clusterStopWarning', () => {
+            if (XVM.isCloud()) {
+                XcUser.clusterStopWarning();
+            }
+        });
+
+        socket.on("logoutMessage", () => {
+            if (XVM.isCloud()) {
+                XcUser.logout();
+            }
+        });
+
+        socket.on("consoleMsg", (msg) => {
+            console.log(msg);
+        });
     }
 
     private _addSocketEvents(): void {
