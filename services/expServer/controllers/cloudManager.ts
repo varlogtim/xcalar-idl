@@ -3,18 +3,20 @@ import * as xcConsole from "../utils/expServerXcConsole.js";
 var request = require('request-promise-native');
 
 class CloudManager {
-    private clusterUrl: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod";
+    private clusterUrl: string;
     private s3Url: string;
     private cfnId: string;
     private userId: string;  // identity_id returned from cognito
     private _numCredits: number = null;
-    private _updateCreditsInterval;
+    private _updateCreditsInterval: NodeJS.Timer;
     private _updateCreditsTime: number = 1 * 60 * 1000; // check every minute
     private _userName: string = "test@xcalar.com"; // XXX temporary
+    private _awsURL: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"; // XXX temporary
 
     public constructor() {
         this._fetchCredits();
         this._updateCredits();
+
     }
 
     public setup(token: string): void {
@@ -42,8 +44,16 @@ class CloudManager {
         // TO-DO
         // 1. update stack with params to stop any EC2 instances
         // 2. update dynamoDB to remove cluster_url
-
-        return null;
+        try {
+            const data: {status: number} = await request.post({
+                url: this._awsURL + "/cluster/stop",
+                body: {"username": this._userName},
+                json: true
+            });
+            return data;
+        } catch (e) {
+            return {error: e};
+        }
     }
 
     public getNumCredits(): number {
@@ -75,21 +85,21 @@ class CloudManager {
         } catch (e) {
             xcConsole.error(e);
         }
-        this.updateCredits();
+        this._updateCredits();
     }
 
     private async _fetchCredits(): Promise<number> {
         try {
             const data: {status: number, credits: number} = await request.post({
-                url: this.clusterUrl + "/billing/get",
-                body: {"userName": this._userName},
+                url: this._awsURL + "/billing/get",
+                body: {"username": this._userName},
                 json: true
             });
             let credits: number = null;
             if (data && data.credits != null) {
                 credits = data.credits;
             }
-            this._credits = credits;
+            this._numCredits = credits;
             return credits;
         } catch (e) {
             return null;
@@ -98,10 +108,10 @@ class CloudManager {
 
     private async _deductCredits(): Promise<void> {
         return await request.post({
-                url: this.clusterUrl + "/billing/deduct",
-                body: {"userName": this._userName},
+                url: this._awsURL + "/billing/deduct",
+                body: {"username": this._userName},
                 json: true
-            });
+        });
     }
 }
 

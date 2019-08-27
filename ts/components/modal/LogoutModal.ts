@@ -32,15 +32,24 @@ class LogoutModal {
         $modal.on("click", ".confirm", () => {
             if ($modal.find(".shutDown").hasClass("active")) {
                 xcHelper.sendRequest("POST", "/service/stopCloud")
-                .then(() => {
-                    XcUser.CurrentUser.logout();
+                .then((res) => {
+                    if (res && res.status === 0) {
+                        XcUser.CurrentUser.logout();
+                    } else {
+                        let error = res;
+                        if (error && error.error) {
+                            error = error.error;
+                        }
+                        this._handleClusterStopFailure(error);
+                    }
                 })
                 .fail((e) => {
-                    Alert.error("Stop Cluster Failed", e);
+                    this._handleClusterStopFailure(e);
                 });
             } else {
                 XcUser.CurrentUser.logout();
             }
+            this._close();
         });
 
         $modal.on("click", ".radioButton", function() {
@@ -51,5 +60,19 @@ class LogoutModal {
 
     private _close() {
         this._modalHelper.clear();
+    }
+
+    // a cluster stop failure might mean that it actually stopped and
+    // wasn't able to return the message, or there was actually a failure and
+    // it didn't stop
+    private _handleClusterStopFailure(error) {
+        XVM.checkVersion(true)
+        .then(() => {
+            Alert.error("Stop Cluster Failed", error);
+        })
+        .fail(() => {
+            // if checkVersion didn't work then cluster probably shut down
+            XcUser.CurrentUser.logout();
+        });
     }
 }

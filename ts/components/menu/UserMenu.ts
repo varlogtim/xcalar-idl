@@ -31,7 +31,7 @@ class UserMenu {
             }
             Alert.show({
                 "title": "Add Credits",
-                "msg": "Call Customer Service to add more credits",
+                "msg": "Call Customer Service to add more credits.",
                 "compact": true,
                 // "isAlert": true
             });

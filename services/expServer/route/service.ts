@@ -290,8 +290,13 @@ router.post("/service/updateUserActivity", [support.checkAuth], (req, res) => {
 });
 
 router.post("/service/stopCloud", [support.checkAuth], (req, res) => {
-    cloudManager.stopCluster();
-    res.status(httpStatus.OK).send();
+    cloudManager.stopCluster()
+    .then((data) => {
+        res.status(httpStatus.OK).send(data);
+    })
+    .catch((e) => {
+        res.status(httpStatus.BadRequest).send(e);
+    });
 });
 
 router.get("/service/getCredits", [support.checkAuth], (req, res) => {
