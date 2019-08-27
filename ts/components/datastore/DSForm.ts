@@ -239,7 +239,9 @@ namespace DSForm {
         let path = getFilePath(null);
         let cb = () => restoreFromPreview(targetName, path);
         resetForm();
-        FileBrowser.show(targetName, path, false, cb);
+        FileBrowser.show(targetName, path, false, {
+            backCB: cb
+        });
     }
 
     function goToPreview(): void {

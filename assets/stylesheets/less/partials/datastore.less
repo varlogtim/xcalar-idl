@@ -1823,6 +1823,44 @@ table.datasetTable {
     }
 }
 
+#fileBrowser {
+    &.cloud {
+        .cloudUploadSection {
+            display: block;
+        }
+    }
+
+    .cloudUploadSection {
+        display: none;
+        height: 65px;
+        width: 100%;
+        padding: 16px 0;
+        border-bottom: 1px solid @color-border-softGray;
+
+        > div {
+            width: 300px;
+            height: 32px;
+            line-height: 32px;
+            margin: 0 auto;
+
+            > i, > span {
+                float: left;
+            }
+        }
+
+        .icon {
+            font-size: 32px;
+            color: @color-font-link-blue;
+            margin-right: 8px;
+        }
+
+        .upload {
+            color: @color-font-link-blue;
+            text-decoration: underline;
+        }
+    }
+}
+
 // Preview Table Section
 #dsPreviewWrap {
     @size-title: 90px;

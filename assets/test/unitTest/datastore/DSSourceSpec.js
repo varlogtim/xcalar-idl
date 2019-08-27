@@ -52,6 +52,17 @@ describe("DSSource Test", function() {
         DSForm.show = oldFormShow;
     });
 
+    it("should show cloud browser if click file part", function() {
+        let oldFunc = CloudFileBrowser.show;
+        let called = false;
+        CloudFileBrowser.show = () => called = true;
+
+        $card.find(".location.file").click();
+        expect(called).to.be.true;
+
+        CloudFileBrowser.show = oldFunc;
+    });
+
     it("should show s3 config panel if click s3 part", function() {
         let oldFunc = DSS3Config.show;
         let called = false;

@@ -29,7 +29,7 @@ namespace FileBrowser {
     let fileBrowserId: string;
     let searchId: string;
 
-    let _backCB: Function;
+    let _options: {backCB?: Function, cloud?: boolean};
     let dragInfo: any = {};
 
     /* Contants */
@@ -121,6 +121,8 @@ namespace FileBrowser {
         setupRightClickMenu();
 
         fileBrowserScrolling();
+
+        CloudFileBrowser.setup();
     }
 
     /**
@@ -138,14 +140,44 @@ namespace FileBrowser {
      * FileBrowser.clear
      */
     export function clear(): void {
-        clearAll();
+        $("#fileBrowserUp").addClass("disabled");
+        setPath("");
+        $pathLists.empty();
+        // performance when there's 1000+ files, is the remove slow?
+        $container.removeClass("manyFiles");
+        $fileBrowser.removeClass("unsortable");
+        clearSearch();
+        cleanContainer();
+
+        $visibleFiles = $();
+        curFiles = [];
+        curPathFiles = [];
+        sortRegEx = undefined;
+
+        document.getElementById("innerFileBrowserContainer").innerHTML = "";
+
+        $(document).off(".fileBrowser");
+        $(window).off(".fileBrowserResize");
+        $fileBrowser.removeClass("loadMode errorMode");
+        $fileBrowserMain.find(".searchLoadingSection").hide();
+        fileBrowserId = null;
+        if (_options && _options.cloud) {
+            CloudFileBrowser.clear();
+        }
+        _options = undefined;
     }
 
     /**
      * FileBrowser.close
      */
     export function close(): void {
-        backToForm();
+        let cb = _options.backCB;
+        FileBrowser.clear();
+        if (typeof cb === "function") {
+            cb();
+        } else {
+            DSForm.show();
+        }
     }
 
     /**
@@ -153,16 +185,20 @@ namespace FileBrowser {
      * @param targetName
      * @param path
      * @param restore
+     * @param options
      */
     export function show(
         targetName: string,
         path: string,
         restore: boolean,
-        backCB?: Function
+        options?: {
+            backCB?: Function
+            cloud?: boolean
+        }        
     ): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!restore) {
-            clearAll();
+            FileBrowser.clear();
         }
         setMode();
         updateActiveFileInfo(null);
@@ -171,7 +207,7 @@ namespace FileBrowser {
         addKeyBoardEvent();
         addResizeEvent();
         fileBrowserId = xcHelper.randName("browser");
-        _backCB = backCB;
+        _options = options || {};
 
         setTarget(targetName);
 
@@ -465,7 +501,7 @@ namespace FileBrowser {
 
         // close file browser
         $infoContainer.on("click", ".cancel", function() {
-            backToForm();
+            FileBrowser.close();
         });
 
         // goes to folder location of file on click
@@ -922,31 +958,6 @@ namespace FileBrowser {
         $pathLists.prepend('<li>' + path + '</li>');
     }
 
-    function clearAll(): void {
-        $("#fileBrowserUp").addClass("disabled");
-        setPath("");
-        $pathLists.empty();
-        // performance when there's 1000+ files, is the remove slow?
-        $container.removeClass("manyFiles");
-        $fileBrowser.removeClass("unsortable");
-        clearSearch();
-        cleanContainer();
-
-        $visibleFiles = $();
-        curFiles = [];
-        curPathFiles = [];
-        sortRegEx = undefined;
-
-        document.getElementById("innerFileBrowserContainer").innerHTML = "";
-
-        $(document).off(".fileBrowser");
-        $(window).off(".fileBrowserResize");
-        $fileBrowser.removeClass("loadMode errorMode");
-        $fileBrowserMain.find(".searchLoadingSection").hide();
-        fileBrowserId = null;
-        _backCB = undefined;
-    }
-
     function cleanContainer(
         options?: {
             keepSelected?: boolean
@@ -978,16 +989,6 @@ namespace FileBrowser {
             togglePickedFiles(null);
             // clearAll flag
             updatePickedFilesList(null, {clearAll: true});
-        }
-    }
-
-    function backToForm(): void {
-        let cb = _backCB;
-        clearAll();
-        if (typeof cb === "function") {
-            cb();
-        } else {
-            DSForm.show();
         }
     }
 
@@ -1321,7 +1322,12 @@ namespace FileBrowser {
         };
         setHistoryPath();
 
-        let cb = () => FileBrowser.show(targetName, curDir, true);
+        let cb: Function;
+        if (_options && _options.cloud) {
+            cb = () => CloudFileBrowser.show(curDir, true);
+        } else {
+            cb = () => FileBrowser.show(targetName, curDir, true);
+        }
         DSPreview.show(options, cb, false);
     }
 
