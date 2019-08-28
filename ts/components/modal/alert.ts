@@ -154,6 +154,7 @@ namespace Alert {
         const id: string = Alert.show(alertOptions);
         if (typeof mixpanel !== "undefined") {
             xcMixpanel.errorEvent("alertError", {
+                title: title,
                 errorMsg: msg
             });
         }

@@ -78,10 +78,6 @@ namespace xcManager {
             return XVM.initializeMode();
         })
         .then(function() {
-            // window.mixpanel.track = (...args) => {
-            //     console.log("track", args);
-            // };
-
             try {
                 $("#topMenuBarTabs").removeClass("xc-hidden");
                 MainMenu.setup();

@@ -864,11 +864,10 @@ define(['base/js/utils'], function(utils) {
             $(document).on("change", "textarea", function(event) {
                 var message = {
                     action: "mixpanel",
-                    event: "InputEvent",
+                    event: "Jupyter InputEvent",
                     property: {
-                        "Content": $(this).val(),
-                        "Element": getElementPath(event.target),
-                        "Timestamp": (new Date()).getTime()
+                        "content": $(this).val(),
+                        "element": getElementPath(event.target)
                     }
                 };
                 parent.postMessage(JSON.stringify(message), "*");

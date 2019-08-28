@@ -111,7 +111,7 @@ window.UnitTest = (function(UnitTest, $) {
         }
 
         xcMixpanel.transactionLog = () => {};
-
+        xcMixpanel.menuItemClick = () => {};
 
         var prevPct = null;
         window.mochaPct = 0;

@@ -917,7 +917,8 @@ declare namespace xcMixpanel {
     export function errorEvent(type: string, info: any): void;
     export function transactionLog(any): void;
     export function pageLoadEvent(): void;
-    export function pageUnlooadEvent(): void;
+    export function pageUnloadEvent(): void;
+    export function track(name: string, properties: any, jqueryEvent?: JQueryEventObject): void;
 }
 
 declare namespace Msal {

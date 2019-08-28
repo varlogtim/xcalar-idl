@@ -65,6 +65,9 @@ namespace xcMenu {
                 }
                 const $li: JQuery = $(this);
                 event.stopPropagation();
+                if (typeof mixpanel !== "undefined") {
+                    xcMixpanel.menuItemClick(event);
+                }
 
                 if (!$li.hasClass('unavailable') &&
                     $li.closest('input').length === 0 &&
@@ -116,6 +119,9 @@ namespace xcMenu {
                 return;
             }
             event.stopPropagation();
+            if (typeof mixpanel !== "undefined") {
+                xcMixpanel.menuItemClick(event);
+            }
 
             // unavailable class defines too many styles (with !important) that
             // we don't need in the new UI

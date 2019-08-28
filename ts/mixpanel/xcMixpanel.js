@@ -1,26 +1,50 @@
 window.xcMixpanel = (function($, xcMixpanel) {
-    const events = {
-        "panelSwitch": true,
-        "modeSwitch": true,
-        "mouseMove": true,
-        "click": true,
-        "input": true,
-        "blur": true,
-        "focus": true,
-        "resize": true,
-        "XDCrash": true,
-        "statusBox": true,
-        "alertModal": true,
-        "pageLoad": true,
-        "pageUnload": true,
-        "transaction": true
+    xcMixpanel.forDev = function() {
+        return true;
     };
+    let events;
+    if (xcMixpanel.forDev()) {
+        events = {
+            "panelSwitch": true,
+            "modeSwitch": true,
+            "mouseMove": true,
+            "click": true,
+            "input": true,
+            "blur": true,
+            "focus": true,
+            "resize": true,
+            "XDCrash": true,
+            "statusBox": true,
+            "alertModal": true,
+            "pageLoad": true,
+            "pageUnload": true,
+            "transaction": true,
+            "keyNavigation": true
+        };
+    } else {
+        events = {
+            "panelSwitch": true,
+            "modeSwitch": true,
+            "mouseMove": false,
+            "click": true,
+            "input": false,
+            "blur": false,
+            "focus": false,
+            "resize": false,
+            "XDCrash": true,
+            "statusBox": true,
+            "alertModal": true,
+            "pageLoad": true,
+            "pageUnload": true,
+            "transaction": false,
+            "keyNavigation": false
+        };
+    }
 
     let lastBlur;
-    let currentTab;
-    let currentSubTab;
-    let currentPanel;
-    let currentSubPanel;
+    let $mainPanel = $(".mainPanel.active");
+    let currentPanel = $mainPanel.attr("id");
+    let currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
     let currTime = Date.now();
     let lastModeTime = currTime;
     let pageLoadTime = currTime;
@@ -94,11 +118,12 @@ window.xcMixpanel = (function($, xcMixpanel) {
         }
     };
 
-    xcMixpanel.forDev = function() {
-        return true;
-    };
     xcMixpanel.init = function() {
-        window.mixpanel.init("8d64739b0382a6a440afaab1a57f5051");
+        if (xcMixpanel.forDev()) {
+            window.mixpanel.init("8d64739b0382a6a440afaab1a57f5051");
+        } else {
+            window.mixpanel.init("89d255f7b75dc2252dc77bb818cbeeca");
+        }
     };
     xcMixpanel.addListeners = function() {
         let entries = Object.entries(events);
@@ -110,17 +135,12 @@ window.xcMixpanel = (function($, xcMixpanel) {
     };
 
     xcMixpanel.errorEvent = (type, info) => {
-
         const prevMouseDownInfo = gMouseEvents.getLastMouseDownTargetsSerialized();
         let eventInfo = {
-            "Timestamp": Date.now(),
             "lastMouseDownEl": prevMouseDownInfo.el,
             "lastMouseDownTime": prevMouseDownInfo.time,
             "lastMouseDownParents": prevMouseDownInfo.parents,
             "prevMouseDowns": prevMouseDownInfo.prevMouseDowns,
-            "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-            "currentPanel": currentPanel,
-            "currentSubPanel": currentSubPanel,
             "eventType": "error"
         };
         switch (type) {
@@ -137,7 +157,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 } catch (e) {
                     // ignore
                 }
-                mixpanel["track"]("XDCrash", {
+                xcMixpanel.track("XDCrash", {
                     ...eventInfo,
                     "error": info.msg,
                     "url": info.url,
@@ -151,17 +171,16 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 });
                 break;
             case ("statusBoxError"):
-                mixpanel["track"]("StatusBox Error", {
+                xcMixpanel.track("StatusBox Error", {
                     ...eventInfo,
                     "errorMsg": info.text,
                     "Element": getElementPath(info.$target[0]),
                     "ElementPath": getElementPathArray(info.$target[0]),
                     "eventType": "error"
-
                 });
                 break;
             case ("alertError"):
-                mixpanel["track"]("Alert Error", {
+                xcMixpanel.track("Alert Error", {
                     ...eventInfo,
                     "errorMsg": info.msg
                 });
@@ -189,12 +208,33 @@ window.xcMixpanel = (function($, xcMixpanel) {
             });
         }
 
-        mixpanel.track("User Enter", {
-            "Timestamp": currTime,
-            "height": $(window).height(),
-            "width": $(window).width(),
+        xcMixpanel.track("User Enter", {
             "eventType": "pageLoad"
         });
+
+        if (!xcMixpanel.forDev()) {
+            // emailNotification(name);
+        }
+
+        function emailNotification(username) {
+            var emailOpts = {
+                "username": username,
+                "timestamp": Date.now(),
+                "host": window.location.hostname
+            };
+            $.ajax({
+                "type": "POST",
+                "url": "https://kura8uu67a.execute-api.us-west-2.amazonaws.com/prod/mixpanel",
+                "data": JSON.stringify(emailOpts),
+                "contentType": "application/json",
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
     };
 
     xcMixpanel.pageUnloadEvent = () => {
@@ -205,8 +245,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
         let timeInLastMode = Math.round((currTime - lastModeTime) / 1000);
         let timeInLastPanel = Math.round((currTime - lastPanelTime) / 1000);
 
-        mixpanel.track("User Leave", {
-            "Timestamp": currTime,
+        xcMixpanel.track("User Leave", {
             "duration":  Math.round((currTime - pageLoadTime) / 1000),
             "timeInLastMode": timeInLastMode,
             "lastMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
@@ -231,23 +270,16 @@ window.xcMixpanel = (function($, xcMixpanel) {
                     return op.operation;
                 });
             } catch (e) {}
-            mixpanel.track(log.title, {
-                "currentPanel": currentPanel,
-                "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                "currentSubPanel": currentSubPanel,
+            xcMixpanel.track("Op - " + log.title, {
                 "operations": operationNames,
                 "eventType": "transaction"
             });
         } else {
-            mixpanel.track(log.title, {
-                "currentPanel": currentPanel,
-                "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                "currentSubPanel": currentSubPanel,
+            xcMixpanel.track("Op - " + log.title, {
                 "eventType": "transaction"
             });
         }
     };
-
 
     const mouseMoveListener = () => {
         let mouseMoving = false;
@@ -256,11 +288,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
         $(document).mousemove(function() {
             if (!mouseMoving) {
                 mouseMoving = true;
-                // mixpanel.track("mouseMoveStart", {
-                //     "Timestamp": Date.now(),
-                //     "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                //     "currentPanel": currentPanel
-                // });
             }
 
             clearTimeout(mouseMoveTimeout);
@@ -269,22 +296,15 @@ window.xcMixpanel = (function($, xcMixpanel) {
             mouseMoveTimeout = setTimeout(() => {
                 mouseMoving = false;
 
-                // mixpanel.track("mouseMoveEnd", {
-                //     "Timestamp": Date.now(),
-                //     "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                //     "currentPanel": currentPanel
-                // });
-
                 mouseInactivityTimeout = setTimeout(() => {
-                    mixpanel.track("Mouse Move Inactivity", {
-                        "Timestamp": Date.now(),
-                        "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                        "currentPanel": currentPanel,
-                        "currentSubPanel": currentSubPanel,
-                        "eventType": "mouseMove"
-                    });
-                }, 30000);
-            }, 4000);
+                    // don't send event if window is blurred
+                    if (document.hasFocus()) {
+                        xcMixpanel.track("Mouse Move Inactivity", {
+                            "eventType": "mouseMove"
+                        });
+                    }
+                }, 30* 1000);
+            }, 4 * 1000);
         });
     };
 
@@ -298,46 +318,48 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 setTimeout(() => { // allow time for click
                     mainMenuBarClick($target);
                 });
-            } else if ($target.closest("li").length && $target.closest("ul")) {
-                menuItemClick(event);
-            } else if ($target.closest(".btn").length) {
-                buttonClick(event);
             } else if ($target.closest("#modeArea").length) {
                 modeSwitchClick(event);
+            } else if ($target.closest("li").length && $target.closest("ul")) {
+                if (xcMixpanel.forDev()) {
+                    menuItemClick(event);
+                }
+            } else if ($target.closest(".btn").length || $target.closest("button").length ||
+                    isButton($target)) {
+                if (xcMixpanel.forDev()) {
+                    buttonClick(event);
+                }
+            } else if ($target.closest("#workbookPanel").length) {
+                if (xcMixpanel.forDev()) {
+                    workbookPanelClick(event);
+                }
             } else {
-                otherClick(event);
+                if (xcMixpanel.forDev()) {
+                    otherClick(event);
+                }
             }
         });
+
+        if (!xcMixpanel.forDev()) {
+            return;
+        }
 
         // This is to catch click events triggered by code
         $(document).click(function(event) {
             if (!event.hasOwnProperty("originalEvent")) {
-                mixpanel.track("AutoClick", {
-                    "Element": getElementPath(event.target),
-                    "ElementPath": getElementPathArray(event.target),
-                    "Timestamp": Date.now(),
-                    "TriggeredByUser": false,
-                    "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                    "currentPanel": currentPanel,
-                    "currentSubPanel": currentSubPanel,
+                xcMixpanel.track("AutoClick", {
                     "eventType": "click"
-                });
+                }, event);
             }
         });
     };
 
     const inputListener = () => {
         $(document).on("change", "input", function(event) {
-            mixpanel.track("Input Change", {
+            xcMixpanel.track("Input Change", {
                 "Content": $(this).val(),
-                "Element": getElementPath(event.target),
-                "ElementPath": getElementPathArray(event.target),
-                "Timestamp": Date.now(),
-                "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                "currentPanel": currentPanel,
-                "currentSubPanel": currentSubPanel,
                 "eventType": "input"
-            });
+            }, event);
         });
     };
 
@@ -345,15 +367,11 @@ window.xcMixpanel = (function($, xcMixpanel) {
         $(window).blur(function() {
             let currTime = Date.now();
             var time = Math.round((currTime - lastBlur)/1000);
-            mixpanel.track("Window Blur", {
+            lastBlur = Date.now();
+            xcMixpanel.track("Window Blur", {
                 "Time": time,
-                "Timestamp": currTime,
-                "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                "currentPanel": currentPanel,
-                "currentSubPanel": currentSubPanel,
                 "eventType": "windowBlur"
             });
-            lastBlur = Date.now();
         });
     };
 
@@ -361,15 +379,11 @@ window.xcMixpanel = (function($, xcMixpanel) {
         $(window).focus(function() {
             var currTime = Date.now();
             var time = Math.round((currTime - lastBlur)/1000);
-            mixpanel.track("Window Focus", {
+            lastBlur = Date.now();
+            xcMixpanel.track("Window Focus", {
                 "Time": time,
-                "Timestamp": currTime,
-                "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                "currentPanel": currentPanel,
-                "currentSubPanel": currentSubPanel,
                 "eventType": "windowFocus"
             });
-            lastBlur = Date.now();
         });
     };
 
@@ -396,13 +410,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
             if (otherResize) {
                 otherResize = false;
             } else {
-                mixpanel.track("Window Resize", {
-                    "Timestamp": Date.now(),
-                    "height": $(window).height(),
-                    "width": $(window).width(),
-                    "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-                    "currentPanel": $(".mainPanel.active").attr("id"),
-                    "currentSubPanel": currentSubPanel,
+                xcMixpanel.track("Window Resize", {
                     "eventType": "windowResize"
                 });
             }
@@ -410,13 +418,35 @@ window.xcMixpanel = (function($, xcMixpanel) {
         }
     };
 
-    function getPathStr(ele) {
-        var path = ele.prop("tagName");
-        if (ele.attr("id")) {
-            path += "#" + ele.attr("id");
+    const keyNavigationListener = () => {
+        let keys = new Set([keyCode.Up, keyCode.Down, keyCode.Left,
+                            keyCode.Right, keyCode.Enter])
+        $(document).keyup(function(event) {
+            if (keys.has(event.which)) {
+                let $selectedEl = $(".selected:visible").eq(0);
+                let selectedEl = "";
+                let selectedText = "";
+                if ($selectedEl.length) {
+                    selectedEl = getElementPath($selectedEl[0]);
+                    selectedText = $selectedEl.text();
+                }
+                xcMixpanel.track("Keyboard Navigation", {
+                    "key": keyCode[event.which],
+                    "selectedElement": selectedEl,
+                    "selectedText": selectedText,
+                    "eventType": "keyboard"
+                });
+            }
+        });
+    };
+
+    function getPathStr($ele) {
+        var path = $ele.prop("tagName");
+        if ($ele.attr("id")) {
+            path += "#" + $ele.attr("id");
         }
-        if (ele.attr("class")) {
-            let className = ele.attr("class").split(" ").join(".");
+        if ($ele.attr("class")) {
+            let className = $ele.attr("class").split(" ").join(".");
             path += "." + className;
         }
         return path;
@@ -428,7 +458,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
             var parents = $(element).parentsUntil("body");
             for (var i = 0; (i < parents.length) && (path.length <= 255); i++) {
                 path += " | ";
-                path += getPathStr($(parents).eq(i), path);
+                path += getPathStr($(parents).eq(i));
             }
             return path;
         } catch (err) {
@@ -436,8 +466,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
             return "Error case: " + err;
         }
     }
-
-    xcMixpanel.getElementPath = getElementPath;
 
     function getElementPathArray(element) {
         let pathArray = [];
@@ -459,8 +487,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
         }
 
         let currTime = Date.now();
-        const $mainTab = $target.closest(".mainTab");
-        const $subTab = $target.closest(".subTab");
         // main tab click
         if ($target.closest(".mainTab").length) {
             let lastPanel = currentPanel;
@@ -470,10 +496,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
             currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
 
             if (lastPanel === currentPanel) { // toggling left panel
-                mixpanel.track("Left Panel Toggle", {
-                    "Time": currTime,
-                    "currentPanel": currentPanel,
-                    "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
+                xcMixpanel.track("Left Panel Toggle", {
                     "source": "mainTab",
                     "eventType": "click"
                 });
@@ -483,15 +506,11 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 let timeInLastSubPanel = Math.round((currTime - lastSubPanelTime) / 1000);
                 lastSubPanelTime = currTime;
 
-                mixpanel.track("Panel Switch", {
-                    "Time": currTime,
+                xcMixpanel.track("Panel Switch", {
                     "timeInLastPanel": timeInLastPanel,
                     "lastPanel": lastPanel,
                     "lastSubPanel": lastSubPanel,
                     "timeInLastSubPanel": timeInLastSubPanel,
-                    "currentPanel": currentPanel,
-                    "currentSubPanel": currentSubPanel,
-                    "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
                     "eventType": "click"
                 });
             }
@@ -501,23 +520,16 @@ window.xcMixpanel = (function($, xcMixpanel) {
             let lastSubPanel = currentSubPanel;
             currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
             if (lastSubPanel === currentSubPanel) { // toggling left panel
-                mixpanel.track("Left Panel Toggle", {
-                    "Time": currTime,
-                    "currentPanel": currentPanel,
-                    "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
+                xcMixpanel.track("Left Panel Toggle", {
                     "source": "subTab",
                     "eventType": "click"
                 });
             } else { // sub tab click
                 let timeInLastSubPanel = Math.round((currTime - lastSubPanelTime) / 1000);
                 lastSubPanelTime = currTime;
-                mixpanel.track("Sub Panel Switch", {
-                    "Time": currTime,
-                    "currentPanel": currentPanel,
+                xcMixpanel.track("Sub Panel Switch", {
                     "timeInLastSubPanel": timeInLastSubPanel,
                     "lastSubPanel": lastSubPanel,
-                    "currentSubPanel": currentSubPanel,
-                    "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
                     "eventType": "click"
                 });
             }
@@ -527,46 +539,41 @@ window.xcMixpanel = (function($, xcMixpanel) {
     function buttonClick(event) {
         const $target = $(event.target);
         let $btn = $target.closest(".btn");
+        if (!$btn.length) {
+            $btn = $target.closest("button");
+        }
+        if (!$btn.length) {
+            $btn = $target;
+        }
         let $modal = $btn.closest(".modalContainer");
-        let $mainMenu = $btn.closest(".mainMenu");
         let btnName;
         if ($btn.attr("id")) {
             btnName = $btn.attr("id");
         } else if ($modal.length) {
             btnName = $btn.text() + " - " + $modal.attr("id");
+            if ($modal.attr("id") === "alertModal" || $modal.attr("id") === "messageModal") {
+                let $header = $modal.find(".modalHeader");
+                if (!$header.length) {
+                    $header = $modal.find(".header").eq(0);
+                }
+                btnName += " " + $.trim($header.text());
+            }
         } else {
             btnName = $btn.text() + " - " + $btn.closest("[id]").attr("id");
         }
         const eventProperties = {
-            "Element": getElementPath(event.target),
-            "ElementPath": getElementPathArray(event.target),
-            "Timestamp": Date.now(),
-            "x": event.clientX,
-            "y": event.clientY,
-            "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-            "currentPanel": currentPanel,
-            "currentSubPanel": currentSubPanel,
-            "inLeftPanel": false,
             "text": $btn.text(),
             "eventType": "click"
         };
-        if ($modal.length) {
-            eventProperties.modal = $modal.attr("id");
-        }
-        if ($mainMenu.length) {
-            eventProperties.inLeftPanel = true;
-        }
-        mixpanel.track("Btn - " + btnName, eventProperties);
+
+        xcMixpanel.track("Btn - " + btnName, eventProperties, event);
     }
 
     function menuItemClick(event) {
         const $target = $(event.target);
         let $li = $target.closest("li");
-        let $ul = $li.closest("ul");
         let $dropDownList = $li.closest(".dropDownList");
         let $menu = $li.closest(".menu");
-        let $modal = $li.closest(".modalContainer");
-        let $mainMenu = $li.closest(".mainMenu");
         let listName = "";
         let mixpanelId = $dropDownList.data("mixpanel-id") || $menu.data("mixpanel-id");
 
@@ -578,25 +585,32 @@ window.xcMixpanel = (function($, xcMixpanel) {
             listName = $li.closest("[id]").attr("id") + " - item click";
         }
         const eventProperties = {
-            "Element": getElementPath(event.target),
-            "ElementPath": getElementPathArray(event.target),
-            "Timestamp": Date.now(),
-            "x": event.clientX,
-            "y": event.clientY,
-            "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-            "currentPanel": currentPanel,
-            "currentSubPanel": currentSubPanel,
-            "inLeftPanel": false,
             "text": $li.text(),
             "eventType": "click"
         };
-        if ($modal.length) {
-            eventProperties.modal = $modal.attr("id");
+        xcMixpanel.track(listName, eventProperties, event);
+    }
+
+    xcMixpanel.menuItemClick = menuItemClick;
+
+    function isButton($el) {
+        var parents = $el.parentsUntil("body").andSelf();
+        for (var i = 0; i < parents.length; i++) {
+            let $ele = $(parents[i]);
+            let name = "";
+            if ($ele.attr("id")) {
+                name += $ele.attr("id");
+            }
+            if ($ele.attr("class")) {
+                let className = $ele.attr("class").split(" ")
+                name += " " + className;
+            }
+            if (name.includes("btn") || name.includes("Btn") || name.includes("button") ||
+                name.includes("Button")) {
+                    return true;
+            }
         }
-        if ($mainMenu.length) {
-            eventProperties.inLeftPanel = true;
-        }
-        mixpanel.track(listName, eventProperties);
+        return false;
     }
 
     function modeSwitchClick(event) {
@@ -605,16 +619,14 @@ window.xcMixpanel = (function($, xcMixpanel) {
         lastModeTime = currTime;
 
         if ($("#container").hasClass("sqlMode")) {
-            mixpanel.track("To Advanced Mode", {
-                "Timestamp": currTime,
+            xcMixpanel.track("To Advanced Mode", {
                 "timeInLastMode": timeInLastMode,
                 "lastMode": "sqlMode",
                 "currentMode": "advancedMode",
                 "eventType": "click"
             });
         } else {
-            mixpanel.track("To SQL Mode", {
-                "Timestamp": currTime,
+            xcMixpanel.track("To SQL Mode", {
                 "timeInLastMode": timeInLastMode,
                 "lastMode": "advancedMode",
                 "currentMode": "sqlMode",
@@ -623,10 +635,8 @@ window.xcMixpanel = (function($, xcMixpanel) {
         }
     }
 
-    function otherClick(event) {
+    function workbookPanelClick(event) {
         let $el = $(event.target);
-        let $modal = $el.closest(".modal");
-        let $mainMenu = $el.closest(".mainMenu");
         let text = $el.text();
         if (!text) {
             let parents = $el.parentsUntil("#container");
@@ -634,34 +644,74 @@ window.xcMixpanel = (function($, xcMixpanel) {
         }
 
         const eventProperties = {
-            "Element": getElementPath(event.target),
-            "ElementPath": getElementPathArray(event.target),
-            "Timestamp": Date.now(),
-            "TriggeredByUser": event.hasOwnProperty("originalEvent"),
-            "x": event.clientX,
-            "y": event.clientY,
-            "windowHeight": $(window).height(),
-            "windowWidth": $(window).width(),
-            "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
-            "currentPanel": currentPanel,
-            "currentSubPanel": currentSubPanel,
-            "inLeftPanel": false,
             "eventType": "click",
             "text": text
         };
 
-        eventProperties.text = text;
-
-        if ($modal.length) {
-            eventProperties.modal = $modal.attr("id");
-        }
-        if ($mainMenu.length) {
-            eventProperties.inLeftPanel = true;
-        }
-        mixpanel.track("Other Click", eventProperties);
+        xcMixpanel.track("WorkbookPanel Click", eventProperties, event);
     }
 
+    function otherClick(event) {
+        let $el = $(event.target);
+        let text = $el.text();
+        if (!text) {
+            let parents = $el.parentsUntil("#container");
+            text = parents.eq(0).text().slice(0, 255);
+        }
 
+        const eventProperties = {
+            "eventType": "click",
+            "text": text
+        };
+        let eventName = "Other Click";
+        if ($el.closest("#homeBtn").length) {
+            eventName = "Btn- xdIcon";
+        }
+
+        xcMixpanel.track(eventName, eventProperties, event);
+    }
+
+    xcMixpanel.track = (eventName, eventProperties, jqueryEvent) => {
+        eventProperties = eventProperties || {};
+        let baseProperties = {
+            "timeStamp": Date.now(),
+            "windowHeight": $(window).height(),
+            "windowWidth": $(window).width(),
+            "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
+            "currentPanel": currentPanel,
+            "currentSubPanel": currentSubPanel
+        };
+
+        // special properties for click events
+        if (eventProperties.eventType === "click" && jqueryEvent) {
+            let $el = $(jqueryEvent.target);
+            let $modal = $el.closest(".modalContainer");
+            let $mainMenu = $el.closest(".mainMenu");
+            let inLeftPanel = $mainMenu.length > 0;
+
+            let clickProperties = {
+                "el": getPathStr($el),
+                "element": getElementPath(jqueryEvent.target),
+                "elementPath": getElementPathArray(jqueryEvent.target),
+                "triggeredByUser": jqueryEvent.hasOwnProperty("originalEvent"),
+                "x": jqueryEvent.clientX,
+                "y": jqueryEvent.clientY,
+                "inLeftPanel": inLeftPanel,
+                "closestID": $el.closest("[id]").attr("id")
+            };
+            if ($modal.length) {
+                let $header = $modal.find(".modalHeader");
+                if (!$header.length) {
+                    $header = $modal.find(".header").eq(0);
+                }
+                clickProperties.modal = $modal.attr("id");
+                clickProperties.modalTitle = $.trim($header.text());
+            }
+            baseProperties = {...baseProperties, ...clickProperties};
+        }
+        let properties = {...baseProperties, ...eventProperties};
+        mixpanel.track(eventName, properties);
+    }
 
     const eventMap = {
         "mouseMove": mouseMoveListener,
@@ -669,7 +719,8 @@ window.xcMixpanel = (function($, xcMixpanel) {
         "input": inputListener,
         "blur": blurListener,
         "focus": focusListener,
-        "resize": resizeListener
+        "resize": resizeListener,
+        "keyNavigation": keyNavigationListener
     };
 
     return (xcMixpanel);

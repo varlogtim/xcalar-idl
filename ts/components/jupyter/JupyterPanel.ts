@@ -94,7 +94,7 @@ namespace JupyterPanel {
                     case ("mixpanel"):
                         try {
                             if (xcMixpanel.forDev()) {
-                                mixpanel.track(s.event, s.property);
+                                xcMixpanel.track(s.event, s.property);
                             }
                         } catch (error) {
                             console.log("mixpanel is not loaded");

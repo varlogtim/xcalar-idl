@@ -116,8 +116,8 @@ describe("JupyterPanel Test", function() {
             var called = false;
             mixpanel = window.mixpanel || {};
             xcMixpanel = window.xcMixpanel || {};
-            var cacheFn = mixpanel.track;
-            mixpanel.track = function() {
+            var cacheFn = xcMixpanel.track;
+            xcMixpanel.track = function() {
                 called = true;
             };
             var cacheFn2 = xcMixpanel.forDev;
@@ -129,7 +129,7 @@ describe("JupyterPanel Test", function() {
             sendMessage({action: "mixpanel"})
             .then(function() {
                 expect(called).to.be.true;
-                mixpanel.track = cacheFn;
+                xcMixpanel.track = cacheFn;
                 xcMixpanel.forDev = cacheFn2;
                 xcMixpanel.errorEvent = cacheFn3;
                 done();
