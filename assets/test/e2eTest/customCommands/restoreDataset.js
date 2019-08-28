@@ -1,4 +1,5 @@
 const EventEmitter = require('events');
+const execFunctions = require('../lib/execFunctions');
 
 class RestoreDataset extends EventEmitter {
     command(selector, cb) {
@@ -11,25 +12,27 @@ class RestoreDataset extends EventEmitter {
             needRestore = result.value;
         });
         this.api.perform(() => {
-            let datasetName = "";
+            let datasetId = "";
             if (needRestore) {
                 console.log("restoring dataset");
                 this.api.moveToElement("#dagNodeMenu li.restoreDataset", 10, 1)
                     .mouseButtonClick('left')
                     .waitForElementVisible("#dsListSection")
                     .pause(1000)
-                    .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
-                    .mouseButtonClick('left')
-                    .getText(`#dsListSection .grid-unit:last-child`, function(result) {
-                        datasetName = result.value;
-                        //cb(datasetName);
-                    })
-                    .waitForElementVisible('#dsTableContainer .datasetTable', 100000)
-                    .moveToElement('#modelingDataflowTab', 1, 1)
-                    .mouseButtonClick('left');
-            }
+                    .execute(execFunctions.getRestoredDatasetId, [], (result) => {
+                        datasetId = result.value;
+                        this.api.moveToElement(`#dsListSection .grid-unit[data-dsid="${datasetId}"]`, 10, 10)
+                        .mouseButtonClick('left')
+                        // .saveScreenshot("nw1.png")
+                        .waitForElementVisible('#dsTableContainer .datasetTable', 100000)
+                        .moveToElement('#modelingDataflowTab', 1, 1)
+                        .mouseButtonClick('left');
 
-            this.emit('complete');
+                        this.emit('complete');
+                    });
+            } else {
+                this.emit('complete');
+            }
         });
 
 

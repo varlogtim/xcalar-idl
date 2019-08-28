@@ -105,4 +105,8 @@ module.exports = {
         return tableName;
     },
 
+    getRestoredDatasetId: function() {
+        let $el = $("#dsListSection .grid-unit.ds:not(.xc-hidden):last");
+        return $el.data("dsid");
+    }
 };

@@ -6,7 +6,7 @@ class ActivateWorkbook extends EventEmitter {
         .pause(2000)
         .click(".workbookBox .content.activate")
         .pause(10000)
-        .waitForElementNotVisible("#initialLoadScreen", 100000)
+        .waitForElementNotVisible("#initialLoadScreen", 2 * 60 * 1000)
         .pause(3000);
         this.api.isPresent("#intro-popover", (isPresent) => {
             if (isPresent) {// close intro popup if visible
@@ -25,7 +25,7 @@ class ActivateWorkbook extends EventEmitter {
                 .pause(3000);
 
                 if (isUpgrade) {
-                    this.api.waitForElementVisible("#dagListSection .fileName .name", 100000)
+                    this.api.waitForElementVisible("#dagListSection .fileName .name", 2 * 60 * 1000)
                     .click("#dagListSection .fileName .name");
                 }
 
