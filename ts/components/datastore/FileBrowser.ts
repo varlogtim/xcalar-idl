@@ -10,6 +10,7 @@ namespace FileBrowser {
         };
         isSelected: boolean;
         isPicked: boolean;
+        isLoading: boolean;
     }
 
     let $fileBrowser: JQuery;     // $("#fileBrowser")
@@ -76,9 +77,9 @@ namespace FileBrowser {
     };
     /* End Of Contants */
 
-    let curFiles = [];
+    let curFiles: XcFile[] = [];
     let curPathFiles = [];
-    let allFiles = [];
+    let allFiles: XcFile[] = [];
     let sortKey = defaultSortKey;
     let sortRegEx;
     let reverseSort = false;
@@ -247,6 +248,40 @@ namespace FileBrowser {
         return deferred.promise();
     }
 
+    /**
+     * FileBrowser.addFileToUpload
+     * @param fileName
+     */
+    export function addFileToUpload(fileName: string): void {
+        let path: string = getCurrentPath();
+        let file: XcFile = {
+            name: fileName,
+            attr: {
+                isDirectory: false,
+                extension: getFileExtension(fileName),
+                size: undefined,
+                ctime: undefined,
+                mtime: undefined
+            },
+            isSelected: false,
+            isPicked: false,
+            isLoading: true
+        };
+
+        allFiles = allFiles.filter((file) => file.name !== fileName);
+        allFiles.push(file);
+        renderFiles(path, true);
+    }
+
+    /**
+     * FileBrowser.refresh
+     */
+    export function refresh(): void {
+        // the first option in pathLists
+        let $curPath = $pathLists.find("li").eq(0);
+        goToPath($curPath);
+    }
+
     function setMode(): void {
         let $switch = $("#fileInfoBottom .switchWrap");
         if (DSPreview.isCreateTableMode()) {
@@ -364,11 +399,8 @@ namespace FileBrowser {
 
         $("#fileBrowserRefresh").click(function(event) {
             $(this).blur();
-            // the first option in pathLists
-            let $curPath = $pathLists.find("li").eq(0);
-            xcUIHelper.showRefreshIcon($fileBrowserMain, false, null);
             event.stopPropagation();
-            goToPath($curPath);
+            FileBrowser.refresh();
         });
 
         // Up to parent folder
@@ -935,7 +967,7 @@ namespace FileBrowser {
     }
 
     function getCurrentPath(): string {
-        return $pathLists.find("li:first-of-type").text();;
+        return $pathLists.find("li:first-of-type").text();
     }
 
     function getGridUnitName($grid: JQuery): string {
@@ -1057,18 +1089,18 @@ namespace FileBrowser {
 
     function dedupFiles(
         targetName: string,
-        files: {name: string}[]
-    ): {name: string}[] {
+        files: XcFile[]
+    ): XcFile[] {
         if (DSTargetManager.isPreSharedTarget(targetName)) {
-            let dedupFiles: {name: string}[] = [];
+            let dedupedFiles: XcFile[] = [];
             let nameSet = {};
             files.forEach(function(file) {
                 if (!nameSet.hasOwnProperty(file.name)) {
                     nameSet[file.name] = true;
-                    dedupFiles.push(file);
+                    dedupedFiles.push(file);
                 }
             });
-            return dedupFiles;
+            return dedupedFiles;
         } else {
             return files;
         }
@@ -1077,15 +1109,18 @@ namespace FileBrowser {
     function addFileExtensionAttr(files: XcFile[]): void {
         files.forEach(function(file) {
             if (!file.attr.isDirectory) {
-                let index: number = file.name.lastIndexOf(".");
-                if (index === -1) {
-                    file.attr.extension = "";
-                } else {
-                    file.attr.extension = file.name.slice(index + 1)
-                                          .toUpperCase();
-                }
+                file.attr.extension = getFileExtension(file.name);
             }
         });
+    }
+
+    function getFileExtension(fileName: string): string {
+        let index: number = fileName.lastIndexOf(".");
+        if (index === -1) {
+            return "";
+        } else {
+            return fileName.slice(index + 1).toUpperCase();
+        }
     }
 
     function listFiles(path: string, options: any): XDPromise<void> {
@@ -1128,16 +1163,8 @@ namespace FileBrowser {
                     deferred.reject({"error": oldSearchError, "oldSearch": true});
                     return;
                 }
-                cleanContainer({keepPicked: true});
                 allFiles = dedupFiles(targetName, listFilesOutput.files);
-                checkPicked(allFiles, path);
-                addFileExtensionAttr(allFiles);
-                if (!options) {
-                    // If it is not a search, save all files under current path
-                    curPathFiles = allFiles;
-                    clearSearch();
-                }
-                sortFilesBy(sortKey, sortRegEx, false);
+                renderFiles(path, !options);
                 deferred.resolve();
             } else {
                 deferred.reject({"error": oldBrowserError, "oldBrowser": true});
@@ -1169,6 +1196,18 @@ namespace FileBrowser {
         });
 
         return deferred.promise();
+    }
+
+    function renderFiles(path: string, toClearSearch: boolean): void {
+        cleanContainer({keepPicked: true});
+        checkPicked(allFiles, path);
+        addFileExtensionAttr(allFiles);
+        if (toClearSearch) {
+            // If it is not a search, save all files under current path
+            curPathFiles = allFiles;
+            clearSearch();
+        }
+        sortFilesBy(sortKey, sortRegEx, false);
     }
 
     function goIntoFolder(): void {
@@ -1324,7 +1363,7 @@ namespace FileBrowser {
 
         let cb: Function;
         if (_options && _options.cloud) {
-            cb = () => CloudFileBrowser.show(curDir, true);
+            cb = () => CloudFileBrowser.show(true);
         } else {
             cb = () => FileBrowser.show(targetName, curDir, true);
         }
@@ -1778,43 +1817,63 @@ namespace FileBrowser {
             let mtime = fileObj.attr.mtime; // in untix time
             let isSelected = fileObj.isSelected;
             let isPicked = fileObj.isPicked;
+            let isLoading = fileObj.isLoading || false;
 
             if (isDirectory && (name === '.' || name === '..')) {
                 continue;
             }
 
-            let visibilityClass: string = " visible";
+            let visibilityClass: string = "visible";
             if (len > lowerFileLimit && i > 200) {
                 visibilityClass = "";
             }
 
             let gridClass: string = isDirectory ? "folder" : "ds";
+            let classNames: string[] = ["grid-unit", gridClass, visibilityClass];
             let iconClass: string = isDirectory ? "xi-folder" : "xi-documentation-paper";
             let size = isDirectory ? "" :
-                        xcHelper.sizeTranslator(fileObj.attr.size);
+                        xcHelper.sizeTranslator(fileObj.attr.size) || "N/A";
             let escName = xcStringHelper.escapeDblQuoteForHTML(name);
-
-            let selectedClass: string = isSelected ? " selected" : "";
-            let pickedClass: string = isPicked ? " picked" : "";
             let ckBoxClass: string = isPicked ? "xi-ckbox-selected" : "xi-ckbox-empty";
+            let waitIcon: string = "";
+
+            if (isSelected) {
+                classNames.push("selected");
+            }
+
+            if (isPicked) {
+                classNames.push("picked");
+            }
+
+            if (isLoading) {
+                classNames.push("loading");
+                waitIcon = '<div class="refreshIcon">' +
+                                '<img src="' + paths.waitIcon + '">' +
+                            '</div>';
+            }
 
             html +=
-                '<div title="' + escName + '" class="' + gridClass +
-                    visibilityClass + selectedClass + pickedClass + ' grid-unit" ' +
-                    'data-index="' + i + '">' +
-                    '<div class="checkBox">' +
-                        '<i class="icon ' + ckBoxClass + '"></i>' +
-                    '</div>' +
-                    '<i class="gridIcon icon ' + iconClass + '"></i>' +
-                    '<div class="label fileName" data-name="' + escName + '">' +
-                        name +
-                    '</div>';
+            '<div title="' + escName + '" class="' + classNames.join(" ") + '" ' +
+                'data-index="' + i + '">' +
+                '<div class="checkBox' + (isLoading ? ' xc-disabled' : '') + '">' +
+                    '<i class="icon ' + ckBoxClass + '"></i>' +
+                '</div>' +
+                '<i class="gridIcon icon ' + iconClass + '">' +
+                    waitIcon +
+                '</i>' +
+                '<div class="label fileName" data-name="' + escName + '">' +
+                    name +
+                '</div>';
+            
             if (ctime) {
                 hasCtime = true;
                 html += genDateHtml(ctime, "ctime");
             }
             if (mtime) {
                 html += genDateHtml(mtime, "mtime");
+            }
+            if (isLoading && !ctime && !mtime) {
+                html += '<div class="fileDate">N/A</div>';
             }
             html += '<div class="fileSize">' + size + '</div></div>';
         }
@@ -1875,7 +1934,7 @@ namespace FileBrowser {
         let isListView: boolean = $fileBrowserMain.hasClass("listView");
         $container.find(".grid-unit.ds").each(function() {
             let $grid = $(this);
-            let $icon = $grid.find(".icon").eq(1);
+            let $icon = $grid.find(".gridIcon");
             let name = getGridUnitName($grid);
             let fileType = xcHelper.getFormat(name);
             if (fileType && listFormatMap.hasOwnProperty(fileType) &&

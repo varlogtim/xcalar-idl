@@ -74,6 +74,10 @@ describe("Datastore-DSTargetManger Test", function() {
             // has 5 formRow
             expect(html.split("formRow").length).to.equal(6);
         });
+
+        it("DSTargetManager.getCloudFileTarget should work", function() {
+            expect(DSTargetManager.getCloudFileTarget()).to.equal("xcalar_cloud_s3");
+        });
     });
 
     describe("Create S3 Target Test", function() {
@@ -203,10 +207,13 @@ describe("Datastore-DSTargetManger Test", function() {
             $name.val("");
             $("#dsTarget-submit").click();
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+        });
 
-            // $name.val(testTarget);
-            // $("#dsTarget-submit").click();
-            // UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+        it("should not use reserved name in form", function() {
+            var $name = $("#dsTarget-name");
+            $name.val("xcalar_cloud_s3");
+            $("#dsTarget-submit").click();
+            UnitTest.hasStatusBoxWithError(DSTargetTStr.NoReservedName);
         });
 
         it("should submit and create a target", function(done) {

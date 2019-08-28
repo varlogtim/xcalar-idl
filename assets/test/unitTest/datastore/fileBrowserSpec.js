@@ -645,6 +645,14 @@ describe("Dataset-File Browser Test", function() {
             });
         });
 
+        it("FileBrowser.addFileToUpload should work", function() {
+            let file = xcHelper.randName("test");
+            FileBrowser.addFileToUpload(file);
+            let $grid = findGrid(file);
+            expect($grid.length).to.equal(1);
+            expect($grid.hasClass("loading")).to.be.true;
+        });
+
         it("Should click refresh button to refresh", function(done) {
             $("#fileBrowserRefresh").click();
             expect($fileBrowser.hasClass("loadMode")).to.be.true;

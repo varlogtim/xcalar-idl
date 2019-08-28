@@ -1,20 +1,18 @@
 namespace CloudFileBrowser {
     let uploader: DragDropUploader;
-
     /**
      * CloudFileBrowser.setup
      */
     export function setup(): void {
-        _addUploadEvent();
+        _addEventListeners();
     }
 
     /**
      * CloudFileBrowser.show
      */
-    export function show(path: string | null, restore: boolean): void {
-        let targetName = "Default Shared Root"
-        path = path || "/";
-
+    export function show(restore: boolean): void {
+        let targetName = DSTargetManager.getCloudFileTarget();
+        let path: string = "/" + CloudManager.Instance.getS3BucketInfo().bucket + "/";
         let options = {
             cloud: true,
             backCB: () => DSSource.show()
@@ -36,9 +34,32 @@ namespace CloudFileBrowser {
         return $("#fileBrowser");
     }
 
-    function _addUploadEvent(): void {
+    function _uploadFile(file?: File): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let fileName: string = file.name.replace(/C:\\fakepath\\/i, '').trim();
+        FileBrowser.addFileToUpload(fileName);
+
+        CloudManager.Instance.uploadToS3(fileName, file)
+        .then(() => {
+            FileBrowser.refresh();
+            deferred.resolve();
+        })
+        .fail((error) => {
+            _handleUploadError(error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    function _handleUploadError(error: string): void {
+        Alert.error(ErrTStr.Error, error);
+    }
+
+    function _addEventListeners(): void {
         let $section = _getFileBrowser();
         let $uploadInput = $("#dsForm-source-upload");
+
         $section.find(".cloudUploadSection .upload").click(() => {
             $uploadInput.click();
         });
@@ -76,35 +97,5 @@ namespace CloudFileBrowser {
                 }
             }
         });
-    }
-
-    function _uploadFile(file?: File): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let path: string;
-        path = file.name.replace(/C:\\fakepath\\/i, '').trim();
-        let fileName: string = path.substring(0, path.indexOf(".")).trim()
-                    .replace(/ /g, "");
-        // wbName = <string>xcHelper.checkNamePattern(<PatternCategory>"Workbook", <PatternAction>"fix", wbName);
-
-        // const workbooks: object = WorkbookManager.getWorkbooks();
-        // wbName = wbDuplicateName(wbName, workbooks, 0);
-
-        _fakeUpload(fileName, file)
-        .then(deferred.resolve)
-        .fail((error) => {
-            _handleUploadError(error);
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    }
-
-    function _fakeUpload(fileName, file): XDPromise<void> {
-        console.log("fake upload", fileName, file);
-        return PromiseHelper.resolve();
-    }
-
-    function _handleUploadError(error: string): void {
-        Alert.error(ErrTStr.Error, error);
     }
 }

@@ -1294,6 +1294,7 @@ DSTargetTStr = {
     "DEL": "DELETE CONNECTOR",
     "DelFail": "Connector Deletion Failed",
     "NoDelete": "Cannot delete the default connector",
+    "NoReservedName": "The connector name is reserved, please use another name",
     // with replace
     "DelConfirmMsg": "Are you sure you want to delete <target>?",
     "TargetExists": "Connector <target> already exists",

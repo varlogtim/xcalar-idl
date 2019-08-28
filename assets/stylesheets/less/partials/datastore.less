@@ -1825,8 +1825,52 @@ table.datasetTable {
 
 #fileBrowser {
     &.cloud {
+        &.errorMode {
+            .cloudUploadSection {
+                .xc-disabled;
+            }
+        }
+
         .cloudUploadSection {
             display: block;
+        }
+
+        .cardTopMain {
+            #fileBrowserUp {
+                display: none;
+            }
+
+            #fileBrowserPath {
+                .targetName {
+                    display: none;
+                }
+
+                .text {
+                    pointer-events: none;
+                    border-left: 1px solid @color-border-white-five-darker;
+                    border-right: 1px solid @color-border-white-five-darker;
+                }
+
+                .iconWrapper {
+                    display: none;
+                }
+            }
+        }
+
+        .fileBrowserMain {
+            .wrapper {
+                height: ~"calc(100% - 90px)";
+            }
+        }
+
+        .grid-unit {
+            &.loading {
+                pointer-events: none;
+
+                .gridIcon {
+                    opacity: @opacity-disabled;
+                }
+            }
         }
     }
 

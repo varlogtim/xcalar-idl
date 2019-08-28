@@ -13,7 +13,9 @@ namespace DSTargetManager {
     let udfModuleHint: InputDropdownHint;
     let udfFuncHint: InputDropdownHint;
     const s3Target: string = "s3fullaccount";
-    const cloudTargetBlackList: string[] = ["shared", "sharednothingsymm", "sharednothingsingle"]
+    const xcalar_cloud_s3: string = "xcalar_cloud_s3";
+    const cloudTargetBlackList: string[] = ["shared",
+    "sharednothingsymm", "sharednothingsingle"]
 
     /**
      * DSTargetManager.setup
@@ -148,9 +150,17 @@ namespace DSTargetManager {
             activeName = $activeIcon.data("name");
         }
 
+        let targetList;
         XcalarTargetList()
-        .then(function(targetList) {
-            let targets = cacheTargets(targetList);
+        .then(function(res) {
+            targetList = res;
+            cacheTargets(targetList);
+            if (XVM.isCloud()) {
+                return PromiseHelper.alwaysResolve(createCloudTarget());
+            }
+        })
+        .then(function() {
+            let targets: string[] = Object.keys(targetSet).sort();
             updateTargetMenu(targets);
             updateTargetGrids(targets, activeName);
             updateNumTargets(targets.length);
@@ -293,6 +303,42 @@ namespace DSTargetManager {
 
         return deferred.promise();
 
+    }
+    
+    /**
+     * DSTargetManager.getCloudFileTarget
+     */
+    export function getCloudFileTarget(): string {
+        return xcalar_cloud_s3;
+    }
+
+    // for cloud file upload use
+    function createCloudTarget(): XDPromise<string> {
+        if (targetSet[xcalar_cloud_s3] != null) {
+            // has the s3Target created, but remove it from cache
+            delete targetSet[xcalar_cloud_s3];
+            // return PromiseHelper.resolve();
+            // XXX TODO: remove this hack that fetch S3 bucket info
+            return CloudManager.Instance.getS3BucketInfoAsync();
+        }
+
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let targetType: string = s3Target;
+        let targetName: string = xcalar_cloud_s3;
+
+        CloudManager.Instance.getS3BucketInfoAsync()
+        .then(() => {
+            let targetParams = CloudManager.Instance.getS3BucketInfo();
+            return XcalarTargetCreate(targetType, targetName, targetParams);
+        })
+        .then(() => {
+            deferred.resolve(targetName);
+        })
+        .fail(() => {
+            deferred.reject();
+        });
+
+        return deferred.promise();
     }
 
     function addEventListeners(): void {
@@ -447,6 +493,10 @@ namespace DSTargetManager {
             return true;
         }
         return !XVM.isCloud() || !cloudTargetBlackList.includes(targetType);
+    }
+
+    function isReservedTargetName(targetName: string): boolean {
+        return targetName === xcalar_cloud_s3;
     }
 
     function cacheTargets(targetList): string[] {
@@ -940,6 +990,12 @@ namespace DSTargetManager {
         let targetName: string = $targetName.val().trim();
         let eles = [{
             $ele: $targetName
+        }, {
+            $ele: $targetName,
+            error: DSTargetTStr.NoReservedName,
+            check: function() {
+                return isReservedTargetName(targetName);
+            }
         }, {
             $ele: $targetName,
             error: ErrTStr.InvalidTargetName,

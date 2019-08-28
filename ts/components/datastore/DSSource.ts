@@ -25,7 +25,7 @@ namespace DSSource {
     function _addEventListeners(): void {
         let $card = _getCard();
         $card.find(".location.file").click(() => {
-            CloudFileBrowser.show(null, false);
+            CloudFileBrowser.show(false);
         });
 
         $card.find(".location.s3").click(() => {
