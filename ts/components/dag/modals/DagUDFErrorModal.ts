@@ -60,18 +60,20 @@ class DagUDFErrorModal {
         let errorInfo = this._node.getUDFError();
         let html: HTML = "";
         let count = 0;
-        errorInfo.failureDescArr.forEach(err => {
-            if (!err.numRowsFailed) {
-                return;
-            }
-            count += err.numRowsFailed;
-            let numFails = xcStringHelper.numToStr(err.numRowsFailed);
-            let desc = xcStringHelper.escapeHTMLSpecialChar(err.failureDesc);
-            html += `<div class="errorRow">
-                <div class="count">Count: <span class="value">${numFails}</span></div>
-                <div class="errorText">${desc}</div>
-            </div>`;
-        });
+        if (errorInfo.failureDescTabArr) {
+            errorInfo.failureDescTabArr.forEach(err => {
+                if (err && err.failureDescArr) {
+                    err.failureDescArr.forEach(innerErr => {
+                        html += getRowHtml(innerErr);
+                    });
+                }
+            });
+        } else {
+            errorInfo.failureDescArr.forEach(err => {
+                html += getRowHtml(err);
+            });
+        }
+
         this._$modal.find(".errorList").html(html);
         if (count === 0) {
             this._$modal.find(".errorList").html(`<div class="noErrors">N/A</div>`);
@@ -82,6 +84,20 @@ class DagUDFErrorModal {
         } else {
             this._$modal.removeClass("hasExtraErrors");
             this._$modal.find(".extraErrors").addClass("xc-hidden");
+        }
+
+        function getRowHtml(err) {
+            if (!err.numRowsFailed) {
+                return "";
+            }
+            count += err.numRowsFailed;
+            let numFails = xcStringHelper.numToStr(err.numRowsFailed);
+            let desc = xcStringHelper.escapeHTMLSpecialChar(err.failureDesc);
+            let html = `<div class="errorRow">
+                <div class="count">Count: <span class="value">${numFails}</span></div>
+                <div class="errorText">${desc}</div>
+            </div>`;
+            return html;
         }
     }
 
