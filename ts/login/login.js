@@ -194,6 +194,30 @@ $(document).ready(function() {
                 try {
                     if (data.loggedIn === true) {
                         redirect();
+                    } else if (XVM.isCloud()) {
+                        // XXX TODO: remove this hack
+                        var transformToAssocArray = function(prmstr) {
+                            var params = {};
+                            var prmarr = prmstr.split("&");
+                            for ( var i = 0; i < prmarr.length; i++) {
+                                var tmparr = prmarr[i].split("=");
+                                params[tmparr[0]] = tmparr[1];
+                            }
+                            return params;
+                        }
+                        var prmstr = window.location.search.substr(1);
+                        var param = prmstr ? transformToAssocArray(prmstr) : {};
+                        // pattern is url?cloud=true
+                        // or optionally url?cloud=true&user=someuser&password=somepassword
+                        if (param["cloud"] === "true") {
+                            // remove the param in case of recursive issue
+                            window.history.pushState({}, document.title, "/" + paths.login);
+                            var userName = param["user"] || "admin";
+                            var password = param["password"] || "Welcome1";
+                            $("#loginNameBox").val(userName);
+                            $('#loginPasswordBox').val(password);
+                            $("#loginForm").submit();
+                        }
                     }
                 } catch (e) {
                     console.error(e);
