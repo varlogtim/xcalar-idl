@@ -60,9 +60,15 @@ class DagUDFErrorModal {
         let errorInfo = this._node.getUDFError();
         let html: HTML = "";
         let count = 0;
+        let hasMultipleEvals = false;
+        let hasErrStr = false;
         if (errorInfo.failureDescTabArr) {
             errorInfo.failureDescTabArr.forEach(err => {
                 if (err && err.failureDescArr) {
+                    if (hasErrStr) {
+                        hasMultipleEvals = true;
+                        hasErrStr = false;
+                    }
                     err.failureDescArr.forEach(innerErr => {
                         html += getRowHtml(innerErr);
                     });
@@ -90,13 +96,21 @@ class DagUDFErrorModal {
             if (!err.numRowsFailed) {
                 return "";
             }
+            let html = "";
+            if (hasMultipleEvals && !hasErrStr) {
+                // first error of an eval string
+                html += `<div class="divider"></div>`;
+            }
+
             count += err.numRowsFailed;
             let numFails = xcStringHelper.numToStr(err.numRowsFailed);
             let desc = xcStringHelper.escapeHTMLSpecialChar(err.failureDesc);
-            let html = `<div class="errorRow">
+            html += `<div class="errorRow">
                 <div class="count">Count: <span class="value">${numFails}</span></div>
                 <div class="errorText">${desc}</div>
             </div>`;
+
+            hasErrStr = true;
             return html;
         }
     }
