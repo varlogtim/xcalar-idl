@@ -162,6 +162,7 @@ DagNodeTooltip[DagNodeType.Sort] = "Sorts results according to a column";
 // DagNodeTooltip[DagNodeType.Source] = "source";
 DagNodeTooltip[DagNodeType.Split] = "Separates a column into columns using a delimiter";
 DagNodeTooltip[DagNodeType.SQL] = "Runs a SQL query";
+DagNodeTooltip[DagNodeType.Deskew] = "Reduce the data skew by resharding the data on the selected column";
 // DagNodeTooltip[DagNodeType.SQLSubInput] = "SQLSubInput";
 // DagNodeTooltip[DagNodeType.SQLSubOutput] = "SQLSubOutput";
 // DagNodeTooltip[DagNodeType.SubGraph] = "subGraph";
