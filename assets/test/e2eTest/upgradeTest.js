@@ -273,44 +273,56 @@ module.exports = {
             testConfig.IMDNames = ["PUBTESTE2E"];
             browser
             .pause(2000) // don't know why but need to wait for modalbackground to fade out
-            .click("#dataStoresTab")
-            .click("#sourceTblButton")
-            .click("#datastoreMenu .table .iconSection .refresh")
-            .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
-            .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]', 10000)
-            .click("#modelingDataflowTab");
 
-            const imdNodes = testTabs[tabName].nodes.filter((node) => {
-                return node.type === "IMDTable";
-            });
-            imdNodes.forEach((nodeInfo) => {
-                input = nodeInfo.input;
-                input.schema = [
-                    {
-                        "name": "CLASS_ID",
-                        "type": "integer"
-                    },
-                    {
-                        "name": "CLASS_ID_MAXINTEGER",
-                        "type": "integer"
-                    },
-                    {
-                        "name": "CLASS_ID_CONCAT",
-                        "type": "string"
-                    },
-                    {
-                        "name": "XcalarRankOver",
-                        "type": "integer"
-                    },
-                    {
-                        "name": "XcalarOpCode",
-                        "type": "integer"
-                    },
-                    {
-                        "name": "XcalarBatchId",
-                        "type": "integer"
-                    }
-                ];
+            // alert modal may be showing saying that published table already
+            // exists. If it does, good -- close modal and don't create
+            browser.isVisible("#alertModal", results => {
+                if (results.value) { // close alert modal if visible
+                    browser
+                    .click("#alertModal .cancel")
+                    .pause(2000);
+                } else {
+                    browser
+                    .click("#dataStoresTab")
+                    .click("#sourceTblButton")
+                    .click("#datastoreMenu .table .iconSection .refresh")
+                    .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
+                    .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]', 10000)
+                    .click("#modelingDataflowTab");
+                }
+
+                const imdNodes = testTabs[tabName].nodes.filter((node) => {
+                    return node.type === "IMDTable";
+                });
+                imdNodes.forEach((nodeInfo) => {
+                    input = nodeInfo.input;
+                    input.schema = [
+                        {
+                            "name": "CLASS_ID",
+                            "type": "integer"
+                        },
+                        {
+                            "name": "CLASS_ID_MAXINTEGER",
+                            "type": "integer"
+                        },
+                        {
+                            "name": "CLASS_ID_CONCAT",
+                            "type": "string"
+                        },
+                        {
+                            "name": "XcalarRankOver",
+                            "type": "integer"
+                        },
+                        {
+                            "name": "XcalarOpCode",
+                            "type": "integer"
+                        },
+                        {
+                            "name": "XcalarBatchId",
+                            "type": "integer"
+                        }
+                    ];
+
                     browser
                     .openOpPanel('.operator[data-nodeid="' + nodeInfo.nodeId + '"]')
                     .clearValue("#IMDTableOpPanel .pubTableInput")
@@ -318,7 +330,9 @@ module.exports = {
                     .moveToElement("#pubTableList li:not(.xc-hidden)", 2, 2)
                     .mouseButtonUp("left")
                     .submitAdvancedPanel("#IMDTableOpPanel", JSON.stringify(input, null, 4));
+                });
             });
+
 
         }
     },
