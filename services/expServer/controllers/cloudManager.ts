@@ -10,7 +10,7 @@ class CloudManager {
     private _numCredits: number = null;
     private _updateCreditsInterval: NodeJS.Timer;
     private _updateCreditsTime: number = 1 * 60 * 1000; // check every minute
-    private _userName: string = "test@xcalar.com"; // XXX temporary
+    private _userName: string = ""; // "test@xcalar.com"; // XXX temporary
     private _awsURL: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"; // XXX temporary
 
     public constructor() {
@@ -74,6 +74,10 @@ class CloudManager {
 
     // deducts credits, gets credits, and calls _updateCredits which calls itself
     private async _updateCreditsHelper(): Promise<void> {
+        if (!this._userName) {
+            this._updateCredits();
+            return;
+        }
         try {
             await this._deductCredits();
         } catch (e) {
@@ -112,6 +116,13 @@ class CloudManager {
                 body: {"username": this._userName},
                 json: true
         });
+    }
+
+    /* HACK TO SET USER NAME */
+    public setUserName(name) {
+        this._userName = name;
+        this._fetchCredits();
+        return this._userName;
     }
 }
 

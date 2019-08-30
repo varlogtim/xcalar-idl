@@ -303,4 +303,12 @@ router.get("/service/getCredits", [support.checkAuth], (req, res) => {
     const numCredits: number = cloudManager.getNumCredits();
     res.status(httpStatus.OK).send(JSON.stringify(numCredits));
 });
+
+/* HACK TO SET CLOUD USERNAME */
+router.post("/service/updateCloudUserName", [support.checkAuth], (req, res) => {
+    let reqBody = JSON.parse(req.body);
+    let name = cloudManager.setUserName(reqBody.name);
+    res.status(httpStatus.OK).send("cloud username set to " + name);
+});
+
 // End of service calls

@@ -198,6 +198,14 @@ class XcUser {
         }, this._creditUsageCheckTime);
     }
 
+    /* HACK TO SET CLOUD USERNAME */
+    public static setCloudUserName(name) {
+        xcHelper.sendRequest("POST", "/service/updateCloudUserName", {name: name})
+        .always((res) => {
+            console.log(res);
+        });
+    }
+
     private _username: string;
     private _fullUsername: string;
     private _isAdmin: boolean;
