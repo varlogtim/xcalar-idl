@@ -1614,8 +1614,10 @@ module.exports = function(grunt) {
                 options: {
                     match: ['.*.js', '\\.css'],
                     replacement: function() {
-                        var version = require(SRCROOT + XCALARVERSION_PATH_REL).XCALARVERSION;
-                        return version;
+                        var time = new Date().getTime();
+                        var encoded = Buffer.from(time + "").toString('base64');
+                        // the last 2 digits is always ==
+                        return encoded.replace(/=/gi, "");
                     }
                 },
                 files: {
