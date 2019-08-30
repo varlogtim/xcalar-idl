@@ -1,7 +1,6 @@
 <html>
 
 <head>
-  <!-- <link rel="stylesheet" type="text/css" href="../assets/stylesheets/css/installer.css" /> -->
   <link href="../assets/stylesheets/css/login.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" type="text/css" href="../assets/stylesheets/css/cloudLogin.css" />
 </head>
@@ -18,6 +17,9 @@
         <h2 class="loginHeader" id="signupTitle" style="display: none">Hello and welcome to Xcalar Design!</h2>
         <h2 class="loginHeader" id="clusterTitle" style="display: none">Select your Cluster Size</h2>
         <h2 class="loginHeader" id="verifyTitle" style="display: none">Confirm Your Account</h2>
+        <h2 class="loginHeader" id="forgotPasswordTitle" style="display: none">Forgot your password?</h2>
+        <h2 class="loginHeader" id="confirmForgotPasswordTitle" style="display: none">Choose new password</h2>
+        <h2 class="loginHeader" id="loadingTitle" style="display: none">Starting up the cluster...</h2>
       </header>
     </div>
     <div id="loadingBar">
@@ -27,7 +29,11 @@
       <div id="formArea">
 
         <!-- login -->
-        <div id="loginForm" class="clearfix" autocomplete="off" style="display: none">
+        <div id="loginForm" class="clearfix authForm" autocomplete="off">
+          <div id="loginFormError" class="formError" style="display: none">
+            <i class="icon xi-error"></i>
+            <span class="text">Wrong email or password. Please try again.</span>
+          </div>
           <div class="section">
             <label for="loginNameBox">
               <input id="loginNameBox" name="noautocomplete" type="text" class="input" autocomplete="off"
@@ -50,10 +56,8 @@
           </div>
         </div>
 
-
-
         <!-- signup -->
-        <div id="signupForm" autocomplete="off" style="display: none">
+        <div id="signupForm" class="authForm" autocomplete="off">
           <div class="nameSection section">
             <input id="signup-firstName" class="input" required autocomplete="off">
             <div class="label">First Name</div>
@@ -85,50 +89,82 @@
           <div class="section submitSection clearfix">
             <div class="part termPart clearfix">
               <div class="text">
-                <label for="signup-termCheck">I agree to the <a id="signup-term" class="auth-link" href="https://xcalar.com/end-user-license-agreement/" target="_blank">EULA</a></label>
+                <label for="signup-termCheck">I agree to the <a id="signup-term" class="auth-link"
+                    href="https://xcalar.com/end-user-license-agreement/" target="_blank">EULA</a></label>
               </div>
               <input id="signup-termCheck" type="checkbox" class="checkbox" required>
             </div>
-            <div class="part clearfix">
-              <input id="signup-submit" class="btn signup btn-disabled" value="SIGN UP">
-            </div>
+            <button id="signup-submit" class="btn signup btn-disabled"><span class="text">SIGN UP</span></button>
           </div>
           <div class="loginSection auth-section">
             <a class="signup-login auth-link">Already have an account? Log In</a>
           </div>
-          <div class="loginSection">
+          <!-- <div class="loginSection">
             <a class="verify">VERIFY CODE SCREEN</a>
-          </div>
+          </div> -->
         </div>
 
-
         <!-- verify -->
-        <div id="verifyForm" autocomplete="off" style="display: none">
+        <div id="verifyForm" class="authForm" autocomplete="off">
           <div class="section">
             <input id="verify-code" class="input" required autocomplete="off">
             <div class="label">Verification Code</div>
           </div>
-          <div class="section submitSection clearfix">
-            <div class="part clearfix">
-              <input id="verify-submit" class="btn signup" value="VERFIY">
-            </div>
+          <div id="resend-code" class="auth-section">
+            <a class="auth-link">Resend the confirmation code</a>
           </div>
-          <div class="loginSection">
+          <div class="section submitSection clearfix">
+            <button id="verify-submit" class="btn signup btn-disabled"><span class="text">VERIFY</span></button>
+          </div>
+          <!-- <div class="loginSection">
             <a class="verify">SIGNUP SCREEN</a>
           </div>
           <div class="loginSection">
             <a class="cluster">CLUSTER SCREEN</a>
+          </div> -->
+        </div>
+
+        <!-- forgot password -->
+        <div id="forgotPasswordForm" class="authForm" autocomplete="off">
+          <div class="section">
+            <input id="forgot-password-code" class="input" required autocomplete="off">
+            <div class="label">Email</div>
+          </div>
+          <div class="section clearfix">
+            <button id="forgot-password-submit" class="btn btn-disabled"><span class="text">RESET
+                PASSWORD</span></button>
           </div>
         </div>
 
+        <!-- confirm forgot password -->
+        <div id="confirmForgotPasswordForm" class="authForm" autocomplete="off">
+          <div class="section">
+            <input id="confirm-forgot-password-code" class="input" required autocomplete="off">
+            <div class="label">Code</div>
+          </div>
+          <div class="section">
+            <input id="confirm-forgot-password-new-password" class="input" type="password" required autocomplete="off">
+            <div class="label">New Password</div>
+          </div>
+          <div class="section">
+            <input id="confirm-forgot-password-confirm-new-password" class="input" type="password" required
+              autocomplete="off">
+            <div class="label">Confirm New Password</div>
+          </div>
+          <div class="section clearfix">
+            <button id="confirm-forgot-password-submit" class="btn btn-disabled">
+              <span class="text">SET NEW PASSWORD</span>
+            </button>
+          </div>
+        </div>
 
         <!-- cluster -->
-        <form id="clusterForm" style="display: none">
+        <form id="clusterForm" class="authForm">
           <div class="title">
             Select the option below that fits your needs.
           </div>
           <div class="radioButtonGroup">
-            <div class="choice radioButton" data-option='Extra Small Cluster' data-size='m5.xlarge'>
+            <!-- <div class="choice radioButton" data-option='Extra Small Cluster'>
               <div class="radio">
                 <i class="icon xi-radio-selected"></i>
                 <i class="icon xi-radio-empty"></i>
@@ -136,8 +172,8 @@
               <div class="label">
                 Extra Small Cluster - <b>1 units / hour</b>
               </div>
-            </div>
-            <div class="choice radioButton" data-option='Small Cluster' data-size='m5.2xlarge'>
+            </div> -->
+            <div class="choice radioButton" data-option='small'>
               <div class="radio">
                 <i class="icon xi-radio-selected"></i>
                 <i class="icon xi-radio-empty"></i>
@@ -146,7 +182,7 @@
                 Small Cluster - <b>2 units / hour</b>
               </div>
             </div>
-            <div class="choice radioButton" data-option='Medium Cluster' data-size='m5.4xlarge'>
+            <div class="choice radioButton" data-option='medium'>
               <div class="radio">
                 <i class="icon xi-radio-selected"></i>
                 <i class="icon xi-radio-empty"></i>
@@ -155,7 +191,7 @@
                 Medium Cluster - <b>4 units / hour</b>
               </div>
             </div>
-            <div class="choice radioButton" data-option='Large Cluster' data-size='m5.8xlarge'>
+            <div class="choice radioButton" data-option='large'>
               <div class="radio">
                 <i class="icon xi-radio-selected"></i>
                 <i class="icon xi-radio-empty"></i>
@@ -164,16 +200,16 @@
                 Large Cluster - <b>8 units / hour</b>
               </div>
             </div>
-            <div class="choice radioButton" data-option='Extra Large Cluster' data-size='m5.12xlarge'>
+            <div class="choice radioButton" data-option='xlarge'>
               <div class="radio">
                 <i class="icon xi-radio-selected"></i>
                 <i class="icon xi-radio-empty"></i>
               </div>
               <div class="label">
-                Extra Large Cluster - <b>12 units / hour</b>
+                Extra Large Cluster - <b>16 units / hour</b>
               </div>
             </div>
-            <div class="choice radioButton" data-option='Super Large Cluster' data-size='m5.16xlarge'>
+            <!-- <div class="choice radioButton" data-option='Super Large Cluster'>
               <div class="radio">
                 <i class="icon xi-radio-selected"></i>
                 <i class="icon xi-radio-empty"></i>
@@ -182,7 +218,7 @@
                 Super Large Cluster - <b>16 units / hour</b>
               </div>
             </div>
-            <div class="choice radioButton" data-option='Mega Large Cluster' data-size='m5.24xlarge'>
+            <div class="choice radioButton" data-option='Mega Large Cluster'>
               <div class="radio">
                 <i class="icon xi-radio-selected"></i>
                 <i class="icon xi-radio-empty"></i>
@@ -190,16 +226,20 @@
               <div class="label">
                 Mega Large Cluster - <b>24 units / hour</b>
               </div>
-            </div>
+            </div> -->
           </div>
           <div class="section buttonSection">
             <input class="btn next btn-disabled" id="deployBtn" type="button" value="Deploy">
           </div>
-          <div class="loginSection">
+          <!-- <div class="loginSection">
             <a class="cluster">VERIFY SCREEN</a>
-          </div>
+          </div> -->
         </form>
-
+        <div id="loadingForm" class="authForm">
+          <div class="title">
+            Starting you cluster up. Please wait...
+          </div>
+        </div>
       </div>
     </div>
   </div>

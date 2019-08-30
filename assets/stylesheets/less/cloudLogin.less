@@ -10,16 +10,23 @@ body {
     margin-top: 45px;
 }
 
-#signupForm {
+.authForm {
+    display: none;
     width: 100%;
+}
+
+#signupForm {
     .input {
         margin-left: 0;
         padding-left: 140px;
     }
 }
 
-#verifyForm {
-    width: 100%;
+#confirmForgotPasswordForm {
+    .input {
+        margin-left: 0;
+        padding-left: 170px;
+    }
 }
 
 #verify-code {
@@ -42,6 +49,7 @@ body {
 .auth-link {
     color: white;
     cursor: pointer;
+
     &:visited {
         color: white;
     }
@@ -57,10 +65,30 @@ body {
         margin-top: 15px;
         margin-bottom: 40px;
     }
+
     .choice {
         margin-bottom: 15px;
+
         .label {
             font-size: 16px;
         }
     }
+}
+
+.formError {
+    .icon {
+        font-size: 16px;
+    }
+
+    .text {
+        position: relative;
+        top: -2px;
+        left: 3px;
+    }
+}
+
+#resend-code {
+    position: absolute;
+    margin-top: 45px;
+    z-index: 1;
 }
