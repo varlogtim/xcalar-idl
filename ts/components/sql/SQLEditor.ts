@@ -1,12 +1,212 @@
 class SQLEditor {
     private _editor: CodeMirror.Editor;
-    private _keywordsToRemove: string[];
-    private _keywordsToAdd: string[];
     private _callbacks: {[key: string]: Function};
+    private _keywordsToRemove: string[] = [
+        "alter",
+        "begin",
+        "create",
+        "delete",
+        "drop",
+        "insert",
+        "into",
+        "set",
+        "table",
+        "update",
+        "values"
+    ];
+    private _extraSyntaxKeywords: string[] = [
+        "all",
+        "anti",
+        "any",
+        "case",
+        "cast",
+        "cross",
+        "cube",
+        "current",
+        "describe",
+        "else",
+        "end",
+        "except",
+        "exists",
+        "false",
+        "following",
+        "full",
+        "grouping",
+        "grouping_id",
+        "if",
+        "inner",
+        "intersect",
+        "interval",
+        "left",
+        "limit",
+        "natural",
+        "null",
+        "nulls",
+        "outer",
+        "over",
+        "partition",
+        "position",
+        "preceding",
+        "range",
+        "right",
+        "rollup",
+        "row",
+        "rows",
+        "semi",
+        "sets",
+        "show",
+        "tables",
+        "then",
+        "true",
+        "unbounded",
+        "using",
+        "when",
+        "with"
+    ];
+    private _extraFunctionKeywords: string[] = [
+        "abs",
+        "acos",
+        "add_months",
+        "ascii",
+        "asin",
+        "atan",
+        "atan2",
+        "avg",
+        "bigint",
+        "bit_length",
+        "boolean",
+        "ceil",
+        "ceiling",
+        "char",
+        "char_length",
+        "character_length",
+        "chr",
+        "coalesce",
+        "concat",
+        "cos",
+        "cosh",
+        "count",
+        "cume_dist",
+        "current_date",
+        "current_timestamp",
+        "date",
+        "date_add",
+        "date_format",
+        "date_sub",
+        "date_trunc",
+        "datediff",
+        "day",
+        "dayofmonth",
+        "dayofweek",
+        "dayofyear",
+        "decimal",
+        "degree",
+        "dense_rank",
+        "double",
+        "e",
+        "exp",
+        "first",
+        "first_value",
+        "float",
+        "floor",
+        "format",
+        "format_number",
+        "from_unixtime",
+        "hour",
+        "ifnull",
+        "initcap",
+        "instr",
+        "int",
+        "isnotnull",
+        "isnull",
+        "lag",
+        "last",
+        "last_day",
+        "last_value",
+        "lcase",
+        "lead",
+        "left",
+        "length",
+        "levenshtein",
+        "like",
+        "ln",
+        "locate",
+        "log10",
+        "log2",
+        "lower",
+        "lpad",
+        "ltrim",
+        "max",
+        "mean",
+        "min",
+        "minute",
+        "mod",
+        "month",
+        "months_between",
+        "negative",
+        "next_day",
+        "now",
+        "ntile",
+        "nullif",
+        "nvl",
+        "nvl2",
+        "octet_length",
+        "percent_rank",
+        "pi",
+        "position",
+        "positive",
+        "pow",
+        "power",
+        "quarter",
+        "radians",
+        "rand",
+        "randn",
+        "rank",
+        "regexp_extract",
+        "repeat",
+        "replace",
+        "reverse",
+        "right",
+        "round",
+        "row_number",
+        "rpad",
+        "rtrim",
+        "second",
+        "sin",
+        "sinh",
+        "smallint",
+        "soundex",
+        "sqrt",
+        "std",
+        "stddev",
+        "stddev_pop",
+        "stddev_samp",
+        "string",
+        "substr",
+        "substring",
+        "substring_index",
+        "sum",
+        "tan",
+        "tanh",
+        "timestamp",
+        "tinyint",
+        "to_date",
+        "to_timestamp",
+        "to_unix_timestamp",
+        "trim",
+        "trunc",
+        "ucase",
+        "unix_timestamp",
+        "upper",
+        "var_pop",
+        "var_samp",
+        "variance",
+        "weekofyear",
+        "year"
+    ];
 
     public constructor(id: string, callbacks) {
         this._callbacks = callbacks;
-        this._setupKeyWords();
         this._setup(id);
     }
 
@@ -28,19 +228,6 @@ class SQLEditor {
 
     public refresh(): void {
         this._editor.refresh();
-    }
-
-    private _setupKeyWords(): void {
-        this._keywordsToRemove = ["alter", "begin", "create", "delete", "drop",
-        "insert", "into", "set", "table", "update", "values"];
-        this._keywordsToAdd = ["over", "partition", "intersect", "except",
-        "with", "left", "right", "outer", "natural", "semi", "anti", "rollup",
-        "cube", "grouping", "sets", "limit", "sum", "avg", "max", "min", "all",
-        "any", "exists", "null", "true", "false", "nulls", "interval", "case",
-        "when", "then", "else", "end", "cross", "inner", "full", "range", "rows",
-        "unbounded", "preceding", "following", "current", "first", "last",
-        "row", "replace", "describe", "format", "cast", "show", "tables", "if",
-        "position", "using"];
     }
 
     private _setup(id: string): void {
@@ -234,9 +421,13 @@ class SQLEditor {
 
         self._keywordsToRemove.forEach(function(key) {
             delete CodeMirror.resolveMode("text/x-sql").keywords[key];
-        })
+        });
 
-        self._keywordsToAdd.forEach(function(key) {
+        self._extraSyntaxKeywords.forEach(function(key) {
+            CodeMirror.resolveMode("text/x-sql").keywords[key] = true;
+        });
+
+        self._extraFunctionKeywords.forEach(function(key) {
             CodeMirror.resolveMode("text/x-sql").keywords[key] = true;
         });
     }
