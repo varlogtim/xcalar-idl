@@ -585,6 +585,29 @@ class DagNodeSQL extends DagNode {
         return outPortIdx;
     }
 
+    /**
+     * @override
+     * @param parentNode
+     * @param pos
+     */
+    public connectToParent(
+        parentNode: DagNode,
+        pos: number = 0,
+        spliceIn?: boolean
+    ): void {
+        super.connectToParent(parentNode, pos, spliceIn);
+        let identifiers = this.getIdentifiers();
+        if (identifiers.has(pos + 1)) return;
+        if (parentNode instanceof DagNodeIMDTable) {
+            identifiers.set(pos + 1, parentNode.getParam().source);
+        } else if (parentNode instanceof DagNodeDataset) {
+            identifiers.set(pos + 1, xcHelper.parseDSName(parentNode.getParam().source).dsName);
+        } else {
+            return;
+        }
+        this.setIdentifiers(identifiers);
+    }
+
     public disconnectFromParent(parentNode: DagNode, pos: number): boolean {
         const wasSpliced = super.disconnectFromParent(parentNode, pos);
         // when removing connection to a parent, also remove sql identifier
