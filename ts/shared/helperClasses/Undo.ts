@@ -133,37 +133,43 @@ namespace Undo {
         if (dagGraph != null) {
             dagGraph.turnOnBulkStateSwitch();
         }
-        dagTab.turnOffSave();
-        let tasks: XDPromise<void> = PromiseHelper.resolve();
-        if (options.actions != null) {
-            for (let i = options.actions.length - 1; i >= 0; i --) {
-                const action: {operation: string} = options.actions[i];
-                const operation: string = action.operation;
-                if (operation == null || !undoFuncs.hasOwnProperty(operation)) {
-                    console.error(`Undo function for ${operation} not supported`);
-                    continue;
+        try {
+            dagTab.turnOffSave();
+            let tasks: XDPromise<void> = PromiseHelper.resolve();
+            if (options.actions != null) {
+                for (let i = options.actions.length - 1; i >= 0; i --) {
+                    const action: {operation: string} = options.actions[i];
+                    const operation: string = action.operation;
+                    if (operation == null || !undoFuncs.hasOwnProperty(operation)) {
+                        console.error(`Undo function for ${operation} not supported`);
+                        continue;
+                    }
+                    const undoFunc: Function = undoFuncs[operation];
+                    tasks = tasks.then(() => undoFunc(action));
                 }
-                const undoFunc: Function = undoFuncs[operation];
-                tasks = tasks.then(() => undoFunc(action));
             }
+            tasks = tasks.then(() => {
+                dagTab.turnOnSave();
+                return dagTab.save();
+            })
+            .then(() => {
+                if (dagGraph != null) {
+                    dagGraph.turnOffBulkStateSwitch();
+                }
+            })
+            .fail((err) => {
+                if (dagGraph != null) {
+                    dagGraph.turnOffBulkStateSwitch();
+                }
+                dagTab.turnOnSave();
+                return PromiseHelper.reject(err);
+            });
+            return tasks;
+        } catch (e) {
+            console.error(e);
+            dagTab.turnOnSave();
+            return PromiseHelper.reject(e);
         }
-        tasks = tasks.then(() => {
-            dagTab.turnOnSave();
-            return dagTab.save();
-        })
-        .then(() => {
-            if (dagGraph != null) {
-                dagGraph.turnOffBulkStateSwitch();
-            }
-        })
-        .fail((err) => {
-            if (dagGraph != null) {
-                dagGraph.turnOffBulkStateSwitch();
-            }
-            dagTab.turnOnSave();
-            return PromiseHelper.reject(err);
-        });
-        return tasks;
     }
     /* USER STYLING/FORMATING OPERATIONS */
 
