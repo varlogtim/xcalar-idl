@@ -75,18 +75,9 @@ class ModalHelper {
      * afterResize: funciton called after modal resizing
      */
     public constructor($modal: JQuery, options?: ModalHelperOptions) {
-        options = options || {};
         this.$modal = $modal;
-        this.options = options;
         this.id = $modal.attr("id");
-        this.defaultWidth = options.defaultWidth || $modal.width();
-        this.defaultHeight = options.defaultHeight || $modal.height();
-        this.minWidth = options.minWidth ||
-                        parseFloat($modal.css("min-width")) ||
-                        this.defaultWidth;
-        this.minHeight = options.minHeight ||
-                         parseFloat($modal.css("min-height")) ||
-                         this.defaultHeight;
+        this.reset(options);
         this.__init();
     }
 
@@ -319,6 +310,20 @@ class ModalHelper {
         }
 
         return deferred.promise();
+    }
+
+    public reset(options?: ModalHelperOptions): void {
+        let $modal = this.$modal;
+        options = options || {};
+        this.options = options;
+        this.defaultWidth = options.defaultWidth || $modal.width();
+        this.defaultHeight = options.defaultHeight || $modal.height();
+        this.minWidth = options.minWidth ||
+                        parseFloat($modal.css("min-width")) ||
+                        this.defaultWidth;
+        this.minHeight = options.minHeight ||
+                         parseFloat($modal.css("min-height")) ||
+                         this.defaultHeight;
     }
 
     // resize modal back to it's default width and height

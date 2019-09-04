@@ -1,4 +1,4 @@
-describe("S3ConfigModal Test", function() {
+describe("ConnectorConfigModal Test", function() {
     let oldList;
     let oldRender;
     let oldCreate;
@@ -7,36 +7,37 @@ describe("S3ConfigModal Test", function() {
 
     before(function() {
         oldList = DSTargetManager.getTargetTypeList;
-        oldRender = DSTargetManager.renderS3Config;
-        oldCreate = DSTargetManager.createS3Target;
+        oldRender = DSTargetManager.renderConnectorConfig;
+        oldCreate = DSTargetManager.createConnector;
         DSTargetManager.getTargetTypeList = () => PromiseHelper.resolve();
-        DSTargetManager.renderS3Config = () => "test";
+        DSTargetManager.renderConnectorConfig = () => "test";
 
         test = undefined;
-        $modal = S3ConfigModal.Instance._getModal();
+        $modal = ConnectorConfigModal.Instance._getModal();
     });
 
     it("should show modal", function() {
-        S3ConfigModal.Instance.show((targetName) => {
-            test = targetName
+        ConnectorConfigModal.Instance.show("test", "test", (connector) => {
+            test = connector
         });
         expect($modal.is(":visible")).to.be.true;
         expect($modal.find(".formContent").text()).to.equal("test");
     });
 
     it("submit should handle error", function(done) {
-        DSTargetManager.createS3Target = () => PromiseHelper.reject({log: "test"});
+        DSTargetManager.createConnector = () => PromiseHelper.reject({log: "test"});
         let oldStatus = StatusBox.show;
         let called = false;
         StatusBox.show = () => called = true;
 
-        S3ConfigModal.Instance._submitForm()
+        ConnectorConfigModal.Instance._submitForm()
         .then(function() {
             done("fail");
         })
-        .fail(function() {
+        .fail(function(error) {
             expect(called).to.be.true;
             expect(test).to.equal(undefined);
+            expect(error).not.to.equal(undefined);
             done();
         })
         .always(function() {
@@ -45,8 +46,8 @@ describe("S3ConfigModal Test", function() {
     });
 
     it("submit should work", function(done) {
-        DSTargetManager.createS3Target = () => PromiseHelper.resolve("test");
-        S3ConfigModal.Instance._submitForm()
+        DSTargetManager.createConnector = () => PromiseHelper.resolve("test");
+        ConnectorConfigModal.Instance._submitForm()
         .then(function() {
             expect(test).to.equal("test");
             // modal should be closed
@@ -60,7 +61,7 @@ describe("S3ConfigModal Test", function() {
 
     after(function() {
         DSTargetManager.getTargetTypeList = oldList;
-        DSTargetManager.renderS3Config = oldRender;
-        DSTargetManager.createS3Target = oldCreate;
+        DSTargetManager.renderConnectorConfig = oldRender;
+        DSTargetManager.createConnector = oldCreate;
     });
 });

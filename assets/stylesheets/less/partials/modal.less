@@ -1440,13 +1440,18 @@
     }
 }
 
-#s3ConfigModal {
+#connectorConfigModal {
     width: 710px;
     height: 555px;
 
+    &.db {
+        height: 746px;
+    }
+
     .modalMain {
         height: ~"calc(100% - 123px)";
-        padding: 25px;
+        padding: 22px;
+        border-bottom: 1px solid @color-border-softGray;
     }
 
     .xc-loadView {

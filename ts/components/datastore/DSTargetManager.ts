@@ -12,10 +12,13 @@ namespace DSTargetManager {
     let udfFuncListItems: string;
     let udfModuleHint: InputDropdownHint;
     let udfFuncHint: InputDropdownHint;
-    const s3Target: string = "s3fullaccount";
     const xcalar_cloud_s3: string = "xcalar_cloud_s3";
     const cloudTargetBlackList: string[] = ["shared",
     "sharednothingsymm", "sharednothingsingle"]
+
+
+    export const S3Connector: string = "s3fullaccount";
+    export const DBConnector: string = "dsn";
 
     /**
      * DSTargetManager.setup
@@ -65,7 +68,7 @@ namespace DSTargetManager {
      */
     export function isDatabaseTarget(targetName: string): boolean {
         let target = DSTargetManager.getTarget(targetName);
-        if (target && target.type_id === "dsn") {
+        if (target && target.type_id === DBConnector) {
             return true;
         } else {
             return false;
@@ -240,25 +243,24 @@ namespace DSTargetManager {
     }
 
     /**
-     * DSTargetManager.getS3Targets
+     * DSTargetManager.getConnectors
      */
-    export function getS3Targets(): string[] {
-        let targets: string[] = [];
+    export function getConnectors(typeId: string): string[] {
+        let connectors: string[] = [];
         for (let name in targetSet) {
-            let target = targetSet[name];
-            if (target.type_id === s3Target) {
-                targets.push(name);
+            let connector = targetSet[name];
+            if (connector.type_id === typeId) {
+                connectors.push(name);
             }
         }
-        return targets;
+        return connectors;
     }
 
     /**
-     * DSTargetManager.renderS3Config
+     * DSTargetManager.renderConnectorConfig
      */
-    export function renderS3Config(): HTML {
+    export function renderConnectorConfig(typeId: string): HTML {
         let html = "";
-        const typeId: string = s3Target;
         try {
             let targetType = typeSet[typeId];
             return getTargetTypeParamOptions(targetType.parameters);
@@ -269,10 +271,11 @@ namespace DSTargetManager {
     }
 
     /**
-     * DSTargetManager.createS3Target
+     * DSTargetManager.createConnector
      * @param $form
      */
-    export function createS3Target(
+    export function createConnector(
+        typeId: string,
         $name: JQuery,
         $params: JQuery,
         $submitBtn: JQuery
@@ -290,7 +293,7 @@ namespace DSTargetManager {
         }
         let args = {
             targetName,
-            targetType: s3Target,
+            targetType: typeId,
             targetParams
         };
         let deferred: XDDeferred<string> = PromiseHelper.deferred();
@@ -323,7 +326,7 @@ namespace DSTargetManager {
         }
 
         let deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let targetType: string = s3Target;
+        let targetType: string = S3Connector;
         let targetName: string = xcalar_cloud_s3;
 
         CloudManager.Instance.getS3BucketInfoAsync()

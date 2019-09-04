@@ -29,16 +29,11 @@ namespace DSSource {
         });
 
         $card.find(".location.s3").click(() => {
-            DSS3Config.show();
+            DSS3Config.Instance.show();
         });
 
         $card.find(".location.database").click(() => {
-            // XXX TODO: implement it
-            Alert.show({
-                "title": "New Feature",
-                "msg": "This feature is coming soon",
-                "isAlert": true
-            });
+            DSDBConfig.Instance.show();
         });
 
         $card.find(".more").click(() => {

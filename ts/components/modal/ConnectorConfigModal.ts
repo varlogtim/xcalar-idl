@@ -1,25 +1,39 @@
-class S3ConfigModal {
-    private static _instance: S3ConfigModal;
+class ConnectorConfigModal {
+    private static _instance: ConnectorConfigModal;
     private _modalHelper: ModalHelper;
     private _callback: Function;
+    private _connector;
 
-    public static get Instance(): S3ConfigModal {
+    public static get Instance(): ConnectorConfigModal {
         return this._instance || (this._instance = new this());
     }
 
     private constructor() {
-        this._modalHelper = new ModalHelper(this._getModal(), {
-            sizeToDefault: true,
-        });
-
-       this._addEventListeners();
+        this._modalHelper = new ModalHelper(this._getModal());
+        this._addEventListeners();
     }
 
     /**
-     * S3ConfigModal.Instance.show
+     * ConnectorConfigModal.Instance.show
      */
-    public show(callback: Function): void {
+    public show(
+        title: string,
+        connector: string,
+        callback: Function
+    ): void {
+        this._connector = connector;
         let $modal = this._getModal();
+        if (connector === DSTargetManager.DBConnector) {
+            $modal.addClass("db");
+        } else {
+            $modal.removeClass("db");
+        }
+        $modal.css("height", "");
+        $modal.css("width", "");
+        $modal.find(".header .title .text").text(title);
+        this._modalHelper.reset({
+            sizeToDefault: true,
+        });
         this._modalHelper.setup();
         this._callback = callback;
 
@@ -38,7 +52,7 @@ class S3ConfigModal {
     }
 
     private _getModal(): JQuery {
-        return $("#s3ConfigModal");
+        return $("#connectorConfigModal");
     }
 
     private _getModalMain(): JQuery {
@@ -54,7 +68,7 @@ class S3ConfigModal {
     }
 
     private _render(): void {
-        let html = DSTargetManager.renderS3Config();
+        let html = DSTargetManager.renderConnectorConfig(this._connector);
         this._getParamsEl().html(html);
     }
 
@@ -72,7 +86,7 @@ class S3ConfigModal {
         let $name = this._getNameEl();
         let $params = this._getParamsEl();
         let $submitBtn = this._getModal().find(".modalBottom .confirm");
-        DSTargetManager.createS3Target($name, $params, $submitBtn)
+        DSTargetManager.createConnector(this._connector, $name, $params, $submitBtn)
         .then((targetName) => {
             if (typeof this._callback === "function") {
                 this._callback(targetName);

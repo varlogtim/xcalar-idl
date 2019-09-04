@@ -64,13 +64,24 @@ describe("DSSource Test", function() {
     });
 
     it("should show s3 config panel if click s3 part", function() {
-        let oldFunc = DSS3Config.show;
+        let oldFunc = DSS3Config.Instance.show;
         let called = false;
-        DSS3Config.show = () => called = true;
+        DSS3Config.Instance.show = () => called = true;
 
         $card.find(".location.s3").click();
         expect(called).to.be.true;
 
-        DSS3Config.show = oldFunc;
+        DSS3Config.Instance.show = oldFunc;
+    });
+
+    it("should show db config panel if click db part", function() {
+        let oldFunc = DSDBConfig.Instance.show;
+        let called = false;
+        DSDBConfig.Instance.show = () => called = true;
+
+        $card.find(".location.database").click();
+        expect(called).to.be.true;
+
+        DSDBConfig.Instance.show = oldFunc;
     });
 });

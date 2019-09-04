@@ -50,8 +50,8 @@ describe("Datastore-DSTargetManger Test", function() {
             expect(res).to.be.false;
         });
 
-        it("DSTargetManager.getS3Targets should work", function() {
-            let res = DSTargetManager.getS3Targets();
+        it("DSTargetManager.getConnectors should work", function() {
+            let res = DSTargetManager.getConnectors("test");
             expect(res).to.be.an("array");
         });
 
@@ -69,8 +69,9 @@ describe("Datastore-DSTargetManger Test", function() {
             });
         });
 
-        it("DSTargetManager.renderS3Config should work", function() {
-            let html = DSTargetManager.renderS3Config();
+        it("DSTargetManager.typeId should work", function() {
+            let id = DSTargetManager.S3Connector;
+            let html = DSTargetManager.renderConnectorConfig(id);
             // has 5 formRow
             expect(html.split("formRow").length).to.equal(6);
         });
@@ -90,7 +91,7 @@ describe("Datastore-DSTargetManger Test", function() {
 
         it("should fail with invalid name", function(done) {
             let $name = $('<input value="">');
-            DSTargetManager.createS3Target($name, $(), $())
+            DSTargetManager.createConnector("test", $name, $(), $())
             .then(function() {
                 done("fail");
             })
@@ -110,7 +111,7 @@ describe("Datastore-DSTargetManger Test", function() {
                             '</div>');
             $("#container").append($params);
 
-            DSTargetManager.createS3Target($name, $params, $())
+            DSTargetManager.createConnector("test", $name, $params, $())
             .then(function() {
                 done("fail");
             })
@@ -141,7 +142,7 @@ describe("Datastore-DSTargetManger Test", function() {
             };
             DSTargetManager.refreshTargets = () => PromiseHelper.resolve();
 
-            DSTargetManager.createS3Target($name, $params, $())
+            DSTargetManager.createConnector("test", $name, $params, $())
             .then(function(targetName) {
                 expect(called).to.be.true;
                 expect(targetName).to.equal(name);
