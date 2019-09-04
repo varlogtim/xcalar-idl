@@ -45,13 +45,13 @@ class SQLOpPanelModel extends BaseOpPanelModel {
     /**
      * Submit the settings of Set op node params
      */
-    public submit(): void {
+    public submit(noAutoExecute?: boolean): void {
         const param = this._getParam();
         this._dagNode.setXcQueryString(this._xcQueryString);
         this._dagNode.setIdentifiers(this._identifiers);
         this._dagNode.setTableSrcMap(this._tableSrcMap);
         this._dagNode.setNewTableName(this._newTableName);
-        this._dagNode.setParam(param);
+        this._dagNode.setParam(param, noAutoExecute);
     }
 
 

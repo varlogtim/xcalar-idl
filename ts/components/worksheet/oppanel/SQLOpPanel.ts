@@ -396,7 +396,7 @@ class SQLOpPanel extends BaseOpPanel {
             })
             .fail(function(err) {
                 self._dataModel.setDataModel(sql, "", [], "", identifiers, {}, dropAsYouGo);
-                self._dataModel.submit();
+                self._dataModel.submit(true);
                 deferred.reject(err);
             })
             .always(function() {
