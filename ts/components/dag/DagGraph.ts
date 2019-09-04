@@ -565,7 +565,7 @@ class DagGraph extends Durable {
         childPos: number,
         allowCyclic?: boolean
     ): boolean {
-        let canConnect: boolean = this.connect(parentNodeId, childNodeId, childPos, allowCyclic, false);
+        let canConnect: boolean = this.connect(parentNodeId, childNodeId, childPos, allowCyclic, false, false, false);
         if (canConnect) {
             this.disconnect(parentNodeId, childNodeId, childPos, false);
         }
@@ -585,7 +585,8 @@ class DagGraph extends Durable {
         childPos: number = 0,
         allowCyclic: boolean = false,
         switchState: boolean = true,
-        spliceIn: boolean = false
+        spliceIn: boolean = false,
+        updateConfig: boolean = true // control whether SQL node connection should setParam
     ): boolean {
         let connectedToParent = false;
         let parentNode: DagNode;
@@ -593,13 +594,21 @@ class DagGraph extends Durable {
         try {
             parentNode = this._getNodeFromId(parentNodeId);
             childNode = this._getNodeFromId(childNodeId);
-            childNode.connectToParent(parentNode, childPos, spliceIn);
+            if (childNode instanceof DagNodeSQL) {
+                childNode.connectToParent(parentNode, childPos, spliceIn, updateConfig);
+            } else {
+                childNode.connectToParent(parentNode, childPos, spliceIn);
+            }
             connectedToParent = true;
             parentNode.connectToChild(childNode);
 
             if (!allowCyclic && this._isCyclic(parentNode)) {
                 parentNode.disconnectFromChild(childNode);
-                childNode.disconnectFromParent(parentNode, childPos);
+                if (childNode instanceof DagNodeSQL) {
+                    childNode.disconnectFromParent(parentNode, childPos, updateConfig);
+                } else {
+                    childNode.disconnectFromParent(parentNode, childPos);
+                }
                 connectedToParent = false;
                 throw new Error(DagTStr.CycleConnection);
             }

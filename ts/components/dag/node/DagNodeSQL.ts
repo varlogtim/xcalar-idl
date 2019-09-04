@@ -593,9 +593,11 @@ class DagNodeSQL extends DagNode {
     public connectToParent(
         parentNode: DagNode,
         pos: number = 0,
-        spliceIn?: boolean
+        spliceIn: boolean = false,
+        updateConfig: boolean = true
     ): void {
         super.connectToParent(parentNode, pos, spliceIn);
+        if (!updateConfig) return;
         let identifiers = this.getIdentifiers();
         if (identifiers.has(pos + 1)) return;
         if (parentNode instanceof DagNodeIMDTable) {
@@ -608,33 +610,25 @@ class DagNodeSQL extends DagNode {
         this.setIdentifiers(identifiers);
     }
 
-    public disconnectFromParent(parentNode: DagNode, pos: number): boolean {
+    public disconnectFromParent(
+        parentNode: DagNode,
+        pos: number,
+        updateConfig: boolean = true
+    ): boolean {
         const wasSpliced = super.disconnectFromParent(parentNode, pos);
+        if (!updateConfig) return wasSpliced;
         // when removing connection to a parent, also remove sql identifier
-        let sqlParams: DagNodeSQLInputStruct = this.getParam();
-        let index = sqlParams.identifiersOrder.indexOf(pos + 1);
-        if (index > -1) {
-            sqlParams.identifiersOrder.splice(index, 1);
-            delete sqlParams.identifiers[pos + 1];
+        let index = pos + 1;
+        let identifiers = this.getIdentifiers();
+        if (identifiers.has(index)) {
             // decrement other identifiers
-            const newRawIdentifiers = {};
-            sqlParams.identifiersOrder.forEach((idx, i) => {
-                if (idx > pos) {
-                    sqlParams.identifiersOrder[i] = idx - 1;
-                    newRawIdentifiers[idx - 1] = sqlParams.identifiers[idx];
-                } else {
-                    newRawIdentifiers[idx] = sqlParams.identifiers[idx];
-                }
-            });
-            sqlParams.identifiers = newRawIdentifiers;
-            // reset this.identifiers
-            const identifiers = new Map<number, string>();
-            sqlParams.identifiersOrder.forEach((idx) => {
-                identifiers.set(idx, sqlParams.identifiers[idx]);
-            });
-
-            this.identifiers = identifiers;
-            this.setParam(sqlParams, true);
+            while (identifiers.has(index + 1)) {
+                identifiers.set(index, identifiers.get(index + 1));
+                index += 1;
+            }
+            identifiers.delete(index);
+            // reset this.identifiers and setParams
+            this.setIdentifiers(identifiers);
         }
         return wasSpliced;
     }
