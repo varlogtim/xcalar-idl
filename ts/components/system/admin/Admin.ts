@@ -164,7 +164,7 @@ namespace Admin {
      * @param users
      */
     export function updateLoggedInUsers(users: object): void {
-        if (!Admin.isAdmin()) {
+        if (!Admin.isAdmin() || XVM.isCloud()) {
             return;
         }
         loggedInUsers = users;

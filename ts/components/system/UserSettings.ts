@@ -216,7 +216,7 @@ namespace UserSettings {
     export function revertDefault(): void {
         let newPrefs: UserPref = new UserPref();
         userPrefs.general = newPrefs.general;
-        if (Admin.isAdmin()) {
+        if (Admin.isAdmin() && !XVM.isCloud()) {
             genSettings = new GenSettings();
         }
         restoreSettingsPanel();
@@ -226,7 +226,7 @@ namespace UserSettings {
     function setup(): void {
         userPrefs = new UserPref();
         addEventListeners();
-        if (!Admin.isAdmin()) { // remove admin only settings
+        if (!Admin.isAdmin() || XVM.isCloud()) { // remove admin only settings
             $("#monitorGenSettingsCard .optionSet.admin").remove();
         }
     }
