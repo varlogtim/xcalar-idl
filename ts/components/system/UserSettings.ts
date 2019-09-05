@@ -226,7 +226,9 @@ namespace UserSettings {
     function setup(): void {
         userPrefs = new UserPref();
         addEventListeners();
-        if (!Admin.isAdmin() || XVM.isCloud()) { // remove admin only settings
+        if (XVM.isCloud()) {
+            $("#monitorGenSettingsCard .optionSet.noCloud").remove();
+        } else if (!Admin.isAdmin()) { // remove admin only settings
             $("#monitorGenSettingsCard .optionSet.admin").remove();
         }
     }
