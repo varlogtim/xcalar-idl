@@ -1597,7 +1597,7 @@ module.exports = function(grunt) {
         cachebreaker: {
             build: {
                 options: {
-                    match: ['.*.js', '\\.css'],
+                    match: ['\\.js', '\\.css'],
                     replacement: function() {
                         var time = new Date().getTime();
                         var encoded = Buffer.from(time + "").toString('base64');
@@ -4600,7 +4600,7 @@ module.exports = function(grunt) {
 
     grunt.task.registerTask("test", function() {
         grunt.log.writeln("\nFeel free to use this task for testing purpose\n");
-        // grunt.task.run("cachebreaker:build");
+        grunt.task.run("cachebreaker:build");
     });
 
     function touch_epoch_npm_modules() {
