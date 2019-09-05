@@ -15,6 +15,7 @@ describe("SQLOpPanelModel Test", function() {
             "testQuery",
             new Map(),
             {},
+            {},
             true
         );
 

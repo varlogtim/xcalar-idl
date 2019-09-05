@@ -7,6 +7,7 @@ class DagNodeSQL extends DagNode {
     protected rawXcQueryString: string; // partially optimized query (curretnly
                                         // without pushToSelect)
     protected identifiers: Map<number, string>; // 1 to 1 mapping
+    protected identifiersNameMap: {}; // key is dagId, value is identifier name
     protected tableSrcMap: {};
     protected subGraph: DagSubGraph;
     protected SQLName: string;
@@ -45,6 +46,7 @@ class DagNodeSQL extends DagNode {
             });
         }
         this.identifiers = identifiers;
+        this.identifiersNameMap = options.identifiersNameMap || {};
         // Subgraph info won't be serialized
         this.subInputNodes = [];
         this.subOutputNodes = [];
@@ -273,8 +275,11 @@ class DagNodeSQL extends DagNode {
         super.getIdentifiers();
         return this.identifiers;
     }
-    public setIdentifiers(identifiers: Map<number, string>): void {
-        if (!identifiers) {
+    public setIdentifiers(
+        identifiers: Map<number, string>,
+        cleanUp?: boolean
+    ): void {
+        if (!identifiers && !cleanUp) {
             return;
         }
         super.setIdentifiers(identifiers);
@@ -302,6 +307,12 @@ class DagNodeSQL extends DagNode {
             sqlParams.identifiersOrder = identifiersOrder;
             this.setParam(sqlParams, true);
         }
+    }
+    public getIdentifiersNameMap(): {} {
+        return this.identifiersNameMap;
+    }
+    public setIdentifiersNameMap(identifiersNameMap: {}) {
+        this.identifiersNameMap = identifiersNameMap;
     }
     public getTableSrcMap(): {} {
         return this.tableSrcMap;
@@ -436,6 +447,7 @@ class DagNodeSQL extends DagNode {
         const nodeInfo = super._getSerializeInfo(includeStats) as DagNodeSQLInfo;
         nodeInfo.tableSrcMap = this.tableSrcMap;
         nodeInfo.columns = this.columns;
+        nodeInfo.identifiersNameMap = this.identifiersNameMap;
         if (!forCopy && this.subGraphNodeIds) {
             nodeInfo.subGraphNodeIds = this.subGraphNodeIds;
         }
@@ -598,16 +610,51 @@ class DagNodeSQL extends DagNode {
     ): void {
         super.connectToParent(parentNode, pos, spliceIn);
         if (!updateConfig) return;
-        let identifiers = this.getIdentifiers();
-        if (identifiers.has(pos + 1)) return;
+        let index = pos + 1;
+        let identifiers;
+        let identifiersNameMap;
+        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
+            identifiers = SQLOpPanel.Instance.extractIdentifiers(true).identifiers;
+        } else {
+            identifiers = this.getIdentifiers();
+        }
+        identifiersNameMap = this.getIdentifiersNameMap();
+        let identifier = "";
+        const parentNodeId = parentNode.getId();
         if (parentNode instanceof DagNodeIMDTable) {
-            identifiers.set(pos + 1, parentNode.getParam().source);
+            identifier = parentNode.getParam().source;
         } else if (parentNode instanceof DagNodeDataset) {
-            identifiers.set(pos + 1, xcHelper.parseDSName(parentNode.getParam().source).dsName);
+            identifier = xcHelper.parseDSName(parentNode.getParam().source).dsName;
+        } else if (parentNode instanceof DagNodeDFIn) {
+            identifier = parentNode.getParam().linkOutName;
+        }
+        if (identifiersNameMap[parentNodeId]) {
+            identifier = identifiersNameMap[parentNodeId];
+        } else {
+            identifiersNameMap[parentNodeId] = identifier;
+        }
+        if (!identifiers.has(index)) {
+            // new connection, auto-fill the identifiers
+            identifiers.set(index, identifier);
+        } else if (spliceIn) {
+            // inserting identifier (e.g. undo disconnection)
+            while (identifiers.has(index)) {
+                let prevIdentifier = identifiers.get(index);
+                identifiers.set(index, identifier);
+                identifier = prevIdentifier;
+                index += 1;
+            }
+            identifiers.set(index, identifier);
         } else {
             return;
         }
+        // reset this.identifiers and setParams
         this.setIdentifiers(identifiers);
+        this.setIdentifiersNameMap(identifiersNameMap);
+        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
+            // update panel if it's open
+            SQLOpPanel.Instance.updateIdentifiers(identifiers);
+        }
     }
 
     public disconnectFromParent(
@@ -619,7 +666,12 @@ class DagNodeSQL extends DagNode {
         if (!updateConfig) return wasSpliced;
         // when removing connection to a parent, also remove sql identifier
         let index = pos + 1;
-        let identifiers = this.getIdentifiers();
+        let identifiers;
+        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
+            identifiers = SQLOpPanel.Instance.extractIdentifiers(true).identifiers;
+        } else {
+            identifiers = this.getIdentifiers();
+        }
         if (identifiers.has(index)) {
             // decrement other identifiers
             while (identifiers.has(index + 1)) {
@@ -629,6 +681,10 @@ class DagNodeSQL extends DagNode {
             identifiers.delete(index);
             // reset this.identifiers and setParams
             this.setIdentifiers(identifiers);
+        }
+        if (typeof SQLOpPanel !== "undefined" && SQLOpPanel.Instance.isOpen()) {
+            // update panel if it's open
+            SQLOpPanel.Instance.updateIdentifiers(identifiers);
         }
         return wasSpliced;
     }
@@ -960,7 +1016,8 @@ class DagNodeSQL extends DagNode {
         const sqlFuncSchemas = [];
         const visitedMap = {};
         identifiers.forEach(function(value, key) {
-            if (usedTables && usedTables.indexOf(value.toUpperCase()) === -1) {
+            if (!value || (usedTables &&
+                           usedTables.indexOf(value.toUpperCase()) === -1)) {
                 return;
             }
             const innerDeferred = PromiseHelper.deferred();

@@ -67,7 +67,6 @@ describe("SQLOpPanel Test", function() {
             $('#sqlOpPanel .close').click();
             $('#formWaitingBG').remove();
             expect($('#sqlOpPanel').hasClass("xc-hidden")).to.be.true;
-
         });
     });
 
@@ -79,11 +78,9 @@ describe("SQLOpPanel Test", function() {
         });
 
         describe("initial state", function() {
-            it("should have 1 blank table identifier", function() {
-                expect($sqlOpPanel.find("#sqlIdentifiers li").length).to.equal(1);
-                expect($sqlOpPanel.find("#sqlIdentifiers").find("input").length).to.equal(1);
-                expect($sqlOpPanel.find("#sqlIdentifiers").find("input").val()).to.equal("");
-
+            it("should have 0 identifier", function() {
+                expect($sqlOpPanel.find("#sqlIdentifiers li").length).to.equal(0);
+                expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.true;
             });
             it("drop as you go should be checked", function() {
                 expect($sqlOpPanel.find(".dropAsYouGo .checkbox.checked").length).to.equal(1);
@@ -94,49 +91,15 @@ describe("SQLOpPanel Test", function() {
         });
 
         describe("table mapping", function() {
-            it("should add identifier", function() {
-                expect($sqlOpPanel.find("#sqlIdentifiers").find("input").length).to.equal(1);
-                $sqlOpPanel.find(".addIdentifier").click();
-                expect($sqlOpPanel.find("#sqlIdentifiers").find("input").length).to.equal(2);
-            });
-
-            it("should delete identifier", function() {
-                expect($sqlOpPanel.find("#sqlIdentifiers").find("input").length).to.equal(2);
-                $sqlOpPanel.find("#sqlIdentifiers").find("input").eq(1).val("test").change();
-                $sqlOpPanel.find("#sqlIdentifiers .xi-trash").eq(0).click();
-                expect($sqlOpPanel.find("#sqlIdentifiers").find("input").length).to.equal(1);
-                expect($sqlOpPanel.find("#sqlIdentifiers").find("input").eq(0).val()).to.equal("test");
-            });
-
-            it("input num should work", function() {
-                expect($("#sqlIdentifiers").find(".list").is(":visible")).to.be.false;
-                $("#sqlIdentifiers").find(".dropdown").click();
-                $("#sqlIdentifiers").find(".source").mouseup();
-                expect($("#sqlIdentifiers").find(".list").is(":visible")).to.be.true;
-                expect($("#sqlIdentifiers").find(".list li").length).to.equal(1);
-                expect($("#sqlIdentifiers").find(".list li").text()).to.equal("1");
-            });
-
-            it("multiple parents should have multiple sql identifiers", function() {
-                sqlOpPanel.close();
-
-                // have 2 parents
-                const parentNode = new DagNodeSQL({});
-                node.getParents = function() {
-                    return [parentNode, parentNode];
-                };
-
-                sqlOpPanel.show(node, openOptions);
-                $('#formWaitingBG').remove();
-
-
-                expect($("#sqlIdentifiers").find(".list").is(":visible")).to.be.false;
-                $("#sqlIdentifiers").find(".dropdown").click();
-                $("#sqlIdentifiers").find(".source").mouseup();
-                expect($("#sqlIdentifiers").find(".list").is(":visible")).to.be.true;
-                expect($("#sqlIdentifiers").find(".list li").length).to.equal(2);
-                expect($("#sqlIdentifiers").find(".list li").eq(0).text()).to.equal("1");
-                expect($("#sqlIdentifiers").find(".list li").eq(1).text()).to.equal("2");
+            it("shoud have identifiers after connection changes", function() {
+                node.connectToParent(parentNode, 0);
+                expect($sqlOpPanel.find("#sqlIdentifiers li").length).to.equal(1);
+                expect($("#sqlIdentifiers").find("li .source").text().trim()).to.equal("1");
+                expect($("#sqlIdentifiers").find("li .dest").text().trim()).to.equal("");
+                expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.false;
+                node.disconnectFromParent(parentNode, 0);
+                expect($sqlOpPanel.find("#sqlIdentifiers li").length).to.equal(0);
+                expect($sqlOpPanel.find(".tableInstruction").is(":visible")).to.be.true;
             });
         });
 
@@ -153,9 +116,7 @@ describe("SQLOpPanel Test", function() {
 
     describe("submit", function() {
         it("should submit", function(done) {
-            $("#sqlIdentifiers").find(".dropdown").click();
-            $("#sqlIdentifiers").find(".source").mouseup();
-            $("#sqlIdentifiers").find(".list li").trigger(fakeEvent.mouseup);
+            node.connectToParent(parentNode, 0);
             $("#sqlIdentifiers").find(".dest").val("test").trigger("change");
             sqlEditor.setValue("Select * FROM test");
             let called = false;

@@ -567,7 +567,7 @@ class DagGraph extends Durable {
     ): boolean {
         let canConnect: boolean = this.connect(parentNodeId, childNodeId, childPos, allowCyclic, false, false, false);
         if (canConnect) {
-            this.disconnect(parentNodeId, childNodeId, childPos, false);
+            this.disconnect(parentNodeId, childNodeId, childPos, false, false);
         }
 
         return canConnect;
@@ -658,11 +658,17 @@ class DagGraph extends Durable {
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
         toPos: number = 0,
-        switchState: boolean = true
+        switchState: boolean = true,
+        updateConfig: boolean = true
     ): boolean {
         const parentNode: DagNode = this._getNodeFromId(parentNodeId);
         const childNode: DagNode = this._getNodeFromId(childNodeId);
-        const wasSpliced = childNode.disconnectFromParent(parentNode, toPos);
+        let wasSpliced;
+        if (childNode instanceof DagNodeSQL) {
+            wasSpliced = childNode.disconnectFromParent(parentNode, toPos, updateConfig);
+        } else {
+            wasSpliced = childNode.disconnectFromParent(parentNode, toPos);
+        }
         parentNode.disconnectFromChild(childNode);
         if (switchState) {
             const descendentSets = this._traverseSwitchState(childNode);

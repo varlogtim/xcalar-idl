@@ -530,7 +530,7 @@ SQLErrTStr = {
     "InvalidOuterType": "Invalid outer join type: ",
     "InvalidSourceId": "Identifier key must be an integer and can't be greater than the number of its parents: ",
     "InvalidParams": "Invalid input. Please doulbe check.",
-    "InvalidIdentifier": "Invalid table identifier",
+    "InvalidIdentifier": "Invalid table identifier (only [a-zA-Z0-9_] are allowed)",
     "InvalidIdentifierMapping": "Table source and identifiers should be one-to-one mapping with no duplicate",
     "SourceUsed": "The source is already used for table identifier: ",
     "EmptySQL": "Please input your SQL query in the snippet",

@@ -59,10 +59,11 @@ describe("SQL Dag Node Test", () => {
             expect(res).to.deep.equal({
                 "version": 1,
                 "type": "sql",
-                columns: undefined,
-                error: undefined,
-                table: undefined,
-                tableSrcMap: undefined,
+                "columns": undefined,
+                "error": undefined,
+                "table": undefined,
+                "tableSrcMap": undefined,
+                "identifiersNameMap": {},
                 "subType": null,
                 "display": {
                     "x": -1,

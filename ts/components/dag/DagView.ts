@@ -1199,6 +1199,9 @@ class DagView {
                     if (newNode instanceof DagNodeAggregate) {
                         newAggNodes.push(newNode);
                     }
+                    if (newNode instanceof DagNodeSQL) {
+                        newNode.setIdentifiers(new Map<number, string>(), true);
+                    }
                     const newNodeId: DagNodeId = newNode.getId();
                     if (nodeInfo.nodeId) {
                         oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
