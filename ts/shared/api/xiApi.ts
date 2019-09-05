@@ -2933,6 +2933,9 @@ namespace XIApi {
             if (err.status == StatusT.StatusJsonQueryParseError) {
                 err.error = "Failed parsing query, table may not be configured correctly."
             }
+            if (tableToDelete != null) {
+                XIApi.deleteTable(txId, tableToDelete);
+            }
             deferred.reject(err);
         });
         return deferred.promise();
@@ -3051,7 +3054,12 @@ namespace XIApi {
             }
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            if (tableToDelete != null && tableToDelete != srcTableName) {
+                XIApi.deleteTable(txId, tableToDelete);
+            }
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
