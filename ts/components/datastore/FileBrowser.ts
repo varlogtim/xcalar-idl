@@ -268,7 +268,7 @@ namespace FileBrowser {
             isLoading: true
         };
 
-        allFiles = allFiles.filter((file) => file.name !== fileName);
+        filterFile(fileName);
         allFiles.push(file);
         renderFiles(path, true);
     }
@@ -769,6 +769,13 @@ namespace FileBrowser {
                 xcTooltip.remove($rawDataLi);
             }
 
+            let $deleteLi = $menu.find(".delete");
+            if ($fileBrowser.hasClass("cloud")) {
+                $deleteLi.show();
+            } else {
+                $deleteLi.hide();
+            }
+
             $menu.data("file", getGridUnitName($grid))
                 .data("index", Number($grid.data("index")));
 
@@ -808,6 +815,68 @@ namespace FileBrowser {
                 showFileInfo(curFiles[index]);
             }
         });
+
+        $menu.on("mouseup", ".delete", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            let index: number = $menu.data("index");
+            if (index != null
+            ) {
+                deleteFile(curFiles[index]);
+            }
+        });
+    }
+
+    function filterFile(fileName: string): void {
+        allFiles = allFiles.filter((file) => file.name !== fileName);
+    }
+
+    function deleteFile(file: XcFile): XDPromise<void> {
+        if (!$fileBrowser.hasClass("cloud") || file == null) {
+            return PromiseHelper.reject();
+        }
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let fileName: string = file.name;
+        Alert.show({
+            title: "Delete file",
+            msg: `Are you sure you want to delete file "${fileName}"?`,
+            onConfirm: () => {
+                deleteFileHelper(file);
+            },
+            onCancel: () => deferred.reject()
+        });
+
+        return deferred.promise();
+    }
+
+    function deleteFileHelper(file: XcFile): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let path: string = getCurrentPath();
+        let id: string = fileBrowserId;
+        let fileName: string = file.name;
+        file.isLoading = true;
+        renderFiles(path, true);
+
+        CloudManager.Instance.deleteS3File(fileName)
+        .then(() => {
+            filterFile(fileName);
+            deferred.resolve();
+        })
+        .fail((error) => {
+            file.isLoading = false;
+            if (id === fileBrowserId && path === getCurrentPath()) {
+                Alert.error(ErrTStr.Error, error);
+            }
+            deferred.reject(error);
+        })
+        .always(() => {
+            if (id === fileBrowserId && path === getCurrentPath()) {
+                renderFiles(path, true);
+            }
+        });
+        
+        return deferred.promise();
     }
 
     function copyFilePath(fileName: string): void {

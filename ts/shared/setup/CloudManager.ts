@@ -21,32 +21,16 @@ class CloudManager {
      */
     public getS3BucketInfoAsync(): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        let url = this._getRESTUrl("s3/describe");
-        fetch(url, {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "user_name": this._username
-            })
+        this._sendRequest("s3/describe", {})
+        .then((res: {access_key: string, secret_key: string, bucket_name: string}) => {
+            this._s3Info = {
+                access_key: res.access_key,
+                secret_access_key: res.secret_key,
+                bucket: res.bucket_name
+            };
+            deferred.resolve();
         })
-        .then(res => res.json())
-        .then((res: {status: number, access_key: string, secret_key: string, bucket_name: string}) => {
-            // XXX TODO: use a enum instead of 0
-            if (res.status === 0) {
-                this._s3Info = {
-                    access_key: res.access_key,
-                    secret_access_key: res.secret_key,
-                    bucket: res.bucket_name
-                };
-                deferred.resolve();
-            } else {
-                deferred.reject();
-            }
-        })
-        .catch((e) => deferred.reject(e));
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -87,8 +71,15 @@ class CloudManager {
         return deferred.promise();
     }
 
-    private _getRESTUrl(action: string): string {
-        return this._apiUrl + action;
+    /**
+     * CloudManager.Instance.deleteS3File
+     * delete a file from s3 bucket
+     * @param fileName
+     */
+    public deleteS3File(fileName: string): XDPromise<void> {
+        return this._sendRequest("s3/delete", {
+            "file_name": fileName
+        });
     }
 
     /**
@@ -147,18 +138,26 @@ class CloudManager {
 
     // XXX TODO: remove the fake api
     private _fakeUpload(fileName, fileContent) {
+        return this._sendRequest("s3/upload",{
+            "file_name": fileName,
+            "data": fileContent
+        });
+    }
+
+    private _sendRequest(action: string, payload: object): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        fetch('https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/s3/upload', {
+        const url: string = `${this._apiUrl}${action}`;
+        payload = {
+            "user_name": this._username,
+            ...payload
+        }
+        fetch(url, {
             method: 'POST',
             mode: 'cors',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                "user_name": "test@xcalar.com",
-                "file_name": fileName,
-                "data": fileContent
-            }),
+            body: JSON.stringify(payload),
         })
         .then(res => {
             if (res.status === httpStatus.OK) {
@@ -170,7 +169,7 @@ class CloudManager {
         .then((res: {status: number}) => {
             // XXX TODO: use a enum instead of 0
             if (res.status === 0) {
-                deferred.resolve();
+                deferred.resolve(res);
             } else {
                 deferred.reject();
             }
