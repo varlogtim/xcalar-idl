@@ -32,7 +32,7 @@ interface ReturnMsg {
 // Tail Xcalar.log
 export function tailLog(requireLineNum: number, filePath: string, fileName: string) {
     let deferredOut: any = jQuery.Deferred();
-    function checkLineNum(requireLineNumInput: any): Promise<ReturnMsg> {
+    function checkLineNum(requireLineNumInput: any): XDPromise<ReturnMsg> {
         let deferred: any = jQuery.Deferred();
         let requireLineNum: number = Number(requireLineNumInput);
         if (!isLogNumValid(requireLineNum)) {
@@ -51,7 +51,7 @@ export function tailLog(requireLineNum: number, filePath: string, fileName: stri
     .then(function() {
         return getPath(filePath, fileName);
     })
-    .then(function(ret: any): Promise<{fd: fs.PathLike, stat: fs.Stats}> {
+    .then(function(ret: any): XDPromise<{fd: fs.PathLike, stat: fs.Stats}> {
         const logPath: fs.PathLike = ret.logPath;
         const stat: fs.Stats= ret.stat;
         let deferred: any = jQuery.Deferred();
@@ -86,8 +86,8 @@ export function tailLog(requireLineNum: number, filePath: string, fileName: stri
         //  How many line end have been meet
         let lineEndNum: number = 0;
         let lines: string = '';
-        let readFromEnd: (buf: Buffer) => Promise<{lines: string, stat: fs.Stats}> =
-            function(buf: Buffer): Promise<{lines: string, stat: fs.Stats}> {
+        let readFromEnd: (buf: Buffer) => XDPromise<{lines: string, stat: fs.Stats}> =
+            function(buf: Buffer): XDPromise<{lines: string, stat: fs.Stats}> {
                 let startPosition: number;
                 let bufferReadLength: number;
                 // If the file is large, fill in the whole buf
@@ -100,7 +100,7 @@ export function tailLog(requireLineNum: number, filePath: string, fileName: stri
                     bufferReadLength = stat.size - lines.length;
                 }
                 fs.read(fd, buf, 0, bufferReadLength, startPosition,
-                    function(err: any, bytesRead: number, buffer: Buffer): void {
+                    function(err: any, _bytesRead: number, buffer: Buffer): void {
                         if (err) {
                             let retMsg: ReturnMsg = {
                                 "status": httpStatus.Forbidden,
@@ -159,7 +159,7 @@ export function tailLog(requireLineNum: number, filePath: string, fileName: stri
 
 // Tail -f
 export function monitorLog(lastMonitor: number, filePath: string,
-    fileName: string): Promise<ReturnMsg> {
+    fileName: string): XDPromise<ReturnMsg> {
     if (lastMonitor === -1) {
         return tailLog(10, filePath, fileName);
     } else {
@@ -169,10 +169,10 @@ export function monitorLog(lastMonitor: number, filePath: string,
 
 // Send delta Xcalar.log logs
 function sinceLastMonitorLog(lastMonitor: number, filePath: string,
-    fileName: string): Promise<any> {
+    fileName: string): XDPromise<any> {
     let deferredOut: any = jQuery.Deferred();
     getPath(filePath, fileName)
-    .then(function(ret: any): Promise<{fd: number, stat: fs.Stats}> {
+    .then(function(ret: any): XDPromise<{fd: number, stat: fs.Stats}> {
         const logPath: fs.PathLike = ret.logPath;
         const stat: fs.Stats = ret.stat;
         var deferred = jQuery.Deferred();
@@ -200,14 +200,14 @@ function sinceLastMonitorLog(lastMonitor: number, filePath: string,
         }
         return deferred.promise();
     })
-    .then(function(ret: any): Promise<{lines: string, stat: fs.Stats}> {
+    .then(function(ret: any): XDPromise<{lines: string, stat: fs.Stats}> {
         const fd: number = ret.fd;
         const stat: fs.Stats = ret.stat;
         let lines: string = '';
         let buf: Buffer = new Buffer(bufferSize);
         let deferred: any = jQuery.Deferred();
-        let readRecentLogs: () => Promise<{lines: string, stat: fs.Stats}> =
-            function(): Promise<{lines: string, stat: fs.Stats}> {
+        let readRecentLogs: () => XDPromise<{lines: string, stat: fs.Stats}> =
+            function(): XDPromise<{lines: string, stat: fs.Stats}> {
             fs.read(fd, buf, 0, bufferSize, lastMonitor,
                 function(err: any, bytesRead: number, buf: Buffer): void {
                     if (err) {
@@ -262,7 +262,7 @@ function isLogNumValid(num: any): boolean {
     }
 }
 
-function getFileName(fileName: string): Promise<string> {
+function getFileName(fileName: string): XDPromise<string> {
     let deferred: any = jQuery.Deferred();
     if (fileName === "node.*.out" || fileName === "node.*.err"
         || fileName === "node.*.log") {
@@ -291,10 +291,10 @@ function getFileName(fileName: string): Promise<string> {
     return deferred.promise();
 }
 
-function getPath(filePath: string, fileName: string): Promise<any> {
+function getPath(filePath: string, fileName: string): XDPromise<any> {
     let deferredOut: any = jQuery.Deferred();
     getFileName(fileName)
-    .then(function(realName): Promise<any> {
+    .then(function(realName): XDPromise<any> {
         let logPath: string = path.join(filePath, realName);
         xcConsole.log("Reading file stat: " + logPath);
         return readFileStat(logPath);
@@ -308,7 +308,7 @@ function getPath(filePath: string, fileName: string): Promise<any> {
     return deferredOut.promise();
 }
 
-function getNodeId(): Promise<any> {
+function getNodeId(): XDPromise<any> {
     let deferredOut: any = jQuery.Deferred();
     let defaultXcalarctl: string = process.env.XLRDIR ?
     process.env.XLRDIR + "/bin/xcalarctl" : "/opt/xcalar/bin/xcalarctl";
@@ -345,7 +345,7 @@ function getNodeId(): Promise<any> {
     return deferredOut.promise();
 }
 
-function readFileStat(currFile: fs.PathLike): Promise<{logPath: fs.PathLike, stat: fs.Stats}> {
+function readFileStat(currFile: fs.PathLike): XDPromise<{logPath: fs.PathLike, stat: fs.Stats}> {
     let deferred: any = jQuery.Deferred();
     fs.stat(currFile, function(err: any, stat: fs.Stats): void {
         let retMsg: ReturnMsg;
@@ -393,24 +393,24 @@ function getCurrentTime(): string {
 
 // Below part is only for unit test
 function fakeGetNodeId(): void {
-    getNodeId = function(): Promise<number> {
+    getNodeId = function(): XDPromise<number> {
         return jQuery.Deferred().resolve(0).promise();
     }
 }
 function fakeGetPath(): void {
-    getPath = function(filePath, fileName): Promise<any> {
+    getPath = function(_filePath, _fileName): XDPromise<any> {
         const logPath: string = "Invalid Path";
         const stat: any = {stat:"success"};
         return jQuery.Deferred().resolve({logPath, stat}).promise();
     }
 }
 function fakeTailLog(): void {
-    tailLog = function(): Promise<string> {
+    tailLog = function(): XDPromise<string> {
         return jQuery.Deferred().resolve("success").promise();
     }
 }
 function fakeSinceLastMonitorLog(): void {
-    sinceLastMonitorLog = function(): Promise<string> {
+    sinceLastMonitorLog = function(): XDPromise<string> {
         return jQuery.Deferred().resolve("success").promise();
     }
 }

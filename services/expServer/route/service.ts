@@ -7,7 +7,6 @@ import * as xcConsole from "../utils/expServerXcConsole";
 import { httpStatus } from "../../../assets/js/httpStatus";
 import * as fs from "fs";
 require("../utils/dag/dagUtils");
-import cloudManager from "../controllers/cloudManager";
 import UserActivityManager from "../controllers/userActivityManager";
 
 // Start of service calls
@@ -105,7 +104,7 @@ router.post("/service/bundle",
 
 // Slave request
 router.post("/service/start/slave",
-            [support.checkAuthAdmin], function(req, res) {
+            [support.checkAuthAdmin], function(_req, res) {
     xcConsole.log("Starting Xcalar as Slave");
     support.slaveExecuteAction("POST", "/service/start/slave")
     .always(function(message) {
@@ -114,7 +113,7 @@ router.post("/service/start/slave",
 });
 
 router.post("/service/stop/slave",
-            [support.checkAuthAdmin], function(req, res) {
+            [support.checkAuthAdmin], function(_req, res) {
     xcConsole.log("Stopping Xcalar as Slave");
     support.slaveExecuteAction("POST", "/service/stop/slave")
     .always(function(message) {
@@ -123,7 +122,7 @@ router.post("/service/stop/slave",
 });
 
 router.get("/service/status/slave",
-           [support.checkAuthAdmin], function(req, res) {
+           [support.checkAuthAdmin], function(_req, res) {
     xcConsole.log("Getting Xcalar status as Slave");
     support.slaveExecuteAction("GET", "/service/status/slave")
     .always(function(message) {
@@ -132,7 +131,7 @@ router.get("/service/status/slave",
 });
 
 router.post("/service/bundle/slave",
-            [support.checkAuth], function(req, res) {
+            [support.checkAuth], function(_req, res) {
     xcConsole.log("Generating Support Bundle as Slave")
     support.slaveExecuteAction("POST", "/service/bundle/slave")
     .always(function(message) {
@@ -154,7 +153,7 @@ router.delete("/service/sessionFiles",
 });
 
 router.delete("/service/SHMFiles",
-              [support.checkAuthAdmin], function(req, res) {
+              [support.checkAuthAdmin], function(_req, res) {
     xcConsole.log("Removing Files under folder SHM");
     support.removeSHM()
     .always(function(message) {
@@ -166,7 +165,7 @@ router.delete("/service/SHMFiles",
 });
 
 router.get("/service/license",
-           [support.checkAuth], function(req, res) {
+           [support.checkAuth], function(_req, res) {
     xcConsole.log("Get License");
     support.getLicense()
     .always(function(message) {
@@ -225,7 +224,7 @@ router.post("/service/upgradeQuery", function(req, res) {
 });
 
 router.get("/service/hotPatch",
-           [support.checkAuth], function(req, res) {
+           [support.checkAuth], function(_req, res) {
     xcConsole.log("Find Hot Patch");
     support.getHotPatch()
     .always(function(message) {
@@ -280,16 +279,16 @@ router.get("/service/logs/slave",
     });
 });
 
-router.get("/service/getTime", function(req, res) {
+router.get("/service/getTime", function(_req, res) {
     res.status(httpStatus.OK).send(JSON.stringify(Date.now()));
 });
 
-router.post("/service/updateUserActivity", [support.checkAuth], (req, res) => {
+router.post("/service/updateUserActivity", [support.checkAuth], (_req, res) => {
     UserActivityManager.updateUserActivity();
     res.status(httpStatus.OK).send();
 });
 
-router.post("/service/stopCloud", [support.checkAuth], (req, res) => {
+router.post("/service/stopCloud", [support.checkAuth], (_req, res) => {
     cloudManager.stopCluster()
     .then((data) => {
         res.status(httpStatus.OK).send(data);
@@ -299,7 +298,7 @@ router.post("/service/stopCloud", [support.checkAuth], (req, res) => {
     });
 });
 
-router.get("/service/getCredits", [support.checkAuth], (req, res) => {
+router.get("/service/getCredits", [support.checkAuth], (_req, res) => {
     const numCredits: number = cloudManager.getNumCredits();
     res.status(httpStatus.OK).send(JSON.stringify(numCredits));
 });

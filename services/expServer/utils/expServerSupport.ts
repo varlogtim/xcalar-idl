@@ -108,7 +108,7 @@ class ExpServerSupport {
 
     }
 
-    getMatchedHosts(query): Promise<MatchHostsMsg> {
+    getMatchedHosts(query): XDPromise<MatchHostsMsg> {
         let deferred = this.jQuery.Deferred();
         const hostFile: string = process.env.XCE_CONFIG ?
                     process.env.XCE_CONFIG : this._defaultHostsFile;
@@ -168,7 +168,7 @@ class ExpServerSupport {
 
     // Get all the Hosts from file
     readHostsFromFile(hostFile: string):
-        Promise<{hosts: string[], nodeIds:string[]}> {
+        XDPromise<{hosts: string[], nodeIds:string[]}> {
         let deferred = this.jQuery.Deferred();
         let hosts: string[] = [];
         let nodeIds: string[] = [];
@@ -198,10 +198,10 @@ class ExpServerSupport {
     }
 
     masterExecuteAction(action: string, slaveUrl: string, content,
-        sessionCookie: string, withGivenHost?): Promise<ReturnMsg> {
+        sessionCookie: string, withGivenHost?): XDPromise<ReturnMsg> {
         let deferredOut = this.jQuery.Deferred();
         const self: ExpServerSupport = this;
-        function readHosts(): Promise<string[]> {
+        function readHosts(): XDPromise<string[]> {
             let deferred = self.jQuery.Deferred();
             let retMsg: ReturnMsg;
             if (withGivenHost) {
@@ -304,7 +304,7 @@ class ExpServerSupport {
     }
 
     slaveExecuteAction(action: string, slaveUrl: string, content?):
-        Promise<ReturnMsg> {
+        XDPromise<ReturnMsg> {
         switch (slaveUrl) {
             case "/service/start/slave" :
                 return this.xcalarStart();
@@ -340,7 +340,7 @@ class ExpServerSupport {
     }
 
     private sendCommandToSlaves(action: string, slaveUrl: string, content,
-        hosts: string[], sessionCookie: string): Promise<StringObj> {
+        hosts: string[], sessionCookie: string): XDPromise<StringObj> {
         let deferredOut = this.jQuery.Deferred();
         let numDone: number = 0;
         let returns: StringObj = {};
@@ -475,7 +475,7 @@ class ExpServerSupport {
     }
 
     // Handle Xcalar Services
-    private xcalarStart(): Promise<ReturnMsg> {
+    private xcalarStart(): XDPromise<ReturnMsg> {
         xcConsole.log("Starting Xcalar");
         // only support root user
         // let command = 'service xcalar start';
@@ -483,7 +483,7 @@ class ExpServerSupport {
         return this.executeCommand(this._defaultStartCommand);
     }
 
-    private xcalarStop(): Promise<ReturnMsg> {
+    private xcalarStop(): XDPromise<ReturnMsg> {
         xcConsole.log("Stopping Xcalar");
         // only support root user
         // let command = 'service xcalar stop';
@@ -491,13 +491,13 @@ class ExpServerSupport {
         return this.executeCommand(this._defaultStopCommand);
     }
 
-    private getOperatingSystem(): Promise<ReturnMsg> {
+    private getOperatingSystem(): XDPromise<ReturnMsg> {
         xcConsole.log("Getting operating system");
         let command = "cat /etc/*release";
         return this.executeCommand(command);
     }
 
-    private xcalarStatus(): Promise<ReturnMsg> {
+    private xcalarStatus(): XDPromise<ReturnMsg> {
         xcConsole.log("Getting Xcalar Status");
         // only support root user
         // let command = 'service xcalar status';
@@ -505,12 +505,12 @@ class ExpServerSupport {
         return this.executeCommand(this._defaultStatusCommand);
     }
 
-    private generateSupportBundle(): Promise<ReturnMsg> {
+    private generateSupportBundle(): XDPromise<ReturnMsg> {
         xcConsole.log("Generating Support Bundle");
         return this.executeCommand(this._supportBundleCommand);
     }
     // Remove session files
-    removeSessionFiles(filePath: string): Promise<ReturnMsg> {
+    removeSessionFiles(filePath: string): XDPromise<ReturnMsg> {
         xcConsole.log("Remove Session Files");
         // '/var/opt/xcalar/sessions' without the final slash is also legal
         let deferredOut = this.jQuery.Deferred();
@@ -565,7 +565,7 @@ class ExpServerSupport {
         return deferredOut.promise();
     }
 
-    removeSHM(): Promise<ReturnMsg> {
+    removeSHM(): XDPromise<ReturnMsg> {
         xcConsole.log("Remove SHM");
         const command: string = 'rm /dev/shm/xcalar-*';
         return this.executeCommand(command);
@@ -589,7 +589,7 @@ class ExpServerSupport {
             completePath === basePath.substring(0, basePath.length - 1);
     }
 
-    private executeCommand(command: string): Promise<ReturnMsg> {
+    private executeCommand(command: string): XDPromise<ReturnMsg> {
         let deferred = this.jQuery.Deferred();
         let intervalID: NodeJS.Timeout;
         let out: cp.ChildProcess = cp.exec(command);
@@ -672,7 +672,7 @@ class ExpServerSupport {
     }
 
     // Other commands
-    getXlrRoot(filePath?: string): Promise<string> {
+    getXlrRoot(filePath?: string): XDPromise<string> {
         let cfgLocation: string =  process.env.XCE_CONFIG ?
             process.env.XCE_CONFIG : this._defaultHostsFile;
         if (filePath) {
@@ -704,7 +704,7 @@ class ExpServerSupport {
         return deferred.promise();
     }
 
-    getLicense(): Promise<ReturnMsg> {
+    getLicense(): XDPromise<ReturnMsg> {
         let deferredOut = this.jQuery.Deferred();
         let retMsg: ReturnMsg;
         this.getXlrRoot()
@@ -756,13 +756,7 @@ class ExpServerSupport {
         return deferredOut.promise();
     }
 
-    // Following function is from https://gist.github.com/tmazur/3965625
-    private isValidEmail(emailAddress): boolean {
-        const pattern: RegExp = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
-        return pattern.test(emailAddress);
-    }
-
-    submitTicket(contents): Promise<ReturnMsg> {
+    submitTicket(contents): XDPromise<ReturnMsg> {
         let deferredOut = this.jQuery.Deferred();
 
         this.jQuery.ajax({
@@ -788,7 +782,7 @@ class ExpServerSupport {
         return deferredOut.promise();
     }
 
-    getTickets(contents): Promise<ReturnMsg> {
+    getTickets(contents): XDPromise<ReturnMsg> {
         let deferred = this.jQuery.Deferred();
         // using POST unless we figure out how to configure GET request with AWS
         this.jQuery.ajax({
@@ -814,7 +808,7 @@ class ExpServerSupport {
         return deferred.promise();
     }
 
-    hasLogFile(filePath: string): Promise<boolean> {
+    hasLogFile(filePath: string): XDPromise<boolean> {
         let deferred = this.jQuery.Deferred();
         fs.access(filePath, (err) => {
             if (!err) {
@@ -841,7 +835,7 @@ class ExpServerSupport {
         return lastMonitorMap;
     }
 
-    private readInstallerLog(filePath?: string): Promise<ReturnMsg> {
+    private readInstallerLog(filePath?: string): XDPromise<ReturnMsg> {
         let deferred = this.jQuery.Deferred();
         let defaultPath: string = '/tmp/xcalar/cluster-install.log';
         if (filePath) {
@@ -864,7 +858,7 @@ class ExpServerSupport {
     }
 
     // Keep it incase the future admin Panel need to call it
-    setHotPatch(enableHotPatches: string): Promise<HotPatchMsg> {
+    setHotPatch(enableHotPatches: string): XDPromise<HotPatchMsg> {
         let deferred = this.jQuery.Deferred();
         this.getXlrRoot()
         .then((xlrRoot: string) => {
@@ -888,7 +882,7 @@ class ExpServerSupport {
         return deferred.promise();
     }
 
-    getHotPatch(): Promise<HotPatchMsg> {
+    getHotPatch(): XDPromise<HotPatchMsg> {
         let deferred = this.jQuery.Deferred();
         let message: HotPatchMsg = {"status": httpStatus.OK,
                                     "hotPatchEnabled": true };
@@ -963,15 +957,15 @@ class ExpServerSupport {
                 deferred.resolve();
             } else {
                 let readStream = fs.createReadStream(filePath);
-                readStream.on("error", (err) => {
+                readStream.on("error", () => {
                     copyDone(false, "Error reading from " + filePath);
                 });
 
                 let writeStream = fs.createWriteStream(copyPath);
-                writeStream.on("error", (err) => {
+                writeStream.on("error", () => {
                     copyDone(false, "Error writing to " + copyPath);
                 });
-                writeStream.on("close", (err) =>{
+                writeStream.on("close", () =>{
                     copyDone(true, "");
                 });
 
@@ -1057,7 +1051,7 @@ class ExpServerSupport {
         }
 
         if (modified) {
-            req.session.save((err) => {
+            req.session.save(() => {
                 res.status(message.status).send(message);
             });
         } else {

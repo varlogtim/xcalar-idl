@@ -284,11 +284,6 @@ describe('ExpServer Support Test', function() {
         });
     });
 
-    it('isValidEmail should work', function() {
-        expect(support.isValidEmail(testEmail)).to.equal(true);
-        expect(support.isValidEmail("invalidEmail")).to.equal(false);
-    });
-
     it('generateLastMonitorMap should work', function() {
         expect(support.generateLastMonitorMap(testResults)).to.not.be.empty;
     });
