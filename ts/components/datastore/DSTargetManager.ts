@@ -12,7 +12,7 @@ namespace DSTargetManager {
     let udfFuncListItems: string;
     let udfModuleHint: InputDropdownHint;
     let udfFuncHint: InputDropdownHint;
-    const xcalar_cloud_s3: string = "xcalar_cloud_s3";
+    const xcalar_cloud_s3: string = "xcalar_cloud_s3_env";
     const cloudTargetBlackList: string[] = ["shared",
     "sharednothingsymm", "sharednothingsingle"]
 
@@ -159,7 +159,7 @@ namespace DSTargetManager {
             targetList = res;
             cacheTargets(targetList);
             if (XVM.isCloud()) {
-                return PromiseHelper.alwaysResolve(createCloudTarget());
+                return PromiseHelper.alwaysResolve(createCloudS3Connector());
             }
         })
         .then(function() {
@@ -309,31 +309,26 @@ namespace DSTargetManager {
     }
     
     /**
-     * DSTargetManager.getCloudFileTarget
+     * DSTargetManager.getCloudS3Connector
      */
-    export function getCloudFileTarget(): string {
+    export function getCloudS3Connector(): string {
         return xcalar_cloud_s3;
     }
 
     // for cloud file upload use
-    function createCloudTarget(): XDPromise<string> {
+    function createCloudS3Connector(): XDPromise<string> {
         if (targetSet[xcalar_cloud_s3] != null) {
             // has the s3Target created, but remove it from cache
             delete targetSet[xcalar_cloud_s3];
-            // return PromiseHelper.resolve();
-            // XXX TODO: remove this hack that fetch S3 bucket info
-            return CloudManager.Instance.getS3BucketInfoAsync();
+            return PromiseHelper.resolve();
         }
 
         let deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let targetType: string = S3Connector;
+        // let targetType: string = S3Connector;
+        let targetType: string = "s3environ";
         let targetName: string = xcalar_cloud_s3;
-
-        CloudManager.Instance.getS3BucketInfoAsync()
-        .then(() => {
-            let targetParams = CloudManager.Instance.getS3BucketInfo();
-            return XcalarTargetCreate(targetType, targetName, targetParams);
-        })
+        let targetParams = {authenticate_requests: "true"};
+        XcalarTargetCreate(targetType, targetName, targetParams)
         .then(() => {
             deferred.resolve(targetName);
         })

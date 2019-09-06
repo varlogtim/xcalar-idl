@@ -8,7 +8,7 @@ class CloudManager {
 
     private _username: string;
     private _apiUrl: string;
-    private _s3Info: {access_key: string, secret_access_key: string, bucket: string};
+    private _s3Info: {bucket: string};
 
     public constructor() {
         // XXX TODO: remove the hard code stuff
@@ -17,35 +17,25 @@ class CloudManager {
     }
 
     /**
-     * CloudManager.Instance.getS3BucketInfoAsync
+     * CloudManager.Instance.getS3BucketInfo
      */
-    public getS3BucketInfoAsync(): XDPromise<any> {
+    public getS3BucketInfo(): XDPromise<{bucket: string}> {
+        if (this._s3Info != null) {
+            return PromiseHelper.resolve(this._s3Info);
+        }
+
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         this._sendRequest("s3/describe", {})
-        .then((res: {access_key: string, secret_key: string, bucket_name: string}) => {
+        .then((res: {bucketName: string}) => {
             this._s3Info = {
-                access_key: res.access_key,
-                secret_access_key: res.secret_key,
-                bucket: res.bucket_name
+                bucket: res.bucketName
             };
-            deferred.resolve();
+            deferred.resolve(this._s3Info);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
     }
-
-    /**
-     * CloudManager.Instance.getS3BucketInfo
-     */
-    public getS3BucketInfo(): {
-        access_key: string,
-        secret_access_key: string,
-        bucket: string
-    } {
-        return this._s3Info;
-    }
-
 
     /**
      * CloudManager.Instance.uploadToS3
@@ -58,12 +48,10 @@ class CloudManager {
 
         this._readFile(file)
         .then((fileContent) => {
-            return this._fakeUpload(fileName, fileContent);
-            let data = {
-                fileName,
-                fileContent
-            };
-            return xcHelper.sendRequest("POST", "/service/uploadCloud", data);
+            return this._sendRequest("s3/upload",{
+                "fileName": fileName,
+                "data": fileContent
+            });
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -78,7 +66,7 @@ class CloudManager {
      */
     public deleteS3File(fileName: string): XDPromise<void> {
         return this._sendRequest("s3/delete", {
-            "file_name": fileName
+            "fileName": fileName
         });
     }
 
@@ -136,19 +124,11 @@ class CloudManager {
         return deferred.promise();
     }
 
-    // XXX TODO: remove the fake api
-    private _fakeUpload(fileName, fileContent) {
-        return this._sendRequest("s3/upload",{
-            "file_name": fileName,
-            "data": fileContent
-        });
-    }
-
     private _sendRequest(action: string, payload: object): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const url: string = `${this._apiUrl}${action}`;
         payload = {
-            "user_name": this._username,
+            "username": this._username,
             ...payload
         }
         fetch(url, {
@@ -174,7 +154,9 @@ class CloudManager {
                 deferred.reject();
             }
         })
-        .catch((e) => deferred.reject(e));
+        .catch((e) => {
+            deferred.reject(e);
+        });
 
         return deferred.promise();
     }

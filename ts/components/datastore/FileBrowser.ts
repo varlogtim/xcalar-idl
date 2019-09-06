@@ -211,23 +211,28 @@ namespace FileBrowser {
         _options = options || {};
 
         setTarget(targetName);
-
-        var paths = parsePath(path);
-        setPath(paths[paths.length - 1]);
-
-        retrievePaths(path, null, restore)
+        let def = _options.cloud ? CloudFileBrowser.getCloudPath() : PromiseHelper.resolve(path);
+        def
+        .then(function(res: string) {
+            path = res;
+            let paths = parsePath(path);
+            setPath(paths[paths.length - 1]);
+            return retrievePaths(path, null, restore);
+        })
         .then(function() {
             measureDSIcon();
             measureDSListHeight();
             deferred.resolve();
         })
         .fail(function(error) {
+            error = error || {};
             if (error.error === oldBrowserError) {
                 // when it's an old deferred
                 deferred.reject(error);
                 return;
             } else if (error.status === StatusT.StatusIO ||
-                        path === defaultPath) {
+                        path === defaultPath ||
+                        _options.cloud) {
                 loadFailHandler(error, path);
                 deferred.reject(error);
             } else {

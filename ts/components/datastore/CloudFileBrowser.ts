@@ -11,15 +11,33 @@ namespace CloudFileBrowser {
      * CloudFileBrowser.show
      */
     export function show(restore: boolean): void {
-        let targetName = DSTargetManager.getCloudFileTarget();
-        let path: string = "/" + CloudManager.Instance.getS3BucketInfo().bucket + "/";
+        let targetName = DSTargetManager.getCloudS3Connector();
         let options = {
             cloud: true,
             backCB: () => DSSource.show()
         };
-        FileBrowser.show(targetName, path, restore, options);
+        FileBrowser.show(targetName, null, restore, options);
         _getFileBrowser().addClass("cloud");
         uploader.toggle(true);
+    }
+
+    /**
+     * CloudFileBrowser.getCloudPath
+     * @param path
+     */
+    export function getCloudPath(): XDPromise<string> {
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
+        CloudManager.Instance.getS3BucketInfo()
+        .then((res) => {
+            let path: string = "/" + res.bucket + "/";
+            deferred.resolve(path);
+        })
+        .fail((e) => {
+            console.error(e);
+            deferred.reject();
+        });
+
+        return deferred.promise();
     }
 
     /**
@@ -45,6 +63,7 @@ namespace CloudFileBrowser {
             deferred.resolve();
         })
         .fail((error) => {
+            FileBrowser.refresh();
             _handleUploadError(error);
             deferred.reject(error);
         });
