@@ -19,7 +19,7 @@
         <h2 class="loginHeader" id="verifyTitle" style="display: none">Confirm your account</h2>
         <h2 class="loginHeader" id="forgotPasswordTitle" style="display: none">Forgot your password?</h2>
         <h2 class="loginHeader" id="confirmForgotPasswordTitle" style="display: none">Choose new password</h2>
-        <h2 class="loginHeader" id="loadingTitle" style="display: none">Starting up the cluster...</h2>
+        <h2 class="loginHeader" id="loadingTitle" style="display: none">Deploying your cluster</h2>
       </header>
     </div>
     <div id="loadingBar">
@@ -164,15 +164,6 @@
             Select the option that fits your needs:
           </div>
           <div class="radioButtonGroup">
-            <!-- <div class="choice radioButton" data-option='Extra Small Cluster'>
-              <div class="radio">
-                <i class="icon xi-radio-selected"></i>
-                <i class="icon xi-radio-empty"></i>
-              </div>
-              <div class="label">
-                Extra Small Cluster - <b>1 units / hour</b>
-              </div>
-            </div> -->
             <div class="choice radioButton" data-option='small'>
               <div class="radio">
                 <i class="icon xi-radio-selected"></i>
@@ -209,37 +200,27 @@
                 Extra Large Cluster - <b>16 units / hour</b>
               </div>
             </div>
-            <!-- <div class="choice radioButton" data-option='Super Large Cluster'>
-              <div class="radio">
-                <i class="icon xi-radio-selected"></i>
-                <i class="icon xi-radio-empty"></i>
-              </div>
-              <div class="label">
-                Super Large Cluster - <b>16 units / hour</b>
-              </div>
-            </div>
-            <div class="choice radioButton" data-option='Mega Large Cluster'>
-              <div class="radio">
-                <i class="icon xi-radio-selected"></i>
-                <i class="icon xi-radio-empty"></i>
-              </div>
-              <div class="label">
-                Mega Large Cluster - <b>24 units / hour</b>
-              </div>
-            </div> -->
           </div>
           <div class="section buttonSection">
             <input class="btn next btn-disabled" id="deployBtn" type="button" value="DEPLOY">
           </div>
-          <!-- <div class="loginSection">
-            <a class="cluster">VERIFY SCREEN</a>
-          </div> -->
         </form>
+
+        <!-- loading -->
         <div id="loadingForm" class="authForm">
           <div class="title">
-            Starting you cluster up. Please wait...
+            Please wait while your cluster loads...
           </div>
+          <div id="progressBarBorder">
+            <div id="progressBar"></div>
+          </div>
+          <div id="loadingInfo">
+            <div id="deployingPercentage">5%</div>
+            <div id="deployingTexts"></div>
+          </div>
+
         </div>
+
       </div>
     </div>
   </div>

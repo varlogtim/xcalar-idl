@@ -59,13 +59,14 @@ body {
     margin-top: 0;
 }
 
-#clusterForm {
-    .title {
-        font-size: 24px;
-        margin-top: 15px;
-        margin-bottom: 40px;
-    }
 
+.title {
+    font-size: 24px;
+    margin-top: 15px;
+    margin-bottom: 40px;
+}
+
+#clusterForm {
     .choice {
         margin-bottom: 15px;
 
@@ -91,4 +92,32 @@ body {
     position: absolute;
     margin-top: 45px;
     z-index: 1;
+}
+
+#progressBarBorder {
+    box-shadow: inset 0px 0px 0px 1px rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+
+    #progressBar {
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        width: 5%;
+        height: 24px;
+    }
+}
+
+#loadingInfo {
+    position: relative;
+    margin-top: 8px;
+
+    #deployingPercentage {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+
+    #deployingTexts div {
+        margin-top: 5px;
+        font-size: 14px;
+    }
 }

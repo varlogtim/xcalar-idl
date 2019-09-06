@@ -189,15 +189,25 @@ function getCluster() {
                 $("#formArea").children().hide();
                 $("#loadingTitle").show();
                 $("#loadingForm").show();
+                deployingClusterAnimation();
             } else {
                 // redirect to cluster
-                window.location.href = clusterGetResponse.clusterUrl + "/assets/htmlFiles/login.html?cloud=true";
+                if (deployingClusterAnimationStarted) {
+                    showClusterIsReadyScreen();
+                    setTimeout(goToXcalar(clusterGetResponse), 1000);
+                } else {
+                    goToXcalar(clusterGetResponse);
+                }
             }
         })
         .catch(error => {
             console.error('getCluster error:', error);
             handleException();
         });
+}
+
+function goToXcalar(clusterGetResponse) {
+    window.location.href = clusterGetResponse.clusterUrl;
 }
 
 function checkLoginForm() {
@@ -472,3 +482,79 @@ $("#confirm-forgot-password-submit").click(function () {
         }
     });
 });
+
+function showClusterIsReadyScreen() {
+    clusterDeploymentCompleted = true;
+    $("#loadingTitle").html("Your cluster is ready!");
+    $("#loadingForm .title").html("Redirecting to Xcalar Cloud...");
+    $("#deployingTexts").html("<div>Complete</div>");
+}
+
+var clusterDeploymentCompleted = false;
+var deployingClusterAnimationStarted = false;
+
+function deployingClusterAnimation() {
+    if (!deployingClusterAnimationStarted) {
+        deployingClusterAnimationStarted = true;
+        var completionTime = 100;
+        var deployingTexts = [
+            'Feeding the hamsters',
+            'Setting up the tiny hamster wheels',
+            'Powering up the hamster engines',
+            'Charging the flux capacitors',
+            'Engaging the hamster wheels',
+            'Not eating up the hamsters',
+            'Hugging the hamsters',
+            'Blowing up the servers',
+            'Restoring the servers',
+            'Polishing up'
+        ]
+        var deployingBoxesOpacities = [
+            100,
+            77,
+            55,
+            33,
+            10
+        ]
+        var firstTextId = 0;
+
+        for (var i = 0; i < deployingBoxesOpacities.length; i++) {
+            $("#deployingTexts").append("<div style='opacity:" + deployingBoxesOpacities[i] / 100 + ";'></div>");
+        }
+
+        var width = 5;
+        var fastCompletionTime;
+        var maxProgressBarWidth = 95;
+
+        (function animateProgressBar() {
+            if (width < maxProgressBarWidth) {
+                width++;
+                $("#progressBar").width(width + '%');
+                $("#deployingPercentage").html(width + '%');
+                var tickTime = completionTime * 1000 / 90;
+                if (clusterDeploymentCompleted) {
+                    if (!fastCompletionTime) {
+                        fastCompletionTime = 1000 / (95 - width);
+                        maxProgressBarWidth = 100;
+                    }
+                    tickTime = fastCompletionTime;
+                }
+                setTimeout(animateProgressBar, tickTime);
+            }
+        })();
+
+        (function animateTexts() {
+            if (!clusterDeploymentCompleted && firstTextId < deployingTexts.length) {
+                var currentTextId = firstTextId;
+                for (var i = 0; i < deployingBoxesOpacities.length; i++) {
+                    if (currentTextId >= 0) {
+                        $("#deployingTexts div:nth-child(" + (i + 1) + ")").html(deployingTexts[currentTextId] + "...");
+                        currentTextId--;
+                    }
+                }
+                firstTextId++;
+                setTimeout(animateTexts, completionTime * 1000 / deployingTexts.length);
+            }
+        })();
+    }
+}
