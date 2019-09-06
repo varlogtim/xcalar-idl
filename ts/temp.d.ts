@@ -488,19 +488,19 @@ declare var gRescol: {
     clicks: number
     delay: number
     timer: number
-    $th: JQuery
-    onResize: Function
-    isDatastore: boolean
-    tableId: TableId
-    mouseStart: number
-    startWidth: number
-    index: number
-    newWidth: number
-    table: JQuery
-    tableHead: JQuery
-    minResizeWidth: number
-    leftDragMax: number
-    pageX: number
+    $th?: JQuery
+    onResize?: Function
+    isDatastore?: boolean
+    tableId?: TableId
+    mouseStart?: number
+    startWidth?: number
+    index?: number
+    newWidth?: number
+    table?: JQuery
+    tableHead?: JQuery
+    minResizeWidth?: number
+    leftDragMax?: number
+    pageX?: number
 };
 declare var gKVScope: {
     GLOB: number,
@@ -521,19 +521,14 @@ declare var gRetSign: string;
 declare var gDSPrefix: string;
 declare var gParamStart: string;
 declare var gHiddenColumnWidth: number | string;
-declare var gUploadChunkSize: number;
 declare var gDefaultSharedRoot: string;
-declare var gJoinLookup: object;
 declare var gAlwaysDelete: boolean;
-declare var gDefaultQDelim: string;
 declare var gLongTestSuite: number;
 declare var gMaxDSColsSpec: number;
-declare var gMaxColToPull: number;
 declare var gMaxSampleSize: number;
 declare var gUdfDefaultNoCheck: boolean;
 declare var gXcSupport: boolean;
 declare var gXcalarRecordNum: string;
-declare var gXcalarApiLrqExportPrefix: string;
 declare var gDFSuffix: string;
 declare var gShowSQLDF: boolean;
 

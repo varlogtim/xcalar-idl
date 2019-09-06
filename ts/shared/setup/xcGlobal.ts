@@ -34,7 +34,6 @@ namespace xcGlobal {
             "timer": null
         };
 
-        // XXX TODOS(bug 2319): this part should change to right scope after backend fix
         /**
          * "GLOB": global scope
          * keys inculding: gSharedDSKey, gUserListKey,
@@ -68,35 +67,20 @@ namespace xcGlobal {
         gDSPrefix = '.XcalarDS.';
         gParamStart = "<";
         gHiddenColumnWidth = 15;
-        gUploadChunkSize = 45 * MB;
         gDefaultSharedRoot = 'Default Shared Root';
-        gJoinLookup = {
-            "Inner Join": JoinOperatorT.InnerJoin,
-            "Left Outer Join": JoinOperatorT.LeftOuterJoin,
-            "Right Outer Join": JoinOperatorT.RightOuterJoin,
-            "Full Outer Join": JoinOperatorT.FullOuterJoin,
-            "Cross Join": JoinOperatorT.CrossJoin,
-            "Left Semi Join": JoinOperatorTStr[JoinOperatorT.LeftSemiJoin],
-            "Right Semi Join": JoinCompoundOperatorTStr.RightSemiJoin,
-            "Left Anti Semi Join": JoinOperatorTStr[JoinOperatorT.LeftAntiJoin],
-            "Right Anti Semi Join": JoinCompoundOperatorTStr.RightAntiSemiJoin,
-        };
 
 
         // ======================== Support Parameters ====================== //
         gAlwaysDelete = false;
-        gDefaultQDelim = '"';
         gLongTestSuite = 1;
         gMaxDSColsSpec = 1023; // Max num of columns that can be ordered, renamed, or
         // casted from a dataset
-        gMaxColToPull = 200; // Max num of column can create directly from preview.
         gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
         // datasets will abide by this limit. If you don't want
         // to use it anymore, just set it back to 0
         gUdfDefaultNoCheck = false; // when set true, allow update default udf
         gXcSupport = false; // if xcalar support user
         gXcalarRecordNum = "xcalarRecordNum";
-        gXcalarApiLrqExportPrefix = ".XcalarLRQExport.";
         gDFSuffix = ".xlrdf.tar.gz";
         gShowSQLDF = false;
         // Shut up the console logs

@@ -56,6 +56,10 @@ namespace JupyterPanel {
         window.addEventListener("message", function(event) {
             let struct = event.data;
             try {
+                if (typeof struct !== "string") {
+                    // this is not the message for jupyter
+                    return;
+                }
                 let s = JSON.parse(struct);
                 switch (s.action) {
                     case ("alert"):

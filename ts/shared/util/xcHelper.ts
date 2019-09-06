@@ -2094,39 +2094,6 @@ namespace xcHelper {
         return true;
     }
 
-    // XXX TODO: move to DSPreview.ts
-    /**
-     * xcHelper.delimiterTranslate
-     * @param $input
-     * @param val
-     */
-    export function delimiterTranslate(
-        $input: JQuery,
-        val: string
-    ): string | object {
-        if ($input.hasClass("nullVal")) {
-            return "";
-        }
-        let delim: string = $input.length ? $input.val() : val;
-        // this change " to \", otherwise cannot use json parse
-        for (let i = 0; i < delim.length; i++) {
-            if (delim[i] === '\"' && !xcHelper.isCharEscaped(delim, i)) {
-                delim = delim.slice(0, i) + '\\' + delim.slice(i);
-                i++;
-            }
-        }
-
-        // hack to turn user's escaped string into its actual value
-        let objStr: string = '{"val":"' + delim + '"}';
-        try {
-            delim = JSON.parse(objStr).val;
-            return delim;
-        } catch (err) {
-            console.error(err);
-            return {fail: true, error: err};
-        }
-    }
-
     /**
      * xcHelper.hasValidColPrefix
      * not only looks for gColPrefix but checks to make sure it's not

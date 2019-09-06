@@ -1,4 +1,5 @@
 class DagNodeExecutor {
+    public static readonly XcalarApiLrqExportPrefix: string = ".XcalarLRQExport.";
     /**
      * DagNodeExecutor.getTableNamePrefix
      * @param tabId
@@ -839,7 +840,7 @@ class DagNodeExecutor {
         const srcTable: string = this._getParentNodeTable(0);
         let exportName: string;
         if (optimized) {
-            exportName = gXcalarApiLrqExportPrefix + srcTable;
+            exportName = DagNodeExecutor.XcalarApiLrqExportPrefix + srcTable;
         } else {
             exportName = this._generateTableName();
         }

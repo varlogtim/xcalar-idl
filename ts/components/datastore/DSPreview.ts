@@ -2200,6 +2200,33 @@ namespace DSPreview {
         return [udfModule, udfFunc, udfQuery];
     }
 
+    function delimiterTranslate(
+        $input: JQuery,
+        val: string
+    ): string | object {
+        if ($input.hasClass("nullVal")) {
+            return "";
+        }
+        let delim: string = $input.length ? $input.val() : val;
+        // this change " to \", otherwise cannot use json parse
+        for (let i = 0; i < delim.length; i++) {
+            if (delim[i] === '\"' && !xcHelper.isCharEscaped(delim, i)) {
+                delim = delim.slice(0, i) + '\\' + delim.slice(i);
+                i++;
+            }
+        }
+
+        // hack to turn user's escaped string into its actual value
+        let objStr: string = '{"val":"' + delim + '"}';
+        try {
+            delim = JSON.parse(objStr).val;
+            return delim;
+        } catch (err) {
+            console.error(err);
+            return {fail: true, error: err};
+        }
+    } 
+
     function validateCSVArgs(isCSV: boolean): [string, string, string, number] | null {
         // validate delimiter
         let fieldDelim = loadArgs.getFieldDelim();
@@ -2213,7 +2240,7 @@ namespace DSPreview {
                 "formMode": true,
                 "check": function() {
                     // for Text foramt don't check field delim
-                    let res = xcHelper.delimiterTranslate($fieldText, null);
+                    let res = delimiterTranslate($fieldText, null);
                     return (isCSV && typeof res === "object");
                 }
             },
@@ -2222,7 +2249,7 @@ namespace DSPreview {
                 "error": DSFormTStr.InvalidDelim,
                 "formMode": true,
                 "check": function() {
-                    let res = xcHelper.delimiterTranslate($lineText, null);
+                    let res = delimiterTranslate($lineText, null);
                     return (typeof res === "object");
                 }
             },
@@ -2240,7 +2267,7 @@ namespace DSPreview {
                 "error": DSFormTStr.InvalidQuote,
                 "formMode": true,
                 "check": function() {
-                    let res = xcHelper.delimiterTranslate($quote, null);
+                    let res = delimiterTranslate($quote, null);
                     return (typeof res === "object") || (res.length > 1);
                 }
             }
@@ -2873,7 +2900,7 @@ namespace DSPreview {
     }
 
     function setFieldDelim(): boolean {
-        let fieldDelim = xcHelper.delimiterTranslate($fieldText, null);
+        let fieldDelim = delimiterTranslate($fieldText, null);
 
         if (typeof fieldDelim === "object") {
             // error case
@@ -2885,7 +2912,7 @@ namespace DSPreview {
     }
 
     function setLineDelim(): boolean {
-        let lineDelim = xcHelper.delimiterTranslate($lineText, null);
+        let lineDelim = delimiterTranslate($lineText, null);
 
         if (typeof lineDelim === "object") {
             // error case
@@ -2897,7 +2924,7 @@ namespace DSPreview {
     }
 
     function setQuote(): boolean {
-        let quote = xcHelper.delimiterTranslate($quote, null);
+        let quote = delimiterTranslate($quote, null);
 
         if (typeof quote === "object") {
             // error case
@@ -6708,6 +6735,7 @@ namespace DSPreview {
             DSPreview.isCreateTableMode = oldIsCreateTableMode;
         };
         __testOnly__.validateParquetArgs = validateParquetArgs;
+        __testOnly__.delimiterTranslate = delimiterTranslate;
     }
     /* End Of Unit Test Only */
 }

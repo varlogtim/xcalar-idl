@@ -792,6 +792,24 @@ describe("Dataset-DSPreview Test", function() {
                 DSPreview.__testOnly__.resetForm();
             });
         });
+
+        it("delimiterTranslate should work", function() {
+            let delimiterTranslate = DSPreview.__testOnly__.delimiterTranslate;
+            // case 1
+            var $input = $('<input class="nullVal">');
+            var res = delimiterTranslate($input);
+            expect(res).to.equal("");
+
+            // case 2
+            $input = $("<input>").val('"');
+            res = delimiterTranslate($input);
+            expect(res).to.equal('"');
+
+            // case 3
+            $input = $("<input>").val("\\t");
+            res = delimiterTranslate($input);
+            expect(res).to.equal("\t");
+        });
     });
 
     describe("Preview Public API Test", function() {

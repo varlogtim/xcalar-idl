@@ -763,7 +763,7 @@ interface XcalarLoadInputOptions {
         "schemaMode": CsvSchemaModeT.[CsvSchemaModeNoneProvided|CsvSchemaModeUseHeader|CsvSchemaModeUseLoadInput]
         "moduleName": udfModule,
         "funcName": udfFunc,
-        "quoteChar": gDefaultQDelim,
+        "quoteChar": "\""",
         "skipRows": 0,
         "udfQuery": udfQuery,
         "typedColumns": [
@@ -5894,78 +5894,6 @@ XcalarAppExecute = function(
 
     return deferred.promise();
 };
-
-// TODO: No corresponding api
-// let XcalarDemoFileCreate = function(fileName) {
-//     var deferred = PromiseHelper.deferred();
-
-//     xcalarDemoFileCreate(tHandle, fileName)
-//     .then(function(retJson) {
-//         if (retJson && retJson.error && retJson.error.length > 0) {
-//             var thriftError = thriftLog("XcalarDemoFileCreate", retJson.error);
-//             Log.errorLog("Create Demo File", null, null, thriftError);
-//             deferred.reject(thriftError);
-//         } else {
-//             deferred.resolve(retJson);
-//         }
-//     })
-//     .fail(function(error) {
-//         var thriftError = thriftLog("XcalarDemoFileCreate", error);
-//         Log.errorLog("Create Demo File", null, null, thriftError);
-//         deferred.reject(thriftError);
-//     });
-
-//     return (deferred.promise());
-// };
-
-// TODO: No corresponding api
-// Max size 45MB
-// XcalarDemoFileAppend = function(fileName, fileContents) {
-//     var deferred = PromiseHelper.deferred();
-//     if (fileContents.length > gUploadChunkSize) {
-//         return PromiseHelper.reject("File chunk must be less than 45MB");
-//     }
-
-//     xcalarDemoFileAppend(tHandle, fileName, fileContents)
-//     .then(function(retJson) {
-//         if (retJson && retJson.error && retJson.error.length > 0) {
-//             var thriftError = thriftLog("XcalarDemoFileAppend", retJson.error);
-//             Log.errorLog("Append to demo file", null, null, thriftError);
-//             deferred.reject(thriftError);
-//         } else {
-//             deferred.resolve(retJson);
-//         }
-//     })
-//     .fail(function(error) {
-//         var thriftError = thriftLog("XcalarDemoFileAppend", error);
-//         Log.errorLog("Append to demo file", null, null, thriftError);
-//         deferred.reject(thriftError);
-//     });
-
-//     return (deferred.promise());
-// };
-
-// TODO: No corresponding api
-// XcalarDemoFileDelete = function(fileName) {
-//     var deferred = PromiseHelper.deferred();
-//     xcalarDemoFileDelete(tHandle, fileName)
-//     .then(function(retJson) {
-//         if (retJson && retJson.error && retJson.error.length > 0) {
-//             var thriftError = thriftLog("XcalarDemoFileDelete", retJson.error);
-//             Log.errorLog("Delete demo file", null, null, thriftError);
-//             deferred.reject(thriftError);
-//         } else {
-//             deferred.resolve(retJson);
-//         }
-//     })
-//     .fail(function(error) {
-//         var thriftError = thriftLog("XcalarDemoFileDelete", error);
-//         Log.errorLog("Delete demo file", null, null, thriftError);
-//         deferred.reject(thriftError);
-//     });
-
-//     return (deferred.promise());
-// };
 
 XcalarLogLevelGet = function(): XDPromise<XcalarApiLogLevelGetOutputT> {
     const deferred: XDDeferred<XcalarApiLogLevelGetOutputT> = PromiseHelper.deferred();

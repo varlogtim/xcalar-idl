@@ -1302,23 +1302,6 @@ describe("xcHelper Test", function() {
         expect(res).to.be.true;
     });
 
-    it("xcHelper.delimiterTranslate should work", function() {
-        // case 1
-        var $input = $('<input class="nullVal">');
-        var res = xcHelper.delimiterTranslate($input);
-        expect(res).to.equal("");
-
-        // case 2
-        $input = $("<input>").val('"');
-        res = xcHelper.delimiterTranslate($input);
-        expect(res).to.equal('"');
-
-        // case 3
-        $input = $("<input>").val("\\t");
-        res = xcHelper.delimiterTranslate($input);
-        expect(res).to.equal("\t");
-    });
-
     it("xcHelper.getFormat should work", function() {
         var getFormat = xcHelper.getFormat;
         expect(getFormat("a")).to.be.null;
