@@ -211,17 +211,25 @@ function goToXcalar(clusterGetResponse) {
 }
 
 function checkLoginForm() {
-    var username = document.getElementById("loginNameBox").value;
+    var email = document.getElementById("loginNameBox").value;
     var password = document.getElementById("loginPasswordBox").value;
-    if (!username || !password) {
-        if (!$("#loginButton").hasClass("btn-disabled")) {
-            $("#loginButton").addClass("btn-disabled");
-        }
-    } else {
+    if (email && password && validateEmail(email) && validatePassword(password)) {
         if ($("#loginButton").hasClass("btn-disabled")) {
             $("#loginButton").removeClass("btn-disabled");
         }
+    } else {
+        if (!$("#loginButton").hasClass("btn-disabled")) {
+            $("#loginButton").addClass("btn-disabled");
+        }
     }
+}
+
+function validateEmail(email) {
+    return email.match(/\S+@\S+\.\S+/);
+}
+
+function validatePassword(password) {
+    return password.match(/(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/)
 }
 
 function fieldsFilled($parent) {
@@ -234,9 +242,13 @@ function fieldsFilled($parent) {
 function checkSignUpForm() {
     var filledAllFields = fieldsFilled($("#signupForm"));
     var checkedEULA = $("#signup-termCheck").prop('checked');
-    var emailsMatch = $("#signup-password").val() === $("#signup-confirmPassword").val();
-    var passwordsMatch = $("#signup-email").val() === $("#signup-confirmEmail").val();
-    if (filledAllFields && checkedEULA && emailsMatch && passwordsMatch) {
+    var email1 = $("#signup-email").val();
+    var email2 = $("#signup-confirmEmail").val();
+    var password1 = $("#signup-password").val();
+    var password2 = $("#signup-confirmPassword").val();
+    var emailsMatch = email1 === email2;
+    var passwordsMatch = password1 === password2;
+    if (filledAllFields && checkedEULA && emailsMatch && passwordsMatch && validateEmail(email1) && validatePassword(password1)) {
         if ($("#signup-submit").hasClass("btn-disabled")) {
             $("#signup-submit").removeClass("btn-disabled");
         }
@@ -269,15 +281,7 @@ $(".signup-login").click(function () {
 })
 
 $("#loginForm").find("input").keyup(function () {
-    if (fieldsFilled($("#loginForm"))) {
-        if ($("#loginButton").hasClass("btn-disabled")) {
-            $("#loginButton").removeClass("btn-disabled");
-        }
-    } else {
-        if (!$("#loginButton").hasClass("btn-disabled")) {
-            $("#loginButton").addClass("btn-disabled");
-        }
-    }
+    checkLoginForm();
 })
 
 $("#signupForm").find(".input").keyup(function () {
