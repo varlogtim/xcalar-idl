@@ -34,7 +34,11 @@ namespace XcSupport {
         return XVM.checkVersion(true);
     }
 
-    function checkConnectionTrigger(cnt: number, alertId: string): void {
+    function checkConnectionTrigger(
+        cnt: number,
+        alertId: string,
+        error: string
+    ): void {
         const interval: number = 1000; // 1s/update
         const connectionCheckInterval: number = 10000; // 10s/check
 
@@ -44,7 +48,7 @@ namespace XcSupport {
         const shouldCheck: boolean = (cnt === 0);
         const timeRemain: number = (connectionCheckInterval - cnt * interval) / 1000;
 
-        let msg: string = AlertTStr.NoConnect + " ";
+        let msg: string = error + " ";
         msg += shouldCheck
             ? AlertTStr.Connecting
             : xcStringHelper.replaceMsg(AlertTStr.TryConnect, {
@@ -66,10 +70,10 @@ namespace XcSupport {
                         xcManager.reload(hardLoad);
                     })
                     .fail(() => {
-                        checkConnectionTrigger(cnt + 1, alertId);
+                        checkConnectionTrigger(cnt + 1, alertId, error);
                     });
             } else {
-                checkConnectionTrigger(cnt + 1, alertId);
+                checkConnectionTrigger(cnt + 1, alertId, error);
             }
         }, interval);
     }
@@ -151,23 +155,40 @@ namespace XcSupport {
      */
     export function checkConnection() {
         checkXcalarConnection()
-            .fail(() => {
-                const id: string = XcSupport.connectionError();
+            .fail((error) => {
+                const res = XcSupport.connectionError(error);
                 Log.backup();
-                checkConnectionTrigger(10, id);
+                checkConnectionTrigger(10, res.id, res.error);
             });
     }
 
     /**
      * XcSupport.connectionError
      */
-    export function connectionError(): string {
-        const error: object = { error: ThriftTStr.CCNBE };
-        const id: string = Alert.error(ThriftTStr.CCNBEErr, error, {
+    export function connectionError(error): {
+        id: string,
+        error: string
+    } {
+        let title: string;
+        if (error != null &&
+            typeof error === "object" &&
+            error.status === StatusT.StatusClusterNotReady
+        ) {
+            error = "Cluster is starting.";
+            title = "Starting Cluster";
+        } else {
+            error = AlertTStr.NoConnect;
+            title = ThriftTStr.CCNBEErr;
+        }
+
+        const id: string = Alert.error(title, error, {
             lockScreen: true,
             noLogout: true
         });
-        return id;
+        return {
+            id,
+            error
+        };
     }
 
     /**

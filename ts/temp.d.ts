@@ -776,7 +776,8 @@ declare enum StatusT {
     StatusUdfModuleInUse,
     StatusIO,
     StatusXdfDivByZero,
-    StatusNoXdbPageBcMem
+    StatusNoXdbPageBcMem,
+    StatusClusterNotReady
 }
 
 declare enum FunctionCategoryT {

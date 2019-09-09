@@ -208,7 +208,10 @@ function thriftLog(
 
         if (has_require) {
             return thriftError;
-        } else if (status === StatusT.StatusOk || httpStatus === 0) {
+        } else if (status === StatusT.StatusOk ||
+            status === StatusT.StatusClusterNotReady ||
+            httpStatus === 0
+        ) {
             if (typeof XcSupport !== "undefined") {
                 XcSupport.checkConnection();
             }
@@ -610,7 +613,7 @@ XcalarGetVersion = function(
     .fail(function(error) {
         if (connectionCheck) {
             // don't call thriftLog or else it may call XcalarGetVersion again
-            deferred.reject("ConnectionCheck Failed", error);
+            deferred.reject(error);
         } else {
             deferred.reject(thriftLog("XcalarGetVersion()", error));
         }

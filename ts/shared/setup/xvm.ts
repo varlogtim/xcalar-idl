@@ -336,8 +336,11 @@ namespace XVM {
                     deferred.reject(err);
                 }
             }, function (ret) {
+                ret = ret || {};
                 passed = false;
-                if (ret && ret.status === StatusT.StatusSessionUsrAlreadyExists) {
+                if (ret.status === StatusT.StatusSessionUsrAlreadyExists ||
+                    ret.status === StatusT.StatusClusterNotReady
+                ) {
                     deferred.reject(ret);
                 } else {
                     deferred.reject({ error: ThriftTStr.CCNBE });

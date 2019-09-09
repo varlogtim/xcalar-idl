@@ -142,8 +142,8 @@ describe('XcSupport Test', () => {
             return 'testId';
         };
 
-        const id = XcSupport.connectionError();
-        expect(id).to.equal('testId');
+        const res = XcSupport.connectionError();
+        expect(res.id).to.equal('testId');
         expect(testTitle).to.equal(ThriftTStr.CCNBEErr);
         Alert.error = oldFunc;
     });

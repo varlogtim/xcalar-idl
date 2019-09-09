@@ -23,11 +23,10 @@ describe("XcalarThrift Test", function() {
         .then(function() {
             done("fail");
         })
-        .fail(function(error1, error2) {
-            expect(error1).to.equal("ConnectionCheck Failed");
-            expect(Xcrpc.Error.isXcalarError(error2)).to.be.true;
-            expect(error2.status).to.equal(statusCode)
-            expect(error2.error).to.equal(errorMsg);
+        .fail(function(error) {
+            expect(Xcrpc.Error.isXcalarError(error)).to.be.true;
+            expect(error.status).to.equal(statusCode)
+            expect(error.error).to.equal(errorMsg);
             done();
         })
         .always(function() {
@@ -48,10 +47,9 @@ describe("XcalarThrift Test", function() {
         .then(function() {
             done("fail");
         })
-        .fail(function(error1, error2) {
-            expect(error1).to.equal("ConnectionCheck Failed");
-            expect(Xcrpc.Error.isNetworkError(error2)).to.be.true;
-            expect(error2.httpStatus).to.equal(httpStatus);
+        .fail(function(error) {
+            expect(Xcrpc.Error.isNetworkError(error)).to.be.true;
+            expect(error.httpStatus).to.equal(httpStatus);
             done();
         })
         .always(function() {
