@@ -32,7 +32,8 @@ XcalarApisConstantsT = {
   'XcalarApiSessionNameLen' : 255,
   'XcalarApiSessionDescrLen' : 1024,
   'XcalarApiMaxFailureDescLen' : 10240,
-  'XcalarApiMaxFailures' : 5
+  'XcalarApiMaxFailures' : 5,
+  'XcalarApiMaxFailureEvals' : 5
 };
 XcalarApisConstantsTStr = {
   32768 : 'XcalarApiMaxEvalStringLen',
@@ -61,7 +62,8 @@ XcalarApisConstantsTStr = {
   255 : 'XcalarApiSessionNameLen',
   1024 : 'XcalarApiSessionDescrLen',
   10240 : 'XcalarApiMaxFailureDescLen',
-  5 : 'XcalarApiMaxFailures'
+  5 : 'XcalarApiMaxFailures',
+  5 : 'XcalarApiMaxFailureEvals'
 };
 XcalarApisConstantsTFromStr = {
   'XcalarApiMaxEvalStringLen' : 32768,
@@ -90,5 +92,6 @@ XcalarApisConstantsTFromStr = {
   'XcalarApiSessionNameLen' : 255,
   'XcalarApiSessionDescrLen' : 1024,
   'XcalarApiMaxFailureDescLen' : 10240,
-  'XcalarApiMaxFailures' : 5
+  'XcalarApiMaxFailures' : 5,
+  'XcalarApiMaxFailureEvals' : 5
 };

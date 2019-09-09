@@ -708,7 +708,8 @@ proto.xcalar.compute.localtypes.XcalarEnumType.Status = {
   STATUS_CLUSTER_NOT_READY: 689,
   STATUS_MAP_FAILURE_SUMMARY_SCHEMA: 690,
   STATUS_MAP_FAILURE_MULTI_EVAL: 691,
-  STATUS_UDF_ICV_MODE_FAILURE: 692
+  STATUS_UDF_ICV_MODE_FAILURE: 692,
+  STATUS_KVS_REF_COUNT_LEAK: 693
 };
 
 goog.object.extend(exports, proto.xcalar.compute.localtypes.XcalarEnumType);

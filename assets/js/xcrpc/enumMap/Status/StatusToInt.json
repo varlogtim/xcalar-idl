@@ -691,6 +691,7 @@
     "StatusClusterNotReady" : 689,
     "StatusMapFailureSummarySchema" : 690,
     "StatusMapFailureMultiEval" : 691,
-    "StatusUdfIcvModeFailure" : 692
+    "StatusUdfIcvModeFailure" : 692,
+    "StatusKVSRefCountLeak" : 693
 }
 

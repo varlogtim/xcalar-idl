@@ -376,6 +376,9 @@ Thrift.TXHRTransport.prototype = {
         }
 
         xreq.open('POST', this.url, !!async);
+        // ### Begin Xcalar added
+        xreq.setRequestHeader('Connection', 'keep-alive');
+        // End Xcalar added
 
         // add custom headers
         Object.keys(self.customHeaders).forEach(function(prop) {

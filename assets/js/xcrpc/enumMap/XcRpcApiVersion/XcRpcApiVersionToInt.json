@@ -12,7 +12,7 @@
     "ParentChildVersionSignature" : 226563296,
     "ProtoFieldValueVersionSignature" : 117723183,
     "ProtoMsgVersionSignature" : 49525254,
-    "PublishedTableVersionSignature" : 21442408,
+    "PublishedTableVersionSignature" : 79084648,
     "QueryVersionSignature" : 31034356,
     "ResultSetVersionSignature" : 113302714,
     "ServiceVersionSignature" : 59787815,
@@ -27,6 +27,6 @@
     "WorkbookVersionSignature" : 57235854,
     "XDFVersionSignature" : 188684344,
     "XcalarEnumTypeVersionSignature" : 222419149,
-    "ProtoAPIVersionSignature" : 202055321
+    "ProtoAPIVersionSignature" : 150608896
 }
 

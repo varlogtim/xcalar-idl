@@ -691,6 +691,7 @@
     "689" : "Starting cluster is still in progress, Retry",
     "690" : "Map failure summary update failed due to schema",
     "691" : "Map failure summary update not supported yet for failures in multiple eval strings",
-    "692" : "UDF execution failed in map ICV mode"
+    "692" : "UDF execution failed in map ICV mode",
+    "693" : "KVStore Ref Count Leak detected"
 }
 

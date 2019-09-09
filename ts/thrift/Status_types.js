@@ -698,7 +698,8 @@ StatusT = {
   'StatusClusterNotReady' : 689,
   'StatusMapFailureSummarySchema' : 690,
   'StatusMapFailureMultiEval' : 691,
-  'StatusUdfIcvModeFailure' : 692
+  'StatusUdfIcvModeFailure' : 692,
+  'StatusKVSRefCountLeak' : 693
 };
 StatusTStr = {
   0 : 'Success',
@@ -1393,7 +1394,8 @@ StatusTStr = {
   689 : 'Starting cluster is still in progress, Retry',
   690 : 'Map failure summary update failed due to schema',
   691 : 'Map failure summary update not supported yet for failures in multiple eval strings',
-  692 : 'UDF execution failed in map ICV mode'
+  692 : 'UDF execution failed in map ICV mode',
+  693 : 'KVStore Ref Count Leak detected'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2088,5 +2090,6 @@ StatusTFromStr = {
   'Starting cluster is still in progress, Retry' : 689,
   'Map failure summary update failed due to schema' : 690,
   'Map failure summary update not supported yet for failures in multiple eval strings' : 691,
-  'UDF execution failed in map ICV mode' : 692
+  'UDF execution failed in map ICV mode' : 692,
+  'KVStore Ref Count Leak detected' : 693
 };
