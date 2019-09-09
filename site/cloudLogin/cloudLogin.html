@@ -16,7 +16,7 @@
         <h2 class="loginHeader" id="loginTitle" style="display: none">Login to Xcalar Design!</h2>
         <h2 class="loginHeader" id="signupTitle" style="display: none">Hello and welcome to Xcalar Design!</h2>
         <h2 class="loginHeader" id="clusterTitle" style="display: none">Select your cluster size</h2>
-        <h2 class="loginHeader" id="verifyTitle" style="display: none">Confirm your account</h2>
+        <h2 class="loginHeader" id="verifyTitle" style="display: none">Verify your account</h2>
         <h2 class="loginHeader" id="forgotPasswordTitle" style="display: none">Forgot your password?</h2>
         <h2 class="loginHeader" id="confirmForgotPasswordTitle" style="display: none">Choose new password</h2>
         <h2 class="loginHeader" id="loadingTitle" style="display: none">Deploying your cluster</h2>
@@ -50,7 +50,9 @@
           <div id="forgotSection" class="auth-section">
             <a class="auth-link">Forgot password?</a>
           </div>
-          <button id="loginButton" class="btn login btn-disabled"><span class="text">LOG IN</span></button>
+          <div class="section submitSection clearfix">
+            <button id="loginButton" class="btn login"><span class="text">LOG IN</span></button>
+          </div>
           <div class="signupSection auth-section">
             <a class="signup-login auth-link">Create an account</a>
           </div>
@@ -94,18 +96,18 @@
               </div>
               <input id="signup-termCheck" type="checkbox" class="checkbox" required>
             </div>
-            <button id="signup-submit" class="btn signup btn-disabled"><span class="text">SIGN UP</span></button>
+            <button id="signup-submit" class="btn signup"><span class="text">SIGN UP</span></button>
           </div>
           <div class="loginSection auth-section">
             <a class="signup-login auth-link">Already have an account? Log In</a>
           </div>
-          <!-- <div class="loginSection">
-            <a class="verify">VERIFY CODE SCREEN</a>
-          </div> -->
         </div>
 
         <!-- verify -->
         <div id="verifyForm" class="authForm" autocomplete="off">
+          <div class="title">
+            Please type the verification code sent to your email:
+          </div>
           <div class="section">
             <input id="verify-code" class="input" required autocomplete="off">
             <div class="label">Verification Code</div>
@@ -114,14 +116,8 @@
             <a class="auth-link">Resend the confirmation code</a>
           </div>
           <div class="section submitSection clearfix">
-            <button id="verify-submit" class="btn signup btn-disabled"><span class="text">VERIFY</span></button>
+            <button id="verify-submit" class="btn signup"><span class="text">VERIFY</span></button>
           </div>
-          <!-- <div class="loginSection">
-            <a class="verify">SIGNUP SCREEN</a>
-          </div>
-          <div class="loginSection">
-            <a class="cluster">CLUSTER SCREEN</a>
-          </div> -->
         </div>
 
         <!-- forgot password -->
@@ -131,8 +127,9 @@
             <div class="label">Email</div>
           </div>
           <div class="section clearfix">
-            <button id="forgot-password-submit" class="btn btn-disabled"><span class="text">RESET
-                PASSWORD</span></button>
+            <button id="forgot-password-submit" class="btn">
+              <span class="text">RESET PASSWORD</span>
+            </button>
           </div>
         </div>
 
@@ -152,7 +149,7 @@
             <div class="label">Confirm New Password</div>
           </div>
           <div class="section clearfix">
-            <button id="confirm-forgot-password-submit" class="btn btn-disabled">
+            <button id="confirm-forgot-password-submit" class="btn">
               <span class="text">SET NEW PASSWORD</span>
             </button>
           </div>
@@ -202,7 +199,7 @@
             </div>
           </div>
           <div class="section buttonSection">
-            <input class="btn next btn-disabled" id="deployBtn" type="button" value="DEPLOY">
+            <input class="btn next" id="deployBtn" type="button" value="DEPLOY">
           </div>
         </form>
 

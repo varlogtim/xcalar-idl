@@ -214,13 +214,13 @@ function checkLoginForm() {
     var email = document.getElementById("loginNameBox").value;
     var password = document.getElementById("loginPasswordBox").value;
     if (email && password && validateEmail(email) && validatePassword(password)) {
-        if ($("#loginButton").hasClass("btn-disabled")) {
-            $("#loginButton").removeClass("btn-disabled");
-        }
+        // if ($("#loginButton").hasClass("btn-disabled")) {
+        //     $("#loginButton").removeClass("btn-disabled");
+        // }
     } else {
-        if (!$("#loginButton").hasClass("btn-disabled")) {
-            $("#loginButton").addClass("btn-disabled");
-        }
+        // if (!$("#loginButton").hasClass("btn-disabled")) {
+        //     $("#loginButton").addClass("btn-disabled");
+        // }
     }
 }
 
@@ -249,29 +249,29 @@ function checkSignUpForm() {
     var emailsMatch = email1 === email2;
     var passwordsMatch = password1 === password2;
     if (filledAllFields && checkedEULA && emailsMatch && passwordsMatch && validateEmail(email1) && validatePassword(password1)) {
-        if ($("#signup-submit").hasClass("btn-disabled")) {
-            $("#signup-submit").removeClass("btn-disabled");
-        }
+        // if ($("#signup-submit").hasClass("btn-disabled")) {
+        //     $("#signup-submit").removeClass("btn-disabled");
+        // }
     } else {
-        if (!$("#signup-submit").hasClass("btn-disabled")) {
-            $("#signup-submit").addClass("btn-disabled");
-        }
+        // if (!$("#signup-submit").hasClass("btn-disabled")) {
+        //     $("#signup-submit").addClass("btn-disabled");
+        // }
     }
 }
 
-function btnDisableToggle($input, $btn) {
-    $input.keyup(function () {
-        if (!($input.val() === "")) {
-            if ($btn.hasClass("btn-disabled")) {
-                $btn.removeClass("btn-disabled");
-            }
-        } else {
-            if (!$btn.hasClass("btn-disabled")) {
-                $btn.addClass("btn-disabled");
-            }
-        }
-    })
-}
+// function btnDisableToggle($input, $btn) {
+//     $input.keyup(function () {
+//         if (!($input.val() === "")) {
+//             if ($btn.hasClass("btn-disabled")) {
+//                 $btn.removeClass("btn-disabled");
+//             }
+//         } else {
+//             if (!$btn.hasClass("btn-disabled")) {
+//                 $btn.addClass("btn-disabled");
+//             }
+//         }
+//     })
+// }
 
 $(".signup-login").click(function () {
     $("#signupForm").toggle();
@@ -296,18 +296,18 @@ $("#confirmForgotPasswordForm").find(".input").keyup(function () {
     var filledAllFields = fieldsFilled($("#confirmForgotPasswordForm"))
     var passwordsMatch = $("#confirm-forgot-password-new-password").val() === $("#confirm-forgot-password-confirm-new-password").val();
     if (filledAllFields && passwordsMatch) {
-        if ($("#confirm-forgot-password-submit").hasClass("btn-disabled")) {
-            $("#confirm-forgot-password-submit").removeClass("btn-disabled");
-        }
+        // if ($("#confirm-forgot-password-submit").hasClass("btn-disabled")) {
+        //     $("#confirm-forgot-password-submit").removeClass("btn-disabled");
+        // }
     } else {
-        if (!$("#confirm-forgot-password-submit").hasClass("btn-disabled")) {
-            $("#confirm-forgot-password-submit").addClass("btn-disabled");
-        }
+        // if (!$("#confirm-forgot-password-submit").hasClass("btn-disabled")) {
+        //     $("#confirm-forgot-password-submit").addClass("btn-disabled");
+        // }
     }
 })
 
-btnDisableToggle($("#verify-code"), $("#verify-submit"));
-btnDisableToggle($("#forgot-password-code"), $("#forgot-password-submit"));
+// btnDisableToggle($("#verify-code"), $("#verify-submit"));
+// btnDisableToggle($("#forgot-password-code"), $("#forgot-password-submit"));
 
 $("#loginButton").click(function () {
     username = document.getElementById("loginNameBox").value;
@@ -409,7 +409,7 @@ $("#verify-submit").click(function () {
 var selectedClusterSize;
 
 $("#clusterForm").find(".radioButton").click(function () {
-    document.getElementById("deployBtn").classList.remove('btn-disabled');
+    // document.getElementById("deployBtn").classList.remove('btn-disabled');
 
     selectedClusterSize = $(this).data('option');
 
@@ -424,24 +424,28 @@ $("#clusterForm").find(".radioButton").click(function () {
 });
 
 $("#deployBtn").click(function () {
-    // start
-    fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/start", {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            method: 'POST',
-            body: JSON.stringify({
-                "username": xcLocalStorage.getItem("xcalarUsername"),
-                "clusterParams": {
-                    "type": selectedClusterSize
-                }
-            }),
-        }).then(function (response) {
-            return response.json();
-        })
-        .then(function (myJson) {
-            getCluster();
-        });
+    if (selectedClusterSize) {
+        fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/start", {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: 'POST',
+                body: JSON.stringify({
+                    "username": xcLocalStorage.getItem("xcalarUsername"),
+                    "clusterParams": {
+                        "type": selectedClusterSize
+                    }
+                }),
+            }).then(function (response) {
+                return response.json();
+            })
+            .then(function (myJson) {
+                getCluster();
+            });
+
+    } else {
+        // cluster size not selected
+    }
 });
 
 $("#forgotSection").click(function () {
