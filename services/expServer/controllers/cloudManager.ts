@@ -16,7 +16,6 @@ class CloudManager {
     public constructor() {
         this._fetchCredits();
         this._updateCredits();
-
     }
 
     public setup(token: string): void {
@@ -26,7 +25,7 @@ class CloudManager {
      * Given a userId, return the running cluster url (if any),
      * previous/existing CloudFormation stack id (if any) and remaining credits
      */
-    async getUserInfo(): Promise<{
+    public async getUserInfo(): Promise<{
         clusterUrl: string, // running expServer means running cluster
         cfnId: string // running expServer means running CFN stack
         credits: number
@@ -40,7 +39,7 @@ class CloudManager {
      * Stop the running cluster
      * @param cfnId
      */
-    async stopCluster(): Promise<any> {
+    public async stopCluster(): Promise<any> {
         // TO-DO
         // 1. update stack with params to stop any EC2 instances
         // 2. update dynamoDB to remove cluster_url
@@ -49,6 +48,23 @@ class CloudManager {
                 url: this._awsURL + "/cluster/stop",
                 body: {"username": this._userName},
                 json: true
+            });
+            xcConsole.log("cluster shutting down");
+            return data;
+        } catch (e) {
+            return {error: e};
+        }
+    }
+
+    /**
+     * used to check status, isPending,and clusterUrl properties
+     */
+    public async checkCluster(): Promise<any> {
+        try {
+            const data = request.post({
+                    url: this._awsURL + "/cluster/get",
+                    body: {"username": this._userName},
+                    json: true
             });
             return data;
         } catch (e) {

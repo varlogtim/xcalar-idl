@@ -298,6 +298,16 @@ router.post("/service/stopCloud", [support.checkAuth], (_req, res) => {
     });
 });
 
+router.get("/service/checkCloud", [support.checkAuth], (_req, res) => {
+    cloudManager.checkCluster()
+    .then((data) => {
+        res.status(httpStatus.OK).send(data);
+    })
+    .catch((e) => {
+        res.status(httpStatus.BadRequest).send(e);
+    });
+});
+
 router.get("/service/getCredits", [support.checkAuth], (_req, res) => {
     const numCredits: number = cloudManager.getNumCredits();
     res.status(httpStatus.OK).send(JSON.stringify(numCredits));
@@ -305,7 +315,10 @@ router.get("/service/getCredits", [support.checkAuth], (_req, res) => {
 
 /* HACK TO SET CLOUD USERNAME */
 router.post("/service/updateCloudUserName", [support.checkAuth], (req, res) => {
-    let reqBody = JSON.parse(req.body);
+    let reqBody = req.body;
+    if (typeof reqBody === "string") {
+        reqBody = JSON.parse(req.body);
+    };
     let name = cloudManager.setUserName(reqBody.name);
     res.status(httpStatus.OK).send("cloud username set to " + name);
 });
