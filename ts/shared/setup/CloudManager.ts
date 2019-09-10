@@ -6,13 +6,10 @@ class CloudManager {
         return this._instance || (this._instance = new this());
     }
 
-    private _username: string;
     private _apiUrl: string;
     private _s3Info: {bucket: string};
 
     public constructor() {
-        // XXX TODO: remove the hard code stuff
-        this._username = "test@xcalar.com";
         this._apiUrl = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/";
     }
 
@@ -100,6 +97,11 @@ class CloudManager {
         return null;
     }
 
+    // XXX TODO: check if the implementation is correct
+    private _getUserName(): string {
+        return XcUser.CurrentUser.getFullName();
+    }
+
     // XXX TODO: generalized it with the one in workbookManager
     private _readFile(file: File): XDPromise<any> {
         if (file == null) {
@@ -128,7 +130,7 @@ class CloudManager {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const url: string = `${this._apiUrl}${action}`;
         payload = {
-            "username": this._username,
+            "username": this._getUserName(),
             ...payload
         }
         fetch(url, {

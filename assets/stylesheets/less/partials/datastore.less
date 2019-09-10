@@ -775,6 +775,10 @@ table.datasetTable {
             i {
                 font-size: 66px;
                 color: @color-font-link-blue;
+
+                &.xi-cloud-upload {
+                    font-size: 75px;
+                }
             }
 
             img {
@@ -1879,8 +1883,9 @@ table.datasetTable {
         display: none;
         height: 65px;
         width: 100%;
-        padding: 16px 0;
+        padding: 16px;
         border-bottom: 1px solid @color-border-softGray;
+        overflow: hidden;
 
         > div {
             width: 300px;

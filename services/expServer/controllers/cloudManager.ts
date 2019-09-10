@@ -10,7 +10,7 @@ class CloudManager {
     private _numCredits: number = null;
     private _updateCreditsInterval: NodeJS.Timer;
     private _updateCreditsTime: number = 1 * 60 * 1000; // check every minute
-    private _userName: string = ""; // "test@xcalar.com"; // XXX temporary
+    private _userName: string = "";
     private _awsURL: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"; // XXX temporary
 
     public constructor() {
