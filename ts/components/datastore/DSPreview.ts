@@ -2225,7 +2225,7 @@ namespace DSPreview {
             console.error(err);
             return {fail: true, error: err};
         }
-    } 
+    }
 
     function validateCSVArgs(isCSV: boolean): [string, string, string, number] | null {
         // validate delimiter
@@ -3307,6 +3307,8 @@ namespace DSPreview {
                 } else if (DSTargetManager.isDatabaseTarget(targetName)) {
                     if (isRestore) {
                         // Restore from error on dataset preview screen
+                        componentDBFormat.setDefaultSQL({ sourceSelected: loadArgs.getPreviewFile(), replaceExisting: false });
+
                         let dbArgs = componentDBFormat.validateValues();
                         if (dbArgs == null) {
                             // This should never happen, because we already did validateFrom
@@ -3321,9 +3323,12 @@ namespace DSPreview {
                         udfQuery = udfDef.udfQuery;
                     } else {
                         // Comes from dsForm
+                        componentDBFormat.setDefaultSQL({ sourceSelected: loadArgs.getPreviewFile(), replaceExisting: false });
+
+                        const dbArgs = componentDBFormat.validateValues();
                         // Preview with default SQL, which is provided by dsn_connector
                         let udfDef = componentDBFormat.getUDFDefinition({
-                            query: ''
+                            query: dbArgs.query
                         });
                         hasUDF = true;
                         noDetect = true;
@@ -3616,6 +3621,7 @@ namespace DSPreview {
         loadArgs.setPreviewHeaders(previewingSource.index, headers);
         loadArgs.setPreviewingSource(index, file);
         let noDetect = true;
+        let isSuggestDetect = true;
 
         // BUG fix for 14378 (XD-322) where first file is empty
         // and if select second file should trigger auto detection
@@ -3626,7 +3632,14 @@ namespace DSPreview {
         ) {
             noDetect = false;
         }
-        refreshPreview(noDetect, true, false, true);
+        let promise = PromiseHelper.resolve();
+        if (loadArgs.getFormat() === formatMap.DATABASE) {
+            isSuggestDetect = false;
+            promise = componentDBFormat.setDefaultSQL({ sourceSelected: file });
+        }
+        promise.then(() => {
+            return refreshPreview(noDetect, true, false, isSuggestDetect);
+        });
     }
 
     function resetPreviewFile(): void {
@@ -3680,8 +3693,7 @@ namespace DSPreview {
                 classes += " collapse";
             }
             if (file.isFolder === false ||
-                isGeneratedTarget ||
-                DSTargetManager.isDatabaseTarget(targetName)
+                isGeneratedTarget
             ) {
                 classes += " singlePath";
                 icons = '<i class="icon xi-radio-empty"></i>' +
@@ -6007,6 +6019,11 @@ namespace DSPreview {
             // Component initialize code goes here
         }
 
+        function parseSource(source) {
+            // source = /<target>/<schema>/<table>
+            const parseList = source.split('/').filter((v) => v.length > 0);
+            return { table: parseList[2], schema: parseList[1] };
+        }
         // Initialize
         init();
 
@@ -6019,9 +6036,6 @@ namespace DSPreview {
             },
             validateValues: function() {
                 const strSQL = $elementSQL.val().trim();
-                // No need to check the SQL value
-                // Because the dsn_connector provides a default SQL for an empty SQL input
-                // which shows a list of tables in the database
                 return { query: strSQL };
             },
             getUDFDefinition: function({query = ''} = {}) {
@@ -6030,6 +6044,40 @@ namespace DSPreview {
                     udfFunc: udfFunction,
                     udfQuery: { query: query }
                 };
+            },
+            setDefaultSQL: function({sourceSelected = '', replaceExisting = true } = {}) {
+                const strSQL = $elementSQL.val().trim();
+                const { table, schema } = parseSource(sourceSelected);
+                const defaultSQL = table == null ? strSQL : `select * from ${schema}.${table}`;
+                // Replace the empty SQL with default SQL in anyway
+                if (strSQL.length === 0) {
+                    $elementSQL.val(defaultSQL);
+                    return PromiseHelper.resolve();
+                }
+                // In case we don't want to replace an existing SQL, we are done here
+                if (!replaceExisting) {
+                    return PromiseHelper.resolve();
+                }
+                // In case the SQL doesn't change, we are done here
+                if (strSQL === defaultSQL) {
+                    return PromiseHelper.resolve();
+                }
+                // We are overwriting the existing SQL with the default one
+                const deferred = PromiseHelper.deferred();
+                Alert.show({
+                    title: DSFormTStr.ReplaceSQLTitle,
+                    msgTemplate: xcStringHelper.replaceMsg(DSFormTStr.ReplaceSQLMessage, {
+                        sql: defaultSQL
+                    }),
+                    onCancel: () => {
+                        deferred.resolve();
+                    },
+                    onConfirm: () => {
+                        $elementSQL.val(defaultSQL);
+                        deferred.resolve();
+                    }
+                });
+                return deferred.promise();
             },
             show: function() {
                 $container.find(".format.database").removeClass("xc-hidden");

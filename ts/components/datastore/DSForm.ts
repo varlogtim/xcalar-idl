@@ -120,12 +120,7 @@ namespace DSForm {
         }
 
         if (DSTargetManager.isDatabaseTarget(targetName)) {
-            $pathCard.addClass("target-database");
-            $filePath.attr('disabled', 'true');
             DSForm.addHistoryPath(targetName, `/${targetName}`);
-        } else {
-            $pathCard.removeClass("target-database");
-            $filePath.removeAttr("disabled");
         }
 
         let historyPaths = historyPathsSet[targetName];

@@ -1278,6 +1278,8 @@ DSFormTStr = {
     'NoFileInFolder': 'No data source files in this directory',
     'ResucriveErr': 'No data source files in directory <path>. Please import with \"recursive\" option to include files in subdirectories.',
     'TooManyPreview': 'You are importing <num> datasets. This will take a while. Do you want to proceed?',
+    'ReplaceSQLTitle': 'Switching the preview',
+    'ReplaceSQLMessage': 'Switching the preivew will replace the current SQL statement with:<br/><sql><br/>Are you sure you want to continue?',
     'SlowTargetPreview': 'You are importing datasets from connector \"<target>\". This will take a while. Do you want to proceed?'
 };
 
