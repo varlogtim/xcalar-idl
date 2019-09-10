@@ -206,6 +206,7 @@
         .text {
             text-transform: none;
             font-size: 20px;
+            width: auto;
         }
 
         .xi-warning {
@@ -249,6 +250,7 @@
         }
     }
 
+
     .modalTopMain {
         background-color: @color-white;
     }
@@ -256,6 +258,47 @@
     .ui-resizable-se {
         bottom: -5px;
         right: -5px;
+    }
+
+    // XXX temporary styling while we transition from old modal to new modal
+    // styling
+    &.tempModalStyling {
+        .modalHeader {
+            display: flex;
+            padding: 0px 22px;
+            line-height: 60px;
+            height: 60px;
+            border-bottom: none;
+            text-transform: none;
+
+            .text {
+                font-size: 20px;
+                padding-left: 10px;
+                width: auto;
+            }
+
+            .icon, .close {
+                line-height: 60px;
+                top: 0px;
+            }
+            .xi-warning {
+                color: @color-macaroni-and-cheese;
+            }
+        }
+        .ui-icon-gripsmall-diagonal-se {
+            opacity: 0;
+        }
+        .modalBottom {
+            height: 60px;
+            .btn {
+                .rounded(8px);
+            }
+        }
+        .modalMain {
+            height: ~"calc(100% - 120px)";
+            padding: 0px 22px;
+            font-weight: 500;
+        }
     }
 }
 
@@ -1832,29 +1875,6 @@ html.microsoft {
 
 #logoutModal {
     .size(@width: 500px, @height: 270px, @min-width:500px, @min-height: 270px);
-
-    .modalHeader {
-        display: flex;
-        padding: 0px 22px;
-        line-height: 60px;
-        height: 60px;
-        border-bottom: none;
-        text-transform: none;
-
-        .text {
-            font-size: 20px;
-            padding-left: 10px;
-            width: auto;
-        }
-
-        .icon, .close {
-            line-height: 60px;
-            top: 0px;
-        }
-        .xi-warning {
-            color: @color-macaroni-and-cheese;
-        }
-    }
     .modalMain {
         height: ~"calc(100% - 120px)";
         padding: 0px 22px;
@@ -1878,12 +1898,6 @@ html.microsoft {
         padding-left: 22px;
         font-size: 12px;
         font-weight: 500;
-    }
-    .modalBottom {
-        height: 60px;
-    }
-    .ui-icon-gripsmall-diagonal-se {
-        opacity: 0;
     }
 }
 
@@ -5353,38 +5367,40 @@ html.microsoft {
         flex-direction: column;
     }
 
+    &.hasExtraErrors {
+        .modalInstruction {
+            display: flex;
+        }
+    }
+
+    .modalHeader {
+        padding: 0px 24px;
+        .text {
+            padding-left: 0px;
+        }
+    }
     .modalInstruction {
         border-bottom: none;
-        display: flex;
+        display: none;
         flex: 1 0 auto;
         align-items: center;
-        padding: 13px 12px;
+        padding: 0px 24px 16px;
         height: auto;
+        font-weight: 500;
 
-        .modalInstructionSection {
-            padding-left: 13px;
-            padding-right: 13px;
+        .xi-error {
+            color: @color-error-red;
+            margin-top: 0px;
+            margin-right: 8px;
+            line-height: 18px;
+            height: 30px; // to prevent other text from flowing under
+            font-size: 14px;
+            float: left;
         }
-        .totalFailureArea {
-            flex: none;
-            .xi-error {
-                color: @color-error-red;
-                margin-top: 0px;
-                line-height: 36px;
-                float: left;
-            }
-            .text {
-                font-size: 15px;
-                line-height: 36px;
-                float: left;
-                margin-left: 10px;
-            }
-        }
+
         .extraErrors {
             flex: 1 1 auto;
-            border-left :1px solid @color-border-menubar-grey;
             font-size: 13px;
-            color: @color-error-red;
         }
     }
     .modalRow {
@@ -5399,10 +5415,9 @@ html.microsoft {
         font-weight: 600;
     }
     .modalMain {
-        @heights: @modalInstructionHeight + @modalRowHeight + 92;
-        .size(@height: ~"calc(100% - @{heights})");
         overflow: auto;
         border-bottom: 1px solid @color-border-menubar-grey;
+        padding: 0px;
     }
 
     .noErrors {
@@ -5413,27 +5428,75 @@ html.microsoft {
         justify-content: center;
     }
 
+    .evalGroup {
+        .errorRow {
+            display: none;
+        }
+        &.expanded {
+            .errorRow {
+                display: block;
+            }
+            .xi-plus {
+                display: none;
+            }
+            .xi-minus {
+                display: block;
+            }
+        }
+        &:not(.expanded) {
+            .groupHeader {
+                margin-bottom: 0px;
+                padding-bottom: 16px;
+                border-bottom: 1px solid @color-border-menubar-grey;
+            }
+        }
+    }
+
+    .groupHeader {
+        font-weight: bold;
+        padding: 16px 24px 0px;
+        margin-bottom: -8px; // to counter 16px padding from first row
+        cursor: pointer;
+
+        .text {
+            .textOverflowOneLine;
+            display: inline-block;
+            width: ~"calc(100% - 30px)";
+        }
+        .icon {
+            float: right;
+            font-size: 14px;
+            line-height: 20px;
+        }
+        .xi-minus {
+            display: none;
+        }
+    }
+
     .errorRow {
         border-bottom: 1px solid @color-border-menubar-grey;
-        padding: 12px 10px;
-        padding-left: 25px;
+        padding: 16px 24px;
         font-size: 12px;
+        user-select: text;
+        cursor: auto;
 
         .count {
             color: @color-error-red;
-            .value {
-                font-weight: bold;
-            }
+            text-align: right;
+            font-weight: 600;
         }
     }
     .errorText {
         white-space: pre-wrap;
     }
+
     .divider {
         width: 100%;
-        height: 14px;
-        border-bottom: 1px solid @color-border-menubar-grey;
-        background-color: @color-bg-topBarGray2;
+        height: 0px;
+        border-top: 1px solid @color-border-menubar-grey;
+    }
+    .evalGroup:nth-child(even) {
+        background-color: #F6F7F9; // XXX new color??
     }
     .btn-large {
         width: 250px;

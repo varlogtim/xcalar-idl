@@ -391,17 +391,20 @@ class ModalHelper {
             const fadeOutTime: number = gMinModeOn ? 0 : 300;
             $modal.hide();
             $modal.removeClass("visible");
-            if (options.noBackground) {
-                deferred.resolve();
-            } else {
-                if (numModalsOpen < 2) {
+
+            if (numModalsOpen < 2) {
+                if (options.noBackground) {
+                    $modalBg.hide();
+                } else {
                     $modalBg.fadeOut(fadeOutTime, function() {
                         deferred.resolve();
                     });
-                } else {
-                    deferred.resolve();
                 }
+
+            } else {
+                deferred.resolve();
             }
+
         }
 
         return deferred.promise();

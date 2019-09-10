@@ -15,12 +15,17 @@ describe("DagUDFErrorModal Test", function() {
             dagViewCache = DagViewManager.Instance.getActiveDag;
             node = DagNodeFactory.create({type: DagNodeType.Map});
             node.setUDFError({
-                failureDescArr: [
-                    {numRowsFailed: 20, failureDesc: "test1"},
-                    {numRowsFailed: 30, failureDesc: "test2"},
+                failureDescTabArr: [
+                    {
+                        failureDescArr: [
+                            {numRowsFailed: 20, failureDesc: "test1"},
+                            {numRowsFailed: 30, failureDesc: "test2"}
+                        ]
+                    }
                 ],
                 numRowsFailedTotal: 50
             });
+
             node.getParents = function() {
                 return [parentNode];
             }
@@ -65,13 +70,13 @@ describe("DagUDFErrorModal Test", function() {
             DagViewManager.Instance.getActiveTab = cache;
         });
         it("should show correct instructions", function() {
-            expect($modal.find(".totalFailureArea").text().trim()).to.equal("Total number of failures: 50");
+            expect($modal.find(".numErrors").text().trim()).to.equal("50");
             expect($modal.find(".extraErrors").length).to.equal(1);
             expect($modal.find(".extraErrors:visible").length).to.equal(0);
         });
         it("should show errors", function() {
             expect($modal.find(".errorRow").length).to.equal(2);
-            expect($modal.find(".errorRow").eq(0).text().trim().startsWith("Count: 20\n")).to.be.true;
+            expect($modal.find(".errorRow").eq(0).text().trim().startsWith("20 failures")).to.be.true;
             expect($modal.find(".errorRow").eq(0).text().trim().endsWith("test1")).to.be.true;
         });
         it("should have genErrorTable button", () => {
@@ -136,4 +141,136 @@ describe("DagUDFErrorModal Test", function() {
         UnitTest.offMinMode();
         DagViewManager.Instance.getActiveDag = dagViewCache;
     });
+
+
+    var testError = {
+        "numRowsFailedTotal": 205663,
+        "opFailureSummary": [
+            {
+                "failureSummName": "DayOfWeek_udf",
+                "failureSummInfo": [
+                    {
+                        "numRowsFailed": 20518,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 55, in funcFailsMulti\n    ncol = 2/0\nZeroDivisionError: division by zero\n"
+                    },
+                    {
+                        "numRowsFailed": 20212,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 61, in funcFailsMulti\n    ncol = 5/0\nZeroDivisionError: division by zero\n"
+                    },
+                    {
+                        "numRowsFailed": 20210,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 63, in funcFailsMulti\n    ncol = 6/0\nZeroDivisionError: division by zero\n"
+                    },
+                    {
+                        "numRowsFailed": 20130,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 59, in funcFailsMulti\n    ncol = 4/0\nZeroDivisionError: division by zero\n"
+                    },
+                    {
+                        "numRowsFailed": 17722,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 69, in funcFailsMulti\n    ncol = funcFails1()\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 17, in funcFails1\n    y = time.time()\nNameError: name 'time' is not defined\n"
+                    }
+                ]
+            },
+            {
+                "failureSummName": "TaxiIn_udf",
+                "failureSummInfo": [
+                    {
+                        "numRowsFailed": 47493,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 69, in funcFailsMulti\n    ncol = funcFails1()\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 17, in funcFails1\n    y = time.time()\nNameError: name 'time' is not defined\n"
+                    },
+                    {
+                        "numRowsFailed": 20917,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 61, in funcFailsMulti\n    ncol = 5/0\nZeroDivisionError: division by zero\n"
+                    },
+                    {
+                        "numRowsFailed": 17474,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 63, in funcFailsMulti\n    ncol = 6/0\nZeroDivisionError: division by zero\n"
+                    },
+                    {
+                        "numRowsFailed": 15503,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 59, in funcFailsMulti\n    ncol = 4/0\nZeroDivisionError: division by zero\n"
+                    },
+                    {
+                        "numRowsFailed": 3568,
+                        "failureDesc": "Traceback (most recent call last):\n  File \"/var/opt/xcalar/workbooks/admin/5D781059319265B9/udfs/python/mapfailmulti.py\", line 55, in funcFailsMulti\n    ncol = 2/0\nZeroDivisionError: division by zero\n"
+                    }
+                ]
+            },
+            {
+                "failureSummName": "",
+                "failureSummInfo": [
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    }
+                ]
+            },
+            {
+                "failureSummName": "",
+                "failureSummInfo": [
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    }
+                ]
+            },
+            {
+                "failureSummName": "",
+                "failureSummInfo": [
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    },
+                    {
+                        "numRowsFailed": 0,
+                        "failureDesc": ""
+                    }
+                ]
+            }
+        ]
+    };
 });

@@ -1,35 +1,33 @@
-<div id="dagUDFErrorModal" class="modalContainer shadow">
+<div id="dagUDFErrorModal" class="modalContainer style-new tempModalStyling">
 <!-- Header -->
-<header class="modalHeader">
-    <span class="text">Map Node UDF Failures</span>
-    <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Minimize %>">
+<header class="modalHeader flexContainer">
+    <span class="text">UDF failure report (<span class="numErrors"></span> failures)</span>
+    <!-- new styling does not have expand/minimize buttons -->
+    <!-- <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Minimize %>">
     <i class="icon xi-exit-fullscreen"></i>
     </div>
     <div class="headerBtn fullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Maximize %>">
     <i class="icon xi-fullscreen"></i>
-    </div>
+    </div>-->
     <div class="close">
     <i class="icon xi-close"></i>
     </div>
 </header>
 <!-- Instruction -->
 <section class="modalInstruction">
-    <div class="modalInstructionSection totalFailureArea">
+    <div class="modalInstructionSection extraErrors">
         <i class="icon xi-error"></i>
-        <div class="text">Total number of failures: <span class="numErrors">N/A</span></div>
+        There are more failures than reported below. To discover additional errors, fix the ones reported, and re-run the map operation.
     </div>
-    <div class="modalInstructionSection extraErrors">There are more errors than the ones reported here; please fix the ones reported, and re-run the map operation to discover the additional errors.</div>
 </section>
-<section class="modalRow modalMainTitle">
-    Error Count and Description
-</section>
+<div class="divider"></div>
 <!-- Main Section -->
 <section class="modalMain">
     <div class="errorList"></div>
 </section>
 
 <section class="modalBottom">
-    <button type="button" class="btn btn-large btn-submit genErrorTable">Generate Detailed Error Table</button>
+    <button type="button" class="btn btn-large btn-submit genErrorTable">Generate detailed error report</button>
     <button type="button" class="btn cancel"><%= dicts.common.Cancel %></button>
 </section>
 </div>

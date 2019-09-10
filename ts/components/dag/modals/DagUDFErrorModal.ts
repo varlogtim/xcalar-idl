@@ -39,6 +39,13 @@ class DagUDFErrorModal {
         this._listErrors();
         this._updateErrorNum();
         this._updateGenErrorTableButton();
+        this._$modal.height(400);
+        if (this._$modal.find(".errorList").height() > this._$modal.find(".modalMain").height() * 2) {
+            const height: number = Math.min(600, $(window).height());
+            this._$modal.height(height);
+        }
+
+        this._modalHelper.center();
         return true;
     }
 
@@ -62,21 +69,41 @@ class DagUDFErrorModal {
         let count = 0;
         let hasMultipleEvals = false;
         let hasErrStr = false;
+        let curColumnName = "";
         if (errorInfo.failureDescTabArr) {
-            errorInfo.failureDescTabArr.forEach(err => {
+            errorInfo.failureDescTabArr.forEach((err, i) => {
                 if (err && err.failureDescArr) {
                     if (hasErrStr) {
                         hasMultipleEvals = true;
                         hasErrStr = false;
                     }
+                    curColumnName = `Column ${i + 1}`;
+
                     err.failureDescArr.forEach(innerErr => {
                         html += getRowHtml(innerErr);
                     });
+                    if (hasErrStr) {
+                        html += `</div>`; // closes group
+                    }
                 }
             });
-        } else {
-            errorInfo.failureDescArr.forEach(err => {
-                html += getRowHtml(err);
+        } else if (errorInfo.opFailureSummary) {
+            errorInfo.opFailureSummary.forEach(err => {
+                if (err && err.failureSummInfo) {
+                    if (hasErrStr) {
+                        hasMultipleEvals = true;
+                        hasErrStr = false;
+                    }
+
+                    curColumnName = err.failureSummName;
+
+                    err.failureSummInfo.forEach(innerErr => {
+                        html += getRowHtml(innerErr);
+                    });
+                    if (hasErrStr) {
+                        html += `</div>`; // closes group
+                    }
+                }
             });
         }
 
@@ -84,12 +111,11 @@ class DagUDFErrorModal {
         if (count === 0) {
             this._$modal.find(".errorList").html(`<div class="noErrors">N/A</div>`);
         }
+
         if (count < errorInfo.numRowsFailedTotal) {
             this._$modal.addClass("hasExtraErrors");
-            this._$modal.find(".extraErrors").removeClass("xc-hidden");
         } else {
             this._$modal.removeClass("hasExtraErrors");
-            this._$modal.find(".extraErrors").addClass("xc-hidden");
         }
 
         function getRowHtml(err) {
@@ -97,16 +123,25 @@ class DagUDFErrorModal {
                 return "";
             }
             let html = "";
+            let expanded = "expanded";
             if (hasMultipleEvals && !hasErrStr) {
                 // first error of an eval string
-                html += `<div class="divider"></div>`;
+                expanded = "";
+            }
+            if (!hasErrStr) {
+                html += `<div class="evalGroup ${expanded}">
+                            <div class="groupHeader">
+                                <span class="text">${curColumnName}</span>
+                                <i class="icon xi-minus"></i>
+                                <i class="icon xi-plus"></i>
+                            </div>`;
             }
 
             count += err.numRowsFailed;
             let numFails = xcStringHelper.numToStr(err.numRowsFailed);
             let desc = xcStringHelper.escapeHTMLSpecialChar(err.failureDesc);
             html += `<div class="errorRow">
-                <div class="count">Count: <span class="value">${numFails}</span></div>
+                <div class="count">${numFails} failures</div>
                 <div class="errorText">${desc}</div>
             </div>`;
 
@@ -142,6 +177,14 @@ class DagUDFErrorModal {
                 return;
             }
             self._genErrorTable();
+        });
+        this._$modal.on("click", ".groupHeader", function() {
+            const $group = $(this).closest(".evalGroup");
+            if ($group.hasClass("expanded")) {
+                $group.removeClass("expanded");
+            } else {
+                $group.addClass("expanded");
+            }
         });
     }
 

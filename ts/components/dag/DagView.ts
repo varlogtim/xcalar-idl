@@ -3590,7 +3590,8 @@ class DagView {
         $node.addClass("hasUdfError");
         $node.find(".iconArea").attr("fill", DagView.udfErrorColor);
         $node.find(".icon").text("\uea70");
-        xcTooltip.add($node.find(".iconArea"), {title: node.getUDFError().numRowsFailedTotal + " rows failed. Click to view details."});
+        let numFailed = xcStringHelper.numToStr(node.getUDFError().numRowsFailedTotal);
+        xcTooltip.add($node.find(".iconArea"), {title: numFailed + " rows failed. Click to view details."});
     }
 
     private _removeNodeUDFErrorIcon($node: JQuery): void {
