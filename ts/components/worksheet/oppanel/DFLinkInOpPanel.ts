@@ -87,6 +87,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         $drdopwonList.find("input").val("");
         $drdopwonList.find("ul").empty();
         $panel.removeClass("withSource");
+        this._toggleTableNameOption(false);
     }
 
     private _initialize(dagNode: DagNodeDFIn): void {
@@ -154,15 +155,13 @@ class DFLinkInOpPanel extends BaseOpPanel {
     private _setSource(source: string): void {
         this._source = source;
         let $panel = this._getPanel();
-        let $el = $panel.find(".dataflowName, .linkOutNodeName");
         if (this._source) {
             $panel.addClass("withSource");
-            xcTooltip.add($el, {
-                title: OpPanelTStr.DFLinkInSourceHint
-            });
         } else {
             $panel.removeClass("withSource");
         }
+        $panel.find(".sourceTableName input").val(this._source);
+        this._toggleTableNameOption(this._source != null && this._source != "");
     }
 
     private _restorePanel(param: {
@@ -235,6 +234,11 @@ class DFLinkInOpPanel extends BaseOpPanel {
 
         const schema = this._schemaSection.getSchema(ignore);
         if (isValid && schema != null) {
+            if (!ignore) {
+                if (this._getSourceOptions().filter(`[data-option="node"]`).hasClass("active")) {
+                    this._source = null;
+                }
+            }
             return {
                 dataflowId: dataflowId,
                 linkOutName: linkOutName,
@@ -334,6 +338,10 @@ class DFLinkInOpPanel extends BaseOpPanel {
 
     private _getSchemaSection(): JQuery {
         return this._getPanel().find(".colSchemaSection");
+    }
+
+    private _getSourceOptions(): JQuery {
+        return this._getPanel().find(".sourceSection .radioButton");
     }
 
     private _autoDetectSchema(
@@ -566,6 +574,15 @@ class DFLinkInOpPanel extends BaseOpPanel {
             this._autoDetectSchema();
         });
 
+        $panel.on("click", ".sourceSection .radioButton", (event) => {
+            const $btn: JQuery = $(event.currentTarget);
+            this._toggleTableNameOption($btn.data("option") === "table");
+        });
+
+        $panel.find(".sourceTableName input").change(() =>{
+            this._source = $(event.currentTarget).val().trim();
+        });
+
         // dropdown for dataflowName
         const $dfList: JQuery = this._getDFDropdownList();
         this._addEventListenersForDropdown($dfList, this._searchDF);
@@ -595,4 +612,18 @@ class DFLinkInOpPanel extends BaseOpPanel {
             }
         });
     }
+
+    private _toggleTableNameOption(withSource: boolean): void {
+        let $panel: JQuery = this._getPanel();
+        let $options: JQuery = this._getSourceOptions();
+        $options.removeClass("active");
+        if (withSource) {
+            $panel.addClass("withSource");
+            $options.filter(`[data-option="table"]`).addClass("active");
+        } else {
+            $panel.removeClass("withSource");
+            $options.filter(`[data-option="node"]`).addClass("active");
+        }
+    }
+
 }

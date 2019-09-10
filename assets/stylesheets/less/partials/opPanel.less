@@ -3426,15 +3426,42 @@
         display: none;
     }
 
+    .sourceSection {
+        border-top: 1px solid @color-bg-topBarGray2;
+        border-bottom: 1px solid @color-bg-topBarGray2;
+        padding-bottom: 16px;
+
+        .radioButtonGroup {
+            margin: 0px 10px;
+        }
+
+        .qMark {
+            cursor: help;
+            position: relative;
+            top: -1px;
+            left: 2px;
+        }
+    }
+
+    .sourceTableName {
+        display: none; // hidden by default
+
+        .description {
+            text-transform: capitalize;
+        }
+    }
+
     &.withSource {
         .opSection {
             .row {
                 &.dataflowName, &.linkOutNodeName {
-                    > div {
-                        .xc-disabled;
-                    }
+                    display: none;
                 }
             }
+        }
+
+        .sourceTableName {
+            display: block;
         }
 
         .instrText.withSource {

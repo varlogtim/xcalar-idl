@@ -1032,7 +1032,7 @@ module.exports = {
     "DFLink": {
         "InHeader": "Link In",
         "InInstr": "First select the dataflow name, then select the link out reference name to link.",
-        "InInstrWithSource": "Please modify the source from advaced view of the panel",
+        "InInstrWithSource": "Select the result set name to link.",
         "OutHeader": "Link Out",
         "DFName": "Dataflow Name",
         "OutName": "Link Out Reference Name",

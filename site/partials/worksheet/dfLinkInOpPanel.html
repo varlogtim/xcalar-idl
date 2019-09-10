@@ -16,32 +16,65 @@
         <p class="mainInstructions instrText"><%= dicts.DFLink.InInstr %></p>
         <p class="mainInstructions instrText withSource"><%= dicts.DFLink.InInstrWithSource %></p>
         <div class="argsSection">
-          <!-- dataflow name -->
-          <div class="row clearfix dataflowName">
-            <div class="description"><%= dicts.DFLink.DFName %>:</div>
-            <div class="inputWrap">
-              <div class="dropDownList">
-                <input type="text">
-                <div class="list hint autoHighlight">
-                  <ul></ul>
-                  include "../../util/menuScrollArea.html"
+            <div class="sourceSection">
+                <!-- source toggle -->
+                <div class="row clearfix">
+                    <div class="description">Source Type:
+                        <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"
+                            data-title='You can find a result set name by clicking on a node and copying the name under "result set" in the left panel.'
+                            data-placement="top"></i>
+                    </div>
+                    <div class="radioButtonGroup">
+                        <div class="radioButton xc-action active" data-option="node">
+                            <div class="radio">
+                                <i class="icon xi-radio-selected"></i>
+                                <i class="icon xi-radio-empty"></i>
+                            </div>
+                            <div class="label">Node</div>
+                        </div>
+                        <div class="radioButton xc-action" data-option="table">
+                            <div class="radio">
+                                <i class="icon xi-radio-selected"></i>
+                                <i class="icon xi-radio-empty"></i>
+                            </div>
+                            <div class="label">Result Set</div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <!-- node name -->
-          <div class="row clearfix linkOutNodeName">
-            <div class="description"><%= dicts.DFLink.OutName %>:</div>
-            <div class="inputWrap">
-              <div class="dropDownList">
-                <input type="text">
-                <div class="list hint autoHighlight">
-                  <ul></ul>
-                  include "../../util/menuScrollArea.html"
+                <!-- dataflow name -->
+                <div class="row clearfix dataflowName">
+                    <div class="description"><%= dicts.DFLink.DFName %>:</div>
+                    <div class="inputWrap">
+                    <div class="dropDownList">
+                        <input type="text" spellcheck="false">
+                        <div class="list hint autoHighlight">
+                        <ul></ul>
+                        include "../../util/menuScrollArea.html"
+                        </div>
+                    </div>
+                    </div>
                 </div>
-              </div>
+                <!-- node name -->
+                <div class="row clearfix linkOutNodeName">
+                    <div class="description"><%= dicts.DFLink.OutName %>:</div>
+                    <div class="inputWrap">
+                    <div class="dropDownList">
+                        <input type="text" spellcheck="false">
+                        <div class="list hint autoHighlight">
+                        <ul></ul>
+                        include "../../util/menuScrollArea.html"
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <!-- source name (hidden by default)-->
+                <div class="row clearfix sourceTableName">
+                    <div class="description">Result Set Name:</div>
+                    <div class="inputWrap">
+                        <input type="text" spellcheck="false">
+                    </div>
+                </div>
             </div>
-          </div>
           <!-- schema -->
           <div class="row clearfix schema">
             <div class="description"><%= dicts.DFLink.Schema %>:</div>

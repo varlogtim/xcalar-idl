@@ -17,7 +17,7 @@ describe("DFLinkInOpPanel Test", function() {
             };
             oldGetTabs = DagTabManager.Instance.getTabs;
             DagTabManager.Instance.getTabs = oldGetTabs;
-            
+
             let fakeTabs = [new DagTabUser(), new DagTabSQL({}),
                 createTab("df1", "test1"), createTab("df2", "test2")];
             DagTabManager.Instance.getTabs = () => fakeTabs;
@@ -120,7 +120,7 @@ describe("DFLinkInOpPanel Test", function() {
         });
     });
 
-    describe("Submmit Test", function() {
+    describe("Submit Test", function() {
         it("should submit form", function() {
             let $dfInput = panel._getDFDropdownList().find("input");
             let $linkOutInput = panel._getLinkOutDropdownList().find("input");
@@ -136,6 +136,26 @@ describe("DFLinkInOpPanel Test", function() {
             expect(dagNode.isConfigured()).to.be.true;
         });
     });
+
+    describe("Result set name", () => {
+        it("should show result set name", (done) => {
+            dagNode.input.input.source = "testTable#1";
+            let $panel = panel._getPanel();
+            expect($panel.hasClass("withSource")).to.be.false;
+            panel.show(dagNode)
+            .then(function() {
+                expect($panel.hasClass("withSource")).to.be.true;
+                let $radio = $panel.find(".radioButton.active");
+                expect($radio.length).to.equal(1);
+                expect($radio.data("option")).to.equal("table");
+                $panel.find(".close").click();
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+    })
 
     after(function() {
         DagTabManager.Instance.getTabs = oldGetTabs;
