@@ -6,6 +6,7 @@ namespace WorkbookManager {
     let checkInterval: number = 2000; // progress bar check time
     let progressTimeout: any;
     const descriptionKey: string = "workBookDesc-1";
+    const sysWkbkNamePattern: string = ".system_workbook_";
 
     /**
     * WorkbookManager.setup
@@ -1034,6 +1035,10 @@ namespace WorkbookManager {
 
             for (let i: number = 0; i < numSessions; i++) {
                 const wkbkName: string = sessions[i].name;
+                // Hide wkbk for system session usage: SDK-826
+                if (wkbkName.startsWith(sysWkbkNamePattern)) {
+                    continue;
+                }
                 const hasResouce: boolean = checkResource(sessions[i].info);
                 const wkbkId: string = getWKBKId(wkbkName);
                 let wkbk: WKBK;
