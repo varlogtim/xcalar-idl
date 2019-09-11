@@ -106,12 +106,11 @@ window.UnitTest = (function(UnitTest, $) {
         });
 
         xcMixpanel = window.xcMixpanel || {};
-        if (!xcMixpanel.errorEvent) {
-            xcMixpanel.errorEvent = () => {};
-        }
-
+        xcMixpanel.errorEvent = () => {};
         xcMixpanel.transactionLog = () => {};
         xcMixpanel.menuItemClick = () => {};
+        xcMixpanel.pageUnloadEvent = () => {};
+        xcMixpanel.track = () => {};
 
         var prevPct = null;
         window.mochaPct = 0;

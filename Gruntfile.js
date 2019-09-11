@@ -2958,10 +2958,7 @@ module.exports = function(grunt) {
         if (IS_WATCH_TASK || BLDTYPE == DEV) {
             extraTags = extraTags.concat(
                 ['assets/dev/shortcuts.js',
-                'assets/js/env/devEnv.js',
-                'assets/js/mixpanel/xcMixpanel.js']);
-        } else {
-            extraTags.push('assets/js/mixpanel/xcMixpanelAzure.js');
+                'assets/js/env/devEnv.js']);
         }
 
         if (PRODUCT === Cloud) {
