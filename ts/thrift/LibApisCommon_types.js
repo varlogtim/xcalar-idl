@@ -12695,16 +12695,20 @@ FailureDescT.prototype.write = function(output) {
   return;
 };
 
-FailureDescTabT = function(args) {
-  this.failureDescArr = null;
+FailureSummaryT = function(args) {
+  this.failureSummName = null;
+  this.failureSummInfo = null;
   if (args) {
-    if (args.failureDescArr !== undefined && args.failureDescArr !== null) {
-      this.failureDescArr = Thrift.copyList(args.failureDescArr, [FailureDescT]);
+    if (args.failureSummName !== undefined && args.failureSummName !== null) {
+      this.failureSummName = args.failureSummName;
+    }
+    if (args.failureSummInfo !== undefined && args.failureSummInfo !== null) {
+      this.failureSummInfo = Thrift.copyList(args.failureSummInfo, [FailureDescT]);
     }
   }
 };
-FailureDescTabT.prototype = {};
-FailureDescTabT.prototype.read = function(input) {
+FailureSummaryT.prototype = {};
+FailureSummaryT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -12718,10 +12722,17 @@ FailureDescTabT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.failureSummName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
       if (ftype == Thrift.Type.LIST) {
         var _size360 = 0;
         var _rtmp3364;
-        this.failureDescArr = [];
+        this.failureSummInfo = [];
         var _etype363 = 0;
         _rtmp3364 = input.readListBegin();
         _etype363 = _rtmp3364.etype;
@@ -12731,16 +12742,13 @@ FailureDescTabT.prototype.read = function(input) {
           var elem366 = null;
           elem366 = new FailureDescT();
           elem366.read(input);
-          this.failureDescArr.push(elem366);
+          this.failureSummInfo.push(elem366);
         }
         input.readListEnd();
       } else {
         input.skip(ftype);
       }
       break;
-      case 0:
-        input.skip(ftype);
-        break;
       default:
         input.skip(ftype);
     }
@@ -12750,16 +12758,21 @@ FailureDescTabT.prototype.read = function(input) {
   return;
 };
 
-FailureDescTabT.prototype.write = function(output) {
-  output.writeStructBegin('FailureDescTabT');
-  if (this.failureDescArr !== null && this.failureDescArr !== undefined) {
-    output.writeFieldBegin('failureDescArr', Thrift.Type.LIST, 1);
-    output.writeListBegin(Thrift.Type.STRUCT, this.failureDescArr.length);
-    for (var iter367 in this.failureDescArr)
+FailureSummaryT.prototype.write = function(output) {
+  output.writeStructBegin('FailureSummaryT');
+  if (this.failureSummName !== null && this.failureSummName !== undefined) {
+    output.writeFieldBegin('failureSummName', Thrift.Type.STRING, 1);
+    output.writeString(this.failureSummName);
+    output.writeFieldEnd();
+  }
+  if (this.failureSummInfo !== null && this.failureSummInfo !== undefined) {
+    output.writeFieldBegin('failureSummInfo', Thrift.Type.LIST, 2);
+    output.writeListBegin(Thrift.Type.STRUCT, this.failureSummInfo.length);
+    for (var iter367 in this.failureSummInfo)
     {
-      if (this.failureDescArr.hasOwnProperty(iter367))
+      if (this.failureSummInfo.hasOwnProperty(iter367))
       {
-        iter367 = this.failureDescArr[iter367];
+        iter367 = this.failureSummInfo[iter367];
         iter367.write(output);
       }
     }
@@ -12773,13 +12786,13 @@ FailureDescTabT.prototype.write = function(output) {
 
 EvalUdfErrorStatsT = function(args) {
   this.numEvalUdfError = null;
-  this.failureDescTabArr = null;
+  this.opFailureSummary = null;
   if (args) {
     if (args.numEvalUdfError !== undefined && args.numEvalUdfError !== null) {
       this.numEvalUdfError = args.numEvalUdfError;
     }
-    if (args.failureDescTabArr !== undefined && args.failureDescTabArr !== null) {
-      this.failureDescTabArr = Thrift.copyList(args.failureDescTabArr, [FailureDescTabT]);
+    if (args.opFailureSummary !== undefined && args.opFailureSummary !== null) {
+      this.opFailureSummary = Thrift.copyList(args.opFailureSummary, [FailureSummaryT]);
     }
   }
 };
@@ -12808,7 +12821,7 @@ EvalUdfErrorStatsT.prototype.read = function(input) {
       if (ftype == Thrift.Type.LIST) {
         var _size368 = 0;
         var _rtmp3372;
-        this.failureDescTabArr = [];
+        this.opFailureSummary = [];
         var _etype371 = 0;
         _rtmp3372 = input.readListBegin();
         _etype371 = _rtmp3372.etype;
@@ -12816,9 +12829,9 @@ EvalUdfErrorStatsT.prototype.read = function(input) {
         for (var _i373 = 0; _i373 < _size368; ++_i373)
         {
           var elem374 = null;
-          elem374 = new FailureDescTabT();
+          elem374 = new FailureSummaryT();
           elem374.read(input);
-          this.failureDescTabArr.push(elem374);
+          this.opFailureSummary.push(elem374);
         }
         input.readListEnd();
       } else {
@@ -12841,14 +12854,14 @@ EvalUdfErrorStatsT.prototype.write = function(output) {
     output.writeI64(this.numEvalUdfError);
     output.writeFieldEnd();
   }
-  if (this.failureDescTabArr !== null && this.failureDescTabArr !== undefined) {
-    output.writeFieldBegin('failureDescTabArr', Thrift.Type.LIST, 2);
-    output.writeListBegin(Thrift.Type.STRUCT, this.failureDescTabArr.length);
-    for (var iter375 in this.failureDescTabArr)
+  if (this.opFailureSummary !== null && this.opFailureSummary !== undefined) {
+    output.writeFieldBegin('opFailureSummary', Thrift.Type.LIST, 2);
+    output.writeListBegin(Thrift.Type.STRUCT, this.opFailureSummary.length);
+    for (var iter375 in this.opFailureSummary)
     {
-      if (this.failureDescTabArr.hasOwnProperty(iter375))
+      if (this.opFailureSummary.hasOwnProperty(iter375))
       {
-        iter375 = this.failureDescTabArr[iter375];
+        iter375 = this.opFailureSummary[iter375];
         iter375.write(output);
       }
     }
@@ -18112,13 +18125,13 @@ XcalarApiInputT.prototype.write = function(output) {
 
 OpFailureInfoT = function(args) {
   this.numRowsFailedTotal = null;
-  this.failureDescTabArr = null;
+  this.opFailureSummary = null;
   if (args) {
     if (args.numRowsFailedTotal !== undefined && args.numRowsFailedTotal !== null) {
       this.numRowsFailedTotal = args.numRowsFailedTotal;
     }
-    if (args.failureDescTabArr !== undefined && args.failureDescTabArr !== null) {
-      this.failureDescTabArr = Thrift.copyList(args.failureDescTabArr, [FailureDescTabT]);
+    if (args.opFailureSummary !== undefined && args.opFailureSummary !== null) {
+      this.opFailureSummary = Thrift.copyList(args.opFailureSummary, [FailureSummaryT]);
     }
   }
 };
@@ -18147,7 +18160,7 @@ OpFailureInfoT.prototype.read = function(input) {
       if (ftype == Thrift.Type.LIST) {
         var _size440 = 0;
         var _rtmp3444;
-        this.failureDescTabArr = [];
+        this.opFailureSummary = [];
         var _etype443 = 0;
         _rtmp3444 = input.readListBegin();
         _etype443 = _rtmp3444.etype;
@@ -18155,9 +18168,9 @@ OpFailureInfoT.prototype.read = function(input) {
         for (var _i445 = 0; _i445 < _size440; ++_i445)
         {
           var elem446 = null;
-          elem446 = new FailureDescTabT();
+          elem446 = new FailureSummaryT();
           elem446.read(input);
-          this.failureDescTabArr.push(elem446);
+          this.opFailureSummary.push(elem446);
         }
         input.readListEnd();
       } else {
@@ -18180,14 +18193,14 @@ OpFailureInfoT.prototype.write = function(output) {
     output.writeI64(this.numRowsFailedTotal);
     output.writeFieldEnd();
   }
-  if (this.failureDescTabArr !== null && this.failureDescTabArr !== undefined) {
-    output.writeFieldBegin('failureDescTabArr', Thrift.Type.LIST, 2);
-    output.writeListBegin(Thrift.Type.STRUCT, this.failureDescTabArr.length);
-    for (var iter447 in this.failureDescTabArr)
+  if (this.opFailureSummary !== null && this.opFailureSummary !== undefined) {
+    output.writeFieldBegin('opFailureSummary', Thrift.Type.LIST, 2);
+    output.writeListBegin(Thrift.Type.STRUCT, this.opFailureSummary.length);
+    for (var iter447 in this.opFailureSummary)
     {
-      if (this.failureDescTabArr.hasOwnProperty(iter447))
+      if (this.opFailureSummary.hasOwnProperty(iter447))
       {
-        iter447 = this.failureDescTabArr[iter447];
+        iter447 = this.opFailureSummary[iter447];
         iter447.write(output);
       }
     }

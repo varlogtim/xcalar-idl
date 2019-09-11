@@ -699,7 +699,8 @@ StatusT = {
   'StatusMapFailureSummarySchema' : 690,
   'StatusMapFailureMultiEval' : 691,
   'StatusUdfIcvModeFailure' : 692,
-  'StatusKVSRefCountLeak' : 693
+  'StatusKVSRefCountLeak' : 693,
+  'StatusExportMultipleTables' : 694
 };
 StatusTStr = {
   0 : 'Success',
@@ -1395,7 +1396,8 @@ StatusTStr = {
   690 : 'Map failure summary update failed due to schema',
   691 : 'Map failure summary update not supported yet for failures in multiple eval strings',
   692 : 'UDF execution failed in map ICV mode',
-  693 : 'KVStore Ref Count Leak detected'
+  693 : 'KVStore Ref Count Leak detected',
+  694 : 'Cannot have more than one export to table operation'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2091,5 +2093,6 @@ StatusTFromStr = {
   'Map failure summary update failed due to schema' : 690,
   'Map failure summary update not supported yet for failures in multiple eval strings' : 691,
   'UDF execution failed in map ICV mode' : 692,
-  'KVStore Ref Count Leak detected' : 693
+  'KVStore Ref Count Leak detected' : 693,
+  'Cannot have more than one export to table operation' : 694
 };
