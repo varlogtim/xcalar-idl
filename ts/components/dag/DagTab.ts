@@ -40,7 +40,7 @@ abstract class DagTab extends Durable {
     }
 
     public abstract load(reset?: boolean): XDPromise<void>
-    public abstract save(): XDPromise<void>
+    public abstract save(delay?: boolean): XDPromise<void>
     public abstract delete(): XDPromise<void>
     public abstract download(name: string, optimized?: boolean): XDPromise<void>
     public abstract upload(fileContent: string, overwriteUDF: boolean): XDPromise<{tabUploaded: DagTab, alertOption?: Alert.AlertOptions}>;

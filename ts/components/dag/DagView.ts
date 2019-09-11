@@ -3244,9 +3244,11 @@ class DagView {
             this.updateNodeState(info);
             DagNodeInfoPanel.Instance.update(info.id, "status");
             DagNodeInfoPanel.Instance.update(info.id, "stats");
+            // running state don't need to change
             if (info.state !== DagNodeState.Running) {
-                // running state don't need to change
-                this.dagTab.save();
+                const isDelay: boolean = (info.oldState === DagNodeState.Running &&
+                                          info.state === DagNodeState.Complete);
+                this.dagTab.save(isDelay);
                 this.removeProgressPct(info.id);
             }
             if (this.dagTab instanceof DagTabPublished) {

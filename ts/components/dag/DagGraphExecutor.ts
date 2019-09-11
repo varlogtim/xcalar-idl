@@ -931,7 +931,7 @@ class DagGraphExecutor {
                         const tabId: string = this._graph.getTabId();
                         const tab: DagTab = DagServiceFactory.getDagListService().getDagTabById(tabId);
                         if (tab != null) {
-                            tab.save(); // save destTable to node
+                            tab.save(true); // save destTable to node
                         }
                     }
                 }

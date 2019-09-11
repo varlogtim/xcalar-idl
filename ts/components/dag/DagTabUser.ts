@@ -5,6 +5,9 @@ interface DagTabUserOptions extends DagTabOptions {
 
 class DagTabUser extends DagTab {
     private _reset: boolean;
+    private _saveTimer: NodeJS.Timer;
+    private _saveDelay: number;
+    private _hasPendingSave: boolean;
 
     /**
      * DagTabUser.restore
@@ -165,6 +168,9 @@ class DagTabUser extends DagTab {
         this._kvStore = new KVStore(this._id, gKVScope.WKBK);
         this._reset = options.reset;
         this._createdTime = options.createdTime;
+        this._saveTimer = null;
+        this._saveDelay = 3000;
+        this._hasPendingSave = false;
     }
 
     public setName(newName: string): void {
@@ -211,11 +217,37 @@ class DagTabUser extends DagTab {
         this.setGraph(graph);
     }
 
-    public save(): XDPromise<void> {
+    /**
+     *
+     * @param delay if true, will make a delayed call to saveHelper
+     * and any additional .save() calls with bulkCheck = true that are made
+     * during the delay period will be ignored, but a save call with bulkCheck = false
+     * will clear the pending saveHelper call and call it immediately
+     */
+    public save(delay = false): XDPromise<void> {
         if (this._disableSaveLock > 0) {
             return PromiseHelper.resolve();
         }
+        if (delay) {
+            if (!this._hasPendingSave) {
+                this._saveTimer = setTimeout(() => {
+                    if (this._hasPendingSave) {
+                        this._saveHelper();
+                    }
+                }, this._saveDelay);
+            }
+            this._hasPendingSave = true;
+            return PromiseHelper.resolve();
+        } else {
+            return this._saveHelper();
+        }
+    }
+
+    private _saveHelper() {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        clearTimeout(this._saveTimer);
+        this._hasPendingSave = false;
+
         this._writeToKVStore()
         .then(() => {
             this._trigger("save");
@@ -229,6 +261,7 @@ class DagTabUser extends DagTab {
 
     public delete(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        clearTimeout(this._saveTimer);
         this._deleteTableHelper()
         .then(() => {
             return PromiseHelper.alwaysResolve(this._deleteAggregateHelper());

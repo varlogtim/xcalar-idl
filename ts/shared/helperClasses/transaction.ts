@@ -4,6 +4,8 @@ namespace Transaction {
     const disabledCancels = {};
     let txIdCount = 1;
     let isDeleting = false;
+    let _saveDelay: number = 1000;
+    let _hasPendingSave: boolean = false;
 
     const has_require = (typeof require !== "undefined" && typeof nw === "undefined");
 
@@ -294,7 +296,15 @@ namespace Transaction {
         }
         // commit
         if (willCommit && !has_require) {
-            KVStore.commit();
+            // will wait before commiting. Any additional commit calls made
+            // from Transaction.done during wait period will be ignored
+            if (!_hasPendingSave) {
+                setTimeout(() => {
+                    _hasPendingSave = false;
+                    KVStore.commit();
+                }, _saveDelay);
+            }
+            _hasPendingSave = true;
         }
 
         transactionCleaner();
