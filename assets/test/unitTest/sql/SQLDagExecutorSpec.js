@@ -23,6 +23,10 @@ describe("SQL Executor Test", function() {
 
         let executor = new SQLDagExecutor({
             sql: "select * from TEST",
+            command: {
+                args: [],
+                type: "select"
+            },
             identifiers: ["TEST"]
         });
         PTblManager.Instance.getTableMap = oldMap;
@@ -52,6 +56,10 @@ describe("SQL Executor Test", function() {
         try {
             new SQLDagExecutor({
                 sql: "select * from TEST",
+                command: {
+                    args: [],
+                    type: "select"
+                },
                 identifiers: ["TEST"]
             });
         } catch (e) {

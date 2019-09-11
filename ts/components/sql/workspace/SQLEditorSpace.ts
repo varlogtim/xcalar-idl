@@ -276,14 +276,15 @@ class SQLEditorSpace {
             let executePromiseArray: XDPromise<any>[] = [];
             const struct = {
                 sqlQuery: sqls,
-                ops: ["identifier", "sqlfunc", "command", "parameters"],
+                ops: ["identifier", "sqlfunc", "parameters"],
                 isMulti: (sqls.indexOf(";") > -1)
             };
             SQLUtil.sendToPlanner("", "parse", struct)
             .then((ret) => {
                 const sqlStructArray: [SQLParserStruct] = JSON.parse(ret).ret;
                 if (!struct.isMulti && sqlStructArray.length === 1 &&
-                    Object.keys(sqlStructArray[0].functions).length === 0) {
+                    Object.keys(sqlStructArray[0].functions).length === 0 &&
+                    sqlStructArray[0].command.type !== "createTable") {
                     // when it's single statement and doesn't have SQL function
                     // use original sql which contains newline characters
                     sqlStructArray[0].sql = sqlStructArray[0].newSql = sqls;
@@ -293,7 +294,13 @@ class SQLEditorSpace {
                         const tableName: string = sqlStruct.command.args[0];
                         executePromiseArray.push(this._dropTable.bind(this,
                                                      tableName, sqlStruct.sql));
-                    } else if (sqlStruct.command.type != "select") {
+                    } else if (sqlStruct.command.type === "createTable") {
+                        if (sqlStructArray.length > 1) {
+                            return PromiseHelper.reject(SQLErrTStr.MultiCreate);
+                        }
+                        selectArray.push(sqlStruct);
+                    } else if (sqlStruct.command.type === "showTables"
+                               || sqlStruct.command.type === "describeTable") {
                         lastShow = sqlStruct.command;
                     } else if (sqlStruct.nonQuery) {
                         return PromiseHelper.reject(SQLErrTStr.NoSupport + sqlStruct.sql);

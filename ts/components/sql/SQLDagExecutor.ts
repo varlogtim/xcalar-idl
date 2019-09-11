@@ -26,6 +26,7 @@ class SQLDagExecutor {
     private _sqlTabCached: boolean;
     private _sqlFunctions: {};
     private _advancedDebug: boolean;
+    private _publishName: string;
 
     public constructor(sqlStruct: SQLParserStruct, advancedDebug?: boolean) {
         this._sql = sqlStruct.sql.replace(/;+$/, "");
@@ -39,9 +40,16 @@ class SQLDagExecutor {
         this._status = SQLStatus.None;
         this._sqlTabCached = false;
         this._advancedDebug = advancedDebug || false;
+        this._publishName = undefined;
 
         const tables: string[] = sqlStruct.identifiers || [];
         const tableMap = PTblManager.Instance.getTableMap();
+        if (sqlStruct.command.type === "createTable") {
+            this._publishName = sqlStruct.command.args[0].trim().toUpperCase();
+            if (!xcHelper.isValidPublishedTableName(this._publishName)) {
+                throw ErrTStr.InvalidPublishedTableName + ": " + this._publishName;
+            }
+        }
         tables.forEach((identifier, idx) => {
             let pubTableName = identifier.toUpperCase();
             // pub table name can't have backticks. If see backticks, it must be for escaping in SQL

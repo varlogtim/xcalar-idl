@@ -292,7 +292,7 @@ describe("SQLEditorSpace Test", function() {
     });
 
     it("should cancel execution", function() {
-        let executor = new SQLDagExecutor({sql: ""});
+        let executor = new SQLDagExecutor({sql: "", command: {args: [], type: "select"}});
         SQLEditorSpace.Instance._executers.push(executor);
 
         SQLEditorSpace.Instance.cancelExecution();
@@ -368,7 +368,7 @@ describe("SQLEditorSpace Test", function() {
     it("should add and remove executor", function() {
         let oldExecuters = SQLEditorSpace.Instance._executers;
         SQLEditorSpace.Instance._executers = [];
-        let executor = new SQLDagExecutor({sql: ""});
+        let executor = new SQLDagExecutor({sql: "", command: {args: [], type: "select"}});
         SQLEditorSpace.Instance._addExecutor(executor);
         expect(SQLEditorSpace.Instance._executers.length).to.equal(1);
 
