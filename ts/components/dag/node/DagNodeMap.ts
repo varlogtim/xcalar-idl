@@ -174,6 +174,9 @@ class DagNodeMap extends DagNode {
     }
 
     public setUDFError(udfError): void {
+        if (this._udfError === udfError) {
+            return; // do not trigger event if nothing is changed
+        }
         this._udfError = udfError;
         this.events.trigger(DagNodeEvents.UDFErrorChange, {
             node: this
