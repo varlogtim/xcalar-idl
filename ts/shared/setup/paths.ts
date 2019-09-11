@@ -1,6 +1,7 @@
 var paths = {
     dologout: 'assets/htmlFiles/dologout.html',
     login: 'assets/htmlFiles/login.html',
+    cloudLogin: 'cloudLogin/cloudLogin.html',
     tableau: 'assets/htmlFiles/tableau.html',
     indexAbsolute: "/index.html",
     index: 'index.html',

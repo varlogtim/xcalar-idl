@@ -1,1 +1,0 @@
-define({"../Content/AzureMarketplace/Access.htm":2,"../Content/AzureMarketplace/AzureAD.htm":4,"../Content/AzureMarketplace/Buy.htm":1,"../Content/AzureMarketplace/Prereqs.htm":0,"../Content/AzureMarketplace/UploadSource.htm":3,"../Content/CopyrightAndTrademarks.htm":5,});

@@ -656,6 +656,11 @@ namespace xcManager {
     }
 
     function hotPatch(): XDPromise<void> {
+        if (typeof gCloud !== "undefined" && gCloud === true) {
+            // cloud don't need to use hotpatch
+            return PromiseHelper.resolve();
+        }
+
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         checkHotPathEnable()
@@ -1105,6 +1110,8 @@ namespace xcManager {
 
         if (msalUser != null) {
             msalAgentApplication.logout();
+        } else if (XVM.isCloud()) {
+            window.location = <any>paths.cloudLogin;
         } else {
             window["location"]["href"] = paths.dologout;
         }

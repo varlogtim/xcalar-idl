@@ -18,5 +18,4 @@ var gLoginEnabled = (typeof window !== "undefined" && window.location.hostname =
 var gUpdateIMDAccess = false;
 // Default Shared Root is disabled in cloud
 // this flag will allow it to continues to use
-var gDefaultSharedRootAccess = true;
 /** END DEBUG ONLY **/

@@ -15,7 +15,7 @@
         --srcroot=<path>
             Root dir of xcalar-gui project. Defaults to cwd of Gruntfile
 
-        --product=[XD|XI]
+        --product=[XD|Cloud|XPE]
             Defaults to XD
 
         --buildroot=<path>
@@ -62,7 +62,7 @@
 
     Examples:
         grunt dev                 (build a dev build of XD product, in to <xclrdir>)
-        grunt dev --product XI    (build a dev build of XI product, in to <xclrdir>)
+        grunt dev --product Cloud (build a dev build of Cloud product, in to <xclrdir>)
         grunt installer           (build installer flavor of XD product, in to <xclrdir>/xcalar-gui/)
         grunt debug watch --less  (build a debug build in to <xlrdir>/xcalar-gui, then watch for changes in all less files in <xlrdir> that aren't bld files)
         grunt debug watch --less --livereload (debug build, and watch for less files. On less file change, reload browser.)
@@ -82,16 +82,16 @@ var XLRDIR = 'XLRDIR';
 
 // different possible product types.
 var XD = "XD"; // regular Xcalar Design builds
-var XI = "XI"; // Xcalar Insight
+var Cloud = "Cloud"; // Xcalar Cloud
 var XPE = "XPE"; // for special builds of Xcalar Design intended to be run by nwjs in MacOS app
 var productTypes = {
     XD: {
         'name': 'Xcalar Design', // default name to brand throughout GUIs for this product
         'target': 'xcalar-gui' // dirname for build target
     },
-    XI: {
-        'name': 'Xcalar Insight',
-        'target': 'xcalar-insight'
+    Cloud: {
+        'name': 'Xcalar Design',
+        'target': 'xcalar-gui'
 
     },
     XPE: {
@@ -230,7 +230,7 @@ var reactMapping = {
 var helpContentRootByProduct = {
     XD: helpContentRoot + XD,
     XPE: helpContentRoot + XD,
-    XI: helpContentRoot + XI
+    Cloud: helpContentRoot + XD
 }
 
 // path rel src to the unitTest folder
@@ -355,7 +355,7 @@ var VALID_OPTIONS = {
     [BLD_OP_BLDROOT]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Directory path for dir in build where index.html should start (if does not exist will create for you)"},
     [BLD_OP_PRODUCT]:
-        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,XI,XPE], [DESC_KEY]: "Product type to build (Defaults to XD)"},
+        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,Cloud,XPE], [DESC_KEY]: "Product type to build (Defaults to XD)"},
     [BLD_OP_BRAND]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Product name to brand GUIs with.  Default brand: " + brandDefault},
     [BLD_OP_BACKEND_SRC_REPO]:
@@ -557,8 +557,8 @@ var VALID_TASKS = {
             [DESC_KEY]:
                   "\n\t\tfor front end developers - will generate a working build "
                 + "\n\t\tbut no javascript minification and config details remain"
-                + "\n\t\t\t<srcroot>/xcalar-gui/     (if XD bld)"
-                + "\n\t\t\t<srcroot>/xcalar-insight/ (if XI bld)"
+                + "\n\t\t\t<srcroot>/" + productTypes.XD.target    + "/ (if XD bld)"
+                + "\n\t\t\t<srcroot>/" + productTypes.Cloud.target + "/ (if Cloud bld)"
         },
         [INSTALLER]: {
             [BLD_TASK_KEY]:true,
@@ -566,8 +566,8 @@ var VALID_TASKS = {
                   "\n\t\tfull shippable build."
                 + "\n\t\tjs is minified and developer config details removed"
                 + "\n\t\tBuild root, unless otherwise specified via cmd params:"
-                + "\n\t\t\t<srcroot>/xcalar-gui/     (if XD bld)"
-                + "\n\t\t\t<srcroot>/xcalar-insight/ (if XI bld)"
+                + "\n\t\t\t<srcroot>/" + productTypes.XD.target    + "/ (if XD bld)"
+                + "\n\t\t\t<srcroot>/" + productTypes.Cloud.target + "/ (if Cloud bld)"
         },
         [TRUNK]: {
             [BLD_TASK_KEY]:true,
@@ -576,8 +576,8 @@ var VALID_TASKS = {
                 + "\n\t\tbut port in developer's own backend thrift changes, and"
                 + "\n\t\tsync back and front end for communication"
                 + "\n\t\tBuild root, unless otherwise specified via cmd params:"
-                + "\n\t\t\t<srcroot>/xcalar-gui/     (if XD bld)"
-                + "\n\t\t\t<srcroot>/xcalar-insight/ (if XI bld)"
+                + "\n\t\t\t<srcroot>/" + productTypes.XD.target    + "/ (if XD bld)"
+                + "\n\t\t\t<srcroot>/" + productTypes.Cloud.target + "/ (if Cloud bld)"
         },
         [DEBUG]: {
             [BLD_TASK_KEY]:true,
@@ -586,8 +586,8 @@ var VALID_TASKS = {
                 + "\n\t\tbe debugged, only developer config details are removed so"
                 + "\n\t\tthe build doesn't get connected to developer server"
                 + "\n\t\tBuild root, unless otherwise specified via cmd params:"
-                + "\n\t\t\t<srcroot>/xcalar-gui/     (if XD bld)"
-                + "\n\t\t\t<srcroot>/xcalar-insight/ (if XI bld)"
+                + "\n\t\t\t<srcroot>/" + productTypes.XD.target    + "/ (if XD bld)"
+                + "\n\t\t\t<srcroot>/" + productTypes.Cloud.target + "/ (if Cloud bld)"
         },
         [WATCH]: {
             [BLD_TASK_KEY]:false, [REQUIRES_ONE_KEY]: WATCH_TASK_REQUIRES_ONE,
@@ -832,7 +832,6 @@ var DONT_RSYNC = [
         "'/internal'",
         "'/Gruntfile.js'", // if you don't add as '/<stuff>', will exclude any file called <stuff> anywhere rel to rsync cmd
                 // only want to remove our Gruntfile at the root!
-        'gruntMake.js',
         "'/Makefile'",
         "'/node_modules'",
         "'/package-lock.json'",
@@ -842,7 +841,6 @@ var DONT_RSYNC = [
         '3rd/microsoft-authentication-library-for-js/*',
         'assets/xu/themes/simple/css/xu.css',
         'assets/help/XD/Content/B_CommonTasks/A_ManageDatasetRef.htm',
-        'assets/help/XI/Content/B_CommonTasks/A_ManageDatasetRef.htm',
         'assets/video/demoVid*',  // removes some ancient video files, no longer used
         'assets/js/constructor/README',
         UNIT_TEST_FOLDER, // will just put symlink to this in dev blds
@@ -2335,7 +2333,7 @@ module.exports = function(grunt) {
     */
     grunt.task.registerTask("help_contents", function() {
 
-        // you have XD and XI help contaente in the src code that was copied in
+        // you have XD and Cloud help contaente in the src code that was copied in
         // copy what you need in to /usr and delete the rest
         // corner casE: srcroot and destdir are the same.  In that case still do the usr dir,
         // but don't delete...
@@ -2458,7 +2456,7 @@ module.exports = function(grunt) {
     /**
         removes unneeded help content from bld.
 
-        (The src code has dirs help/XD and help/XI, but only one used,
+        (The src code has dirs help/XD, but only one used,
         and it gets renamed as help/user.
         This cleanup task is deleting those unused ones.)
     */
@@ -2959,12 +2957,17 @@ module.exports = function(grunt) {
         var extraTags = [];
         if (IS_WATCH_TASK || BLDTYPE == DEV) {
             extraTags = extraTags.concat(
-                ['assets/dev/shortcuts.js', 'assets/js/mixpanel/xcMixpanel.js']);
+                ['assets/dev/shortcuts.js',
+                'assets/js/env/devEnv.js',
+                'assets/js/mixpanel/xcMixpanel.js']);
         } else {
             extraTags.push('assets/js/mixpanel/xcMixpanelAzure.js');
         }
-        // script tags just used by Xcalar Design EE app for nwjs set ups
-        if (PRODUCT === XPE) {
+
+        if (PRODUCT === Cloud) {
+            extraTags.push('assets/js/env/cloudEnv.js');
+        } else if (PRODUCT === XPE) {
+            // script tags just used by Xcalar Design EE app for nwjs set ups
             // httpStatus a dep. for XPE; it's included in login.html
             // in all blds but not index.html
             extraTags.push('assets/js/httpStatus.js');
@@ -3089,8 +3092,7 @@ module.exports = function(grunt) {
 
             1. render if/else logic within the src HTML
             2. internationalization
-            3. Product name strings normalized (they all say 'xcalar design';
-                for XI, change it to 'xcalar insight')
+            3. Product name strings normalized (they all say 'xcalar design';)
 
         Once file has been templated, delete the original file so you don't end up
         with stale HTML.
@@ -4385,10 +4387,10 @@ module.exports = function(grunt) {
         Searches build directory for files containing 'xcalar design' Strings (minus exclusions)
         and warns user of such files.
 
-        Context: In XI producat builds, GUI should display 'xcalar insight' rather than 'xcalar design'.
+        Context: If build type is not XD, GUI should not display 'xcalar design'.
         Such Strings should be limited to some central js files, rather than hardcoded throughout
         rest of code, so they are not being manually changed during build time.
-        This task is provided then as a check to be used for XI builds, once build is complete,
+        This task is provided then as a check to be used for non XD builds, once build is complete,
         to help detect if this style has been violated and alert of potential bug.
     */
     grunt.task.registerTask("check_for_xd_strings", function() {
@@ -4470,7 +4472,7 @@ module.exports = function(grunt) {
                 + " done on entire build output,"
                 + "\nsuch as cleaning empty dirs, changing file permissions, "
                 + "\nand checking for XD strings then replacing them with "
-                + " XI strings (in XI blds)");
+                + " XD strings (in non-XD blds)");
         } else {
 
             // didn't want to clean html until very end,
@@ -5207,7 +5209,7 @@ module.exports = function(grunt) {
                 grunt.log.ok();
             }
         } else {
-            grunt.fail.fatal("Trying to update the XD strings in some js files to XI strings,"
+            grunt.fail.fatal("Trying to update the XD strings in some js files,"
                 + " but one of the files to update does not exist!"
                 + "\nFile: "
                 + filepath

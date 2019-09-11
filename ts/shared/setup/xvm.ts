@@ -11,12 +11,12 @@ namespace XVM {
     let licenseMode: XcalarMode = null;
     let licensee: string = 'Unknown';
     let compressedLicense: string = "Unknown";
-    let cloud: boolean = false;
 
     // let expirationDate: Date = null;
     let numUsers: number = -1; // Set, but not used
     let numNodes: number = -1; // Set, but not used
     let _mode: XVM.Mode;
+    let _cloud: boolean;
 
     export enum Mode {
         SQL = "SQL",
@@ -106,6 +106,7 @@ namespace XVM {
         kvVersionStore = new KVStore(key, gKVScope.USER);
         _mode = XVM.Mode.SQL;
         [majorVersion, minorVersion, revisionVersion] = XCALARVERSION.split(".");
+        _cloud = (typeof gCloud !== "undefined" && gCloud === true) || false;
     }
 
     /**
@@ -226,9 +227,7 @@ namespace XVM {
      * XVM.isCloud
      */
     export function isCloud(): boolean {
-        // XXX enable cloud for 2.2 dev work
-        cloud = true
-        return cloud;
+        return _cloud;
     }
 
     /**
