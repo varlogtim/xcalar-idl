@@ -814,7 +814,6 @@ class DagView {
         }
         this.graph = graph || this.graph;
         this.tabId = this.graph.getTabId();
-
         this.$dfArea.empty().html(
             '<div class="dataflowAreaWrapper">' +
             '<div class="commentArea"></div>' +
@@ -2779,7 +2778,6 @@ class DagView {
         // should only update nodes that are currently in progress so we
         // store a Set of completed nodes to check against it later
         let completedNodeIds: Set<DagNodeId> = new Set();
-
         nodeIds.filter((nodeId) => {
             if (!this.graph.hasNode(nodeId)) {
                 return false;
@@ -2944,6 +2942,7 @@ class DagView {
         ) {
             return;
         }
+
         const pos = node.getPosition();
         let tip: HTML = this._nodeProgressTemplate(graph, node, pos.x, pos.y, skewInfos, times, state);
         const $tip = $(tip)
@@ -2968,9 +2967,6 @@ class DagView {
             }
         });
         $tip.data("skewinfo", skewData);
-        const width = Math.max($tip[0].getBoundingClientRect().width, 92);
-        const nodeCenter = graph.getScale() * (pos.x + (DagView.nodeWidth / 2));
-        $tip.css("left", nodeCenter - (width / 2));
     }
 
     private _addProgressTooltipForNode(
@@ -2992,8 +2988,6 @@ class DagView {
                     }
                 });
                 this._addProgressTooltip(this.graph, node, this.$dfArea, skewInfos, times, overallStats.state);
-                const nodeInfo = { position: node.getPosition() };
-                this._repositionProgressTooltip(nodeInfo, node.getId());
             }
         } catch (e) {
             console.error(e);
@@ -3014,7 +3008,6 @@ class DagView {
         const tooltipPadding = 5;
         const rowHeight = 10;
         const scale = graph.getScale();
-        const x = scale * (nodeX - 10);
         const y = Math.max(1, (scale * nodeY) - (rowHeight * 2 + tooltipPadding + tooltipMargin));
         let totalTime: number;
         if (times.length) {
@@ -3059,8 +3052,9 @@ class DagView {
         if (skewRows === "N/A") {
             skewClass = "skewUnavailable";
         }
+        const left: number = this._getProgressTooltipLeftPosition(skewRows, totalTimeStr, graph, nodeX);
 
-        let html = `<div data-id="${nodeId}" class="runStats dagTableTip ${stateClass}" style="left:${x}px;top:${y}px;">`;
+        let html = `<div data-id="${nodeId}" class="runStats dagTableTip ${stateClass}" style="left:${left}px;top:${y}px;">`;
         html += `<table>
                  <thead>
                     <th>Rows</th>
@@ -3078,6 +3072,28 @@ class DagView {
             </div>`;
 
         return html;
+    }
+
+    // we're estimating the width of the tooltip because calculating
+    // the exact width is too slow
+    private _getProgressTooltipLeftPosition(
+        skewRows: string,
+        totalTimeStr: string,
+        graph: DagGraph,
+        nodeX: number
+    ): number {
+        let cellPadding = 3;
+        let numCells = 3;
+        let outerPadding = 3;
+        let baseWidth = (cellPadding * 2) * numCells + (outerPadding * 2);
+        let rowHeadingWidth = 23;
+        let timeHeadingWidth = 22;
+        let firstColWidth = Math.max(skewRows.length * 4.5, rowHeadingWidth);
+        let secondColWidth = Math.max(((totalTimeStr.length - 2) * 4.5) + 11, timeHeadingWidth);
+        let thirdColWidth = 23;
+        let width = firstColWidth + secondColWidth + thirdColWidth + baseWidth;
+        const nodeCenter = graph.getScale() * (nodeX + (DagView.nodeWidth / 2));
+        return nodeCenter - (width / 2);
     }
 
     private _repositionProgressTooltip(nodeInfo, nodeId: DagNodeId): void {
