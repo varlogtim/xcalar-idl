@@ -1031,8 +1031,8 @@ module.exports = {
 
     "DFLink": {
         "InHeader": "Link In",
-        "InInstr": "First select the dataflow name, then select the link out reference name to link.",
-        "InInstrWithSource": "Select the result set name to link.",
+        "InInstr": "Select a Link Out Node or a result set as a source for the Link In Node.",
+        "ResultSetTip": "To get a result set name, find the Node whose result set you want to use, click on the Node to display its configuration and copy the result set value from the JSON.",
         "OutHeader": "Link Out",
         "DFName": "Dataflow Name",
         "OutName": "Link Out Reference Name",

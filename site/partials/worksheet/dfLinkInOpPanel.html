@@ -14,15 +14,11 @@
     <div class="mainContent">
       <div class="opSection">
         <p class="mainInstructions instrText"><%= dicts.DFLink.InInstr %></p>
-        <p class="mainInstructions instrText withSource"><%= dicts.DFLink.InInstrWithSource %></p>
         <div class="argsSection">
             <div class="sourceSection">
                 <!-- source toggle -->
                 <div class="row clearfix">
                     <div class="description">Source Type:
-                        <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"
-                            data-title='You can find a result set name by clicking on a node and copying the name under "result set" in the left panel.'
-                            data-placement="top"></i>
                     </div>
                     <div class="radioButtonGroup">
                         <div class="radioButton xc-action active" data-option="node">
@@ -30,7 +26,7 @@
                                 <i class="icon xi-radio-selected"></i>
                                 <i class="icon xi-radio-empty"></i>
                             </div>
-                            <div class="label">Node</div>
+                            <div class="label">Link Out Node</div>
                         </div>
                         <div class="radioButton xc-action" data-option="table">
                             <div class="radio">
@@ -69,7 +65,11 @@
                 </div>
                 <!-- source name (hidden by default)-->
                 <div class="row clearfix sourceTableName">
-                    <div class="description">Result Set Name:</div>
+                    <div class="description">Result Set Name:
+                        <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"
+                        data-title='<%= dicts.DFLink.ResultSetTip %>'
+                        data-placement="top"></i>
+                    </div>
                     <div class="inputWrap">
                         <input type="text" spellcheck="false">
                     </div>
