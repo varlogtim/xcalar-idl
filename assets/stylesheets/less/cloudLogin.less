@@ -2,14 +2,24 @@ body {
     font-weight: normal;
 }
 
+#loginContainer {
+    height: 550px;
+}
+
 .hidden {
     display: none;
 }
 
 .signupSection {
     text-align: right;
-    margin-top: 26px;
-    margin-right: 20px;
+    margin-top: 1.25em;
+    margin-right: 18px;
+}
+
+.loginSection {
+    margin-top: 1.25em;
+    margin-right: 56px;
+    font-weight: 400;
 }
 
 .authForm {
@@ -17,10 +27,23 @@ body {
     width: 100%;
 }
 
+.signup-login,
+#forgot-password-submit {
+    font-weight: 400;
+}
+
 #signupForm {
     .input {
         margin-left: 0;
-        padding-left: 140px;
+        padding-left: 145px;
+    }
+}
+
+.section {
+    height: auto;
+
+    .input {
+        width: 100%;
     }
 }
 
@@ -48,6 +71,14 @@ body {
     text-decoration: underline;
 }
 
+.buttonSection {
+    height: 76px;
+}
+
+.logOutLink {
+    margin-right: 50px;
+}
+
 .auth-link {
     color: white;
     cursor: pointer;
@@ -60,6 +91,7 @@ body {
 .submitSection .termPart .checkbox {
     margin-top: 0;
 }
+
 
 
 .title {
@@ -134,4 +166,88 @@ header {
 
 .btn:focus {
     background-color: rgba(0, 0, 0, 0);
+}
+
+
+.input-tooltip {
+    display: none;
+    width: 250px;
+    background-color: white;
+    opacity: 0.9;
+    color: #05273f;
+    border-radius: 2px;
+    padding: 10px;
+    padding-right: 30px;
+    position: absolute;
+    top: 12px;
+    left: calc(~"100% + 16px");
+
+    .passwordRequirementsHeader {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .errorTooltipRow {
+        color: red !important;
+    }
+
+    .xi-success {
+        color: green;
+    }
+
+    i.icon {
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .tootipRowText {
+        position: relative;
+        left: 20px;
+        top: -14px;
+    }
+}
+
+.input-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 18px;
+    right: 100%;
+    margin-top: -10px;
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent white transparent transparent;
+}
+
+.label {
+    .icon {
+        font-size: 11px;
+        position: absolute;
+        left: 125px;
+        top: 10px;
+        display: none;
+    }
+}
+
+.submitSection .termPart {
+    margin-top: 2.7em;
+
+    .icon {
+        font-size: 16px;
+        display: none;
+        position: absolute;
+        left: -26px;
+    }
+}
+
+.btn {
+    border: 1px solid #FFFFFF;
+    color: #FFFFFF;
+}
+
+.section label {
+    height: auto;
+}
+
+#signup-submit {
+    margin-top: 2.5em;
 }

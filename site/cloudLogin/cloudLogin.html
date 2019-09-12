@@ -14,10 +14,10 @@
     <div class="outerWrap">
       <header>
         <h2 class="loginHeader" id="loginTitle" style="display: none">Login to Xcalar Design!</h2>
-        <h2 class="loginHeader" id="signupTitle" style="display: none">Hello and welcome to Xcalar Design!</h2>
+        <h2 class="loginHeader" id="signupTitle" style="display: none">Welcome to Xcalar Design!</h2>
         <h2 class="loginHeader" id="clusterTitle" style="display: none">Select your cluster size</h2>
         <h2 class="loginHeader" id="verifyTitle" style="display: none">Verify your account</h2>
-        <h2 class="loginHeader" id="forgotPasswordTitle" style="display: none">Forgot your password?</h2>
+        <h2 class="loginHeader" id="forgotPasswordTitle" style="display: none">Password recovery</h2>
         <h2 class="loginHeader" id="confirmForgotPasswordTitle" style="display: none">Choose new password</h2>
         <h2 class="loginHeader" id="loadingTitle" style="display: none">Deploying your cluster</h2>
       </header>
@@ -60,46 +60,100 @@
 
         <!-- signup -->
         <div id="signupForm" class="authForm" autocomplete="off">
-          <div class="nameSection section">
+          <div class="title">
+            Sign up and start transforming your data!
+          </div>
+          <div id="signupFormError" class="formError" style="display: none">
+            <i class="icon xi-error"></i>
+            <span class="text">Fields missing or incomplete.</span>
+          </div>
+          <div id="firstNameSection" class="section">
             <input id="signup-firstName" class="input" required autocomplete="off">
-            <div class="label">First Name</div>
+            <div class="label">First Name<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              First Name cannot be empty
+            </div>
           </div>
-          <div class="nameSection section">
+          <div id="lastNameSection" class="section">
             <input id="signup-lastName" class="input" required autocomplete="off">
-            <div class="label">Last Name</div>
+            <div class="label">Last Name<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              Last Name cannot be empty
+            </div>
           </div>
-          <div class="section">
+          <div id="companySection" class="section">
             <input id="signup-company" class="input" required autocomplete="off">
-            <div class="label">Company</div>
+            <div class="label">Company<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              Company cannot be empty
+            </div>
           </div>
-          <div class="section">
+          <div id="emailSection" class="section">
             <input id="signup-email" class="input" type="email" required autocomplete="off">
-            <div class="label">Email</div>
+            <div class="label">Email<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              Email should be in a valid format
+            </div>
           </div>
-          <div class="section confirmSection">
+          <div id="confirmEmailSection" class="section">
             <input id="signup-confirmEmail" class="input" type="email" required autocomplete="off">
-            <div class="label">Confirm Email</div>
+            <div class="label">Confirm Email<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              Emails must match
+            </div>
           </div>
-          <div class="section">
+          <div id="passwordSection" class="section">
             <input id="signup-password" class="input" type="password" required autocomplete="off">
-            <div class="label">Password</div>
+            <div class="label">Password<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              <div class="passwordRequirementsHeader">Password Requirements:</div>
+              <div id="passwordLengthTooltipError" class="tooltipRow errorTooltipRow">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least 8 characters</div>
+              </div>
+              <div id="passwordUpperTooltipError" class="tooltipRow errorTooltipRow">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least one uppercase letter</div>
+              </div>
+              <div id="passwordLowerTooltipError" class="tooltipRow errorTooltipRow">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least one lowercase letter</div>
+              </div>
+              <div id="passwordNumberTooltipError" class="tooltipRow errorTooltipRow">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least one number</div>
+              </div>
+              <div id="passwordSpecialTooltipError" class="tooltipRow errorTooltipRow">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least one special character: ^ $ * . ? - ! @ # % & , : ; _
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="section confirmSection">
+          <div id="confirmPasswordSection" class="section">
             <input id="signup-confirmPassword" class="input" type="password" required autocomplete="off">
-            <div class="label">Confirm Password</div>
+            <div class="label">Confirm Password<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              Passwords must match
+            </div>
           </div>
-          <div class="section submitSection clearfix">
+          <div class="submitSection section clearfix">
             <div class="part termPart clearfix">
+              <i class="icon xi-error"></i>
               <div class="text">
-                <label for="signup-termCheck">I agree to the <a id="signup-term" class="auth-link"
-                    href="https://xcalar.com/end-user-license-agreement/" target="_blank">EULA</a></label>
+                <label for="signup-termCheck">
+                  <a id="signup-term" class="auth-link" href="https://xcalar.com/end-user-license-agreement/"
+                    target="_blank">
+                    I have read and agree to the <b>End User License Agreement</b>
+                  </a>
+                </label>
               </div>
               <input id="signup-termCheck" type="checkbox" class="checkbox" required>
             </div>
             <button id="signup-submit" class="btn signup"><span class="text">SIGN UP</span></button>
           </div>
           <div class="loginSection auth-section">
-            <a class="signup-login auth-link">Already have an account? Log In</a>
+            <a class="signup-login auth-link">Log In</a>
           </div>
         </div>
 
@@ -113,7 +167,7 @@
             <div class="label">Verification Code</div>
           </div>
           <div id="resend-code" class="auth-section">
-            <a class="auth-link">Resend the confirmation code</a>
+            <a class="auth-link">Didn't receive a code? <b>Resend it.</b></a>
           </div>
           <div class="section submitSection clearfix">
             <button id="verify-submit" class="btn signup"><span class="text">VERIFY</span></button>
@@ -128,8 +182,11 @@
           </div>
           <div class="section clearfix">
             <button id="forgot-password-submit" class="btn">
-              <span class="text">RESET PASSWORD</span>
+              <span class="text">CONTINUE</span>
             </button>
+          </div>
+          <div class="loginSection auth-section">
+            <a class="auth-link link-to-login">Log In</a>
           </div>
         </div>
 
@@ -200,6 +257,9 @@
           </div>
           <div class="section buttonSection">
             <input class="btn next" id="deployBtn" type="button" value="DEPLOY">
+          </div>
+          <div class="logOutLink loginSection auth-section">
+            <a class="auth-link link-to-login">Log Out</a>
           </div>
         </form>
 
