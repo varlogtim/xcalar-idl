@@ -3365,11 +3365,7 @@ class DagView {
             const nodeType: DagNodeType = node.getType();
             // When not link in or link out node
             if (nodeType !== DagNodeType.DFIn && nodeType !== DagNodeType.DFOut) {
-                let generalTableName = tableName;
-                if (tableName.includes("#")) {
-                    generalTableName = tableName.split("#")[0] + ".*";
-                }
-                DagUtil.deleteTable(generalTableName, true);
+                DagUtil.deleteTable(tableName, true);
             }
         });
 
