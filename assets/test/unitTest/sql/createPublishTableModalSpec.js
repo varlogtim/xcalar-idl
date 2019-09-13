@@ -80,6 +80,10 @@ describe("Create Publish Table Modal Test", function() {
 
     it("Should display the correct errors",  function() {
         CreatePublishTableModal.Instance.show("testTable", columns);
+        $("#createPublishTableModal .IMDNameInput").val("");
+        $("#createPublishTableModal .confirm").click();
+        expect($("#statusBox .message").text()).to.equal(ErrTStr.NoEmpty);
+        $("#createPublishTableModal .IMDNameInput").val("_testTable");
         $("#createPublishTableModal .confirm").click();
         expect($("#statusBox .message").text()).to.equal("Table name should start with a letter and contain only letters, digits, or underscores(_)");
         $("#createPublishTableModal .IMDNameInput").val("testTable");

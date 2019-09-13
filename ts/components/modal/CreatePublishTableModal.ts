@@ -354,7 +354,11 @@ class CreatePublishTableModal {
 
     private _submitForm(): void {
         let name: string = this._$nameInput.val().trim().toUpperCase();
-        if (!xcHelper.isValidPublishedTableName(name)) {
+        if (!name) {
+            StatusBox.show(ErrTStr.NoEmpty, this._$nameInput);
+            return;
+        }
+        if (!xcHelper.checkNamePattern(PatternCategory.PTbl, PatternAction.Check, name)) {
             StatusBox.show(ErrTStr.InvalidPublishedTableName, this._$nameInput);
             return;
         }

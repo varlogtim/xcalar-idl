@@ -1293,7 +1293,7 @@ namespace xcHelper {
 
         if (newTableName === "") {
             error = ErrTStr.NoEmpty;
-        } else if (!xcHelper.isValidPublishedTableName(newTableName)) {
+        } else if (!xcHelper.checkNamePattern(PatternCategory.PTbl, PatternAction.Check, newTableName)) {
             error = ErrTStr.InvalidPublishedTableName;
         } else if (newTableName.length >=
             XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
@@ -1582,6 +1582,12 @@ namespace xcHelper {
             case PatternCategory.SQLSnippet:
                 antiNamePattern = /[^a-zA-Z\d\_\- ]/;
                 break;
+            case PatternCategory.PTbl:
+                namePattern = /^[A-Z][A-Z0-9_]*$/;
+                break;
+            case PatternCategory.PTblFix:
+                antiNamePattern = /[^A-Z0-9_]/;
+                break;
             default:
                 namePattern = /^[a-zA-Z0-9_-]+$/;
                 antiNamePattern = /[^a-zA-Z0-9_-]/;
@@ -1626,26 +1632,6 @@ namespace xcHelper {
             return !/[^a-zA-Z\d\_\-]/.test(str);
         }
     }
-
-    /**
-     * xcHelper.isValidPublishedTableName
-     * @param str
-     */
-    export function isValidPublishedTableName(str: string): boolean {
-        if (str == null || str === "") {
-            return false;
-        }
-
-        // has to start with alpha character
-        if (!xcStringHelper.isStartWithLetter(str)) {
-            return false;
-        }
-
-        // cannot have any characters other than alphanumeric
-        // or _ -
-        return !/[^A-Z\d\_]/.test(str);
-    }
-
 
     /**
      * xcHelper.hasInvalidCharInCol

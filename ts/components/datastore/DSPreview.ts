@@ -2135,7 +2135,7 @@ namespace DSPreview {
                     "error": isCreateTableMode() ? ErrTStr.InvalidPublishedTableName : ErrTStr.NoSpecialCharOrSpace,
                     "check": function() {
                         let invalid = isCreateTableMode() ?
-                        !xcHelper.isValidPublishedTableName(dsName):
+                        !xcHelper.checkNamePattern(PatternCategory.PTbl, PatternAction.Check, dsName):
                         !xcHelper.checkNamePattern(PatternCategory.Dataset, PatternAction.Check, dsName);
                         return invalid;
                     }
@@ -2782,7 +2782,8 @@ namespace DSPreview {
         let name = paths[splitLen - 1];
 
         // strip the suffix dot part and only keep a-zA-Z0-9.
-        name = <string>xcHelper.checkNamePattern(PatternCategory.Dataset,
+        let category = isCreateTableMode() ? PatternCategory.PTblFix : PatternCategory.Dataset;
+        name = <string>xcHelper.checkNamePattern(category,
             PatternAction.Fix, name.split(".")[0], "");
 
         if (!xcStringHelper.isStartWithLetter(name) && splitLen > 1) {
@@ -5456,12 +5457,15 @@ namespace DSPreview {
         headers.forEach((header, i) => {
             let error = xcHelper.validateColName(header.colName);
             if (error) {
-                invalidHeaders.push({
-                    text: invalidHeadersConversion(header, error),
-                    index: i,
-                    error: error
-                });
-                $ths.eq(i + 1).find(".text").addClass("error");
+                let $th = $ths.eq(i + 1);
+                if (!$th.hasClass("unused")) {
+                    invalidHeaders.push({
+                        text: invalidHeadersConversion(header, error),
+                        index: i,
+                        error: error
+                    });
+                    $ths.eq(i + 1).find(".text").addClass("error");
+                }
             }
         });
 

@@ -221,6 +221,8 @@ enum PatternCategory {
     Param = "param", // batch dataflow
     Param2 = "param2", // dataflow 2.0
     Prefix = "prefix",
+    PTbl = "publishedTable",
+    PTblFix = "publishedTableFix",
     UDF = "udf",
     UDFFn = "udfFn",
     UDFParam = "udfParam",

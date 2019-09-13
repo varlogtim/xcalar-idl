@@ -863,12 +863,51 @@ describe("xcHelper Test", function() {
             "action": "check",
             "name": "ab/9c",
             "expect": true
+        },
+        {
+            "category": "publishedTable",
+            "action": "check",
+            "name": "",
+            "expect": false
+        },
+        {
+            "category": "publishedTable",
+            "action": "check",
+            "name": "AB_C1",
+            "expect": true
+        },
+        {
+            "category": "publishedTable",
+            "action": "check",
+            "name": "Ab",
+            "expect": false
+        },
+        {
+            "category": "publishedTable",
+            "action": "check",
+            "name": "AB#C",
+            "expect": false
+        },
+        {
+            "category": "publishedTable",
+            "action": "check",
+            "name": "AB-C",
+            "expect": false
+        },
+        {
+            "category": "publishedTable",
+            "action": "check",
+            "name": "_ABC",
+            "expect": false
         }
     ];
 
         testCases.forEach(function(test) {
             var res = xcHelper.checkNamePattern(test.category, test.action,
                                                 test.name, test.replace);
+            if (res !== test.expect) {
+                console.error("test", test, "failed");
+            }
             expect(res).to.equal(test.expect);
         });
 
@@ -880,51 +919,6 @@ describe("xcHelper Test", function() {
         }
         var res = xcHelper.checkNamePattern("doesNotExit", "get");
         expect(regexEqual(res, /^[a-zA-Z0-9_-]+$/)).to.be.true;
-    });
-
-    it("xcHelper.isValidPublishedTableName should work", function() {
-        var func = xcHelper.isValidPublishedTableName;
-        var res = func("");
-        expect(res).to.be.false;
-
-        res = func(null);
-        expect(res).to.be.false;
-
-        res = func("A");
-        expect(res).to.be.true;
-
-        res = func("AB");
-        expect(res).to.be.true;
-
-        res = func("Ab");
-        expect(res).to.be.false;
-
-        res = func("ABC1");
-        expect(res).to.be.true;
-
-        res = func("AB1C");
-        expect(res).to.be.true;
-
-        res = func("AB#C1");
-        expect(res).to.be.false;
-
-        res = func("A_B");
-        expect(res).to.be.true;
-
-        res = func("A-B");
-        expect(res).to.be.false;
-
-        res = func("1A");
-        expect(res).to.be.false;
-
-        res = func("_A");
-        expect(res).to.be.false;
-
-        res = func("-ABC");
-        expect(res).to.be.false;
-
-        res = func(".ABC");
-        expect(res).to.be.false;
     });
 
     it("xcHelper.isValidTableName should work", function() {
