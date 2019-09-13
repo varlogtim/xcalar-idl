@@ -60,6 +60,7 @@ module.exports = {
                 browser.click("#inButton");
             }
             browser
+            .execute(execFunctions.scrollIntoView, ["#dsListSection .grid-unit:last-child"], () => {})
             .moveToElement("#dsListSection .grid-unit:last-child", 10, 10)
             .mouseButtonClick('right')
             .waitForElementVisible("#gridViewMenu", 1000)

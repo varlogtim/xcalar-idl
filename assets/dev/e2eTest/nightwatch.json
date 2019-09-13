@@ -29,7 +29,7 @@
         "desiredCapabilities": {
           "browserName": "chrome",
           "chromeOptions": {
-            "args": ["--headless", "window-size=5000,2000"]
+            "args": ["--headless", "window-size=6000,3000"]
           }
         }
       }

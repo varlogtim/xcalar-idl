@@ -67,6 +67,7 @@ class RecreateNodes extends EventEmitter {
             this.api.perform(() => {
                 // Select the operation category
                 this.api
+                    .execute(execFunctions.scrollIntoView, [".category." + nodeCategoryClass], () => {})
                     .moveToElement(".category." + nodeCategoryClass, 1, 1)
                     .mouseButtonDown("left");
                 // Create the node

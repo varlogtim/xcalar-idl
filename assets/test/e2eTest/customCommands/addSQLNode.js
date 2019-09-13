@@ -20,6 +20,7 @@ class AddSQLNode extends EventEmitter {
         // Select the operation category
         this.api.perform(() => {
             self.api
+                .execute(execFunctions.scrollIntoView, [".category." + nodeCategoryClass], () => {})
                 .moveToElement(".category." + nodeCategoryClass, 1, 1)
                 .mouseButtonDown("left");
 

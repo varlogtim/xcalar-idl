@@ -15,6 +15,7 @@ class RestoreDataset extends EventEmitter {
             let datasetId = "";
             if (needRestore) {
                 console.log("restoring dataset");
+                this.api.execute(execFunctions.scrollIntoView, ["#dagNodeMenu li.restoreDataset"], () => {})
                 this.api.moveToElement("#dagNodeMenu li.restoreDataset", 10, 1)
                     .mouseButtonClick('left')
                     .waitForElementVisible("#dsListSection")

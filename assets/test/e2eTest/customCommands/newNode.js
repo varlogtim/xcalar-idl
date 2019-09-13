@@ -6,6 +6,7 @@ class NewNode extends EventEmitter {
         const commandResult = { ELEMENT: null, nodeId: null };
         this.api
             .execute(execFunctions.getDagViewScroll, [], ({value: scroll}) => {
+                this.api.execute(execFunctions.scrollIntoView, [selector], () => {})
                 this.api.moveToElement(selector, 0, 10)
                     .mouseButtonDown("left")
                     .moveToElement('#dagView .dataflowMainArea',

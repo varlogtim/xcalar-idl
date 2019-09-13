@@ -1,9 +1,11 @@
 const EventEmitter = require('events');
+const execFunctions = require('../lib/execFunctions');
 
 class ExecuteNode extends EventEmitter {
     command(selector, time, cb) {
         // execute all nodes
         this.api
+            .execute(execFunctions.scrollIntoView, [".dataflowArea.active " + selector], () => {})
             .moveToElement(".dataflowArea.active " + selector, 30, 15)
             .mouseButtonClick('right')
             .waitForElementVisible("#dagNodeMenu", 1000)

@@ -166,8 +166,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
                     "stack": mixPanelStack,
                     "txCache": Transaction.getCache(),
                     "userName": XcUser.getCurrentUserName(),
-                    "workbook": workbookName,
-                    "eventType": "error",
+                    "workbook": workbookName
                 });
                 break;
             case ("statusBoxError"):
@@ -175,14 +174,14 @@ window.xcMixpanel = (function($, xcMixpanel) {
                     ...eventInfo,
                     "errorMsg": info.text,
                     "Element": getElementPath(info.$target[0]),
-                    "ElementPath": getElementPathArray(info.$target[0]),
-                    "eventType": "error"
+                    "ElementPath": getElementPathArray(info.$target[0])
                 });
                 break;
             case ("alertError"):
                 xcMixpanel.track("Alert Error", {
                     ...eventInfo,
-                    "errorMsg": info.msg
+                    "title": info.title,
+                    "errorMsg": info.errorMsg
                 });
                 break;
             default:

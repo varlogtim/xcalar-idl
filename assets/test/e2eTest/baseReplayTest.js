@@ -97,6 +97,10 @@ function replay(testConfig, tags) {
                     testNodeIdMapping.set(newTabName, result.nodeIdMap);
                     console.log(result);
                 });
+                browser
+                .elements('css selector','.dataflowArea.active .operator', function (result) {
+                    console.log("first--result: " + result.value.length);
+                });
             }
         },
 
@@ -130,7 +134,6 @@ function replay(testConfig, tags) {
                         // we have to change the modifier to represent that the custom nodes are created last during the recreate nodes step.
                         modifier--;
                     }
-
                 });
             }
         },
@@ -197,6 +200,9 @@ function replay(testConfig, tags) {
                     }
 
                     browser
+                    .elements('css selector','.dataflowArea.active .operator', function (result) {
+                        console.log("second--result: " + result.value.length, "customNodes: " + numOfCustomNodes, " numOfNode: " + numOfNodes);
+                    })
                     .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
                         browser.assert.ok(result.value.length > 0);
                     })
@@ -208,9 +214,12 @@ function replay(testConfig, tags) {
                         browser.assert.equal(result.value.length, 0); // link out optimized not executed
                     })
                     .saveScreenshot("nwscreenshot1.png")
+                    .elements('css selector','.dataflowArea.active .operator', function (result) {
+                        console.log("third--result: " + result.value.length, "customNodes: " + numOfCustomNodes, " numOfNode: " + numOfNodes);
+                    })
                     .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
                         console.log("nodes", result.value);
-                        console.log("result: " + result.value.length, "numOfNode: " + numOfNodes);
+                        console.log("result: " + result.value.length, "customNodes: " + numOfCustomNodes, " numOfNode: " + numOfNodes);
                         browser.assert.equal(result.value.length - numOfCustomNodes, numOfNodes);
                     });
 
