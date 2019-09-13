@@ -1,6 +1,9 @@
 // this class should be a lower level util class
 // and should have no any dependency
 class DagUtil {
+    private static _deleteDelay: number = 100;
+    private static _tablesPendingDelete: string[] = [];
+
     public static isInView($el: JQuery, $container: JQuery): boolean {
         return this._isInView($el, $container, false);
     }
@@ -8,34 +11,62 @@ class DagUtil {
     public static scrollIntoView($el: JQuery, $container: JQuery): boolean {
         return this._isInView($el, $container, true);
     }
-    
+
     /**
      * DagUtil.deleteTable
      * @param tableName
      * @param regEx
      */
-    public static deleteTable(tableName: string, regEx: boolean): XDPromise {
+    public static deleteTable(tableName: string, regEx: boolean): XDPromise<any> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTblManager.Instance.deleteTable(tableName, true, regEx);
+        let generalTableName = tableName;
+        if (regEx && tableName.includes("#")) {
+            generalTableName = tableName.split("#")[0] + ".*";
+        }
+        DagTblManager.Instance.deleteTable(generalTableName, true, regEx);
+
+        let hasPendingDelete = this._tablesPendingDelete.length > 0;
+        this._tablesPendingDelete.push(tableName);
+        if (hasPendingDelete) {
+            return PromiseHelper.resolve();
+        } else {
+            setTimeout(() => {
+                let tables = this._tablesPendingDelete;
+                this._tablesPendingDelete = [];
+
+                this._deleteTableHelper(tables)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+            }, this._deleteDelay);
+        }
+        return deferred.promise();
+    }
+
+    private static _deleteTableHelper(tables: string[]): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         // Delete the node's table now
         var sql = {
             "operation": SQLOps.DeleteTable,
-            "tables": [tableName],
+            "tables": tables,
             "tableType": TableType.Unknown
         };
         var txId = Transaction.start({
             "operation": SQLOps.DeleteTable,
             "sql": sql,
-            "steps": 1,
+            "steps": tables.length,
             "track": true
         });
-        let deleteQuery: {}[] = [{
-            operation: "XcalarApiDeleteObjects",
-            args: {
-                namePattern: tableName,
-                srcType: "Table"
+
+        let deleteQuery = tables.map((name: string, i) => {
+            return {
+                operation: "XcalarApiDeleteObjects",
+                args: {
+                    namePattern: name,
+                    srcType: "Table"
+                }
             }
-        }];
+        });
+
         XIApi.deleteTables(txId, deleteQuery, null)
         .then(() => {
             Transaction.done(txId, {noLog: true});
@@ -50,7 +81,6 @@ class DagUtil {
             });
             deferred.reject(error);
         });
-
         return deferred.promise();
     }
 
