@@ -273,6 +273,21 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 "operations": operationNames,
                 "eventType": "transaction"
             });
+        } else if (log.title === "Add Operation") {
+            let title;
+            let node = "";
+            try {
+                let dagNode = DagViewManager.Instance.getDagViewById(log.options.dataflowId)
+                                                    .getGraph()
+                                                    .getNode(log.options.nodeId);
+                node = dagNode.getDisplayNodeType();
+            } catch (e) {
+                console.log(e);
+            }
+            xcMixpanel.track("Op - " + log.title, {
+                "eventType": "transaction",
+                "node": node
+            });
         } else {
             xcMixpanel.track("Op - " + log.title, {
                 "eventType": "transaction"
@@ -709,6 +724,11 @@ window.xcMixpanel = (function($, xcMixpanel) {
             baseProperties = {...baseProperties, ...clickProperties};
         }
         let properties = {...baseProperties, ...eventProperties};
+        if (eventName === "Other Click") {
+            if (!properties.triggeredByUser && !properties.el) {
+                return;
+            }
+        }
         mixpanel.track(eventName, properties);
     }
 
