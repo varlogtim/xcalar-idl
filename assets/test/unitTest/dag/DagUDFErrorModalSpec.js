@@ -15,9 +15,10 @@ describe("DagUDFErrorModal Test", function() {
             dagViewCache = DagViewManager.Instance.getActiveDag;
             node = DagNodeFactory.create({type: DagNodeType.Map});
             node.setUDFError({
-                failureDescTabArr: [
+                opFailureSummary: [
                     {
-                        failureDescArr: [
+                        failureSummName: "test",
+                        failureSummInfo: [
                             {numRowsFailed: 20, failureDesc: "test1"},
                             {numRowsFailed: 30, failureDesc: "test2"}
                         ]

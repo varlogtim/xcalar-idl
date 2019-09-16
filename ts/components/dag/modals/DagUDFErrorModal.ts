@@ -70,24 +70,7 @@ class DagUDFErrorModal {
         let hasMultipleEvals = false;
         let hasErrStr = false;
         let curColumnName = "";
-        if (errorInfo.failureDescTabArr) {
-            errorInfo.failureDescTabArr.forEach((err, i) => {
-                if (err && err.failureDescArr) {
-                    if (hasErrStr) {
-                        hasMultipleEvals = true;
-                        hasErrStr = false;
-                    }
-                    curColumnName = `Column ${i + 1}`;
-
-                    err.failureDescArr.forEach(innerErr => {
-                        html += getRowHtml(innerErr);
-                    });
-                    if (hasErrStr) {
-                        html += `</div>`; // closes group
-                    }
-                }
-            });
-        } else if (errorInfo.opFailureSummary) {
+        if (errorInfo.opFailureSummary) {
             errorInfo.opFailureSummary.forEach(err => {
                 if (err && err.failureSummInfo) {
                     if (hasErrStr) {
@@ -108,14 +91,28 @@ class DagUDFErrorModal {
         }
 
         this._$modal.find(".errorList").html(html);
-        if (count === 0) {
-            this._$modal.find(".errorList").html(`<div class="noErrors">N/A</div>`);
-        }
+
 
         if (count < errorInfo.numRowsFailedTotal) {
             this._$modal.addClass("hasExtraErrors");
         } else {
             this._$modal.removeClass("hasExtraErrors");
+        }
+        let $group = this._$modal.find(".evalGroup")
+        if ($group.length === 1) {
+            $group.addClass("expanded");
+            this._$modal.find(".collapseAll").show();
+            this._$modal.find(".expandAll").hide();
+        } else {
+            this._$modal.find(".collapseAll").hide();
+            this._$modal.find(".expandAll").show();
+        }
+
+        if (count === 0) {
+            this._$modal.find(".errorList").html(`<div class="noErrors">N/A</div>`);
+            this._$modal.find(".modalTop").hide();
+        } else {
+            this._$modal.find(".modalTop").show();
         }
 
         function getRowHtml(err) {
@@ -123,13 +120,8 @@ class DagUDFErrorModal {
                 return "";
             }
             let html = "";
-            let expanded = "expanded";
-            if (hasMultipleEvals && !hasErrStr) {
-                // first error of an eval string
-                expanded = "";
-            }
             if (!hasErrStr) {
-                html += `<div class="evalGroup ${expanded}">
+                html += `<div class="evalGroup">
                             <div class="groupHeader">
                                 <span class="text">${curColumnName}</span>
                                 <i class="icon xi-minus"></i>
@@ -184,6 +176,27 @@ class DagUDFErrorModal {
                 $group.removeClass("expanded");
             } else {
                 $group.addClass("expanded");
+            }
+            let $groups = self._$modal.find(".evalGroup");
+            if ($groups.filter(":not(.expanded)").length) {
+                self._$modal.find(".expandAll").show();
+                self._$modal.find(".collapseAll").hide();
+            } else {
+                self._$modal.find(".expandAll").hide();
+                self._$modal.find(".collapseAll").show();
+            }
+        });
+
+        this._$modal.on("click", ".toggleAll", function() {
+            let $option = $(this);
+            $option.hide();
+            if ($option.hasClass("collapseAll")) {
+                self._$modal.find(".expandAll").show();
+                self._$modal.find(".evalGroup").removeClass("expanded");
+            } else {
+                $option.hide();
+                self._$modal.find(".collapseAll").show();
+                self._$modal.find(".evalGroup").addClass("expanded");
             }
         });
     }
