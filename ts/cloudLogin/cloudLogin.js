@@ -126,6 +126,7 @@ async function getCredentials(tokens) {
 function loginUser(cognitoUser, authenticationDetails) {
     cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: function () {
+            $("#loginFormError").hide();
             cognitoUser = userPool.getCurrentUser();
             if (cognitoUser != null) {
                 cognitoUser.getSession(function (err, tokens) {
@@ -138,14 +139,15 @@ function loginUser(cognitoUser, authenticationDetails) {
         },
         onFailure: function (err) {
             if (err.code === "UserNotConfirmedException") {
+                $("#loginFormError").hide();
                 $("header").children().hide();
                 $("#formArea").children().hide();
                 $("#verifyForm").show();
                 $("#verifyTitle").show();
             } else {
-                $("#loginFormError").show(); // only for login
+                showFormError($("#loginFormError"), "Wrong email or password. Please try again.");
+                console.error(err);
             }
-            console.error(err);
         },
     });
 }
@@ -198,22 +200,25 @@ function getCluster() {
 }
 
 function goToXcalar(clusterGetResponse) {
-    window.location.href = clusterGetResponse.clusterUrl + "/assets/htmlFiles/login.html?cloud=true";
+    window.location.href = clusterGetResponse.clusterUrl;
 }
 
-// function checkLoginForm() {
-//     var email = document.getElementById("loginNameBox").value;
-//     var password = document.getElementById("loginPasswordBox").value;
-//     if (email && password && validateEmail(email) && validatePassword(password)) {
-//         // if ($("#loginButton").hasClass("btn-disabled")) {
-//         //     $("#loginButton").removeClass("btn-disabled");
-//         // }
-//     } else {
-//         // if (!$("#loginButton").hasClass("btn-disabled")) {
-//         //     $("#loginButton").addClass("btn-disabled");
-//         // }
-//     }
-// }
+function checkLoginForm() {
+    var email = document.getElementById("loginNameBox").value;
+    var password = document.getElementById("loginPasswordBox").value;
+    if (email && password && validateEmail(email) && validatePassword(password)) {
+        $("#loginFormError").hide();
+        return true;
+    } else {
+        showFormError($("#loginFormError"), "Fields missing or incomplete.");
+        return false;
+    }
+}
+
+function showFormError($errorBox, errorText) {
+    $errorBox.children(".text").html(errorText);
+    $errorBox.show();
+}
 
 function validateEmail(email) {
     return email.match(/\S+@\S+\.\S+/);
@@ -241,6 +246,7 @@ function showTooltip($element) {
 function showInputError($element, condition) {
     if (condition) {
         $element.find('.icon.xi-error').hide();
+        $element.find('.input-tooltip').hide();
         $element.hover(
             function () {
                 hideTooltip($(this))
@@ -366,11 +372,25 @@ function checkSignUpForm() {
         return true;
     } else {
         if (signupSubmitClicked) {
-            $("#signupFormError").show()
+            showFormError($("#signupFormError"), "Fields missing or incomplete.");
         }
         return false;
     }
 }
+
+$("#signupForm").keypress(function (event) {
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if (keycode == '13') {
+        $("#signup-submit").click();
+    }
+});
+
+$("#loginForm").keypress(function (event) {
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if (keycode == '13') {
+        $("#loginButton").click();
+    }
+});
 
 $(".signup-login").click(function () {
     $("#signupForm").toggle();
@@ -402,47 +422,35 @@ $(".logOutLink").click(function () {
     xcLocalStorage.setItem("xcalarTokens", "");
 });
 
-// $("#confirmForgotPasswordForm").find(".input").keyup(function () {
-//     var password1 = $("#confirm-forgot-password-new-password").val();
-//     var password2 = $("#confirm-forgot-password-confirm-new-password").val();
-//     var filledAllFields = $("#confirm-forgot-password-code").val() && password1 && password2;
-//     var passwordsMatch = password1 === password2;
-//     if (filledAllFields && passwordsMatch) {
-//         // if ($("#confirm-forgot-password-submit").hasClass("btn-disabled")) {
-//         //     $("#confirm-forgot-password-submit").removeClass("btn-disabled");
-//         // }
-//     } else {
-//         // if (!$("#confirm-forgot-password-submit").hasClass("btn-disabled")) {
-//         //     $("#confirm-forgot-password-submit").addClass("btn-disabled");
-//         // }
-//     }
-// })
-
 $("#loginButton").click(function () {
-    username = document.getElementById("loginNameBox").value;
-    var password = document.getElementById("loginPasswordBox").value;
+    if (checkLoginForm()) {
+        username = document.getElementById("loginNameBox").value;
+        var password = document.getElementById("loginPasswordBox").value;
 
-    var authenticationData = {
-        Username: username,
-        Password: password,
-    };
-    var userData = {
-        Username: username,
-        Pool: userPool
-    };
+        var authenticationData = {
+            Username: username,
+            Password: password,
+        };
+        var userData = {
+            Username: username,
+            Pool: userPool
+        };
 
-    var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
-    cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-    xcLocalStorage.setItem("xcalarUsername", username);
-    loginUser(cognitoUser, authenticationDetails);
+        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+        cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        xcLocalStorage.setItem("xcalarUsername", username);
+        loginUser(cognitoUser, authenticationDetails);
+    }
 });
 
 $("#resend-code").click(function () {
     cognitoUser.resendConfirmationCode(function (err, result) {
         if (err) {
             console.error(err);
-            alert(err);
+            showFormError($("#verifyFormError"), err.message);
             return;
+        } else {
+            $("#verifyFormError").hide();
         }
     });
 })
@@ -478,8 +486,10 @@ $("#signup-submit").click(function () {
         userPool.signUp(username, password, attributeList, null, function (err, result) {
             if (err) {
                 console.error(err);
-                alert(err);
+                showFormError($("#signupFormError"), err.message);
                 return;
+            } else {
+                $("#verifyFormError").hide();
             }
             localPassword = password;
             cognitoUser = result.user;
@@ -495,29 +505,44 @@ $("#signup-submit").click(function () {
     }
 });
 
-$("#verify-submit").click(function () {
-    var code = document.getElementById("verify-code").value;
-    cognitoUser.confirmRegistration(code, true, function (err, result) {
-        if (err) {
-            console.error(err);
-            alert(err);
-            return;
-        }
-        var authenticationData = {
-            Username: xcLocalStorage.getItem("xcalarUsername"),
-            Password: localPassword,
-        };
-        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+function checkVerifyForm() {
+    var code = $("#verify-code").val();
+    if (!code) {
+        showFormError($("#verifyFormError"), "Please enter your verification code.");
+        return false;
+    } else {
+        $("#verifyFormError").hide();
+        return true;
+    }
+}
 
-        if (localPassword) {
-            loginUser(cognitoUser, authenticationDetails);
-        } else {
-            $("header").children().hide();
-            $("#formArea").children().hide();
-            $("#loginTitle").show();
-            $("#loginForm").show();
-        };
-    });
+$("#verify-submit").click(function () {
+    if (checkVerifyForm()) {
+        var code = $("#verify-code").val();
+        cognitoUser.confirmRegistration(code, true, function (err, result) {
+            if (err) {
+                console.error(err);
+                showFormError($("#verifyFormError"), err.message);
+                return;
+            } else {
+                $("#verifyFormError").hide();
+            }
+            var authenticationData = {
+                Username: xcLocalStorage.getItem("xcalarUsername"),
+                Password: localPassword,
+            };
+            var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+
+            if (localPassword) {
+                loginUser(cognitoUser, authenticationDetails);
+            } else {
+                $("header").children().hide();
+                $("#formArea").children().hide();
+                $("#loginTitle").show();
+                $("#loginForm").show();
+            };
+        });
+    }
 });
 
 var selectedClusterSize;
@@ -538,7 +563,7 @@ $("#clusterForm").find(".radioButton").click(function () {
 });
 
 $("#deployBtn").click(function () {
-    if (selectedClusterSize) {
+    if (checkClusterForm()) {
         fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/start", {
                 headers: {
                     "Content-Type": "application/json",
@@ -556,9 +581,6 @@ $("#deployBtn").click(function () {
             .then(function (myJson) {
                 getCluster();
             });
-
-    } else {
-        // cluster size not selected
     }
 });
 
@@ -569,40 +591,84 @@ $("#forgotSection").click(function () {
     $("#forgotPasswordTitle").show();
 });
 
-$("#forgot-password-submit").click(function () {
-    var userData = {
-        Username: $("#forgot-password-code").val(),
-        Pool: userPool
-    };
-    cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+function checkForgotPasswordForm() {
+    var forgotPasswordEmail = $("#forgot-password-email").val()
+    if (forgotPasswordEmail && validateEmail(forgotPasswordEmail)) {
+        $("#forgotPasswordFormError").hide();
+        return true;
+    } else {
+        showFormError($("#forgotPasswordFormError"), "Please enter a valid email for password recovery.");
+        return false;
+    }
+}
 
-    cognitoUser.forgotPassword({
-        onSuccess: function () {
-            $("#forgotPasswordForm").hide();
-            $("#forgotPasswordTitle").hide();
-            $("#confirmForgotPasswordForm").show();
-            $("#confirmForgotPasswordTitle").show();
-        },
-        onFailure: function (err) {
-            alert(err);
-        }
-    });
+function checkClusterForm() {
+    if (!selectedClusterSize) {
+        showFormError($("#clusterFormError"), "Please select your cluster size.");
+        return false;
+    } else {
+        $("#clusterFormError").hide();
+        return true;
+    }
+}
+
+function checkConfirmForgotPasswordForm() {
+    var verificationCode = $("#confirm-forgot-password-code").val();
+    var newPassword1 = $("#confirm-forgot-password-new-password").val();
+    var newPassword2 = $("#confirm-forgot-password-confirm-new-password").val();
+    if (verificationCode && newPassword1 && validatePassword(newPassword1) && newPassword1 === newPassword2) {
+        $("#confirmForgotPasswordFormError").hide();
+        return true;
+    } else {
+        showFormError(
+            $("#confirmForgotPasswordFormError"),
+            "Please fill all fields correctly to reset password. New password must contain lowercase, " +
+            "uppercase, number, a special character, and must be at least 8 characters long. "
+        );
+        return false;
+    }
+}
+
+$("#forgot-password-submit").click(function () {
+    if (checkForgotPasswordForm()) {
+        var userData = {
+            Username: $("#forgot-password-email").val(),
+            Pool: userPool
+        };
+        cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+        cognitoUser.forgotPassword({
+            onSuccess: function () {
+                $("#forgotPasswordFormError").hide();
+                $("#forgotPasswordForm").hide();
+                $("#forgotPasswordTitle").hide();
+                $("#confirmForgotPasswordForm").show();
+                $("#confirmForgotPasswordTitle").show();
+            },
+            onFailure: function (err) {
+                showFormError($("#forgotPasswordFormError"), err.message);
+            }
+        });
+    }
 });
 
 $("#confirm-forgot-password-submit").click(function () {
-    var verificationCode = $("#confirm-forgot-password-code").val();
-    var newPassword = $("#confirm-forgot-password-new-password").val();
-    cognitoUser.confirmPassword(verificationCode, newPassword, {
-        onSuccess: function () {
-            $("#confirmForgotPasswordForm").hide();
-            $("#confirmForgotPasswordTitle").hide();
-            $("#loginForm").show();
-            $("#loginTitle").show();
-        },
-        onFailure: function (err) {
-            alert(err);
-        }
-    });
+    if (checkConfirmForgotPasswordForm()) {
+        var verificationCode = $("#confirm-forgot-password-code").val();
+        var newPassword = $("#confirm-forgot-password-new-password").val();
+        cognitoUser.confirmPassword(verificationCode, newPassword, {
+            onSuccess: function () {
+                $("#confirmForgotPasswordFormError").hide();
+                $("#confirmForgotPasswordForm").hide();
+                $("#confirmForgotPasswordTitle").hide();
+                $("#loginForm").show();
+                $("#loginTitle").show();
+            },
+            onFailure: function (err) {
+                showFormError($("#confirmForgotPasswordFormError"), err.message);
+            }
+        });
+    }
 });
 
 function showClusterIsReadyScreen() {
