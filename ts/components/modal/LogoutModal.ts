@@ -2,6 +2,7 @@ class LogoutModal {
     private static _instance: LogoutModal;
     private _modalHelper: ModalHelper;
     private _clusterStopCheckTime = 6 * 1000;
+    private _progressBar: ProgressBar;
 
     public static get Instance(): LogoutModal {
         return this._instance || (this._instance = new this());
@@ -14,6 +15,17 @@ class LogoutModal {
         });
 
         this._addEventListeners();
+        this._progressBar = new ProgressBar({
+            $container: $modal.find(".clusterStopProgress"),
+            completionTime: 100,
+            progressTexts: [
+                'Beginning shut down',
+                'Shutting down',
+                'Finishing shut down'
+            ],
+            numVisibleProgressTexts: 3,
+            startText: "Cluster shut down"
+        });
     }
 
     public show(): void {
@@ -35,8 +47,8 @@ class LogoutModal {
                 this._stopCluster();
             } else {
                 XcUser.CurrentUser.logout();
+                this._close();
             }
-            this._close();
         });
 
         $modal.on("click", ".radioButton", function() {
@@ -47,8 +59,12 @@ class LogoutModal {
 
     private _stopCluster(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._getModal().addClass("locked");
+
         xcHelper.sendRequest("POST", "/service/stopCloud")
         .then((res) => {
+            this._getModal().addClass("clusterStop");
+            this._progressBar.start();
             if (res && res.status === 0) {
                 return this._checkClusterStopped();
             } else {
@@ -56,19 +72,27 @@ class LogoutModal {
             }
         }).then(() => {
             XcUser.CurrentUser.logout();
+            this._progressBar.end("Completed");
+            this._close();
             deferred.resolve();
         })
         .fail((error) => {
             this._handleClusterStopFailure(error)
             .then(deferred.resolve)
-            .fail(deferred.reject);
+            .fail(deferred.reject)
+            .always(() => {
+                this._close();
+            });
         });
+
         return deferred.promise();
     }
 
     private _checkClusterStopped(): XDPromise<any> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const self = this;
+        checkHelper();
+
         function checkHelper() {
             console.log("checking for cloud shutdown");
             xcHelper.sendRequest("GET", "/service/checkCloud")
@@ -89,13 +113,13 @@ class LogoutModal {
             });
         }
 
-        checkHelper();
-
         return deferred.promise();
     }
 
     private _close() {
         this._modalHelper.clear();
+        this._getModal().removeClass("clusterStop locked");
+        this._progressBar.reset();
     }
 
     // a cluster stop failure might mean that it actually stopped and
@@ -108,14 +132,17 @@ class LogoutModal {
         }
         XVM.checkVersion(true)
         .then(() => {
+            this._progressBar.reset();
             Alert.error("Stop Cluster Failed", error);
             deferred.reject(error);
         })
         .fail(() => {
+            this._progressBar.end("Completed");
             // if checkVersion didn't work then cluster probably shut down
             XcUser.CurrentUser.logout();
             deferred.resolve();
         });
+
         return deferred.promise();
     }
 }

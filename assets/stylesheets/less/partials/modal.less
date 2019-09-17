@@ -1875,6 +1875,20 @@ html.microsoft {
 
 #logoutModal {
     .size(@width: 500px, @height: 270px, @min-width:500px, @min-height: 270px);
+    &.clusterStop {
+        .clusterStopProgress {
+            display: block;
+        }
+        .logoutOptions {
+            display: none;
+        }
+    }
+
+    &.locked {
+         .modalBottom, .close {
+            .xc-disabled;
+        }
+    }
     .modalMain {
         height: ~"calc(100% - 120px)";
         padding: 0px 22px;
@@ -1898,6 +1912,24 @@ html.microsoft {
         padding-left: 22px;
         font-size: 12px;
         font-weight: 500;
+    }
+    .clusterStopProgress {
+        display: none;
+        overflow: hidden;
+
+        .title {
+            font-size: 16px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+
+        .progressBarBorder {
+            box-shadow: inset 0px 0px 0px 1px rgba(200, 200, 200, 0.95);
+
+            .progressBar {
+                background-color: rgba(200, 200, 200, 0.95);
+            }
+        }
     }
 }
 

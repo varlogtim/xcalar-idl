@@ -244,7 +244,7 @@ class ModalHelper {
 
         $(document).on("keydown.xcModal" + this.id, function(event) {
             if (event.which === keyCode.Escape) {
-                if (options.noEsc) {
+                if (options.noEsc || $modal.hasClass("locked")) {
                     return true;
                 }
                 $modal.find(".modalHeader .close").click();

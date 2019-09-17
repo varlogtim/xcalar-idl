@@ -8,26 +8,31 @@
       </div>
     </header>
       <section class="modalMain">
-          <div class="text">Before you log out, would you like to shut down your cluster immediately or leave the cluster running?</div>
-          <div class="radioButtonGroup">
-            <div class="radioButton xc-action shutDown active">
-                <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
+          <div class="logoutOptions">
+                <div class="text">Before you log out, would you like to shut down your cluster immediately or leave the cluster running?</div>
+                <div class="radioButtonGroup">
+                    <div class="radioButton xc-action shutDown active">
+                        <div class="radio">
+                            <i class="icon xi-radio-selected"></i>
+                            <i class="icon xi-radio-empty"></i>
+                        </div>
+                        <div class="label">Shut down cluster</div>
+                    </div>
+                    <div class="radioButton xc-action ignore">
+                        <div class="radio">
+                            <i class="icon xi-radio-selected"></i>
+                            <i class="icon xi-radio-empty"></i>
+                        </div>
+                        <div class="label">Leave cluster running</div>
+                    </div>
+                    <div class="subLabel">If cluster is left running, it will remain
+                        online until all pending tasks are complete,
+                        and will shut down after a period of inactivity.
+                    </div>
                 </div>
-                <div class="label">Shut down cluster</div>
-            </div>
-            <div class="radioButton xc-action ignore">
-                <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
-                </div>
-                <div class="label">Leave cluster running</div>
-            </div>
-            <div class="subLabel">If cluster is left running, it will remain
-                online until all pending tasks are complete,
-                and will shut down after a period of inactivity.
-            </div>
+          </div>
+          <div class="clusterStopProgress">
+                include "../util/progressBar.html"
           </div>
       </section>
     <!-- Button Section -->

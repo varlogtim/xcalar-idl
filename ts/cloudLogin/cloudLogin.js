@@ -625,13 +625,7 @@ let progressBar = new ProgressBar({
         'Restoring the servers',
         'Polishing up'
     ],
-    progressTextsOpacities: [
-        100,
-        77,
-        55,
-        33,
-        10
-    ]
+    numVisibleProgressTexts: 5
 });
 
 function deployingClusterAnimation() {
