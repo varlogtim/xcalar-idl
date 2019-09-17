@@ -1124,12 +1124,20 @@ class DagView {
         let minYCoor: number = this.$dfArea.height();
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
-
-        nodeInfos.forEach((nodeInfo) => {
+        let upperLeftMostNode = null;
+        nodeInfos.forEach((nodeInfo, i) => {
+            if (i === 0) {
+                minXCoor = nodeInfo.display.x;
+                minYCoor = nodeInfo.display.y;
+            }
             minYCoor = Math.min(nodeInfo.display.y, minYCoor);
             if (nodeInfo.display.y === minYCoor) {
                 minXCoor = Math.min(nodeInfo.display.x, minXCoor);
+                if (nodeInfo.display.x === minXCoor) {
+                    upperLeftMostNode = nodeInfo;
+                }
             }
+
             if (nodeInfo.display.height && nodeInfo.display.width) {
                 maxXCoor = Math.max(nodeInfo.display.x + nodeInfo.display.width, maxXCoor);
                 maxYCoor = Math.max(nodeInfo.display.y + nodeInfo.display.height, maxYCoor);
@@ -1155,7 +1163,7 @@ class DagView {
 
         const newNodeIds: DagNodeId[] = [];
         const allNewNodeIds: DagNodeId[] = [];
-        const oldNodeIdMap = {};
+        const oldNodeIdMap = new Map();
         const allNewNodes = [];
         const nodeToRemove: boolean[] = [];
         const newLinkOutNodes: DagNodeDFOut[] = [];
@@ -1203,7 +1211,7 @@ class DagView {
                     }
                     const newNodeId: DagNodeId = newNode.getId();
                     if (nodeInfo.nodeId) {
-                        oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
+                        oldNodeIdMap.set(nodeInfo.nodeId, newNodeId);
                     }
                     newNodeIds.push(newNodeId);
                     allNewNodeIds.push(newNodeId);
@@ -1250,7 +1258,7 @@ class DagView {
                         if (parentId == null) {
                             return; // skip empty parent slots
                         }
-                        const newParentId = oldNodeIdMap[parentId];
+                        const newParentId: DagNodeId = oldNodeIdMap.get(parentId);
                         if (newParentId && this.graph.hasNode(newParentId) &&
                             newParentId !== newNodeId
                         ) {
@@ -1268,7 +1276,7 @@ class DagView {
                 }
             });
             this.graph.checkNodesState(nodesMap);
-            // XXX scroll to selection if off screen
+
             this._setGraphDimensions({ x: maxXCoor, y: maxYCoor });
             if (this.dagTab instanceof DagTabSQLFunc) {
                 let sqlFuncInNodes = this.dagTab.resetInputOrder();
@@ -1281,6 +1289,13 @@ class DagView {
             let updatedAggNodes: DagNodeAggregate[] = this.graph.resolveAggConflict(newAggNodes);
             if (updatedAggNodes.length) {
                 this._updateTitleForNodes(updatedAggNodes);
+            }
+            if (upperLeftMostNode) {
+                const newParentId: DagNodeId = oldNodeIdMap.get(upperLeftMostNode.nodeId);
+                let $node = this._getNode(newParentId);
+                if ($node.length) {
+                    $node.scrollintoview({duration: 0});
+                }
             }
             Log.add(SQLTStr.CopyOperations, {
                 "operation": SQLOps.CopyOperations,

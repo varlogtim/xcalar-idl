@@ -191,7 +191,7 @@ function thriftLog(
 
         if (error === StatusTStr[StatusT.StatusDgDagAlreadyExists]) {
             // 'DAG name already exists'
-            error += ". Rename the aggregate or DAG and try again."
+            error = "Table name already exists. Rename the table or aggregate and try again.";
         }
 
         if (status !== StatusT.StatusCanceled) {

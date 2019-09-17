@@ -1640,7 +1640,7 @@ class DagGraph extends Durable {
             if (agg.node != newNode.getId()) {
                 // A different node than this one created this agg, so we need to rename it.
                 param.dest = xcHelper.uniqueName(param.dest, validFunc, null);
-                newNode.setParam(param);
+                newNode.setParam(param, true);
                 changedNodes.push(newNode);
             }
         });

@@ -99,12 +99,14 @@ class DagNodeAggregate extends DagNode {
      * @param input {DagNodeAggregateInputStruct}
      * @param input.evalString {string} The aggregate eval string
      */
-    public setParam(input: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>{}): boolean | void {
+    public setParam(
+        input: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>{},
+        noAutoExecute?: boolean
+    ): boolean | void {
         this.input.setInput({
             evalString: input.evalString,
             dest: input.dest
         });
-        let tabId = this.graph ? this.graph.getTabId() : "";
         let promise: XDPromise<any> = PromiseHelper.resolve();
         let oldAggName = this.getParam().dest;
         if (oldAggName != null && oldAggName != input.dest &&
@@ -139,7 +141,7 @@ class DagNodeAggregate extends DagNode {
             });
         });
 
-        return super.setParam();
+        return super.setParam(null, noAutoExecute);
     }
 
     public resetAgg(): XDPromise<void> {
