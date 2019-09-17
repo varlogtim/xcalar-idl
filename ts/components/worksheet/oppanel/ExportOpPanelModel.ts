@@ -193,8 +193,10 @@ class ExportOpPanelModel extends BaseOpPanelModel {
         });
     }
 
-    public constructParams(driver: ExportDriver,
-            oldArgs?: {[key: string]: string | boolean | number}) {
+    public constructParams(
+        driver: ExportDriver,
+        oldArgs?: {[key: string]: string | boolean | number}
+    ) {
         if (driver == null) {
             return [];
         }
@@ -213,7 +215,7 @@ class ExportOpPanelModel extends BaseOpPanelModel {
                     arg.value = false;
                 }
             }
-            if (oldArgs && oldArgs[param.name]) {
+            if (oldArgs && oldArgs[param.name] != null) {
                 arg.value = oldArgs[param.name];
             } else {
                 if (param.defArg == null) {
