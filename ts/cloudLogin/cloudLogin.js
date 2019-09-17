@@ -183,7 +183,7 @@ function getCluster() {
                 deployingClusterAnimation();
             } else {
                 // redirect to cluster
-                if (deployingClusterAnimationStarted) {
+                if (progressBar.isStarted()) {
                     showClusterIsReadyScreen();
                     setTimeout(() => goToXcalar(clusterGetResponse), 2000);
                 } else {
@@ -606,77 +606,36 @@ $("#confirm-forgot-password-submit").click(function () {
 });
 
 function showClusterIsReadyScreen() {
-    clusterDeploymentCompleted = true;
     $("#loadingTitle").html("Your cluster is ready!");
-    $("#loadingForm .title").html("Redirecting to Xcalar Cloud...");
-    $("#deployingTexts").html("<div>Complete</div>");
+    progressBar.end("Redirecting to Xcalar Cloud...")
 }
 
-var clusterDeploymentCompleted = false;
-var deployingClusterAnimationStarted = false;
+let progressBar = new ProgressBar({
+    $container: $("#loadingForm"),
+    completionTime: 100,
+    progressTexts: [
+        'Feeding the hamsters',
+        'Setting up the tiny hamster wheels',
+        'Powering up the hamster engines',
+        'Charging the flux capacitors',
+        'Engaging the hamster wheels',
+        'Not eating up the hamsters',
+        'Hugging the hamsters',
+        'Blowing up the servers',
+        'Restoring the servers',
+        'Polishing up'
+    ],
+    progressTextsOpacities: [
+        100,
+        77,
+        55,
+        33,
+        10
+    ]
+});
 
 function deployingClusterAnimation() {
-    if (!deployingClusterAnimationStarted) {
-        deployingClusterAnimationStarted = true;
-        var completionTime = 100;
-        var deployingTexts = [
-            'Feeding the hamsters',
-            'Setting up the tiny hamster wheels',
-            'Powering up the hamster engines',
-            'Charging the flux capacitors',
-            'Engaging the hamster wheels',
-            'Not eating up the hamsters',
-            'Hugging the hamsters',
-            'Blowing up the servers',
-            'Restoring the servers',
-            'Polishing up'
-        ]
-        var deployingBoxesOpacities = [
-            100,
-            77,
-            55,
-            33,
-            10
-        ]
-        var firstTextId = 0;
-
-        for (var i = 0; i < deployingBoxesOpacities.length; i++) {
-            $("#deployingTexts").append("<div style='opacity:" + deployingBoxesOpacities[i] / 100 + ";'></div>");
-        }
-
-        var width = 5;
-        var fastCompletionTime;
-        var maxProgressBarWidth = 95;
-
-        (function animateProgressBar() {
-            if (width < maxProgressBarWidth) {
-                width++;
-                $("#progressBar").width(width + '%');
-                $("#deployingPercentage").html(width + '%');
-                var tickTime = completionTime * 1000 / 90;
-                if (clusterDeploymentCompleted) {
-                    if (!fastCompletionTime) {
-                        fastCompletionTime = 1000 / (95 - width);
-                        maxProgressBarWidth = 100;
-                    }
-                    tickTime = fastCompletionTime;
-                }
-                setTimeout(animateProgressBar, tickTime);
-            }
-        })();
-
-        (function animateTexts() {
-            if (!clusterDeploymentCompleted && firstTextId < deployingTexts.length) {
-                var currentTextId = firstTextId;
-                for (var i = 0; i < deployingBoxesOpacities.length; i++) {
-                    if (currentTextId >= 0) {
-                        $("#deployingTexts div:nth-child(" + (i + 1) + ")").html(deployingTexts[currentTextId] + "...");
-                        currentTextId--;
-                    }
-                }
-                firstTextId++;
-                setTimeout(animateTexts, completionTime * 1000 / deployingTexts.length);
-            }
-        })();
+    if (!progressBar.isStarted()) {
+        progressBar.start();
     }
 }

@@ -62,7 +62,7 @@
 
     Examples:
         grunt dev                 (build a dev build of XD product, in to <xclrdir>)
-        grunt dev --product Cloud (build a dev build of Cloud product, in to <xclrdir>)
+        grunt dev --product "Cloud" (build a dev build of Cloud product, in to <xclrdir>)
         grunt installer           (build installer flavor of XD product, in to <xclrdir>/xcalar-gui/)
         grunt debug watch --less  (build a debug build in to <xlrdir>/xcalar-gui, then watch for changes in all less files in <xlrdir> that aren't bld files)
         grunt debug watch --less --livereload (debug build, and watch for less files. On less file change, reload browser.)

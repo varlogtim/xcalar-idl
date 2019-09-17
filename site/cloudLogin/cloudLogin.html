@@ -265,19 +265,8 @@
 
         <!-- loading -->
         <div id="loadingForm" class="authForm">
-          <div class="title">
-            Please wait while your cluster loads...
-          </div>
-          <div id="progressBarBorder">
-            <div id="progressBar"></div>
-          </div>
-          <div id="loadingInfo">
-            <div id="deployingPercentage">5%</div>
-            <div id="deployingTexts"></div>
-          </div>
-
+            include "../partials/util/progressBar.html"
         </div>
-
       </div>
     </div>
   </div>
@@ -289,6 +278,7 @@
 <script src="../3rd/bower_components/amazon-cognito-identity-js/dist/amazon-cognito-identity.min.js"></script>
 <script src="../3rd/bower_components/crypto-js/crypto-js.js"></script>
 <script src="../assets/js/shared/helperClasses/XcStorage.js" type="text/javascript"></script>
+<script src="../assets/js/shared/helperClasses/progressBar.js"></script>
 <script src="../assets/js/cloudLogin/cloudLogin.js"></script>
 
 </html>
