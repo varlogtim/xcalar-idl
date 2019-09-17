@@ -134,22 +134,22 @@ namespace TooltipWalkthroughs {
         let cloudSteps: TooltipInfo[] = [{
             highlight_div: "#dsForm-source .location.file",
             interact_div: "#dsForm-source .location.file",
-            text: "The Import file section enables you to upload a file as data source",
+            text: "The File Browser enables you to upload a file from your computer to your private Amazon S3 bucket created by Xcalar.",
             type: TooltipType.Text
         }, {
             highlight_div: "#dsForm-source .location.s3",
             interact_div: "#dsForm-source .location.s3",
-            text: "The Amazon S3 Location section enables you to select a Amazon S3 connector to connecto to your data source",
+            text: "The Amazon S3 Location enables you to select an Amazon S3 connector to connect to your data source.",
             type: TooltipType.Text
         }, {
             highlight_div: "#dsForm-source .location.database",
             interact_div: "#dsForm-source .location.database",
-            text: "The Database Location section enables you to select a database connector to connect to your data source",
+            text: "The Database Location enables you to select a database connector to connect to your data source.",
             type: TooltipType.Text
         }, {
             highlight_div: "#dsForm-source .more",
             interact_div: "#dsForm-source .more",
-            text: "Click the More Connectores button enables you to select more advacned connectors to connect your data source",
+            text: "The More Connectors button enables you to select advanced connectors to connect to your data source.",
             type: TooltipType.Text
         }];
 
@@ -188,8 +188,7 @@ namespace TooltipWalkthroughs {
         let dataStoreSteps: TooltipInfo[] = XVM.isCloud() ? cloudSteps : onPremSteps;
         let steps: TooltipInfo[] = [{
             highlight_div: "#homeBtn",
-            text: "Welcome to Xcalar Design. This tooltip walkthrough will familiarize " +
-            "you with some of the UI for Xcalar Design's SQL Mode.",
+            text: "Welcome to Xcalar Design. This tooltip walk-through will familiarize you with the UI of Xcalar Design and its SQL Mode.",
             type: TooltipType.Text
         },
         {
@@ -243,7 +242,7 @@ namespace TooltipWalkthroughs {
         },
         {
             highlight_div: "#sqlWorkSpacePanel .historySection",
-            text: "The History section provides detail about past SQL executions.",
+            text: "The History section provides details about past SQL executions.",
             type: TooltipType.Text,
         },
         {
@@ -254,8 +253,7 @@ namespace TooltipWalkthroughs {
         },
         {
             highlight_div: "#tutorialResource",
-            text: " This concludes the tour of the SQL Mode UI. " +
-            "To get more hands-on, you can view the tutorial workbooks.",
+            text: "This concludes the tour of the SQL Mode UI. To get more hands-on experience, view the tutorial workbooks.",
             type: TooltipType.Text
         }];
         TooltipManager.start(
@@ -283,15 +281,13 @@ namespace TooltipWalkthroughs {
             },
             [{
                 highlight_div: "#modeArea",
-                text: "Welcome to Dataflow Mode. This user interface enables" +
-                    " you to analyze your data and troubleshoot your queries " +
-                    " by providing a powerful visual design framework.",
+                text: "Welcome to Dataflow Mode. This user interface enables you to create and troubleshoot your data models through a combination of visual design, SQL and Python.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#tabButton",
                 interact_div: "#tabButton",
-                text: "Click the new dataflow icon to create a new dataflow at any time.",
+                text: "A dataflow is a series of actions performed on data to develop a data model. Click the new dataflow icon to create a new dataflow at any time.",
                 type: TooltipType.Click
             },
             {
@@ -306,36 +302,33 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: "#dagView .categoryBar",
-                text: "The dataflow mode toolbar displays the categories of available operator nodes.",
+                text: "The Dataflow Mode toolbar displays the categories of available operation Nodes.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView .operatorBar",
-                text: "Each category displays the operator nodes you'll use to build dataflows.",
+                text: "Each category displays the operation Nodes you'll use to build your dataflows.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView .operatorBar",
-                text: "Drag and drop nodes from here to the dataflow canvas to create a dataflow." +
-                " Nodes can be connected together by dragging node anchors to other nodes.",
+                text: "Drag and drop Nodes from here to the dataflow canvas to create a dataflow. Nodes can be connected by dragging a Node anchor to another Node.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView .operatorWrap .active .operator",
                 interact_div: "#dagView .operatorWrap .active .operator .main",
-                text: "Double-click this node to add it into the canvas.",
+                text: "Double click this Node to add it to the canvas.",
                 type: TooltipType.DoubleClick
             },
             {
                 highlight_div: "#dagView",
-                text: "Practice creating a dataflow by adding nodes into the canvas and connecting them. " +
-                "Click the arrow when you're ready to continue.",
+                text: "Practice creating a dataflow by adding Nodes to the canvas and connecting them. Click the arrow when you're ready to continue.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView",
-                text: "Clicking a node displays a menu of actions. " +
-                "Select 'Configure' to open a configuration panel on the left of the canvas.",
+                text: "Clicking a node displays a menu of actions. Select \"Configure\" to open a configuration panel on the left of the canvas.",
                 type: TooltipType.Text
             },
             {
@@ -347,8 +340,7 @@ namespace TooltipWalkthroughs {
             ,
             {
                 highlight_div: "#tutorialResource",
-                text: " This concludes the tour of the Dataflow Mode UI. " +
-                "To get more hands-on, you can view the tutorial workbooks.",
+                text: "This concludes the tour of the Dataflow Mode UI. To get more hands-on experience, view the tutorial workbooks.",
                 type: TooltipType.Text
             }],
             0,
@@ -366,7 +358,7 @@ namespace TooltipWalkthroughs {
         // XXX TODO: Integrate with tutorial workbooks
         let builtInWalkthroughs = [{
             name: SQLModeName,
-            description: "Tour of the SQL Mode UI"
+            description: "Tour of Xcalar Design and the SQL Mode UI"
         }, {
             name: ADVModeName,
             description: "Tour of the Dataflow Mode UI"
