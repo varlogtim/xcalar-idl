@@ -160,7 +160,7 @@ module.exports = {
         "Logs": "Logs",
         "About": "About",
         "Help": "Help",
-        "HelpDocs": "Help docs",
+        "HelpDocs": "Help Documentation",
         "LiveHelp": "Live Chat",
         "Tutorials": "Tutorials",
         "Walkthroughs": "Walkthroughs"
@@ -1211,7 +1211,6 @@ module.exports = {
         "learnMore": "Learn more about " + bldVars.prodName,
         "relatedDocs": "Xcalar Design Documentation",
         "walkthroughs": "Available Walkthroughs",
-        "Docs": "Help Docs",
         "tuts": "Tutorials",
         "viewNewHelpDoc": "View our help documentation",
         "viewNews": "View Xcalar's most recent announcements",
