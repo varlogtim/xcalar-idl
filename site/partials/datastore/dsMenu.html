@@ -1,43 +1,28 @@
 <!-- dataset menu -->
-<div class="iconSection">
-  <!-- import data button -->
-  <% if (dicts.tutor.name !== "datasetPanelTutA1") { %>
-  <div id="importDataButton" class="action submit import" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body">
-    <i class="icon xi-add-data"></i>
+<div class="topSection">
+  <div class="titleSection">
+    <header>
+      <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)</span>
+    </header>
   </div>
-  <% } else { %>
-  <div id="importDataButton" class="action submit import" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="wa1-importDs">
-    <i class="icon xi-add-data"></i>
+  <div class="iconSection">
+    <i class="minimizeBtn icon xi-close"></i>
+    <!-- switch datasets view -->
+    <i id="dataViewBtn" class="switchView right icon xi-view-as-list-2 gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body"></i>
+    <!-- refresh icon -->
+    <i id="refreshDS" class="refresh right icon xi-refresh" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Refresh %>"></i>
   </div>
-  <% } %>
-  <!-- add folder button -->
-  <% if (dicts.tutor.name !== "datastoreTut2") { %>
-  <div id="addFolderBtn" class="action addFolter" title="<%= dicts.dsView.addFolderBtn %>" data-container="body" data-toggle="tooltip" data-placement="top">
-    <i class="icon xi-add-folder"></i>
-  </div>
-  <% } else { %>
-  <div id="addFolderBtn" class="action addFolter" data-introstep="w3-createFolder">
-    <i class="icon xi-add-folder"></i>
-  </div>
-  <% } %>
-  <i class="minimizeBtn icon xi-close"></i>
-  <!-- switch datasets view -->
-  <% if (dicts.tutor.name !== "datastoreTut2") { %>
-  <i id="dataViewBtn" class="switchView right icon xi-view-as-list-2 fa-17 gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body"></i>
-  <% } else { %>
-  <i id="dataViewBtn" class="right icon xi-view-as-list-2 fa-17 gridView" data-introstep="w3-changeView"></i>
-  <% } %>
-  <!-- refresh icon -->
-  <i id="refreshDS" class="refresh right icon xi-refresh fa-17" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Refresh %>"></i>
 </div>
-<div class="titleSection no-selection">
-  <header>
-    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)
-      <!-- <div class="hint intro-icon" id="datasetPanelWA1" data-toggle="tooltip" data-container="body" data-title="<%= dicts.introTStr.wa1Tip %>" data-placement="top">
-        <i class="white icon xi_smart fa-16"></i>
-      </div> -->
-    </span>
-  </header>
+<div class="buttonSection">
+  <!-- import data button -->
+  <button id="importDataButton" class="btn btn-submit iconBtn import">
+    <i class="icon xi-plus fa-11"></i>
+    <span><%= dicts.ds.Point %></span>
+  </button>
+  <!-- add folder button -->
+  <button id="addFolderBtn" class="btn btn-secondary addFolter">
+    New Folder
+  </button>
 </div>
 <div id="dsListSection" class="mainSection">
   <div class="topWrapper">

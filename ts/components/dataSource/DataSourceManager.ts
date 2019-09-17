@@ -250,7 +250,7 @@ class DataSourceManager {
         });
 
         // set up the import button
-        $("#datastoreMenu .iconSection .import").click(function() {
+        $("#datastoreMenu .buttonSection .import").click(function() {
             let $btn = $(this);
             $btn.blur();
             let createTableMode: boolean = $btn.hasClass("createTable");
@@ -287,11 +287,13 @@ class DataSourceManager {
         if (!isAdmin) {
             $panel.addClass("noAdmin");
             $menu.addClass("noAdmin");
-            xcTooltip.changeText($("#dsTarget-create"), DSTargetTStr.AdminOnly);
+            xcTooltip.add($("#dsTarget-create"), {
+                title: DSTargetTStr.AdminOnly
+            });
         } else {
             $panel.removeClass("noAdmin");
             $menu.removeClass("noAdmin");
-            xcTooltip.changeText($("#dsTarget-create"), DSTargetTStr.Create);
+            xcTooltip.remove($("#dsTarget-create"));
         }
         return isAdmin;
     }

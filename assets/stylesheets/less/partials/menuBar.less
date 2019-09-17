@@ -310,151 +310,13 @@
         }
     }
 
-    // TODO: set padding to zero and fix each menu's styling
-    #datastoreMenu, #monitorMenu {
-        padding: 10px 0px;
-    }
+    @topSectionHeight: 60px;
 
     .menuSection {
-        @height-icon: 50px;
-        @height-title: 45px;
-        @height-total: @height-icon + @height-title;
-        .size(100%, 100%);
-
-        &.simple {
-            @height-simple: 60px;
-            > .titleSection {
-                .size(@height: @height-simple);
-
-                div {
-                    .size(@width: 150px);
-                    .position(relative, @top: 7px);
-                    float: left;
-                }
-            }
-
-            > .mainSection {
-                .size(@height: ~"calc(100% - @{height-simple})");
-            }
-        }
-
-        > .iconSection {
-            .size(@height: @height-icon);
-            padding: 0 10px 0px 15px;
-            color: @color-bg-cardHeader;
-
-            .action {
-                float: left;
-                .size(35px, 35px);
-                .rounded(100%);
-                margin-right: 8px;
-                color: @color-white;
-                background-color: @color-font-edge;
-                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
-                cursor: pointer;
-
-                &.submit {
-                    background-color: @color-font-link-blue;
-
-                    &:hover {
-                        background-color: @color-font-button-hover;
-                    }
-                }
-
-                &:not(.submit) {
-                    &:hover {
-                        opacity: @opacity-hover;
-                    }
-                }
-
-                &:active {
-                    box-shadow: none;
-                }
-
-                .icon {
-                    .center-align;
-                }
-            }
-
-            .right.icon {
-                cursor: pointer;
-                margin: 2px 5px;
-                float: right;
-                opacity: @opacity-unhover;
-
-                &:hover {
-                    opacity: @opacity-hover;
-                }
-            }
-        }
-
-        > .titleSection {
-            .size(@height: @height-title);
-            .font(@size: 22px, @weight: bold, @color: @color-font-form-gray);
-            padding: 0 10px 0 15px;
-            backface-visibility: hidden;
-
-            header {
-                .textOverflowOneLine;
-            }
-        }
-
-        > .mainSection {
-            border-top: 1px solid @color-border-softGray;
-            .size(@height: ~"calc(100% - @{height-total})");
-            padding-top: 10px;
-            color: @color-font-form-gray;
-
-            > .instructions {
-                font-weight: normal;
-            }
-        }
-    }
-
-    .minimizeBtn, .refreshBtn, .uploadBtn {
-        float: right;
-        font-size: 18px;
-        margin: 2px 0px 2px 5px;
-        cursor: pointer;
-        opacity: @opacity-unhover;
-
-        &:hover {
-            opacity: @opacity-hover;
-        }
-    }
-
-    .refreshBtn, .uploadBtn {
-        font-size: 17px;
-        margin: 2px 5px;
-    }
-    .uploadBtn {
-        font-size: 15px;
-    }
-}
-// ==========  End Top / Main Menu =======
-
-.mainMenuGhost {
-    opacity: 0.5;
-    background: @color-white;
-    border-right: 2px solid @color-border-softGray2;
-}
-
-
-
-// special case
-#addWorksheet, #datastoreMenu .iconSection .import {
-    .icon {
-        .position(@top: 45%, @left: 53%) !important;
-    }
-}
-
-#dataflowMenu {
-    @topSectionHeight: 50px;
-    > .menuSection {
         background-color: @color-white;
-        padding: 0px;
         padding-bottom: 5px;
         color: @color-font-edge;
+        height: 100%;
 
         > .topSection {
             display: flex;
@@ -473,16 +335,14 @@
 
             .iconSection {
                 color: @color-bg-cardHeader;
-                font-size: 15px;
                 .flex(1 0 auto);
 
                 .icon {
-                    font-size: 15px;
-                    margin-left: 2px;
+                    font-size: 16px;
+                    margin-left: 5px;
                     margin-top: 7px;
-                }
-                .uploadBtn {
-                    font-size: 14px;
+                    cursor: pointer;
+                    float: right;
                 }
             }
         }
@@ -492,10 +352,21 @@
             color: @color-font-edge;
             overflow: auto;
             border-top: none;
+            padding-top: 10px;
         }
     }
+}
+// ==========  End Top / Main Menu =======
 
-    .menuSection.tables, {
+.mainMenuGhost {
+    opacity: 0.5;
+    background: @color-white;
+    border-right: 2px solid @color-border-softGray2;
+}
+
+
+#dataflowMenu {
+    .menuSection.tables {
         > .iconSection {
             .size(@height: 6px);
         }
@@ -627,17 +498,11 @@
             float: right;
             margin-right: 5px;
             opacity: @opacity-unhover;
+            font-size: 16px;
 
             &:hover {
                 opacity: @opacity-hover;
             }
-
-            &:first-of-type {
-                margin-right: 10px;
-            }
-        }
-        .close {
-            font-size: 18px;
         }
 
         #helpCategories {

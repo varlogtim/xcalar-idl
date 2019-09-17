@@ -1,18 +1,23 @@
 <!-- dataset target menu -->
-<div class="iconSection">
-  <div id="dsTarget-create" class="action submit" title="<%= dicts.dsTarget.Create %>" data-toggle="tooltip" data-placement="top" data-container="body">
-    <i class="icon xi-plus fa-16"></i>
+<div class="topSection">
+  <div class="titleSection">
+    <header>
+      <span><%= dicts.ds.Targets %> (<span class="numDSTargets">0</span>)</span>
+    </header>
   </div>
-  <i class="minimizeBtn icon xi-close"></i>
-  <!-- switch data target view -->
-  <i id="dsTarget-view" class="switchView right icon xi-view-as-list-2 fa-17 gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body"></i>
-  <!-- refresh icon -->
-  <i id="dsTarget-refresh" class="refresh right icon xi-refresh fa-17" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.common.Refresh %>"></i>
+  <div class="iconSection">
+    <i class="minimizeBtn icon xi-close"></i>
+    <!-- switch data target view -->
+    <i id="dsTarget-view" class="switchView right icon xi-view-as-list-2 gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body"></i>
+    <!-- refresh icon -->
+    <i id="dsTarget-refresh" class="refresh right icon xi-refresh" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.common.Refresh %>"></i>
+  </div>
 </div>
-<div class="titleSection no-selection">
-  <header>
-    <span><%= dicts.ds.Targets %> (<span class="numDSTargets">0</span>)</span>
-  </header>
+<div class="buttonSection">
+  <button id="dsTarget-create" class="btn btn-submit iconBtn">
+    <i class="icon xi-plus fa-11"></i>
+    <span><%= dicts.dsTarget.Create %></span>
+  </button>
 </div>
 <div id="dsTarget-list" class="mainSection no-selection">
   <!-- Grid View -->
