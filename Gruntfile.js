@@ -4496,7 +4496,7 @@ module.exports = function(grunt) {
                 grunt.task.run('cleanempty:finalBuild');
             }
 
-            if (PRODUCT != XD) {
+            if (PRODUCT != XD && PRODUCT != Cloud) {
                 grunt.task.run("check_for_xd_strings");
             }
 
