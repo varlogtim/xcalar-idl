@@ -15,13 +15,15 @@ namespace xcManager {
 
         Compatible.check();
         xcGlobal.setup();
-        setupThrift("");
+        
 
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;
         let isTutorial: boolean = false;
-
-        xcTimeHelper.setup()
+        setupHost()
+        .then(() => {
+            return xcTimeHelper.setup();
+        })
         .then(() => {
             return hotPatch();
         })
@@ -29,6 +31,8 @@ namespace xcManager {
             return XcUser.setCurrentUser();
         })
         .then(function() {
+            // XXX TODO: remove this hack call
+            CloudManager.Instance.hackSetUser();
             XVM.setup();
 
             // xcrpc default service setup
@@ -398,6 +402,30 @@ namespace xcManager {
         }
     }
 
+    function isCloud(): boolean {
+        return (typeof gCloud !== "undefined" && gCloud === true);
+    }
+
+    function setupHost(): XDPromise<void> {
+        if (isCloud()) {
+            let deferred: XDDeferred<void> = PromiseHelper.deferred();
+            CloudManager.Instance.getHostInfo()
+            .then((host) => {
+                if (host) {
+                    hostname = host;
+                }
+                setupThrift("");
+                deferred.resolve();
+            })
+            .fail(deferred.reject)
+
+            return deferred.promise();
+        } else {
+            setupThrift("");
+            return PromiseHelper.resolve();
+        }
+    }
+
     function oneTimeSetup(): XDPromise<any> {
         function initLocks() {
             const keys: any = WorkbookManager.getGlobalScopeKeys(Durable.Version);
@@ -656,7 +684,7 @@ namespace xcManager {
     }
 
     function hotPatch(): XDPromise<void> {
-        if (typeof gCloud !== "undefined" && gCloud === true) {
+        if (isCloud()) {
             // cloud don't need to use hotpatch
             return PromiseHelper.resolve();
         }

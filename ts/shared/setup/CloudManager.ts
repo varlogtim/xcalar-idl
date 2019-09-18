@@ -14,6 +14,26 @@ class CloudManager {
     }
 
     /**
+     * CloudManager.Instance.getHostInfo
+     */
+    public getHostInfo(): XDPromise<string> {
+        // XXX TODO: wire it with real implementation
+        return PromiseHelper.resolve(undefined);
+    }
+
+    // XXX TODO: remove this hack
+    /**
+     * CloudManager.Instance.hackSetUser
+     */
+    public hackSetUser(): void {
+        let hackUserName = xcLocalStorage.getItem("xcalarUsername");
+        if (hackUserName) {
+            this._getUserName = () => hackUserName;
+            XcUser.setCloudUserName(this._getUserName());
+        }
+    }
+
+    /**
      * CloudManager.Instance.getS3BucketInfo
      */
     public getS3BucketInfo(): XDPromise<{bucket: string}> {
