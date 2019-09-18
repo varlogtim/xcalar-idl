@@ -3,7 +3,6 @@ namespace ExtensionManager {
     let extMap = {};
     let cachedExts = [];
     let hasInitialLoad: boolean = false;
-    let hasRenderPanels: boolean = false;
     let extensionLoader: ExtensionLoader;
 
     /**
@@ -139,21 +138,6 @@ namespace ExtensionManager {
         } else {
             return null;
         }
-    }
-
-    /**
-     * ExtensionManager.isInstalled
-     * @param extName
-     */
-    export function isInstalled(extName: string): boolean {
-        for (var extKey in extMap) {
-            if (extMap.hasOwnProperty(extKey)) {
-                if (extKey.toLowerCase() === "uext" + extName.toLowerCase()) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**

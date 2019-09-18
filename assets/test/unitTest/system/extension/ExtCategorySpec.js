@@ -34,8 +34,5 @@ describe("ExtCategory Constructor Test", function() {
         expect(list[0].getName()).to.equal("testItem");
         list = extCategory.getExtensionList("noResultKey");
         expect(list.length).to.equal(0);
-
-        list = extCategory.getAvailableExtensionList();
-        expect(list.length).to.equal(0);
     });
 });

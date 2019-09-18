@@ -56,16 +56,4 @@ class ExtCategory {
 
         return resList;
     }
-
-    public getAvailableExtensionList(): ExtItem[] {
-        const list: ExtItem[] = this.getExtensionList();
-        let resList: ExtItem[] = [];
-        for (let i = 0, len = list.length; i < len; i++) {
-            const extension: ExtItem = list[i];
-            if (extension.isInstalled()) {
-                resList.push(extension);
-            }
-        }
-        return resList;
-    }
 }

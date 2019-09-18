@@ -77,32 +77,4 @@ class ExtItem {
     public getWebsite(): string {
         return this.website;
     }
-
-    public isInstalled(): boolean {
-        const $extLists: JQuery = $("#extension-lists");
-        if ($extLists.find(".error").length) {
-            return this.__findInstallFindScript();
-        } else {
-            const name: string = this.getName();
-            const $li: JQuery = $extLists.find(".item").filter(function() {
-                return $(this).find(".name").text() === name;
-            });
-            return ($li.length > 0);
-        }
-    }
-
-    private __findInstallFindScript(): boolean {
-        let exist: boolean = false;
-        const name: string = this.getName() + ".ext.js";
-
-        $("#extension-ops-script script").each(function() {
-            const src: string = $(this).attr("src");
-            if (src && src.includes(name)) {
-                exist = true;
-                // end loop
-                return false;
-            }
-        });
-        return exist;
-    }
 }

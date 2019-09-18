@@ -103,7 +103,6 @@ namespace MonitorPanel {
             let title = MonitorTStr.System + ': ';
             let $menu = $("#monitorMenu");
             $menu.find(".menuSection").addClass("xc-hidden");
-            let $extSearch = $("#extension-search").addClass("xc-hidden");
             $monitorPanel.find(".mainContent").scrollTop(0);
             $("#container").removeClass("activePanel-FileManagerPanel");
             $monitorPanel.removeClass("fileManagerMainPanel");

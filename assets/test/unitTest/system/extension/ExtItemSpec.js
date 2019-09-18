@@ -68,17 +68,4 @@ describe("ExtItem Constructor Test", function() {
     it("should get website", function() {
         expect(extItem.getWebsite()).to.equal("http://test.com");
     });
-
-    it("should know if it's installed", function() {
-        var $fakeItem = $('<div class="item">item1</div>');
-        $("#extension-lists").append($fakeItem);
-        expect(extItem.isInstalled()).to.be.false;
-
-        // case 2
-        $fakeItem.addClass("error");
-        expect(extItem.isInstalled()).to.be.false;
-
-        // clean up
-        $fakeItem.remove();
-    });
 });
