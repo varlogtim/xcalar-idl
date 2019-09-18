@@ -647,6 +647,8 @@ class GeneralOpPanel extends BaseOpPanel {
             if (event.which === keyCode.Escape) {
                 if (self._$panel.find(".hint.list:visible").length) {
                     self._hideDropdowns();
+                } else if (StatusBox.isOpen()) {
+                    $("#statusBoxClose").trigger(fakeEvent.mousedown);
                 } else if (!self._$panel.find(".list:visible").length) {
                     self.close();
                 }

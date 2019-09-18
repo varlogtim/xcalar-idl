@@ -87,6 +87,10 @@ namespace StatusBox {
             }
         }
 
+        public isOpen(): boolean {
+            return this.open;
+        }
+
         private setupListerers() {
             $("#statusBox").mousedown(this._mousedownEvent.bind(this));
             $("#statusBox .detailAction").mousedown(function(event) {
@@ -327,5 +331,9 @@ namespace StatusBox {
      */
     export function forceHide(): void {
         statusDisplayer.forceHide();
+    }
+
+    export function isOpen(): boolean {
+        return statusDisplayer.isOpen();
     }
 }

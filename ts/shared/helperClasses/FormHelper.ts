@@ -148,6 +148,11 @@ class FormHelper {
                 if (!$form.is(":visible")) {
                     return true;
                 }
+                if (StatusBox.isOpen()) {
+                    $("#statusBoxClose").trigger(fakeEvent.mousedown);
+                    return;
+                }
+
                 $form.find(".close").click();
                 return false;
             }
