@@ -736,7 +736,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         try {
             return JSON.stringify(JSON.parse(str1)) === JSON.stringify(JSON.parse(str2));
         } catch (e) {
-            console.error(e);
+            // console.error(e); // no need to console
             return false;
         }
     }

@@ -5,6 +5,8 @@ class CreateCustomNode extends EventEmitter {
     command(nodes) {
         console.log("Custom");
         console.log(nodes);
+        this.api.execute(execFunctions.clearConsole, [], () => {});
+
         // Deselect any prior node:
         this.api
                 .execute(execFunctions.scrollIntoView, ['.dataflowArea.active [data-nodeid="' + nodes[0] + '"]'], () => {})
@@ -23,8 +25,15 @@ class CreateCustomNode extends EventEmitter {
             .mouseButtonClick('right')
             .waitForElementVisible("#dagNodeMenu", 1000)
             .moveToElement("#dagNodeMenu li.createCustom", 10, 1)
-            .mouseButtonClick('left')
-        this.emit('complete');
+            .mouseButtonClick('left');
+        setTimeout(() => {
+            this.api.elements('css selector','.dataflowArea.active .operator.category-custom', function (result) {
+                console.log("custom node created: " + result.value.length);
+            });
+            this.api.getLog("browser", function(result){console.log(result)});
+            this.emit('complete');
+        }, 2000);
+
         return this;
     }
 }

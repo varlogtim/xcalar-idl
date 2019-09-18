@@ -7,6 +7,7 @@ class RecreateNodes extends EventEmitter {
         const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [], nodeTypes: [], nodeIdMap: {} };
         let customOutputMap = new Map();
         let customNodesMap = new Map();
+        this.api.execute(execFunctions.clearConsole, [], () => {});
 
         // first we have to "unwrap" any custom nodes.
         let trueNodeInfos = [];
@@ -194,10 +195,14 @@ class RecreateNodes extends EventEmitter {
             });
         });
 
+
+
         // Create any applicable custom nodes
         this.api.perform(() => {
+            this.api.execute(execFunctions.clearConsole, [], () => {});
             if (customNodesMap.size > 0) {
                 customNodesMap.forEach((nodeIndexes) => {
+                    this.api.execute(execFunctions.clearConsole, [], () => {});
                     let ids = commandResult.nodeIDs.slice(nodeIndexes[0], nodeIndexes[1]);
                     this.api.createCustomNode(ids);
                 });

@@ -173,6 +173,7 @@ function replay(testConfig, tags) {
             // let linkOutOptimizedTable;
             for (const tabName of Object.keys(testTabs)) {
                 browser.perform(() => {
+                    browser.execute(execFunctions.clearConsole, [], () => {});
                     const newTabName = testTabMapping.get(tabName);
                     const numOfNodes = testTabs[tabName].nodes.length;
                     // used for checking completed nodes
@@ -214,6 +215,15 @@ function replay(testConfig, tags) {
                         browser.assert.equal(result.value.length, 0); // link out optimized not executed
                     })
                     .saveScreenshot("nwscreenshot1.png")
+                    .getLog("browser", function(result){console.log(result)})
+                    .elements('css selector','.dataflowArea.active .operator.state-Error', function (result) {
+                        console.log("should not have error nodes");
+                        browser.assert.equal(result.value.length, 0);
+                    })
+                    .elements('css selector','.dataflowArea.active .operator.state-Running', function (result) {
+                        console.log("should not have running nodes");
+                        browser.assert.equal(result.value.length, 0);
+                    })
                     .elements('css selector','.dataflowArea.active .operator', function (result) {
                         console.log("third--result: " + result.value.length, "customNodes: " + numOfCustomNodes, " numOfNode: " + numOfNodes);
                     })
