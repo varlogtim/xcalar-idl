@@ -94,7 +94,7 @@ class JupyterUDFModal {
                 "$ele": $input,
                 "error": ErrTStr.NoEmpty,
                 "check": () => {
-                    return $input.val().trim().length === 0 && $input.attr("placeholder") !== "No columns found";
+                    return $input.val().trim().length === 0;
                 }
             });
             if (!isValid) {
@@ -120,9 +120,25 @@ class JupyterUDFModal {
         }
 
         if ($modal.hasClass("type-map")) {
-            let columns = $modal.find(".columns").val().split(",");
-            columns = columns.map((colName) => colName.trim());
             let tableName = $modal.find(".tableName:visible").data("tablename");
+            if (tableName.includes(`'`) || tableName.includes(`"`)) {
+                StatusBox.show("Result set name cannot include quotes", $modal.find(".tableName:visible"), true);
+                return;
+            }
+            let fullColumnsStr: string = $modal.find(".columns").val();
+            if (fullColumnsStr.includes(`'`) || fullColumnsStr.includes(`"`)) {
+                StatusBox.show("Column names cannot include quotes", $modal.find(".tableName:visible"), true);
+                return;
+            }
+            let columns: string[] = $modal.find(".columns").val().split(",");
+            columns = columns.map((colName) => colName.trim());
+            for (let i = 0; i < columns.length; i++) {
+                let col = columns[i];
+                if (col.includes(" ")) {
+                    StatusBox.show("Column names cannot include spaces. Ensure all column names are separated by commas and try again.", $modal.find(".columns:visible"), true);
+                    return;
+                }
+            }
             let table = gTables[xcHelper.getTableId(tableName)];
             let allColumns = [];
             if (table) {
@@ -176,54 +192,13 @@ class JupyterUDFModal {
             "onSelect": ($li) => {
                 let val = $li.text();
                 let tableName = $li.data("tablename");
-                if (tableName ===  $modal.find(".tableList .arg").data("tablename")) {
+                if (tableName === $modal.find(".tableList .arg").data("tablename")) {
                     return;
                 }
+                let nodeId = $li.data("nodeid");
+                let tabId: string = $li.data("tabid");
                 $modal.find(".tableList .arg").val(val);
-                $modal.find(".tableList .arg").data('tablename', tableName);
-                $modal.find(".columnsList .arg").val("");
-                $modal.find(".columnsList li.selecting").removeClass("selecting");
-                this._cols = [];
-                let tableId: TableId = xcHelper.getTableId(tableName);
-                let table = gTables[tableId];
-                if (!table) {
-                    let tabId: string = $li.data("tabid");
-                    let dagTab = DagTabManager.Instance.getTabById(tabId);
-                    if (dagTab) {
-                        let graph = dagTab.getGraph();
-                        let nodeId = $li.data("nodeid")
-                        if (graph && nodeId) {
-                            let dagNode = graph.getNode(nodeId);
-                            if (dagNode) {
-                                table = XcDagTableViewer.getTableFromDagNode(dagNode);
-                            }
-                        }
-                    }
-                }
-                if (!table) {
-                    $modal.find(".columns").attr("placeholder", "No columns found");
-                    $modal.find(".columnsList ul").html("")
-                    return;
-                } else {
-                    $modal.find(".columns").attr("placeholder", "Columns to test");
-                }
-                let progCols = table.getAllCols(true);
-                let html = "";
-                for (let i = 0; i < progCols.length; i++) {
-                    if (progCols[i].type === ColumnType.array ||
-                        progCols[i].type === ColumnType.object) {
-                        html += '<li data-toggle="tooltip" ' +
-                                'data-container="body" ' +
-                                'title="Cannot directly operate on objects ' +
-                                'or arrays" class="unavailable">' +
-                                xcStringHelper.escapeHTMLSpecialChar(
-                                        progCols[i].getBackColName()) + "</li>";
-                    } else {
-                        html += "<li>" + xcStringHelper.escapeHTMLSpecialChar(
-                                    progCols[i].getBackColName()) + "</li>";
-                    }
-                }
-                $modal.find(".columnsList ul").html(html);
+                this._selectTableName(tableName, tabId, nodeId);
             }
         }).setupListeners();
 
@@ -254,6 +229,77 @@ class JupyterUDFModal {
                 this._getTargetList().find(".target").val(target);
             }
         }).setupListeners();
+
+        $modal.find(".tableList .arg").on("change", (event) => {
+            let tableName = $(event.target).val().trim();
+            let $li = $modal.find(".tableList li").filter(function() {
+                return $(this).text() === tableName;
+            });
+            // look for matching li, otherwise treat as raw table name
+            if ($li.length) {
+                let tableName = $li.data("tablename");
+                let nodeId = $li.data("nodeid");
+                let tabId: string = $li.data("tabid");
+                this._selectTableName(tableName, tabId, nodeId);
+            } else {
+                this._selectTableName(tableName, null, null);
+            }
+        });
+    }
+
+    private _selectTableName(tableName, tabId, nodeId) {
+        let $modal = this._getModal();
+        $modal.find(".tableList .arg").data('tablename', tableName);
+        $modal.find(".columnsList .arg").val("");
+        $modal.find(".columnsList li.selecting").removeClass("selecting");
+        this._cols = [];
+        let tableId: TableId = xcHelper.getTableId(tableName);
+        let table = gTables[tableId];
+        if (!table) {
+            let dagTab = DagTabManager.Instance.getTabById(tabId);
+            if (dagTab) {
+                let graph = dagTab.getGraph();
+                if (graph && nodeId) {
+                    let dagNode = graph.getNode(nodeId);
+                    if (dagNode) {
+                        table = XcDagTableViewer.getTableFromDagNode(dagNode);
+                    }
+                }
+            }
+        }
+        if (!table) {
+            $modal.find(".columns")
+                .prop("readonly", false)
+                .attr("placeholder", "No columns found")
+                .removeClass("readonly")
+                .addClass("inputable");
+
+            $modal.find(".columnsList ul").html("");
+            return;
+        } else {
+            $modal.find(".columns")
+                .prop("readonly", true)
+                .attr("placeholder", "Columns to test")
+                .removeClass("inputable")
+                .addClass("readonly");
+        }
+        let progCols = table.getAllCols(true);
+        let html = "";
+        for (let i = 0; i < progCols.length; i++) {
+            if (progCols[i].type === ColumnType.array ||
+                progCols[i].type === ColumnType.object) {
+                html += '<li data-toggle="tooltip" ' +
+                        'data-container="body" ' +
+                        'title="Cannot directly operate on objects ' +
+                        'or arrays" class="unavailable">' +
+                        xcStringHelper.escapeHTMLSpecialChar(
+                                progCols[i].getBackColName()) + "</li>";
+            } else {
+                html += "<li>" + xcStringHelper.escapeHTMLSpecialChar(
+                            progCols[i].getBackColName()) + "</li>";
+            }
+        }
+        $modal.find(".columnsList ul").html(html);
     }
 
     private _getTableList(): HTML {
