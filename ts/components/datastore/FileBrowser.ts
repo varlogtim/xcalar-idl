@@ -764,7 +764,7 @@ namespace FileBrowser {
             if ($grid.length === 0) {
                 return false;
             }
-            let classes: string[] = ["style-white"];
+            let classes: string[] = ["noBorder"];
             let $rawDataLi = $menu.find(".rawData");
             if ($grid.hasClass("folder")) {
                 $rawDataLi.addClass("unavailable");

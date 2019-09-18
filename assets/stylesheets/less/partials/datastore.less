@@ -4007,10 +4007,6 @@ table.datasetTable {
 
     li {
         display: none;
-
-        &.selected {
-             background-color: @color-font-form-gray;
-        }
     }
     &.dsOpts {
         .dsOpt {
@@ -4165,10 +4161,6 @@ table.datasetTable {
     &.disableShare {
         .share {
             opacity: @opacity-disabled;
-            // pointer-events: none;
-            &.selected {
-                background-color: @color-bg-menu-light-blue;
-            }
         }
     }
 }
@@ -4193,16 +4185,10 @@ table.datasetTable {
 
 #gridViewSubMenu, #tableGridViewSubMenu {
     z-index: @z-index-gridViewMenu + 1;
-    background-color: @color-font-edge;
     .size(@width: 80px);
 
     li {
-        background-color: @color-font-edge;
         .position(relative);
-
-        &.selected {
-             background-color: @color-font-form-gray;
-        }
 
         &.select .icon {
             display: inline-block;
@@ -4213,11 +4199,6 @@ table.datasetTable {
             float: right;
             .vertical-align;
         }
-    }
-
-    .divider {
-        border-color: @color-white;
-        opacity: 0.6;
     }
 }
 

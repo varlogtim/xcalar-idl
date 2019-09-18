@@ -2938,7 +2938,7 @@ namespace DS {
         el.oncontextmenu = function(event) {
             let $target = $(event.target);
             let $grid = $target.closest(".grid-unit");
-            let classes: string = "";
+            let classes: string = " noBorder";
             let totalSelected = $gridView.find(".grid-unit.selected").length;
             if (WorkbookManager.getActiveWKBK() == null) {
                 $gridMenu.find(".multiActivate, .multiDeactivate, .activate").addClass("disabled");

@@ -765,7 +765,6 @@ body {
     .size(@min-width: 140px, @max-width: 90vw, @width: auto);
     text-align: center;
     z-index: @z-index-useMenu;
-    background-color: @color-white;
 
     #userName {
         font-weight: 600;
@@ -774,7 +773,6 @@ body {
         }
     }
     li {
-        background-color: @color-white;
         color: @color-font-form-gray;
         font-weight: 500;
         &.selected {
@@ -808,7 +806,7 @@ body {
             font-size: 10px;
             color: @color-font-link-blue;
             float: right;
-            line-height: 18px;
+            line-height: @height-modeling-col-menu;
             padding-left: 8px;
             padding-right: 4px;
             &:hover {

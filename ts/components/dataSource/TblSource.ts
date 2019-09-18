@@ -580,7 +580,7 @@ class TblSource {
         $gridView.parent()[0].oncontextmenu = function(event) {
             let $target: JQuery = $(event.target);
             let $grid: JQuery = $target.closest(".grid-unit");
-            let classes: string = "";
+            let classes: string = " noBorder";
             let totalSelected: number = $gridView.find(".grid-unit.selected").length;
 
             if ($grid.length && totalSelected > 1) {

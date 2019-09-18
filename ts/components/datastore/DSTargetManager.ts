@@ -401,7 +401,7 @@ namespace DSTargetManager {
         $gridView.closest(".mainSection").contextmenu(function(event) {
             let $target = $(event.target);
             let $grid = $target.closest(".grid-unit");
-            let classes: string = "";
+            let classes: string = " noBorder";
             clearSelectedTarget();
 
             if ($grid.length) {
