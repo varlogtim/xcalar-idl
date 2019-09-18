@@ -1,9 +1,6 @@
 <div id="dsForm-preview" class="cardContainer xc-hidden">
   <div class="cardWrap">
     <% var types = ['Boolean', 'Integer', 'Float', 'String', 'Timestamp', 'money']; %>
-      <%  if (dicts.tutor.name == "datastoreTut1") { %>
-      include "../demo/dsDemo2-previewTable.html"
-    <% } else { %>
     <div id="dsPreviewWrap" class="cardMain">
       <!-- Preview Section -->
       <header class="titleSection">
@@ -95,7 +92,6 @@
         <% }) %>
       </ul>
     </div>
-    <% } %>
     <div class="cardBottom">
       <div id="dsForm-minimize" class="pulloutTab xc-resizeHandler" title="<%= dicts.dsForm.Minimize %>" data-toggle="tooltip" data-body="container">
         <div class="border"></div>
@@ -112,7 +108,7 @@
             <div class="inputPart">
               <div class="row">
                 <div class="inputWrap">
-                  <input class="large dsName" type="text" autocomplete="off" spellcheck="false" class="textOverflowOneLine" title="<%= dicts.dsForm.fileNameTitle %>" required data-introstep="w2-dsName">
+                  <input class="large dsName" type="text" autocomplete="off" spellcheck="false" class="textOverflowOneLine" title="<%= dicts.dsForm.fileNameTitle %>" required>
                 </div>
                 <label>/path1/test.csv</label>
               </div>
@@ -177,7 +173,7 @@
             <div class="row format csv text">
               <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSRecordDelim %>" data-placement="top"></i>
               <label for="lineText"><%= dicts.dsForm.LineDelim %>:</label>
-              <div id="lineDelim" class="dropDownList" <%= (dicts.tutor.name == 'datastoreTut1') ? 'data-introstep="w2-dsOptions"' : '' %>>
+              <div id="lineDelim" class="dropDownList">
                 <input id="lineText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
                 <div class="iconWrapper">
                   <i class="icon xi-arrow-down"></i>

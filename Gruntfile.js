@@ -187,14 +187,14 @@ var cssMapping = {
     files: '*.less',
     dest: 'assets/stylesheets/css/',
     exclude: [],
-    remove: ['userManagement.less', 'xu.less', 'dashboard.less'],
+    remove: ['xu.less'],
     required:['assets/stylesheets/less/partials/']};
 var htmlMapping = {
     src: 'site/',
     files: '**/*.html',
     dest: '',
     exclude: [],
-    remove: ['dashboard.html', 'userManagement.html'],
+    remove: [],
     required: ['site/partials/', 'site/util/'].concat(XPE_PARTIAL_HTML_FILES)};
 var jsMapping = {
     src: 'assets/js/',
@@ -289,24 +289,15 @@ var LIVE_RELOAD_BY_TYPE = {};
 // (val): path(s) you want in final bld of the processed, templated file
 // [files mapping to mult. dests save in to 2 sep files during templating]
 var htmlTemplateMapping = {
-    "datastoreTut1.html": ["assets/htmlFiles/walk/datastoreTut1.html"],
-    "datastoreTut2.html": ["assets/htmlFiles/walk/datastoreTut2.html"],
     "dologout.html": ["assets/htmlFiles/dologout.html"],
     "extensionUploader.html": ["services/appMarketplace/extensionUploader.html"],
     "index.html": ["index.html"],
     "install.html": ["install.html", "install-tarball.html"],
     "login.html": ["assets/htmlFiles/login.html"],
     "cloudLogin.html": ["cloudLogin/cloudLogin.html"],
-    "tableau.html": ["assets/htmlFiles/tableau.html"],
     "testSuite.html": ["testSuite.html"],
-    "undoredoTest.html": ["undoredoTest.html"],
     "unitTest.html": ["unitTest.html"],
     "unitTestInstaller.html": ["unitTestInstaller.html"],
-    "workbookTut.html": ["assets/htmlFiles/walk/workbookTut.html"],
-    "datasetPanelTutA1.html": ["assets/htmlFiles/walk/datasetPanelTutA1.html"],
-    "importDatasourceTutA2.html": ["assets/htmlFiles/walk/importDatasourceTutA2.html"],
-    "browseDatasourceTutA3.html": ["assets/htmlFiles/walk/browseDatasourceTutA3.html"],
-    "browseDatasource2TutA4.html": ["assets/htmlFiles/walk/browseDatasource2TutA4.html"],
     "xpe/xpeInstaller.html": ["xpe/xpeInstaller.html"],
     "xpe/xpeUninstaller.html": ["xpe/xpeUninstaller.html"],
     "xpe/xpeDockerStarter.html": ["xpe/xpeDockerStarter.html"],
@@ -791,11 +782,7 @@ var END_OF_BUILD_WARNINGS = []; // some warnings that might be bugs we collect o
 
                             /** BLACKLISTS */
 
-var DONT_PRETTIFY = [
-    "datastoreTut1.html", "datastoreTut2.html",
-    "workbookTut.html", "datasetPanelTutA1.html",
-    "importDatasourceTutA2.html", "browseDatasourceTutA3.html",
-    "browseDatasource2TutA4"];
+var DONT_PRETTIFY = [];
 
 // don't template these html files (if dir won't template any files within the dir)
 // should be rel <project source>
@@ -844,7 +831,6 @@ var DONT_RSYNC = [
         'assets/video/demoVid*',  // removes some ancient video files, no longer used
         'assets/js/constructor/README',
         UNIT_TEST_FOLDER, // will just put symlink to this in dev blds
-        'site/genHTML.js',
         "'/external'", // this contains the web site, which we do not need
         "'/xcalar-design-ee'", // an old prod target
         "'/xcalar-infra'", // Jenkins jobs XDTestSuite whill clone xcalar-infra in to workspace, and grunt called later in the process.
@@ -3234,16 +3220,6 @@ module.exports = function(grunt) {
         lang = "en";
         landCode = (lang === "en") ? "en-US" : "zh-CN";
         dicts = require(BLDROOT + 'assets/lang/' + lang + '/htmlTStr.js');
-        var tutorMap = {
-            "datastoreTut1.html": "datastoreTut1",
-            "datastoreTut2.html": "datastoreTut2",
-            "workbookTut.html": "workbookTut",
-            "datasetPanelTutA1.html": "datasetPanelTutA1",
-            "importDatasourceTutA2.html": "importDatasourceTutA2",
-            "browseDatasourceTutA3.html": "browseDatasourceTutA3",
-            "browseDatasource2TutA4.html": "browseDatasource2TutA4"
-        };
-
         /**
             htmlFilepath, if abs., should be within staging dir.
             But want to know (1) dest it will go in final bld
@@ -3320,32 +3296,14 @@ module.exports = function(grunt) {
         if (outputFiles.length == 1) {
             destFilepath = outputFiles[0];
             filename = path.basename(destFilepath);
-            if (filename == 'userManagement.html') {
-                grunt.log.writeln("found usermanagement...");
-            }
 
-            if (tutorMap.hasOwnProperty(filename)) {
-                grunt.log.debug("\ttutor map");
-                dicts.isTutor = true;
-                // it should be found in html_en's tutor obj
-                var tutorName = tutorMap[filename];
-                // overwrite the dicts.tutor[tutorName] to dicts.tutor.meta,
-                // so all walkthough.html can just use dicts.tutor.meta
-                // to find the string that needed
-                dicts.tutor.meta = dicts.tutor[tutorName];
-                dicts.tutor.name = tutorName;
+            if (filename === "unitTest.html" || filename === "unitTestInstaller.html") {
+                dicts.isUnitTest = true;
             } else {
-                dicts.isTutor = false;
-                dicts.tutor.name = "";
-
-                if (filename === "unitTest.html" || filename === "unitTestInstaller.html") {
-                    dicts.isUnitTest = true;
-                } else {
-                    dicts.isUnitTest = null;
-                }
-
-                dicts.isTarballInstaller = true;
+                dicts.isUnitTest = null;
             }
+
+            dicts.isTarballInstaller = true;
 
             // dicts configured; template
             templateWrite(destFilepath);

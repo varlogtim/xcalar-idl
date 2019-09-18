@@ -420,10 +420,6 @@ window.Shortcuts = (function($, Shortcuts) {
                         '<li class="testSuite">Test Suite</li>' +
                         '<li class="testSuite-clean">Test Suite(Clean)</li>' +
                         '<li class="unitTest">Unit Test</li>' +
-                        '<li class="undoTest">Undo Test' +
-                        '<span class="menuOption">FE</span>' + // front end test
-                        '<span class="menuOption">BE</span>' + // back end test
-                        '</li>' +
                     '</ul>' +
                     '<ul class="globals">' +
                         '<li class="verboseOff">Turn off verbose</li>' +
@@ -542,9 +538,6 @@ window.Shortcuts = (function($, Shortcuts) {
             if ($(event.target).hasClass('menuOption')) {
                 option = $(event.target).text();
             }
-            if (testName === "Undo TestFEBE") {
-                testName = "Undo Test";
-            }
             startTest(testName, option);
         });
     }
@@ -572,16 +565,6 @@ window.Shortcuts = (function($, Shortcuts) {
             TestSuite.run(false, true);
         } else if (testName === "Unit Test") {
             TestSuite.unitTest();
-        } else if (testName === "Undo Test") {
-            var type = "worksheet";
-            if (option) {
-                if (option === "FE") {
-                    type = "frontEnd";
-                } else if (option === "BE") {
-                    type = "tableOps";
-                }
-            }
-            UndoRedoTest.run(type, true);
         }
     }
 

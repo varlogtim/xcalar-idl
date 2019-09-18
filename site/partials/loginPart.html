@@ -1,4 +1,3 @@
-<% if (dicts.product != "XI") { %>
 <div id="splashContainer">
   <div id="animation_container" style="background-color:rgba(255, 255, 255, 0); width:550px; height:400px">
       <canvas id="canvas" width="550" height="400" style="position: absolute; display: block; background-color:rgba(255, 255, 255, 0.00);"></canvas>
@@ -6,33 +5,11 @@
       </div>
   </div>
 </div>
-<% } else {%>
-<div id="splashContainer">
-  <div id="animation_container" style="background-color:rgba(255, 255, 255, 0); width:550px; height:400px">
-  <video width="550" height="400" autoplay style="display:none;">
-    <source src="../video/XI_Flat_splash_middle.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-  </div>
-</div>
-<% } %>
-<% if (dicts.product == "XI") { %>
 <div id="logo" class="xc-logo">
-<% } else { %>
-<div id="logo" class="xc-logo">
-<% } %>
   <div class="innerShadow"></div>
-    <% if (dicts.product == "XI") { %>
-    <i class="icon xi_logo"></i>
-    <% } else { %>
     <i class="icon xd-logo-bw"></i>
-    <% } %>
 </div>
-<% if (dicts.product == "XI") { %>
-<div id="loginContainer" >
-<% } else { %>
 <div id="loginContainer">
-<% } %>
   <div class="outerWrap">
     <header>
       <h2 class="loginHeader"><%= dicts.login.loginHeader %></h2>
@@ -40,11 +17,7 @@
     </header>
   </div>
   <div id="loadingBar">
-    <% if (dicts.product == "XI") { %>
-    <div class="innerBar"></div>
-    <% } else { %>
     <div class="innerBar animated"></div>
-    <% } %>
   </div>
   <div class="outerWrap">
     <div id="formArea">
@@ -63,19 +36,7 @@
             <div class="label"><%= dicts.login.password %></div>
           </label>
         </div>
-         <% if (dicts.product == "XI") { %>
-        <div class="part termPart termPartInsight clearfix">
-          <div class="text">
-            <label>By logging in I am agreeing to the <a href="https://www.xcalar.com/eula.html" target="_blank"><%= dicts.login.eula %></a></label>
-          </div>
-        </div>
-        <% } %>
-        <!-- <div class="passwordForgot">Forgot your password?</div> -->
         <button id="loginButton" class="btn login" type="submit"><span class="text"><%= dicts.login.login %></span></button>
-        <!-- XX SIGN UP TEMPORARILY HIDDEN -->
-        <!--
-        <input id="signupButton" class="btn signup" type="button" name="signup" value="<%= dicts.login.signup %>">
-        -->
       </form>
       <form id="signupForm" autocomplete="off">
         <div class="nameSection section">

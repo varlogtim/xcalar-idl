@@ -48,16 +48,14 @@ window.UnitTest = (function(UnitTest, $) {
         $(document).ready(function() {
             xcGlobal.setup();
             setupTestDatasets();
-            mocha.run(function(a, b) {
-                if (parent.location.href.indexOf("unitTestManager.html") < 0) {
-                    // used for puppeteer
-                    $("body").append('<div id="testFinish">' +
-                                        getTestResult() +
-                                    '</div>');
-                    if (window.location.search.indexOf("noPopup=y") < 0) {
-                        console.log("Test Exited");
-                        alert("Test Exited");
-                    }
+            mocha.run(function() {
+                // used for puppeteer
+                $("body").append('<div id="testFinish">' +
+                                    getTestResult() +
+                                '</div>');
+                if (window.location.search.indexOf("noPopup=y") < 0) {
+                    console.log("Test Exited");
+                    alert("Test Exited");
                 }
                 if (!resultsSent) {
                     sendResultsToParent();

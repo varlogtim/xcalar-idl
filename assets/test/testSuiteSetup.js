@@ -10,11 +10,9 @@
  *      id: id of current run. For reporting back to testSuiteManager
  *      noPopup: y to suppress alert with final results
  *      mode: nothing, ten or hundred - ds size
- *      type: string, type of test "undoredo", "testsuite"
- *      subType: string, subtype of undoredo test
+ *      type: string, type of test "testsuite"
  * example:
  *  http://localhost:8888/testSuite.html?test=y&delay=2000&user=test&clean=y&close=y
- *  http://localhost:8080/undoredoTest.html?test=y&user=someone&type=undoredo&subType=frontEnd
  */
 window.TestSuiteSetup = (function(TestSuiteSetup) {
     var testSuiteKey = "autoTestsuite";
@@ -27,10 +25,6 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             hasUser = false;
         } else {
             autoLogin(user);
-        }
-        var testType = params.type;
-        if (testType === "undoredo") {
-            window.unitTestMode = true;
         }
     };
 
@@ -64,9 +58,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 UserSettings.setPref("dfAutoPreview", false, false);
                 // next time not auto run it
                 xcSessionStorage.removeItem(testSuiteKey);
-                if (testType === "undoredo") {
-                    return autoRunUndoTest();
-                } else if (testType === "sql") {
+                if (testType === "sql") {
                     return autoRunSQLTest();
                 } else {
                     return autoRunTestSuite();
@@ -218,7 +210,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
-            TestSuite.run(animation, clean, noPopup, mode, false, timeDilation)
+            TestSuite.run(animation, clean, noPopup, mode, timeDilation)
             .then(function(res) {
                 console.info(res);
                 reportResults(res);
@@ -228,24 +220,6 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         }, delay);
 
         return deferred.promise();
-    }
-
-    function autoRunUndoTest() {
-        // sample param ?user=someone&test=y&type=undoredo&subType=frontEnd
-        var params = getUrlParameters();
-        var delay = Number(params.timeout);
-        var operationType = params.subType;
-
-        if (isNaN(delay)) {
-            delay = 0;
-        }
-
-        setTimeout(function() {
-            UndoRedoTest.run(operationType)
-            .always(function() {
-               // undotest should be handling end cases
-            });
-        }, delay);
     }
 
     function autoRunSQLTest() {
@@ -265,7 +239,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
             var def = SqlTestSuite.runSqlTests(undefined, animation, clean,
-                                        noPopup, mode, false, timeDilation);
+                                        noPopup, mode, timeDilation);
             def
             .then(function(res) {
                 console.info(res);

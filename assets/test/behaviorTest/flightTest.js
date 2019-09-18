@@ -19,14 +19,13 @@ window.FlightTest = (function(FlightTest, $) {
     let flightPrefix = "flight" + randInt();
     let airportPrefix = "airport" + randInt();
 
-    FlightTest.run = function(hasAnimation, toClean, noPopup, mode, withUndo,
-                                timeDilation) {
+    FlightTest.run = function(hasAnimation, toClean, noPopup, mode, timeDilation) {
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests();
         return  XVM.setMode(XVM.Mode.Advanced)
         .then(() => {
-            return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
+            return test.run(hasAnimation, toClean, noPopup, timeDilation);
         });
     };
 

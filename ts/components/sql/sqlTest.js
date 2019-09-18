@@ -30,16 +30,15 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         tableauTables = data.tableauTPCHTest.tables;
     });
 
-    SqlTestSuite.runSqlTests = function(testName, hasAnimation, toClean,
-                                        noPopup, mode, withUndo, timeDilation) {
+    SqlTestSuite.runSqlTests = function(testName, hasAnimation, toClean, noPopup, mode, timeDilation) {
         console.log("runSqlTest: " + userIdName + "::" + sessionName);
-        console.log("arguments: " + testName + ", " + hasAnimation + ", " + toClean + ", " + noPopup + ", " + mode + ", " + withUndo + ", " + timeDilation);
+        console.log("arguments: " + testName + ", " + hasAnimation + ", " + toClean + ", " + noPopup + ", " + mode + ", " + timeDilation);
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests(testName)
         return XVM.setMode(XVM.Mode.Advanced)
         .then(() => {
-            return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
+            return test.run(hasAnimation, toClean, noPopup, timeDilation);
         });
 
     };

@@ -1,8 +1,4 @@
-<% if (dicts.isTutor) { %>
-<div id="mainMenu" class="open">
-<% } else { %>
 <div id="mainMenu" class="closed">
-<% } %>
   <div class="mainContent">
   <!-- content common to all inner sections -->
     <div id="dataflowMenu" class="commonSection" data-tab="modelingDataflowTab">
@@ -55,9 +51,6 @@
       </section>
       <section class="menuSection monitor xc-hidden">
         include "../monitor/monitorMenu.html"
-      </section>
-      <section class="menuSection queryHist xc-hidden">
-        include "../sql/sqlQueryHistoryMenu.html"
       </section>
       <section class="menuSection xdLog xc-hidden">
         include "../monitor/xdLogMenu.html"

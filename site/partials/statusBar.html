@@ -3,13 +3,11 @@
     <div class="workspaceArea"><%= dicts.common.XD %></div>
     <div class="workspaceArea">
       <span><%= dicts.workbook.Wkbk %>: </span>
-      <span class="wkbkName">
-        <%= dicts.isTutor ? dicts.tutor.wkbk : "N/A" %>
-      </span>
+      <span class="wkbkName">N/A</span>
     </div>
     <div class="workspaceArea">
       <span id="pageStatusText">
-        <%= dicts.isTutor ? dicts.tutor.meta.tab : dicts.statusBar.EC %>
+        <%= dicts.statusBar.EC %>
       </span>
       <div id="loadingIconWrap">
         <div class="spinner">

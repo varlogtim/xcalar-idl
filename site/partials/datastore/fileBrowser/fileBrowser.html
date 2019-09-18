@@ -16,15 +16,11 @@
     <!-- Location -->
     <div class="label"><%= dicts.common.Location %>:</div>
     <!-- up -->
-    <% if (dicts.tutor.name == 'browseDatasourceTutA3') { %>
-    <button id="fileBrowserUp" class="btn btn-small icon-up" title="<%= dicts.fileBrowser.Up %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="wa3-parentDir">
-    <% } else { %>
     <button id="fileBrowserUp" class="btn btn-small icon-up disabled" title="<%= dicts.fileBrowser.Up %>" data-toggle="tooltip" data-placement="top" data-container="body">
-    <% } %>
       <i class="icon xi-upload-folder"></i>
     </button>
     <div id="fileBrowserPath" class="dropDownList">
-      <div class="targetName"><%= (dicts.tutor.name == 'browseDatasourceTutA3') ? 'Default Shared Root/datastores/misc' : '' %></div>
+      <div class="targetName"></div>
       <input class="text" spellcheck="false">
       <div class="iconWrapper" title="<%= dicts.fileBrowser.filePathHint %>" data-toggle="tooltip" data-placement="top" data-container="body">
         <i class="icon xi-arrow-down"></i>
@@ -32,7 +28,7 @@
       <ul id="fileBrowserPathMenu" class="list"></ul>
     </div>
     <!-- search section -->
-    <div id="fileBrowserSearch" class="searchSection dropDownList" <%= (dicts.tutor.name == 'browseDatasourceTutA3') ? 'data-introstep="wa3-fileSearch"' : '' %>>
+    <div id="fileBrowserSearch" class="searchSection dropDownList">
       <input type="text" placeholder="<%= dicts.fileBrowser.SearchHint %>" spellcheck="false">
       <div class="clear">
         <i class="icon fa-14 xi-close xc-action"></i>

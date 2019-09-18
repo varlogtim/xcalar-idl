@@ -1,27 +1,10 @@
 <!-- Home / workbook button -->
-<% if (dicts.tutor.name == "workbookTut") { %>
-<div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>" data-introstep="w1-workbookBut">
-  <div class="logo xc-logo">
-    <div class="innerShadow"></div>
-    <% if (dicts.product == "XI") { %>
-    <i class="icon xi_logo"></i>
-    <% } else { %>
-    <i class="icon xd-logo-bw"></i>
-    <% } %>
-  </div>
-</div>
-<% } else { %>
 <div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>">
   <div class="logo xc-logo">
     <div class="innerShadow"></div>
-    <% if (dicts.product == "XI") { %>
-    <i class="icon xi_logo"></i>
-    <% } else { %>
     <i class="icon xd-logo-bw"></i>
-    <% } %>
   </div>
 </div>
-<% } %>
 <!-- End Home / workbook button -->
 <!-- mainMenu.html contains the left panels -->
 <!-- Top Menu Bar -->
@@ -81,12 +64,9 @@
         <div id="queriesButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Queries %>">
           <i class="icon xi-operations"></i>
         </div>
-         <div id="systemButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Monitor %>">
+        <div id="systemButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Monitor %>">
           <i class="icon xi-system2"></i>
         </div>
-        <!-- <div id="queryHistButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.QueryHistory %>">
-          <i class="icon xi-menu-sql"></i>
-        </div> -->
         <div id="fileManagerButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.fileManager %>">
           <i class="icon xi-folder"></i>
         </div>

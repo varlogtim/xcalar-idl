@@ -30,9 +30,6 @@
     <section id="monitor-settings" class="subPanel monitorSection">
       include "monitorSettings.html"
     </section>
-    <section id="monitor-query-history" class="subPanel monitorSection">
-      include "../sql/sqlQueryHistory.html"
-    </section>
     <section id="monitor-xd-log" class="subPanel monitorSection">
       include "xdLog.html"
     </section>
@@ -42,17 +39,15 @@
     </section>
     <!-- End of Settings Section -->
     <div id="userMemPopup" class="schemaPopup">
-        <div id="userMemPopupTitle" class="title">
-          <div class="titleContentWrap">
-
-          </div>
-          <div class="close" data-container="body"
-             data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
-            <i class="icon xi-close"></i>
-          </div>
+      <div id="userMemPopupTitle" class="title">
+        <div class="titleContentWrap"></div>
+        <div class="close" data-container="body"
+            data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
+          <i class="icon xi-close"></i>
         </div>
-        <div class="content prettyJson"></div>
       </div>
+      <div class="content prettyJson"></div>
+    </div>
   </div>
 
 </div>

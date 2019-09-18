@@ -34,9 +34,6 @@ body {
     color: @color-white;
     // font-size: 0; /* Need to use this to get rid of stupid white space */
     .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
-    &.bodyXIVideo {
-        background: #225c7b;
-    }
 }
 
 form {
@@ -129,43 +126,6 @@ header {
             }
         }
 
-    }
-}
-
-.bodyXI {
-    #logo {
-        display: block;
-    }
-}
-
-.bodyXIVideo {
-    #splashContainer {
-        .flex-display;
-    }
-    video {
-        display: block !important;
-    }
-    #logo {
-        display: none;
-    }
-}
-
-.bodyXI:not(.bodyXIVideo) {
-    #splashContainer {
-        display: none;
-    }
-    #loadingBar {
-        .innerBar {
-            .keyframe(slideRight, {
-                0%   {left: -200px;}
-                100% {left: 100%;}
-            });
-            .keyframeAnim(slideRight 0.7s linear forwards 0.3s);
-
-            &.immediateAnimation {
-               .keyframeAnim(slideRight 0.7s linear forwards 0s);
-            }
-        }
     }
 }
 

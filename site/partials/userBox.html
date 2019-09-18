@@ -1,7 +1,6 @@
-<% var userNameAttr = (dicts.tutor.name == "workbookTut") ? 'data-introstep="w1-user"' : '' %>
 <!-- userBox -->
 <div id="userBox">
-	<button id="userNameArea" class="clickable" <%= userNameAttr %>>
+	<button id="userNameArea" class="clickable">
     <i class="icon xi-user"></i>
 	</button>
   <button id="memoryAlert" class="btn btn-small inActive" data-toggle="tooltip" data-container="body" data-placement="bottom" data-title="<%= dicts.TooltipTStr.SystemGood %>">
@@ -18,7 +17,7 @@
 <div id="userMenu" class="menu noBorder">
   <ul>
     <li id="userName" class="textOverflowOneLine">
-      <%= dicts.isTutor ? dicts.tutor.user : dicts.menuBar.user %>
+      <%= dicts.menuBar.user %>
     </li>
     <li class="credits">
         <span class="num">Credits: N/A</span>

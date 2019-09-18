@@ -175,7 +175,7 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
             xcSessionStorage.setItem('xdFuncTestStartTime', d.getTime());
         }
         stateMachine = new StateMachine(verbosity, iterations, test);
-        return test.run(animation, clean, noPopup, undefined, timeDilation);
+        return test.run(animation, clean, noPopup, timeDilation);
     }
 
     function initializeTests() {

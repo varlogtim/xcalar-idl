@@ -36,11 +36,7 @@
       </div>
     </div>
     <!-- path -->
-    <% if (!dicts.isTutor) { %>
     <div class="pathSection"></div>
-    <% } else { %>
-    <div class="pathSection">Home/ </div>
-    <% } %>
     <div class="sortSection xc-sortSection">
       <span class="label"><%= dicts.common.SortBy %>:&nbsp;</span>
       <span class="sortOption" data-key="name"><%= dicts.common.Name %></span>
@@ -54,18 +50,8 @@
   </div>
   <!-- Grid View -->
   <div class="gridViewWrapper">
-    <div class="gridView gridItems xc-grid clearfix">
-      <% if (dicts.tutor.name === "datastoreTut2") { %>
-        include "../demo/dsDemo2-gridView.html"
-      <% } else if (dicts.tutor.name === "datasetPanelTutA1" || dicts.tutor.name === "importDatasourceTutA2" || dicts.tutor.name == "browseDatasourceTutA3" || dicts.tutor.name == "browseDatasource2TutA4") { %>
-        include "../demo/wa1/wa1-gridView.html"
-      <% } %>
-    </div>
+    <div class="gridView gridItems xc-grid clearfix"></div>
   </div>
   <input id="dsListFocusTrakcer">
 </div>
-<% if (dicts.tutor.name == "datasetPanelTutA1") { %>
-
-<% } else {%>
 include "gridViewMenu.html"
-<% } %>

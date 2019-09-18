@@ -111,7 +111,6 @@ module.exports = {
     },
 
     "paths": {
-        "tableau": "assets/htmlFiles/tableau.html",
         "helpUserDocs": "assets/help/user/Content/Home.htm",
         "skewDoc": "assets/help/user/Content/ContentXDHelp/C_XcalarAdvancedMode/B_Operations/Y_DeskewNode.htm#Skew",
         "news": "https://xcalar.com/news/"
@@ -1268,37 +1267,6 @@ module.exports = {
         "numUsers": "# of Users",
         "key": "Key",
         "copyright": "Copyright © 2019 Xcalar, Inc. All rights reserved."
-    },
-
-    "tutor": {
-        "user": "John Smith",
-        "wkbk": "Walkthrough",
-        "wkbkDate": "4-31-2017",
-        "wkbkSaveDate": "4-31-2017 0:00:00 AM",
-        "meta": {
-            // leave it empty, it will be overwritten by render.js
-        },
-        "datastoreTut1": {
-            "tab": "Viewing Datasets"
-        },
-        "datastoreTut2": {
-            "tab": "Viewing Datasets"
-        },
-        "datasetPanelTutA1": {
-            "tab": "Viewing Datasets"
-        },
-        "importDatasourceTutA2": {
-            "tab": "Viewing Datasets"
-        },
-        "browseDatasourceTutA3": {
-            "tab": "Viewing Datasets"
-        },
-        "browseDatasource2TutA4": {
-            "tab": "Viewing Datasets"
-        },
-        "workbookTut": {
-            "tab": "Viewing Worksheet"
-        }
     },
 
     "login": {

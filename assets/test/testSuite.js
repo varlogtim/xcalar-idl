@@ -83,7 +83,7 @@ window.TestSuite = (function($, TestSuite) {
             }
         },
 
-        run: function(hasAnimation, toClean, noPopup, withUndo, timeDilation) {
+        run: function(hasAnimation, toClean, noPopup, timeDilation) {
             XcUser.CurrentUser.disableIdleCheck();
             var self = this;
             self.noPopup = noPopup;
@@ -113,34 +113,13 @@ window.TestSuite = (function($, TestSuite) {
                 finalDeferred.resolve(res);
             };
 
-            var undoRedoTest = function() {
-                if (withUndo) {
-                    var innerDeferred = PromiseHelper.deferred();
-                    UndoRedoTest.run("frontEnd", true, true)
-                    .then(function() {
-                        return UndoRedoTest.run("tableOps", true, true);
-                    })
-                    .then(function() {
-                        return UndoRedoTest.run("worksheet", true, true);
-                    })
-                    .then(innerDeferred.resolve)
-                    .fail(innerDeferred.reject);
-                    return innerDeferred.promise();
-                } else {
-                    return PromiseHelper.resolve();
-                }
-            };
-
             var endRun = function() {
-                undoRedoTest()
-                .always(function() {
-                    if (toClean) {
-                        cleanup(self)
-                        .always(finish);
-                    } else {
-                        finish();
-                    }
-                });
+                if (toClean) {
+                    cleanup(self)
+                    .always(finish);
+                } else {
+                    finish();
+                }
             };
 
             // XXX use min mode for testing to get around of
@@ -679,10 +658,8 @@ window.TestSuite = (function($, TestSuite) {
         }
     };
 
-    TestSuite.run = function(hasAnimation, toClean, noPopup, mode, withUndo,
-                             timeDilation) {
-        return FlightTest.run(hasAnimation, toClean, noPopup, mode, withUndo,
-                            timeDilation);
+    TestSuite.run = function(hasAnimation, toClean, noPopup, mode, timeDilation) {
+        return FlightTest.run(hasAnimation, toClean, noPopup, mode, timeDilation);
     };
 
     // this is for unit test

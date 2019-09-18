@@ -1,6 +1,5 @@
 Compatible.check();
-if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
-    ($("body").hasClass("bodyXI") && !$("body").hasClass("bodyXIVideo"))) {
+if (xcLocalStorage.getItem("noSplashLogin") === "true") {
     $("#loginContainer").show();
     $("#logo").show();
     $("#splashContainer").hide();
@@ -51,8 +50,7 @@ $(document).ready(function() {
         msalSetup();
     });
 
-    if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
-        ($("body").hasClass("bodyXI") && !$("body").hasClass("bodyXIVideo"))) {
+    if (xcLocalStorage.getItem("noSplashLogin") === "true") {
         setTimeout(function() {
             $("#loginForm").fadeIn(1000);
             $("#logo").fadeIn(1000);
@@ -321,9 +319,7 @@ $(document).ready(function() {
 
     function showSplashScreen() {
         var animTime = 4200;
-        if (!$("body").hasClass("bodyXI")) {
-            init(); // 3rd party splash screen js
-        }
+        init(); // 3rd party splash screen js
         $("#loginForm").show();
         $('#loadingBar .innerBar').removeClass('animated');
 
