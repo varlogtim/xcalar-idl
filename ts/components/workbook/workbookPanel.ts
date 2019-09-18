@@ -497,13 +497,13 @@ namespace WorkbookPanel {
             event.preventDefault();
             $dropDownCard = $(this);
 
-            openDrodDown();
+            openDropDown(event);
         });
 
-        $workbookSection.on("click", ".dropDown", function() {
+        $workbookSection.on("click", ".dropDown", function(event) {
             $dropDownCard = $(this).closest(".workbookBox");
 
-            openDrodDown();
+            openDropDown(event);
         });
 
         $workbookSection.on("mouseenter", ".tooltipOverflow", function() {
@@ -1181,7 +1181,7 @@ namespace WorkbookPanel {
         return objs;
     }
 
-    function openDrodDown(): void {
+    function openDropDown(event: JQueryEventObject): void {
         if ($dropDownCard.hasClass("loading")) {
             return;
         }
@@ -1223,7 +1223,10 @@ namespace WorkbookPanel {
             $wkbkMenu.find(".delete").removeClass("xc-hidden");
             $wkbkMenu.find(".newTab").removeClass("inActive");
         }
-        MenuHelper.dropdownOpen($dropDownLocation, $wkbkMenu);
+        MenuHelper.dropdownOpen($dropDownLocation, $wkbkMenu, {
+            "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
+                "floating": true
+        });
     }
 
     function setupDragDrop(): void {
