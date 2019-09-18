@@ -221,7 +221,8 @@ function onProfileLoaded(strategy, args) {
     const verifyArityArgsMap = {
         3: 'iss sub profile',
         7: 'iss sub profile accessToken refreshToken awsConfig',
-        11: 'iss sub profile accessToken refreshToken awsConfig idToken region identityPoolId awsLoginString'
+        11: 'iss sub profile accessToken refreshToken awsConfig idToken region identityPoolId awsLoginString',
+        12: 'iss sub profile accessToken refreshToken awsConfig idToken region identityPoolId awsLoginString identityId'
     };
 
     const arity = (strategy._passReqToCallback) ? strategy._verify.length - 1 : strategy._verify.length;
@@ -311,7 +312,8 @@ Strategy.prototype._authFlowHandler = function authFlowHandler(params, validateO
             awsConfig: params.awsConfig,
             region: params.region,
             identityPoolId: params.identityPoolId,
-            awsLoginString: params.awsLoginString
+            awsLoginString: params.awsLoginString,
+            identityId: params.identityId
         };
 
         log.info('reqInfo profile: ' + JSON.stringify(reqInfo.profile));
@@ -391,7 +393,8 @@ Strategy.prototype.authenticate = function(req, options) {
                         'awsConfig': null,
                         'region': self._options.region,
                         'identityPoolId': null,
-                        'awsLoginString': null
+                        'awsLoginString': null,
+                        'identityId': null
                     }
 
                     if (result) {
@@ -427,6 +430,8 @@ Strategy.prototype.authenticate = function(req, options) {
                                 if (error) {
                                     return self.failWithLog('Cognito identity pool credentials refresh error: ' + error);
                                 } else {
+                                    params.identityId = AWS.config.credentials.identityId;
+
                                     log.info('Verifying id token with identity pool');
                                     try {
                                         self._authFlowHandler(params, validateOptions, req);
