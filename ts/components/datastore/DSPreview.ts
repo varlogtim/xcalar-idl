@@ -2782,7 +2782,13 @@ namespace DSPreview {
         let name = paths[splitLen - 1];
 
         // strip the suffix dot part and only keep a-zA-Z0-9.
-        let category = isCreateTableMode() ? PatternCategory.PTblFix : PatternCategory.Dataset;
+        let category = null;
+        if (isCreateTableMode()) {
+            name = name.toUpperCase();
+            category = PatternCategory.PTblFix;
+        } else {
+            category = PatternCategory.Dataset;
+        }
         name = <string>xcHelper.checkNamePattern(category,
             PatternAction.Fix, name.split(".")[0], "");
 

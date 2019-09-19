@@ -10,6 +10,7 @@ class ExportSQLTableModal {
     private _selectedDriver: string;
     protected _dataModel: ExportOpPanelModel;
     private _tableName: string;
+    private _id: string;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -139,6 +140,7 @@ class ExportSQLTableModal {
         this._dataModel = new ExportOpPanelModel();
         this._selectedDriver = "";
         this._modalHelper.setup();
+        this._id = xcHelper.randName("modal");
         this._$modal.find(".columnsToExport .filterHint").addClass("xc-hidden");
         $("#exportSQLTableColumns .searchBox .searchInput").val("");
         this._dataModel.loadDrivers()
@@ -357,6 +359,8 @@ class ExportSQLTableModal {
     private _closeModal(): void {
         this._modalHelper.clear();
         this._reset();
+        this._$modal.removeClass("creating");
+        this._id = null;
     }
 
     private _reset(): void {
@@ -398,8 +402,8 @@ class ExportSQLTableModal {
             return col;
         });
 
-        const $bg: JQuery = $("#initialLoadScreen");
-        $bg.show();
+        let id = this._id;
+        this._$modal.addClass("creating");
         XIApi.exportTable(txId, this._tableName, this._selectedDriver,
             driverArgs, driverColumns, exportTableName)
         .then(() => {
@@ -408,8 +412,9 @@ class ExportSQLTableModal {
                 noLog: true,
                 noCommit: true
             });
-            this._closeModal();
-            $bg.hide();
+            if (id === this._id) {
+                this._closeModal();
+            }
             return;
         })
         .fail((err) => {
@@ -417,8 +422,10 @@ class ExportSQLTableModal {
                 error: err,
                 noAlert: true
             });
+            if (id === this._id) {
+                this._$modal.removeClass("creating");
+            }
             Alert.error(null, err);
-            $bg.hide();
             return;
         })
     }

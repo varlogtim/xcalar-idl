@@ -6166,38 +6166,6 @@ html.microsoft {
     .size(@width: 500px, @height: 500px, @min-width: 500px, @min-height: 500px);
     overflow: hidden;
 
-    &.creating {
-        .modalMain {
-            > div:not(.creatingHint) {
-                opacity: 0.1;
-                pointer-events: none;
-            }
-
-            .creatingHint {
-                display: block;
-                .position(absolute, @top: 0, @left: 0);
-                padding: 15px;
-                width: 100%;
-                height: 100%;
-
-                .wrap {
-                    width: 230px;
-                    .center-align;
-
-                    > div {
-                        height: 25px;
-                    }
-                }
-            }
-        }
-
-        .modalBottom {
-            button {
-                .xc-disabled;
-            }
-        }
-    }
-
     .close {
         color: @color-white;
         right: 0px;
@@ -6214,10 +6182,6 @@ html.microsoft {
         }
         ::-webkit-scrollbar-track {
             background: @color-white;
-        }
-
-        .creatingHint {
-            display: none;
         }
 
         .IMDName {
@@ -6554,6 +6518,48 @@ html.microsoft {
             }
         }
 
+    }
+}
+
+#createPublishTableModal, #exportSQLTableModal {
+    &.creating {
+        .modalMain {
+            position: relative;
+
+            > div:not(.creatingHint) {
+                opacity: 0.1;
+                pointer-events: none;
+            }
+
+            .creatingHint {
+                display: block;
+                .position(absolute, @top: 0, @left: 0);
+                padding: 15px;
+                width: 100%;
+                height: 100%;
+
+                .wrap {
+                    width: 230px;
+                    .center-align;
+
+                    > div {
+                        height: 25px;
+                    }
+                }
+            }
+        }
+
+        .modalBottom {
+            button {
+                .xc-disabled;
+            }
+        }
+    }
+
+    .modalMain {
+        .creatingHint {
+            display: none;
+        }
     }
 }
 

@@ -922,7 +922,7 @@ module.exports = {
 
     "exportView": {
         "header": "Export",
-        "ExportTbl": "Export Table",
+        "ExportTbl": "Export Result",
         "instr": "Configure the export options.",
         "ExportAs": "Export As",
 
@@ -948,7 +948,8 @@ module.exports = {
         "exportInOrder": "Preserve order (slow)",
         "restoreDefaults": "Restore Defaults",
         "CurrentColName": "Current Name",
-        "NewColName": "New Name"
+        "NewColName": "New Name",
+        "ExportHint": "You can close the modal and check the progress under the System/Operations."
     },
 
     "joinView": {
