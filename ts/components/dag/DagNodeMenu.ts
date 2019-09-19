@@ -92,14 +92,16 @@ namespace DagNodeMenu {
     function _processMenuAction(action: string, options?: {
         node: DagNode,
         autofillColumnNames?: string[],
-        exitCallback?: Function
+        exitCallback?: Function,
+        bypassAlert?: boolean
     }) {
         try {
             const $menu: JQuery = $("#dagNodeMenu");
             let nodeId: DagNodeId;
             let nodeIds: DagNodeId[];
             let dagNodeIds: DagNodeId[];
-            if (options && options.node) {
+            options = options || {};
+            if (options.node) {
                 nodeId = options.node.getId();
                 nodeIds = [options.node.getId()];
                 dagNodeIds = [options.node.getId()];
@@ -186,13 +188,13 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.generateOptimizedDataflow(dagNodeIds);
                     break;
                 case ("resetNode"):
-                    DagViewManager.Instance.reset(dagNodeIds);
+                    DagViewManager.Instance.reset(dagNodeIds, options.bypassAlert);
                     break;
                 case ("resetAllNodes"):
-                    DagViewManager.Instance.reset();
+                    DagViewManager.Instance.reset(null, options.bypassAlert);
                     break;
                 case ("configureNode"):
-                    configureNode(_getNodeFromId(dagNodeIds[0]), options);
+                    configureNode(_getNodeFromId(dagNodeIds[0]), options.bypassAlert);
                     break;
                 case ("viewResult"):
                     DagViewManager.Instance.viewResult(_getNodeFromId(dagNodeIds[0]));
@@ -252,10 +254,10 @@ namespace DagNodeMenu {
                     _findLinkOutNode(nodeId);
                     break;
                 case ("lockTable"):
-                    DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
+                    DagViewManager.Instance.getActiveDag().getNode(nodeId).pinTable();
                     break;
                 case ("unlockTable"):
-                    DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
+                    DagViewManager.Instance.getActiveDag().getNode(nodeId).unpinTable();
                     break;
                 case ("restoreDataset"):
                     const node: DagNodeDataset = <DagNodeDataset>DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]);
@@ -299,7 +301,7 @@ namespace DagNodeMenu {
                             title: DFTStr.LockedTableWarning,
                             msg: xcStringHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action}),
                             onConfirm: () => {
-                                _processMenuAction(action);
+                                _processMenuAction(action, {bypassAlert: true});
                             }
                         });
                     } else {

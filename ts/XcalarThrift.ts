@@ -1316,6 +1316,66 @@ XcalarDatasetDeactivate = function(
     }
 };
 
+XcalarPinTable = function(tableName: string, scopeInfo?: Xcrpc.DagNode.DagScopeInfo) {
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Operator.SCOPE.GLOBAL,
+            workbook: Xcrpc.Operator.SCOPE.WORKBOOK
+        }
+    });
+
+    PromiseHelper.convertToJQuery(
+                Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService().pin({
+                    tableName: tableName,
+                    dagScope: xcrpcScope.scope,
+                    scopeInfo: xcrpcScope.scopeInfo
+                })
+            )
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarPinTable", error);
+        Log.errorLog("Pin Table", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+XcalarUnpinTable = function(tableName: string, scopeInfo?: Xcrpc.DagNode.DagScopeInfo) {
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    const xcrpcScope = createXcrpcScopeInput({
+        scopeInfo: scopeInfo,
+        xcrpcScopeEnum: {
+            global: Xcrpc.Operator.SCOPE.GLOBAL,
+            workbook: Xcrpc.Operator.SCOPE.WORKBOOK
+        }
+    });
+    console.log("xcalar unpin");
+    PromiseHelper.convertToJQuery(
+                Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService().unpin({
+                    tableName: tableName,
+                    dagScope: xcrpcScope.scope,
+                    scopeInfo: xcrpcScope.scopeInfo
+                })
+            )
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarUnpinTable", error);
+        Log.errorLog("Unpin Table", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
 XcalarDatasetDelete = function(
     datasetName: string,
     txId: number

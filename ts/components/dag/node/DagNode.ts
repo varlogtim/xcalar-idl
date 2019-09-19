@@ -684,15 +684,63 @@ abstract class DagNode extends Durable {
         });
     }
 
-    public setTableLock(): void {
+    public pinTable(): XDPromise<any> {
         if (!DagTblManager.Instance.hasTable(this.table)) {
-            return;
+            return PromiseHelper.reject("Table not found");
         }
-        DagTblManager.Instance.toggleTableLock(this.table);
-        this.events.trigger(DagNodeEvents.TableLockChange, {
+        const deferred = PromiseHelper.deferred();
+
+        this.events.trigger(DagNodeEvents.PreTablePin, {
             id: this.getId(),
-            lock: DagTblManager.Instance.hasLock(this.table)
+            lock: true
         });
+
+        DagTblManager.Instance.pinTable(this.table)
+        .then(() => {
+            this.events.trigger(DagNodeEvents.PostTablePin, {
+                id: this.getId()
+            });
+            deferred.resolve();
+        })
+        .fail((e) => {
+            this.events.trigger(DagNodeEvents.PostTablePin, {
+                id: this.getId(),
+                error: e || {}
+            });
+            deferred.reject(e);
+        });
+
+        return deferred.promise();
+    }
+
+    public unpinTable(): XDPromise<any> {
+        if (!DagTblManager.Instance.hasTable(this.table)) {
+            return PromiseHelper.reject("Table not found");
+        }
+
+        const deferred = PromiseHelper.deferred();
+
+        this.events.trigger(DagNodeEvents.PreTableUnpin, {
+            id: this.getId(),
+            lock: true
+        });
+
+        DagTblManager.Instance.unpinTable(this.table)
+        .then(() => {
+            this.events.trigger(DagNodeEvents.PostTableUnpin, {
+                id: this.getId()
+            });
+            deferred.resolve();
+        })
+        .fail((e) => {
+            this.events.trigger(DagNodeEvents.PostTableUnpin, {
+                id: this.getId(),
+                error: e || {}
+            });
+            deferred.reject(e);
+        });
+
+        return deferred.promise();
     }
 
     /**
@@ -1547,15 +1595,18 @@ abstract class DagNode extends Durable {
 
     protected _removeTable(): void {
         if (this.table) {
+            let promise = PromiseHelper.resolve();
             if (DagTblManager.Instance.hasLock(this.table)) {
-                this.setTableLock();
+                promise = this.unpinTable();
             }
-            let tableName: string = this.table;
-            delete this.table;
-            this.events.trigger(DagNodeEvents.TableRemove, {
-                table: tableName,
-                nodeId: this.getId(),
-                node: this
+            promise.always(() => {
+                let tableName: string = this.table;
+                delete this.table;
+                this.events.trigger(DagNodeEvents.TableRemove, {
+                    table: tableName,
+                    nodeId: this.getId(),
+                    node: this
+                });
             });
         }
     }

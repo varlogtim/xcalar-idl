@@ -60,35 +60,71 @@ describe("DagTblManager Test", function() {
     });
 
     it("Should be able to unlock and lock a table.", function () {
+        let cachePin = XcalarPinTable;
+        let called = false;
+        XcalarPinTable = () => {
+            called = true;
+            return PromiseHelper.resolve();
+        };
+
+        let cacheUnpin = XcalarUnpinTable;
+        let called2 = false;
+        XcalarUnpinTable = () => {
+            called2 = true;
+            return PromiseHelper.resolve();
+        }
+
         tableManager.addTable("test4");
         expect(tableManager.cache["test4"].locked).to.be.false;
-        tableManager.toggleTableLock("test4");
+        tableManager.pinTable("test4");
         expect(tableManager.cache["test4"].locked).to.be.true;
-        tableManager.toggleTableLock("test4");
+        expect(called).to.be.true;
+        tableManager.unpinTable("test4");
         expect(tableManager.cache["test4"].locked).to.be.false;
+        expect(called2).to.be.true;
+
+        XcalarPinTable = cachePin;
+        XcalarUnpinTable = cacheUnpin;
     });
 
     it("Should tell us if a table has a lock.", function () {
+        let cachePin = XcalarPinTable;
+        XcalarPinTable = () => {
+            return PromiseHelper.resolve();
+        };
+
         tableManager.addTable("test5");
         expect(tableManager.hasLock("test5")).to.be.false;
-        tableManager.toggleTableLock("test5");
+        tableManager.pinTable("test5");
         expect(tableManager.hasLock("test5")).to.be.true;
+        XcalarPinTable = cachePin;
     });
 
 
     it("Should not set a locked tables delete flag.", function () {
+        let cacheUnpin = XcalarUnpinTable;
+        XcalarUnpinTable = () => {
+            return PromiseHelper.resolve();
+        }
+
         tableManager.addTable("test6");
-        tableManager.toggleTableLock("test6");
+        tableManager.pinTable("test6");
         tableManager.deleteTable("test6", false);
         expect(tableManager.cache["test6"].markedForDelete).to.be.false;
+        XcalarUnpinTable = cacheUnpin;
     });
 
 
     it("Should be able to force delete a locked table.", function () {
+        let cachePin = XcalarPinTable;
+        XcalarPinTable = () => {
+            return PromiseHelper.resolve();
+        };
         tableManager.addTable("test7");
-        tableManager.toggleTableLock("test7");
+        tableManager.pinTable("test7");
         tableManager.deleteTable("test7", true);
         expect(tableManager.cache["test7"].markedForDelete).to.be.true;
+        XcalarPinTable = cachePin;
     });
 
 
@@ -107,23 +143,33 @@ describe("DagTblManager Test", function() {
 
 
     it("Should empty the cache successfully", function (done) {
+        let cachePin = XcalarPinTable;
+        XcalarPinTable = () => {
+            return PromiseHelper.resolve();
+        };
         tableManager.addTable("testEmpty");
         tableManager.addTable("testEmpty2");
-        tableManager.toggleTableLock("testEmpty2");
+        tableManager.pinTable("testEmpty2");
         tableManager.emptyCache(true)
         .then(() => {
             expect(tableManager.hasTable("testEmpty")).to.be.false;
             expect(tableManager.hasTable("testEmpty2")).to.be.false;
+            XcalarPinTable = cachePin;
             done();
         })
     });
 
     it("Should support force-resetting the flags", function () {
+        let cachePin = XcalarPinTable;
+        XcalarPinTable = () => {
+            return PromiseHelper.resolve();
+        };
         tableManager.addTable("test11");
-        tableManager.toggleTableLock("test11");
+        tableManager.pinTable("test11");
         expect(tableManager.hasLock("test11")).to.be.true;
         tableManager.forceReset(true);
         expect(tableManager.hasLock("test11")).to.be.false;
+        XcalarPinTable = cachePin;
     });
 
     describe("sweep", function() {
@@ -196,14 +242,19 @@ describe("DagTblManager Test", function() {
             XcalarGetTables = function(regex) {
                 return PromiseHelper.resolve({numNodes: 1, nodeInfo: [{name: "testSweepClock2"}]});
             }
+            let cachePin = XcalarPinTable;
+            XcalarPinTable = () => {
+                return PromiseHelper.resolve();
+            };
             tableManager.addTable("testSweepClock2");
-            tableManager.toggleTableLock("testSweepClock2");
+            tableManager.pinTable("testSweepClock2");
             expect(tableManager.hasTable("testSweepClock2")).to.be.true;
             tableManager.setClockTimeout(1);
             tableManager.sweep()
             .then(() => {
                 expect(tableManager.hasTable("testSweepClock2")).to.be.truee;
                 tableManager.setClockTimeout(10000);
+                XcalarPinTable = cachePin;
                 done();
             });
         });
@@ -284,16 +335,22 @@ describe("DagTblManager Test", function() {
 
         it("Should be not safe to delete a locked table", function(done) {
             XcalarGetTables = function(regex) {
-                return PromiseHelper.resolve({numNodes: 0, nodeInfo: [{name: "table_DF2_lock"}]});
+                return PromiseHelper.resolve({numNodes: 0, nodeInfo: [{name: "table_DF2_lock",
+                                            "pinned": true}]});
             }
             DagViewManager.Instance.getActiveDag = function() {
                 return new DagGraph();
             }
+            let cachePin = XcalarPinTable;
+            XcalarPinTable = () => {
+                return PromiseHelper.resolve();
+            };
             tableManager.addTable("table_DF2_lock");
-            tableManager.toggleTableLock("table_DF2_lock");
+            tableManager.pinTable("table_DF2_lock");
             tableManager.emergencyClear()
             .then(() => {
                 expect(tableManager.hasTable("table_DF2_lock")).to.be.true;
+                XcalarPinTable = cachePin;
                 done();
             });
         });

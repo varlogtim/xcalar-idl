@@ -89,6 +89,95 @@ exports.testSuite = function(DagNodeService, DAGSCOPE) {
             await sleep(2000);
          });
 
+         it("pin() should work with table", async() => {
+            try {
+                // deleting table
+                let result = await DagNodeService.pin({
+                    tableName: testTableName,
+                    dagScope: DAGSCOPE.WORKBOOK,
+                    scopeInfo: {
+                        userName: testUserName,
+                        workbookName: testSessionName
+                    }
+                });
+                expect(result).to.be.undefined;
+            } catch(err) {
+                expect.fail(null, null, JSON.stringify(err));
+            }
+        });
+
+        it("pin again should fail", async() => {
+            try {
+                // deleting table
+                let result = await DagNodeService.pin({
+                    tableName: testTableName,
+                    dagScope: DAGSCOPE.WORKBOOK,
+                    scopeInfo: {
+                        userName: testUserName,
+                        workbookName: testSessionName
+                    }
+                });
+
+                expect.fail(null, null, "should not pin an already pinned table");
+            } catch(err) {
+                expect(err.error).to.equal("Already pinned");
+            }
+        });
+
+        it("delete() should not work with pinned table", async () => {
+            try {
+                // deleting table
+                let result = await DagNodeService.delete({
+                    namePattern: testTableName,
+                    srcType: 2, //SourceTypeT.SrcTable
+                    deleteCompletely: true,
+                    dagScope: DAGSCOPE.WORKBOOK,
+                    scopeInfo: {
+                        userName: testUserName,
+                        workbookName: testSessionName
+                    }
+                });
+                expect.fail(null, null, "should not delete a pinned table");
+            } catch(err) {
+                expect(err.error).to.equal('Pinned and cannot be dropped');
+            }
+        });
+
+        it("unpin() should work with table", async() => {
+            try {
+                // deleting table
+                let result = await DagNodeService.unpin({
+                    tableName: testTableName,
+                    dagScope: DAGSCOPE.WORKBOOK,
+                    scopeInfo: {
+                        userName: testUserName,
+                        workbookName: testSessionName
+                    }
+                });
+                expect(result).to.be.undefined;
+            } catch(err) {
+                expect.fail(null, null, JSON.stringify(err));
+            }
+        });
+
+        it("unpin again should fail", async() => {
+            try {
+                // deleting table
+                let result = await DagNodeService.unpin({
+                    tableName: testTableName,
+                    dagScope: DAGSCOPE.WORKBOOK,
+                    scopeInfo: {
+                        userName: testUserName,
+                        workbookName: testSessionName
+                    }
+                });
+
+                expect.fail(null, null, "should not unpin an already unpinned table");
+            } catch(err) {
+                expect(err.error).to.equal("Not pinned to unpin it");
+            }
+        });
+
         it("delete() should work with table", async () => {
             try {
                 // deleting table

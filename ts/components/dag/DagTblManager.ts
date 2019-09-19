@@ -244,16 +244,49 @@ class DagTblManager {
     }
 
     /**
-     * Toggles the lock on a table
+     * Adds lock on a table
      * @param name Table name
      * @returns {boolean}
      */
-    public toggleTableLock(name: string): boolean {
+    public pinTable(name: string): XDPromise<void> {
         if (!this.configured || this.cache[name] == null || this.cache[name].markedForDelete) {
-            return false;
+            return PromiseHelper.reject();
         }
-        this.cache[name].locked = !this.cache[name].locked;
-        return true;
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        let wasLocked = this.cache[name].locked;
+        this.cache[name].locked = true;
+        XcalarPinTable(name)
+        .then(() => {
+            this.cache[name].locked = true;
+            deferred.resolve();
+        })
+        .fail((e) => {
+            this.cache[name].locked = wasLocked;
+            deferred.reject(e);
+        });
+        return deferred.promise();
+    }
+
+
+    /**
+     * Removes lock on a table
+     * @param name Table name
+     * @returns {boolean}
+     */
+    public unpinTable(name: string): XDPromise<void> {
+        if (!this.configured || this.cache[name] == null || this.cache[name].markedForDelete) {
+            return PromiseHelper.reject();
+        }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        XcalarUnpinTable(name)
+        .then(() => {
+            this.cache[name].locked = false;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     /**
@@ -497,14 +530,13 @@ class DagTblManager {
      * @param res Tables currently in the backend
      */
     private _synchWithBackend(res: XcalarApiListDagNodesOutputT) {
-        let backObject = {};
+        const backendTables: Map<string, boolean> = new Map();
         res.nodeInfo.forEach((node: XcalarApiDagNodeInfoT) => {
-            backObject[node.name] = true;
+            backendTables.set(node.name, node.pinned);
         });
-        let backTableNames: string[] = Object.keys(backObject);
+        let backTableNames: string[] = [...backendTables.keys()];
         let cacheTableNames: string[] = Object.keys(this.cache);
-        let removedTables: string[] = cacheTableNames.filter(x => !backObject[x]);
-        let addedTables: string[] = backTableNames.filter(x => !this.cache[x]);
+        let removedTables: string[] = cacheTableNames.filter(x => !backendTables.has(x));
         this._synchGTables(backTableNames);
         removedTables.forEach((name: string) => {
             if (!this.cache[name].markedForDelete) {
@@ -512,17 +544,21 @@ class DagTblManager {
             }
             delete this.cache[name];
         });
-        addedTables.forEach((name: string) => {
-            this.cache[name] = {
-                name: name,
-                clockCount: 0,
-                locked: false,
-                markedForDelete: false,
-                markedForReset: false,
-                timestamp: xcTimeHelper.getCurrentTimeStamp()
-            };
+        backendTables.forEach((pinned, name) => {
+            if (!this.cache[name]) {
+                // add backend tables that are not in the cache
+                this.cache[name] = {
+                    name: name,
+                    clockCount: 0,
+                    locked: pinned,
+                    markedForDelete: false,
+                    markedForReset: false,
+                    timestamp: xcTimeHelper.getCurrentTimeStamp()
+                };
+            } else {
+                this.cache[name].locked = pinned;
+            }
         });
-        return;
     }
 
     // removes tables from gTables that are not in backend
@@ -539,7 +575,7 @@ class DagTblManager {
 
     private _getNodeId(name: string): string {
         let matches: string[] = name.match("table_DF2_.*_(dag_.*?)(.index)?#");
-        if (matches.length > 0) {
+        if (matches && matches.length > 0) {
             return matches[1];
         }
         return "";

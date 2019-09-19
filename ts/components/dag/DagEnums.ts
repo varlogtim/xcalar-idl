@@ -108,14 +108,17 @@ enum DagNodeEvents {
     ProgressChange = "DagNodeProgressChange",
     SubGraphConfigured = "SubGraphConfigured",
     SubGraphError = "SubGraphError",
-    TableLockChange = "DagNodeTableLockChange",
     TableRemove = "TableRemove",
     TitleChange = "TitleChange",
     AutoExecute = "AutoExecute",
     RetinaRemove = "RetinaRemove",
     StartSQLCompile = "StartSQLCompile",
     EndSQLCompile = "EndSQLCompile",
-    UDFErrorChange = "UDFErrorChange"
+    UDFErrorChange = "UDFErrorChange",
+    PreTablePin = "PreTablePin",
+    PostTablePin = "PostTablePin",
+    PreTableUnpin = "PreTableUnpin",
+    PostTableUnpin = "PostTableUnpin"
 }
 
 enum DagCategoryType {

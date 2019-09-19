@@ -76,6 +76,58 @@ class DagNodeService {
             throw parseError(e);
         }
     }
+
+     /**
+     * Pin a dag node
+     * @param param
+     * @description
+     * This function returns native promise!
+     * Use PromiseHelper.
+     */
+
+    public async pin(param: {
+        tableName: string,
+        dagScope: DAGSCOPE
+        scopeInfo?: DagScopeInfo
+    }): Promise<void> {
+        try {
+            const { tableName, dagScope, scopeInfo } = param;
+            const request = new ProtoTypes.DagNode.DagNodeInputMsg();
+            request.setDagNodeName(tableName);
+            request.setScope(createScopeMessage({ scope: dagScope, scopeInfo: scopeInfo }));
+            const dagNodeService = new ApiDagNode(this._apiClient);
+
+            await dagNodeService.pin(request);
+        } catch (e) {
+            throw parseError(e);
+        }
+    }
+
+    /**
+     * Unpin a dag node
+     * @param param
+     * @description
+     * This function returns native promise!
+     * Use PromiseHelper.
+     */
+
+    public async unpin(param: {
+        tableName: string,
+        dagScope: DAGSCOPE
+        scopeInfo?: DagScopeInfo
+    }): Promise<void> {
+        try {
+            const { tableName, dagScope, scopeInfo } = param;
+            const request = new ProtoTypes.DagNode.DagNodeInputMsg();
+            request.setDagNodeName(tableName);
+            request.setScope(createScopeMessage({ scope: dagScope, scopeInfo: scopeInfo }));
+            const dagNodeService = new ApiDagNode(this._apiClient);
+
+            await dagNodeService.unpin(request);
+        } catch (e) {
+            throw parseError(e);
+        }
+    }
 }
 
 type DagNodeInfo = {

@@ -1075,7 +1075,7 @@ class DagView {
     }
 
 
-           /**
+    /**
      * DagView.unlockConfigNode
      * @param nodeId
      */
@@ -1749,7 +1749,14 @@ class DagView {
      * @param nodeIds
      * if no nodeIds passed, will reset all
      */
-    public reset(nodeIds?: DagNodeId[]): void {
+    public reset(nodeIds?: DagNodeId[], bypassAlert?: boolean): void {
+        if (bypassAlert) {
+            this.dagTab.turnOffSave();
+            this.graph.reset(nodeIds);
+            this.dagTab.turnOnSave();
+            this.dagTab.save();
+            return;
+        }
         const msg: string = nodeIds ? DagTStr.ResetMsg : DagTStr.ResetAllMsg;
 
         Alert.show({
@@ -3365,8 +3372,30 @@ class DagView {
             DagNodeInfoPanel.Instance.update(info.id, "aggregates");
         });
 
-        this._registerGraphEvent(this.graph, DagNodeEvents.TableLockChange, (info) => {
-            this._editTableLock(this._getNode(info.id), info.lock);
+        this._registerGraphEvent(this.graph, DagNodeEvents.PreTablePin, (info) => {
+            this.lockNode(info.id);
+        });
+
+        this._registerGraphEvent(this.graph, DagNodeEvents.PreTableUnpin, (info) => {
+            this.lockNode(info.id);
+        });
+
+        this._registerGraphEvent(this.graph, DagNodeEvents.PostTablePin, (info) => {
+            this.unlockNode(info.id);
+            if (!info.error) {
+                this._editTableLock(this._getNode(info.id), true);
+            } else {
+                Alert.error("Lock table failed", info.error);
+            }
+        });
+
+        this._registerGraphEvent(this.graph, DagNodeEvents.PostTableUnpin, (info) => {
+            this.unlockNode(info.id);
+            if (!info.error) {
+                this._editTableLock(this._getNode(info.id), false);
+            } else {
+                Alert.error("Unlock table failed", info.error);
+            }
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.TableRemove, (info) => {

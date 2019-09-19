@@ -190,7 +190,7 @@ describe("DagNodeMenu Test", function() {
 
         it("locked node", function() {
             DagView.selectNode($dfArea.find(".operator.map"));
-            DagViewManager.Instance.lockNode($dfArea.find(".operator.map").data("nodeid"));
+            DagViewManager.Instance.getActiveDagView().lockNode($dfArea.find(".operator.map").data("nodeid"));
             $dfArea.find(".operator.map .main").contextmenu();
 
             expect($menu.find("li:visible").length).to.equal(10);
@@ -213,7 +213,7 @@ describe("DagNodeMenu Test", function() {
             ]);
 
             $("#container").trigger(fakeEvent.mousedown);
-            DagViewManager.Instance.unlockNode($dfArea.find(".operator.map").data("nodeid"), tabId);
+            DagViewManager.Instance.getActiveDagView().unlockNode($dfArea.find(".operator.map").data("nodeid"), tabId);
             DagViewManager.Instance.deselectNodes();
         });
 
@@ -1598,7 +1598,7 @@ describe("DagNodeMenu Test", function() {
         it("lockTable", function(){
             var called = false;
             DagView.selectNode($dfArea.find(".operator"));
-            node.setTableLock = function() {
+            node.pinTable = function() {
                 called = true;
             }
             $dfArea.find(".operator .main").contextmenu();
@@ -1610,7 +1610,7 @@ describe("DagNodeMenu Test", function() {
         it("unlockTable", function(){
             var called = false;
             DagView.selectNode($dfArea.find(".operator"));
-            node.setTableLock = function() {
+            node.unpinTable = function() {
                 called = true;
             }
             $dfArea.find(".operator .main").contextmenu();

@@ -92,6 +92,8 @@ declare module 'xcalar' {
     export class DagNodeService {
         constructor(client: XceClient);
         deleteObjects(request: proto.xcalar.compute.localtypes.DagNode.DeleteRequest): Promise<proto.xcalar.compute.localtypes.DagNode.DeleteResponse>;
+        pin(request: proto.xcalar.compute.localtypes.DagNode.DagNodeInputMsg): Promise<proto.google.protobuf.Empty>;
+        unpin(request: proto.xcalar.compute.localtypes.DagNode.DagNodeInputMsg): Promise<proto.google.protobuf.Empty>;
     }
 
     export class VersionService {
@@ -1607,6 +1609,10 @@ declare namespace proto.xcalar.compute.localtypes {
         export class RenameRequest {
             setOldName(value: string): void;
             setNewName(value: string): void;
+            setScope(value: Workbook.WorkbookScope): void;
+        }
+        export class DagNodeInputMsg {
+            setDagNodeName(value: string): void;
             setScope(value: Workbook.WorkbookScope): void;
         }
     }

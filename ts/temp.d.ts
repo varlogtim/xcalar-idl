@@ -714,6 +714,8 @@ declare var XcalarDriverList: any;
 declare var XcalarDriverCreate: any;
 declare var XcalarDriverDelete: any;
 declare var XcalarGetTableRefCount: any;
+declare var XcalarPinTable: any;
+declare var XcalarUnpinTable: any;
 
 declare var isBrowserMicrosoft: boolean;
 

@@ -479,9 +479,21 @@ class DagGraph extends Durable {
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.AggregateChange, info);
         })
-        .registerEvents(DagNodeEvents.TableLockChange, (info) => {
+        .registerEvents(DagNodeEvents.PreTablePin, (info) => {
             info.tabId = this.parentTabId;
-            this.events.trigger(DagNodeEvents.TableLockChange, info);
+            this.events.trigger(DagNodeEvents.PreTablePin, info);
+        })
+        .registerEvents(DagNodeEvents.PostTablePin, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.PostTablePin, info);
+        })
+        .registerEvents(DagNodeEvents.PreTableUnpin, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.PreTableUnpin, info);
+        })
+        .registerEvents(DagNodeEvents.PostTableUnpin, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.PostTableUnpin, info);
         })
         .registerEvents(DagNodeEvents.LineageSourceChange, (info) => {
             this._traverseResetLineage(info.node);
