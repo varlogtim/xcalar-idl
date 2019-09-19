@@ -141,61 +141,66 @@
     .category {
         overflow-x: hidden;
         overflow-y: auto;
-        // .flex(0 1 auto);
-        // .flex-display;
-        // .flex-direction(column);
-        // min-height: 0px; // for IE
-        // overflow: hidden; // for IE
+        padding: 10px 20px;
+        margin-bottom: 0;
+        border-top: 1px solid @color-border-softGray;
 
         .cardHeader {
             .flex(0 0 @height-card-header); // for IE;
+            background-color: @color-white;
+
+            .title {
+                font-weight: bold;
+                .text-selection;
+                padding-left: 0;
+            }
         }
 
         .items {
             padding: 0;
-            // .flex(0 1 auto);
-            // overflow-x: hidden;
-            // overflow-y: auto;
-            // position: relative; // for item scroll position
         }
 
         .item {
-            border-bottom: 1px solid @color-border-pinkish-grey2;
+            border-bottom: 1px solid @color-border-softGray;
             .text-selection;
-
-            &.fullSize {
-                .bottomSection {
-                    display: block;
-                }
-
-                .lessText {
-                    display: block !important;
-                }
-
-                .moreText {
-                    display: none;
-                }
-            }
 
             &:last-child {
                 border-bottom: none;
             }
 
             .mainSection {
-                padding: 30px;
+                padding: 25px 0px;
                 padding-bottom: 20px; // logoArea margin takes up 10 more pixels
-                .size(@min-height: 140px);
+                height: 110px;
                 .flex-display;
 
                 .logoArea {
-                    .size(250px, 80px);
+                    .size(60px, 60px);
                     float: left;
                     margin-right: 30px;
-                    margin-bottom: 10px;
                     line-height: 0px; // to remove white space
+                    padding: 12px;
 
-                    img {
-                        .size(@max-width: 100%, @max-height: 100%);
+                    .icon {
+                        .size(@width: 36px, @height: 36px);
+                        font-size: 36px;
+                        color: @color-white;
+                    }
+
+                    &.xi-system {
+                        background-image: linear-gradient(225deg, #849cb0, #44515c);
+                    }
+
+                    &.xi-data-in, &.xi-data-out {
+                        background-image: linear-gradient(192deg, #bacbd8, #849cb0);
+                    }
+
+                    &.xi-dfg2 {
+                        background-image: linear-gradient(209deg, #ff836f, #d94135);
+                    }
+
+                    &.xi-power, &.xi-SQLworkspace {
+                        background-image: linear-gradient(225deg, #37a9dd, #237295);
                     }
                 }
 
@@ -243,57 +248,13 @@
                 .buttonArea {
                     .size(@width: 150px);
                     float: right;
+                    .vertical-align;
+
                     .btn {
-                        &:first-child {
-                            margin-bottom: 8px;
-                        }
-
-                        &.install {
-                            display: none;
-                        }
-
                         &.installed {
                             pointer-events: none;
                             .btn-disabled;
                         }
-                    }
-
-                    .lessText {
-                        display: none;
-                    }
-                }
-            }
-
-            .bottomSection {
-                display: none;
-                padding: 20px 30px;
-                background-color: @color-bg-white-three;
-
-                .leftPart {
-                    .size(@width: ~"calc(100% - 150px)");
-                    float: left;
-                    .font(@size: 12px, @color: @color-font-gray36);
-
-                    .detail {
-                        margin-bottom: 5px;
-                        word-wrap: break-word;
-                    }
-                }
-
-                .rightPart {
-                    .size(@width: 150px);
-                    float: right;
-                    text-align: center;
-
-                    .url {
-                        display: block;
-                        &:first-child {
-                            margin-bottom: 5px;
-                        }
-
-                        cursor: pointer;
-                        .font(@size: 14px, @color: @color-font-select-blue);
-                        text-decoration: underline;
                     }
                 }
             }

@@ -17,7 +17,7 @@ describe("ExtItem Constructor Test", function() {
 
     it("should be a constructor", function() {
         expect(extItem).to.be.an.instanceof(ExtItem);
-        expect(Object.keys(extItem).length).to.equal(9);
+        expect(Object.keys(extItem).length).to.equal(7);
     });
 
     it("should get name", function() {
@@ -53,19 +53,32 @@ describe("ExtItem Constructor Test", function() {
 
 
     it("should get image", function() {
-        expect(extItem.getImage()).to.equal("testImage");
-    });
-
-    it("should set image", function() {
-        extItem.setImage("testImage2");
-        expect(extItem.getImage()).to.equal("testImage2");
-
-        // case 2
-        extItem.setImage(null);
-        expect(extItem.getImage()).to.equal("");
-    });
-
-    it("should get website", function() {
-        expect(extItem.getWebsite()).to.equal("http://test.com");
+        let tests = [{
+            "category": "System",
+            "expect": "xi-system"
+        }, {
+            "category": "Imports",
+            "expect": "xi-data-in"
+        }, {
+            "category": "Export/Publish",
+            "expect": "xi-data-out"
+        }, {
+            "category": "SQL Mode",
+            "expect": "xi-SQLworkspace"
+        }, {
+            "category": "Dataflow Mode",
+            "expect": "xi-dfg2"
+        }, {
+            "category": "",
+            "expect": "xi-power"
+        }];
+        tests.forEach((test) => {
+            extItem.category = test.category;
+            let image = extItem.getImage();
+            if (image !== test.expect) {
+                console.error("fail test", test);
+            }
+            expect(image).to.equal(test.expect);
+        });
     });
 });

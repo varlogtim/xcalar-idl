@@ -27,27 +27,9 @@ class TutorialPanel {
             this.currVer = 2.0;
         }
 
-        this._$panel.on("click", ".item .more", function() {
-            let $button = $(this);
-            $button.blur();
-            $button.closest(".item").toggleClass("fullSize");
-        });
-
         this._$panel.on("click", ".item .download", function() {
             let tut: ExtItem = self._getTutorialFromEle($(this).closest(".item"));
             self._downloadTutorial(tut, $(this));
-        });
-
-        this._$panel.on("click", ".item .website", function() {
-            let url = $(this).data("url");
-            if (url == null) {
-                return;
-            } else {
-                if (!url.startsWith("http:") && !url.startsWith("https:")) {
-                    url = "http://" + url;
-                }
-                window.open(url);
-            }
         });
 
         $("#tutorial-search").on("input", "input", function() {
@@ -63,7 +45,7 @@ class TutorialPanel {
             this._isFirstTouch = false;
             return this._fetchData();
         }
-    };
+    }
 
     public request(json: {}): XDPromise<any> {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
@@ -85,15 +67,7 @@ class TutorialPanel {
         });
 
         return deferred.promise();
-    };
-
-
-    public imageError(ele): void {
-        let imgSrc: string = paths.XDExt;
-        ele.src = imgSrc;
-        let tut: ExtItem = this._getTutorialFromEle($(ele).closest(".item"));
-        tut.setImage(imgSrc);
-    };
+    }
 
     private _fetchData(): XDPromise<any> {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
@@ -227,7 +201,6 @@ class TutorialPanel {
                         '</div>' +
                     '</header>' +
                     '<div class="cardMain items">';
-        let imgEvent = 'onerror="TutorialPanel.Instance.imageError(this)"';
 
         for (let i = 0; i < tutLen; i++) {
             let tut = tutorials[i];
@@ -243,26 +216,14 @@ class TutorialPanel {
                 continue;
             }
             let btnText = "Download";
-            let website = tut.getWebsite();
-            let websiteEle = "";
             let btnClass: string = "download";
-
-            if (website) {
-                websiteEle = '<a class="website url" ' +
-                            'data-url="' + website + '">' +
-                                ExtTStr.Website +
-                            '</a>';
-            } else {
-                websiteEle = "";
-            }
 
             let image = tut.getImage();
             html += '<div class="item">' +
                         '<section class="mainSection">' +
                         '<div class="leftPart">' +
-                            '<div class="logoArea">' +
-                                '<img src="data:image/png;base64,' +
-                                image + '" ' + imgEvent + '>' +
+                            '<div class="logoArea ' + image + '">' +
+                                '<i class="icon ' + image + '"></i>' +
                             '</div>' +
                             '<div class="instruction">' +
                                 '<div class="tutorialName textOverflowOneLine"' +
@@ -282,36 +243,8 @@ class TutorialPanel {
                                 '<button class="btn btn-submit install ' + btnClass + '">' +
                                     btnText +
                                 '</button>' +
-                                '<button class="btn btn-secondary more">' +
-                                    '<span class="moreText">' +
-                                        ExtTStr.More +
-                                    '</span>' +
-                                    '<span class="lessText">' +
-                                        ExtTStr.Less +
-                                    '</span>' +
-                                '</button>' +
                             '</div>' +
                         '</div>' +
-                        '</section>' +
-                        '<section class="bottomSection clearfix">' +
-                            '<div class="leftPart">' +
-                                '<div class="detail">' +
-                                    tut.getDescription() +
-                                '</div>' +
-                                '<div class="basicInfo">' +
-                                    ExtTStr.Version + ': ' + tut.getVersion() +
-                                    ' | ' + ExtTStr.extName + ': ' + tut.getName() +
-                                    ' | ' + ExtTStr.Author + ': ' + tut.getAuthor() +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="rightPart">' +
-                                websiteEle +
-                                '<a class="url" ' +
-                                'onclick="window.open(\'mailto:customerportal@xcalar.com\')" ' +
-                                'target="_top">' +
-                                    ExtTStr.Report +
-                                '</a>' +
-                            '</div>' +
                         '</section>' +
                     '</div>';
         }

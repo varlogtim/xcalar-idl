@@ -5,9 +5,7 @@ class ExtItem {
     private XDVersion: string;
     private description: string;
     private author: string;
-    private image: string;
     private main: string;
-    private website: string;
     // XXX quick hack, if we later want to have multiple category
     // then keep the structure, otherwise, can refactor to remove
     // category related code
@@ -19,9 +17,7 @@ class ExtItem {
         this.version = options.version;
         this.description = options.description;
         this.author = options.author;
-        this.image = options.image;
         this.main = options.main;
-        this.website = options.website;
         // XXX quick hack, if we later want to have multiple category
         // then keep the structure, otherwise, can refactor to remove
         // category related code
@@ -43,7 +39,14 @@ class ExtItem {
     }
 
     public getCategory(): string {
-        return this.category;
+        // XXX TODO: remove this hack
+        let category = this.category;
+        if (category === "Import") {
+            category = "Imports";
+        } else if (category === "Advanced Mode") {
+            category = "Dataflow Mode";
+        }
+        return category;
     }
 
     public getAuthor(): string {
@@ -63,18 +66,20 @@ class ExtItem {
     }
 
     public getImage(): string {
-        if (this.image == null) {
-            return "";
+        let category = this.getCategory();
+        switch (category) {
+            case "System":
+                return "xi-system";
+            case "Imports":
+                return "xi-data-in";
+            case "Export/Publish":
+                return "xi-data-out";
+            case "SQL Mode":
+                return "xi-SQLworkspace";
+            case "Dataflow Mode":
+                return "xi-dfg2";
+            default:
+                return "xi-power";
         }
-
-        return this.image;
-    }
-
-    public setImage(newImage): void {
-        this.image = newImage;
-    }
-
-    public getWebsite(): string {
-        return this.website;
     }
 }
