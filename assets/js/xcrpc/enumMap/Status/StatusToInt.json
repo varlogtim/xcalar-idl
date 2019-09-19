@@ -692,6 +692,11 @@
     "StatusMapFailureSummarySchema" : 690,
     "StatusMapFailureMultiEval" : 691,
     "StatusUdfIcvModeFailure" : 692,
-    "StatusKVSRefCountLeak" : 693
+    "StatusKVSRefCountLeak" : 693,
+    "StatusExportMultipleTables" : 694,
+    "StatusTablePinned" : 695,
+    "StatusTableAlreadyPinned" : 696,
+    "StatusTableNotPinned" : 697,
+    "StatusIMDTableLocked" : 698
 }
 

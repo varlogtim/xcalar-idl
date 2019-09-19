@@ -700,7 +700,11 @@ StatusT = {
   'StatusMapFailureMultiEval' : 691,
   'StatusUdfIcvModeFailure' : 692,
   'StatusKVSRefCountLeak' : 693,
-  'StatusExportMultipleTables' : 694
+  'StatusExportMultipleTables' : 694,
+  'StatusTablePinned' : 695,
+  'StatusTableAlreadyPinned' : 696,
+  'StatusTableNotPinned' : 697,
+  'StatusIMDTableLocked' : 698
 };
 StatusTStr = {
   0 : 'Success',
@@ -1353,7 +1357,7 @@ StatusTStr = {
   647 : 'Incomplete session list (failed to read some sessions)',
   648 : 'Table being activated is dependent on inactive table',
   649 : 'Publish table is restoring',
-  650 : 'Table is in used by IMD and being locked',
+  650 : 'Table is in use by IMD and being locked',
   651 : 'Update requires a self select',
   652 : 'Required session name is missing',
   653 : 'XPU connection aborted due to internal error, try again later',
@@ -1397,7 +1401,11 @@ StatusTStr = {
   691 : 'Map failure summary update not supported yet for failures in multiple eval strings',
   692 : 'UDF execution failed in map ICV mode',
   693 : 'KVStore Ref Count Leak detected',
-  694 : 'Cannot have more than one export to table operation'
+  694 : 'Cannot have more than one export to table operation',
+  695 : 'Pinned and cannot be dropped',
+  696 : 'Already pinned',
+  697 : 'Not pinned to unpin it',
+  698 : 'Table is in use by IMD and being locked'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2050,7 +2058,7 @@ StatusTFromStr = {
   'Incomplete session list (failed to read some sessions)' : 647,
   'Table being activated is dependent on inactive table' : 648,
   'Publish table is restoring' : 649,
-  'Table is in used by IMD and being locked' : 650,
+  'Table is in use by IMD and being locked' : 650,
   'Update requires a self select' : 651,
   'Required session name is missing' : 652,
   'XPU connection aborted due to internal error, try again later' : 653,
@@ -2094,5 +2102,9 @@ StatusTFromStr = {
   'Map failure summary update not supported yet for failures in multiple eval strings' : 691,
   'UDF execution failed in map ICV mode' : 692,
   'KVStore Ref Count Leak detected' : 693,
-  'Cannot have more than one export to table operation' : 694
+  'Cannot have more than one export to table operation' : 694,
+  'Pinned and cannot be dropped' : 695,
+  'Already pinned' : 696,
+  'Not pinned to unpin it' : 697,
+  'Table is in use by IMD and being locked' : 698
 };

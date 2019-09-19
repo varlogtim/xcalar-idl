@@ -32,6 +32,7 @@ const _serviceInfo = {
         "ImportDataflow" : ["xcalar.compute.localtypes.Dataflow.ImportRequest", "google.protobuf.Empty"],
         "ExportDataflow" : ["xcalar.compute.localtypes.Dataflow.ExportRequest", "xcalar.compute.localtypes.Dataflow.ExportResponse"],
         "DeleteDataflow" : ["xcalar.compute.localtypes.Dataflow.DeleteRequest", "google.protobuf.Empty"],
+        "GetDataflowState" : ["xcalar.compute.localtypes.Dataflow.GetDataflowStateRequest", "xcalar.compute.localtypes.Dataflow.GetDataflowStateResponse"],
     },
 };
 

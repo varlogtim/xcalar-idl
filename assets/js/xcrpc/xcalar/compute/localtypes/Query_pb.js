@@ -273,7 +273,8 @@ proto.xcalar.compute.localtypes.Query.ExecuteRequest.toObject = function(include
     isAsync: jspb.Message.getFieldWithDefault(msg, 6, false),
     udfUserName: jspb.Message.getFieldWithDefault(msg, 7, ""),
     udfSessionName: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f)
+    scope: (f = msg.getScope()) && xcalar_compute_localtypes_Workbook_pb.WorkbookScope.toObject(includeInstance, f),
+    pinResults: jspb.Message.getFieldWithDefault(msg, 10, false)
   };
 
   if (includeInstance) {
@@ -346,6 +347,10 @@ proto.xcalar.compute.localtypes.Query.ExecuteRequest.deserializeBinaryFromReader
       var value = new xcalar_compute_localtypes_Workbook_pb.WorkbookScope;
       reader.readMessage(value,xcalar_compute_localtypes_Workbook_pb.WorkbookScope.deserializeBinaryFromReader);
       msg.setScope(value);
+      break;
+    case 10:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setPinResults(value);
       break;
     default:
       reader.skipField();
@@ -438,6 +443,13 @@ proto.xcalar.compute.localtypes.Query.ExecuteRequest.serializeBinaryToWriter = f
       9,
       f,
       xcalar_compute_localtypes_Workbook_pb.WorkbookScope.serializeBinaryToWriter
+    );
+  }
+  f = message.getPinResults();
+  if (f) {
+    writer.writeBool(
+      10,
+      f
     );
   }
 };
@@ -596,6 +608,23 @@ proto.xcalar.compute.localtypes.Query.ExecuteRequest.prototype.clearScope = func
  */
 proto.xcalar.compute.localtypes.Query.ExecuteRequest.prototype.hasScope = function() {
   return jspb.Message.getField(this, 9) != null;
+};
+
+
+/**
+ * optional bool pin_results = 10;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.xcalar.compute.localtypes.Query.ExecuteRequest.prototype.getPinResults = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 10, false));
+};
+
+
+/** @param {boolean} value */
+proto.xcalar.compute.localtypes.Query.ExecuteRequest.prototype.setPinResults = function(value) {
+  jspb.Message.setProto3BooleanField(this, 10, value);
 };
 
 

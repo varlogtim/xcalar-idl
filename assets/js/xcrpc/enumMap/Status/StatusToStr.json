@@ -649,7 +649,7 @@
     "647" : "Incomplete session list (failed to read some sessions)",
     "648" : "Table being activated is dependent on inactive table",
     "649" : "Publish table is restoring",
-    "650" : "Table is in used by IMD and being locked",
+    "650" : "Table is in use by IMD and being locked",
     "651" : "Update requires a self select",
     "652" : "Required session name is missing",
     "653" : "XPU connection aborted due to internal error, try again later",
@@ -692,6 +692,11 @@
     "690" : "Map failure summary update failed due to schema",
     "691" : "Map failure summary update not supported yet for failures in multiple eval strings",
     "692" : "UDF execution failed in map ICV mode",
-    "693" : "KVStore Ref Count Leak detected"
+    "693" : "KVStore Ref Count Leak detected",
+    "694" : "Cannot have more than one export to table operation",
+    "695" : "Pinned and cannot be dropped",
+    "696" : "Already pinned",
+    "697" : "Not pinned to unpin it",
+    "698" : "Table is in use by IMD and being locked"
 }
 

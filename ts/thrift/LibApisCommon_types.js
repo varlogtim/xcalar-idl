@@ -8900,6 +8900,7 @@ XcalarApiDagNodeInfoT = function(args) {
   this.state = null;
   this.size = null;
   this.api = null;
+  this.pinned = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
@@ -8915,6 +8916,9 @@ XcalarApiDagNodeInfoT = function(args) {
     }
     if (args.api !== undefined && args.api !== null) {
       this.api = args.api;
+    }
+    if (args.pinned !== undefined && args.pinned !== null) {
+      this.pinned = args.pinned;
     }
   }
 };
@@ -8967,6 +8971,13 @@ XcalarApiDagNodeInfoT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 6:
+      if (ftype == Thrift.Type.BOOL) {
+        this.pinned = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -9001,6 +9012,11 @@ XcalarApiDagNodeInfoT.prototype.write = function(output) {
   if (this.api !== null && this.api !== undefined) {
     output.writeFieldBegin('api', Thrift.Type.I32, 5);
     output.writeI32(this.api);
+    output.writeFieldEnd();
+  }
+  if (this.pinned !== null && this.pinned !== undefined) {
+    output.writeFieldBegin('pinned', Thrift.Type.BOOL, 6);
+    output.writeBool(this.pinned);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -18241,6 +18257,7 @@ XcalarApiDagNodeT = function(args) {
   this.log = null;
   this.status = null;
   this.opFailureInfo = null;
+  this.pinned = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = new XcalarApiDagNameT(args.name);
@@ -18325,6 +18342,9 @@ XcalarApiDagNodeT = function(args) {
     }
     if (args.opFailureInfo !== undefined && args.opFailureInfo !== null) {
       this.opFailureInfo = new OpFailureInfoT(args.opFailureInfo);
+    }
+    if (args.pinned !== undefined && args.pinned !== null) {
+      this.pinned = args.pinned;
     }
   }
 };
@@ -18607,6 +18627,13 @@ XcalarApiDagNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 29:
+      if (ftype == Thrift.Type.BOOL) {
+        this.pinned = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -18801,6 +18828,11 @@ XcalarApiDagNodeT.prototype.write = function(output) {
   if (this.opFailureInfo !== null && this.opFailureInfo !== undefined) {
     output.writeFieldBegin('opFailureInfo', Thrift.Type.STRUCT, 28);
     this.opFailureInfo.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.pinned !== null && this.pinned !== undefined) {
+    output.writeFieldBegin('pinned', Thrift.Type.BOOL, 29);
+    output.writeBool(this.pinned);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

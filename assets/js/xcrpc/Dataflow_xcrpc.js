@@ -575,6 +575,32 @@ DataflowService.prototype = {
             throw error;
         }
     },
+    getDataflowState: async function(getDataflowStateRequest) {
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(getDataflowStateRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Dataflow.GetDataflowStateRequest");
+        //anyWrapper.pack(getDataflowStateRequest.serializeBinary(), "GetDataflowStateRequest");
+
+        try {
+            var responseData = await this.client.execute("Dataflow", "GetDataflowState", anyWrapper);
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var getDataflowStateResponse =
+            //    responseData.unpack(dataflow.GetDataflowStateResponse.deserializeBinary,
+            //                        "GetDataflowStateResponse");
+            var getDataflowStateResponse = dataflow.GetDataflowStateResponse.deserializeBinary(specificBytes);
+            return getDataflowStateResponse;
+        } catch(error) {
+            if (error.response != null) {
+                const specificBytes = error.response.getValue();
+                error.response = dataflow.GetDataflowStateResponse.deserializeBinary(specificBytes);
+            }
+            throw error;
+        }
+    },
 };
 
 exports.DataflowService = DataflowService;
