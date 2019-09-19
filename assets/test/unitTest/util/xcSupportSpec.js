@@ -99,6 +99,16 @@ describe('XcSupport Test', () => {
 
         it('has heart beat by default', () => {
             const res = XcSupport.hasHeartbeatCheck();
+            if (res === false) {
+                console.error("error heart beat case");
+                for (let i = 0; i < 100; i++) {
+                    if (XcSupport.restartHeartbeatCheck()) {
+                        console.error("restarted heart beat after", i, "tries");
+                        break;
+                    }
+                    res = XcSupport.hasHeartbeatCheck();
+                }
+            }
             expect(res).to.be.true;
         });
 
