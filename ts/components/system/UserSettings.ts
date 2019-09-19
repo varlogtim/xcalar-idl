@@ -231,6 +231,9 @@ namespace UserSettings {
         } else if (!Admin.isAdmin()) { // remove admin only settings
             $("#monitorGenSettingsCard .optionSet.admin").remove();
         }
+        if (!XVM.isCloud()) {
+            $("#monitorGenSettingsCard .optionSet.cloudOnly").remove();
+        }
     }
 
     function saveLastPrefs(): void {
@@ -336,6 +339,18 @@ namespace UserSettings {
             }
         });
 
+        $("#enableInactivityCheck").click(function() {
+            let $checkbox = $(this);
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                UserSettings.setPref("enableInactivityCheck", true, true);
+                XcUser.CurrentUser.enableIdleCheck();
+            } else {
+                UserSettings.setPref("enableInactivityCheck", false, true);
+                XcUser.CurrentUser.disableIdleCheck();
+            }
+        });
+
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
             minVal: 1,
@@ -384,6 +399,7 @@ namespace UserSettings {
         let showIMD = UserSettings.getPref("showIMD");
         let disableDSShare = UserSettings.getPref("disableDSShare");
         let logOutInterval = UserSettings.getPref("logOutInterval");
+        let enableInactivityCheck = UserSettings.getPref("enableInactivityCheck");
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
@@ -410,8 +426,19 @@ namespace UserSettings {
         } else {
             $("#disableDSShare").removeClass("checked");
         }
+        if (XVM.isCloud()) {
+            if (enableInactivityCheck || enableInactivityCheck == null) {
+                $("#enableInactivityCheck").addClass("checked");
+                XcUser.CurrentUser.enableIdleCheck();
+            } else {
+                $("#enableInactivityCheck").removeClass("checked");
+                XcUser.CurrentUser.disableIdleCheck();
+            }
+        }
+
         DS.toggleSharing(disableDSShare);
         XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
+
         monIntervalSlider.setSliderValue(graphInterval);
         commitIntervalSlider.setSliderValue(commitInterval);
         logOutIntervalSlider.setSliderValue(XcUser.CurrentUser.getLogOutTimeoutVal() / (1000 * 60));

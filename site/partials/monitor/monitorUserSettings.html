@@ -69,7 +69,16 @@
         <span><%= dicts.common.minutes %></span>
       </div>
     </div>
-	</div>
+    <div class="optionSet admin cloudOnly">
+        <div class="label">Shut down cluster after inactivity</div>
+        <div class="optionSelector">
+          <div id="enableInactivityCheck" class="checkbox">
+            <i class="icon xi-ckbox-empty fa-13"></i>
+            <i class="icon xi-ckbox-selected fa-13"></i>
+          </div>
+        </div>
+      </div>
+</div>
   <div class="cardBottom">
     <button id="userSettingsSave" class="btn btn-submit btn-rounded"><%= dicts.common.Save %></button>
     <button id="userSettingsDefault" class="btn btn-secondary btn-rounded"><%= dicts.exportView.restoreDefaults %></button>

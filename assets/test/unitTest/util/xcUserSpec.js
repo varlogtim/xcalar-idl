@@ -474,12 +474,12 @@ describe('XcUser Test', () => {
                 done();
             }
         });
-        it('should be equal for default timeout settings' +
+        it('should be equal for default timeout settings ' +
         'for values in both xcUser and UserSettings', () => {
             var logOutInterval = UserSettings.getPref("logOutInterval");
-            expect(logOutInterval).to.be.an('undefined');
+            expect(logOutInterval).to.not.be.undefined;
             var defaultVal = 25 * 60 * 1000;
-            XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
+            XcUser.CurrentUser.updateLogOutInterval(undefined);
             expect(XcUser.CurrentUser.getLogOutTimeoutVal())
             .to.equal(defaultVal);
         })

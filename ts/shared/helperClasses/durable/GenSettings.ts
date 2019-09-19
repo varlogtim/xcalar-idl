@@ -1,4 +1,3 @@
-// XXX TODO: remove the dependency of jQuery
 class GenSettings extends Durable {
     private adminSettings: GenSettingOptionsDurable; // admin settings
     private xcSettings: GenSettingOptionsDurable; // xcSttings
@@ -24,9 +23,11 @@ class GenSettings extends Durable {
             "commitInterval": 120, // in seconds
             "hideSysOps": false,
             "showIMD": false,
+            "logOutInterval": 25, // in minutes
+            "enableInactivityCheck": true
         };
-        defaultSettings = $.extend({}, defaultSettings, userConfigParms);
-        this.baseSettings = $.extend({}, defaultSettings, 
+        defaultSettings = Object.assign({}, defaultSettings, userConfigParms);
+        this.baseSettings = Object.assign({}, defaultSettings,
             this.xcSettings, this.adminSettings);
     }
 
@@ -40,7 +41,7 @@ class GenSettings extends Durable {
 
     public updateAdminSettings(settings: GenSettingOptionsDurable): void {
         let prevAdminSettings = this.adminSettings;
-        this.adminSettings = $.extend({}, prevAdminSettings, settings);
+        this.adminSettings = Object.assign({}, prevAdminSettings, settings);
     }
 
     public cleanAdminSettings(): void {
@@ -49,7 +50,7 @@ class GenSettings extends Durable {
 
     public updateXcSettings(settings: GenSettingOptionsDurable): void {
         let prevXcSettings = this.xcSettings;
-        this.xcSettings = $.extend({}, prevXcSettings, settings);
+        this.xcSettings = Object.assign({}, prevXcSettings, settings);
     }
 
     public getAdminAndXcSettings(): GenSettings {

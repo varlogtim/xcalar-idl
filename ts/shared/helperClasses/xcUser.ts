@@ -6,6 +6,7 @@ class XcUser {
     private static readonly _logOutWarningTime = 60; // in seconds
     private static _creditUsageInterval = null;
     private static _creditUsageCheckTime = 2 * 60 * 1000;
+    private static _isIdleCheckOn = true;
 
     public static get CurrentUser(): XcUser {
         return this._currentUser;
@@ -37,8 +38,10 @@ class XcUser {
             this._currentUser = user;
             XcUser.setUserSession(user);
             XcUser.CurrentUser.extendCookies();
-            XcUser.CurrentUser.idleCheck();
-            XcUser.CurrentUser.restartActivityTimer();
+            if (this._isIdleCheckOn) {
+                XcUser.CurrentUser.idleCheck();
+                XcUser.CurrentUser.restartActivityTimer();
+            }
         };
 
 /** START DEBUG ONLY **/
@@ -450,22 +453,29 @@ class XcUser {
             throw "Invalid User";
         }
         this._idleTimeLimit = val;
-        this._idleChecker();
+        if (XcUser._isIdleCheckOn || !XVM.isCloud()) {
+            this._idleChecker();
+            this.restartActivityTimer();
+        }
         if (XVM.isCloud()) {
             xcHelper.sendRequest("POST", "/service/updateLogoutInterval", {time: val});
         }
     }
 
     public disableIdleCheck(): void {
+        XcUser._isIdleCheckOn = false;
         console.info("idle check is disabled!");
         clearTimeout(this._idleChckTimer);
+        clearTimeout(this._activityTimer);
         if (XVM.isCloud()) {
             xcHelper.sendRequest("POST", "/service/disableIdleCheck");
         }
     }
 
     public enableIdleCheck(): void {
+        XcUser._isIdleCheckOn = true;
         this.idleCheck();
+        this.restartActivityTimer();
         if (XVM.isCloud()) {
             xcHelper.sendRequest("POST", "/service/enableIdleCheck");
         }
