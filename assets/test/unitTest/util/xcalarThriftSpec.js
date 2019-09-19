@@ -71,7 +71,7 @@ describe("XcalarThrift Test", function() {
         .fail(function(error) {
             expect(error.status).to.equal(statusCode)
             expect(error.error).to.equal("Error: " + StatusTStr[1]);
-            expect(error.log).to.equal(undefined);
+            expect(error.log).not.to.equal(undefined);
             expect(error.httpStatus).to.equal(undefined);
             expect(error.output).to.equal(undefined);
             done();

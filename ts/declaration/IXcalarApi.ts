@@ -7,7 +7,8 @@ interface XcalarApiError {
     httpStatus?: number,
     status?: StatusT,
     output?: any,
-    log?: string
+    log?: string,
+    error?: string
 }
 
 // TODO: figure out types

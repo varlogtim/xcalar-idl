@@ -154,7 +154,7 @@ function thriftLog(
             if (status === StatusT.StatusUdfExecuteFailed) {
                 log = parseUDFLog(errRes.log);
             } else {
-                log = parseLog(errRes.log);
+                log = parseLog(errRes.log || errRes.error);
             }
             httpStatus = errRes.httpStatus;
             output = errRes.output;
@@ -195,7 +195,7 @@ function thriftLog(
         }
 
         if (status !== StatusT.StatusCanceled) {
-            console.error('(╯°□°）╯︵ ┻━┻', msg);
+            console.error('(╯°□°）╯︵ ┻━┻', msg, log);
         }
 
         const thriftError: ThriftError = new ThriftError();
@@ -955,9 +955,7 @@ XcalarDatasetCreate = function(
     .then(deferred.resolve)
     .fail(function(error) {
         if (Xcrpc.Error.isXcalarError(error)) {
-            const thriftError: ThriftError = thriftLog("XcalarDatasetCreate", {
-                status: error.status
-            });
+            const thriftError: ThriftError = thriftLog("XcalarDatasetCreate", error);
             deferred.reject(thriftError);
         } else {
             deferred.reject(error);
@@ -1050,9 +1048,7 @@ XcalarDatasetRestore = function(
     .then(deferred.resolve)
     .fail(function(error) {
         if (Xcrpc.Error.isXcalarError(error)) {
-            const thriftError: ThriftError = thriftLog("XcalarDatasetRestore", {
-                status: error.status
-            });
+            const thriftError: ThriftError = thriftLog("XcalarDatasetRestore", error);
             deferred.reject(thriftError);
         } else {
             deferred.reject(error);
@@ -1210,9 +1206,7 @@ XcalarDatasetLoad = function(
             // in intervals until the load is complete. Then do the ack/fail
             checkForDatasetLoad(deferred, query, datasetName, txId);
         } else if (Xcrpc.Error.isXcalarError(error)) {
-            const thriftError: ThriftError = thriftLog('XcalarLoad', {
-                status: error.status
-            });
+            const thriftError: ThriftError = thriftLog('XcalarLoad', error);
             if (Xcrpc.Operator.isBulkLoadErrorResponse(error.response)) {
                 const { errorString, errorFile } = error.response;
                 console.error("error in import", errorString, errorFile);
@@ -3713,9 +3707,7 @@ XcalarQuery = function(
     .fail(function(error: Xcrpc.Error.ServiceError) {
         let thriftError: ThriftError = null;
         if (Xcrpc.Error.isXcalarError(error)) {
-            thriftError = thriftLog('XcalarQuery', {
-                status: error.status
-            });
+            thriftError = thriftLog('XcalarQuery', error);
             thriftError.error = error.error;
         } else {
             thriftError = thriftLog('XcalarQuery', (<Xcrpc.Error.UnknownError>error).error);
@@ -4516,9 +4508,7 @@ XcalarExecuteRetina = function(
     })
     .fail(function(error: Xcrpc.Error.ServiceError) {
         if (Xcrpc.Error.isXcalarError(error)) {
-            const thriftError = thriftLog("XcalarExecuteRetina", {
-                status: error.status
-            });
+            const thriftError = thriftLog("XcalarExecuteRetina", error);
             deferred.reject(thriftError);
         } else {
             deferred.reject(error);
@@ -5303,9 +5293,7 @@ XcalarListXdfs = function(
     })
     .fail(function(error) {
         if (Xcrpc.Error.isXcalarError(error)) {
-            const thriftError = thriftLog("XcalarListXdf", {
-                status: error.status
-            });
+            const thriftError = thriftLog("XcalarListXdf", error);
             deferred.reject(thriftError);
         } else {
             deferred.reject(error);
