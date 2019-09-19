@@ -508,6 +508,8 @@ describe('XcUser Test', () => {
 
     describe("credit usage check", () => {
         it("should update usermenu", (done) => {
+            let oldIsCloud = XVM.isCloud;
+            XVM.isCloud = () => true;
             let oldTime = XcUser._creditUsageCheckTime;
             XcUser._creditUsageCheckTime = 20;
             let oldRequest = xcHelper.sendRequest;
@@ -527,6 +529,7 @@ describe('XcUser Test', () => {
                 XcUser._creditUsageCheckTime = oldTime;
                 xcHelper.sendRequest = oldRequest;
                 UserMenu.Instance.updateCredits = oldUpdateCredits;
+                XVM.isCloud = oldIsCloud;
                 done();
             }, 100);
         });

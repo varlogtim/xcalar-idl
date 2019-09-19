@@ -5,7 +5,7 @@ class XcUser {
     private static _isLogoutTimerOn: boolean = false;
     private static readonly _logOutWarningTime = 60; // in seconds
     private static _creditUsageInterval = null;
-    private static _creditUsageCheckTime = 60 * 1000;
+    private static _creditUsageCheckTime = 2 * 60 * 1000;
 
     public static get CurrentUser(): XcUser {
         return this._currentUser;
@@ -191,6 +191,9 @@ class XcUser {
     }
 
     public static creditUsageCheck() {
+        if (!XVM.isCloud()) {
+            return;
+        }
         this._checkCreditUsageHelper();
         clearInterval(this._creditUsageInterval);
         this._creditUsageInterval = setInterval(() => {
