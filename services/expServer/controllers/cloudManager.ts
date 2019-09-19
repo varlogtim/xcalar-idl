@@ -41,7 +41,7 @@ class CloudManager {
      * Stop the running cluster
      * @param cfnId
      */
-    public async stopCluster(): Promise<any> {
+    public async stopCluster(repeatTry?: boolean): Promise<any> {
         xcConsole.log("stop cluster");
         // TO-DO
         // 1. update stack with params to stop any EC2 instances
@@ -53,8 +53,15 @@ class CloudManager {
                 json: true
             });
             xcConsole.log("cluster shutting down");
-            return data;
+            if (!repeatTry && (!data || !data["isPending"])) {
+                return this.stopCluster(true);
+            } else {
+                return data;
+            }
         } catch (e) {
+            if (!repeatTry) {
+                return this.stopCluster(true);
+            }
             return {error: e};
         }
     }
@@ -123,12 +130,13 @@ class CloudManager {
                 credits = data.credits;
             }
             this._numCredits = credits;
-            if (this._numCredits <= 0 && !this._stopClusterMessageSent) {
+            if (!isNaN(this._numCredits) && (typeof this._numCredits === "number") &&
+                this._numCredits <= 0 && !this._stopClusterMessageSent) {
                 this._stopClusterMessageSent = true;
                 socket.logoutMessage({
                     type: "noCredits"
                 });
-                cloudManager.stopCluster();
+                this.stopCluster();
             } else {
                 this._stopClusterMessageSent = false;
             }

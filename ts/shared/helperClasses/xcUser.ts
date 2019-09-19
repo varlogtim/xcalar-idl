@@ -448,11 +448,24 @@ class XcUser {
         }
         this._idleTimeLimit = val;
         this._idleChecker();
+        if (XVM.isCloud()) {
+            xcHelper.sendRequest("POST", "/service/updateLogoutInterval", {time: val});
+        }
     }
 
     public disableIdleCheck(): void {
         console.info("idle check is disabled!");
         clearTimeout(this._idleChckTimer);
+        if (XVM.isCloud()) {
+            xcHelper.sendRequest("POST", "/service/disableIdleCheck");
+        }
+    }
+
+    public enableIdleCheck(): void {
+        this.idleCheck();
+        if (XVM.isCloud()) {
+            xcHelper.sendRequest("POST", "/service/enableIdleCheck");
+        }
     }
 
     public extendCookies(): void {

@@ -288,6 +288,25 @@ router.post("/service/updateUserActivity", [support.checkAuth], (_req, res) => {
     res.status(httpStatus.OK).send();
 });
 
+router.post("/service/disableIdleCheck", [support.checkAuth], (_req, res) => {
+    UserActivityManager.disableIdleCheck();
+    res.status(httpStatus.OK).send();
+});
+
+router.post("/service/enableIdleCheck", [support.checkAuth], (_req, res) => {
+    UserActivityManager.enableIdleCheck();
+    res.status(httpStatus.OK).send();
+});
+
+router.post("/service/updateLogoutInterval", [support.checkAuth], (req, res) => {
+    let reqBody = req.body;
+    if (typeof reqBody === "string") {
+        reqBody = JSON.parse(req.body);
+    };
+    UserActivityManager.updateLogoutInterval(reqBody.time);
+    res.status(httpStatus.OK).send();
+});
+
 router.post("/service/stopCloud", [support.checkAuth], (_req, res) => {
     cloudManager.stopCluster()
     .then((data) => {

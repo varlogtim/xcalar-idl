@@ -9,18 +9,42 @@ class UserActivityManager {
     public static get getInstance(): UserActivityManager {
         return this._instance || (this._instance = new this());
     }
-
-    private _inactivityTime = 25 * 60 * 1000; // amount of time to be considered inactive
+    private readonly _defaultInactivityTime = 25 * 60 * 1000;// amount of time to be considered inactive
+    private readonly _maxInactivityTime = 120 * 60 * 1000; // 2 hours
+    private readonly _minInactivityTime = 10 * 60 * 1000; // 10 minutes
+    private _inactivityTime = this._defaultInactivityTime;
     private _logoutWarningTime = 60 * 1000; // user is warned that they have 1 minute before logged out
     private _activityTimer; // {setTimeout}
     private _logoutTimer; // {setTimeout} 1 minute timer set when user has been
     // idle for 30 minutes. Will log out at the end of 1 minute.
+    private _isCheckDisabled: boolean = false;
 
     public updateUserActivity() {
         this._restartActivityTimer();
     }
 
-    public stopActivityTimer() {
+    public disableIdleCheck() {
+        console.log("disableIdleCheck");
+        this._isCheckDisabled = true;
+        this._stopActivityTimer();
+    }
+
+    public enableIdleCheck() {
+        console.log("enableIdleCheck");
+        this._isCheckDisabled = false;
+        this._restartActivityTimer();
+    }
+
+    public updateLogoutInterval(time: number) {
+        console.log("updateLogoutInterval", time);
+        if (!(time >= this._minInactivityTime && time <= this._maxInactivityTime)) {
+            time = this._inactivityTime;
+        }
+        this._inactivityTime = time;
+        this._restartActivityTimer();
+    }
+
+    private _stopActivityTimer() {
         clearTimeout(this._activityTimer);
         clearTimeout(this._logoutTimer);
     }
@@ -28,7 +52,10 @@ class UserActivityManager {
     // resets a countdown timer, if not reset again for another 25 minutes then
     // will warn XD and then stop the cluster
     private _restartActivityTimer() {
-        this.stopActivityTimer();
+        if (this._isCheckDisabled) {
+            return;
+        }
+        this._stopActivityTimer();
         this._activityTimer = setTimeout(() => {
             socket.sendClusterStopWarning();
             xcConsole.log("sending warning");

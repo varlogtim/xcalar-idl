@@ -20,7 +20,10 @@ describe('ExpServer Service Test', function() {
     var oldCheckAuth;
     var oldCheckAuthAdmin;
     var oldUpdateUserActivity;
+    var oldDisableUserActivity;
+    var oldEnableUserActivity;
     var oldStopCluster;
+    var oldUpdateLogoutInterval;
     this.timeout(10000);
 
     // Test begins
@@ -45,7 +48,10 @@ describe('ExpServer Service Test', function() {
         oldCheckAuth = support.checkAuthImpl;
         oldCheckAuthAdmin = support.checkAuthAdminImpl;
         oldUpdateUserActivity = userActivityManager.updateUserActivity;
+        oldDisableUserActivity = userActivityManager.disableIdleCheck;
+        oldEnableUserActivity = userActivityManager.enableIdleCheck;
         oldStopCluster = cloudManager.stopCluster;
+        oldUpdateLogoutInterval = userActivityManager.updateLogoutInterval;
 
         support.masterExecuteAction = fakeFunc;
         support.slaveExecuteAction = fakeFunc;
@@ -60,7 +66,10 @@ describe('ExpServer Service Test', function() {
         support.checkAuthImpl = fakeCheck;
         support.checkAuthAdminImpl = fakeCheck;
         userActivityManager.updateUserActivity = fakeFunc;
+        userActivityManager.disableIdleCheck = fakeFunc;
+        userActivityManager.enableIdleCheck = fakeFunc;
         cloudManager.stopCluster = fakeFunc;
+        userActivityManager.updateLogoutInterval = fakeFunc;
     });
 
     after(function() {
@@ -77,7 +86,10 @@ describe('ExpServer Service Test', function() {
         support.checkAuthImpl = oldCheckAuth;
         support.checkAuthAdminImpl = oldCheckAuthAdmin;
         userActivityManager.updateUserActivity = oldUpdateUserActivity;
+        userActivityManager.disableIdleCheck = oldDisableUserActivity;
+        userActivityManager.enableIdleCheck = oldEnableUserActivity;
         cloudManager.stopCluster = oldStopCluster;
+        userActivityManager.updateLogoutInterval = oldUpdateLogoutInterval;
     });
 
     it("service.convertToBase64 should work", function() {
@@ -280,6 +292,36 @@ describe('ExpServer Service Test', function() {
     it("update user activity should work", function(done) {
         var data = {
             url: 'http://localhost:12224/service/updateUserActivity'
+        };
+        request.post(data, function (err, res, body){
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it("disable idle check should work", function(done) {
+        var data = {
+            url: 'http://localhost:12224/service/disableIdleCheck'
+        };
+        request.post(data, function (err, res, body){
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it("enable idle check should work", function(done) {
+        var data = {
+            url: 'http://localhost:12224/service/enableIdleCheck'
+        };
+        request.post(data, function (err, res, body){
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it("updateLogoutInterval should work", function(done) {
+        var data = {
+            url: 'http://localhost:12224/service/updateLogoutInterval',
         };
         request.post(data, function (err, res, body){
             expect(res.statusCode).to.equal(200);
