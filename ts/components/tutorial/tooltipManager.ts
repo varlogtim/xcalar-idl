@@ -28,6 +28,7 @@ namespace TooltipManager {
     let currWalkthrough: TooltipInfo[];
     let $clickEle: JQuery;
     let title: string;
+    let checkBoxChecked: boolean = false;
 
 
 
@@ -69,7 +70,7 @@ namespace TooltipManager {
                 createElementLayer();
             }
             createHighlightBox();
-            createPopover(walkthroughInfo.isSingleTooltip);
+            createPopover(walkthroughInfo.isSingleTooltip, title);
             nextStep();
             $(window).resize(winResize);
 
@@ -169,13 +170,28 @@ namespace TooltipManager {
         $('body').append('<div id="intro-elementLayer"></div>');
     }
 
-    function createPopover(isSingleTooltip: boolean) {
+    function createPopover(isSingleTooltip: boolean, title: string) {
         let next: string = "";
+        let tooltipCheckbox = "";
         if(!isSingleTooltip) {
             next = '<div class="next">' +
                         '<i class="icon xi-next"></i>' +
                     '</div>'
         }
+
+        if (title === WKBKTStr.Location) {
+            const checked = checkBoxChecked ? "checked" : "";
+            tooltipCheckbox = '<section>' +
+                                    '<div id="alertCheckBox" class="checkboxSection">' +
+                                    '<div class="checkbox ' + checked + '">' +
+                                    '<i class="icon xi-ckbox-empty"></i>' +
+                                    '<i class="icon xi-ckbox-selected"></i>' +
+                                    '</div>' +
+                                    '<div class="checkboxText">Don\'t show again</div>' +
+                                    '</div>' +
+                                '</section>'
+        }
+
 
         // UI subject to change
         let popoverHtml: string = '<div id="intro-popover" style="padding:' +
@@ -193,6 +209,7 @@ namespace TooltipManager {
                                 '<div class="text"></div>' +
                             '</div>' +
                             '<div class="bottomArea">' +
+                                tooltipCheckbox +
                                 next +
                                 '<div class="intro-number"></div>' +
                             '</div>' +
@@ -217,6 +234,17 @@ namespace TooltipManager {
 
         $popover.find('.close').click(function() {
             closeWalkthrough();
+        });
+
+        $popover.find('#alertCheckBox').click(function() {
+            const $checkBox = $popover.find('#alertCheckBox').find('.checkbox');
+            checkBoxChecked = !checkBoxChecked;
+            if (checkBoxChecked) {
+                $checkBox.addClass("checked");
+            } else {
+                $checkBox.removeClass("checked");
+            }
+            TooltipWalkthroughs.setShowWorkbook(!checkBoxChecked);
         });
 
     }
@@ -364,6 +392,9 @@ namespace TooltipManager {
         $infoArrow.removeClass('top bottom left right');
         $infoArrow.css({'top': 0, 'bottom': 'auto'});
 
+        if (currWalkthrough[stepNumber].title) {
+            $popover.find('.title').html(currWalkthrough[stepNumber].title);
+        }
         $popover.find('.text').html(currWalkthrough[stepNumber].text);
         let windowWidth: number = $(window).width();
         let windowHeight: number = $(window).height();
@@ -471,9 +502,15 @@ namespace TooltipManager {
             if (currentStep.type == TooltipType.Click) {
                 $clickEle.on("click.tooltip", (e) => {
                     $clickEle.off("click.tooltip");
-                    e.stopPropagation();
-                    $clickEle.click();
-                    nextStep();
+
+                    // changed to timeout from the following:
+                    // e.stopPropagation();
+                    // $clickEle.click();
+                    // nextStep()
+
+                    // stopPropagation didn't work and caused double click
+                    // just nextStep() didn't work because the next element doesn't exist yet
+                    setTimeout(()=>nextStep(), 0);
                 });
             } else if (currentStep.type == TooltipType.Value) {
                 $clickEle.on("keyup.tooltip", () => {
@@ -483,11 +520,17 @@ namespace TooltipManager {
                     }
                 })
             } else if (currentStep.type == TooltipType.DoubleClick) {
-                $clickEle.on("dblclick.tooltip", (e) => {
+                $clickEle.on("dblclick.tooltip", () => {
                     $clickEle.off("dblclick.tooltip");
-                    e.stopPropagation();
-                    $clickEle.dblclick();
-                    nextStep();
+
+                    // changed to timeout from the following:
+                    // e.stopPropagation();
+                    // $clickEle.click();
+                    // nextStep()
+
+                    // stopPropagation didn't work and caused double click
+                    // just nextStep() didn't work because the next element doesn't exist yet
+                    setTimeout(()=>nextStep(), 0);
                 });
             }
         } else {

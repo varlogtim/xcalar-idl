@@ -38,18 +38,20 @@ class TooltipModal {
         let walkthroughs: {name: string, description: string}[] = TooltipWalkthroughs.getAvailableWalkthroughs();
         let $modalmain = this._getModal().find(".modalMain");
         $modalmain.empty();
-        let disable = "";
-        let disableTooltip = "";
+        let disable;
+        let disableTooltip;
         let html = "";
-
-        if (WorkbookManager.getActiveWKBK() == null) {
-            disable = 'xc-disabled';
-            disableTooltip =  'data-toggle="tooltip" data-placement="top" data-container="body" ' +
-                'data-original-title="' + TooltipTStr.TooltipNoWorkbook + '"';
-        }
 
         for( let i = 0; i < walkthroughs.length; i++ ) {
             let walkInfo = walkthroughs[i];
+            if (WorkbookManager.getActiveWKBK() == null && walkInfo.name !== WKBKTStr.Location) {
+                disable = 'xc-disabled';
+                disableTooltip =  'data-toggle="tooltip" data-placement="top" data-container="body" ' +
+                    'data-original-title="' + TooltipTStr.TooltipNoWorkbook + '"';
+            } else {
+                disable = "";
+                disableTooltip = "";
+            }
             html += '<div class="item">' +
                 '<div class="leftPart">' +
                     '<div class="tooltipName textOverflowOneLine"' +

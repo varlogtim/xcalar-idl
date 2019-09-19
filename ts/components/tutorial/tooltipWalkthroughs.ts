@@ -1,8 +1,10 @@
 namespace TooltipWalkthroughs {
     let seenSQL = false;
-    let seenDataflow = false;
-    let SQLModeName = "SQL Mode";
-    let ADVModeName = "Dataflow Mode";
+    let seenDataflow = true;
+    let showWorkbook = true;
+    let SQLModeName = ModeTStr.SQL;
+    let ADVModeName = ModeTStr.Advanced;
+    let WKBModeName = WKBKTStr.Location;
     let storedWorkbookWalkthrough: {info: WalkthroughInfo, walkthrough: TooltipInfo[], options: any};
     let storedTempWalkthrough: {info: WalkthroughInfo, walkthrough: TooltipInfo[], options: any};
 
@@ -50,12 +52,22 @@ namespace TooltipWalkthroughs {
 
     function storeTooltipObj(): JQueryPromise<void> {
         let tooltipObj: TooltipStoredInfo = {
-            seenDataflow: seenDataflow,
-            seenSQL: seenSQL
+            showWorkbook: showWorkbook,
+            seenSQL: seenSQL,
+            seenDataflow: seenDataflow
         }
         const key: string = KVStore.getKey("gUserTooltipKey");
         const kvStore: KVStore = new KVStore(key, gKVScope.USER);
         return kvStore.put(JSON.stringify(tooltipObj), true);
+    }
+
+    export function startWorkbookBrowserWalkthrough(): void {
+        setupInitialWalkthroughCheck()
+        .then(() => {
+            if (showWorkbook) {
+                workbookWalkthrough();
+            }
+        })
     }
 
     /**
@@ -213,7 +225,7 @@ namespace TooltipWalkthroughs {
         },
         {
             highlight_div: "#dataStoresTab",
-            interact_div: "#dataStoresTab .mainTab",
+            interact_div: "#dataStoresTab",
             text: "Let's get started with importing a table. Click the Sources icon to open it.",
             type: TooltipType.Click
         },
@@ -247,7 +259,7 @@ namespace TooltipWalkthroughs {
         },
         {
             highlight_div: "#bottomMenuBarTabs",
-            interact_div: "#bottomMenuBarTabs #helpMenuTab.sliderBtn",
+            interact_div: "#bottomMenuBarTabs",
             text: "Click the Help icon to get help and support.",
             type: TooltipType.Click
         },
@@ -258,7 +270,7 @@ namespace TooltipWalkthroughs {
         }];
         TooltipManager.start(
             {
-                tooltipTitle: "SQL Mode",
+                tooltipTitle: ModeTStr.SQL,
                 background: true,
                 startScreen: TooltipStartScreen.SQLWorkspace
             },
@@ -275,7 +287,7 @@ namespace TooltipWalkthroughs {
         // NOTE: If this is changed, please change the associated unit test
         // at tooltipFLightSpec.js
         TooltipManager.start({
-                tooltipTitle: "Dataflow Mode",
+                tooltipTitle: ModeTStr.Advanced,
                 background: true,
                 startScreen: TooltipStartScreen.ADVModeDataflow
             },
@@ -351,12 +363,52 @@ namespace TooltipWalkthroughs {
         );
     }
 
+    export function workbookWalkthrough(): void {
+        if ($("#bottomMenu").hasClass("open")) {
+            BottomMenu.close(true);
+        }
+        TooltipManager.start({
+            tooltipTitle: WKBKTStr.Location,
+            background: true,
+            startScreen: TooltipStartScreen.Workbooks
+        },
+            [{
+                highlight_div: ".tutBox",
+                title: "Welcome to Xcalar Design!",
+                text: "Here you will find many resources to learn about Xcalar Design.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: "#createWKBKbtn",
+                interact_div: "#createWKBKbtn",
+                title: "Create a workbook",
+                text: "A workbook is a container where you design, troubleshoot, and execute your data models. Click 'Create New Workbook' to create a new workbook.",
+                type: TooltipType.Click
+            },
+            {
+                highlight_div: ".bottomSection .box:nth-child(2)",
+                interact_div: ".bottomSection .box:nth-child(2)",
+                title: "Rename and activate the workbook",
+                text: "Enter a new workbook name, then click the workbook card to activate and open it.",
+                type: TooltipType.Click
+            }],
+            0,
+            {
+                closeOnModalClick: true,
+                includeNumbering: true
+            }
+        );
+    }
+
     /**
      * Returns a list of available walkthroughs in {name, description} objects.
      */
     export function getAvailableWalkthroughs(): {name: string, description: string}[] {
         // XXX TODO: Integrate with tutorial workbooks
         let builtInWalkthroughs = [{
+            name: WKBModeName,
+            description: "Tour of the Workbook Browser UI"
+        }, {
             name: SQLModeName,
             description: "Tour of Xcalar Design and the SQL Mode UI"
         }, {
@@ -383,7 +435,7 @@ namespace TooltipWalkthroughs {
      * @param name
      */
     export function startWalkthrough(name: string): string {
-        if (WorkbookPanel.isWBMode()) {
+        if (WorkbookPanel.isWBMode() && name !== WKBModeName) {
             if (WorkbookManager.getActiveWKBK() != null) {
                 // if we're in a workbook, but on the workbook screen, we just go back to it
                 $("#homeBtn").click();
@@ -393,6 +445,9 @@ namespace TooltipWalkthroughs {
             }
         }
         switch(name) {
+            case (WKBModeName):
+                workbookWalkthrough();
+                break;
             case (SQLModeName):
                 SQLModeWalkthrough();
                 break;
@@ -433,9 +488,14 @@ namespace TooltipWalkthroughs {
         kvStore.getAndParse()
         .then((tooltipObj) => {
             if (tooltipObj != null) {
+                showWorkbook = tooltipObj.showWorkbook;
                 seenSQL = tooltipObj.seenSQL;
                 seenDataflow = tooltipObj.seenDataflow;
             }
+        })
+        .fail((error) => {
+            console.error('kvStore.getAndParse() error: ', error);
+            showWorkbook = false;
         })
         .always(deferred.resolve);
 
@@ -466,5 +526,10 @@ namespace TooltipWalkthroughs {
 
     export function setSeenDataflow(flag: boolean) {
         seenDataflow = flag;
+    }
+
+    export function setShowWorkbook(flag: boolean) {
+        showWorkbook = flag;
+        storeTooltipObj();
     }
 }

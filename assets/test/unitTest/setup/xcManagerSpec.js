@@ -11,13 +11,14 @@ describe("xcManager Test", function() {
         var title;
         var oldSocketInit;
         var oldTooltipuser;
+        var workbookWalkthroughStarted;
 
         before(function() {
             handleSetupFail = xcManager.__testOnly__.handleSetupFail;
             oldAlert = Alert.show;
             oldAlertError = Alert.error;
             oldSocketInit = XcSocket.prototype.setup;
-            oldTooltipShow = TooltipWalkthroughs.newUserPopup;
+            oldStartWorkbookBrowserWalkthrough = TooltipWalkthroughs.startWorkbookBrowserWalkthrough;
             Alert.show = function(options) {
                 title = options.title;
             };
@@ -26,8 +27,8 @@ describe("xcManager Test", function() {
                 title = error;
             };
 
-            TooltipWalkthroughs.newUserPopup = function() {
-                title = DemoTStr.title;
+            TooltipWalkthroughs.startWorkbookBrowserWalkthrough = function() {
+                workbookWalkthroughStarted = true;
             };
 
             XcSocket.prototype.setup = function(){};
@@ -44,10 +45,9 @@ describe("xcManager Test", function() {
 
             handleSetupFail(WKBKTStr.NoWkbk, true);
             UnitTest.testFinish(function() {
-                return title === DemoTStr.title;
+                return workbookWalkthroughStarted === true;
             })
             .then(function() {
-               expect(title).to.equal(DemoTStr.title);
                 expect(test).to.be.true;
                 WorkbookPanel.forceShow = oldFunc;
                 XcUser.CurrentUser.holdSession = oldHold;
@@ -113,7 +113,7 @@ describe("xcManager Test", function() {
             Alert.show = oldAlert;
             Alert.error = oldAlertError;
             XcSocket.prototype.setup = oldSocketInit;
-            TooltipWalkthroughs.newUserPopup = oldTooltipShow;
+            TooltipWalkthroughs.startWorkbookBrowserWalkthrough = oldStartWorkbookBrowserWalkthrough;
         });
     });
 

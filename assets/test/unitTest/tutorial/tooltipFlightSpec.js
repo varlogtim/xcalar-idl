@@ -8,275 +8,437 @@ describe("Tooltip Flight Test", function(done) {
     });
 
     // flight tests for the built in tooltip walkthroughs
-    it("should do the entire dataflow mode walkthrough successfully", function() {
+    it("should do the entire dataflow mode walkthrough successfully", function(done) {
         XVM.setMode(XVM.Mode.Advanced);
         TooltipWalkthroughs.startWalkthrough("Dataflow Mode");
 
-        //mode tip
-        expect($("#modeArea").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+        UnitTest.testFinish(()=>$("#modeArea").hasClass("intro-highlightedElement"))
+        .then(() => {
+            //mode tip
+            expect($("#modeArea").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //tab tip click
-        expect($("#tabButton").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#tabButton").click();
+            return UnitTest.testFinish(()=>$("#tabButton").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        // panel tip
-        expect($("#dataflowMenu").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //tab tip click
+            expect($("#tabButton").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#tabButton").click();
 
-        // canvas tip
-        expect($(".dataflowMainArea").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dataflowMenu").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        // category bar tip
-        expect($("#dagView .categoryBar").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            // panel tip
+            expect($("#dataflowMenu").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        // operator bar tip 1
-        expect($("#dagView .operatorBar").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$(".dataflowMainArea").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        // operator bar tip 2
-        expect($("#dagView .operatorBar").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            // canvas tip
+            expect($(".dataflowMainArea").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        // node tip doubleclick
-        expect($("#dagView .operatorWrap .active .operator").eq(0).hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#dagView .operatorWrap .active .operator .main").eq(0).dblclick();
+            return UnitTest.testFinish(()=>$("#dagView .categoryBar").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        // view tip
-        expect($("#dagView").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            // category bar tip
+            expect($("#dagView .categoryBar").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        // view tip2
-        expect($("#dagView").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dagView .operatorBar").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        // help button tip
-        expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+            // operator bar tip 1
+            expect($("#dagView .operatorBar").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        // help walkthrough tip
-        expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dagView .operatorBar").hasClass("intro-highlightedElement"))
+        }).then(() => {
+            // operator bar tip 2
+            expect($("#dagView .operatorBar").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        expect($("#intro-popover").is(":visible")).to.be.false;
+            return UnitTest.testFinish(()=>$("#dagView .operatorWrap .active .operator").eq(0).hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // node tip doubleclick
+            expect($("#dagView .operatorWrap .active .operator").eq(0).hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#dagView .operatorWrap .active .operator .main").eq(0).dblclick();
+
+            return UnitTest.testFinish(()=>$("#dagView").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // view tip
+            expect($("#dagView").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#dagView").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // view tip2
+            expect($("#dagView").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#bottomMenuBarTabs").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // help button tip
+            expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+
+            return UnitTest.testFinish(()=>$("#tutorialResource").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // help walkthrough tip
+            expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>!$("#intro-popover").is(":visible"))
+        }).then(() => {
+
+            expect($("#intro-popover").is(":visible")).to.be.false;
+
+            return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+        }).then(() => {
+            done();
+        });
     });
 
-    it("should do the entire Sql mode walkthrough for cloud successfully", function() {
+    it("should do the entire Sql mode walkthrough for cloud successfully", function(done) {
         let oldIsCloud = XVM.isCloud;
         XVM.isCloud = () => true;
         TooltipWalkthroughs.startWalkthrough("SQL Mode")
+        UnitTest.testFinish(()=>$("#homeBtn").hasClass("intro-highlightedElement"))
+        .then(() => {
+            //home tip
+            expect($("#homeBtn").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //home tip
-        expect($("#homeBtn").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#menuBar").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //MenuBar tip
-        expect($("#menuBar").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //MenuBar tip
+            expect($("#menuBar").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //datastore tip
-        expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dataStoresTab").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //sqltab tip
-        expect($("#sqlTab").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //datastore tip
+            expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //monitor tip
-        expect($("#monitorTab").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#sqlTab").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //datastore click tip
-        expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#dataStoresTab .mainTab").click();
+            //sqltab tip
+            expect($("#sqlTab").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //sourcetbl click tip
-        expect($("#sourceTblButton").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#sourceTblButton").click();
+            return UnitTest.testFinish(()=>$("#monitorTab").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        expect(MainMenu.isMenuOpen()).to.be.true;
-        expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
+            //monitor tip
+            expect($("#monitorTab").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //dsSource locaion file
-        expect($("#dsForm-source .location.file").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dataStoresTab").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //dsSource locaion s3
-        expect($("#dsForm-source .location.s3").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //datastore click tip
+            expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#dataStoresTab .mainTab").click();
 
-        //dsSource locaion database
-        expect($("#dsForm-source .location.database").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#sourceTblButton").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //dsSource more
-        expect($("#dsForm-source .more").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //sourcetbl click tip
+            expect($("#sourceTblButton").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#sourceTblButton").click();
 
-        // sql workspace tip
-        expect($("#sqlWorkSpace").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#sqlWorkSpace").click();
+            return UnitTest.testFinish(()=>!$("#dsFormView").hasClass("xc-hidden"))
+        }).then(() => {
 
-        //sql editor
-        expect($("#sqlEditorSpace").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            expect(MainMenu.isMenuOpen()).to.be.false;
+            expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
 
-        //sql table tip
-        expect($("#sqlTableListerArea").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //dsSource locaion file
+            expect($("#dsForm-source .location.file").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //sql history tip
-        expect($("#sqlWorkSpacePanel .historySection").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dsForm-source .location.s3").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        // help button tip
-        expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+            //dsSource locaion s3
+            expect($("#dsForm-source .location.s3").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        // help walkthrough tip
-        expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dsForm-source .location.database").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        expect($("#intro-popover").is(":visible")).to.be.false;
-        XVM.isCloud = oldIsCloud;
+            //dsSource locaion database
+            expect($("#dsForm-source .location.database").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#dsForm-source .more").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //dsSource more
+            expect($("#dsForm-source .more").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#sqlWorkSpace").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // sql workspace tip
+            expect($("#sqlWorkSpace").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#sqlWorkSpace").click();
+
+            return UnitTest.testFinish(()=>$("#sqlEditorSpace").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //sql editor
+            expect($("#sqlEditorSpace").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#sqlTableListerArea").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //sql table tip
+            expect($("#sqlTableListerArea").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#sqlWorkSpacePanel .historySection").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //sql history tip
+            expect($("#sqlWorkSpacePanel .historySection").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#bottomMenuBarTabs").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // help button tip
+            expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+
+            return UnitTest.testFinish(()=>$("#tutorialResource").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // help walkthrough tip
+            expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>!$("#intro-popover").is(":visible"))
+        }).then(() => {
+
+            expect($("#intro-popover").is(":visible")).to.be.false;
+            XVM.isCloud = oldIsCloud;
+
+            return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+        }).then(() => {
+            done();
+        });
     });
 
-
-    it("should do the entire Sql mode walkthrough for on prem successfully", function() {
+    it("should do the entire Sql mode walkthrough for on prem successfully", function(done) {
         let oldIsCloud = XVM.isCloud;
         XVM.isCloud = () => false;
         TooltipWalkthroughs.startWalkthrough("SQL Mode")
 
-        //home tip
-        expect($("#homeBtn").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+        UnitTest.testFinish(()=>$("#homeBtn").hasClass("intro-highlightedElement"))
+        .then(() => {
+            //home tip
+            expect($("#homeBtn").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //MenuBar tip
-        expect($("#menuBar").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#menuBar").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //datastore tip
-        expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //MenuBar tip
+            expect($("#menuBar").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //sqltab tip
-        expect($("#sqlTab").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dataStoresTab").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //monitor tip
-        expect($("#monitorTab").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //datastore tip
+            expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //datastore click tip
-        expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#dataStoresTab .mainTab").click();
+            return UnitTest.testFinish(()=>$("#sqlTab").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //sourcetbl click tip
-        expect($("#sourceTblButton").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#sourceTblButton").click();
+            //sqltab tip
+            expect($("#sqlTab").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        expect(MainMenu.isMenuOpen()).to.be.true;
-        expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
+            return UnitTest.testFinish(()=>$("#monitorTab").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //dsform tip
-        expect($("#dsForm-path .cardMain").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //monitor tip
+            expect($("#monitorTab").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //dsform target tip
-        expect($("#dsForm-target").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dataStoresTab").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //filepath value tip
-        expect($("#filePath").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //datastore click tip
+            expect($("#dataStoresTab").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#dataStoresTab .mainTab").click();
 
-        //dsform browse tip
-        expect($("#dsForm-path .cardMain .browse").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#sourceTblButton").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //dsformButton
-        expect($("#dsForm-path .btn-submit").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //sourcetbl click tip
+            expect($("#sourceTblButton").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#sourceTblButton").click();
 
-        //dsform tip 2
-        expect($("#dsForm-path").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>!$("#dsFormView").hasClass("xc-hidden"))
+        }).then(() => {
 
-        // sql workspace tip
-        expect($("#sqlWorkSpace").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#sqlWorkSpace").click();
+            expect(MainMenu.isMenuOpen()).to.be.true;
+            expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
 
-        //sql editor
-        expect($("#sqlEditorSpace").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //dsform tip
+            expect($("#dsForm-path .cardMain").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        //sql table tip
-        expect($("#sqlTableListerArea").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            return UnitTest.testFinish(()=>$("#dsForm-target").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        //sql history tip
-        expect($("#sqlWorkSpacePanel .historySection").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //dsform target tip
+            expect($("#dsForm-target").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        // help button tip
-        expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+            return UnitTest.testFinish(()=>$("#filePath").hasClass("intro-highlightedElement"))
+        }).then(() => {
 
-        // help walkthrough tip
-        expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
-        expect($("#intro-popover").is(":visible")).to.be.true;
-        $("#intro-popover .next").click();
+            //filepath value tip
+            expect($("#filePath").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
 
-        expect($("#intro-popover").is(":visible")).to.be.false;
-        XVM.isCloud = oldIsCloud;
+            return UnitTest.testFinish(()=>$("#dsForm-path .cardMain .browse").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //dsform browse tip
+            expect($("#dsForm-path .cardMain .browse").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#dsForm-path .btn-submit").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //dsformButton
+            expect($("#dsForm-path .btn-submit").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#dsForm-path").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //dsform tip 2
+            expect($("#dsForm-path").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#sqlWorkSpace").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // sql workspace tip
+            expect($("#sqlWorkSpace").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#sqlWorkSpace").click();
+
+            return UnitTest.testFinish(()=>$("#sqlEditorSpace").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //sql editor
+            expect($("#sqlEditorSpace").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#sqlTableListerArea").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //sql table tip
+            expect($("#sqlTableListerArea").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#sqlWorkSpacePanel .historySection").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            //sql history tip
+            expect($("#sqlWorkSpacePanel .historySection").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#bottomMenuBarTabs").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // help button tip
+            expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+
+            return UnitTest.testFinish(()=>$("#tutorialResource").hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // help walkthrough tip
+            expect($("#tutorialResource").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>!$("#intro-popover").is(":visible"))
+        }).then(() => {
+
+            expect($("#intro-popover").is(":visible")).to.be.false;
+            XVM.isCloud = oldIsCloud;
+
+            return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+        }).then(() => {
+            done();
+        });
     });
 });

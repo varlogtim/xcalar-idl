@@ -213,11 +213,6 @@ CommonTxtTstr = {
     'YES': 'YES'
 };
 
-ModeTStr = {
-    "SQL": "SQL Mode",
-    "Advanced": "Dataflow Mode"
-};
-
 ErrTStr = {
     'Error': 'Error',
     'Unknown': 'Unknown Error',
@@ -931,6 +926,11 @@ WKBKTStr = {
     'Refreshing': 'Refreshing in <time> seconds',
     'MoreActions': 'More Actions',
     'SwitchWarn': 'The operation \"<op>\" is in progress in the current workbook, do you still want to continue switch to another workbook?'
+};
+
+ModeTStr = {
+    "SQL": "SQL Mode",
+    "Advanced": "Dataflow Mode"
 };
 
 MonitorTStr = {

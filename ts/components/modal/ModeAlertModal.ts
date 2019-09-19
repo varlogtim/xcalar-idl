@@ -21,17 +21,24 @@ class ModeAlertModal {
             title: this._getTitle(),
             msg: this._getMessage(),
             isInfo: true,
-            isAlert: true,
+            confirmButtonText: "Take a tour",
+            cancelButtonText: AlertTStr.Close,
             isCheckBox: true,
+            onConfirm: () => {
+                TooltipWalkthroughs.startWalkthrough(this._getModeTitle())
+            },
             onCancel: (notShow) => {
                 this._setNotShow(notShow);
             }
         });
     }
 
+    private _getModeTitle(): string {
+        return XVM.isSQLMode() ? ModeTStr.SQL : ModeTStr.Advanced;
+    }
+
     private _getTitle(): string {
-        let modeTitle: string = XVM.isSQLMode() ? ModeTStr.SQL : ModeTStr.Advanced;
-        return `You are switching to the ${modeTitle} workspace`;
+        return `You are switching to the ${this._getModeTitle()} workspace`;
     }
 
     private _getMessage(): string {
@@ -43,6 +50,8 @@ class ModeAlertModal {
     private _isNotShow(): boolean {
         if (typeof xcLocalStorage === "undefined") {
             return false;
+        } else if (!xcLocalStorage.getItem("xcalar-noModeSwitchAlert")) {
+            return window["unitTestMode"];
         } else {
             return xcLocalStorage.getItem("xcalar-noModeSwitchAlert") === "true";
         }

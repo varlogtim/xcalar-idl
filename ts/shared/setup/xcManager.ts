@@ -205,6 +205,7 @@ namespace xcManager {
             $("#initialLoadScreen").hide();
             WorkbookPanel.forceShow();
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
+            TooltipWalkthroughs.startWorkbookBrowserWalkthrough();
             // start socket (no workbook is also a valid login case)
             let userExists: boolean = false;
             XcUser.CurrentUser.holdSession(null, false)
@@ -218,7 +219,7 @@ namespace xcManager {
                 if (firstTimeUser && !userExists) {
                     Admin.addNewUser();
                     // when it's new user first time login
-                    TooltipWalkthroughs.newUserPopup();
+                    // TooltipWalkthroughs.newUserPopup();
                 }
                 JupyterPanel.initialize(true);
             });

@@ -1,8 +1,8 @@
-describe("Tooltip Manager Test", function(done) {
+describe("Tooltip Manager Test", function() {
     let basicTest;
     let basicInfo;
 
-    before(function() {
+    before(function(done) {
         if (!XVM.isSQLMode()) {
             $("#modeArea").click();
         }
@@ -16,6 +16,7 @@ describe("Tooltip Manager Test", function(done) {
             background: true,
             startScreen: TooltipStartScreen.SQLWorkspace
         };
+        done();
     });
 
     it("Should Display a tooltip without a background", function() {
@@ -39,7 +40,7 @@ describe("Tooltip Manager Test", function(done) {
     });
 
     describe("Tooltip Types", function() {
-        it("Should support no-interaction tooltips", function() {
+        it("Should support no-interaction tooltips", function(done) {
             let textTest = [{
                 highlight_div: "#homeBtn",
                 text: "test",
@@ -53,11 +54,18 @@ describe("Tooltip Manager Test", function(done) {
             expect($("#intro-popover .textContainer").text()).to.equal("test");
             expect($("#intro-popover .next").hasClass("unavailable")).to.be.false;
             $("#intro-popover .next").click();
-            expect($("#intro-popover .textContainer").text()).to.equal("test2");
-            TooltipManager.closeWalkthrough();
+            UnitTest.testFinish(()=>$("#intro-popover .textContainer").text() === "test2")
+            .then(() => {
+                expect($("#intro-popover .textContainer").text()).to.equal("test2");
+                TooltipManager.closeWalkthrough();
+                return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+            }).then(() => {
+                done();
+            });
         });
 
-        it("Should support click-interaction tooltips", function() {
+
+        it("Should support click-interaction tooltips", function(done) {
             let textTest = [{
                 highlight_div: "#dataStoresTab",
                 interact_div: "#dataStoresTab",
@@ -73,11 +81,17 @@ describe("Tooltip Manager Test", function(done) {
             expect($("#intro-popover .next").hasClass("unavailable")).to.be.true;
             var e = jQuery.Event("click.tooltip");
             $("#dataStoresTab").trigger(e);
-            expect($("#intro-popover .textContainer").text()).to.equal("test2");
-            TooltipManager.closeWalkthrough();
+            UnitTest.testFinish(()=>$("#intro-popover .textContainer").text() === "test2")
+            .then(() => {
+                expect($("#intro-popover .textContainer").text()).to.equal("test2");
+                TooltipManager.closeWalkthrough();
+                return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+            }).then(() => {
+                done();
+            });
         });
 
-        it("Should support doubleclick-interaction tooltips", function() {
+        it("Should support doubleclick-interaction tooltips", function(done) {
             let html = "<div id='hiddentooltipobject' class='xc-hidden'></div>"
             $("#container").append(html);
             let textTest = [{
@@ -95,12 +109,18 @@ describe("Tooltip Manager Test", function(done) {
             expect($("#intro-popover .next").hasClass("unavailable")).to.be.true;
             var e = jQuery.Event("dblclick.tooltip");
             $("#hiddentooltipobject").trigger(e);
-            expect($("#intro-popover .textContainer").text()).to.equal("test2");
-            $("#hiddentooltipobject").remove();
-            TooltipManager.closeWalkthrough();
+            UnitTest.testFinish(()=>$("#intro-popover .textContainer").text() === "test2")
+            .then(() => {
+                expect($("#intro-popover .textContainer").text()).to.equal("test2");
+                $("#hiddentooltipobject").remove();
+                TooltipManager.closeWalkthrough();
+                return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+            }).then(() => {
+                done();
+            });
         });
 
-        it("Should support value-interaction tooltips", function() {
+        it("Should support value-interaction tooltips", function(done) {
             $('body').append("<input id='tooltipSpecTestInput' type='text'></input>");
             let textTest = [{
                 highlight_div: "#tooltipSpecTestInput",
@@ -119,14 +139,20 @@ describe("Tooltip Manager Test", function(done) {
             $("#tooltipSpecTestInput").val("a");
             var e = jQuery.Event("keyup");
             $("#tooltipSpecTestInput").trigger(e);
-            expect($("#intro-popover .textContainer").text()).to.equal("test2");
-            TooltipManager.closeWalkthrough();
-            $("#tooltipSpecTestInput").remove();
+            UnitTest.testFinish(()=>$("#intro-popover .textContainer").text() === "test2")
+            .then(() => {
+                expect($("#intro-popover .textContainer").text()).to.equal("test2");
+                TooltipManager.closeWalkthrough();
+                $("#tooltipSpecTestInput").remove();
+                return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+            }).then(() => {
+                done();
+            });
         });
     });
 
     describe("Switch screens", function() {
-        it("Should be able to switch to sql mode from adv mode", function() {
+        it("Should be able to switch to sql mode from adv mode", function(done) {
             if (XVM.isSQLMode()) {
                 XVM.setMode("Advanced", true);
             }
@@ -135,20 +161,30 @@ describe("Tooltip Manager Test", function(done) {
             TooltipManager.start(basicInfo, basicTest, 0);
             expect($("#sqlTab").hasClass("active")).to.be.true;
             TooltipManager.closeWalkthrough();
+            UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+            .then(() => {
+                done();
+            });
         });
 
-        it("Should be able to switch to adv mode from sql mode", function() {
+        it("Should be able to switch to adv mode from sql mode", function(done) {
             if (!XVM.isSQLMode()) {
                 XVM.setMode("SQL", true);
             }
             expect($("#modelingDataflowTab").hasClass("active")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.ADVModeDataflow;
             TooltipManager.start(basicInfo, basicTest, 0);
-            expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
-            TooltipManager.closeWalkthrough();
+            UnitTest.testFinish(()=>$("#modelingDataflowTab").hasClass("active"))
+            .then(() => {
+                expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
+                TooltipManager.closeWalkthrough();
+                return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+            }).then(() => {
+                done();
+            });
         });
 
-        it("Should open the sql workspace", function() {
+        it("Should open the sql workspace", function(done) {
             $("#monitorTab").click();
             if (!XVM.isSQLMode()) {
                 $("#modeArea").click();
@@ -156,11 +192,17 @@ describe("Tooltip Manager Test", function(done) {
             expect($("#modelingDataflowTab").hasClass("active")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.ADVModeDataflow;
             TooltipManager.start(basicInfo, basicTest, 0);
-            expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
-            TooltipManager.closeWalkthrough();
+            UnitTest.testFinish(()=>$("#modelingDataflowTab").hasClass("active"))
+            .then(() => {
+                expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
+                TooltipManager.closeWalkthrough();
+                return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+            }).then(() => {
+                done();
+            });
         });
 
-        it("Should open the dataflow screen", function() {
+        it("Should open the dataflow screen", function(done) {
             $("#monitorTab").click();
             if (XVM.isSQLMode()) {
                 $("#modeArea").click();
@@ -168,8 +210,14 @@ describe("Tooltip Manager Test", function(done) {
             expect($("#sqlTab").hasClass("active")).to.be.false;
             basicInfo.startScreen = TooltipStartScreen.SQLWorkspace;
             TooltipManager.start(basicInfo, basicTest, 0);
-            expect($("#sqlTab").hasClass("active")).to.be.true;
-            TooltipManager.closeWalkthrough();
+            UnitTest.testFinish(()=>$("#sqlTab").hasClass("active"))
+            .then(() => {
+                expect($("#sqlTab").hasClass("active")).to.be.true;
+                TooltipManager.closeWalkthrough();
+                return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+            }).then(() => {
+                done();
+            });
         });
     });
 
@@ -178,7 +226,6 @@ describe("Tooltip Manager Test", function(done) {
         before(function() {
             oldEmergencyStart = TooltipWalkthroughs.emergencyPopup;
         });
-
         it("should open the emergency popup when the next highlighted element cannot be found", function () {
             var called = false;
             TooltipWalkthroughs.emergencyPopup = function() {
@@ -211,13 +258,12 @@ describe("Tooltip Manager Test", function(done) {
             expect(called).to.be.true;
             TooltipManager.closeWalkthrough();
         });
-
         after(function() {
             TooltipWalkthroughs.emergencyPopup = oldEmergencyStart;
         });
     });
 
-    describe("Should ensure open screens and panels", function(done) {
+    describe("Should ensure open screens and panels", function() {
         before(function () {
             if (XVM.isSQLMode()) {
                 $("#modeArea").click();
@@ -246,10 +292,15 @@ describe("Tooltip Manager Test", function(done) {
                 expect($("#dsFormView").hasClass("xc-hidden")).to.be.true;
                 var e = jQuery.Event("click.tooltip");
                 $("#inButton").trigger(e);
-                expect(MainMenu.isMenuOpen()).to.be.true;
-                expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
-                TooltipManager.closeWalkthrough();
-                done();
+                UnitTest.testFinish(()=>MainMenu.isMenuOpen())
+                .then(() => {
+                    expect(MainMenu.isMenuOpen()).to.be.true;
+                    expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
+                    TooltipManager.closeWalkthrough();
+                    return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+                }).then(() => {
+                    done();
+                });
             });
         });
 
@@ -278,12 +329,16 @@ describe("Tooltip Manager Test", function(done) {
                 expect($("#dsFormView").hasClass("xc-hidden")).to.be.true;
                 var e = jQuery.Event("click.tooltip");
                 $("#sourceTblButton").trigger(e);
-                expect(MainMenu.isMenuOpen()).to.be.true;
-                expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
-                TooltipManager.closeWalkthrough();
-                done();
+                UnitTest.testFinish(()=>MainMenu.isMenuOpen())
+                .then(() => {
+                    expect(MainMenu.isMenuOpen()).to.be.true;
+                    expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
+                    TooltipManager.closeWalkthrough();
+                    return UnitTest.testFinish(()=>$("#intro-popover").length === 0)
+                }).then(() => {
+                    done();
+                });
             });
         });
     });
-
 });

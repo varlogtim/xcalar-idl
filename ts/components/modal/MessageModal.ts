@@ -1,5 +1,7 @@
 interface MessageModalOptions extends Alert.AlertOptions {
     isInfo?: boolean;
+    confirmButtonText?: string;
+    cancelButtonText?: string;
 }
 
 class MessageModal {
@@ -87,16 +89,25 @@ class MessageModal {
         }
     }
 
-    private _setButtons(options: Alert.AlertOptions): void {
+    private _setButtons(options: MessageModalOptions): void {
         let $modal = this._getModal();
+        let $cancelBtn = $modal.find(".cancel");
         let $confirmBtn = $modal.find(".confirm");
 
         if (options.isAlert) {
-            $modal.find(".cancel").text(AlertTStr.Close);
+            $cancelBtn.text(AlertTStr.Close);
             $confirmBtn.hide();
         } else {
-            $modal.find(".cancel").text(AlertTStr.Cancel);
+            $cancelBtn.text(AlertTStr.Cancel);
             $confirmBtn.show();
+        }
+
+        if (options.cancelButtonText) {
+            $cancelBtn.text(options.cancelButtonText)
+        }
+
+        if (options.confirmButtonText) {
+            $confirmBtn.text(options.confirmButtonText)
         }
 
         $modal.on("click.messageModal", ".close, .cancel", (e) => {

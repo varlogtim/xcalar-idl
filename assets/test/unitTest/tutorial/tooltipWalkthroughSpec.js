@@ -17,8 +17,9 @@ describe("Tooltip Walkthrough Test", function() {
 
     it("Should get available built in walkthroughs", function() {
         var walkthroughs = TooltipWalkthroughs.getAvailableWalkthroughs();
-        expect(walkthroughs.length).to.equal(2);
-        expect(walkthroughs[0].name).to.equal("SQL Mode");
+        expect(walkthroughs.length).to.equal(3);
+        expect(walkthroughs[0].name).to.equal("Workbook Browser");
+        expect(walkthroughs[1].name).to.equal("SQL Mode");
     });
 
     it("Should add a walkthrough for the workbook", function() {
@@ -41,8 +42,8 @@ describe("Tooltip Walkthrough Test", function() {
             };
         TooltipWalkthroughs.setWorkbookWalkthrough(wlk);
         var walkthroughs = TooltipWalkthroughs.getAvailableWalkthroughs();
-        expect(walkthroughs.length).to.equal(3);
-        expect(walkthroughs[2].name).to.equal("Example");
+        expect(walkthroughs.length).to.equal(4);
+        expect(walkthroughs[3].name).to.equal("Example");
     });
 
     it("Should 'start' a SQL walkthrough", function() {

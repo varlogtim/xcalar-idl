@@ -1,5 +1,6 @@
 interface TooltipInfo {
     highlight_div: string;
+    title?: string;
     text: string;
     type: TooltipType;
     interact_div?: string;
@@ -15,6 +16,7 @@ interface WalkthroughInfo {
 }
 
 interface TooltipStoredInfo {
-    seenDataflow: boolean;
+    showWorkbook: boolean;
     seenSQL: boolean;
+    seenDataflow: boolean;
 }
