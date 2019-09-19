@@ -23,12 +23,15 @@ class LogoutModal {
                 'Shutting down',
                 'Finishing shut down'
             ],
-            numVisibleProgressTexts: 3,
-            startText: "Cluster shut down"
+            numVisibleProgressTexts: 3
         });
     }
 
-    public show(): void {
+    public show(clusterShutDown?: boolean): void {
+        this._reset();
+        if (clusterShutDown) {
+            this._autoClusterStop();
+        }
         this._modalHelper.setup();
     }
 
@@ -57,6 +60,34 @@ class LogoutModal {
         });
     }
 
+    private _autoClusterStop(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._getModal().addClass("locked clusterStop autoClusterStop");
+
+        this._progressBar.start("Please wait while your cluster shuts down...");
+        this._checkClusterStopped()
+        new Promise((res, rej) => {
+            setTimeout(() => {
+                rej();
+            }, 10000)
+        })
+        .then(() => {
+            XcUser.CurrentUser.logout();
+            this._progressBar.end("Completed");
+            this._close();
+            deferred.resolve();
+        })
+        .catch((error) => {
+            this._handleClusterStopFailure(error)
+            .then(deferred.resolve)
+            .fail(deferred.reject)
+            .always(() => {
+                this._close();
+            });
+        });
+        return deferred.promise();
+    }
+
     private _stopCluster(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._getModal().addClass("locked");
@@ -64,7 +95,7 @@ class LogoutModal {
         xcHelper.sendRequest("POST", "/service/stopCloud")
         .then((res) => {
             this._getModal().addClass("clusterStop");
-            this._progressBar.start();
+            this._progressBar.start("Cluster shut down");
             if (res && res.status === 0) {
                 return this._checkClusterStopped();
             } else {
@@ -118,7 +149,11 @@ class LogoutModal {
 
     private _close() {
         this._modalHelper.clear();
-        this._getModal().removeClass("clusterStop locked");
+        this._reset();
+    }
+
+    private _reset() {
+        this._getModal().removeClass("clusterStop autoClusterStop locked");
         this._progressBar.reset();
     }
 

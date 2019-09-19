@@ -129,7 +129,7 @@ class UserMenu {
                 // only show message if $li didn't previously have warning class
                 MessageModal.Instance.show({
                     title: "You are running low on credits...",
-                    msg: AlertTStr["LowOnCredits"],
+                    msg: AlertTStr.LowOnCredits,
                     sizeToText: true,
                     size: "medium",
                     compact: true

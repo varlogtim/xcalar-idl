@@ -3,7 +3,6 @@ interface ProgressBarOptions {
     progressTexts: string[], // status text to loop through
     numVisibleProgressTexts: number, // number of status texts that should be visible
     completionTime: number, // estimated time the operation should take to complete
-    startText?: string // optional string to display at start
 }
 
 class ProgressBar {
@@ -20,7 +19,7 @@ class ProgressBar {
     private _progressTexts: string[];
     private _tickTime: number;
     private _progressTimeout: NodeJS.Timeout;
-    private _startText: string;
+    private _textTimeout: NodeJS.Timeout;
 
     constructor(options: ProgressBarOptions) {
         this._$container = options.$container;
@@ -28,14 +27,14 @@ class ProgressBar {
         this._numVisibleProgressTexts = options.numVisibleProgressTexts;
         this._completionTime = options.completionTime * 1000;
         this._tickTime = this._completionTime / (this._maxProgressBarWidth - this._startWidth);
-        this._startText = options.startText || "";
     }
 
-    public start() {
+    public start(startText?: string) {
         if (this._isStarted) {
             return;
         }
         this._isStarted = true;
+        this._$container.find(".title").html(startText || "");
         let highOpacity = 100;
         let lowOpacity = 10;
         let step = (highOpacity - lowOpacity) / (this._numVisibleProgressTexts - 1);
@@ -56,6 +55,7 @@ class ProgressBar {
         this._$container.find(".title").html(endText || "");
         this._$container.find(".progressTexts").html("<div>Complete</div>");
         clearTimeout(this._progressTimeout);
+        clearTimeout(this._textTimeout);
 
         this._fastCompletionTime = 1000 / (95 - this._width);
         this._maxProgressBarWidth = 100;
@@ -72,8 +72,8 @@ class ProgressBar {
         this._fastCompletionTime = null;
 
         clearTimeout(this._progressTimeout);
+        clearTimeout(this._textTimeout);
         this._width = this._startWidth;
-        this._$container.find(".title").html(this._startText);
         this._$container.find(".progressPercentage").text(this._startWidth + "%");
         this._$container.find(".progressTexts").empty();
         this._$container.find(".progressBar").width(this._width + '%');
@@ -106,7 +106,7 @@ class ProgressBar {
                 }
             }
             this._firstTextId++;
-            setTimeout(() => {
+            this._textTimeout = setTimeout(() => {
                 this._animateTexts();
             }, this._completionTime / this._progressTexts.length);
         }

@@ -1,5 +1,6 @@
 // ExpServer side
 import * as xcConsole from "../utils/expServerXcConsole.js";
+import socket from "./socket";
 var request = require('request-promise-native');
 
 class CloudManager {
@@ -9,9 +10,10 @@ class CloudManager {
     private userId: string;  // identity_id returned from cognito
     private _numCredits: number = null;
     private _updateCreditsInterval: NodeJS.Timer;
-    private _updateCreditsTime: number = 1 * 60 * 1000; // check every minute
+    private _updateCreditsTime: number = 5 * 60 * 1000; // check every 5 minutes
     private _userName: string = "";
     private _awsURL: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"; // XXX temporary
+    private _stopClusterMessageSent: boolean;
 
     public constructor() {
         this._fetchCredits();
@@ -40,6 +42,7 @@ class CloudManager {
      * @param cfnId
      */
     public async stopCluster(): Promise<any> {
+        xcConsole.log("stop cluster");
         // TO-DO
         // 1. update stack with params to stop any EC2 instances
         // 2. update dynamoDB to remove cluster_url
@@ -120,6 +123,15 @@ class CloudManager {
                 credits = data.credits;
             }
             this._numCredits = credits;
+            if (this._numCredits <= 0 && !this._stopClusterMessageSent) {
+                this._stopClusterMessageSent = true;
+                socket.logoutMessage({
+                    type: "noCredits"
+                });
+                cloudManager.stopCluster();
+            } else {
+                this._stopClusterMessageSent = false;
+            }
             return credits;
         } catch (e) {
             return null;

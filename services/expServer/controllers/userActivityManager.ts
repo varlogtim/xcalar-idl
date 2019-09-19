@@ -32,10 +32,8 @@ class UserActivityManager {
         this._activityTimer = setTimeout(() => {
             socket.sendClusterStopWarning();
             xcConsole.log("sending warning");
-
             this._logoutTimer = setTimeout(() => {
-                xcConsole.log("stop cluster");
-                socket.logoutMessage();
+                socket.logoutMessage({inactive: true});
                 cloudManager.stopCluster();
             }, this._logoutWarningTime);
 

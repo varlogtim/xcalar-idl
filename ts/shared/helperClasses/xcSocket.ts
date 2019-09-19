@@ -186,9 +186,13 @@ class XcSocket {
             }
         });
 
-        socket.on("logoutMessage", () => {
+        socket.on("logoutMessage", (data) => {
             if (XVM.isCloud()) {
-                XcUser.logout();
+                if (data && data.noCredits) {
+                    LogoutModal.Instance.show(true);
+                } else {
+                    XcUser.logout();
+                }
             }
         });
 

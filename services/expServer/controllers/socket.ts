@@ -379,9 +379,9 @@ class SocketUtil {
         this._ioSockets.emit("clusterStopWarning");
     }
 
-    public logoutMessage() {
+    public logoutMessage(args) {
         if (!this._ioSockets) return;
-        this._ioSockets.emit("logoutMessage");
+        this._ioSockets.emit("logoutMessage", args);
     }
 
     public sendConsoleMsg(args) {

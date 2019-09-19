@@ -696,6 +696,6 @@ let progressBar = new ProgressBar({
 
 function deployingClusterAnimation() {
     if (!progressBar.isStarted()) {
-        progressBar.start();
+        progressBar.start("Please wait while your cluster loads...");
     }
 }

@@ -1883,9 +1883,24 @@ html.microsoft {
             display: none;
         }
     }
-
+    &.autoClusterStop {
+        .text.userActivated {
+            display: none;
+        }
+        .text.autoActivated {
+            display: block;
+        }
+        .clusterStopProgress {
+            .title {
+                margin-bottom: 32px;
+            }
+        }
+        .modalBottom {
+            display: none;
+        }
+    }
     &.locked {
-         .modalBottom, .close {
+        .modalBottom, .close {
             .xc-disabled;
         }
     }
@@ -1912,6 +1927,10 @@ html.microsoft {
         padding-left: 22px;
         font-size: 12px;
         font-weight: 500;
+    }
+
+    .text.autoActivated {
+        display: none;
     }
     .clusterStopProgress {
         display: none;
