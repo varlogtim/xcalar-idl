@@ -66,6 +66,9 @@ function errMsgHandler(err) {
  *   - `identityPoolId` field name specifying the id of an identity pool for additional identity checks
  *   - `usernameField`  field name where the username is found, defaults to _username_
  *   - `passwordField`  field name where the password is found, defaults to _password_
+ *   - `idTokenField`  field name where the idToken is found, defaults to idToken
+ *   - `accessTokenField`  field name where the accessToken is found, defaults to accessToken
+ *   - `refreshTokenField`  field name where the refreshToken is found, defaults to refreshToken
  *   - `passReqToCallback`  when `true`, `req` is the first argument to the verify callback (default: `false`)
  *
  * Examples:
@@ -124,6 +127,10 @@ function Strategy(options, verify) {
     this._options.usernameField = options.usernameField || 'username';
     this._options.passwordField = options.passwordField || 'password';
 
+    this._options.idTokenField = options.idTokenField || 'idToken';
+    this._options.accessTokenField = options.accessTokenField || 'accessToken';
+    this._options.refreshTokenField = options.refreshTokenField || 'refreshToken';
+
     // if logging level specified, switch to it.
     if (options.loggingLevel) { log.levels('console', options.loggingLevel); }
     this.log = log;
@@ -142,26 +149,10 @@ function Strategy(options, verify) {
 
     this._options.keysUrl = options.keysUrl || `https://cognito-idp.${options.region}.amazonaws.com/${options.userPoolId}/.well-known/jwks.json`
 
-    var keysReq = { method: 'GET',
-                    uri: this._options.keysUrl,
-                    json: true
-                  };
-
-    request(keysReq, (error, response, body) => {
-        if (error) {
-            var errMsg = `Unable to retrieve JWT verification keys: ${errMsgHandler(error)}`;
-            log.error(errMsg);
-            throw new TypeError(errMsg);
-        }
-        try {
-            log.info('keystore body: ' + JSON.stringify(body));
-            this._jweKeyStore = jose.JWKS.asKeyStore(body);
-        } catch (err) {
-            var errMsg = `Unable to load JWT verification keys into key store: ${errMsgHandler(err)}`;
-            log.error(errMsg);
-            throw new TypeError(errMsg);
-        }
-    });
+    this._options.keysReq = { method: 'GET',
+                              uri: this._options.keysUrl,
+                              json: true
+                            };
 }
 
 /**
@@ -334,7 +325,11 @@ Strategy.prototype.authenticate = function(req, options) {
     var username = req.body[this._options.usernameField] || req.query[this._options.usernameField];
     var password = req.body[this._options.passwordField] || req.query[this._options.passwordField];
 
-    if (!username || !password) {
+    var idToken = req.body[this._options.idTokenField] || req.query[this._options.idTokenField];
+    var accessToken = req.body[this._options.accessTokenField] || req.query[this._optionsaccessTokenField];
+    var refreshToken = req.body[this._options.refreshTokenField] || req.query[this._optionsrefreshTokenField];
+
+    if (!(username && password) && !(idToken && accessToken && refreshToken)) {
         return this.fail({ message: options.badRequestMessage || 'Missing credentials' }, 401);
     }
 
@@ -346,111 +341,156 @@ Strategy.prototype.authenticate = function(req, options) {
         self.success(user, info);
     }
 
-    var authenticationData = {
-        Username : username,
-        Password : password
-    };
+    function identityPoolAuth(params, validateOptions) {
+        log.info('Cognito user pool authentication part 2 successful');
 
-    var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
-
-    var poolData = { UserPoolId : self._options.userPoolId,
-                     ClientId : self._options.clientId };
-
-    var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-
-    var userData = {
-        Username : username,
-        Pool : userPool
-    };
-
-    var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-
-    log.info('Starting authentication');
-    cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: function (result) {
-            var accessToken = result.getAccessToken().getJwtToken();
-            var refreshToken = result.getRefreshToken().getToken();
-            var idToken = result.getIdToken().getJwtToken();
-
-            log.info('Cognito user pool authentication part 1 successful');
-            var cognitoUser = userPool.getCurrentUser();
-            if (cognitoUser != null) {
-
-                log.info('Cognito user pool get current user successful');
-                cognitoUser.getSession(function(err, result) {
-                    if (err) {
-                        return self.failWithLog(`Cognito session retrieval error: ${errMsgHandler(err)}` );
-                    }
-
-                    var validateOptions = {
-                        jweKeyStore: self._jweKeyStore
-                    };
-
-                    var params = {
-                        'idToken': idToken,
-                        'accessToken': accessToken,
-                        'refreshToken': refreshToken,
-                        'awsConfig': null,
-                        'region': self._options.region,
-                        'identityPoolId': null,
-                        'awsLoginString': null,
-                        'identityId': null
-                    }
-
-                    if (result) {
-                        log.info('Cognito user pool authentication part 2 successful');
-
-                        // get the no identity pool case out of the way right now
-                        if (! self._options.identityPoolId) {
-                            log.info('Verifying id token without identity pool');
-                            try {
-                                self._authFlowHandler(params, validateOptions, req);
-                                return true;
-                            } catch (authErr) {
-                                return self.failWithLog(`Error during id token validation: ${errMsgHandler(authErr)}`);
-                            }
-
-                        } else {
-                            // Add the User's Id Token to the Cognito credentials login map.
-                            var awsLoginStruct = {};
-                            var awsLoginString = `cognito-idp.${self._options.region}.amazonaws.com/${self._options.userPoolId}`;
-                            awsLoginStruct[awsLoginString] = idToken;
-                            AWS.config.region = self._options.region;
-                            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                                IdentityPoolId: self._options.identityPoolId,
-                                Logins: awsLoginStruct
-                            });
-
-                            params.awsConfig = AWS.config;
-                            params.identityPoolId = self._options.identityPoolId;
-                            params.awsLoginString = awsLoginString;
-
-                            //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
-                            AWS.config.credentials.refresh((error) => {
-                                if (error) {
-                                    return self.failWithLog('Cognito identity pool credentials refresh error: ' + error);
-                                } else {
-                                    params.identityId = AWS.config.credentials.identityId;
-
-                                    log.info('Verifying id token with identity pool');
-                                    try {
-                                        self._authFlowHandler(params, validateOptions, req);
-                                        return true;
-                                    } catch (authErr) {
-                                        return self.failWithLog(`Error during id token validation: ${errMsgHandler(authErr)}`);
-                                    }
-                                }
-                            });
-                        }
-                    }
-                });
+        // get the no identity pool case out of the way right now
+        if (! self._options.identityPoolId) {
+            log.info('Verifying id token without identity pool');
+            try {
+                self._authFlowHandler(params, validateOptions, req);
+                return true;
+            } catch (authErr) {
+                return self.failWithLog(`Error during id token validation: ${errMsgHandler(authErr)}`);
             }
-        },
 
-        onFailure: function(err) {
-            return self.failWithLog(`Cognito authentication failure:  ${errMsgHandler(err)}`);
-        },
+        } else {
+            // Add the User's Id Token to the Cognito credentials login map.
+            var awsLoginStruct = {};
+            var awsLoginString = `cognito-idp.${self._options.region}.amazonaws.com/${self._options.userPoolId}`;
+            awsLoginStruct[awsLoginString] = params.idToken;
+            AWS.config.region = self._options.region;
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: self._options.identityPoolId,
+                Logins: awsLoginStruct
+            });
 
+            params.awsConfig = AWS.config;
+            params.identityPoolId = self._options.identityPoolId;
+            params.awsLoginString = awsLoginString;
+
+            //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
+            AWS.config.credentials.refresh((error) => {
+                if (error) {
+                    return self.failWithLog('Cognito identity pool credentials refresh error: ' + error);
+                } else {
+                    params.identityId = AWS.config.credentials.identityId;
+
+                    log.info('Verifying id token with identity pool');
+                    try {
+                        self._authFlowHandler(params, validateOptions, req);
+                        return true;
+                    } catch (authErr) {
+                        return self.failWithLog(`Error during id token validation: ${errMsgHandler(authErr)}`);
+                    }
+                }
+            });
+        }
+    };
+
+    function userPoolAuth(upUsername, upPassword) {
+        var authenticationData = {
+            Username : upUsername,
+            Password : upPassword
+        };
+
+        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+
+        var poolData = { UserPoolId : self._options.userPoolId,
+                         ClientId : self._options.clientId };
+
+        var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
+        var userData = {
+            Username : upUsername,
+            Pool : userPool
+        };
+
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+        log.info('Starting authentication');
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function (result) {
+                accessToken = result.getAccessToken().getJwtToken();
+                refreshToken = result.getRefreshToken().getToken();
+                idToken = result.getIdToken().getJwtToken();
+
+                log.info('Cognito user pool authentication part 1 successful');
+                var cognitoUser = userPool.getCurrentUser();
+                if (cognitoUser != null) {
+
+                    log.info('Cognito user pool get current user successful');
+                    cognitoUser.getSession(function(err, result) {
+                        if (err) {
+                            return self.failWithLog(`Cognito session retrieval error: ${errMsgHandler(err)}` );
+                        }
+
+                        var validateOptions = {
+                            jweKeyStore: self._jweKeyStore
+                        };
+
+                        var params = {
+                            'idToken': idToken,
+                            'accessToken': accessToken,
+                            'refreshToken': refreshToken,
+                            'awsConfig': null,
+                            'region': self._options.region,
+                            'identityPoolId': null,
+                            'awsLoginString': null,
+                            'identityId': null
+                        };
+
+                        if (result) {
+                            identityPoolAuth(params, validateOptions)
+                        }
+                    });
+                }
+            },
+
+            onFailure: function(err) {
+                return self.failWithLog(`Cognito authentication failure:  ${errMsgHandler(err)}`);
+            },
+
+        });
+    };
+
+    // we need to make the auth request inside the request for keys
+    // because it creates a race in the constructor
+    request(self._options.keysReq, (error, response, body) => {
+        if (error) {
+            var errMsg = `Unable to retrieve JWT verification keys: ${errMsgHandler(error)}`;
+            return self.failWithLog(errMsg);
+        }
+
+        try {
+            log.info('keystore body: ' + JSON.stringify(body));
+            self._jweKeyStore = jose.JWKS.asKeyStore(body);
+
+            if (username && password) {
+                userPoolAuth(username, password);
+
+            } else if (idToken && accessToken && refreshToken) {
+                var params = {
+                    'idToken': idToken,
+                    'accessToken': accessToken,
+                    'refreshToken': refreshToken,
+                    'awsConfig': null,
+                    'region': self._options.region,
+                    'identityPoolId': null,
+                    'awsLoginString': null,
+                    'identityId': null
+                };
+
+                var validateOptions = {
+                    jweKeyStore: self._jweKeyStore
+                };
+
+                identityPoolAuth(params, validateOptions);
+            }
+        } catch (err) {
+            var errMsg = `Unable to load JWT verification keys into key store: ${errMsgHandler(err)}`;
+            return self.failWithLog(errMsg);
+        }
     });
 }
 
