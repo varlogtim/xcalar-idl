@@ -7,8 +7,8 @@ class ExecuteAll extends EventEmitter {
         .moveToElement("#dagViewBar .topButton.run .icon", 1, 1)
         .mouseButtonClick('left')
         .waitForElementPresent(".dataflowArea.active.locked")
-        .waitForElementNotPresent(".dataflowArea.active.locked", time || 100000);
-
+        .waitForElementNotPresent(".dataflowArea.active.locked", time || 100000)
+        .waitForElementNotPresent(".dataflowArea.active .operator.state-Running", 100000);
         this.emit('complete');
         return this;
     }
