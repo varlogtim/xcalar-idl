@@ -20,10 +20,9 @@ namespace xcManager {
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;
         let isTutorial: boolean = false;
-        setupHost()
-        .then(() => {
-            return xcTimeHelper.setup();
-        })
+        setupThrift("");
+
+        xcTimeHelper.setup()
         .then(() => {
             return hotPatch();
         })
@@ -404,26 +403,6 @@ namespace xcManager {
 
     function isCloud(): boolean {
         return (typeof gCloud !== "undefined" && gCloud === true);
-    }
-
-    function setupHost(): XDPromise<void> {
-        if (isCloud()) {
-            let deferred: XDDeferred<void> = PromiseHelper.deferred();
-            CloudManager.Instance.getHostInfo()
-            .then((host) => {
-                if (host) {
-                    hostname = host;
-                }
-                setupThrift("");
-                deferred.resolve();
-            })
-            .fail(deferred.reject)
-
-            return deferred.promise();
-        } else {
-            setupThrift("");
-            return PromiseHelper.resolve();
-        }
     }
 
     function oneTimeSetup(): XDPromise<any> {

@@ -2111,6 +2111,66 @@ describe("xcHelper Test", function() {
         expect(res).to.eql([]);
     });
 
+    it("xcHelper.readFile should work", function(done) {
+        let oldFileReader = FileReader;
+        FileReader = function() {
+            this.readAsBinaryString = (file) => this.onload({
+                target: {
+                    result: file
+                }
+            });
+            return this;
+        };
+
+        xcHelper.readFile("test")
+        .then(function(res) {
+            expect(res).to.equal("test");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            FileReader = oldFileReader;
+        });
+    });
+
+    it("xcHelper.readFile reject invalid case", function(done) {
+        xcHelper.readFile(null)
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(res) {
+            expect(res).to.be.undefined;
+            done();
+        });
+    });
+
+    it("xcHelper.readFile should handle error case", function(done) {
+        let oldFileReader = FileReader;
+        FileReader = function() {
+            this.readAsBinaryString = (file) => this.onloadend({
+                target: {
+                    error: "testError"
+                }
+            });
+            return this;
+        };
+
+        xcHelper.readFile("test")
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(error).to.equal("testError");
+            done();
+        })
+        .always(function() {
+            FileReader = oldFileReader;
+        });
+    });
+
+
     after(function() {
         StatusBox.forceHide();
     });

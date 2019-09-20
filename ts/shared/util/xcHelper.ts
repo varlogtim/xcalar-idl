@@ -1579,6 +1579,7 @@ namespace xcHelper {
             case PatternCategory.Target:
                 namePattern = /^[a-zA-Z][a-zA-Z0-9\s_-]*$/;
                 break;
+            case PatternCategory.WorkbookFix:
             case PatternCategory.SQLSnippet:
                 antiNamePattern = /[^a-zA-Z\d\_\- ]/;
                 break;
@@ -2317,6 +2318,33 @@ namespace xcHelper {
         // when cannot find any error
         console.error("cannot find error in", args);
         return null;
+    }
+
+    /**
+     * xcHelper.readFile
+     * @param file
+     */
+    export function readFile(file: File): XDPromise<any> {
+        if (file == null) {
+            return PromiseHelper.reject();
+        }
+        const deferred: XDDeferred<any> = PromiseHelper.deferred(); //string or array buffer
+        const reader: FileReader = new FileReader();
+
+        reader.onload = function(event: any) {
+            deferred.resolve(event.target.result);
+        };
+
+        reader.onloadend = function(event: any) {
+            const error: DOMException = event.target.error;
+            if (error != null) {
+                deferred.reject(error);
+            }
+        };
+
+        reader.readAsBinaryString(file);
+
+        return deferred.promise();
     }
 
     /* =================== getKeyInfos ========================= */

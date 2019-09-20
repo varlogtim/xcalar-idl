@@ -13,21 +13,13 @@ class CloudManager {
         this._apiUrl = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/";
     }
 
-    /**
-     * CloudManager.Instance.getHostInfo
-     */
-    public getHostInfo(): XDPromise<string> {
-        // XXX TODO: wire it with real implementation
-        return PromiseHelper.resolve(undefined);
-    }
-
     // XXX TODO: remove this hack
     /**
      * CloudManager.Instance.hackSetUser
      */
     public hackSetUser(): void {
         let hackUserName = xcLocalStorage.getItem("xcalarUsername");
-        if (hackUserName) {
+        if (XVM.isCloud() && hackUserName) {
             this._getUserName = () => hackUserName;
             XcUser.setCloudUserName(this._getUserName());
         }
@@ -63,7 +55,7 @@ class CloudManager {
     public uploadToS3(fileName: string, file: File): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        this._readFile(file)
+        xcHelper.readFile(file)
         .then((fileContent) => {
             return this._sendRequest("s3/upload",{
                 "fileName": fileName,
@@ -87,63 +79,9 @@ class CloudManager {
         });
     }
 
-    /**
-     * Given a userId, return the running cluster url (if any),
-     * previous/existing CloudFormation stack id (if any) and remaining credits
-     */
-    async getUserInfo(): Promise<{
-        clusterUrl: string, // when there is no running cluster, return null
-        cfnID: string // when there is no CloudFormation stack, return null
-        credits: number
-    }> {
-        // TO-DO make an SDK call to AWS DynamoDB to read
-        // if there is no record returned, write a new row
-        // set this.clusterUrl & this.cfnID if needed
-        return {clusterUrl: null, cfnID: null, credits: null};
-    }
-
-    /**
-     * Start the cluster given a size
-     * @param config
-     */
-    async startCluster(config?: {}): Promise<any> {
-        // TO-DO
-        // 1. list all available CFN stacks and pick any
-        // 2. translate config(if any) into CFN changeSet params, then update
-        // stack with params to spawn EC2 instances
-        // 3. change the owner of CFN stack (remove old if any)
-        // 4. update dynamoDB with cluster_url & cfn_id change
-        // 5. set this.clusterUrl & this.cfnId
-        return null;
-    }
-
     // XXX TODO: check if the implementation is correct
     private _getUserName(): string {
         return XcUser.CurrentUser.getFullName();
-    }
-
-    // XXX TODO: generalized it with the one in workbookManager
-    private _readFile(file: File): XDPromise<any> {
-        if (file == null) {
-            return PromiseHelper.reject();
-        }
-        const deferred: XDDeferred<any> = PromiseHelper.deferred(); //string or array buffer
-        const reader: FileReader = new FileReader();
-
-        reader.onload = function(event: any) {
-            deferred.resolve(event.target.result);
-        };
-
-        reader.onloadend = function(event: any) {
-            const error: DOMException = event.target.error;
-            if (error != null) {
-                deferred.reject(error);
-            }
-        };
-
-        reader.readAsBinaryString(file);
-
-        return deferred.promise();
     }
 
     private _sendRequest(action: string, payload: object): XDPromise<any> {

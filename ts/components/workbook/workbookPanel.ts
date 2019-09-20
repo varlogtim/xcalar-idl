@@ -1134,9 +1134,8 @@ namespace WorkbookPanel {
             return;
         }
 
-        let wbName: string = path.substring(0, path.indexOf(".")).trim()
-                    .replace(/ /g, "");
-        wbName = <string>xcHelper.checkNamePattern(<PatternCategory>"Workbook", <PatternAction>"fix", wbName);
+        let wbName: string = path.substring(0, path.indexOf(".")).trim();
+        wbName = <string>xcHelper.checkNamePattern(PatternCategory.WorkbookFix, PatternAction.Fix, wbName);
 
         const workbooks: object = WorkbookManager.getWorkbooks();
         wbName = wbDuplicateName(wbName, workbooks, 0);

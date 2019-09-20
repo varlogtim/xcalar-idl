@@ -229,6 +229,7 @@ enum PatternCategory {
     UDFFnParam = "udfFnParam",
     UDFFileName = "udfFileName",
     Workbook = "workbook",
+    WorkbookFix = "workbookFix",
     Target = "target",
     SQLSnippet = "sqlSnippet",
     SQLFunc = "sqlFunc",

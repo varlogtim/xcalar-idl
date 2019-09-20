@@ -529,7 +529,7 @@ namespace WorkbookManager {
         if (parsed) {
             promise = PromiseHelper.resolve(parsed);
         } else {
-            promise = readFile(workbookContent);
+            promise = xcHelper.readFile(workbookContent);
         }
 
         promise
@@ -1480,29 +1480,6 @@ namespace WorkbookManager {
         clearTimeout(progressTimeout);
         progressTimeout += "canceled";
         $("#initialLoadScreen").removeClass("sessionProgress");
-    }
-
-    function readFile(file: File): XDPromise<any> {
-        if (file == null) {
-            return PromiseHelper.reject();
-        }
-        const deferred: XDDeferred<any> = PromiseHelper.deferred(); //string or array buffer
-        const reader: FileReader = new FileReader();
-
-        reader.onload = function(event: any) {
-            deferred.resolve(event.target.result);
-        };
-
-        reader.onloadend = function(event: any) {
-            const error: DOMException = event.target.error;
-            if (error != null) {
-                deferred.reject(error);
-            }
-        };
-
-        reader.readAsBinaryString(file);
-
-        return deferred.promise();
     }
 
     /**
