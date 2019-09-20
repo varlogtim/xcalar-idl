@@ -43,21 +43,21 @@ describe("ExpServer Socket Test", function() {
         var expectedRes = {
             testUser: {
                 count: 1,
-                workbooks: {
-                    testId: 1
-                }
+                workbooks: {}
             }
         }
         var first = true;
+        client.emit("registerBrowserSession", testUserOption.user, function() {});
         client.emit("registerUserSession", testUserOption, function() {});
         client.on("system-allUsers", function(users) {
             if (first) {
                 expect(users).to.deep.equal(expectedRes);
                 first = false;
+                peerClient.emit("registerBrowserSession", testUserOption.user, function() {});
                 peerClient.emit("registerUserSession", testUserOption, function() {});
             } else {
                 expectedRes.testUser.count += 1;
-                expectedRes.testUser.workbooks.testId += 1;
+                expectedRes.testUser.workbooks.testId = 1;
                 expect(users).to.deep.equal(expectedRes);
                 done();
             }

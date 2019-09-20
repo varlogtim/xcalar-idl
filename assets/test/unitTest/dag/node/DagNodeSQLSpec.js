@@ -141,6 +141,7 @@ describe("SQL Dag Node Test", () => {
                 })
             });
             it("should try to compile but fail when sending schema", (done) => {
+                Alert.forceClose();
                 let cache = SQLUtil.sendToPlanner;
                 let called = false;
                 SQLUtil.sendToPlanner = (id, type, struct) => {

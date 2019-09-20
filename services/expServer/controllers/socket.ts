@@ -104,6 +104,34 @@ class SocketUtil {
                 return;
             }
 
+            // when a user enters XD, if entering an active workbook then
+            // "registerUserSession" will also soon be called
+            socket.on("registerBrowserSession", (user: string, callback: any) => {
+                try {
+                    socket.userOption = {user: user};
+                    if (!self.userInfos.hasOwnProperty(user)) {
+                        self.userInfos[user] = {
+                            workbooks: {},
+                            count: 0
+                        };
+                    }
+                    self.userInfos[user].count++;
+                    // A room is the equivalent of a user.
+                    // A room is filled with browser tabs ex. user John has a room
+                    // named "John" and inside are all the browser tabs that are
+                    // logged in under the user "John".
+                    socket.join(user, (): void => {
+                        xcConsole.log(user, "joins room", socket.rooms);
+                    });
+                } catch (e) {
+                    xcConsole.error('browser register user error', e);
+                }
+
+                callback();
+                io.sockets.emit("system-allUsers", self.userInfos);
+            });
+
+            // when user enters a workbook
             socket.on("registerUserSession", (userOption: User, callback: any) => {
                 xcConsole.log('register user');
                 if (self.checkIoSocketAuth(socket)) {
@@ -113,18 +141,8 @@ class SocketUtil {
                 try {
                     socket.userOption = userOption;
                     let user: string = userOption.user;
-                    if (!self.userInfos.hasOwnProperty(user)) {
-                        self.userInfos[user] = {
-                            workbooks: {},
-                            count: 0
-                        };
-                    }
-                    self.userInfos[user].count++;
-
                     let id: string = userOption.id;
-                    socket.join(user, (): void => {
-                        console.log(user, "joins room", socket.rooms);
-                    });
+
                     if (self.userInfos[user].workbooks
                             .hasOwnProperty(id)) {
                         socket.broadcast.to(user).emit("useSessionExisted",
@@ -138,7 +156,6 @@ class SocketUtil {
                     xcConsole.error('register user error', e);
                 }
                 callback();
-                io.sockets.emit("system-allUsers", self.userInfos);
             });
 
             socket.on("unregisterUserSession", (userOption: User,
@@ -186,7 +203,8 @@ class SocketUtil {
                         self.userInfos[user].count--;
                         if (self.userInfos[user].count <= 0) {
                             delete self.userInfos[user];
-                        } else {
+                        } else if (userOption.id != null) { // can be null
+                            // if user is in XD but not in a workbook
                             self.userInfos[user].workbooks[userOption.id]--;
                             if (self.userInfos[user]
                                         .workbooks[userOption.id] <= 0) {

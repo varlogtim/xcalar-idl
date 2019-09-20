@@ -29,6 +29,7 @@ class XcSocket {
         this._socket = io.connect(url, {
             "reconnectionAttempts": 10
         });
+        this._registerBrowserSession();
         this._addAuthenticationEvents();
         this._addWorkbookEvents();
     }
@@ -58,6 +59,7 @@ class XcSocket {
         return deferred.promise();
     }
 
+    // when entering a workbook
     public registerUserSession(workbookId: string): boolean {
         if (this._isRegistered) {
             console.warn("already registered");
@@ -110,6 +112,12 @@ class XcSocket {
             return expHost;
         }
         return host;
+    }
+
+    private _registerBrowserSession() {
+        this._socket.emit("registerBrowserSession", XcUser.getCurrentUserName(), () => {
+            console.log("browser session registered!");
+        });
     }
 
     // receives events even if user is not in a workbook
