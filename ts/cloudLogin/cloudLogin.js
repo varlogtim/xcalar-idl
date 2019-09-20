@@ -1,3 +1,5 @@
+var cookieAuthFlag = false;
+
 var userPoolId = "us-west-2_Eg94nXgA5";
 var clientId = "69vk7brpkgcii8noqqsuv2dvbt";
 var identityPoolId = "us-west-2:7afc1673-6fe1-4943-a913-e43f2715131d";
@@ -10,156 +12,278 @@ var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 var localPassword;
 var cognitoUser;
 
-function showInitialScreens() {
-    $("header").children().hide()
-    $("#formArea").children().hide()
-    var signupScreen = new URLSearchParams(window.location.search).has("signup");
-    if (signupScreen) {
-        $("#signupTitle").show();
-        $("#signupForm").show();
+// START NO COOKIE AUTH
+
+// TODO: REMOVE THIS WHOLE NO COOKIE AUTH PART ONCE COOKIE AUTH IS FULLY WORKING
+
+if (!cookieAuthFlag) {
+    function decodeJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace('-', '+').replace('_', '/');
+            const decodedJwt = JSON.parse(window.atob(base64));
+            return decodedJwt;
+        } catch (error) {
+            console.error(error);
+            handleException();
+        }
+    }
+
+    function getExpiryTime(tokens) {
+        var idToken = tokens["idToken"]
+        if (typeof idToken === "string") {
+            return decodeJwt(idToken)["exp"]
+        } else {
+            return idToken["payload"]["exp"]
+        }
+    }
+
+    var localTokens = xcLocalStorage.getItem("xcalarTokens");
+
+    // console.log('localTokens');
+    // console.log(localTokens);
+
+    if (localTokens && localTokens !== "undefined") {
+        getCredentials(JSON.parse(localTokens))
     } else {
-        $("#loginTitle").show();
-        $("#loginForm").show();
+        showInitialScreens()
     }
-}
 
-function handleException() {
-    showInitialScreens()
-}
-
-function decodeJwt(token) {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace('-', '+').replace('_', '/');
-        const decodedJwt = JSON.parse(window.atob(base64));
-        return decodedJwt;
-    } catch (error) {
-        console.error(error);
-        handleException();
+    async function updateTokens(oldTokens) {
+        let newTokens = oldTokens;
+        return fetch("https://cognito-idp.us-west-2.amazonaws.com/", {
+                headers: {
+                    "X-Amz-Target": "AWSCognitoIdentityProviderService.InitiateAuth",
+                    "Content-Type": "application/x-amz-json-1.1",
+                },
+                mode: 'cors',
+                cache: 'no-cache',
+                method: 'POST',
+                body: JSON.stringify({
+                    ClientId: clientId,
+                    AuthFlow: 'REFRESH_TOKEN_AUTH',
+                    AuthParameters: {
+                        REFRESH_TOKEN: oldTokens["refreshToken"]["token"],
+                    }
+                }),
+            })
+            .then(res => res.json())
+            .then(result => {
+                newTokens["idToken"] = result.AuthenticationResult.IdToken;
+                newTokens["accessToken"] = result.AuthenticationResult.AccessToken;
+                xcLocalStorage.setItem("xcalarTokens", JSON.stringify(newTokens));
+                return newTokens;
+            })
+            .catch(error => {
+                console.error('updateTokens error:', error);
+                handleException();
+            });
     }
-}
 
-function getExpiryTime(tokens) {
-    var idToken = tokens["idToken"]
-    if (typeof idToken === "string") {
-        return decodeJwt(idToken)["exp"]
-    } else {
-        return idToken["payload"]["exp"]
+    async function getCredentials(tokens) {
+        var expiryTime = getExpiryTime(tokens);
+        if (Date.now() / 1000 >= expiryTime) {
+            // if (true) {
+            tokens = await updateTokens(tokens);
+        }
+        var loginApiUrl = "cognito-idp.us-west-2.amazonaws.com/" + userPoolId;
+
+        try {
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: identityPoolId,
+                Logins: {
+                    [loginApiUrl]: tokens["idToken"]["jwtToken"]
+                }
+            }, {
+                region: 'us-west-2'
+            });
+            AWS.config.credentials.get(function (err) {
+                if (err) {
+                    console.error('AWS.config.credentials.get error: ', err);
+                    handleException();
+                } else {
+                    var accessKeyId = AWS.config.credentials.accessKeyId;
+                    var secretAccessKey = AWS.config.credentials.secretAccessKey;
+                    var sessionToken = AWS.config.credentials.sessionToken;
+
+                    username = xcLocalStorage.getItem("xcalarUsername");
+                    getCluster(username);
+                }
+            });
+        } catch (error) {
+            console.error('AWS.config.credentials error: ', error);
+        }
     }
-}
 
-var localTokens = xcLocalStorage.getItem("xcalarTokens");
-
-// console.log('localTokens');
-// console.log(localTokens);
-
-if (localTokens && localTokens !== "undefined") {
-    getCredentials(JSON.parse(localTokens))
-} else {
-    showInitialScreens()
-}
-
-async function updateTokens(oldTokens) {
-    let newTokens = oldTokens;
-    return fetch("https://cognito-idp.us-west-2.amazonaws.com/", {
-            headers: {
-                "X-Amz-Target": "AWSCognitoIdentityProviderService.InitiateAuth",
-                "Content-Type": "application/x-amz-json-1.1",
+    function cognitoUserLogin(cognitoUser, authenticationDetails) {
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function () {
+                $("#loginFormError").hide();
+                cognitoUser = userPool.getCurrentUser();
+                if (cognitoUser != null) {
+                    cognitoUser.getSession(function (err, tokens) {
+                        if (tokens && tokens !== "undefined") {
+                            xcLocalStorage.setItem("xcalarTokens", JSON.stringify(tokens));
+                            getCredentials(tokens);
+                        }
+                    });
+                }
             },
-            mode: 'cors',
-            cache: 'no-cache',
+            onFailure: function (err) {
+                if (err.code === "UserNotConfirmedException") {
+                    $("#loginFormError").hide();
+                    $("header").children().hide();
+                    $("#formArea").children().hide();
+                    $("#verifyForm").show();
+                    $("#verifyTitle").show();
+                } else {
+                    showFormError($("#loginFormError"), "Wrong email or password. Please try again.");
+                    console.error(err);
+                }
+            },
+        });
+    }
+
+    function noCookieLogin(username, password) {
+        var authenticationData = {
+            Username: username,
+            Password: password,
+        };
+        var userData = {
+            Username: username,
+            Pool: userPool
+        };
+
+        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+        cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        xcLocalStorage.setItem("xcalarUsername", username);
+        cognitoUserLogin(cognitoUser, authenticationDetails);
+
+    }
+
+    function noCookieLogout() {
+        xcLocalStorage.setItem("xcalarTokens", "");
+    }
+
+    // END NO COOKIE AUTH
+} else {
+    // START COOKIE AUTH
+
+    // TODO: ALWAYS USE IT ONCE COOKIE PART IS FULLY READY
+
+    var loggedInUsername = false;
+
+    var cookieAuthApiUrl = "https://1jqb965i1d.execute-api.us-west-2.amazonaws.com";
+
+    // REMEMBERING LOGGED IN USER
+    // TODO: ONCE /status endpoint is ready
+
+    // fetch(cookieAuthApiUrl + "/prod/status")
+    // .then(response => {
+    //     console.log(response)
+    //     if (response.status === 200) {
+    //         // logged out
+    //         loggedIn = response.user;
+    //     } else if (response.status === 500) {
+    //         // unauthorized
+    //         loggedIn = false;
+    //     } else {
+    //         // unrecognized code
+    //         console.error('cookieLoggedInStatus unrecognized code:', response)
+    //     }
+    // }).catch(error => {
+    //     console.error('cookieLoggedInStatus error:', error);
+    //     handleException();
+    // });
+
+    if (loggedInUsername) {
+        getCluster(loggedInUsername);
+    } else {
+        showInitialScreens();
+    }
+
+    function cookieLogin(username, password) {
+        fetch(cookieAuthApiUrl + "/prod/login", {
+            headers: {
+                "Content-Type": "application/json",
+            },
             method: 'POST',
             body: JSON.stringify({
-                ClientId: clientId,
-                AuthFlow: 'REFRESH_TOKEN_AUTH',
-                AuthParameters: {
-                    REFRESH_TOKEN: oldTokens["refreshToken"]["token"],
-                }
+                "username": username,
+                "password": password
             }),
-        })
-        .then(res => res.json())
-        .then(result => {
-            newTokens["idToken"] = result.AuthenticationResult.IdToken;
-            newTokens["accessToken"] = result.AuthenticationResult.AccessToken;
-            xcLocalStorage.setItem("xcalarTokens", JSON.stringify(newTokens));
-            return newTokens;
-        })
-        .catch(error => {
-            console.error('updateTokens error:', error);
-            handleException();
-        });
-}
-
-async function getCredentials(tokens) {
-    var expiryTime = getExpiryTime(tokens);
-    if (Date.now() / 1000 >= expiryTime) {
-        // if (true) {
-        tokens = await updateTokens(tokens);
-    }
-    var loginApiUrl = "cognito-idp.us-west-2.amazonaws.com/" + userPoolId;
-
-    try {
-        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-            IdentityPoolId: identityPoolId,
-            Logins: {
-                [loginApiUrl]: tokens["idToken"]["jwtToken"]
-            }
-        }, {
-            region: 'us-west-2'
-        });
-        AWS.config.credentials.get(function (err) {
-            if (err) {
-                console.error('AWS.config.credentials.get error: ', err);
-                showInitialScreens();
-            } else {
-                var accessKeyId = AWS.config.credentials.accessKeyId;
-                var secretAccessKey = AWS.config.credentials.secretAccessKey;
-                var sessionToken = AWS.config.credentials.sessionToken;
-                getCluster();
-            }
-        });
-    } catch (error) {
-        console.error('AWS.config.credentials error: ', error);
-    }
-}
-
-function loginUser(cognitoUser, authenticationDetails) {
-    cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: function () {
-            $("#loginFormError").hide();
-            cognitoUser = userPool.getCurrentUser();
-            if (cognitoUser != null) {
-                cognitoUser.getSession(function (err, tokens) {
-                    if (tokens && tokens !== "undefined") {
-                        xcLocalStorage.setItem("xcalarTokens", JSON.stringify(tokens));
-                        getCredentials(tokens);
-                    }
-                });
-            }
-        },
-        onFailure: function (err) {
-            if (err.code === "UserNotConfirmedException") {
+        }).then(response => {
+            if (response.status === 200) {
+                // authorized
                 $("#loginFormError").hide();
-                $("header").children().hide();
-                $("#formArea").children().hide();
-                $("#verifyForm").show();
-                $("#verifyTitle").show();
-            } else {
+                getCluster(username);
+            } else if (response.status === 401) {
+                // unauthorized
                 showFormError($("#loginFormError"), "Wrong email or password. Please try again.");
-                console.error(err);
+
+                // TODO: ONCE /login RETURNS A CODE/STATUS FOR THIS CASE
+
+                // } else if (response.code === "UserNotConfirmedException") {
+                //     // correct email/password but email not confirmed    
+                //     $("#loginFormError").hide();
+                //     $("header").children().hide();
+                //     $("#formArea").children().hide();
+                //     $("#verifyForm").show();
+                //     $("#verifyTitle").show();
+            } else {
+                // unrecognized code
+                console.error('cookieLogin unrecognized code:', response)
             }
-        },
-    });
+        }).catch(error => console.error('cookieLogin error:', error))
+    }
+
+    function cookieLogout() {
+        fetch(cookieAuthApiUrl + "/prod/logout")
+            .then(response => {
+                if (response.status === 200) {
+                    // logged out
+                    console.log('successfully logged out')
+                } else if (response.status === 500) {
+                    // unauthorized
+                    console.error('error logging out:', response)
+                } else {
+                    // unrecognized code
+                    console.error('cookieLogout unrecognized code:', response)
+                }
+            }).catch(error => {
+                console.error('cookieLogut error:', error);
+                handleException();
+            });
+    }
+
 }
 
-function getCluster() {
+// END COOKIE AUTH
+
+function userLogin(username, password) {
+    if (cookieAuthFlag) {
+        cookieLogin(username, password);
+    } else {
+        noCookieLogin(username, password)
+    }
+}
+
+function userLogout() {
+    if (cookieAuthFlag) {
+        cookieLogout();
+    } else {
+        noCookieLogout();
+    }
+}
+
+function getCluster(username) {
     fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/get", {
             headers: {
                 "Content-Type": "application/json",
             },
             method: 'POST',
             body: JSON.stringify({
-                "username": xcLocalStorage.getItem("xcalarUsername")
+                "username": username
             }),
         })
         .then(res => res.json())
@@ -177,7 +301,7 @@ function getCluster() {
                 $("#clusterForm").show();
             } else if (clusterGetResponse.isPending) {
                 // go to wait screen
-                setTimeout(getCluster, 3000);
+                setTimeout(() => getCluster(username), 3000);
                 $("header").children().hide();
                 $("#formArea").children().hide();
                 $("#loadingTitle").show();
@@ -201,6 +325,23 @@ function getCluster() {
 
 function goToXcalar(clusterGetResponse) {
     window.location.href = clusterGetResponse.clusterUrl;
+}
+
+function showInitialScreens() {
+    $("header").children().hide()
+    $("#formArea").children().hide()
+    var signupScreen = new URLSearchParams(window.location.search).has("signup");
+    if (signupScreen) {
+        $("#signupTitle").show();
+        $("#signupForm").show();
+    } else {
+        $("#loginTitle").show();
+        $("#loginForm").show();
+    }
+}
+
+function handleException() {
+    showInitialScreens()
 }
 
 function checkLoginForm() {
@@ -279,17 +420,6 @@ function showInputError($element, condition) {
         );
     }
 }
-
-$("#passwordSection").focusin(
-    function () {
-        $(this).find(".input-tooltip").show();
-    }
-)
-$("#passwordSection").focusout(
-    function () {
-        $(this).find(".input-tooltip").hide();
-    }
-)
 
 function showPasswordErrorRows(password) {
     var lowerCaseLetters = /[a-z]/g;
@@ -378,6 +508,17 @@ function checkSignUpForm() {
     }
 }
 
+$("#passwordSection").focusin(
+    function () {
+        $(this).find(".input-tooltip").show();
+    }
+)
+$("#passwordSection").focusout(
+    function () {
+        $(this).find(".input-tooltip").hide();
+    }
+)
+
 $("#signupForm").keypress(function (event) {
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if (keycode == '13') {
@@ -419,27 +560,14 @@ $(".link-to-login").click(function () {
 });
 
 $(".logOutLink").click(function () {
-    xcLocalStorage.setItem("xcalarTokens", "");
+    userLogout();
 });
 
 $("#loginButton").click(function () {
     if (checkLoginForm()) {
-        username = document.getElementById("loginNameBox").value;
+        var username = document.getElementById("loginNameBox").value;
         var password = document.getElementById("loginPasswordBox").value;
-
-        var authenticationData = {
-            Username: username,
-            Password: password,
-        };
-        var userData = {
-            Username: username,
-            Pool: userPool
-        };
-
-        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
-        cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-        xcLocalStorage.setItem("xcalarUsername", username);
-        loginUser(cognitoUser, authenticationDetails);
+        userLogin(username, password);
     }
 });
 
@@ -491,9 +619,12 @@ $("#signup-submit").click(function () {
             } else {
                 $("#verifyFormError").hide();
             }
-            localPassword = password;
             cognitoUser = result.user;
-            xcLocalStorage.setItem("xcalarUsername", username);
+
+            if (!cookieAuthFlag) {
+                localPassword = password;
+                xcLocalStorage.setItem("xcalarUsername", username);
+            }
             $("#signupForm").hide();
             $("#signupTitle").hide();
             $("#verifyForm").show();
@@ -526,21 +657,25 @@ $("#verify-submit").click(function () {
                 return;
             } else {
                 $("#verifyFormError").hide();
-            }
-            var authenticationData = {
-                Username: xcLocalStorage.getItem("xcalarUsername"),
-                Password: localPassword,
-            };
-            var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
-
-            if (localPassword) {
-                loginUser(cognitoUser, authenticationDetails);
-            } else {
                 $("header").children().hide();
                 $("#formArea").children().hide();
                 $("#loginTitle").show();
                 $("#loginForm").show();
-            };
+            }
+            // var authenticationData = {
+            //     Username: xcLocalStorage.getItem("xcalarUsername"),
+            //     Password: localPassword,
+            // };
+            // var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+
+            // if (localPassword) {
+            //     cognitoUserLogin(cognitoUser, authenticationDetails);
+            // } else {
+            //     $("header").children().hide();
+            //     $("#formArea").children().hide();
+            //     $("#loginTitle").show();
+            //     $("#loginForm").show();
+            // };
         });
     }
 });
@@ -564,13 +699,14 @@ $("#clusterForm").find(".radioButton").click(function () {
 
 $("#deployBtn").click(function () {
     if (checkClusterForm()) {
+        var username = xcLocalStorage.getItem("xcalarUsername");
         fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/start", {
                 headers: {
                     "Content-Type": "application/json",
                 },
                 method: 'POST',
                 body: JSON.stringify({
-                    "username": xcLocalStorage.getItem("xcalarUsername"),
+                    "username": username,
                     "clusterParams": {
                         "type": selectedClusterSize
                     }
@@ -579,12 +715,12 @@ $("#deployBtn").click(function () {
                 return response.json();
             })
             .then(function (myJson) {
-                getCluster();
+                getCluster(username);
             });
     }
 });
 
-$("#forgotSection").click(function () {
+$("#forgotSection a").click(function () {
     $("#loginForm").hide();
     $("#loginTitle").hide();
     $("#forgotPasswordForm").show();
