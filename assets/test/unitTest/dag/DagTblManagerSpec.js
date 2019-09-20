@@ -102,8 +102,8 @@ describe("DagTblManager Test", function() {
 
 
     it("Should not set a locked tables delete flag.", function () {
-        let cacheUnpin = XcalarUnpinTable;
-        XcalarUnpinTable = () => {
+        let cachePin = XcalarPinTable;
+        XcalarPinTable = () => {
             return PromiseHelper.resolve();
         }
 
@@ -111,7 +111,7 @@ describe("DagTblManager Test", function() {
         tableManager.pinTable("test6");
         tableManager.deleteTable("test6", false);
         expect(tableManager.cache["test6"].markedForDelete).to.be.false;
-        XcalarUnpinTable = cacheUnpin;
+        XcalarPinTable = cachePin;
     });
 
 

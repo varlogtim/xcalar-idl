@@ -18,7 +18,7 @@ exports.testSuite = function(PublishedTableService, SCOPE, STATUS) {
     ]
     describe("PublishedTableService test: ", function () {
         before(function(done){
-            this.timeout(4000);
+            this.timeout(9000);
             PythonShell.run('publishTable.py', null, function(err,result) {
                 if(err) throw err;
                 sessionName = result[0];
