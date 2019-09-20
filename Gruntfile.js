@@ -15,7 +15,7 @@
         --srcroot=<path>
             Root dir of xcalar-gui project. Defaults to cwd of Gruntfile
 
-        --product=[XD|Cloud|XPE]
+        --product=[XD|XPE]
             Defaults to XD
 
         --buildroot=<path>
@@ -62,7 +62,6 @@
 
     Examples:
         grunt dev                 (build a dev build of XD product, in to <xclrdir>)
-        grunt dev --product=Cloud (build a dev build of Cloud product, in to <xclrdir>)
         grunt installer           (build installer flavor of XD product, in to <xclrdir>/xcalar-gui/)
         grunt debug watch --less  (build a debug build in to <xlrdir>/xcalar-gui, then watch for changes in all less files in <xlrdir> that aren't bld files)
         grunt debug watch --less --livereload (debug build, and watch for less files. On less file change, reload browser.)
@@ -82,17 +81,11 @@ var XLRDIR = 'XLRDIR';
 
 // different possible product types.
 var XD = "XD"; // regular Xcalar Design builds
-var Cloud = "Cloud"; // Xcalar Cloud
 var XPE = "XPE"; // for special builds of Xcalar Design intended to be run by nwjs in MacOS app
 var productTypes = {
     XD: {
         'name': 'Xcalar Design', // default name to brand throughout GUIs for this product
         'target': 'xcalar-gui' // dirname for build target
-    },
-    Cloud: {
-        'name': 'Xcalar Design',
-        'target': 'xcalar-gui'
-
     },
     XPE: {
         'name': 'Xcalar Desktop Edition',
@@ -229,8 +222,7 @@ var reactMapping = {
 // help content src in the actual src tree, for each product type
 var helpContentRootByProduct = {
     XD: helpContentRoot + XD,
-    XPE: helpContentRoot + XD,
-    Cloud: helpContentRoot + XD
+    XPE: helpContentRoot + XD
 }
 
 // path rel src to the unitTest folder
@@ -346,7 +338,7 @@ var VALID_OPTIONS = {
     [BLD_OP_BLDROOT]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Directory path for dir in build where index.html should start (if does not exist will create for you)"},
     [BLD_OP_PRODUCT]:
-        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,Cloud,XPE], [DESC_KEY]: "Product type to build (Defaults to XD)"},
+        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,XPE], [DESC_KEY]: "Product type to build (Defaults to XD)"},
     [BLD_OP_BRAND]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Product name to brand GUIs with.  Default brand: " + brandDefault},
     [BLD_OP_BACKEND_SRC_REPO]:
@@ -359,6 +351,7 @@ var VALID_OPTIONS = {
         [DESC_KEY]: "As flag: do live reload on all watched files."
             + "\n\t\tAs option: A single filetype, or comma sep list of filetypes you'd like to do live reload on. "
             + "\n\t\tIf list begins with -, will do livereload on all types EXCEPT that/those specififed."},
+
     // flags
     [BLD_FLAG_TIMESTAMP_BLDDIR]:
         {[FLAG_KEY]: true, [DESC_KEY]: "Creates int. dir for bld output, which is timestamp when bld begins"},
@@ -549,7 +542,6 @@ var VALID_TASKS = {
                   "\n\t\tfor front end developers - will generate a working build "
                 + "\n\t\tbut no javascript minification and config details remain"
                 + "\n\t\t\t<srcroot>/" + productTypes.XD.target    + "/ (if XD bld)"
-                + "\n\t\t\t<srcroot>/" + productTypes.Cloud.target + "/ (if Cloud bld)"
         },
         [INSTALLER]: {
             [BLD_TASK_KEY]:true,
@@ -558,7 +550,6 @@ var VALID_TASKS = {
                 + "\n\t\tjs is minified and developer config details removed"
                 + "\n\t\tBuild root, unless otherwise specified via cmd params:"
                 + "\n\t\t\t<srcroot>/" + productTypes.XD.target    + "/ (if XD bld)"
-                + "\n\t\t\t<srcroot>/" + productTypes.Cloud.target + "/ (if Cloud bld)"
         },
         [TRUNK]: {
             [BLD_TASK_KEY]:true,
@@ -568,7 +559,6 @@ var VALID_TASKS = {
                 + "\n\t\tsync back and front end for communication"
                 + "\n\t\tBuild root, unless otherwise specified via cmd params:"
                 + "\n\t\t\t<srcroot>/" + productTypes.XD.target    + "/ (if XD bld)"
-                + "\n\t\t\t<srcroot>/" + productTypes.Cloud.target + "/ (if Cloud bld)"
         },
         [DEBUG]: {
             [BLD_TASK_KEY]:true,
@@ -578,7 +568,6 @@ var VALID_TASKS = {
                 + "\n\t\tthe build doesn't get connected to developer server"
                 + "\n\t\tBuild root, unless otherwise specified via cmd params:"
                 + "\n\t\t\t<srcroot>/" + productTypes.XD.target    + "/ (if XD bld)"
-                + "\n\t\t\t<srcroot>/" + productTypes.Cloud.target + "/ (if Cloud bld)"
         },
         [WATCH]: {
             [BLD_TASK_KEY]:false, [REQUIRES_ONE_KEY]: WATCH_TASK_REQUIRES_ONE,
@@ -2317,7 +2306,7 @@ module.exports = function(grunt) {
     */
     grunt.task.registerTask("help_contents", function() {
 
-        // you have XD and Cloud help contaente in the src code that was copied in
+        // you have XD help content in the src code that was copied in
         // copy what you need in to /usr and delete the rest
         // corner casE: srcroot and destdir are the same.  In that case still do the usr dir,
         // but don't delete...
@@ -2945,9 +2934,7 @@ module.exports = function(grunt) {
                 'assets/js/env/devEnv.js']);
         }
 
-        if (PRODUCT === Cloud) {
-            extraTags.push('assets/js/env/cloudEnv.js');
-        } else if (PRODUCT === XPE) {
+        if (PRODUCT === XPE) {
             // script tags just used by Xcalar Design EE app for nwjs set ups
             // httpStatus a dep. for XPE; it's included in login.html
             // in all blds but not index.html
@@ -4452,7 +4439,7 @@ module.exports = function(grunt) {
                 grunt.task.run('cleanempty:finalBuild');
             }
 
-            if (PRODUCT != XD && PRODUCT != Cloud) {
+            if (PRODUCT != XD) {
                 grunt.task.run("check_for_xd_strings");
             }
 
