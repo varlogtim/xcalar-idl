@@ -1556,7 +1556,23 @@ namespace DS {
                 error = {"error": error};
             }
             error.created = hasCreate;
-            deferred.reject(error);
+            if (error.status === StatusT.StatusExist) {
+                // special case, need refresh to verify
+                DS.refresh()
+                .then(function() {
+                    let $ds = DS.getGrid(datasetName);
+                    if ($ds != null && $ds.length) {
+                        deferred.resolve();
+                    } else {
+                        deferred.reject(error);
+                    }
+                })
+                .fail(function() {
+                    deferred.reject(error);
+                });
+            } else {
+                deferred.reject(error);
+            }
         });
 
         return deferred.promise();
