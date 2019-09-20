@@ -6,6 +6,7 @@ interface FormHelperOptions {
     focusOnOpen?: Function;
     noTabFocus?: boolean;
     noEsc?: boolean;
+    beforeClose?: Function;
     columnPicker?: ColumnPickerOptions,
     allowAllColPicker?: boolean;
     open?: Function;
@@ -150,6 +151,11 @@ class FormHelper {
                 }
                 if (StatusBox.isOpen()) {
                     $("#statusBoxClose").trigger(fakeEvent.mousedown);
+                    return;
+                }
+                if (typeof options.beforeClose === "function" &&
+                    options.beforeClose()
+                ) {
                     return;
                 }
 

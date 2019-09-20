@@ -210,7 +210,7 @@ class BaseOpPanel {
     }
 
     protected setup($panel: JQuery, options?: FormHelperOptions): void {
-        options = options || {};
+        options = options || {"beforeClose": () => this.$panel.find(".list:visible").length > 0};
         this.panelNum = ++BaseOpPanel.counter;
         this.$panel = $panel;
         this._formHelper = new FormHelper($panel, options);
