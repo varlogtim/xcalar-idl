@@ -46,7 +46,7 @@ class DagNodeJoin extends DagNode {
      * @param input.columns column infos from left table and right table
      * @param input.evalString {string} Optional, eavlString in join
      */
-    public setParam(input: DagNodeJoinInputStruct = <DagNodeJoinInputStruct>{}) {
+    public setParam(input: DagNodeJoinInputStruct = <DagNodeJoinInputStruct>{}, noAutoExecute?: boolean) {
         this.input.setInput({
             joinType: input.joinType,
             left: input.left,
@@ -55,7 +55,7 @@ class DagNodeJoin extends DagNode {
             nullSafe: input.nullSafe,
             keepAllColumns: input.keepAllColumns
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     // XXX TODO: verify it's correctness

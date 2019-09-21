@@ -87,6 +87,7 @@ describe("SQL Dag Node Test", () => {
     describe("saving config", () => {
         describe("compile", () => {
             it("should try to compile and fail", (done) => {
+                Alert.forceClose();
                 let cache = SQLUtil.sendToPlanner;
                 let called = false;
                 SQLUtil.sendToPlanner = (id, type, struct) => {

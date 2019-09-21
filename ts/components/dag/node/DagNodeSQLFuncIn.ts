@@ -89,12 +89,13 @@ class DagNodeSQLFuncIn extends DagNodeIn {
      * @param input {DagNodeSQLFuncInInputStruct}
      */
     public setParam(
-        input: DagNodeSQLFuncInInputStruct = <DagNodeSQLFuncInInputStruct>{}
+        input: DagNodeSQLFuncInInputStruct = <DagNodeSQLFuncInInputStruct>{},
+        noAutoExecute?: boolean
     ): void {
         this.input.setInput({
             source: input.source,
         });
-        super.setParam();
+        super.setParam(null,noAutoExecute);
     }
 
     public setOrder(order): void {

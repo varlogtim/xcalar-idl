@@ -106,14 +106,6 @@ class DagNodeDataset extends DagNodeIn {
         return super.setParam(null, noAutoExecute) || false;
     }
 
-    public confirmSetParam(): void {
-        // this is just to trigger AutoExecute event
-        // so auto execution can be triggered
-        this.events.trigger(DagNodeEvents.AutoExecute, {
-            node: this
-        });
-    }
-
     /**
      * Get the dataset name
      */

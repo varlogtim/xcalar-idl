@@ -1,4 +1,10 @@
 describe("Dag Node Basic Test", () => {
+    before(function(done) {
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            done();
+        });
+    });
     it("should get id", () => {
         const node = new DagNode({id: "test"});
         expect(node.getId()).to.be.equal("test");
@@ -621,48 +627,47 @@ describe("Dag Node Basic Test", () => {
             });
         });
         it("update progress should work", () => {
-
-            node.updateProgress({
-                "tableA": {
-                    "name": {
-                        "name": "tableA"
-                    },
-                    "tag": "dag_5D40D6B4265E6B2C_1564623650068_37",
-                    "comment": "",
-                    "dagNodeId": "113436",
-                    "api": 24,
-                    "state": 5,
-                    "numWorkCompleted": 6,
-                    "numWorkTotal": 6,
-                    "elapsed": {
-                        "milliseconds": 7
-                    },
-                    "inputSize": 49953,
-                    "input": {
-                        "mapInput": {
-                            "source": "sourceTable",
-                            "dest": "tableA",
-                            "eval": [
-                                {
-                                    "evalString": "add(1,2)",
-                                    "newField": "a"
-                                }
-                            ],
-                            "icv": false
-                        }
-                    },
-                    "numRowsTotal": 6,
-                    "numNodes": 2,
-                    "numRowsPerNode": [
-                        3,
-                        3
-                    ],
-                    "sizeTotal": 0,
-                    "sizePerNode": [],
-                    "status": 0,
-                    "index": 113436
-                }
-            }, true, true);
+            let map = new Map();
+            map.set("tableA", {
+                "name": {
+                    "name": "tableA"
+                },
+                "tag": "dag_5D40D6B4265E6B2C_1564623650068_37",
+                "comment": "",
+                "dagNodeId": "113436",
+                "api": 24,
+                "state": 5,
+                "numWorkCompleted": 6,
+                "numWorkTotal": 6,
+                "elapsed": {
+                    "milliseconds": 7
+                },
+                "inputSize": 49953,
+                "input": {
+                    "mapInput": {
+                        "source": "sourceTable",
+                        "dest": "tableA",
+                        "eval": [
+                            {
+                                "evalString": "add(1,2)",
+                                "newField": "a"
+                            }
+                        ],
+                        "icv": false
+                    }
+                },
+                "numRowsTotal": 6,
+                "numNodes": 2,
+                "numRowsPerNode": [
+                    3,
+                    3
+                ],
+                "sizeTotal": 0,
+                "sizePerNode": [],
+                "status": 0,
+                "index": 113436
+            });
+            node.updateProgress(map, true, true);
             expect(true).to.be.true;
             expect(node.getState()).to.equal("Complete");
             expect(node.runStats.hasRun).to.be.true;
@@ -718,8 +723,8 @@ describe("Dag Node Basic Test", () => {
         it("update progress with error should work", () => {
             let node = new DagNode();
             node.state = DagNodeState.Running;
-            node.updateProgress({
-                "tableA": {
+            let map = new Map();
+            map.set("tableA", {
                     "name": {
                         "name": "tableA"
                     },
@@ -758,7 +763,8 @@ describe("Dag Node Basic Test", () => {
                     "status": 0,
                     "index": 113436
                 }
-            }, true, true);
+            });
+            node.updateProgress(map, true, true);
 
             expect(true).to.be.true;
             expect(node.getState()).to.equal("Error");

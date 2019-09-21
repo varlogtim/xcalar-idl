@@ -40,13 +40,13 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
         }
     };
 
-    public setParam(input: DagNodeDFOutInputStruct = <DagNodeDFOutInputStruct>{}): void {
+    public setParam(input: DagNodeDFOutInputStruct = <DagNodeDFOutInputStruct>{}, noAutoExecute?: boolean): void {
         this.input.setInput({
             name: input.name,
             linkAfterExecution: input.linkAfterExecution,
             columns: input.columns
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(

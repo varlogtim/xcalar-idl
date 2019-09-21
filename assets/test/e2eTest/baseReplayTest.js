@@ -160,7 +160,9 @@ function replay(testConfig, tags) {
                         .moveToElement("#dagNodeMenu li.createNodeOptimized", 10, 1)
                         .waitForElementNotPresent(".dataflowArea.active.locked")
                         .mouseButtonClick('left')
-                        .waitForElementNotPresent('.dataflowArea ' + selector + '.locked', numOfNodes * 20000);
+                        .waitForElementNotPresent('.dataflowArea ' + selector + '.locked', numOfNodes * 20000)
+                        .waitForElementNotPresent(".dataflowArea.active .operator.state-Running", 100000)
+                        .waitForElementNotPresent(".dataflowArea.active .operator.locked", 10000);
 
                     browser.execute(execFunctions.getTableNameFromOptimizedGraph, [], ({value}) => {
                         linkOutOptimizedTable = value;

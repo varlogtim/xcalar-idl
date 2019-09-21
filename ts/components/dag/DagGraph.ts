@@ -822,7 +822,7 @@ class DagGraph extends Durable {
                             dataflowId: dataflowId,
                             linkOutName: param.linkOutName,
                             source: param.source
-                        });
+                        }, true);
                     }
                 }
             } catch (e) {
@@ -1692,7 +1692,7 @@ class DagGraph extends Durable {
                         name: name,
                         linkAfterExecution: input.linkAfterExecution,
                         columns: input.columns
-                    });
+                    }, true);
                     updatedNodes.push(node);
                 }
                 nameSet.add(name);

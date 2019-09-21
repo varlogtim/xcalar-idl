@@ -801,6 +801,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 if (hasLoadArgsChange) {
                     dagGraph.save();
                 }
+                dagNode.confirmSetParam();
                 this.close();
             } else if (isSameSource && hasNoSchemaChange) {
                 // only the prefix changed so we automatically do the map

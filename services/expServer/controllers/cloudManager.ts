@@ -10,7 +10,8 @@ class CloudManager {
     private userId: string;  // identity_id returned from cognito
     private _numCredits: number = null;
     private _updateCreditsInterval: NodeJS.Timer;
-    private _updateCreditsTime: number = 5 * 60 * 1000; // check every 5 minutes
+    private _updateCreditsTime: number = 1 * 60 * 1000; // check every minute
+    // XXX do not change _updateCreditsTime - it is synced with AWS Lambda
     private _userName: string = "";
     private _awsURL: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"; // XXX temporary
     private _stopClusterMessageSent: boolean;

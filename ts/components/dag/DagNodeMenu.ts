@@ -28,7 +28,7 @@ namespace DagNodeMenu {
     export function execute(action: string, options: {
         node: DagNode,
         autofillColumnNames?: string[],
-        exitCallback?: Function
+        exitCallback?: Function // when config panel is exited without saving
     }) {
         switch (action) {
             case("configureNode"):
@@ -92,7 +92,7 @@ namespace DagNodeMenu {
     function _processMenuAction(action: string, options?: {
         node: DagNode,
         autofillColumnNames?: string[],
-        exitCallback?: Function,
+        exitCallback?: Function, // when config panel is exited without saving
         bypassAlert?: boolean
     }) {
         try {
@@ -194,7 +194,7 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.reset(null, options.bypassAlert);
                     break;
                 case ("configureNode"):
-                    configureNode(_getNodeFromId(dagNodeIds[0]), options.bypassAlert);
+                    configureNode(_getNodeFromId(dagNodeIds[0]), options);
                     break;
                 case ("viewResult"):
                     DagViewManager.Instance.viewResult(_getNodeFromId(dagNodeIds[0]));
@@ -369,7 +369,7 @@ namespace DagNodeMenu {
     function configureNode(node: DagNode, options?: {
         node?: DagNode,
         autofillColumnNames?: string[],
-        exitCallback?: Function,
+        exitCallback?: Function,  // when config panel is exited without saving
         nonConfigurable?: boolean,
         udfDisplayPathPrefix?: string,
         ignoreSQLChange?: boolean

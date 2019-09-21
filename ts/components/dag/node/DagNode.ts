@@ -627,6 +627,9 @@ abstract class DagNode extends Durable {
         if ((this.type !== DagNodeType.SQL || this.state !== DagNodeState.Error)
             && !this.input.hasParametersChanges() && this.configured) {
             // when there is no change
+            if (!noAutoExecute) { // trigger autoexecute even if no change
+                this.confirmSetParam();
+            }
             return false;
         }
         this._setParam(noAutoExecute);
@@ -651,6 +654,14 @@ abstract class DagNode extends Durable {
 
     public getParameters(): any[] {
         return this.input.getParameters();
+    }
+
+    public confirmSetParam(): void {
+        // this is just to trigger AutoExecute event
+        // so auto execution can be triggered
+        this.events.trigger(DagNodeEvents.AutoExecute, {
+            node: this
+        });
     }
 
     /**
@@ -792,18 +803,17 @@ abstract class DagNode extends Durable {
      * @param trustIndex use the index provided
      */
     public updateProgress(
-        tableInfoMap,
+        tableInfoMap: Map<string, XcalarApiDagNodeT>,
         includesAllTables?: boolean,
         trustIndex?: boolean
     ): XDPromise<void> {
-
         const errorStates: Set<DgDagStateT> = new Set([DgDagStateT.DgDagStateUnknown,
                              DgDagStateT.DgDagStateError,
                              DgDagStateT.DgDagStateArchiveError]);
         const incompleteStates: Set<DgDagStateT> = new Set([DgDagStateT.DgDagStateQueued,
                             DgDagStateT.DgDagStateProcessing])
         let isComplete: boolean = true;
-        let errorState: string = null;
+        let errorState: DgDagStateTStr = null;
         let error: string = null;
         this.runStats.hasRun = true;
         if (this.state === DagNodeState.Configured) {
@@ -817,13 +827,12 @@ abstract class DagNode extends Durable {
         }
 
         let tableCount: number = Object.keys(this.runStats.nodes).length;
-        for (let tableName in tableInfoMap) {
-            const nodeInfo = tableInfoMap[tableName];
+        tableInfoMap.forEach((queryNode, tableName) => {
             let tableRunStats: TableRunStats = this.runStats.nodes[tableName];
             if (!tableRunStats) {
                 let index: number;
                 if (trustIndex) {
-                    index = nodeInfo.index;
+                    index = queryNode[index];
                 } else {
                     index = tableCount;
                 }
@@ -845,33 +854,33 @@ abstract class DagNode extends Durable {
                 tableCount++;
             }
 
-            if (nodeInfo.state === DgDagStateT.DgDagStateProcessing &&
+            if (queryNode.state === DgDagStateT.DgDagStateProcessing &&
                 tableRunStats.state !== DgDagStateT.DgDagStateProcessing) {
                 tableRunStats.startTime = Date.now();
             }
             tableRunStats.name = tableName;
-            tableRunStats.type = nodeInfo.api;
-            tableRunStats.state = nodeInfo.state;
+            tableRunStats.type = queryNode.api;
+            tableRunStats.state = queryNode.state;
             tableRunStats.hasStats = true;
             if (tableRunStats.index == null) {
                 // if tableRunStats already has index, then the one it has
                 // is more reliable
-                tableRunStats.index = nodeInfo.index;
+                tableRunStats.index = queryNode["index"];
             }
 
-            tableRunStats.numWorkTotal = nodeInfo.numWorkTotal;
-            if (nodeInfo.state === DgDagStateT.DgDagStateReady) {
+            tableRunStats.numWorkTotal = queryNode.numWorkTotal;
+            if (queryNode.state === DgDagStateT.DgDagStateReady) {
                 // if node is finished, numWorkCompleted should be equal
                 // to numWorkTotal even if backend doesn't return the correct value
-                tableRunStats.numWorkCompleted = nodeInfo.numWorkTotal;
+                tableRunStats.numWorkCompleted = queryNode.numWorkTotal;
             } else {
-                tableRunStats.numWorkCompleted = nodeInfo.numWorkCompleted;
+                tableRunStats.numWorkCompleted = queryNode.numWorkCompleted;
             }
 
-            tableRunStats.elapsedTime = nodeInfo.elapsed.milliseconds;
+            tableRunStats.elapsedTime = queryNode.elapsed.milliseconds;
             let progress: number = 0;
-            if (nodeInfo.state === DgDagStateT.DgDagStateProcessing ||
-                nodeInfo.state === DgDagStateT.DgDagStateReady) {
+            if (queryNode.state === DgDagStateT.DgDagStateProcessing ||
+                queryNode.state === DgDagStateT.DgDagStateReady) {
                 progress = tableRunStats.numWorkCompleted / tableRunStats.numWorkTotal;
             }
             if (isNaN(progress)) {
@@ -879,35 +888,35 @@ abstract class DagNode extends Durable {
             }
             // if table has 0 rows, but is completed, progress should be 1
             if (tableRunStats.numWorkTotal === 0 &&
-                nodeInfo.state === DgDagStateT.DgDagStateReady) {
+                queryNode.state === DgDagStateT.DgDagStateReady) {
                 progress = 1;
             }
 
             const pct: number = Math.round(100 * progress);
             tableRunStats.pct = pct;
-            let rows = nodeInfo.numRowsPerNode.map(numRows => numRows);
+            let rows = queryNode.numRowsPerNode.map(numRows => numRows);
             tableRunStats.skewValue = this._getSkewValue(rows);
-            tableRunStats.numRowsTotal = nodeInfo.numRowsTotal;
+            tableRunStats.numRowsTotal = queryNode.numRowsTotal;
 
             tableRunStats.rows = rows;
-            tableRunStats.size = nodeInfo.inputSize;
+            tableRunStats.size = queryNode.inputSize;
 
-            if (errorStates.has(nodeInfo.state)) {
-                errorState = nodeInfo.state;
-                if (nodeInfo.log) {
-                    error = nodeInfo.log;
-                } else if (nodeInfo.status != null) {
-                    error = StatusTStr[nodeInfo.status];
+            if (errorStates.has(queryNode.state)) {
+                errorState = queryNode.state;
+                if (queryNode.log) {
+                    error = queryNode.log;
+                } else if (queryNode.status != null) {
+                    error = StatusTStr[queryNode.status];
                 }
                 isComplete = false;
-            } else if (progress !== 1 || incompleteStates.has(nodeInfo.state)) {
+            } else if (progress !== 1 || incompleteStates.has(queryNode.state)) {
                 isComplete = false;
             }
-        }
+        });
 
         if (errorState != null) {
             if (this.state !== DagNodeState.Error || this.error !== DgDagStateTStr[errorState]) {
-                error = error || DgDagStateTStr[errorState]
+                error = error || DgDagStateTStr[errorState];
                 this.beErrorState(error);
                 if (this instanceof DagNodeSQL) {
                     this.setSQLQuery({

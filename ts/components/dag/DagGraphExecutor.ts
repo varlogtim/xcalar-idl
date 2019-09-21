@@ -500,6 +500,8 @@ class DagGraphExecutor {
                             node.setTable(destTable, true);
                             DagTblManager.Instance.addTable(destTable);
                         }
+                    } else if (node.getState() === DagNodeState.Running) {
+                        console.error(node.getTitle() + " " + node.getDisplayNodeType() + " did not finish running");
                     }
                 });
 
@@ -593,6 +595,7 @@ class DagGraphExecutor {
         .then((queryStateOutput: XcalarApiQueryStateOutputT) => {
             let nodeIdsSet: Set<DagNodeId> = new Set();
             queryStateOutput.queryGraph.node.forEach((queryNode) => {
+                // query's tag contains a list of dagNodeIds it's linked to
                 let nodeIdCandidates = queryNode.tag.split(",");
                 nodeIdCandidates.forEach((nodeId) => {
                     if (nodeId) {
@@ -603,7 +606,7 @@ class DagGraphExecutor {
             const nodeIds: DagNodeId[] = [...nodeIdsSet];
             this._graph.lockGraph(nodeIds, this);
             const txId: number = Transaction.start({
-                operation: SQLOps.DataflowExecution
+                operation: SQLOps.DataflowExecution,
                 trackDataflow: true,
                 sql: {operation: SQLOps.DataflowExecution},
                 track: true,
@@ -857,7 +860,7 @@ class DagGraphExecutor {
     }
 
     public updateProgress(queryNodes: XcalarApiDagNodeT[]) {
-        const nodeIdInfos: Map<DagNodeId, object> = new Map();
+        const nodeIdInfos: Map<DagNodeId, Map<string, XcalarApiDagNodeT>> = new Map();
         // GROUP THE QUERY NODES BY THEIR CORRESPONDING DAG NODE
         queryNodes.forEach((queryNodeInfo: XcalarApiDagNodeT) => {
             if (queryNodeInfo["operation"] === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] ||
@@ -865,36 +868,25 @@ class DagGraphExecutor {
                 return;
             }
             let tableName: string = queryNodeInfo.name.name;
-            let nodeIdCandidates = queryNodeInfo.tag.split(",");
-            let nodeId: DagNodeId;
-            let nodeFound = false;
-            for (let i = 0; i < nodeIdCandidates.length; i++) {
-                nodeId = nodeIdCandidates[i];
-                if (this._graph.hasNode(nodeId)) {
-                    nodeFound = true;
-                    if (this._finishedNodeIds.has(nodeId)) {
-                        return;
-                    }
-                    break;
-                }
-            }
-            if (!nodeFound) {
+            let nodeId: DagNodeId = this._getDagNodeIdFromQueryInfo(queryNodeInfo);
+            if (!nodeId) {
                 return;
             }
-            let nodeIdInfo = nodeIdInfos.get(nodeId);
-            if (!nodeIdInfo) {
-                nodeIdInfo = {};
-                nodeIdInfos.set(nodeId, nodeIdInfo);
+            let nodeIdMap: Map<string, XcalarApiDagNodeT> = nodeIdInfos.get(nodeId);
+            if (!nodeIdMap) {
+                nodeIdMap = new Map();
+                nodeIdInfos.set(nodeId, nodeIdMap);
             }
-            nodeIdInfo[tableName] = queryNodeInfo;
+            nodeIdMap.set(tableName, queryNodeInfo);
             queryNodeInfo["index"] = parseInt(queryNodeInfo.dagNodeId);
         });
 
-        for (let [nodeId, queryNodesBelongingToDagNode] of nodeIdInfos) {
+        for (let [nodeId, queryNodesMap] of nodeIdInfos) {
+            // queryNodesMap are those queries belonging to a dagNodeId
             let node: DagNode = this._graph.getNode(nodeId);
             if (node != null) {
                 // DO THE ACTUAL PROGRESS UPDATE HERE
-                node.updateProgress(queryNodesBelongingToDagNode, this._currentNode == null, this._currentNode == null);
+                node.updateProgress(queryNodesMap, this._currentNode == null, this._currentNode == null);
                 if (node instanceof DagNodeSQL) {
                     node.updateSQLQueryHistory(true);
                 }
@@ -908,21 +900,20 @@ class DagGraphExecutor {
                         let latestId = -1;
                         // find the last queryNode belonging to a dagNode
                         // that is not a deleteNode and get it's destTable
-                        for (let tableName in queryNodesBelongingToDagNode) {
-                            let queryNode = queryNodesBelongingToDagNode[tableName];
+                        queryNodesMap.forEach((queryNode) => {
                             let curId = parseInt(queryNode.dagNodeId);
                             if (curId > latestId) {
                                 latestId = curId;
                                 lastNode = queryNode;
                             }
-                        }
+                        });
                         if (lastNode) {
                             destTable = lastNode.name.name;
                         }
                     }
 
                     if (node instanceof DagNodeAggregate) {
-                        this._resolveAggregates(this._currentTxId, node, Object.keys(queryNodesBelongingToDagNode)[0]);
+                        this._resolveAggregates(this._currentTxId, node, queryNodesMap.keys().next().value);
                     }
 
                     if (destTable) {
@@ -942,7 +933,7 @@ class DagGraphExecutor {
                     this._finishedNodeIds.add(nodeId);
                     this._dagIdToDestTableMap.delete(nodeId);
                     if (node.getType() === DagNodeType.Map) {
-                        let nodeInfo = Object.values(queryNodesBelongingToDagNode)[0];
+                        let nodeInfo = queryNodesMap.values().next().value;
                         if (DagGraphExecutor.hasUDFError(nodeInfo)) {
                             (<DagNodeMap>node).setUDFError(nodeInfo.opFailureInfo);
                         }
@@ -1535,6 +1526,24 @@ class DagGraphExecutor {
             outNodeId = this._optimizedExportNodes[this._optimizedExportNodes.length - 1].getId();
         }
         return outNodeId;
+    }
+
+    // Looks at query's tag for list of dagNodeIds it belongs to. Then checks
+    // to see if the graph has that node id.
+    private _getDagNodeIdFromQueryInfo(queryNodeInfo: XcalarApiDagNodeT): DagNodeId {
+        let nodeIdCandidates = queryNodeInfo.tag.split(",");
+        let nodeId: DagNodeId;
+        for (let i = 0; i < nodeIdCandidates.length; i++) {
+            nodeId = nodeIdCandidates[i];
+            if (this._graph.hasNode(nodeId)) {
+                if (this._finishedNodeIds.has(nodeId)) {
+                    return null;
+                } else {
+                    return nodeId;
+                }
+            }
+        }
+        return null;
     }
 }
 

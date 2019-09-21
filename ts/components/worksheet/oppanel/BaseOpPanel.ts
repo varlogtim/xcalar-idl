@@ -185,7 +185,7 @@ class BaseOpPanel {
     private advancedMode: boolean;
     protected _formHelper: FormHelper = null;
     protected _editor: CodeMirror.EditorFromTextArea;
-    private _exitCallback: Function;
+    private _exitCallback: Function;  // when config panel is exited without saving
     private _closeCallback: Function;
     private udfMap;
     private xdfMap;

@@ -111,66 +111,65 @@ describe("DagNodeInfoPanel Test", function() {
         it("should show correct stats section", function() {
             expect(1).to.equal(1);
             expect($panel.find(".progressRow").hasClass("xc-hidden")).to.be.true;
-
-            filterNode.updateProgress({
-                "table_DF2_5C2E5E0B0EF91A85_1549520868132_61_dag_5C2E5E0B0EF91A85_1549668770304_65#t_1553122939885_0": {
-                    "name": {
-                        "name": "table_DF2_5C2E5E0B0EF91A85_1549520868132_61_dag_5C2E5E0B0EF91A85_1549668770304_65#t_1553122939885_0"
-                    },
-                    "tag": "",
-                    "comment": "",
-                    "dagNodeId": "1619201",
-                    "api": 3,
-                    "state": 3,
-                    "xdbBytesRequired": 0,
-                    "xdbBytesConsumed": 0,
-                    "numTransPageSent": 0,
-                    "numTransPageRecv": 0,
-                    "numWorkCompleted": 5,
-                    "numWorkTotal": 6,
-                    "elapsed": {
-                        "milliseconds": 8
-                    },
-                    "inputSize": 533024,
-                    "input": {
-                        "indexInput": {
-                            "source": ".XcalarDS.rudy.19434.classes",
-                            "dest": "table_DF2_5C2E5E0B0EF91A85_1549520868132_61_dag_5C2E5E0B0EF91A85_1549668770304_65#t_1553122939885_0",
-                            "key": [
-                                {
-                                    "name": "xcalarRecordNum",
-                                    "type": "DfInt64",
-                                    "keyFieldName": "xcalarRecordNum",
-                                    "ordering": "Random"
-                                }
-                            ],
-                            "prefix": "classes",
-                            "dhtName": "",
-                            "delaySort": false,
-                            "broadcast": false
-                        }
-                    },
-                    "numRowsTotal": 6,
-                    "numNodes": 2,
-                    "numRowsPerNode": [
-                        6,
-                        0
-                    ],
-                    "sizeTotal": 0,
-                    "sizePerNode": [],
-                    "numTransPagesReceivedPerNode": [
-                        0,
-                        0
-                    ],
-                    "numParents": 0,
-                    "parents": [],
-                    "numChildren": 0,
-                    "children": [],
-                    "log": "",
-                    "status": 0,
-                    "index": 0
-                }
+            let map = new Map();
+            map.set("table_DF2_5C2E5E0B0EF91A85_1549520868132_61_dag_5C2E5E0B0EF91A85_1549668770304_65#t_1553122939885_0",  {
+                "name": {
+                    "name": "table_DF2_5C2E5E0B0EF91A85_1549520868132_61_dag_5C2E5E0B0EF91A85_1549668770304_65#t_1553122939885_0"
+                },
+                "tag": "",
+                "comment": "",
+                "dagNodeId": "1619201",
+                "api": 3,
+                "state": 3,
+                "xdbBytesRequired": 0,
+                "xdbBytesConsumed": 0,
+                "numTransPageSent": 0,
+                "numTransPageRecv": 0,
+                "numWorkCompleted": 5,
+                "numWorkTotal": 6,
+                "elapsed": {
+                    "milliseconds": 8
+                },
+                "inputSize": 533024,
+                "input": {
+                    "indexInput": {
+                        "source": ".XcalarDS.rudy.19434.classes",
+                        "dest": "table_DF2_5C2E5E0B0EF91A85_1549520868132_61_dag_5C2E5E0B0EF91A85_1549668770304_65#t_1553122939885_0",
+                        "key": [
+                            {
+                                "name": "xcalarRecordNum",
+                                "type": "DfInt64",
+                                "keyFieldName": "xcalarRecordNum",
+                                "ordering": "Random"
+                            }
+                        ],
+                        "prefix": "classes",
+                        "dhtName": "",
+                        "delaySort": false,
+                        "broadcast": false
+                    }
+                },
+                "numRowsTotal": 6,
+                "numNodes": 2,
+                "numRowsPerNode": [
+                    6,
+                    0
+                ],
+                "sizeTotal": 0,
+                "sizePerNode": [],
+                "numTransPagesReceivedPerNode": [
+                    0,
+                    0
+                ],
+                "numParents": 0,
+                "parents": [],
+                "numChildren": 0,
+                "children": [],
+                "log": "",
+                "status": 0,
+                "index": 0
             });
+            filterNode.updateProgress(map);
 
             DagNodeInfoPanel.Instance.update(filterNode.getId(), "stats");
             expect($panel.find(".progressRow").hasClass("xc-hidden")).to.be.false;

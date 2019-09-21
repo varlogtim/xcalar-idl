@@ -196,7 +196,7 @@ class DagView {
                 DagNodeMenu.execute("configureNode", {
                     node: node,
                     exitCallback: () => {
-                        node.setParam({});
+                        node.setParam({}, true);
                     }
                 });
             }
@@ -1147,12 +1147,10 @@ class DagView {
             }
         });
 
-        let origMinXCoor = minXCoor;
-        let origMinYCoor = minYCoor;
-        minXCoor += (DagView.gridSpacing * 5);
-        minYCoor += (DagView.gridSpacing * 2);
+        let origMinXCoor = upperLeftMostNode.display.x;
+        let origMinYCoor = upperLeftMostNode.display.y;
         const nextAvailablePosition = this._getNextAvailablePosition(null,
-            minXCoor, minYCoor);
+            upperLeftMostNode.display.x, upperLeftMostNode.display.y);
         minXCoor = nextAvailablePosition.x;
         minYCoor = nextAvailablePosition.y;
 
@@ -1290,12 +1288,10 @@ class DagView {
             if (updatedAggNodes.length) {
                 this._updateTitleForNodes(updatedAggNodes);
             }
-            if (upperLeftMostNode) {
-                const newParentId: DagNodeId = oldNodeIdMap.get(upperLeftMostNode.nodeId);
-                let $node = this._getNode(newParentId);
-                if ($node.length) {
-                    $node.scrollintoview({duration: 0});
-                }
+            const newParentId: DagNodeId = oldNodeIdMap.get(upperLeftMostNode.nodeId);
+            let $node = this._getNode(newParentId);
+            if ($node.length) {
+                $node.scrollintoview({duration: 0});
             }
             Log.add(SQLTStr.PasteOperations, {
                 "operation": SQLOps.PasteOperations,
@@ -3906,7 +3902,8 @@ class DagView {
 
     private _autoExecute(dagNode: DagNode): void {
         if (UserSettings.getPref("dfAutoExecute") === true) {
-            if (dagNode.getState() == DagNodeState.Configured) {
+            if (dagNode.getState() == DagNodeState.Configured ||
+                dagNode.getState() == DagNodeState.Error) {
                 const optimized: boolean = (dagNode instanceof DagNodeOutOptimizable &&
                                            dagNode.isOptimized());
                 this.run([dagNode.getId()], optimized);
@@ -5183,7 +5180,7 @@ class DagView {
                 if (dagNode instanceof DagNodeIMDTable) {
                     let source = dagNode.getSource();
                     if (source) {
-                        sqlFuncIn.setParam({source: source});
+                        sqlFuncIn.setParam({source: source}, true);
                     }
                 }
                 return sqlFuncIn.getNodeCopyInfo();

@@ -1107,7 +1107,7 @@ abstract class GeneralOpPanelModel {
 
     private _isBoolean(arg) {
         arg = ("" + arg).toLowerCase();
-        return (arg === "true" || arg === "false" || arg === "t" || arg === "f");
+        return (arg === "true" || arg === "false");
     }
 
     protected _translateAdvancedErrorMessage(error) {

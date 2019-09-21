@@ -277,7 +277,7 @@ class DagTabSQLFunc extends DagTabUser {
                 let source: string = index == null ? "" : input[index];
                 dagNode.setParam({
                     source: source
-                });
+                }, true);
             } else if (dagNode instanceof DagNodeSQLFuncOut) {
                 outNodes.push(dagNode);
             }
