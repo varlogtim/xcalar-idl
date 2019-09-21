@@ -3855,8 +3855,8 @@ XcalarQueryCheck = function(
         setTimeout(function() {
             XcalarQueryState(queryName)
             .then(function(queryStateOutput: XcalarApiQueryStateOutputT) {
-                Transaction.update(txId, queryStateOutput);
                 const state = queryStateOutput.queryState;
+                Transaction.update(txId, queryStateOutput);
                 if (state === QueryStateT.qrFinished ||
                     state === QueryStateT.qrCancelled) {
                     addThriftErrorLogToQueryOutput(queryStateOutput);

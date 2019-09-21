@@ -293,7 +293,7 @@ class DagList extends Durable {
 
         if (dagTab instanceof DagTabSQLFunc ||
             dagTab instanceof DagTabUser ||
-            dagTab instanceof DagTabOptimized    
+            dagTab instanceof DagTabOptimized
         ) {
             this._dags.set(dagTab.getId(), dagTab);
             this._saveDagList(dagTab);

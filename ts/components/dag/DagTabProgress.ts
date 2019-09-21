@@ -79,7 +79,7 @@ abstract class DagTabProgress extends DagTab {
         if (this._isDoneExecuting) {
             return;
         }
-        this._statusCheckInterval(true);
+        this._statusCheck();
     }
 
     public unfocus() {
@@ -139,29 +139,48 @@ abstract class DagTabProgress extends DagTab {
         return graph;
     }
 
-    private _statusCheckInterval(firstRun?: boolean): void {
+    private _statusCheck() {
+        const checkId = this._queryCheckId;
+        let numFails = 0;
+        const self = this;
+
         // shorter timeout on the first call
-        let checkTime = firstRun ? 0 : DagTabProgress.progressCheckInterval;
-        const checkId = this._queryCheckId
-        setTimeout(() => {
-            if (this._isDoneExecuting || !this._isFocused || this._isDeleted ||
-                checkId !== this._queryCheckId) {
+        _statusCheckInterval(0);
+
+        function _statusCheckInterval(checkTime): void {
+            setTimeout(() => {
+                if (checkId !== self._queryCheckId) {
+                    return;
+                }
+                statusCheckHelper();
+            }, checkTime);
+        }
+
+        function statusCheckHelper() {
+            if (self._isDoneExecuting || !self._isFocused || self._isDeleted) {
                 return; // query is finished or unfocused, no more checking
             }
 
-            this._getAndUpdateStatuses()
-            .always((_ret) => {
-                if (this._isDoneExecuting || !this._isFocused || this._isDeleted) {
+            self._getAndUpdateStatuses(numFails >= 10)
+            .always((ret) => {
+                if (self._isDoneExecuting || !self._isFocused || self._isDeleted) {
                     return; // query is finished or unfocused, no more checking
                 }
-
-                this._statusCheckInterval();
+                let nextCheckTime = DagTabProgress.progressCheckInterval;
+                if (ret && ret.status === StatusT.StatusQrQueryNotExist) {
+                    numFails++;
+                    nextCheckTime *= numFails;
+                } else {
+                    numFails = 0;
+                }
+                _statusCheckInterval(nextCheckTime);
             });
-
-        }, checkTime);
+        }
     }
 
-    protected _getAndUpdateStatuses(): XDPromise<any> {
+
+
+    protected _getAndUpdateStatuses(isLastTry?: boolean): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
 
         const checkId = this._queryCheckId;
@@ -211,12 +230,13 @@ abstract class DagTabProgress extends DagTab {
                 }
                 DagViewManager.Instance.updateProgressDataflow(this._id, queryStateOutput);
             }
-            deferred.resolve(queryStateOutput);
+            deferred.resolve();
         })
         .fail((error) => {
-            if (this._inProgress && error && error.status === StatusT.StatusQrQueryNotExist) {
+            if (!isLastTry && this._inProgress && error && (error.status === StatusT.StatusQrQueryNotExist ||
+                error.status === StatusT.StatusQrJobNonExist)) {
                 // ok to fail if query doesn't exist yet
-                deferred.resolve();
+                deferred.resolve({status: StatusT.StatusQrQueryNotExist});
             } else {
                 this._isDoneExecuting = true;
                 this._dagGraph.stopExecution();

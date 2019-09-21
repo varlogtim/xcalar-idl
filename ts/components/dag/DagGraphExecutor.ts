@@ -445,7 +445,7 @@ class DagGraphExecutor {
             }
             let nodeIds = nodes.map(node => node.getId());
 
-            let operation = SQLOps.DataflowExecution;
+            let operation: string = SQLOps.DataflowExecution;
             let queryMeta: string = null;
             if (nodes.length === 1) {
                 operation = nodes[0].getType();
