@@ -194,7 +194,10 @@ class PbTblInfo {
     public getColCountStr(): string {
         let cols: string;
         if (this.active && this.columns != null) {
-            cols = xcStringHelper.numToStr(this.columns.length);
+            let columns = this.columns.filter((col) => {
+                return !PTblManager.InternalColumns.includes(col.name);
+            });
+            cols = xcStringHelper.numToStr(columns.length);
         } else {
             cols = "N/A";
         }
