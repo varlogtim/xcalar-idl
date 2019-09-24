@@ -15,7 +15,7 @@ namespace Admin {
      */
     export function setup(): void {
         let posingAsUser = isPostAsUser();
-        let isAdmin: boolean = Admin.isAdmin() && !XVM.isCloud();
+        let isAdmin: boolean = Admin.isAdmin();
         setupAdminStatusBar(posingAsUser);
         setupMonitorConfig();
 
@@ -164,7 +164,7 @@ namespace Admin {
      * @param users
      */
     export function updateLoggedInUsers(users: object): void {
-        if (!Admin.isAdmin() || XVM.isCloud()) {
+        if (!Admin.isAdmin()) {
             return;
         }
         loggedInUsers = users;

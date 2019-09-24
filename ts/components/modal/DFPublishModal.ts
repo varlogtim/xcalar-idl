@@ -11,7 +11,7 @@ class DFPublishModal {
         const $modal: JQuery = this._getModal();
         if (XVM.isCloud()) {
             $modal.addClass("cloud");
-            $modal.find(".noCloud").hide();
+            $modal.find(".onPremOnly").hide();
         }
         this._modalHelper = new ModalHelper($modal, {
             noResize: true,

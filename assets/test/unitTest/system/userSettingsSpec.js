@@ -232,6 +232,27 @@ describe("UserSettings Test", function() {
             expect(UserSettings.getPref("showIMD")).to.equal(showIMD);
         });
 
+        it("should toggle enableXcalarSupport", function() {
+            if (!XVM.isCloud()) {
+                return;
+            }
+            var oldFunc = UserSettings.commit;
+            var count = 0;
+            UserSettings.commit = () => count++;
+            var enableXcalarSupport = UserSettings.getPref("enableXcalarSupport") || false;
+            var $btn = $("#enableXcalarSupport");
+            // case 1
+            $btn.click();
+            expect(UserSettings.getPref("enableXcalarSupport")).to.equal(!enableXcalarSupport);
+            expect(count).to.equal(1);
+            // case 2
+            $btn.click();
+            expect(UserSettings.getPref("enableXcalarSupport")).to.equal(enableXcalarSupport);
+            expect(count).to.equal(2);
+
+            UserSettings.commit = oldFunc;
+        });
+
         it("should reveal the right value on the slider", function() {
             var $bar = $("#commitIntervalSlider").find(".ui-resizable-e").eq(0);
             var pageX = $bar.offset().left;

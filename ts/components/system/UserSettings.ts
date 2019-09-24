@@ -76,7 +76,8 @@ namespace UserSettings {
     export function commit(
         showSuccess: boolean,
         hasDSChange: boolean = false,
-        isPersonalChange: boolean = false
+        isPersonalChange: boolean = false,
+        isGeneralChange: boolean = false,
     ): XDPromise<void> {
         if (!userPrefs) {
             // UserSettings.commit may be called when no workbook is created
@@ -114,7 +115,7 @@ namespace UserSettings {
                     genSettings.updateXcSettings(UserSettings.getPref('general'));
                     userPrefPromise = settingsStore.putWithMutex(
                         JSON.stringify(genSettings.getAdminAndXcSettings()), true);
-                } else if (Admin.isAdmin() && !isPersonalChange) {
+                } else if (Admin.isAdmin() && !isPersonalChange || isGeneralChange) {
                     genSettings.updateAdminSettings(UserSettings.getPref('general'));
                     userPrefPromise = settingsStore.putWithMutex(
                         JSON.stringify(genSettings.getAdminAndXcSettings()), true);
@@ -227,11 +228,15 @@ namespace UserSettings {
         userPrefs = new UserPref();
         addEventListeners();
         if (XVM.isCloud()) {
-            $("#monitorGenSettingsCard .optionSet.noCloud").remove();
-        } else if (!Admin.isAdmin()) { // remove admin only settings
+            // remove prem only settings
+            $("#monitorGenSettingsCard .optionSet.onPremOnly").remove();
+        } else if (!Admin.isAdmin()) {
+            // remove admin only settings
             $("#monitorGenSettingsCard .optionSet.admin").remove();
         }
+        
         if (!XVM.isCloud()) {
+            // remove cloud only settings
             $("#monitorGenSettingsCard .optionSet.cloudOnly").remove();
         }
     }
@@ -351,6 +356,17 @@ namespace UserSettings {
             }
         });
 
+        $("#enableXcalarSupport").click(function() {
+            let $checkbox = $(this);
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                UserSettings.setPref("enableXcalarSupport", true, true);
+            } else {
+                UserSettings.setPref("enableXcalarSupport", false, true);
+            }
+            UserSettings.commit(false, false, false, true);
+        });
+
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
             minVal: 1,
@@ -400,6 +416,7 @@ namespace UserSettings {
         let disableDSShare = UserSettings.getPref("disableDSShare");
         let logOutInterval = UserSettings.getPref("logOutInterval");
         let enableInactivityCheck = UserSettings.getPref("enableInactivityCheck");
+        let enableXcalarSupport: boolean = UserSettings.getPref("enableXcalarSupport") || false;
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
@@ -433,6 +450,20 @@ namespace UserSettings {
             } else {
                 $("#enableInactivityCheck").removeClass("checked");
                 XcUser.CurrentUser.disableIdleCheck();
+            }
+
+            if (enableXcalarSupport) {
+                $("#enableXcalarSupport").addClass("checked");
+            } else {
+                $("#enableXcalarSupport").removeClass("checked");
+                if (XVM.isCloud() && Admin.isAdmin()) {
+                    // don't allow admin to login as user not allow
+                    Alert.show({
+                        "title": "Access Deined",
+                        "msg": "The cloud user doesn't enable Xcalar support!",
+                        "lockScreen": true
+                    });
+                }
             }
         }
 
