@@ -121,12 +121,11 @@ class SQLJoin {
 
         // Check AND conditions and take note of all the EQ subtrees
         const eqSubtrees = [];
-        const andSubtrees = [];
         let filterSubtrees = [];
         let optimize = true;
         if (condTree && condTree.value.class ===
             "org.apache.spark.sql.catalyst.expressions.And") {
-            andSubtrees.push(condTree);
+            this.__processAndTree(condTree, eqSubtrees, filterSubtrees);
         } else if (condTree && condTree.value.class === eqClassName) {
             eqSubtrees.push(condTree);
         } else {
@@ -146,22 +145,6 @@ class SQLJoin {
         // Resolving firstDeferred will start the domino fall
         const firstDeferred = PromiseHelper.deferred();
         let promise: XDPromise<any> = firstDeferred.promise();
-
-        while (andSubtrees.length > 0) {
-            const andTree = andSubtrees.shift();
-            SQLUtil.assert(andTree.children.length === 2,
-                   SQLErrTStr.JoinAndTreeTwoChildren + andTree.children.length);
-            for (let i = 0; i < andTree.children.length; i++) {
-                if (andTree.children[i].value.class ===
-                    "org.apache.spark.sql.catalyst.expressions.And") {
-                    andSubtrees.push(andTree.children[i]);
-                } else if (andTree.children[i].value.class === eqClassName) {
-                    eqSubtrees.push(andTree.children[i]);
-                } else {
-                    filterSubtrees.push(andTree.children[i]);
-                }
-            }
-        }
 
         if (SQLJoin.__isExistenceJoin(node)) {
             const existColName = SQLCompiler.cleanseColName(
@@ -383,6 +366,24 @@ class SQLJoin {
 
         return deferred.promise();
     }
+
+    // *** Join condition tree visitor
+    static __processAndTree(n: TreeNode, eqSubtrees: TreeNode[], filterSubtrees: TreeNode[]): void {
+        let eqClassName: string = "org.apache.spark.sql.catalyst.expressions.EqualTo";
+        SQLUtil.assert(n.children.length === 2,
+                SQLErrTStr.JoinAndTreeTwoChildren + n.children.length);
+        for (let i = 0; i < n.children.length; i++) {
+            if (n.children[i].value.class ===
+                "org.apache.spark.sql.catalyst.expressions.And") {
+                this.__processAndTree(n.children[i], eqSubtrees, filterSubtrees);
+            } else if (n.children[i].value.class === eqClassName) {
+                eqSubtrees.push(n.children[i]);
+            } else {
+                filterSubtrees.push(n.children[i]);
+            }
+        }
+    }
+    // *** End of join condition tree visitor
 
     // *** Join type validators
     static __isSemiOrAntiJoin(n: TreeNode): boolean {
