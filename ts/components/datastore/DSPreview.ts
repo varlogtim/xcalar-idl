@@ -40,6 +40,7 @@ namespace DSPreview {
     let componentDBFormat;
     let componentJsonFormat;
     let componentXmlFormat;
+    let componentConfluentFormat;
     let componentParquetFileFormat;
     let dataSourceSchema: DataSourceSchema;
 
@@ -83,6 +84,7 @@ namespace DSPreview {
         "PARQUET": "PARQUET",
         "PARQUETFILE": "PARQUETFILE",
         "DATABASE": "DATABASE",
+        "CONFLUENT": "CONFLUENT",
     };
 
     /**
@@ -128,6 +130,11 @@ namespace DSPreview {
             $container: $form,
             udfModule: defaultModule,
             udfFunction: 'xmlToJsonWithExtraKeys'
+        });
+        componentConfluentFormat = createConfluentFormat({
+            $container: $form,
+            udfModule: defaultModule,
+            udfFunction: 'ingestFromConfluent'
         });
 
         setupDataSourceSchema();
@@ -1453,6 +1460,7 @@ namespace DSPreview {
         componentXmlFormat.resetState();
         componentJsonFormat.reset();
         componentParquetFileFormat.reset();
+        componentConfluentFormat.reset();
         dataSourceSchema.reset();
         $("#dsForm-udfExtraArgs").val("");
         $form.find(".checkbox.checked").removeClass("checked");
@@ -1548,6 +1556,10 @@ namespace DSPreview {
                 dsn: options.udfQuery.dsn,
                 query: options.udfQuery.query
             });
+            delete options.moduleName;
+            delete options.funcName;
+        } else if (format == formatMap.CONFLUENT) {
+            componentConfluentFormat.restore(options.udfQuery);
             delete options.moduleName;
             delete options.funcName;
         } else if (format === formatMap.JSON) {
@@ -2602,6 +2614,18 @@ namespace DSPreview {
             udfModule = udfDef.udfModule;
             udfFunc = udfDef.udfFunc;
             udfQuery = udfDef.udfQuery;
+        } else if (format === formatMap.CONFLUENT) {
+            let args = componentConfluentFormat.validateValues();
+            if (args == null) {
+                return null;
+            }
+
+            let udfDef = componentConfluentFormat.getUDFDefinition({
+                numRows: args.numRows
+            });
+            udfModule = udfDef.udfModule;
+            udfFunc = udfDef.udfFunc;
+            udfQuery = udfDef.udfQuery;
         }
 
         let terminationOptions = getTerminationOptions();
@@ -2699,6 +2723,18 @@ namespace DSPreview {
 
             let udfDef = componentDBFormat.getUDFDefinition({
                 query: dbArgs.query
+            });
+            udfModule = udfDef.udfModule;
+            udfFunc = udfDef.udfFunc;
+            udfQuery = udfDef.udfQuery;
+        } else if (format === formatMap.CONFLUENT) {
+            let args = componentConfluentFormat.validateValues();
+            if (args == null) {
+                return null;
+            }
+
+            let udfDef = componentConfluentFormat.getUDFDefinition({
+                numRows: args.numRows
             });
             udfModule = udfDef.udfModule;
             udfFunc = udfDef.udfFunc;
@@ -3036,6 +3072,9 @@ namespace DSPreview {
             case "DATABASE":
                 componentDBFormat.show();
                 break;
+            case "CONFLUENT":
+                componentConfluentFormat.show();
+                break;
             default:
                 throw ("Format Not Support");
         }
@@ -3337,6 +3376,19 @@ namespace DSPreview {
                         udfQuery = udfDef.udfQuery;
                         toggleFormat("DATABASE");
                     }
+                } else if (DSTargetManager.isConfluentTarget(targetName)) {
+                    const args = componentConfluentFormat.validateValues();
+                    let udfDef = componentConfluentFormat.getUDFDefinition({
+                        numRows: args.numRows
+                    });
+                    hasUDF = true;
+                    noDetect = true;
+                    udfModule = udfDef.udfModule;
+                    udfFunc = udfDef.udfFunc;
+                    udfQuery = udfDef.udfQuery;
+                    if (!isRestore) {
+                        toggleFormat("CONFLUENT");
+                    }
                 }
             }
 
@@ -3573,7 +3625,8 @@ namespace DSPreview {
     function hideDataFormatsByTarget(targetName: string): void {
         let exclusiveFormats = {
             PARQUET: DSTargetManager.isSparkParquet(targetName),
-            DATABASE: DSTargetManager.isDatabaseTarget(targetName)
+            DATABASE: DSTargetManager.isDatabaseTarget(targetName),
+            CONFLUENT: DSTargetManager.isConfluentTarget(targetName)
         };
 
         let exclusiveFormat = null;
@@ -4217,7 +4270,7 @@ namespace DSPreview {
             }
         } else if (format === formatMap.XML) {
             isSuccess = hasUDF ? getJSONTable(rawData) : getXMLTable(rawData);
-        } else if (format === formatMap.DATABASE) {
+        } else if (format === formatMap.DATABASE || format === formatMap.CONFLUENT) {
             isSuccess = getJSONTable(rawData);
         } else {
             isSuccess = getCSVTable(rawData, format);
@@ -5994,6 +6047,62 @@ namespace DSPreview {
         };
     }
     // End === JsonFormat component factory
+
+    // Start === ConfluentFormat component factory
+    function createConfluentFormat(options: {
+        udfModule: string,
+        udfFunction: string,
+        $container: JQuery
+    }) {
+        const { udfModule, udfFunction, $container } = options;
+
+        // Constants
+        const ID_NUMROWS = 'dsForm-cfNumRows';
+        // Private variables
+        const $elementNumRows = $container.find(`#${ID_NUMROWS}`);
+
+        return {
+            show: function() {
+                $container.find('.format.confluent').removeClass("xc-hidden");
+            },
+
+            validateValues: function(): { numRows: number } {
+                try {
+                    const numRows = Number.parseInt($elementNumRows.val().trim());
+                    return { numRows: Number.isNaN(numRows) ? -1 : numRows };
+                } catch(e) {
+                    return null;
+                }
+            },
+
+            restore: function(udfQuery: {numRows: number}) {
+                const { numRows = null } = udfQuery || {};
+                if (numRows != null) {
+                    $elementNumRows.val(`${numRows < 0 ? '': numRows}`);
+                }
+            },
+
+            reset: function() {
+                $elementNumRows.val('20');
+            },
+
+            getUDFDefinition: function(params: {
+                numRows: number
+            }): {
+                udfModule: string, udfFunc: string, udfQuery: {
+                    numRows: number
+                }
+            } {
+                const { numRows = -1 } = params || {};
+                return {
+                    udfModule: udfModule,
+                    udfFunc: udfFunction,
+                    udfQuery: { numRows: numRows }
+                };
+            }
+        };
+    }
+    // End === ConfluentFormat component factory
 
     // Start === DatabaseFormat component factory
     function createDatabaseFormat({

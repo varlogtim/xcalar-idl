@@ -119,6 +119,14 @@ namespace DSForm {
             $filePath.removeAttr("placeholder");
         }
 
+        if (DSTargetManager.isConfluentTarget(targetName)) {
+            $pathCard.addClass("target-confluent");
+            $filePath.attr("placeholder", DSFormTStr.KafkaConnectorHint);
+        } else {
+            $pathCard.removeClass("target-confluent");
+            $filePath.removeAttr("placeholder");
+        }
+
         if (DSTargetManager.isDatabaseTarget(targetName)) {
             DSForm.addHistoryPath(targetName, `/${targetName}`);
         }
@@ -151,7 +159,9 @@ namespace DSForm {
     function getFilePath(targetName: string): string {
         let path: string = $filePath.val().trim();
 
-        if (!DSTargetManager.isGeneratedTarget(targetName)) {
+        if (!DSTargetManager.isGeneratedTarget(targetName)
+            && !DSTargetManager.isConfluentTarget(targetName)
+        ) {
             if (!path.startsWith("/")) {
                 path = "/" + path;
             }

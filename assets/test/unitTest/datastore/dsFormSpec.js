@@ -69,7 +69,7 @@ describe("Dataset-DSForm Test", function() {
             $filePath.val("/testPath/a/b");
             var val = DSForm.__testOnly__.getFilePath();
             expect(val).to.equal("/testPath/a/b/");
-            
+
 
             $filePath.val("testPath/a/b");
             var val = DSForm.__testOnly__.getFilePath();
@@ -84,6 +84,16 @@ describe("Dataset-DSForm Test", function() {
             expect(val).to.equal("testPath/a/b"); // Should be same as input
             // Cannot have / prepended and appended
             DSTargetManager.isGeneratedTarget = oldFunc;
+
+            // case confluent kafka connector
+            var oldFunc = DSTargetManager.isConfluentTarget;
+            DSTargetManager.isConfluentTarget = function() {
+                return true;
+            };
+            val = DSForm.__testOnly__.getFilePath();
+            expect(val).to.equal("testPath/a/b"); // Should be same as input
+            // Cannot have / prepended and appended
+            DSTargetManager.isConfluentTarget = oldFunc;
         });
 
         it("Should get and set protocol", function() {
@@ -194,7 +204,7 @@ describe("Dataset-DSForm Test", function() {
             $pathCard.find(".back").click();
             expect(called).to.equal(null);
             expect($filePath.val()).to.equal("");
-            
+
             DataSourceManager.startImport = oldFunc;
         });
 

@@ -1271,6 +1271,7 @@ DSFormTStr = {
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
     'UDFHint': 'Please select a UDF module and UDF function then click \"Apply UDF\" button to apply the UDF.',
     'GeneratedTargetHint': 'The path for this connector should be the number of rows desired in the dataset',
+    'KafkaConnectorHint': 'Kafka topic name',
     'ImportMultiple': 'Importing Multiple Datasets',
     'ParseError': 'Your file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
     'UDFError': 'UDF generated errors while running your file.',

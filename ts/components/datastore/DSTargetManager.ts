@@ -19,6 +19,7 @@ namespace DSTargetManager {
 
     export const S3Connector: string = "s3fullaccount";
     export const DBConnector: string = "dsn";
+    export const ConfluentConnector: string = "confluent";
 
     /**
      * DSTargetManager.setup
@@ -73,6 +74,15 @@ namespace DSTargetManager {
         } else {
             return false;
         }
+    }
+
+    /**
+     * DSTargetManager.isConfluentTarget
+     * @param targetName
+     */
+    export function isConfluentTarget(targetName: string): boolean {
+        let target = DSTargetManager.getTarget(targetName);
+        return (target && target.type_id === ConfluentConnector);
     }
 
     /**
@@ -307,7 +317,7 @@ namespace DSTargetManager {
         return deferred.promise();
 
     }
-    
+
     /**
      * DSTargetManager.getCloudS3Connector
      */

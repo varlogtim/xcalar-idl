@@ -1547,6 +1547,13 @@ describe("Dataset-DSPreview Test", function() {
             assert.isTrue($("#dsForm-dbSQL").is(":visible"), "has database SQL");
         });
 
+        it("Format Should be CONFLUENT", function() {
+            DSPreview.__testOnly__.toggleFormat("CONFLUENT");
+            expect($formatText.data("format")).to.equal("CONFLUENT");
+            // UI part
+            assert.isTrue($("#dsForm-cfNumRows").is(":visible"), "has number of rows");
+        });
+
         after(function() {
             DSPreview.__testOnly__.resetForm();
             DSForm.show();
@@ -2114,6 +2121,22 @@ describe("Dataset-DSPreview Test", function() {
             $("#dsForm-dbSQL").val("");
         });
 
+        it("should validate CONFLUENT case", function() {
+            loadArgs.set({format: "CONFLUENT"});
+
+            // Test for normal output
+            $("#dsForm-cfNumRows").val("5");
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("CONFLUENT");
+            expect(res.udfModule).to.equal(defaultUDFPath);
+            expect(res.udfFunc).to.equal("ingestFromConfluent");
+            expect(res.udfQuery).to.be.an("object");
+            expect(res.udfQuery.numRows).to.equal(5);
+            // restore
+            $("#dsForm-cfNumRows").val("");
+        });
+
         it("should validate JSON case", function() {
             loadArgs.set({format: "JSON"});
             let validateResult;
@@ -2444,6 +2467,22 @@ describe("Dataset-DSPreview Test", function() {
 
             // restore
             $("#dsForm-dbSQL").val("");
+        });
+
+        it("should restore CONFLUENT", function() {
+            resetForm({
+                dsName: "test",
+                format: "CONFLUENT",
+                udfQuery: {
+                    numRows: 5
+                }
+            });
+
+            expect(loadArgs.getFormat()).to.equal("CONFLUENT");
+            expect($("#dsForm-cfNumRows").val()).to.equal("5");
+
+            // restore
+            $("#dsForm-cfNumRows").val("");
         });
 
         it("should restore JSON", function() {

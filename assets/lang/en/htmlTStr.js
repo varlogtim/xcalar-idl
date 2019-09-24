@@ -365,6 +365,7 @@ module.exports = {
         "RawDSJsonJmespath": "JSON query string. For information about JMESPath, search JMESPath online.",
         "RawDSPreviewRefresh": "Click to refresh the preview",
         "RawDSTableSchema": "Schema for the table being created",
+        "RawDSKafkaNumRows": "Number of rows to fetch",
     },
 
     "Table": {
@@ -754,6 +755,8 @@ module.exports = {
         "DatabaseDSN": "DSN",
         "DatabaseQuery": "SQL",
         "Jmespath": "JMESPath",
+        "KafkaNumRows": "Number of rows",
+        "KafkaNumRowsHint": "Leave blank to fetch all the rows",
         "SelectFile": "Select a file to preview from the dropdown.",
         "PartitionsAdvanced": "Partitions (Advanced)",
         "SelectedColumns": "Selected Columns",
@@ -794,7 +797,8 @@ module.exports = {
         "PARQUET": "Parquet Dataset",
         "PARQUETFILE": "Parquet File",
         "UDF": "Custom Format",
-        "DATABASE": "Custom Database"
+        "DATABASE": "Custom Database",
+        "CONFLUENT": "Confluent Kafka"
     },
 
     "dsTable": {
