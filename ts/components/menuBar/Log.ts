@@ -1219,6 +1219,7 @@ namespace Log {
             case (SQLOps.RemoveOperations):
             case (SQLOps.AddOperation):
             case (SQLOps.CopyOperations):
+            case (SQLOps.PasteOperations):
             case (SQLOps.MoveOperations):
             case (SQLOps.NewDagTab):
             case (SQLOps.RemoveDagTab):

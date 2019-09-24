@@ -75,7 +75,7 @@ namespace Undo {
         return DagViewManager.Instance.removeNodes([options.nodeId], options.dataflowId);
     };
 
-    undoFuncs[SQLOps.CopyOperations] = function(options): XDPromise<void> {
+    undoFuncs[SQLOps.PasteOperations] = function(options): XDPromise<void> {
         DagTabManager.Instance.switchTab(options.dataflowId);
         return DagViewManager.Instance.removeNodes(options.nodeIds, options.dataflowId);
     };

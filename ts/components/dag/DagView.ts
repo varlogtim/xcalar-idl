@@ -1297,8 +1297,8 @@ class DagView {
                     $node.scrollintoview({duration: 0});
                 }
             }
-            Log.add(SQLTStr.CopyOperations, {
-                "operation": SQLOps.CopyOperations,
+            Log.add(SQLTStr.PasteOperations, {
+                "operation": SQLOps.PasteOperations,
                 "dataflowId": this.tabId,
                 "nodeIds": allNewNodeIds
             });

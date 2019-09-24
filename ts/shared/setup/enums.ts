@@ -324,6 +324,7 @@ enum SQLOps {
     RemoveOperations = "removeOperations",
     AddOperation = "addOperation",
     CopyOperations = "copyOperations",
+    PasteOperations = "pasteOperations",
     MoveOperations = "moveOperations",
     NewDagTab = "newDagTab",
     DupDagTab = "dupDagTab",

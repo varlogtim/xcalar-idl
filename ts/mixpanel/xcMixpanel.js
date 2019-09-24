@@ -289,9 +289,18 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 "node": node
             });
         } else {
-            xcMixpanel.track("Op - " + log.title, {
+            let info = {
                 "eventType": "transaction"
-            });
+            }
+            try {
+                if (log.sql && log.sql.args && log.sql.args.targetName) {
+                    info.targetType = DSTargetManager.getTarget(log.sql.args.targetName).type_name;
+                } else if (log.options.args.sources[0].targetName) {
+                    info.targetType = DSTargetManager.getTarget(log.options.args.sources[0].targetName).type_name;
+                }
+            } catch (e) {}
+
+            xcMixpanel.track("Op - " + log.title, info);
         }
     };
 
@@ -508,6 +517,13 @@ window.xcMixpanel = (function($, xcMixpanel) {
             currentPanel = $mainPanel.attr("id");
             let lastSubPanel = currentSubPanel;
             currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
+            if (currentSubPanel === "datastore-in-view") {
+                if ($("#datastorePanel").hasClass("in")) {
+                    currentSubPanel = "Dataset Import Panel";
+                } else if ($("#datastorePanel").hasClass("table")) {
+                    currentSubPanel = "Table Import Panel";
+                }
+            }
 
             if (lastPanel === currentPanel) { // toggling left panel
                 xcMixpanel.track("Left Panel Toggle", {
@@ -527,6 +543,16 @@ window.xcMixpanel = (function($, xcMixpanel) {
                     "timeInLastSubPanel": timeInLastSubPanel,
                     "eventType": "click"
                 });
+                setTimeout(() => {
+                    // without timeout, mixpanel receives the subpanel
+                    // switch before panel switch
+                   xcMixpanel.track("Sub Panel Switch", {
+                        "timeInLastSubPanel": timeInLastSubPanel,
+                        "lastSubPanel": lastSubPanel,
+                        "eventType": "click",
+                        "defaultSwitch": true
+                    });
+                }, 100);
             }
         } else if ($target.closest(".subTab").length) { // sub tab click
             let $mainPanel = $(".mainPanel.active");

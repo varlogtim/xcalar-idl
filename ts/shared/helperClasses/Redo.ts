@@ -75,7 +75,7 @@ namespace Redo {
         return DagViewManager.Instance.addBackNodes([options.nodeId], options.dataflowId);
     };
 
-    redoFuncs[SQLOps.CopyOperations] = function(options): XDPromise<void> {
+    redoFuncs[SQLOps.PasteOperations] = function(options): XDPromise<void> {
         DagTabManager.Instance.switchTab(options.dataflowId);
         return DagViewManager.Instance.addBackNodes(options.nodeIds, options.dataflowId);
     };
