@@ -25,6 +25,11 @@ namespace XVM {
 
     /* ==================== Helper Function ================================= */
     function showInvalidLicenseAlert(error: string): void {
+        if (XVM.isCloud()) {
+            // cloud doesn't show the alert
+            console.error(error);
+            return;
+        }
         Alert.show({
             title: AlertTStr.LicenseErr,
             isAlert: true,

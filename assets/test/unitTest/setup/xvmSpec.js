@@ -5,7 +5,9 @@ describe('XVM Test', () => {
 
     describe('Basic Function Test', () => {
         it('showInvalidLicenseAlert should work', () => {
+            const oldIsCloud = XVM.isCloud;
             const oldFunc = Alert.show;
+            XVM.isCloud = () => false;
             let testArg;
             Alert.show = (arg) => { testArg = arg };
             XVM.__testOnly__.showInvalidLicenseAlert('test');
@@ -15,6 +17,7 @@ describe('XVM Test', () => {
             expect(testArg.isAlert).to.be.true;
             expect(testArg.msg).to.equal('test\n' + AlertTStr.LicenseErrMsg);
             Alert.show = oldFunc;
+            XVM.isCloud = oldIsCloud;
         });
 
         it('parseLicense should catch error case', () => {

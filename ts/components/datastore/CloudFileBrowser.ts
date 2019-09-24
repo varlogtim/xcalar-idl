@@ -52,19 +52,42 @@ namespace CloudFileBrowser {
         return $("#fileBrowser");
     }
 
+    function _overwriteCheck(fileName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (FileBrowser.hasFile(fileName)) {
+            Alert.show({
+                "title": "Overwriting file",
+                "msg": `File "${fileName}" alredy exists, do you want to overwrite it?`,
+                "onConfirm": () => deferred.resolve(),
+                "onCancel": () => deferred.reject()
+            });
+        } else {
+            deferred.resolve();
+        }
+
+        return deferred.promise();
+    }
+
     function _uploadFile(file?: File): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let fileName: string = file.name.replace(/C:\\fakepath\\/i, '').trim();
-        FileBrowser.addFileToUpload(fileName);
 
-        CloudManager.Instance.uploadToS3(fileName, file)
+        let isChecking: boolean = true;
+        _overwriteCheck(fileName)
+        .then(() => {
+            isChecking = false;
+            FileBrowser.addFileToUpload(fileName);
+            return CloudManager.Instance.uploadToS3(fileName, file);
+        })
         .then(() => {
             FileBrowser.refresh();
             deferred.resolve();
         })
         .fail((error) => {
-            FileBrowser.refresh();
-            _handleUploadError(error);
+            if (!isChecking) {
+                FileBrowser.refresh();
+                _handleUploadError(error);
+            }
             deferred.reject(error);
         });
 
@@ -72,7 +95,8 @@ namespace CloudFileBrowser {
     }
 
     function _handleUploadError(error: string): void {
-        Alert.error(ErrTStr.Error, error);
+        console.error(error);
+        Alert.error("Upload file failed", "Please ensure your file is under 6MB.");
     }
 
     function _addEventListeners(): void {

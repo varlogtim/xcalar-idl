@@ -279,6 +279,13 @@ namespace FileBrowser {
     }
 
     /**
+     * FileBrowser.hasFile
+     */
+    export function hasFile(fileName: string): boolean {
+        return allFiles.some((file) => file.name === fileName);
+    };
+
+    /**
      * FileBrowser.refresh
      */
     export function refresh(): void {
