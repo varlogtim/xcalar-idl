@@ -15,7 +15,7 @@ namespace xcManager {
 
         Compatible.check();
         xcGlobal.setup();
-        
+
 
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;

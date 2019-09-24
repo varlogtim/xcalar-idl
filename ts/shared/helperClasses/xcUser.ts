@@ -1,11 +1,11 @@
 
 class XcUser {
-    public static creditWarningLimit: number = 0; // XXX temporary
+    public static creditWarningLimit: number = 5; // XXX temporary
     private static _currentUser: XcUser;
     private static _isLogoutTimerOn: boolean = false;
     private static readonly _logOutWarningTime = 60; // in seconds
     private static _creditUsageInterval = null;
-    private static _creditUsageCheckTime = 2 * 60 * 1000;
+    private static _creditUsageCheckTime = 1 * 60 * 1000;
     private static _isIdleCheckOn = true;
 
     public static get CurrentUser(): XcUser {

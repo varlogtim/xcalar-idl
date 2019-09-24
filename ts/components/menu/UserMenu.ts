@@ -110,17 +110,17 @@ class UserMenu {
         });
     }
 
-    public updateCredits(num: number) {
-        if (num == null) {
+    public updateCredits(origNum: number) {
+        if (origNum == null) {
             let credits = "Credits: N/A";
             let $li: JQuery = $("#userMenu").find(".credits");
             $li.find(".num").text(credits);
             $li.removeClass("warning");
             return;
         }
-        num = Math.round(num);
+        let num = Math.round(origNum);
         const credits: string = xcStringHelper.numToStr(num) + " Credits";
-        let needsWarning: boolean = (num < XcUser.creditWarningLimit);
+        let needsWarning: boolean = (origNum < XcUser.creditWarningLimit);
 
         let $li: JQuery = $("#userMenu").find(".credits");
         $li.find(".num").text(credits);

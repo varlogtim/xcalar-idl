@@ -14,7 +14,7 @@ class UserActivityManager {
     private readonly _minInactivityTime = 10 * 60 * 1000; // 10 minutes
     private _inactivityTime = this._defaultInactivityTime;
     private _logoutWarningTime = 60 * 1000; // user is warned that they have 1 minute before logged out
-    private _activityTimer; // {setTimeout}
+    private _activityTimer; // {setTimeout} // 25 minute countdown for cluster stop, gets reset when activity detected
     private _logoutTimer; // {setTimeout} 1 minute timer set when user has been
     // idle for 30 minutes. Will log out at the end of 1 minute.
     private _isCheckDisabled: boolean = false;
@@ -62,6 +62,7 @@ class UserActivityManager {
             this._logoutTimer = setTimeout(() => {
                 socket.logoutMessage({inactive: true});
                 cloudManager.stopCluster();
+                cloudManager.logout();
             }, this._logoutWarningTime);
 
         }, this._inactivityTime);

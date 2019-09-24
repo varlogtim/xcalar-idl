@@ -53,8 +53,8 @@ class CloudManager {
                 body: {"username": this._userName},
                 json: true
             });
-            xcConsole.log("cluster shutting down");
-            if (!repeatTry && (!data || !data["isPending"])) {
+            xcConsole.log("cluster shutting down", data);
+            if (!repeatTry && (!data || data.status !== 0)) {
                 return this.stopCluster(true);
             } else {
                 return data;
@@ -87,6 +87,29 @@ class CloudManager {
         return this._numCredits;
     }
 
+    public async changeCredits(changeNum: string): Promise<any> {
+        try {
+            const data = request.post({
+                    url: this._awsURL + "/billing/update",
+                    body: {"username": this._userName, creditChange: changeNum},
+                    json: true
+            });
+            return data;
+        } catch (e) {
+            return {error: e};
+        }
+    }
+
+    public async logout(): Promise<any> {
+        try {
+            let logoutResult = await request.get("https://1jqb965i1d.execute-api.us-west-2.amazonaws.com/prod/logout");
+            return logoutResult
+        } catch (e) {
+            return {error: e};
+        }
+    }
+
+    //
     // should only be called once in constructor and then recursively, otherwise
     // user's credits will be deducted unnecessarily
     private async _updateCredits(): Promise<any> {
@@ -119,6 +142,14 @@ class CloudManager {
         this._updateCredits();
     }
 
+    private async _deductCredits(): Promise<void> {
+        return await request.post({
+                url: this._awsURL + "/billing/deduct",
+                body: {"username": this._userName},
+                json: true
+        });
+    }
+
     private async _fetchCredits(): Promise<number> {
         try {
             const data: {status: number, credits: number} = await request.post({
@@ -131,13 +162,13 @@ class CloudManager {
                 credits = data.credits;
             }
             this._numCredits = credits;
-            if (!isNaN(this._numCredits) && (typeof this._numCredits === "number") &&
-                this._numCredits <= 0 && !this._stopClusterMessageSent) {
+            if (this._isOutOfCredits() && !this._stopClusterMessageSent) {
                 this._stopClusterMessageSent = true;
                 socket.logoutMessage({
                     type: "noCredits"
                 });
                 this.stopCluster();
+                this.logout();
             } else {
                 this._stopClusterMessageSent = false;
             }
@@ -147,12 +178,10 @@ class CloudManager {
         }
     }
 
-    private async _deductCredits(): Promise<void> {
-        return await request.post({
-                url: this._awsURL + "/billing/deduct",
-                body: {"username": this._userName},
-                json: true
-        });
+    private _isOutOfCredits(): boolean {
+        return (!isNaN(this._numCredits) &&
+                (typeof this._numCredits === "number") &&
+                this._numCredits <= 0);
     }
 
     /* HACK TO SET USER NAME */
