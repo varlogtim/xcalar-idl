@@ -55,6 +55,9 @@ window.xcMixpanel = (function($, xcMixpanel) {
     xcMixpanel.setup = function() {
         var c = document;
         var a = window.mixpanel || [];
+        if (window.gTestMode) {
+            return;
+        }
         if (!a.__SV) {
             var b = window;
             try {
@@ -120,6 +123,9 @@ window.xcMixpanel = (function($, xcMixpanel) {
 
     xcMixpanel.init = function() {
         return; // XXX disabling
+        if (window.gTestMode) {
+            return;
+        }
         if (xcMixpanel.forDev()) {
             window.mixpanel.init("8d64739b0382a6a440afaab1a57f5051");
         } else {
@@ -196,6 +202,9 @@ window.xcMixpanel = (function($, xcMixpanel) {
         }
         return; // disabling
         // pageLoaded = true; // XXX disabling
+        if (window.gTestMode) {
+            return;
+        }
         let currTime = Date.now();
         pageLoadTime = lastModeTime = lastPanelTime = currTime;
         let $mainPanel = $(".mainPanel.active");
@@ -716,6 +725,9 @@ window.xcMixpanel = (function($, xcMixpanel) {
 
     xcMixpanel.track = (eventName, eventProperties, jqueryEvent) => {
         return; // XXX disabling
+        if (window.gTestMode) {
+            return;
+        }
         eventProperties = eventProperties || {};
         let baseProperties = {
             "timeStamp": Date.now(),

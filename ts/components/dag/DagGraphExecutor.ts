@@ -502,7 +502,7 @@ class DagGraphExecutor {
                         }
                     } else if (node.getState() === DagNodeState.Running) {
                         console.error(node.getTitle() + " " + node.getDisplayNodeType() + " did not finish running");
-                        console.log(node.getIndividualStats());
+                        console.error(node.getIndividualStats());
                     }
                 });
 

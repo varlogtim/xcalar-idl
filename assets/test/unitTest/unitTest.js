@@ -12,6 +12,7 @@ mocha.setup({
 // global
 expect = chai.expect;
 assert = chai.assert;
+window.gTestMode = true;
 
 function getTestNameRegex() {
     var urlArgs = xcHelper.decodeFromUrl(window.location.href);
