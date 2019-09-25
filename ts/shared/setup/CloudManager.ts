@@ -18,9 +18,14 @@ class CloudManager {
      * CloudManager.Instance.hackSetUser
      */
     public hackSetUser(): void {
+        if (!XVM.isCloud()) {
+            return;
+        }
         let hackUserName = xcLocalStorage.getItem("xcalarUsername");
-        if (XVM.isCloud() && hackUserName) {
+        if (hackUserName) {
             this._getUserName = () => hackUserName;
+            XcUser.setCloudUserName(this._getUserName());
+        } else {
             XcUser.setCloudUserName(this._getUserName());
         }
     }

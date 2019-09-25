@@ -11,6 +11,7 @@ var poolData = {
 var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 var locaUsername;
 var localPassword;
+var localSessionId;
 var cognitoUser;
 
 // START NO COOKIE AUTH
@@ -182,9 +183,14 @@ fetch(cookieAuthApiUrl + "/prod/status", {
     .then(response => {
         if (response.loggedIn === true) {
             localUsername = response.emailAddress;
+            // XXX TODO: remove it after prod/status can return id
+            localSessionId = xcLocalStorage.getItem("xcalarSessionId");
             getCluster();
         } else if (response.loggedIn === false) {
             showInitialScreens();
+            // XXX TODO: remove it after prod/status can return id
+            localSessionId = "";
+            xcLocalStorage.removeItem("xcalarSessionId");
         } else {
             console.error('cookieLoggedInStatus unrecognized code:', response);
         }
@@ -194,6 +200,9 @@ fetch(cookieAuthApiUrl + "/prod/status", {
     });
 
 function cookieLogin(username, password) {
+    var $button = $("#loginButton");
+    $button.addClass("xc-disabled");
+
     fetch(cookieAuthApiUrl + "/prod/login", {
         headers: {
             "Content-Type": "application/json",
@@ -204,20 +213,13 @@ function cookieLogin(username, password) {
             "username": username,
             "password": password
         }),
-    }).then(response => {
+    }).then((response) => {
         if (response.status === 200) {
             $("#loginFormError").hide();
-            response.json()
-                .then(res => {
-                    localUsername = username;
-                    xcSessionStorage.setItem("xcalarSessionID", res.sessionId);
-                })
-                .then(res => {
-                    getCluster();
-                })
+            return response.json();
         } else if (response.status === 401) {
             // unauthorized
-            showFormError($("#loginFormError"), "Wrong email or password. Please try again.");
+            return Promise.reject("Wrong email or password.");
 
             // TODO: ONCE /login RETURNS A CODE/STATUS FOR THIS CASE
 
@@ -230,9 +232,29 @@ function cookieLogin(username, password) {
             //     $("#verifyTitle").show();
         } else {
             // unrecognized code
-            console.error('cookieLogin unrecognized code:', response);
+            return Promise.reject();
         }
-    }).catch(error => console.error('cookieLogin error:', error));
+    })
+    .then((res) => {
+        localUsername = username;
+        localSessionId = res.sessionId;
+        // XXX TODO: remove it after prod/status can return id
+        xcLocalStorage.setItem("xcalarSessionId", localSessionId);
+        $button.removeClass("xc-disabled");
+
+        $button.addClass("xc-disabled");
+        var cb = () => $button.removeClass("xc-disabled");
+        getCluster(cb);
+    })
+    .catch((error) => {
+        console.error('cookieLogin error:', error);
+        if (typeof error !== "string") {
+            error = "Login failed with unknown error.";
+        }
+        error += " Please try again.";
+        showFormError($("#loginFormError"), error);
+        $button.removeClass("xc-disabled");
+    });
 }
 
 function cookieLogout() {
@@ -240,10 +262,16 @@ function cookieLogout() {
             credentials: 'include',
         })
         .then(response => {
-            if (response.status === 200) {} else if (response.status === 500) {
+            if (response.status === 200) {
+                // XXX TODO: remove it after prod/status can return id
+                localSessionId = "";
+                xcLocalStorage.removeItem("xcalarSessionId");
+            } else if (response.status === 500) {
                 console.error('error logging out:', response);
+                handleException();
             } else {
                 console.error('cookieLogout unrecognized code:', response);
+                handleException();
             }
         }).catch(error => {
             console.error('cookieLogut error:', error);
@@ -272,7 +300,7 @@ function cookieLogout() {
 //     }
 // }
 
-function getCluster() {
+function getCluster(cb) {
     fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/get", {
             headers: {
                 "Content-Type": "application/json",
@@ -283,10 +311,22 @@ function getCluster() {
             }),
         })
         .then(res => res.json())
-        .then(clusterGetResponse => {
+        .then((clusterGetResponse) => {
             if (clusterGetResponse.status !== 0) {
                 // error
-                console.error('getCluster error. cluster/get returned: ');
+                console.error('getCluster error. cluster/get returned: ', clusterGetResponse);
+                // XXX TODO: remove this hack fix when lambda fix it
+                if (clusterGetResponse.status === 8 &&
+                    clusterGetResponse.error === "Cluster is not reachable yet"
+                ) {
+                    setTimeout(() => getCluster(), 3000);
+                    $("header").children().hide();
+                    $("#formArea").children().hide();
+                    $("#loadingTitle").show();
+                    $("#loadingForm").show();
+                    deployingClusterAnimation();
+                    return;
+                }
                 handleException();
             } else if (clusterGetResponse.isPending === false && clusterGetResponse.clusterUrl === undefined) {
                 // go to cluster selection screen
@@ -315,11 +355,26 @@ function getCluster() {
         .catch(error => {
             console.error('getCluster error caught:', error);
             handleException();
+        })
+        .finally(() => {
+            if (typeof cb === "function") {
+                cb();
+            }
         });
 }
 
 function goToXcalar(clusterGetResponse) {
-    window.location.href = clusterGetResponse.clusterUrl;
+    var sessionId = localSessionId;
+    if (!sessionId || !clusterGetResponse.clusterUrl) {
+        alert("Fail to redirect to xcalar cluster, please concat Xcalar Support.");
+        return;
+    }
+    var url = clusterGetResponse.clusterUrl + "/" + paths.login +
+    "?cloudId=" + encodeURIComponent(sessionId);
+    // if (locaUsername) {
+    //     url += "&cloudName=" + locaUsername; // XXX TODO: remove this hack part
+    // }
+    window.location.href = url;
 }
 
 function showInitialScreens() {
@@ -336,18 +391,23 @@ function showInitialScreens() {
 }
 
 function handleException() {
-    showInitialScreens()
+    // XXX TODO: show a better screen
+    alert("Server Error, failed to process request!");
+    showInitialScreens();
 }
 
 function checkLoginForm() {
     var email = document.getElementById("loginNameBox").value;
     var password = document.getElementById("loginPasswordBox").value;
-    if (email && password && validateEmail(email) && validatePassword(password)) {
-        $("#loginFormError").hide();
-        return true;
-    } else {
+    if (!email || !password) {
         showFormError($("#loginFormError"), "Fields missing or incomplete.");
         return false;
+    } else if (!validateEmail(email) || !validatePassword(password)) {
+        showFormError($("#loginFormError"), "Incorrect email address or password.");
+        return false;
+    } else {
+        $("#loginFormError").hide();
+        return true;
     }
 }
 

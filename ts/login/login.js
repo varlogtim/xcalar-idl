@@ -14,6 +14,9 @@ $(document).ready(function() {
     var isMsalResolved = false;
     var isSSOTokenResolved = false;
     var splashMissedHiding = false;
+    var urlParam;
+
+    urlParam = parseURLParam();
     setupHostName();
     checkLoginStatus();
 
@@ -179,6 +182,93 @@ $(document).ready(function() {
         });
     });
 
+    function parseURLParam() {
+        var params = {};
+        try {
+            var prmstr = window.location.search.substr(1);
+            if (!prmstr) {
+                return params;
+            }
+            // remove the param in case of recursive issue
+            window.history.pushState({}, document.title, "/" + paths.login);
+            var prmarr = prmstr.split("&");
+            for ( var i = 0; i < prmarr.length; i++) {
+                var tmparr = prmarr[i].split("=");
+                params[tmparr[0]] = tmparr[1];
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return params;
+    }
+
+    function isCloud() {
+        return (typeof gCloud !== "undefined" && gCloud === true);
+    }
+
+    function cloudLogin() {
+        // pattern is url?cloudId=sessionId
+        var param = urlParam;
+        var sessionId = param["cloudId"];
+        if (sessionId) {
+            var json = {"sessionId": decodeURIComponent(sessionId)};
+            HTTPService.Instance.ajax({
+                "type": "POST",
+                "data": JSON.stringify(json),
+                "contentType": "application/json",
+                "url": hostname + "/app/login",
+                "success": function(res) {
+                    if (res.status === httpStatus.OK) {
+                        // console.log('success');
+                        // redirect();
+
+                        // XXX TODO: remove this hack after login call
+                        // can return login status
+                        HTTPService.Instance.ajax({
+                            "type": "GET",
+                            "contentType": "application/json",
+                            "url": hostname + "/app/auth/sessionStatus",
+                            "success": function(data) {
+                                try {
+                                    if (data.loggedIn === true) {
+                                        redirect();
+                                    } else {
+                                        cloudLoginFailureHanlder(param);
+                                    }
+                                } catch (e) {
+                                    cloudLoginFailureHanlder(param);
+                                }
+                            },
+                            "error": function(e) {
+                                console.error(e);
+                                cloudLoginFailureHanlder(param);
+                            }
+                        });
+
+                    } else {
+                        cloudLoginFailureHanlder(param);
+                    }
+                },
+                "error": function() {
+                    cloudLoginFailureHanlder(param);
+                }
+            });
+        }
+    }
+
+    function cloudLoginFailureHanlder(param) {
+        // XXX TODO: remove this hack and use a real login api to login
+        if (param["cloudName"]) {
+            var cloudUser = param["cloudName"];
+            xcLocalStorage.setItem("xcalarUsername", cloudUser); // for CloudManager hack to work
+            $("#loginNameBox").val("admin");
+            $('#loginPasswordBox').val("Welcome1");
+            $("#loginForm").submit();
+            return;
+        }
+        window.location = paths.cloudLogin;
+    }
+
     function redirect() {
         window.location = paths.indexAbsolute;
     }
@@ -192,30 +282,8 @@ $(document).ready(function() {
                 try {
                     if (data.loggedIn === true) {
                         redirect();
-                    } else if (XVM.isCloud()) {
-                        // XXX TODO: remove this hack
-                        var transformToAssocArray = function(prmstr) {
-                            var params = {};
-                            var prmarr = prmstr.split("&");
-                            for ( var i = 0; i < prmarr.length; i++) {
-                                var tmparr = prmarr[i].split("=");
-                                params[tmparr[0]] = tmparr[1];
-                            }
-                            return params;
-                        }
-                        var prmstr = window.location.search.substr(1);
-                        var param = prmstr ? transformToAssocArray(prmstr) : {};
-                        // pattern is url?cloud=true
-                        // or optionally url?cloud=true&user=someuser&password=somepassword
-                        if (param["cloud"] === "true") {
-                            // remove the param in case of recursive issue
-                            window.history.pushState({}, document.title, "/" + paths.login);
-                            var userName = param["user"] || "admin";
-                            var password = param["password"] || "Welcome1";
-                            $("#loginNameBox").val(userName);
-                            $('#loginPasswordBox').val(password);
-                            $("#loginForm").submit();
-                        }
+                    } else if (isCloud()) {
+                        cloudLogin();
                     }
                 } catch (e) {
                     console.error(e);
