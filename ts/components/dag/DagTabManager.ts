@@ -8,7 +8,7 @@ class DagTabManager {
     }
 
     private _activeUserDags: DagTab[];
-    private _cachedSQLDags: {[key: string]: DagTabUser};
+    private _cachedSQLDags: Map<string, DagTabUser>;
     private _tabListScroller: ListScroller;
     private _subTabs: Map<string, string>; // subTabId => parentTabId
     private _activeTab: DagTab;
@@ -19,7 +19,7 @@ class DagTabManager {
 
     private constructor() {
         this._activeUserDags = [];
-        this._cachedSQLDags = {};
+        this._cachedSQLDags = new Map();
         this._subTabs = new Map();
         this._hiddenDags = new Map();
         this._event = new XcEvent();
@@ -85,16 +85,13 @@ class DagTabManager {
      * @param tabId
      */
     public getTabById(tabId: string): DagTab {
-        const dagTabs: DagTab[] = this._activeUserDags.filter((dagTab) => {
+        let dagTab: DagTab = this._activeUserDags.find((dagTab) => {
             return dagTab.getId() === tabId;
         });
-        let dagTab = dagTabs.length > 0 ? dagTabs[0] : null;
-        if (dagTab == null) {
-            dagTab = <DagTab>this._cachedSQLDags[tabId];
-            if (!dagTab && this._sqlPreviewTab
-                && this._sqlPreviewTab.getId() === tabId) {
-                dagTab = this._sqlPreviewTab;
-            }
+        dagTab = dagTab || this._cachedSQLDags.get(tabId);
+        if (!dagTab && this._sqlPreviewTab
+            && this._sqlPreviewTab.getId() === tabId) {
+            dagTab = this._sqlPreviewTab;
         }
         return dagTab;
     }
@@ -112,11 +109,11 @@ class DagTabManager {
     }
 
     public addSQLTabCache(tab: DagTabUser): void {
-        this._cachedSQLDags[tab.getId()] = tab;
+        this._cachedSQLDags.set(tab.getId(), tab);
     }
 
     public removeSQLTabCache(tab: DagTabUser): void {
-        delete this._cachedSQLDags[tab.getId()];
+        this._cachedSQLDags.delete(tab.getId());
     }
 
     /**

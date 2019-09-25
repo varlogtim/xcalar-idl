@@ -71,13 +71,23 @@ abstract class DagTabProgress extends DagTab {
         return PromiseHelper.resolve();
     }
 
-    public focus() {
+    // usually don't status check if done executing, but if restartStatusCheck
+    // is true then it's because user refreshed dag list and wants an updated
+    // graph
+    public focus(restartStatusCheck?: boolean) {
         if (this._isFocused) {
             return;
         }
         this._isFocused = true;
-        if (this._isDoneExecuting) {
+        if (this._isDoneExecuting && !restartStatusCheck) {
             return;
+        }
+        if (restartStatusCheck) {
+            this._isDoneExecuting = false;
+            this._queryCheckId++;
+            this._hasQueryStateGraph = false;
+            this._inProgress = true;
+            this._isDeleted = false;
         }
         this._statusCheck();
     }
@@ -233,7 +243,7 @@ abstract class DagTabProgress extends DagTab {
             deferred.resolve();
         })
         .fail((error) => {
-            if (!isLastTry && this._inProgress && error && (error.status === StatusT.StatusQrQueryNotExist ||
+            if (!isLastTry && error && (error.status === StatusT.StatusQrQueryNotExist ||
                 error.status === StatusT.StatusQrJobNonExist)) {
                 // ok to fail if query doesn't exist yet
                 deferred.resolve({status: StatusT.StatusQrQueryNotExist});

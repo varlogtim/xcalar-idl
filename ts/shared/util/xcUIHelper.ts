@@ -744,11 +744,15 @@ namespace xcUIHelper {
     export function showRefreshIcon(
         $location: JQuery,
         manualClose: boolean,
-        promise: XDPromise<any> | null
+        promise: XDPromise<any> | null,
+        lock?: boolean
     ): JQuery {
         const $waitingIcon: JQuery = $('<div class="refreshIcon"><img src=""' +
                             'style="display:none;height:0px;width:0px;' +
                             '"></div>');
+        if (lock) {
+            $waitingIcon.addClass("locked");
+        }
         const spinTime: number = 1500;
         $location.append($waitingIcon);
         $waitingIcon.find('img').show();

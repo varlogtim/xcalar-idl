@@ -110,17 +110,20 @@ class DagTabOptimized extends DagTabProgress {
     }
 
     private _fromSDK: boolean;
+    protected _state: string;
 
     constructor(options: {
         id: string,
         name: string,
         queryNodes?: any[],
         executor?: DagGraphExecutor,
-        fromSDK?: boolean
+        fromSDK?: boolean,
+        state?: string
     }) {
         super(options);
         const {queryNodes, executor} = options;
         this._fromSDK = options.fromSDK || false;
+        this._state = options.state;
 
         if (queryNodes) {
             const graph: DagSubGraph = this._constructGraphFromQuery(queryNodes);
@@ -196,6 +199,14 @@ class DagTabOptimized extends DagTabProgress {
             console.error(e);
             return null;
         }
+    }
+
+    public getState(): string {
+        return this._state;
+    }
+
+    public setState(state: string) {
+        this._state = state;
     }
 }
 

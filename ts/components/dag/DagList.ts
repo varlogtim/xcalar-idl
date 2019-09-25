@@ -121,7 +121,7 @@ class DagList extends Durable {
 
         };
         const publishedList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
-        let userList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
+        let userList: {path: string, id: string, options: {isOpen: boolean, state?: string}}[] = [];
         const queryList: {
             path: string,
             id: string,
@@ -142,7 +142,10 @@ class DagList extends Durable {
                 userList.push({
                     path: path,
                     id: tabId,
-                    options: {isOpen: dagTab.isOpen()}
+                    options: {
+                        isOpen: dagTab.isOpen(),
+                        state: dagTab.getState()
+                    }
                 });
             } else if (dagTab instanceof DagTabQuery) {
                 path = "/" + dagTab.getPath();
@@ -242,7 +245,7 @@ class DagList extends Durable {
     public refresh(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
-        const $section: JQuery = this._getDagListSection();
+        const $dagList: JQuery = this._getDagListMenuEl();
         // delete shared dag and optimized list first
         const oldPublishedDags: Map<string, DagTabPublished> = new Map();
         const oldOptimizedDags: Map<string, DagTabOptimized> = new Map();
@@ -260,7 +263,7 @@ class DagList extends Durable {
             }
         }
 
-        xcUIHelper.showRefreshIcon($section, false, promise);
+        xcUIHelper.showRefreshIcon($dagList, false, promise, true);
 
         this._restorePublishedDags(oldPublishedDags)
         .then(() => {
@@ -587,8 +590,9 @@ class DagList extends Durable {
             let html: HTML = "";
             let publishedPath = DagTabPublished.PATH.substring(1, DagTabPublished.PATH.length - 1);
             let isInPublishedFolder = path.startsWith(publishedPath);
-            let isAbandonedQuery = path.startsWith(this._stripPath(DagTabQuery.PATH)) ||
-                                path.startsWith(this._stripPath(DagTabQuery.SDKPATH));
+            let isAbandonedQuery = (path.startsWith(this._stripPath(DagTabQuery.PATH)) ||
+                                path.startsWith(this._stripPath(DagTabQuery.SDKPATH))) &&
+                                !path.startsWith(this._stripPath(DagTabOptimized.SDKPATH));
             let isOptimizedFolder = path.startsWith(this._stripPath(DagTabOptimized.XDPATH)) ||
                                 path.startsWith(this._stripPath(DagTabOptimized.SDKPATH));
 
@@ -865,7 +869,20 @@ class DagList extends Durable {
                         oldDagTab.focus();
                     }
                 } else {
-                    this._dags.set(dagTab.getId(), dagTab);
+                    let queryName = dagTab.getName();
+                    const oldDagTab: DagTabOptimized= oldDags.get(queryName);
+                    if (oldDags.has(queryName) &&
+                        DagTabManager.Instance.getTabById(oldDagTab.getId())) {
+                        oldDagTab.setState(dagTab.getState());
+                        this._dags.set(oldDagTab.getId(), oldDagTab);
+                        if (oldDagTab.isFocused()) {
+                            // restarts status check
+                            oldDagTab.unfocus();
+                            oldDagTab.focus(true);
+                        }
+                    } else {
+                        this._dags.set(dagTab.getId(), dagTab);
+                    }
                 }
             });
 
@@ -916,7 +933,7 @@ class DagList extends Durable {
                     } else {
                         displayName = secondNamePart;
                     }
-                } else {
+                } else { // sdk optmized queries are handled in _restoreOptimizedDags
                     return;
                 }
 
@@ -930,7 +947,7 @@ class DagList extends Durable {
                         if (oldDagTab.isFocused()) {
                             // restarts status check
                             oldDagTab.unfocus();
-                            oldDagTab.focus();
+                            oldDagTab.focus(true);
                         }
                     }
                 } else if (refresh && query.name.startsWith(abandonedQueryPrefix)) {

@@ -88,17 +88,21 @@ class TblManager {
         }
 
         const idSplit = id.split('-');
-        if (idSplit.length !== 2) {
-            console.error('Unexpected id/ele to parse', idOrEl);
+        if (idSplit.length < 2) {
+            console.error('Unexpected id/ele to parse', id, idOrEl);
             return null;
-        } else {
-            id = idSplit[1];
-            if (isNaN(id)) {
-                return id;
-            } else {
-                return parseInt(id);
-            }
         }
+        if (idSplit.length > 2) {
+            idSplit[1] =  id.substring(id.indexOf('-') + 1 );
+        }
+
+        id = idSplit[1];
+        if (isNaN(id)) {
+            return id;
+        } else {
+            return parseInt(id);
+        }
+
     }
 
     /**

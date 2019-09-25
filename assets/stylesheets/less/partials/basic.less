@@ -1860,6 +1860,11 @@ input {
     position: absolute;
     top: 0;
     left: 0;
+
+    &.locked {
+        pointer-events: initial;
+        z-index: 1000;
+    }
     img {
         .center-align();
         display: block;
