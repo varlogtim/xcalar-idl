@@ -4,6 +4,11 @@ import * as HttpStatus from "../../../assets/js/httpStatus";
 const httpStatus = HttpStatus.httpStatus;
 import * as crypto from "crypto";
 import atob = require("atob");
+import { cloudMode, sessionSecret } from "../expServer";
+import * as request from "request";
+import * as url from "url";
+import * as signature from "cookie-signature";
+import * as cookie from "cookie";
 
 import { Router } from "express"
 export const router: any = Router()
@@ -29,7 +34,8 @@ var searchFilter = "";
 var activeDir = false;
 var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt';
 */
-router.post('/login', function(req, res, next) {
+
+var loginPathFunc = function(req, res, next) {
     xcConsole.log("Login process");
     var credArray = req.body;
     res.locals.sessionType = JSON.stringify(support.defaultSessionAge);
@@ -44,13 +50,13 @@ router.post('/login', function(req, res, next) {
         res.locals.sessionType = JSON.stringify(credArray.sessionType);
     }
     loginManager.loginAuthentication(credArray)
-    .always(function(message) {
-        res.locals.message = JSON.stringify(message);
-        next();
-    });
-}, [support.loginAuth]);
+        .always(function(message) {
+            res.locals.message = JSON.stringify(message);
+            next();
+        });
+};
 
-router.post('/logout', [support.checkAuth], function(req, res) {
+var logoutPathFunc = function(req, res) {
     var username = req.session.username;
     var message = {
         'status': httpStatus.OK,
@@ -58,21 +64,176 @@ router.post('/logout', [support.checkAuth], function(req, res) {
     }
 
     loginManager.vaultLogout(req.session)
-    .always(function () {
-        req.session.destroy(function(err) {
-            if (err) {
-                message = {
-                    'status': httpStatus.BadRequest,
-                    'message': 'Error logging out user ' + username + ' :' + JSON.stringify(err)
+        .always(function() {
+            req.session.destroy(function(err) {
+                if (err) {
+                    message = {
+                        'status': httpStatus.BadRequest,
+                        'message': 'Error logging out user ' + username + ' :' + JSON.stringify(err)
+                    }
                 }
+
+                xcConsole.log("logging out user " + username);
+
+                res.status(message.status).send(message);
+            });
+        });
+};
+
+var cloudLoginPathFunc = function(req, res, next) {
+    var message = {
+        'status': httpStatus.Unauthorized,
+        'message': 'Authentication failure'
+    }
+
+    if (req.body.xiusername && req.body.xipassword) {
+        if (!process.env.XCE_SAAS_LAMBDA_URL) {
+            message["message"] = "XCE_SAAS_LAMBDA_URL is not set";
+            res.status(message.status).send(message);
+            return next('router');
+        }
+
+        var loginURL = process.env.XCE_SAAS_LAMBDA_URL;
+        loginURL = loginURL.replace(/\/?$/, '/');
+        loginURL += 'login';
+        var j = request.jar();
+
+        request.post(loginURL, {
+            "json": {
+                "username": req.body.xiusername,
+                "password": req.body.xipassword
+            },
+            "jar": j
+        }, (err, postRes, body) => {
+            if (err || body.message !== 'Authentication successful') {
+                xcConsole.log(`Login request error ${err}`);
+                xcConsole.log(`Login request body ${body}`);
+                message['message'] = `Login error: ${JSON.stringify(err)} body ${JSON.stringify(body)}`;
+                res.status(message.status).send(message);
+                return;
             }
 
-            xcConsole.log("logging out user " + username);
+            support.create_login_jwt(req, res);
+
+            var cookies = j.getCookies(loginURL);
+            var prev = res.getHeader('Set-Cookie') || []
+            var header = [];
+            for (var idx in cookies) {
+                var data = cookies[idx].toString();
+                header = Array.isArray(prev) ? prev.concat(data) : [prev, data];
+            }
+            res.setHeader('Set-Cookie', header);
+
+            message = {
+                'status': httpStatus.OK,
+                'message': "Authentication successful"
+            };
+            res.status(message.status).send(message);
+            return;
+        });
+
+    } else if (req.body.sessionId) {
+        var sessionId = Buffer.from(req.body.sessionId, 'base64').toString('utf8');
+
+        req.sessionStore.get(sessionId, function(err, sess) {
+            if (err) {
+                message['message'] = `Session store error: ${JSON.stringify(err)}`;
+                res.status(message.status).send(message);
+                return;
+            }
+
+            if (sess && sess.loggedIn === true) {
+                var signed = 's:' + signature.sign(sessionId, sessionSecret);
+                var data = cookie.serialize('connect.sid', signed, req.session.cookie.data);
+
+                support.create_login_jwt(req, res);
+
+                var prev = res.getHeader('Set-Cookie') || []
+                var header = Array.isArray(prev) ? prev.concat(data) : [prev, data];
+                res.setHeader('Set-Cookie', header)
+
+                message = {
+                    'status': httpStatus.OK,
+                    'message': "Authentication successful"
+                };
+            }
 
             res.status(message.status).send(message);
         });
+
+    } else {
+        res.status(message.status).send(message);
+    }
+};
+
+var cloudLogoutPathFunc = function(req, res, next) {
+    var message = {
+        'status': httpStatus.Unauthorized,
+        'message': 'Authentication failure'
+    }
+
+    if (!process.env.XCE_SAAS_LAMBDA_URL) {
+        message["message"] = "XCE_SAAS_LAMBDA_URL is not set";
+        res.status(message.status).send(message);
+        return next('router');
+    }
+
+    console.log(`session $req.session`);
+
+    if (req.session.loggedIn !== true) {
+        message["message"] = "User is not logged in";
+        res.status(message.status).send(message);
+        return next('router');
+    }
+
+    var j = request.jar();
+    var logoutURL = process.env.XCE_SAAS_LAMBDA_URL;
+    logoutURL = logoutURL.replace(/\/?$/, '/');
+    logoutURL += 'logout';
+
+    var signed = 's:' + signature.sign(req.sessionID, sessionSecret);
+    var reqCookie = request.cookie('connect.sid' + '=' + signed);
+    j.setCookie(reqCookie, logoutURL);
+
+    request.get(logoutURL, {
+        "json": true,
+        "jar": j
+    }, (err, getRes, body) => {
+        if (err || body.message !== 'Logout successful') {
+            xcConsole.log(`Logout request error ${err}`);
+            xcConsole.log(`Logout request body ${body}`);
+            message['message'] = `Login error: ${JSON.stringify(err)} body: ${JSON.stringify(body)}`;
+            res.status(message.status).send(message);
+            return;
+        }
+
+        if (res.statusCode != httpStatus.OK) {
+            message = {
+                'status': res.statusCode,
+                'message': `Auth lambda returned status ${res.statusCode}`
+            };
+        } else {
+            message = {
+                'status': httpStatus.OK,
+                'message': body.message
+            };
+        }
+        res.status(message.status).send(message);
     });
-});
+}
+
+
+var loginActions = [loginPathFunc, support.loginAuth];
+var logoutActions = [support.checkAuth, logoutPathFunc];
+
+if (cloudMode === 1) {
+    loginActions = [cloudLoginPathFunc];
+    logoutActions = [cloudLogoutPathFunc];
+}
+
+router.post('/login', loginActions);
+
+router.post('/logout', logoutActions);
 
 router.post('/login/with/HttpAuth', function(req, res) {
     xcConsole.log("Login with http auth");
@@ -89,36 +250,36 @@ router.post('/login/with/HttpAuth', function(req, res) {
 
         if (credArray['xiusername'].length > 0) {
             loginManager.loginAuthentication(credArray)
-            .then(function(message) {
-                // Add in token information for SSO access
-                message.timestamp = Date.now();
-                message.signature = crypto.createHmac("sha256", "xcalar-salt2")
-                    .update(
-                        JSON.stringify(userInfo, Object.keys(userInfo).sort()))
-                    .digest("hex");
-                delete message.status;
+                .then(function(message) {
+                    // Add in token information for SSO access
+                    message.timestamp = Date.now();
+                    message.signature = crypto.createHmac("sha256", "xcalar-salt2")
+                        .update(
+                            JSON.stringify(userInfo, Object.keys(userInfo).sort()))
+                        .digest("hex");
+                    delete message.status;
 
-                if (message.isValid) {
-                    req.session.loggedIn = (message.isSupporter ||
-                                            message.isAdmin);
+                    if (message.isValid) {
+                        req.session.loggedIn = (message.isSupporter ||
+                            message.isAdmin);
 
-                    req.session.loggedInAdmin = message.isAdmin;
-                    req.session.loggedInUser = message.isSupporter;
+                        req.session.loggedInAdmin = message.isAdmin;
+                        req.session.loggedInUser = message.isSupporter;
 
-                    req.session.firstName = message.firstName;
-                    req.session.emailAddress = message.mail;
+                        req.session.firstName = message.firstName;
+                        req.session.emailAddress = message.mail;
 
-                    support.create_login_jwt(req, res);
-                }
+                        support.create_login_jwt(req, res);
+                    }
 
-                const tokenBuffer = new Buffer(JSON.stringify(message));
-                res.status(httpStatus.OK).send(tokenBuffer.toString('base64'));
-                return;
-            })
-            .fail(function(message) {
-                res.status(httpStatus.Forbidden).send("Invalid credentials");
-                return
-            });
+                    const tokenBuffer = new Buffer(JSON.stringify(message));
+                    res.status(httpStatus.OK).send(tokenBuffer.toString('base64'));
+                    return;
+                })
+                .fail(function(message) {
+                    res.status(httpStatus.Forbidden).send("Invalid credentials");
+                    return
+                });
         } else {
             errMsg = 'no username provided';
         }
@@ -146,7 +307,7 @@ router.post('/login/verifyToken', function(req, res) {
 
         var currTime = Date.now();
         if (currTime > (userInfo.timestamp + (1000 * 60 * 5))) {
-            res.status(403).send({"errorMsg": "Token has expired"});
+            res.status(403).send({ "errorMsg": "Token has expired" });
             return;
         }
 
@@ -155,84 +316,84 @@ router.post('/login/verifyToken', function(req, res) {
         support.create_login_jwt(req, res);
         res.status(200).send(userInfo);
     } catch (err) {
-        res.status(400).send({"errorMsg": "Malformed token: " + err});
+        res.status(400).send({ "errorMsg": "Malformed token: " + err });
     }
 });
 
 router.post('/login/msalConfig/get',
-            function(req, res) {
-    xcConsole.log("Getting msal config");
-    loginManager.getMsalConfig()
-    .then(function(message) {
-        res.status(message.status).send(message.data);
-    }, function(message) {
-        res.status(message.status).send(message);
+    function(req, res) {
+        xcConsole.log("Getting msal config");
+        loginManager.getMsalConfig()
+            .then(function(message) {
+                res.status(message.status).send(message.data);
+            }, function(message) {
+                res.status(message.status).send(message);
+            });
     });
-});
 
 
 router.post('/login/msalConfig/set',
-            [support.checkAuthAdmin], function(req, res) {
-    xcConsole.log("Setting msal config");
-    var credArray = req.body;
-    loginManager.setMsalConfig(credArray)
-    .always(function(message) {
-        res.status(message.status).send(message);
+    [support.checkAuthAdmin], function(req, res) {
+        xcConsole.log("Setting msal config");
+        var credArray = req.body;
+        loginManager.setMsalConfig(credArray)
+            .always(function(message) {
+                res.status(message.status).send(message);
+            });
     });
-});
 
 
 router.post('/login/defaultAdmin/get',
-            [support.checkAuth], function(req, res) {
-    xcConsole.log("Getting default admin");
-    loginManager.getDefaultAdmin()
-    .then(function(message) {
-        delete message.data.password;
-        res.status(message.status).send(message.data);
-    }, function(message) {
-        res.status(message.status).send(message);
+    [support.checkAuth], function(req, res) {
+        xcConsole.log("Getting default admin");
+        loginManager.getDefaultAdmin()
+            .then(function(message) {
+                delete message.data.password;
+                res.status(message.status).send(message.data);
+            }, function(message) {
+                res.status(message.status).send(message);
+            });
     });
-});
 
 
 router.post('/login/defaultAdmin/set',
-            [loginManager.securitySetupAuth], loginManager.setupDefaultAdmin);
+    [loginManager.securitySetupAuth], loginManager.setupDefaultAdmin);
 
 router.post('/login/defaultAdmin/setup',
-            [loginManager.securitySetupAuth], loginManager.setupDefaultAdmin);
+    [loginManager.securitySetupAuth], loginManager.setupDefaultAdmin);
 
 router.post('/login/ldapConfig/get',
-            [support.checkAuth], function(req, res) {
-    xcConsole.log("Getting ldap config");
-    loginManager.getLdapConfig()
-    .then(function(message) {
-        res.status(message.status).send(message.data);
-    }, function(message) {
-        res.status(message.status).send(message);
+    [support.checkAuth], function(req, res) {
+        xcConsole.log("Getting ldap config");
+        loginManager.getLdapConfig()
+            .then(function(message) {
+                res.status(message.status).send(message.data);
+            }, function(message) {
+                res.status(message.status).send(message);
+            });
     });
-});
 
 
 router.post('/login/ldapConfig/set',
-            [support.checkAuthAdmin], function(req, res) {
-    xcConsole.log("Setting ldap config");
-    var credArray = req.body;
-    loginManager.setLdapConfig(credArray)
-    .always(function(message) {
-        res.status(message.status).send(message);
+    [support.checkAuthAdmin], function(req, res) {
+        xcConsole.log("Setting ldap config");
+        var credArray = req.body;
+        loginManager.setLdapConfig(credArray)
+            .always(function(message) {
+                res.status(message.status).send(message);
+            });
     });
-});
 
 if (process.env.NODE_ENV === "test") {
     router.post('/login/test/user',
-            [support.checkAuth], function(req, res) {
-        xcConsole.log("testing user auth");
-        res.status(httpStatus.OK).send("user auth successful");
-    });
+        [support.checkAuth], function(req, res) {
+            xcConsole.log("testing user auth");
+            res.status(httpStatus.OK).send("user auth successful");
+        });
 
     router.post('/login/test/admin',
-                [support.checkAuthAdmin], function(req, res) {
-        xcConsole.log("testing admin auth");
-        res.status(httpStatus.OK).send("admin auth successful");
-    });
+        [support.checkAuthAdmin], function(req, res) {
+            xcConsole.log("testing admin auth");
+            res.status(httpStatus.OK).send("admin auth successful");
+        });
 }

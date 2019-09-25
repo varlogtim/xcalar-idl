@@ -13,8 +13,10 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var dgram = require('dgram');
     var path = require("path");
 
-    var session = require('express-session');
-    var FileStore = require('session-file-store')(session);
+    var cloudMode = process.env.XCE_CLOUD_MODE == 1 ?
+        parseInt(process.env.XCE_CLOUD_MODE) : 0;
+    exports.cloudMode = cloudMode;
+
     if (process.env.NODE_ENV !== "test") {
         require('console-stamp')(console, { pattern: "yyyy/mm/dd'T'HH:MM:ss.l'Z'o", labelPrefix: "[Xcalar ExpServer ", labelSuffix: "]" });
     }
@@ -25,23 +27,62 @@ require("jsdom/lib/old-api").env("", function(err, window) {
 
     bootstrapXlrRoot();
 
-    var fileStoreOptions = {
-        path: path.join(xlrRoot, 'auth'),
-        secret: 'keyboard cat'
-    };
-
+    var session = require('express-session');
     var sessionAges = require('./utils/expServerSupport.js').default.sessionAges;
     var defaultSessionAge = require('./utils/expServerSupport.js').default.defaultSessionAge;
+    var sessionOpts = {};
 
-    var sessionOpts = {
-        saveUninitialized: false,
-        resave: false,
-        rolling: true,
-        store: new FileStore(fileStoreOptions),
-        secret: fileStoreOptions.secret,
-        cookie: { maxAge: sessionAges[defaultSessionAge] }
-    };
+    var sessionSecret = 'keyboard cat';
+    exports.sessionSecret = sessionSecret;
 
+    if (cloudMode === 0) {
+        var FileStore = require('session-file-store')(session);
+
+        var fileStoreOptions = {
+            path: path.join(xlrRoot, 'auth'),
+            secret: sessionSecret
+        };
+
+        var sessionOpts = {
+            saveUninitialized: false,
+            resave: false,
+            rolling: true,
+            store: new FileStore(fileStoreOptions),
+            secret: fileStoreOptions.secret,
+            cookie: { maxAge: sessionAges[defaultSessionAge] }
+        };
+    } else {
+        var DynamoDBStore = require('connect-dynamodb')(session);
+
+        var cloudSessionTable = process.env.XCE_CLOUD_SESSION_TABLE ?
+            process.env.XCE_CLOUD_SESSION_TABLE : 'SessionTable';
+        var cloudRegion = process.env.XCE_CLOUD_REGION ?
+            process.env.XCE_CLOUD_REGION : 'us-west-2';
+        var cloudPrefix = process.env.XCE_CLOUD_PREFIX ?
+            process.env.XCE_CLOUD_PREFIX : 'xc';
+        var cloudHashKey = process.env.XCE_CLOUD_HASH_KEY ?
+            process.env.XCE_CLOUD_HASH_KEY : 'id';
+
+        var dynamoDbOpts = {
+            table: cloudSessionTable,
+            AWSRegion: cloudRegion,
+            hashKey: cloudHashKey,
+            prefix: cloudPrefix,
+            readCapacityUnits: 5,
+            writeCapacityUnits: 5
+        };
+
+        console.log(dynamoDbOpts);
+
+        var sessionOpts = {
+            saveUninitialized: false,
+            resave: false,
+            rolling: true,
+            store: new DynamoDBStore(dynamoDbOpts),
+            secret: sessionSecret,
+            cookie: { maxAge: sessionAges[defaultSessionAge] }
+        };
+    }
     var cookieFilterOptions = {
         paths: [ '/login',
                  '/auth/serviceSession' ],
