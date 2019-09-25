@@ -30,9 +30,9 @@ namespace xcManager {
             return XcUser.setCurrentUser();
         })
         .then(function() {
+            XVM.setup();
             // XXX TODO: remove this hack call
             CloudManager.Instance.hackSetUser();
-            XVM.setup();
 
             // xcrpc default service setup
             Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, xcHelper.getApiUrl());
