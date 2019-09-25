@@ -24,6 +24,7 @@
     "console-stamp": "^0.2.9",
     "cookie": "^0.4.0",
     "cookie-parser": "^1.4.3",
+    "cors": "^2.8.3",
     "express": "^4.13.4",
     "express-http-proxy": "1.2.0",
     "express-session": "^1.15.6",

@@ -68,6 +68,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         // For expServer test
         serverPort = 12224;
     }
+
     var thriftPort = process.env.XCE_THRIFT_PORT ?
         parseInt(process.env.XCE_THRIFT_PORT) : 9090;
     var jupyterPort = process.env.XCE_JUPYTER_PORT ?
@@ -126,6 +127,11 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         limit: payloadSizeLimit ,
         parseReqBody: true  // GUI-13416 - true is necessary for thrift to work
     }));
+
+    if (process.env.XCE_CORS === "1") {
+        var cors = require('cors');
+        app.use(cors({ "origin": true, "credentials": true }));
+    }
 
     // increase default limit payload size of 100kb
     // must be after thrift proxy; the body parser
