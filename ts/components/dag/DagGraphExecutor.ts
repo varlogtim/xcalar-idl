@@ -502,6 +502,7 @@ class DagGraphExecutor {
                         }
                     } else if (node.getState() === DagNodeState.Running) {
                         console.error(node.getTitle() + " " + node.getDisplayNodeType() + " did not finish running");
+                        console.log(node.getIndividualStats());
                     }
                 });
 
@@ -844,7 +845,10 @@ class DagGraphExecutor {
             return MemoryAlert.Instance.check();
         })
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail((e) => {
+            this._currentNode = null;
+            deferred.reject(e);
+        });
 
         return deferred.promise();
     }

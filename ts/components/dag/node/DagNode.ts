@@ -832,7 +832,7 @@ abstract class DagNode extends Durable {
             if (!tableRunStats) {
                 let index: number;
                 if (trustIndex) {
-                    index = queryNode[index];
+                    index = queryNode["index"];
                 } else {
                     index = tableCount;
                 }
