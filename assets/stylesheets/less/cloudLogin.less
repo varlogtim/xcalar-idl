@@ -26,6 +26,13 @@ body {
     font-weight: 400;
 }
 
+.already-have-account {
+    max-width: 147px;
+    display: inline-block;
+    text-align: center;
+    text-decoration: underline;
+}
+
 .authForm {
     display: none;
     width: 100%;
@@ -36,40 +43,51 @@ body {
     font-weight: 400;
 }
 
-#signupForm {
-    .input {
-        width: calc(~"100% - 170px");
-        margin-left: 170px;
-        padding-left: 10px;
-    }
-}
-
 .section {
     .input {
         width: 100%;
     }
 }
 
+.label {
+    z-index: 1;
+}
+
+#signupForm {
+    .input {
+        width: 100%;
+        margin-left: 0;
+        padding-left: 180px;
+    }
+}
+
 #loginForm {
     .input {
-        width: calc(~"100% - 90px");
-        margin-left: 90px;
-        padding-left: 10px;
+        width: 100%;
+        margin-left: 0;
+        padding-left: 120px;
+    }
+}
+
+#forgotPasswordForm {
+    .input {
+        margin-left: 0;
+        padding-left: 120px;
     }
 }
 
 #confirmForgotPasswordForm {
     .input {
-        width: calc(~"100% - 160px");
-        margin-left: 160px;
-        padding-left: 10px;
+        width: 100%;
+        margin-left: 0;
+        padding-left: 170px;
     }
 }
 
 #verify-code {
-    width: calc(~"100% - 140px");
-    margin-left: 140px;
-    padding-left: 10px;
+    width: 100%;
+    margin-left: 0;
+    padding-left: 150px;
 }
 
 .radioButtonGroup {
@@ -155,17 +173,13 @@ a {
 }
 
 #formArea {
+    width: 650px;
     padding-left: 0;
-}
-
-header {
-    width: 600px;
 }
 
 .btn:focus {
     background-color: rgba(0, 0, 0, 0);
 }
-
 
 .input-tooltip {
     display: none;
@@ -220,7 +234,7 @@ header {
     .icon {
         font-size: 11px;
         position: absolute;
-        left: 150px;
+        right: 4px;
         top: 10px;
         display: none;
     }
@@ -267,5 +281,18 @@ header {
 
     .logOutLink {
         margin-right: 0;
+    }
+}
+
+#signup-term {
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    span {
+        font-weight: bold;
+        text-decoration: underline;
     }
 }
