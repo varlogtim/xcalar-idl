@@ -51,6 +51,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
     let lastPanelTime = currTime;
     let lastSubPanelTime = currTime;
     let lastMouseMoveTime = currTime;
+    let pageLoaded = false;
 
     xcMixpanel.setup = function() {
         var c = document;
@@ -172,7 +173,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
                     "column": info.column,
                     "stack": mixPanelStack,
                     "txCache": Transaction.getCache(),
-                    "userName": XcUser.getCurrentUserName(),
+                    "userIdUnique": XcUser.CurrentUser._userIdUnique,
                     "workbook": workbookName
                 });
                 break;
@@ -211,11 +212,11 @@ window.xcMixpanel = (function($, xcMixpanel) {
         currentPanel = $mainPanel.attr("id");
         currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
 
-        const name = XcUser.getCurrentUserName();
-        if (name){
-            mixpanel.identify(name);
+        const userIdUnique = XcUser.CurrentUser._userIdUnique();
+        if (userIdUnique){
+            mixpanel.identify(userIdUnique);
             mixpanel.people.set({
-                "$last_name": name
+                "$last_name": userIdUnique
             });
         }
 
@@ -259,7 +260,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
         xcMixpanel.track("User Leave", {
             "duration":  Math.round((currTime - pageLoadTime) / 1000),
             "timeInLastMode": timeInLastMode,
-            "lastMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
+            "lastMode": XVM.isSQLMode() ? "sqlMode" : "dataflowMode",
             "timeInLastPanel": timeInLastPanel,
             "lastPanel": currentPanel,
             "eventType": "pageUnload"
@@ -671,16 +672,16 @@ window.xcMixpanel = (function($, xcMixpanel) {
         lastModeTime = currTime;
 
         if ($("#container").hasClass("sqlMode")) {
-            xcMixpanel.track("To Advanced Mode", {
+            xcMixpanel.track("To Dataflow Mode", {
                 "timeInLastMode": timeInLastMode,
                 "lastMode": "sqlMode",
-                "currentMode": "advancedMode",
+                "currentMode": "dataflowMode",
                 "eventType": "click"
             });
         } else {
             xcMixpanel.track("To SQL Mode", {
                 "timeInLastMode": timeInLastMode,
-                "lastMode": "advancedMode",
+                "lastMode": "dataflowMode",
                 "currentMode": "sqlMode",
                 "eventType": "click"
             });
@@ -733,9 +734,10 @@ window.xcMixpanel = (function($, xcMixpanel) {
             "timeStamp": Date.now(),
             "windowHeight": $(window).height(),
             "windowWidth": $(window).width(),
-            "currentMode": XVM.isSQLMode() ? "sqlMode" : "advancedMode",
+            "currentMode": XVM.isSQLMode() ? "sqlMode" : "dataflowMode",
             "currentPanel": currentPanel,
-            "currentSubPanel": currentSubPanel
+            "currentSubPanel": currentSubPanel,
+            "xdURL": window.location.host
         };
 
         // special properties for click events
@@ -770,6 +772,9 @@ window.xcMixpanel = (function($, xcMixpanel) {
             if (!properties.triggeredByUser && !properties.el) {
                 return;
             }
+        }
+        if (window.gTestMode || !pageLoaded) {
+            return;
         }
         mixpanel.track(eventName, properties);
     }

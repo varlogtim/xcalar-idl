@@ -31,6 +31,12 @@ class MessageModal {
         this._setButtons(options);
         this._setStyling(options);
         this._modalHelper.setup({sizeCallBack: this._sizeModal.bind(this, options)});
+        if (typeof mixpanel !== "undefined") {
+            xcMixpanel.track("messageModal", {
+                title: options.title,
+                msg: options.msg
+            });
+        }
     }
 
     private _getModal(): JQuery {
