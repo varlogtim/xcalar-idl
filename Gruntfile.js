@@ -819,6 +819,7 @@ var DONT_RSYNC = [
         'assets/help/XD/Content/B_CommonTasks/A_ManageDatasetRef.htm',
         'assets/video/demoVid*',  // removes some ancient video files, no longer used
         'assets/js/constructor/README',
+        'assets/misc',
         UNIT_TEST_FOLDER, // will just put symlink to this in dev blds
         "'/external'", // this contains the web site, which we do not need
         "'/xcalar-design-ee'", // an old prod target
