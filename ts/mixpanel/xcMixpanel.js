@@ -715,6 +715,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
     }
 
     xcMixpanel.track = (eventName, eventProperties, jqueryEvent) => {
+        return; // XXX disabling
         eventProperties = eventProperties || {};
         let baseProperties = {
             "timeStamp": Date.now(),
