@@ -29,8 +29,8 @@ class TutorialManager {
         return Boolean(this._s3);
     }
 
-    downloadTutorial(tutName: string, version: string): Promise<any> {
-        let deferred = jQuery.Deferred();
+    downloadTutorial(tutName: string, version: string): XDPromise<any> {
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
         let params = {
             Bucket: 'marketplace.xcalar.com', /* required */
             Key: 'tutorials/' + tutName + "/" + version + "/" + tutName +
@@ -52,10 +52,10 @@ class TutorialManager {
         return deferred.promise();
     }
 
-    private processItem(ret: any[], fileName: string): Promise<any> {
-        let deferredOnProcessItem = jQuery.Deferred();
-        let getTutorial = function(file: string): Promise<string> {
-            let deferredOnGetFile = jQuery.Deferred();
+    private processItem(ret: any[], fileName: string): XDPromise<any> {
+        let deferredOnProcessItem: XDDeferred<any> = PromiseHelper.deferred();
+        let getTutorial = function(file: string): XDPromise<string> {
+            let deferredOnGetFile: XDDeferred<any> = PromiseHelper.deferred();
             let params = {
                 Bucket: 'marketplace.xcalar.com', /* required */
                 Key: file
@@ -85,8 +85,8 @@ class TutorialManager {
         return deferredOnProcessItem.promise();
     }
 
-    fetchAllTutorials(): JQueryPromise<any> {
-        let deferredOnFetch = jQuery.Deferred();
+    fetchAllTutorials(): XDPromise<any> {
+        let deferredOnFetch: XDDeferred<any> = PromiseHelper.deferred();
         let params = {
             Bucket: 'marketplace.xcalar.com', /* required */
             Prefix: 'tutorials/'
@@ -103,7 +103,7 @@ class TutorialManager {
                     let fileName = item.Key;
                     processItemsDeferred.push(this.processItem(ret, fileName));
                 });
-                jQuery.when.apply(jQuery, processItemsDeferred)
+                PromiseHelper.when(...processItemsDeferred)
                 .then(() => {
                     deferredOnFetch.resolve(ret);
                 })

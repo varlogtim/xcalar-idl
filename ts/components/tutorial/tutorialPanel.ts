@@ -105,6 +105,10 @@ class TutorialPanel {
         tutorials = tutorials || [];
 
         for (let i = 0, len = tutorials.length; i < len; i++) {
+            // XXX remove this hack
+            if (XVM.isCloud() && tutorials[i].appName === "ExportDrivers") {
+                continue;
+            }
             this._tutSet.addExtension(tutorials[i]);
         }
 
