@@ -119,6 +119,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
     };
 
     xcMixpanel.init = function() {
+        return; // XXX disabling
         if (xcMixpanel.forDev()) {
             window.mixpanel.init("8d64739b0382a6a440afaab1a57f5051");
         } else {
@@ -193,6 +194,8 @@ window.xcMixpanel = (function($, xcMixpanel) {
         if (!events.pageLoad) {
             return;
         }
+        return; // disabling
+        // pageLoaded = true; // XXX disabling
         let currTime = Date.now();
         pageLoadTime = lastModeTime = lastPanelTime = currTime;
         let $mainPanel = $(".mainPanel.active");
