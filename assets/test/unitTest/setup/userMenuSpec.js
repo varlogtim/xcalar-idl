@@ -122,18 +122,20 @@ describe("UserMenu Test", function() {
     //     }
     // });
 
-    it("should mouseup .liveHelp to open about modal", function() {
-        var oldFunc = LiveHelpModal.Instance.show;
-        var test = false;
-        LiveHelpModal.Instance.show = function() { test = true; };
-        // normal moouseup not work
-        $menu.find(".liveHelp").mouseup();
-        expect(test).to.be.false;
-        $menu.find(".liveHelp").trigger(fakeEvent.mouseup);
-        expect(test).to.be.true;
-        // clear up
-        LiveHelpModal.Instance.show = oldFunc;
-    });
+    // XXX hide in 2.2
+    // XXX TODO: enable it when it's ready to support
+    // it("should mouseup .liveHelp to open about modal", function() {
+    //     var oldFunc = LiveHelpModal.Instance.show;
+    //     var test = false;
+    //     LiveHelpModal.Instance.show = function() { test = true; };
+    //     // normal moouseup not work
+    //     $menu.find(".liveHelp").mouseup();
+    //     expect(test).to.be.false;
+    //     $menu.find(".liveHelp").trigger(fakeEvent.mouseup);
+    //     expect(test).to.be.true;
+    //     // clear up
+    //     LiveHelpModal.Instance.show = oldFunc;
+    // });
 
     it("should mouseup logout button to sign out", function() {
         var oldFunc = xcManager.unload;

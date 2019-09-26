@@ -60,15 +60,17 @@ describe("Help Panel Test", function() {
         }, 500);
     });
 
-    it("Should be able to open the live chat modal", function(done) {
-        helpPanel.openHelpResource("chatResource");
-        setTimeout(function() {
-            expect($("#liveHelpModal").is(":visible")).to.be.true;
-            expect($("#helpTab").hasClass("active")).to.be.true;
-            $("#liveHelpModal .close").click();
-            done();
-        }, 500);
-    });
+    // XXX hide in 2.2
+    // XXX TODO: enable it when it's ready to support
+    // it("Should be able to open the live chat modal", function(done) {
+    //     helpPanel.openHelpResource("chatResource");
+    //     setTimeout(function() {
+    //         expect($("#liveHelpModal").is(":visible")).to.be.true;
+    //         expect($("#helpTab").hasClass("active")).to.be.true;
+    //         $("#liveHelpModal .close").click();
+    //         done();
+    //     }, 500);
+    // });
 
     after((done) => {
         window.open = oldWindowOpen;
