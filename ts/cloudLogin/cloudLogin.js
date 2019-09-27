@@ -109,7 +109,7 @@ var cognitoUser;
 //                     var sessionToken = AWS.config.credentials.sessionToken;
 
 //                     username = xcLocalStorage.getItem("xcalarUsername");
-//                     getCluster();
+//                     clusterSelection();
 //                 }
 //             });
 //         } catch (error) {
@@ -185,7 +185,7 @@ fetch(cookieAuthApiUrl + "/prod/status", {
             localUsername = response.emailAddress;
             // XXX TODO: remove it after prod/status can return id
             localSessionId = xcLocalStorage.getItem("xcalarSessionId");
-            getCluster();
+            clusterSelection();
         } else if (response.loggedIn === false) {
             showInitialScreens();
             // XXX TODO: remove it after prod/status can return id
@@ -244,7 +244,7 @@ function cookieLogin(username, password) {
 
         $button.addClass("xc-disabled");
         var cb = () => $button.removeClass("xc-disabled");
-        getCluster(cb);
+        clusterSelection(cb);
     })
     .catch((error) => {
         console.error('cookieLogin error:', error);
@@ -300,8 +300,9 @@ function cookieLogout() {
 //     }
 // }
 
-function getCluster(cb) {
-    fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/get", {
+function checkCredit() {
+    return new Promise((resolve, reject) => {
+        fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/get", {
             headers: {
                 "Content-Type": "application/json",
             },
@@ -311,56 +312,96 @@ function getCluster(cb) {
             }),
         })
         .then(res => res.json())
-        .then((clusterGetResponse) => {
-            if (clusterGetResponse.status !== 0) {
-                // error
-                console.error('getCluster error. cluster/get returned: ', clusterGetResponse);
-                // XXX TODO: remove this hack fix when lambda fix it
-                if (clusterGetResponse.status === 8 &&
-                    clusterGetResponse.error === "Cluster is not reachable yet"
-                ) {
-                    setTimeout(() => getCluster(), 3000);
-                    $("header").children().hide();
-                    $("#formArea").children().hide();
-                    $("#loadingTitle").show();
-                    $("#loadingForm").show();
-                    deployingClusterAnimation();
-                    return;
-                }
-                handleException();
-            } else if (clusterGetResponse.isPending === false && clusterGetResponse.clusterUrl === undefined) {
-                // go to cluster selection screen
-                $("header").children().hide();
-                $("#formArea").children().hide();
-                $("#clusterTitle").show();
-                $("#clusterForm").show();
-            } else if (clusterGetResponse.isPending) {
-                // go to wait screen
+        .then((billingGetResponse) => {
+            // console.log(billingGetResponse.credits);
+            if (billingGetResponse.credits > 0) {
+                resolve(true);
+            } else {
+                $("header").children().hide()
+                $("#formArea").children().hide()
+                $('#noCreditsForm').show();
+                $('#noCreditsTitle').show(); 
+                resolve(false);
+            }
+        })
+        .catch((error) => {
+            console.error('checkCredit error caught:', error);
+            handleException();
+            reject(error);
+        });
+    });
+}
+
+function getCluster() {
+    return fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/get", {
+        headers: {
+            "Content-Type": "application/json",
+        },
+        method: 'POST',
+        body: JSON.stringify({
+            "username": localUsername
+        }),
+    })
+    .then(res => res.json())
+    .then((clusterGetResponse) => {
+        if (clusterGetResponse.status !== 0) {
+            // error
+            console.error('getCluster error. cluster/get returned: ', clusterGetResponse);
+            // XXX TODO: remove this hack fix when lambda fix it
+            if (clusterGetResponse.status === 8 &&
+                clusterGetResponse.error === "Cluster is not reachable yet"
+            ) {
                 setTimeout(() => getCluster(), 3000);
                 $("header").children().hide();
                 $("#formArea").children().hide();
                 $("#loadingTitle").show();
                 $("#loadingForm").show();
                 deployingClusterAnimation();
-            } else {
-                // redirect to cluster
-                if (progressBar.isStarted()) {
-                    showClusterIsReadyScreen();
-                    setTimeout(() => goToXcalar(clusterGetResponse), 2000);
-                } else {
-                    goToXcalar(clusterGetResponse);
-                }
+                return;
             }
-        })
-        .catch(error => {
-            console.error('getCluster error caught:', error);
             handleException();
-        })
-        .finally(() => {
-            if (typeof cb === "function") {
-                cb();
+        } else if (clusterGetResponse.isPending === false && clusterGetResponse.clusterUrl === undefined) {
+            // go to cluster selection screen
+            $("header").children().hide();
+            $("#formArea").children().hide();
+            $("#clusterTitle").show();
+            $("#clusterForm").show();
+        } else if (clusterGetResponse.isPending) {
+            // go to wait screen
+            setTimeout(() => getCluster(), 3000);
+            $("header").children().hide();
+            $("#formArea").children().hide();
+            $("#loadingTitle").show();
+            $("#loadingForm").show();
+            deployingClusterAnimation();
+        } else {
+            // redirect to cluster
+            if (progressBar.isStarted()) {
+                showClusterIsReadyScreen();
+                setTimeout(() => goToXcalar(clusterGetResponse), 2000);
+            } else {
+                goToXcalar(clusterGetResponse);
             }
-        });
+        }
+    })
+    .catch((error) => {
+        console.error('getCluster error caught:', error);
+        handleException();
+    });
+}
+
+function clusterSelection(cb) {
+    checkCredit()
+    .then((hasCredit) => {
+        if (hasCredit) {
+            return getCluster();
+        }
+    })
+    .finally(() => {
+        if (typeof cb === "function") {
+            cb();
+        }
+    });
 }
 
 function goToXcalar(clusterGetResponse) {

@@ -15,6 +15,7 @@
       <header>
         <h2 class="loginHeader" id="loginTitle" style="display: none">Login to Xcalar Developer Cloud!</h2>
         <h2 class="loginHeader" id="signupTitle" style="display: none">Welcome to Xcalar Developer Cloud!</h2>
+        <h2 class="loginHeader" id="noCreditsTitle" style="display: none">Insufficient Credits</h2>
         <h2 class="loginHeader" id="clusterTitle" style="display: none">Select your cluster size</h2>
         <h2 class="loginHeader" id="verifyTitle" style="display: none">Verify your account</h2>
         <h2 class="loginHeader" id="forgotPasswordTitle" style="display: none">Password recovery</h2>
@@ -48,13 +49,13 @@
             </label>
           </div>
           <div id="forgotSection" class="auth-section">
-            <a class="auth-link">Forgot password?</a>
+            <a>Forgot password?</a>
           </div>
           <div class="section submitSection clearfix">
             <button id="loginButton" class="btn login"><span class="text">Log in</span></button>
           </div>
           <div class="signupSection auth-section">
-            <a class="signup-login auth-link">Create an account</a>
+            <a class="signup-login">Create an account</a>
           </div>
         </div>
 
@@ -142,8 +143,7 @@
               <i class="icon xi-error"></i>
               <div class="text">
                 <label for="signup-termCheck">
-                  <a id="signup-term" class="auth-link" href="https://xcalar.com/end-user-license-agreement/"
-                    target="_blank">
+                  <a id="signup-term" href="https://xcalar.com/end-user-license-agreement/" target="_blank">
                     I have read and agree to the <b>End User License Agreement</b>
                   </a>
                 </label>
@@ -153,7 +153,7 @@
             <button id="signup-submit" class="btn signup"><span class="text">Create account</span></button>
           </div>
           <div class="loginSection auth-section">
-            <a class="signup-login auth-link">Already have an account? Log In</a>
+            <a class="signup-login">Already have an account? Log In</a>
           </div>
         </div>
 
@@ -171,7 +171,7 @@
             <div class="label">Verification Code</div>
           </div>
           <div id="resend-code" class="auth-section">
-            <a class="auth-link">Didn't receive a code? <b>Resend it.</b></a>
+            <a>Didn't receive a code? <b>Resend it.</b></a>
           </div>
           <div class="section submitSection clearfix">
             <button id="verify-submit" class="btn signup"><span class="text">Confirm account</span></button>
@@ -197,7 +197,7 @@
             </button>
           </div>
           <div class="loginSection auth-section">
-            <a class="auth-link link-to-login">Already have an account? Log In</a>
+            <a class="link-to-login">Already have an account? Log In</a>
           </div>
         </div>
 
@@ -227,7 +227,19 @@
             </button>
           </div>
           <div class="loginSection auth-section">
-            <a class="auth-link link-to-login">Already have an account? Log In</a>
+            <a class="link-to-login">Already have an account? Log In</a>
+          </div>
+        </div>
+
+        <!-- no credits -->
+        <div id="noCreditsForm" class="authForm" autocomplete="off">
+          <div class="title no-credits-title">
+            You have no credits left on your account. To top up credits, go to
+            <a href="https://www.xcalar.com/credits" target="_blank">xcalar.com/credits</a>
+            and follow the instructions. Credits will be made available in your account in 15 minutes.
+          </div>
+          <div class="logOutLink">
+            <button class="btn link-to-login"><span class="text">Log out</span></button>
           </div>
         </div>
 
@@ -284,7 +296,7 @@
             </button>
           </div>
           <div class="logOutLink loginSection auth-section">
-            <a class="auth-link link-to-login">Log Out</a>
+            <a class="link-to-login">Log Out</a>
           </div>
         </div>
 
