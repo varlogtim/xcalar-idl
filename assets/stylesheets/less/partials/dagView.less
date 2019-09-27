@@ -699,6 +699,28 @@
             background-size: 10px;
             overflow: auto;
 
+
+            &.largeHidden {
+                .dataflowAreaWrapper, .runStats {
+                    display: none;
+                }
+                .largeMsg {
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    .innerContent {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        max-width: 400px;
+                    }
+                    .btn {
+                        margin-top: 24px;
+                    }
+                }
+            }
+
             &.active {
                 display: block;
             }

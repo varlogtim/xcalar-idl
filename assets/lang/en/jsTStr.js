@@ -1679,7 +1679,8 @@ DagTStr = {
     "CustomOpTooManyOutput": "Cannot create a custom operator with more than one output",
     "CustomOpTypeNotSupport": "Cannot create a custom operator with this operation type",
     "SortConnectWarning": "Having a sort node that is not the final node of the dataflow can cause performance issues. We recommend only having sort nodes at the end of the dataflow. Are you sure you want to continue?",
-    "SortConnectWarningTitle": "Sort Warning"
+    "SortConnectWarningTitle": "Sort Warning",
+    "LargeDataflowMsg": "This dataflow contains <num> nodes and may take some time to display. Do you still want to view this dataflow?"
 };
 
 OpPanelTStr = {

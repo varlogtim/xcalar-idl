@@ -35,6 +35,7 @@ class DagView {
     private static dagEventNamespace = 'DagView';
     private static udfErrorColor = "#F15840";
     private static mapNodeColor = "#89D0E0";
+    private static dataflowNodeLimit = 1000; // point where dataflow starts to lag
 
     private isSqlPreview: boolean = false;
     private _isFocused: boolean;
@@ -832,17 +833,40 @@ class DagView {
         $wrapper.children().css("transform", "scale(" + scale + ")");
 
         const nodes: Map<DagNodeId, DagNode> = this.graph.getAllNodes();
-
-        nodes.forEach((node: DagNode) => {
-            this._drawNode(node);
-            this._addProgressTooltipForNode(node);
-        });
-        nodes.forEach((node: DagNode, nodeId: DagNodeId) => {
-            node.getParents().forEach((parentNode, index) => {
-                const parentId: DagNodeId = parentNode.getId();
-                this._drawConnection(parentId, nodeId, index, node.canHaveMultiParents());
+        if (nodes.size > DagView.dataflowNodeLimit) {
+            let text: string = xcStringHelper.replaceMsg(DagTStr.LargeDataflowMsg, {
+                "num": xcStringHelper.numToStr(nodes.size)
             });
-        });
+            let largeMsg: HTML = `<div class="largeMsg">
+                                    <div class="innerContent">${text}
+                                        <button class="btn" data-mixpanel-id="ViewDataflowBtn">View Dataflow</button>
+                                    </div>
+                                </div>`;
+            this.$dfArea.append(largeMsg);
+            let $largeMsg: JQuery = this.$dfArea.find(".largeMsg");
+
+            $largeMsg.find(".btn").click(() => {
+                $largeMsg.find(".btn").off();
+                xcUIHelper.showRefreshIcon($largeMsg, true, null);
+                setTimeout(() => { // allow refresh icon to start spinning
+                    this.$dfArea.find(".largeMsg").remove();
+                    this._drawConnectionArea(nodes, $wrapper);
+                    this.$dfArea.removeClass("largeHidden");
+                    this.$dfArea.find(".refreshIcon").remove();
+                }, 500);
+            });
+            this.$dfArea.addClass("largeHidden");
+
+            // if lots of node, delay the rendering by a split second
+            // so that we can show .largeMsg
+            setTimeout(() => {
+                this._renderAllNodes(nodes);
+            });
+        } else {
+            this.$dfArea.removeClass("largeHidden");
+            this._drawConnectionArea(nodes, $wrapper);
+            this._renderAllNodes(nodes);
+        }
 
         const comments: Map<CommentNodeId, CommentNode> = this.graph.getAllComments();
 
@@ -858,6 +882,28 @@ class DagView {
             this.dagTab instanceof DagTabPublished) {
             this._checkLoadedTabHasQueryInProgress();
         }
+    }
+
+    private _renderAllNodes(nodes) {
+        let $nodes = $();
+        nodes.forEach((node: DagNode) => {
+            this._addProgressTooltipForNode(node);
+            $nodes = $nodes.add(this._drawNode(node, false, true));
+        });
+
+        $nodes.appendTo(this.$dfArea.find(".operatorSvg"));
+    }
+
+    private _drawConnectionArea(nodes:  Map<DagNodeId, DagNode>, $wrapper: JQuery) {
+        var $svg = $(`<svg class="edgeSvg"/>`);
+        const svg = d3.select($svg[0]);
+        nodes.forEach((node: DagNode, nodeId: DagNodeId) => {
+            node.getParents().forEach((parentNode, index) => {
+                const parentId: DagNodeId = parentNode.getId();
+                this._drawConnection(parentId, nodeId, index, node.canHaveMultiParents(), svg, false, true);
+            });
+        });
+        $wrapper.find(".edgeSvg").replaceWith($svg);
     }
 
     // resume progress checking
@@ -1167,6 +1213,7 @@ class DagView {
         const newLinkOutNodes: DagNodeDFOut[] = [];
         const newAggNodes: DagNodeAggregate[] = [];
         this.dagTab.turnOffSave();
+        const svg: d3 = d3.select(this.containerSelector + ' .dataflowArea[data-id="' + this.tabId + '"] .edgeSvg');
 
         try {
             let isSQLFunc = (this.dagTab instanceof DagTabSQLFunc);
@@ -1263,7 +1310,7 @@ class DagView {
                             try {
                                 this.graph.connect(newParentId, newNodeId, j, false, false);
                                 nodesMap.set(newNode.getId(), newNode);
-                                this._drawConnection(newParentId, newNodeId, j, newNode.canHaveMultiParents());
+                                this._drawConnection(newParentId, newNodeId, j, newNode.canHaveMultiParents(), svg);
                             } catch (e) {
                                 console.error(e);
                             }
@@ -2602,7 +2649,8 @@ class DagView {
         return (this.dagTab instanceof DagTabCustom ||
             this.dagTab instanceof DagTabSQL ||
             this.dagTab instanceof DagTabProgress ||
-            this.dagTab instanceof DagTabPublished);
+            this.dagTab instanceof DagTabPublished ||
+            (this.$dfArea && this.$dfArea.hasClass("largeHidden")));
     }
 
     public isViewOnly(): boolean {
@@ -3528,7 +3576,9 @@ class DagView {
         childNodeId: DagNodeId,
         connectorIndex: number,
         isMultiParent: boolean, // if childNode can have multiple (> 2) parents
-        newConnection?: boolean
+        svg: d3,
+        newConnection?: boolean,
+        bulk?: boolean
     ): void {
         const self = this;
         const $childNode: JQuery = this._getNode(childNodeId);
@@ -3536,8 +3586,7 @@ class DagView {
         $childConnector.removeClass("noConnection")
             .addClass("hasConnection");
 
-        const svg: d3 = d3.select(this.containerSelector + ' .dataflowArea[data-id="' + this.tabId + '"] .edgeSvg');
-        if (isMultiParent) {
+        if (isMultiParent && !bulk) {
             // if re-adding an edge from a multichildnode then increment all
             // the edges that have a greater or equal index than the removed one
             // due to splice action on children array
@@ -3558,16 +3607,16 @@ class DagView {
             });
         }
 
-        this._drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
+        return this._drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
     }
 
-    private _drawNode(node: DagNode, select?: boolean): JQuery {
+    private _drawNode(node: DagNode, select?: boolean, bulk?: boolean): JQuery {
         const pos = node.getPosition();
         let type = node.getType();
         let subType = node.getSubType() || "";
         const nodeId = node.getId();
-        const $categoryBarNode = DagView._$operatorBar.find('.operator[data-type="' + type + '"]' +
-        '[data-subtype="' + subType + '"]').first();
+        let $categoryBarNode = DagView._$operatorBar.find('.operator[data-type="' + type + '"]' +
+                '[data-subtype="' + subType + '"]').first();
         const $node = $categoryBarNode.clone();
         if ($categoryBarNode.closest(".category-hidden").length &&
             type !== DagNodeType.Synthesize &&
@@ -3619,24 +3668,27 @@ class DagView {
             // The custom input/output is hidden in the category bar, so show it in the diagram
         }
 
-        $node.appendTo(this.$dfArea.find(".operatorSvg"));
+         // XXX TODO: deprecated
+        if (node.isDeprecated()) {
+            xcTooltip.add($node.find(".main"), {title: DFTStr.Deprecated});
+        }
 
         if (node instanceof DagNodeMap && node.hasUDFError()) {
             this._updateNodeUDFErrorIcon($node, node);
         }
 
+
         // Update connector UI according to the number of I/O ports
         if (node instanceof DagNodeCustom) {
             const { input, output } = node.getNumIOPorts();
-            this._updateConnectorIn(node.getId(), input);
-            this._updateConnectorOut(node.getId(), output);
+            this._updateConnectorIn($node, input);
+            this._updateConnectorOut($node, output);
         }
 
-        // XXX TODO: deprecated
-        if (node.isDeprecated()) {
-            xcTooltip.add($node.find(".main"), {title: DFTStr.Deprecated});
-        }
 
+        if (!bulk) {
+            $node.appendTo(this.$dfArea.find(".operatorSvg"));
+        }
         return $node;
     }
 
@@ -3655,13 +3707,13 @@ class DagView {
         xcTooltip.remove($node.find(".iconArea"));
     }
 
-    private _updateConnectorIn(nodeId: DagNodeId, numInputs: number) {
-        const g = d3.select(this._getNode(nodeId)[0]);
+    private _updateConnectorIn($node: JQuery, numInputs: number) {
+        const g = d3.select($node[0]);
         DagCategoryBar.Instance.updateNodeConnectorIn(numInputs, g);
     }
 
-    private _updateConnectorOut(nodeId: DagNodeId, numberOutputs: number) {
-        const g = d3.select(this._getNode(nodeId)[0]);
+    private _updateConnectorOut($node: JQuery, numberOutputs: number) {
+        const g = d3.select($node[0]);
         DagCategoryBar.Instance.updateNodeConnectorOut(numberOutputs, g);
     }
 
@@ -5063,7 +5115,8 @@ class DagView {
         this.graph.connect(parentNodeId, childNodeId, connectorIndex, false, isSwitchState,
             spliceIn);
         const childNode = this.graph.getNode(childNodeId);
-        this._drawConnection(parentNodeId, childNodeId, connectorIndex, childNode.canHaveMultiParents(), true);
+        const svg: d3 = d3.select(this.containerSelector + ' .dataflowArea[data-id="' + this.tabId + '"] .edgeSvg');
+        this._drawConnection(parentNodeId, childNodeId, connectorIndex, childNode.canHaveMultiParents(), svg, true);
         childNode.setIdentifiers(options.identifiers);
         if (options.setNodeConfig && childNode != null) {
             (<DagNodeSet> childNode).reinsertColumn(options.setNodeConfig, connectorIndex);
@@ -5130,6 +5183,7 @@ class DagView {
 
     private _drawAllNodeConnections(nodes: DagNode[]): void {
         const drawnConnections = {};
+        const svg: d3 = d3.select(this.containerSelector + ' .dataflowArea[data-id="' + this.tabId + '"] .edgeSvg');
         nodes.forEach((node) => {
             const nodeId = node.getId();
             node.getParents().forEach((parentNode, index) => {
@@ -5138,7 +5192,7 @@ class DagView {
                     return;
                 }
                 drawnConnections[connectionId] = true;
-                this._drawConnection(parentNode.getId(), nodeId, index, node.canHaveMultiParents());
+                this._drawConnection(parentNode.getId(), nodeId, index, node.canHaveMultiParents(), svg);
             });
 
             const seen = {};
@@ -5157,7 +5211,7 @@ class DagView {
                             return;
                         }
                         drawnConnections[connectionId] = true;
-                        this._drawConnection(nodeId, childNode.getId(), index, childNode.canHaveMultiParents());
+                        this._drawConnection(nodeId, childNode.getId(), index, childNode.canHaveMultiParents(), svg);
                     }
                 });
             });

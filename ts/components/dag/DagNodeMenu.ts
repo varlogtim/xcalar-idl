@@ -526,7 +526,7 @@ namespace DagNodeMenu {
     }
 
     function _showEdgeMenu($edge: JQuery, event: JQueryEventObject): void {
-        if (DagViewManager.Instance.isDisableActions()) {
+        if (DagViewManager.Instance.isDisableActions() || $edge.closest(".largeHidden").length) {
             return;
         }
         let classes: string = " edgeMenu ";
@@ -557,6 +557,9 @@ namespace DagNodeMenu {
     }
 
     function _showCommentMenu($clickedEl: JQuery, event: JQueryEventObject): void {
+        if ($clickedEl.closest("largeHidden").length) {
+            return;
+        }
         let nodeIds = DagViewManager.Instance.getSelectedNodeIds();
         const nodeId: DagNodeId = $(this).data("nodeid");
         let $menu = _getDagNodeMenu();
@@ -578,7 +581,7 @@ namespace DagNodeMenu {
     // called when node is clicked or background is clicked
     function _showNodeMenu(event: JQueryEventObject, $clickedEl?: JQuery) {
         const $dfArea = DagViewManager.Instance.getActiveArea();
-        if (!$dfArea.length) {
+        if (!$dfArea.length || $dfArea.hasClass("largeHidden")) {
             return;
         }
         const $operators = DagViewManager.Instance.getSelectedNodes();

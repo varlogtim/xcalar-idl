@@ -4,6 +4,10 @@ class DagNodeInfoPanel {
     private _isShowing: boolean;
     private _activeNode: DagNode;
     private _isRowStatsCollapsed: boolean;
+    private _isConfigCollapsed: boolean;
+    private _isStatsCollapsed: boolean;
+    private _isDescriptionCollapsed: boolean;
+    private _maxTextLength = 5000;
 
     public static get Instance() {
         return this._instance || (this._instance = new DagNodeInfoPanel());
@@ -13,6 +17,9 @@ class DagNodeInfoPanel {
         this._$panel = $("#dagNodeInfoPanel");
         this._isShowing = false;
         this._isRowStatsCollapsed = true;
+        this._isConfigCollapsed = false;
+        this._isStatsCollapsed = false;
+        this._isDescriptionCollapsed = false;
         this._addEventListeners();
     }
 
@@ -35,7 +42,7 @@ class DagNodeInfoPanel {
         this._updateTitleSection();
         this._updateConfigSection();
         this._updateStatusSection();
-        this._updateStatsSection();
+        this._updateStatsSection(true);
         this._updateAggregatesSection();
         this._updateUDFSection();
         this._updateDescriptionSection();
@@ -133,8 +140,15 @@ class DagNodeInfoPanel {
                 self._isRowStatsCollapsed = !self._isRowStatsCollapsed;
             } else {
                 $row.toggleClass("collapsed");
+                let isCollapsed = $row.hasClass("collapsed");
                 if ($row.hasClass("udfsRow") && !$row.hasClass("collapsed")) {
                     self._viewUDFs();
+                } else if ($row.hasClass("configRow")) {
+                    self._isConfigCollapsed = isCollapsed;
+                } else if ($row.hasClass("mainRow statsRow")) {
+                    self._isStatsCollapsed = isCollapsed;
+                } else if ($row.hasClass("descriptionRow")) {
+                    self._isDescriptionCollapsed = isCollapsed;
                 }
             }
         });
@@ -190,9 +204,18 @@ class DagNodeInfoPanel {
     }
 
     private _updateConfigSection(): void {
+        let unhide = false;
         this._$panel.find(".configRow").removeClass("xc-hidden");
         let params = this._getConfig();
+        if (params.length > this._maxTextLength) {
+            this._$panel.find(".configRow").addClass("collapsed");
+        } else if (!this._isConfigCollapsed) {
+            unhide = true; // hide after text is assigned
+        }
         this._$panel.find(".configSection").text(params);
+        if (unhide) {
+            this._$panel.find(".configRow").removeClass("collapsed");
+        }
     }
 
     private _getConfig(): string {
@@ -223,9 +246,10 @@ class DagNodeInfoPanel {
         }
     }
 
-    private _updateStatsSection(): void {
+    private _updateStatsSection(autoCollapse?: boolean): void {
         const node = this._activeNode;
         const overallStats = node.getOverallStats();
+        let unhide = false;
         if (overallStats.started) {
             this._$panel.find(".progressRow").removeClass("xc-hidden");
             let pct: string;
@@ -240,6 +264,14 @@ class DagNodeInfoPanel {
             this._$panel.find(".timeSection").text(xcTimeHelper.getElapsedTimeStr(overallStats.time));
             this._$panel.find(".statsRow").removeClass("xc-hidden");
             const operationsStats = node.getIndividualStats(true);
+
+            if (autoCollapse && operationsStats.length > 20) {
+                this._$panel.find(".mainRow.statsRow").addClass("collapsed");
+            } else if (!this._isStatsCollapsed) {
+                unhide = true; // hide after text is set
+            }
+
+
             let statsHtml: HTML = "";
             let skewInfos = [];
             operationsStats.forEach((stats) => {
@@ -315,6 +347,9 @@ class DagNodeInfoPanel {
             this._$panel.find(".statsSection").find(".skewStatsRow").each(function(i) {
                 $(this).data("skewinfo", skewInfos[i]);
             });
+            if (unhide) {
+                this._$panel.find(".mainRow.statsRow").removeClass("collapsed");
+            }
         } else {
             this._$panel.find(".progressRow").addClass("xc-hidden");
             this._$panel.find(".timeRow").addClass("xc-hidden");
@@ -343,7 +378,17 @@ class DagNodeInfoPanel {
     private _updateDescriptionSection(): void {
         if (this._activeNode.getDescription()) {
             this._$panel.find(".descriptionRow").removeClass("xc-hidden");
-            this._$panel.find(".descriptionSection").text(this._activeNode.getDescription());
+            let description = this._activeNode.getDescription();
+            let unhide = false;
+            if (description.length > this._maxTextLength) {
+                this._$panel.find(".descriptionRow").addClass("collapsed");
+            } else if (!this._isDescriptionCollapsed) {
+                unhide = true; // hide after text is assigned
+            }
+            this._$panel.find(".descriptionSection").text(description);
+            if (unhide) {
+                this._$panel.find(".descriptionRow").removeClass("collapsed");
+            }
         } else {
             this._$panel.find(".descriptionRow").addClass("xc-hidden");
         }
