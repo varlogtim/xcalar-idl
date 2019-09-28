@@ -31,7 +31,7 @@ class DagComment {
         // blur triggers the removal of the temporary comment wrapper and places
         // the comment back behind the nodes
         $dfWrap.on("blur", ".tempCommentArea .comment textarea", function() {
-            const $tempCommentArea = $dfWrap.find(".tempCommentArea");
+            const $tempCommentArea = $("#dagView").find(".tempCommentArea");
             const $comment = $tempCommentArea.find(".comment");
             $comment.closest(".dataflowAreaWrapper").find(".commentArea").append($comment);
             $tempCommentArea.remove();
@@ -40,8 +40,9 @@ class DagComment {
         });
         $dfWrap.on("change", ".comment textarea", function() {
             const id = $(this).closest(".comment").data("nodeid");
+            const tabId: string = $(this).closest(".dataflowArea").data("id");
             const text = $(this).val();
-            self.updateText(id, text);
+            self.updateText(id, tabId, text);
         });
     }
 
@@ -110,10 +111,14 @@ class DagComment {
      * @param id
      * @param text
      */
-    public updateText(id: CommentNodeId, text: string): XDPromise<void> {
+    public updateText(id: CommentNodeId, tabId: string, text: string): XDPromise<void> {
         $("#dagView").find('.comment[data-nodeid="' + id + '"]')
                      .find("textarea").val(text);
-        const comment: CommentNode = DagViewManager.Instance.getActiveDag().getComment(id);
+        let dagView: DagView = DagViewManager.Instance.getDagViewById(tabId);
+        if (!dagView) {
+            return;
+        }
+        const comment: CommentNode = dagView.getGraph().getComment(id);
         const oldText = comment.getText();
         comment.setText(text);
         Log.add(SQLTStr.EditComment, {
@@ -123,7 +128,7 @@ class DagComment {
             "newComment": text,
             "oldComment": oldText
         });
-        return DagViewManager.Instance.getActiveTab().save();
+        return dagView.getTab().save();
     }
 
     private _focus($comment: JQuery): void {

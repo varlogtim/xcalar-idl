@@ -123,7 +123,7 @@ namespace Undo {
 
     undoFuncs[SQLOps.EditComment] = function(options): XDPromise<void> {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagComment.Instance.updateText(options.commentId, options.oldComment);
+        DagComment.Instance.updateText(options.commentId, options.dataflowId, options.oldComment);
         return PromiseHelper.resolve(null);
     };
 

@@ -89,8 +89,9 @@ describe("DagComment Test", function() {
             called = true;
             return node;
         };
+
         $dfArea.find(".comment textarea").blur();
-        DagComment.Instance.updateText("comment_someId", "newtext");
+        DagComment.Instance.updateText("comment_someId", graph.getTabId(), "newtext");
         expect(called).to.be.true;
         expect(node.getText()).to.equal("newtext");
         expect($dfArea.find(".comment").find("textarea").val()).to.equal("newtext");

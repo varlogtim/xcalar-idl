@@ -115,7 +115,7 @@ namespace Redo {
 
     redoFuncs[SQLOps.EditComment] = function(options): XDPromise<void> {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagComment.Instance.updateText(options.commentId, options.newComment);
+        DagComment.Instance.updateText(options.commentId, options.dataflowId, options.newComment);
         return PromiseHelper.resolve(null);
     };
 
