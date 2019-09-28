@@ -22,6 +22,7 @@
         <h2 class="loginHeader" id="forgotPasswordTitle" style="display: none">Password recovery</h2>
         <h2 class="loginHeader" id="confirmForgotPasswordTitle" style="display: none">Choose new password</h2>
         <h2 class="loginHeader" id="loadingTitle" style="display: none">Deploying your cluster</h2>
+        <h2 class="loginHeader" id="exceptionTitle" style="display: none">Ooops...</h2>
       </header>
     </div>
     <div id="loadingBar">
@@ -293,17 +294,28 @@
           </div>
           <div class="section buttonSection clearfix">
             <button id="deployBtn" class="btn">
-              <span class="text">DEPLOY</span>
+              <span class="text">Deploy</span>
             </button>
           </div>
           <div class="logOutLink loginSection auth-section">
-            <a class="link-to-login">Log Out</a>
+            <a class="link-to-login">Log out</a>
           </div>
         </div>
 
         <!-- loading -->
         <div id="loadingForm" class="authForm">
           include "../partials/util/progressBar.html"
+        </div>
+
+        <!-- exception -->
+        <div id="exceptionForm" class="authForm">
+          <div id="exceptionFormError" class="formError">
+            <i class="icon xi-error"></i>
+            <span class="text">An error has ocurred.</span>
+          </div>
+          <div class="title">
+            To try again, refresh this page, or contact Xcalar support at (XXX) XXX-XXXX
+          </div>
         </div>
       </div>
     </div>

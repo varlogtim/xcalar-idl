@@ -177,27 +177,27 @@ var cognitoUser;
 var cookieAuthApiUrl = "https://1jqb965i1d.execute-api.us-west-2.amazonaws.com";
 
 fetch(cookieAuthApiUrl + "/prod/status", {
-        credentials: 'include',
-    })
-    .then(res => res.json())
-    .then(response => {
-        if (response.loggedIn === true) {
-            localUsername = response.emailAddress;
-            // XXX TODO: remove it after prod/status can return id
-            localSessionId = xcLocalStorage.getItem("xcalarSessionId");
-            clusterSelection();
-        } else if (response.loggedIn === false) {
-            showInitialScreens();
-            // XXX TODO: remove it after prod/status can return id
-            localSessionId = "";
-            xcLocalStorage.removeItem("xcalarSessionId");
-        } else {
-            console.error('cookieLoggedInStatus unrecognized code:', response);
-        }
-    }).catch(error => {
-        console.error('cookieLoggedInStatus error:', error);
-        handleException();
-    });
+    credentials: 'include',
+})
+.then(res => res.json())
+.then(response => {
+    if (response.loggedIn === true) {
+        localUsername = response.emailAddress;
+        // XXX TODO: remove it after prod/status can return id
+        localSessionId = xcLocalStorage.getItem("xcalarSessionId");
+        clusterSelection();
+    } else if (response.loggedIn === false) {
+        showInitialScreens();
+        // XXX TODO: remove it after prod/status can return id
+        localSessionId = "";
+        xcLocalStorage.removeItem("xcalarSessionId");
+    } else {
+        console.error('cookieLoggedInStatus unrecognized code:', response);
+    }
+}).catch(error => {
+    console.error('cookieLoggedInStatus error:', error);
+    handleException(error);
+});
 
 function cookieLogin(username, password) {
     var $button = $("#loginButton");
@@ -257,26 +257,32 @@ function cookieLogin(username, password) {
     });
 }
 
-function cookieLogout() {
+function cookieLogout(handleExceptionFlag) {
     fetch(cookieAuthApiUrl + "/prod/logout", {
-            credentials: 'include',
-        })
-        .then(response => {
-            if (response.status === 200) {
-                // XXX TODO: remove it after prod/status can return id
-                localSessionId = "";
-                xcLocalStorage.removeItem("xcalarSessionId");
-            } else if (response.status === 500) {
-                console.error('error logging out:', response);
-                handleException();
-            } else {
-                console.error('cookieLogout unrecognized code:', response);
-                handleException();
+        credentials: 'include',
+    })
+    .then(response => {
+        if (response.status === 200) {
+            // XXX TODO: remove it after prod/status can return id
+            localSessionId = "";
+            xcLocalStorage.removeItem("xcalarSessionId");
+        } else if (response.status === 500) {
+            console.error('error logging out:', response);
+            if (handleExceptionFlag) {
+                handleException(response);
             }
-        }).catch(error => {
-            console.error('cookieLogut error:', error);
-            handleException();
-        });
+        } else {
+            console.error('cookieLogout unrecognized code:', response);
+            if (handleExceptionFlag) {
+                handleException(response);
+            }
+        }
+    }).catch(error => {
+        console.error('cookieLogut error:', error);
+        if (handleExceptionFlag) {
+            handleException(error);
+        }
+    });
 }
 
 // }
@@ -313,20 +319,19 @@ function checkCredit() {
         })
         .then(res => res.json())
         .then((billingGetResponse) => {
-            // console.log(billingGetResponse.credits);
             if (billingGetResponse.credits > 0) {
                 resolve(true);
             } else {
                 $("header").children().hide()
                 $("#formArea").children().hide()
                 $('#noCreditsForm').show();
-                $('#noCreditsTitle').show(); 
+                $('#noCreditsTitle').show();
                 resolve(false);
             }
         })
         .catch((error) => {
             console.error('checkCredit error caught:', error);
-            handleException();
+            handleException(error);
             reject(error);
         });
     });
@@ -358,8 +363,9 @@ function getCluster() {
                 $("#loadingForm").show();
                 deployingClusterAnimation();
                 return;
+            } else {
+                handleException(clusterGetResponse.error);
             }
-            handleException();
         } else if (clusterGetResponse.isPending === false && clusterGetResponse.clusterUrl === undefined) {
             // go to cluster selection screen
             $("header").children().hide();
@@ -386,7 +392,7 @@ function getCluster() {
     })
     .catch((error) => {
         console.error('getCluster error caught:', error);
-        handleException();
+        handleException(error);
     });
 }
 
@@ -407,7 +413,7 @@ function clusterSelection(cb) {
 function goToXcalar(clusterGetResponse) {
     var sessionId = localSessionId;
     if (!sessionId || !clusterGetResponse.clusterUrl) {
-        alert("Fail to redirect to xcalar cluster, please concat Xcalar Support.");
+        handleException(error);
         return;
     }
     var url = clusterGetResponse.clusterUrl + "/" + paths.login +
@@ -431,10 +437,19 @@ function showInitialScreens() {
     }
 }
 
-function handleException() {
-    // XXX TODO: show a better screen
-    alert("Server Error, failed to process request!");
-    showInitialScreens();
+function handleException(error) {
+    if (!(typeof error === 'string') && !(error instanceof String)) {
+        error = JSON.stringify(error)
+    }
+
+    if (error) {
+        $("#exceptionFormError .text").html(error);
+    }
+    cookieLogout(false);
+    $("header").children().hide();
+    $("#formArea").children().hide();
+    $("#exceptionTitle").show();
+    $("#exceptionForm").show();
 }
 
 function checkLoginForm() {
@@ -662,7 +677,7 @@ $(".link-to-login").click(function () {
 });
 
 $(".logOutLink").click(function () {
-    cookieLogout();
+    cookieLogout(true);
 });
 
 $("#loginButton").click(function () {
@@ -803,22 +818,26 @@ $("#clusterForm").find(".radioButton").click(function () {
 $("#deployBtn").click(function () {
     if (checkClusterForm()) {
         fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/start", {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: 'POST',
-                body: JSON.stringify({
-                    "username": localUsername,
-                    "clusterParams": {
-                        "type": selectedClusterSize
-                    }
-                }),
-            }).then(function (response) {
-                return response.json();
-            })
-            .then(function (myJson) {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                "username": localUsername,
+                "clusterParams": {
+                    "type": selectedClusterSize
+                }
+            }),
+        }).then(function (response) {
+            return response.json();
+        })
+        .then(function (res) {
+            if (res.status !== 0) {
+                handleException(res.error);
+            } else {
                 getCluster();
-            });
+            }
+        });
     }
 });
 
