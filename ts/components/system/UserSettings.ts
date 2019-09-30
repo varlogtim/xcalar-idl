@@ -461,7 +461,8 @@ namespace UserSettings {
                     Alert.show({
                         "title": "Access Deined",
                         "msg": "The cloud user doesn't enable Xcalar support!",
-                        "lockScreen": true
+                        // XXX TODO: enable it when auth work is done
+                        // "lockScreen": true
                     });
                 }
             }
