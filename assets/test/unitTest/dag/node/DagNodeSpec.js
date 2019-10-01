@@ -763,7 +763,7 @@ describe("Dag Node Basic Test", () => {
                     "status": 0,
                     "index": 113436
                 }
-            });
+            );
             node.updateProgress(map, true, true);
 
             expect(true).to.be.true;

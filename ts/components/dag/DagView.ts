@@ -1068,17 +1068,23 @@ class DagView {
         if (error && error.error === "cancel") {
             return error;
         }
+        let $node: JQuery;
         if (error && error.hasError && error.node) {
             const nodeId: DagNodeId = error.node.getId();
-            const $node: JQuery = this._getNode(nodeId);
+            $node = this._getNode(nodeId);
+        }
+        if ($node && $node.length) {
             DagTabManager.Instance.switchTab(this.tabId);
             StatusBox.show(error.type, $node);
         } else if (error) {
             DagTabManager.Instance.switchTab(this.tabId);
             if (error.hasError && error.type) {
-                error = error.type;
+                error = error.node != null
+                ? error.node.title + " (" + error.node.type + ") - " + error.type
+                : error.type;
             }
-            Alert.error(null, error);
+            delete error.node;
+            Alert.error("Error", error);
         }
         return error;
     }

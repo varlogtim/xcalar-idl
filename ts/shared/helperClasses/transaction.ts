@@ -354,7 +354,7 @@ namespace Transaction {
         }
 
         // add error sql
-        const error = options.error;
+        let error: string | any = options.error;
         const sql: SQLInfo = options.sql || txLog.getSQL();
         const cli: string = txLog.getCli(); //
         let title: string = options.title || failMsg;
@@ -362,6 +362,11 @@ namespace Transaction {
             title = txLog.getOperation();
         }
         title = xcStringHelper.capitalize(title);
+
+        if (error && error["node"] && typeof error["node"] === "object") {
+            error = {...error};
+            delete error["node"];
+        }
 
         if (!has_require) {
             Log.errorLog(title, sql, cli, error);
