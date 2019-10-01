@@ -439,7 +439,7 @@ function showInitialScreens() {
 
 function handleException(error) {
     if (!(typeof error === 'string') && !(error instanceof String)) {
-        error = JSON.stringify(error)
+        error = "A server error has ocurred."
     }
 
     if (error) {
