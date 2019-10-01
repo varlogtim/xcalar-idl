@@ -137,6 +137,7 @@ var cloudLoginPathFunc = function(req, res, next) {
 
         req.sessionStore.get(sessionId, function(err, sess) {
             if (err) {
+                xcConsole.log(`Login request error ${err}`);
                 message['message'] = `Session store error: ${JSON.stringify(err)}`;
                 res.status(message.status).send(message);
                 return;
