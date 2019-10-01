@@ -174,7 +174,7 @@ var cognitoUser;
 // TODO: ALWAYS USE IT ONCE COOKIE PART IS FULLY READY
 
 
-var cookieAuthApiUrl = "https://1jqb965i1d.execute-api.us-west-2.amazonaws.com";
+var cookieAuthApiUrl = "https://605qwok4pl.execute-api.us-west-2.amazonaws.com";
 
 fetch(cookieAuthApiUrl + "/prod/status", {
     credentials: 'include',
@@ -183,20 +183,18 @@ fetch(cookieAuthApiUrl + "/prod/status", {
 .then(response => {
     if (response.loggedIn === true) {
         localUsername = response.emailAddress;
-        // XXX TODO: remove it after prod/status can return id
-        localSessionId = xcLocalStorage.getItem("xcalarSessionId");
+        localSessionId = response.sessionId;
         clusterSelection();
     } else if (response.loggedIn === false) {
         showInitialScreens();
-        // XXX TODO: remove it after prod/status can return id
         localSessionId = "";
-        xcLocalStorage.removeItem("xcalarSessionId");
     } else {
         console.error('cookieLoggedInStatus unrecognized code:', response);
     }
 }).catch(error => {
     console.error('cookieLoggedInStatus error:', error);
-    handleException(error);
+    // handle it as a not logged in case
+    showInitialScreens();
 });
 
 function cookieLogin(username, password) {
@@ -238,8 +236,6 @@ function cookieLogin(username, password) {
     .then((res) => {
         localUsername = username;
         localSessionId = res.sessionId;
-        // XXX TODO: remove it after prod/status can return id
-        xcLocalStorage.setItem("xcalarSessionId", localSessionId);
         $button.removeClass("xc-disabled");
 
         $button.addClass("xc-disabled");
@@ -263,9 +259,7 @@ function cookieLogout(handleExceptionFlag) {
     })
     .then(response => {
         if (response.status === 200) {
-            // XXX TODO: remove it after prod/status can return id
             localSessionId = "";
-            xcLocalStorage.removeItem("xcalarSessionId");
         } else if (response.status === 500) {
             console.error('error logging out:', response);
             if (handleExceptionFlag) {
@@ -356,6 +350,7 @@ function getCluster() {
             if (clusterGetResponse.status === 8 &&
                 clusterGetResponse.error === "Cluster is not reachable yet"
             ) {
+                console.warn(clusterGetResponse);
                 setTimeout(() => getCluster(), 3000);
                 $("header").children().hide();
                 $("#formArea").children().hide();
@@ -418,9 +413,6 @@ function goToXcalar(clusterGetResponse) {
     }
     var url = clusterGetResponse.clusterUrl + "/" + paths.login +
     "?cloudId=" + encodeURIComponent(sessionId);
-    // if (locaUsername) {
-    //     url += "&cloudName=" + locaUsername; // XXX TODO: remove this hack part
-    // }
     window.location.href = url;
 }
 

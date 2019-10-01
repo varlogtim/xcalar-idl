@@ -233,40 +233,33 @@ $(document).ready(function() {
                                     if (data.loggedIn === true) {
                                         redirect();
                                     } else {
-                                        cloudLoginFailureHanlder(param);
+                                        cloudLoginFailureHanlder();
                                     }
                                 } catch (e) {
-                                    cloudLoginFailureHanlder(param);
+                                    cloudLoginFailureHanlder();
                                 }
                             },
                             "error": function(e) {
                                 console.error(e);
-                                cloudLoginFailureHanlder(param);
+                                cloudLoginFailureHanlder();
                             }
                         });
 
                     } else {
-                        cloudLoginFailureHanlder(param);
+                        cloudLoginFailureHanlder();
                     }
                 },
                 "error": function() {
-                    cloudLoginFailureHanlder(param);
+                    cloudLoginFailureHanlder();
                 }
             });
         }
     }
 
-    function cloudLoginFailureHanlder(param) {
-        // XXX TODO: remove this hack and use a real login api to login
-        if (param["cloudName"]) {
-            var cloudUser = param["cloudName"];
-            xcLocalStorage.setItem("xcalarUsername", cloudUser); // for CloudManager hack to work
-            $("#loginNameBox").val("admin");
-            $('#loginPasswordBox').val("Welcome1");
-            $("#loginForm").submit();
-            return;
-        }
-        window.location = paths.cloudLogin;
+    function cloudLoginFailureHanlder() {
+        $("#splashContainer").hide();
+        $("#loginContainer").hide().addClass("xc-hidden");
+        alert("Ooops...something went wrong, cannot login into the cluster. Please contact Xcalar Support for help");
     }
 
     function redirect() {
@@ -291,6 +284,9 @@ $(document).ready(function() {
             },
             "error": function(e) {
                 console.error(e);
+                if (isCloud()) {
+                    cloudLoginFailureHanlder();
+                }
             }
         });
     }
