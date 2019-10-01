@@ -36,6 +36,7 @@ class DagView {
     private static udfErrorColor = "#F15840";
     private static mapNodeColor = "#89D0E0";
     private static dataflowNodeLimit = 1000; // point where dataflow starts to lag
+    private static _nodeCache: Map<string, JQuery> = new Map(); // used to store nodes for drawing
 
     private isSqlPreview: boolean = false;
     private _isFocused: boolean;
@@ -250,7 +251,13 @@ class DagView {
         let left: number;
         let top: number;
         if (iconType === "tableIcon" || iconType === "columnIcon") {
-            const icons = $node.data("topIcons") || [];
+            let icons;
+            if ($node.attr("data-topicons")) {
+                icons = $node.attr("data-topicons").split(",");
+            } else {
+                icons = [];
+            }
+
             if (icons.indexOf(iconType) > -1) {
                 return;
             } else {
@@ -260,21 +267,26 @@ class DagView {
                 return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
             });
             $node.find(".topNodeIcon").remove();
-            $node.data("topIcons", icons);
+            $node.attr("data-topicons", icons);
             top = 1;
             left = DagView.nodeWidth - 19;
 
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
                     drawIcon(icons[i], true, left - (i * 15 ), top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
-                    $node.data(iconType.toLowerCase(), tooltip);
+                    $node.attr("data-" + iconType.toLowerCase(), tooltip);
                 } else {
-                    let tip: string = $node.data(icons[i].toLowerCase())
+                    let tip: string = $node.attr("data-" + icons[i].toLowerCase());
                     drawIcon(icons[i], true, left - (i * 15 ), top, DagView.iconMap[icons[i]], tip, i);
                 }
             }
         } else {
-            const icons = $node.data("icons") || [];
+            let icons;
+            if ($node.attr("data-icons")) {
+                icons = $node.attr("data-icons").split(",");
+            } else {
+                icons = [];
+            }
             if (icons.indexOf(iconType) > -1) {
                 return;
             } else {
@@ -286,12 +298,12 @@ class DagView {
             });
             $node.find(".bottomNodeIcon").remove();
             // store the icon order
-            $node.data("icons", icons);
+            $node.attr("data-icons", icons);
             top = DagView.nodeHeight;
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
                     drawIcon(icons[i], false, (i * 15 )+ 22, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
-                    $node.data(iconType.toLowerCase(), tooltip);
+                    $node.attr("data-" + iconType.toLowerCase(), tooltip);
                 } else {
                     let tip: string = $node.data(icons[i].toLowerCase())
                     drawIcon(icons[i], false, (i * 15 )+ 22, top, DagView.iconMap[icons[i]], tip, i);
@@ -353,11 +365,12 @@ class DagView {
         if (!$icon.length) {
             return;
         }
-        let icons = isTopIcon ? $node.data("topIcons") : $node.data("icons");
+        let iconStr = isTopIcon ? $node.attr("data-topicons") : $node.attr("data-icons");
+        let icons: string[] = iconStr.split(",");
         let index = icons.indexOf(iconType);
         $icon.remove();
-        isTopIcon ? $node.data("topIcons", icons) : $node.data("icons", icons);
-        $node.removeData(iconType.toLowerCase());
+
+        $node.removeAttr("data-" + iconType.toLowerCase());
 
         if (isTopIcon) {
             let offset = DagView.nodeWidth - 19;
@@ -379,6 +392,7 @@ class DagView {
         }
 
         icons.splice(index, 1);
+        isTopIcon ? $node.attr("data-topicons", icons) : $node.attr("data-icons", icons);
     }
 
     private static _dagLineageTipTemplate(x, y, text): HTML {
@@ -2156,6 +2170,7 @@ class DagView {
             const dagInfoList = this._createNodeInfos(dagIds, subGraph, {includeStats: true});
             const oldNodeIdMap = {};
             const newAggregates: AggregateInfo[] = [];
+
             dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
                 if (dagNodeInfo.type == DagNodeType.Aggregate) {
                     let aggParam = <DagNodeAggregateInputStruct>dagNodeInfo.input;
@@ -2176,9 +2191,11 @@ class DagView {
                         });
                     }
                 }
-            })
+            });
+
             DagAggManager.Instance.bulkAdd(newAggregates);
             const aggNodeUpdates: Map<string, string> = new Map<string, string>();
+            const $svg = this.$dfArea.find(".operatorSvg").remove();
             dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
                 const parents: DagNodeId[] = dagNodeInfo.parents;
                 const oldNodeId = dagNodeInfo["nodeId"];
@@ -2224,15 +2241,15 @@ class DagView {
                     aggNodeUpdates.set(node.getParam().dest, node.getId());
                 }
                 const addLogParam = this._addNodeNoPersist(node, {
-                    isNoLog: true
+                    isNoLog: true,
+                    $svg: $svg
                 });
                 expandLogParam.options.actions.push(addLogParam.options);
                 this._addProgressTooltipForNode(node);
             });
-
+            this.$dfArea.find(".edgeSvg").after($svg);
             DagAggManager.Instance.updateNodeIds(aggNodeUpdates);
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
             // remove the container node from graph
             // always resolves
             this._removeNodesNoPersist(
@@ -2240,7 +2257,6 @@ class DagView {
                 { isNoLog: true, isSwitchState: false })
             .then(({ logParam: removeLogParam, spliceInfos }) => {
                 expandLogParam.options.actions.push(removeLogParam.options);
-
                 // Create a set, which contains all nodes splicing parent index
                 const splicingNodeSet: Set<string> = new Set();
                 Object.keys(spliceInfos).forEach((removedNodeId) => {
@@ -2253,7 +2269,8 @@ class DagView {
                         }
                     });
                 });
-
+                const $svg = this.$dfArea.find(".edgeSvg").remove();
+                const svg = d3.select($svg[0]);
                 // restore edges
                 for (const { parentId, childId, pos } of connections) {
                     const newParentId = oldNodeIdMap[parentId] || parentId;
@@ -2262,11 +2279,12 @@ class DagView {
                         newParentId,
                         childId,
                         pos,
-                        { isNoLog: true, spliceIn: needSplice, isSwitchState: false }
+                        { isNoLog: true, spliceIn: needSplice, isSwitchState: false,
+                         svg: svg}
                     );
                     expandLogParam.options.actions.push(connectLogParam.options);
                 }
-
+                this.$dfArea.find(".operatorSvg").before($svg);
                 // Stretch the graph to fit the expanded nodes
                 const autoAlignPos: Map<string, Coordinate> = new Map();
                 if (isPreAutoAlign) {
@@ -3621,8 +3639,16 @@ class DagView {
         let type = node.getType();
         let subType = node.getSubType() || "";
         const nodeId = node.getId();
-        let $categoryBarNode = DagView._$operatorBar.find('.operator[data-type="' + type + '"]' +
+        let $categoryBarNode;
+        let cache = DagView._nodeCache.get(`${type}#${subType}`)
+        if (cache) {
+            $categoryBarNode = cache;
+        } else {
+            $categoryBarNode = DagView._$operatorBar.find('.operator[data-type="' + type + '"]' +
                 '[data-subtype="' + subType + '"]').first();
+            DagView._nodeCache.set(`${type}#${subType}`, $categoryBarNode);
+        }
+
         const $node = $categoryBarNode.clone();
         if ($categoryBarNode.closest(".category-hidden").length &&
             type !== DagNodeType.Synthesize &&
@@ -4395,15 +4421,16 @@ class DagView {
         const { isNoLog = false } = (options || {});
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
-        let svg: d3 = d3.select(this.containerSelector + ' .dataflowArea[data-id="' + this.tabId + '"] .edgeSvg');
-        const $operatorArea = this.$dfArea.find(".operatorSvg");
+        let $edgeSvg =  this.$dfArea.find(".edgeSvg").remove();
+        let edgeSvg: d3 = d3.select($edgeSvg[0]);
+        const $operatorArea = this.$dfArea.find(".operatorSvg").remove();
         const $commentArea: JQuery = this.$dfArea.find(".commentArea");
         const self = this;
 
         nodeInfos.forEach((nodeInfo, i) => {
             if (nodeInfo.type === "dagNode") {
                 const nodeId = nodeInfo.id;
-                const $el = this._getNode(nodeId);
+                const $el = $operatorArea.find('.operator[data-nodeid="' + nodeId + '"]');
                 const node: DagNode = this.graph.getNode(nodeId);
                 if (node == null) {
                     return;
@@ -4424,21 +4451,21 @@ class DagView {
                 $el.appendTo($operatorArea);
 
                 // redraw all paths that go out from this node
-                this.$dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
+                $edgeSvg.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
                     const childNodeId: DagNodeId = $(this).attr("data-childnodeid");
                     let connectorIndex: number = parseInt($(this).attr("data-connectorindex"));
                     $(this).remove();
 
-                    self._drawLineBetweenNodes(nodeId, childNodeId, connectorIndex, svg);
+                    self._drawLineBetweenNodes(nodeId, childNodeId, connectorIndex, edgeSvg);
                 });
 
                 // redraw all paths that lead into this node
-                this.$dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').each(function () {
+                $edgeSvg.find('.edge[data-childnodeid="' + nodeId + '"]').each(function () {
                     const parentNodeId = $(this).attr("data-parentnodeid");
                     let connectorIndex = parseInt($(this).attr("data-connectorindex"));
                     $(this).remove();
 
-                    self._drawLineBetweenNodes(parentNodeId, nodeId, connectorIndex, svg);
+                    self._drawLineBetweenNodes(parentNodeId, nodeId, connectorIndex, edgeSvg);
                 });
                 // move runStats if it has one
                 this._repositionProgressTooltip(nodeInfo, nodeId);
@@ -4460,6 +4487,8 @@ class DagView {
                 $el.appendTo($commentArea);
             }
         });
+        this.$dfArea.find(".commentArea").after($edgeSvg);
+        this.$dfArea.find(".edgeSvg").after($operatorArea);
 
         if (graphDimensions) {
             this._setGraphDimensions(graphDimensions, true);
@@ -5099,12 +5128,13 @@ class DagView {
             isSwitchState?: boolean,
             isNoLog?: boolean,
             identifiers?: Map<number, string>,
-            setNodeConfig?: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[]
+            setNodeConfig?: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[],
+            svg?: d3
         }
     ): LogParam {
         const {
             isReconnect = false, isSwitchState = true, isNoLog = false,
-            spliceIn = false
+            spliceIn = false, svg = d3.select(this.containerSelector + ' .dataflowArea[data-id="' + this.tabId + '"] .edgeSvg')
         } = options || {};
         let prevParentId = null;
         if (isReconnect) {
@@ -5121,7 +5151,6 @@ class DagView {
         this.graph.connect(parentNodeId, childNodeId, connectorIndex, false, isSwitchState,
             spliceIn);
         const childNode = this.graph.getNode(childNodeId);
-        const svg: d3 = d3.select(this.containerSelector + ' .dataflowArea[data-id="' + this.tabId + '"] .edgeSvg');
         this._drawConnection(parentNodeId, childNodeId, connectorIndex, childNode.canHaveMultiParents(), svg, true);
         childNode.setIdentifiers(options.identifiers);
         if (options.setNodeConfig && childNode != null) {
@@ -5150,15 +5179,19 @@ class DagView {
     private _addNodeNoPersist(
         node,
         options?: {
-            isNoLog?: boolean
+            isNoLog?: boolean,
+            $svg?: JQuery
         }
     ): LogParam {
-        let { isNoLog = false } = options || {};
+        options = options || {};
+        let isNoLog = options.isNoLog || false;
 
         this._deselectAllNodes();
         const nodeId = node.getId();
-        const $node = this._drawNode(node);
-        DagView.selectNode($node);
+        const $node = this._drawNode(node, true, options.$svg != null);
+        if (options.$svg) {
+            $node.appendTo(options.$svg);
+        }
         DagNodeInfoPanel.Instance.show(node);
         this._setGraphDimensions(xcHelper.deepCopy(node.getPosition()))
 

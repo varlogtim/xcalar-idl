@@ -1163,7 +1163,6 @@ class DagGraphExecutor {
 
         this._currentTxId = txId;
         let subGraph: DagSubGraph = dagTab.getGraph();
-
         XcalarExecuteRetina(retinaName, [], {
             activeSession: this._isOptimizedActiveSession,
             newTableName: outputTableName,

@@ -982,12 +982,15 @@ namespace Log {
     }
 
     function localCommit(): void {
-        if (!isOverflow) {
-            if (!xcLocalStorage.setItem(logLocalStoreKey, JSON.stringify(logCache))) {
-                isOverflow = true;
-                resetLoclStore();
+        setTimeout(() => { // writing to storage may be slow
+            if (!isOverflow) {
+                if (!xcLocalStorage.setItem(logLocalStoreKey, JSON.stringify(logCache))) {
+                    isOverflow = true;
+                    resetLoclStore();
+                }
             }
-        }
+        });
+
     }
 
     // if isRestore, log is an array of logs

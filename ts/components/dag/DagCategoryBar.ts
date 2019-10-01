@@ -461,6 +461,8 @@ class DagCategoryBar {
                 'data-type="' + operatorName + '" ' +
                 'data-subtype="' + subType + '" ' +
                 'data-opid="' +  operator.getId() + '" ' +
+                'data-icons="" ' +
+                'data-topicons="" ' +
                 'transform="translate(' + pos.x + ',' + pos.y + ')" >' +
                 '<g class="connInGroup">' + inConnector + '</g>' +
                 '<g class="connOut">' + outConnector + '</g>' +

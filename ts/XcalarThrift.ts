@@ -1359,7 +1359,6 @@ XcalarUnpinTable = function(tableName: string, scopeInfo?: Xcrpc.DagNode.DagScop
             workbook: Xcrpc.Operator.SCOPE.WORKBOOK
         }
     });
-    console.log("xcalar unpin");
     PromiseHelper.convertToJQuery(
                 Xcrpc.getClient(Xcrpc.DEFAULT_CLIENT_NAME).getDagNodeService().unpin({
                     tableName: tableName,
@@ -3849,6 +3848,7 @@ XcalarQueryCheck = function(
     if (canceling) {
         checkTime = options.checkTime || 2000;
     }
+    let origCheckTime = checkTime;
     cycle();
 
     function cycle() {
@@ -3856,6 +3856,13 @@ XcalarQueryCheck = function(
             XcalarQueryState(queryName)
             .then(function(queryStateOutput: XcalarApiQueryStateOutputT) {
                 const state = queryStateOutput.queryState;
+                let numNodes = queryStateOutput.queryGraph.numNodes
+                if (numNodes > 1000) {
+                    // don't check as frequently if we have thousands of nodes
+                    // add a maximum of 5 seconds per check
+                    checkTime = origCheckTime + (Math.min(5, Math.floor(numNodes / 1000)) * 1000);
+                }
+
                 Transaction.update(txId, queryStateOutput);
                 if (state === QueryStateT.qrFinished ||
                     state === QueryStateT.qrCancelled) {
