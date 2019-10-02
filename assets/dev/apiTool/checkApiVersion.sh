@@ -13,6 +13,7 @@ debug() {
 
 XLRDIR=${1:-"$XLRDIR"}
 XLRGUIDIR=${2:-"$XLRGUIDIR"}
+PKG_LANG="en"
 [ -n "$XLRDIR" ] && [ -n "$XLRGUIDIR" ] || die "Usage: $0 <xce_repo> <xd_repo>"
 
 scriptPath=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
@@ -20,10 +21,34 @@ scriptPath=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 
 xcrpcDefDir="$XLRDIR/src/include/pb/xcalar/compute/localtypes"
 xcrpcVersionFile="$XLRGUIDIR/assets/js/xcrpc/enumMap/XcRpcApiVersion/XcRpcApiVersionToStr.json"
-thriftDefFile="$XLRDIR/src/include/libapis/LibApisCommon.thrift"
+thriftDefFileList=(
+    "$XLRDIR/src/include/libapis/LibApisCommon.thrift"
+    "$XLRDIR/src/include/libapis/LibApisCommon.h"
+    "$XLRDIR/src/include/UdfTypeEnums.enum"
+    "$XLRDIR/src/include/SourceTypeEnum.enum"
+    "$XLRDIR/src/include/OrderingEnums.enum"
+    "$XLRDIR/src/include/DataFormatEnums.enum"
+    "$XLRDIR/src/include/JsonGenEnums.enum"
+    "$XLRDIR/src/include/JoinOpEnums.enum"
+    "$XLRDIR/src/include/UnionOpEnums.enum"
+    "$XLRDIR/src/include/XcalarEvalEnums.enum"
+    "$XLRDIR/src/include/DagStateEnums.enum"
+    "$XLRDIR/src/include/DagRefTypeEnums.enum"
+    "$XLRDIR/src/include/QueryParserEnums.enum"
+    "$XLRDIR/src/include/libapis/LibApisEnums.enum"
+    "$XLRDIR/src/include/libapis/LibApisConstants.enum"
+    "$XLRDIR/src/include/QueryStateEnums.enum"
+    "$XLRDIR/src/include/DataTargetEnums.enum"
+    "$XLRDIR/src/include/CsvLoadArgsEnums.enum"
+    "$XLRDIR/src/include/license/LicenseTypes.enum"
+    "$XLRDIR/src/data/lang/${PKG_LANG}/Subsys.enum"
+    "$XLRDIR/src/data/lang/${PKG_LANG}/StatusCode.enum"
+    "$XLRDIR/src/data/lang/${PKG_LANG}/FunctionCategory.enum"
+    "$XLRDIR/src/include/runtime/RuntimeEnums.enum"
+)
 thriftVersionFile="$XLRGUIDIR/ts/thrift/XcalarApiVersionSignature_types.js"
 
-versionSigThrift=$(generateThriftVersionSig $thriftDefFile)
+versionSigThrift=$(generateThriftVersionSig "${thriftDefFileList[@]}")
 versionSigXcrpc=$(generateXcrpcVersionSig $xcrpcDefDir)
 
 versionMatch=0

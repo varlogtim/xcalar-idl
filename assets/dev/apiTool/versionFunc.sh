@@ -52,7 +52,12 @@ generateXcrpcVersionSig() {
     fi
 }
 generateThriftVersionSig() {
-    local DEF_FILE="$1"
-    [ -f "$DEF_FILE" ] || { echo -n ""; return 1; }
-    echo -n $(md5File "$DEF_FILE")
+    local DEF_FILES="$@"
+
+    local newline=$'\n'
+    local content=""
+    for defFile in "${DEF_FILES[@]}"; do
+        content="${content}$(cat ${defFile})${newline}"
+    done
+    echo -n $(md5Str "$content")
 }
