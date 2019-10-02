@@ -112,7 +112,7 @@ namespace Transaction {
 
         addCli(cli: string): void {
             this.cli += cli;
-            if (cli.slice(-1) !== ",") {
+            if (cli.slice(-1) !== "," && cli !== "") {
                 this.cli += ",";
             }
         }
