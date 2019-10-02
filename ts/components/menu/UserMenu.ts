@@ -32,8 +32,7 @@ class UserMenu {
             Alert.show({
                 "title": "Add Credits",
                 "msg": "Call Customer Service to add more credits.",
-                "compact": true,
-                // "isAlert": true
+                "isAlert": true
             });
         });
 
@@ -140,7 +139,6 @@ class UserMenu {
                     }),
                     sizeToText: true,
                     size: "medium",
-                    compact: true,
                     isAlert: true
                 });
             }

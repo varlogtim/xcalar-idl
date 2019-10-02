@@ -9,7 +9,7 @@ class MessageModal {
     }
 
     private _modalHelper: ModalHelper;
-    private _defaultWidth: number = 636;
+    private _defaultWidth: number = 650;
     private _defaultHeight: number = 223;
     private _heightNoCheckbox: number = 193;
 
@@ -29,7 +29,6 @@ class MessageModal {
         this._setMessage(options.msg);
         this._setCheckBox(options.isCheckBox);
         this._setButtons(options);
-        this._setStyling(options);
         this._modalHelper.setup({sizeCallBack: this._sizeModal.bind(this, options)});
         if (typeof mixpanel !== "undefined") {
             xcMixpanel.track("messageModal", {
@@ -120,15 +119,6 @@ class MessageModal {
         });
     }
 
-    private _setStyling(options: Alert.AlertOptions): void {
-        const $modal: JQuery = this._getModal();
-        if (options.compact) {
-            $modal.addClass("compact");
-        } else {
-            $modal.removeClass("compact");
-        }
-    }
-
     private _sizeModal(options: Alert.AlertOptions): void {
         const $modal: JQuery = this._getModal();
         let height: number;
@@ -153,9 +143,10 @@ class MessageModal {
         }
 
         if (options.sizeToText) {
-            let headerHeight = $modal.find(".header").outerHeight();
-            let contentHeight = $modal.find(".content").outerHeight();
-            $modal.height(contentHeight + headerHeight);
+            let headerHeight = $modal.find(".modalHeader").outerHeight();
+            let contentHeight = $modal.find(".message").outerHeight() + $modal.find(".checkboxSection").outerHeight();
+            let bottomHeight = $modal.find(".modalBottom").outerHeight();
+            $modal.height(contentHeight + headerHeight + bottomHeight);
         }
         $modal.hide(); // hide after we get width/height
     }

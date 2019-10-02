@@ -30,7 +30,7 @@ class ConnectorConfigModal {
         }
         $modal.css("height", "");
         $modal.css("width", "");
-        $modal.find(".header .title .text").text(title);
+        $modal.find(".modalHeader .title .text").text(title);
         this._modalHelper.reset({
             sizeToDefault: true,
         });

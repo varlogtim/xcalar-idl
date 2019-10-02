@@ -89,12 +89,15 @@ namespace DagNodeMenu {
         });
     }
 
-    function _processMenuAction(action: string, options?: {
-        node: DagNode,
-        autofillColumnNames?: string[],
-        exitCallback?: Function, // when config panel is exited without saving
-        bypassAlert?: boolean
-    }) {
+    function _processMenuAction(
+        action: string,
+        options?: {
+            node?: DagNode,
+            autofillColumnNames?: string[],
+            exitCallback?: Function, // when config panel is exited without saving
+            bypassAlert?: boolean
+        }
+    ) {
         try {
             const $menu: JQuery = $("#dagNodeMenu");
             let nodeId: DagNodeId;
@@ -359,7 +362,7 @@ namespace DagNodeMenu {
                     SQLOpPanel.Instance.close();
                 },
                 isCheckBox: true
-            })
+            });
         } else {
             DagViewManager.Instance.expandSQLNode(dagNodeId);
             SQLOpPanel.Instance.close();

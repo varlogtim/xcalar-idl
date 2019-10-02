@@ -1,29 +1,27 @@
 <!-- message modal -->
-<div id="messageModal" class="modalContainer style-new" style="display:none;">
-    <!-- header -->
-    <header class="header">
-      <div class="title">
-        <i class="icon xi-warning"></i>
-        <span class="text"></span></span>
+<div id="messageModal" class="modalContainer" style="display:none;">
+  <!-- header -->
+  <header class="modalHeader title">
+    <i class="infoIcon icon xi-warning"></i>
+    <span class="text"></span>
+    <div class="close">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
+  <!-- content -->
+  <section class="modalMain content border-top">
+    <div class="message text"></div>
+    <div class="checkboxSection">
+      <div class="checkbox">
+        <i class="icon xi-ckbox-empty"></i>
+        <i class="icon xi-ckbox-selected"></i>
       </div>
-      <div class="close xc-action">
-        <i class="icon xi-close"></i>
-      </div>
-    </header>
-    <!-- content -->
-    <section class="content">
-        <div class="message text"></div>
-        <div class="checkboxSection">
-          <div class="checkbox">
-            <i class="icon xi-ckbox-empty"></i>
-            <i class="icon xi-ckbox-selected"></i>
-          </div>
-          <div class="text"><%= dicts.common.DontShow %></div>
-        </div>
-        <div class="buttonSection">
-          <button type="button" class="btn btn-submit confirm"><%= dicts.common.Confirm %></button>
-          <button type="button" class="btn btn-clear cancel"><%= dicts.common.Close %></button>
-        </div>
-    </section>
-  </div>
+      <div class="text"><%= dicts.common.DontShow %></div>
+    </div>
+  </section>
+  <section class="modalBottom">
+    <button type="button" class="btn confirm"><%= dicts.common.Confirm %></button>
+    <button type="button" class="btn cancel"><%= dicts.common.Close %></button>
+  </section>
+</div>
   <!-- End of Alert Modal -->

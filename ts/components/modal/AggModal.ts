@@ -221,7 +221,6 @@ class AggModal {
             throw "Invalid mode in quick agg!";
         }
 
-        $("#aggModal-tableName").find(".text").text(tableName);
         if (!$modal.is(":visible")) {
             this._modalHelper.setup()
             .always(() => {

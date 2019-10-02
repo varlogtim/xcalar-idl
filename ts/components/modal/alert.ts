@@ -9,11 +9,6 @@ namespace Alert {
         tooltip?: string; // tooltip to add
     }
 
-    interface RadioButton {
-        label: string,
-        className: string
-    }
-
     interface BasicAlertOptions {
         onConfirm?: Function; // callback to trigger when click confirm button
         onCancel?:  Function; // callback to trigger when click cancel button
@@ -29,9 +24,6 @@ namespace Alert {
         logout?: boolean; // want user to logout case
         msgTemplate?: string; // can include html tags
         buttons?: AlertButton[]; // buttons to show instead of confirm button
-        radioButtons?: RadioButton[]
-        compact?: boolean;
-        newStyle?: boolean;
     }
 
     export interface AlertOptions extends BasicAlertOptions {
@@ -84,14 +76,13 @@ namespace Alert {
 
         // call it here because Alert.show() may be called when another alert is visible
         reset();
-        setStyling(options);
         setTitle(options.title);
+        setInfoIcon(false);
         setMessage(options.msg, options.msgTemplate);
         setDetail($modal, options.detail);
         setInstruction($modal, options.instr, options.instrTemplate);
         setCheckBox($modal, options.isCheckBox);
         setButtons($modal, options);
-        setRadioButtons($modal, options);
 
         if (options.lockScreen) {
             setLockScreen($modal);
@@ -152,6 +143,7 @@ namespace Alert {
             isAlert: true
         });
         const id: string = Alert.show(alertOptions);
+        setInfoIcon(true);
         if (typeof mixpanel !== "undefined") {
             xcMixpanel.errorEvent("alertError", {
                 title: title,
@@ -247,8 +239,6 @@ namespace Alert {
         $modal.off(".alert");
         $modal.find(".confirm, .cancel, .close").show();
         $modal.removeClass("style-new compact");
-        $modal.find(".alertRadioButtons").empty();
-        $modal.removeClass("hasRadioButtons");
     }
 
     function getModal(): JQuery {
@@ -362,22 +352,15 @@ namespace Alert {
             });
         } else if (sizeToText) {
             const $section: JQuery = $("#alertContent");
-            const diff: number = ($section.find(".text").outerHeight() +
-                                $section.find(".alertRadioButtons").outerHeight()) -
-                                $section.height();
+            const diff: number = $section.find(".text").outerHeight() - $section.height();
             if (diff > 0) {
                 const height: number = Math.min($modal.height() + diff + 10, $(window).height());
                 $modal.height(height);
                 modalHelper.center({verticalQuartile: true});
             }
         } else {
-            if (options.compact) {
-                $modal.width(450);
-                $modal.resizable( "option", "minWidth", 450);
-            } else {
-                $modal.width(580);
-                $modal.resizable( "option", "minWidth", 580);
-            }
+            $modal.width(580);
+            $modal.resizable( "option", "minWidth", 580);
         }
     }
 
@@ -386,12 +369,14 @@ namespace Alert {
         $("#alertHeader").find(".text").html(modalTitle);
     }
 
-    function setStyling(options: AlertOptions): void {
-        let $modal = getModal();
-        if (options.compact) {
-            $modal.addClass("style-new compact");
-        } else if (options.newStyle) {
-            $modal.addClass("style-new");
+    function setInfoIcon(isError: boolean) {
+        let $infoIcon = $("#alertHeader").find(".infoIcon");
+        if (isError) {
+            $infoIcon.addClass("error xi-info-circle")
+            .removeClass("xi-warning");
+        } else {
+            $infoIcon.removeClass("error xi-info-circle")
+            .addClass("xi-warning");
         }
     }
 
@@ -560,29 +545,7 @@ namespace Alert {
         }
     }
 
-    function setRadioButtons($modal: JQuery, options: AlertOptions): void {
-        $modal.on("click", ".radioButton", function() {
-            $modal.find(".radioButton").removeClass("active");
-            $(this).addClass("active");
-        });
-
-        if (options.radioButtons) {
-            $modal.addClass("hasRadioButtons");
-            options.radioButtons.forEach((btn, i ) => {
-                let active = (i === 0) ? " active" : ""
-                let html = `<div class="radioButton xc-action ${btn.className} ${active}">
-                    <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
-                    </div>
-                    <div class="label">${btn.label}</div>
-                </div>`;
-                $modal.find(".alertRadioButtons").append(html);
-            });
-        }
-    }
-
-       /**
+    /**
      *
      * @param type
      */

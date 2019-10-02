@@ -475,6 +475,7 @@ namespace xcManager {
             Alert.show({
                 title: AlertTStr.UnexpectInit,
                 msg: AlertTStr.UnexpectInitMsg,
+                sizeToText: true,
                 hideButtons: ["cancel"],
                 buttons: [{
                     name: CommonTxtTstr.Retry,

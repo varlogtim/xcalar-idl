@@ -1,6 +1,6 @@
-<div id="dagDescriptionModal" class="modalContainer shadow">
+<div id="dagDescriptionModal" class="modalContainer">
     <!-- Header -->
-    <header class="modalHeader">
+    <header class="modalHeader has-subHeader">
       <span class="text">Description</span>
       <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Minimize %>">
         <i class="icon xi-exit-fullscreen"></i>
@@ -11,12 +11,8 @@
       <div class="close">
         <i class="icon xi-close"></i>
       </div>
+      <div claass="subHeader">Add or edit a description for this operation.</div>
     </header>
-    <!-- Instruction -->
-    <section class="modalInstruction">
-      <i class="icon xi-info-circle defaultIcon"></i>
-      <div class="text">Add or edit a description for this operation.</div>
-    </section>
     <!-- Main Section -->
     <section class="modalMain">
       <div class="formRow">
@@ -27,15 +23,9 @@
             <div class="clear xc-action">Clear</div>
           </div>
         </div>
-
         <textarea class="xc-textArea" spellcheck="false"></textarea>
-   <!--      <div class="textLimitArea"><span class="remainingChar">1000</span> <%= dicts.supportTicket.CharRemaining %></div> -->
       </div>
     </section>
-   <!--  <section class="modalSubMain">
-      <div class="formRow">
-      </div>
-    </section> -->
     <!-- Button Section -->
     <section class="modalBottom">
       <button type="button" class="btn confirm"><%= dicts.common.Save %></button>

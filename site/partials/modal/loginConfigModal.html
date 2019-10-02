@@ -1,17 +1,13 @@
 <!-- Login Configuration Modal -->
-<div id="loginConfigModal" class="modalContainer">
+<div id="loginConfigModal" class="modalContainer large">
   <!-- Header -->
-  <header class="modalHeader">
+  <header class="modalHeader has-subHeader">
     <span class="text"><%= dicts.loginConfig.title %></span>
     <div class="close">
       <i class="icon xi-close"></i>
     </div>
+    <div class="subHeader"><%= dicts.loginConfig.instructions %></div>
   </header>
-  <!-- Extension Modal Instruction -->
-  <section id="loginConfigInstruction" class="modalInstruction oneLine">
-    <i class="icon xi-info-circle fa-18"></i>
-    <div class="text"><%= dicts.loginConfig.instructions %></div>
-  </section>
   <div class="modalMain">
     <!-- Default Admin User -->
     <section class="modalMainSection">

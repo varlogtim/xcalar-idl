@@ -1,19 +1,39 @@
- // ========== Modal CSS ==========
+// ========== Modal CSS ==========
+@modal-padding-horizontal: 24px;
+@modal-padding-vetical: 12px;
+@modal-header-text-h: 26px;
+@modal-header-h: @modal-header-text-h + @modal-padding-vetical * 2;
+@modal-subHeader-h: 20px;
+@modal-header-with-subHeader-h: @modal-header-h + @modal-subHeader-h;
+@modal-instr-h: @height-modal-instr;
+@modal-bottom-h: @modal-padding-vetical * 4 + @height-btn;
+@modal-normal-w: 500px;
+@modal-large-w: 650px;
+
 .modalContainer {
+    @padding-horizontal: @modal-padding-horizontal;
+    @padding-vetical: @modal-padding-vetical;
+    @close-icon-size: 18px;
+
     display: none;
     .position(absolute, 0, 0, 0, 0);
     .size(@max-width: 99%, @max-height: 99%);
     z-index: @z-index-modal;
     background-color: @color-white;
     color: @color-font-form-gray;
-    box-shadow: 0px 1px 1px rgba(0,0,0,0.2);
+    box-shadow: -2px 4px 8px 0 rgba(12, 31, 49, 0.1), 0 10px 24px 0 rgba(12, 31, 49, 0.15), 0 15px 32px 0 rgba(12, 31, 49, 0.1);
+    .rounded(16px);
+    width: @modal-normal-w;
+    min-width: @modal-normal-w;
+    font-size: 14px;
+
+    &.large {
+        width: @modal-large-w;
+        min-width: @modal-large-w;
+    }
 
     &.anim {
         .fadeIn(0.18s);
-    }
-
-    &.shadow {
-        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
     }
 
     .ui-icon-gripsmall-diagonal-se {
@@ -23,138 +43,147 @@
     &:hover {
         .ui-icon-gripsmall-diagonal-se {
             visibility: visible;
+            opacity: 0;
         }
     }
 
-    .innerModalContainer {
-        .flex-display;
-        .flex-direction(column);
-        height: 100%;
-        overflow: hidden;
+    > header, > div:not(.ui-resizable-handle):not(.tooltip), > section {
+        padding: @padding-vetical @padding-horizontal;
     }
 
     .modalHeader {
-        background-color: @color-bg-cardHeader;
-        color: @color-white;
-        .size(@width: 100%, @height: 36px);
+        .size(@width: 100%, @height:  @modal-header-h);
         .noSelection;
         .cursor-move;
-        line-height: 36px;
-        text-align: center;
-        text-transform: capitalize;
+        text-align: left;
+
+        &.has-subHeader {
+            height: @modal-header-with-subHeader-h;
+        }
+
+        .subHeader {
+            height: @modal-subHeader-h;
+        }
 
         .text {
-            .font(@size: 18px, @weight: 600);
+            .font(@size: 20px, @weight: 600);
             display: inline-block;
-            width: 100%;
-            padding-left: 30px;
-            padding-right: 30px;
+            padding-right: @padding-horizontal;
+            line-height: @modal-header-h - @padding-vetical * 2;
             .textOverflowOneLine;
         }
+
         .headerBtn, .close {
             cursor: pointer;
-            opacity: @opacity-unhover;
-
-            .size(@width: 22px, @height: 22px);
+            .xc-action;
+            .size(@width: @close-icon-size, @height: @close-icon-size);
+            position: absolute;
+            top: @padding-vetical;
 
             .icon {
                 display: inline-block;
                 .position(absolute, @top: 0, @right: 0);
-                .size(@width: 22px, @height: 22px);
-                line-height: 22px;
-            }
-
-            &:hover {
-                opacity: @opacity-hover;
-            }
-        }
-        .headerBtn {
-            .icon {
-                font-size: 16px;
+                .size(@width: @close-icon-size, @height: @close-icon-size);
+                line-height: @close-icon-size;
             }
         }
 
-        @padding-close: 15px;
+        @padding-close: 12px;
 
         .close {
-            .position(absolute, @top: 7px, @right: @padding-close);
-            .icon {
-                font-size: 18px;
-            }
+            right: @padding-horizontal;
         }
+
         .fullScreen {
-            .position(absolute, @top: 7px, @right: 27px + @padding-close);
-            .icon {
-               font-size: 18px;
+            right: @padding-horizontal + @close-icon-size + @padding-close;
+        }
+
+        .exitFullScreen {
+            right: @padding-horizontal + @close-icon-size * 2 + @padding-close * 2;
+        }
+    }
+
+    .modalHeader .subHeader, .modalInstruction {
+        .text {
+            overflow: hidden;
+            font-weight: normal;
+        }
+
+        b {
+            color: @color-font-link-blue;
+        }
+    }
+
+    .modalHeader, .modalInstruction {
+        .infoIcon {
+            font-size: 20px;
+            margin-right: 8px;
+
+            &.xi-warning {
+                color: @color-bg-warning;
+            }
+
+            &.xi-info-circle {
+                color: @color-font-link-blue;
+
+                &.error {
+                    color: @color-error-red;
+                }
             }
         }
-        .exitFullScreen {
-            .position(absolute, @top: 7px, @right: 54px + @padding-close);
+    }
+
+    .modalHeader .infoIcon {
+        display: inline-block;
+        float: left;
+        height: @modal-header-text-h;
+        &:before {
+            display: block;
+            .vertical-align;
         }
     }
 
     .modalInstruction {
-        .size(@width: 100%, @height: @height-card-instr);
-        background-color: @color-white;
+        .size(@width: 100%, @height: @modal-instr-h);
         overflow: hidden;
-        padding: 10px 25px;
-        border-bottom: 1px  solid @color-border-softGray;
         .flex-display;
         .flex-direction(row);
         .text-selection;
-
-        &.oneLine {
-            .text {
-                line-height: 36px;
-            }
-        }
-
-        .icon {
-            .flex(0 0 36px);
-            .font(@size: 24px, @color: @color-font-edge);
-            margin-top: 5px;
-        }
-
-        .text {
-            .flex(1 1 auto);
-            .font(@weight: 600, @size: 12px);
-            overflow: hidden;
-        }
-
-        b {
-            color: @color-font-edge;
-        }
     }
 
     .modalTopMain {
         .size(@width: 100%);
-        background: @color-bg-white-three;
-        .no-selection;
+        // .no-selection;
     }
 
     .modalMain {
-        background-color: @color-white;
-        color: @color-font-form-gray;
-        .no-selection;
+        // .no-selection;
+        &.border-bottom {
+            border-bottom: 1px solid @color-border-softGray;
+            padding-bottom: @padding-vetical * 2;
+        }
+
+        &.border-top {
+            border-top: 1px solid @color-border-softGray;
+            padding-top: @padding-vetical * 2;
+        }
     }
 
     .modalSubMain {
         .size(@width: 100%);
-        background: @color-bg-white-three;
-        color: @color-font-form-gray;
-        .no-selection;
+        // .no-selection;
     }
 
     .modalBottom {
-        .size(@width: 100%, @height: 56px);
+        .size(@width: 100%, @height: @modal-bottom-h);
         .no-selection;
-        padding-left: 25px;
-        padding-right: 10px;
+        padding-top: @padding-vetical * 2;
+        padding-bottom: @padding-vetical * 2;
 
         .bottomItem, .btn {
             float: right;
             .vertical-align;
-            margin-right: 15px;
+            margin-left: 15px;
         }
 
         .btn {
@@ -164,6 +193,11 @@
                 .btn-cancel;
             }
         }
+    }
+
+    .ui-resizable-se {
+        bottom: -5px;
+        right: -5px;
     }
 }
 
@@ -236,16 +270,6 @@
             width: auto;
         }
 
-        .xi-warning {
-            color: #f6b243;
-            font-size: 26px;
-        }
-
-        .xi-info-circle {
-            color: @color-font-link-blue;
-            font-size: 26px;
-        }
-
         .title {
             margin-top: 2px;
             color: @color-font-form-gray;
@@ -274,57 +298,6 @@
                 .size(@width: 22px, @height: 22px);
                 line-height: 22px;
             }
-        }
-    }
-
-
-    .modalTopMain {
-        background-color: @color-white;
-    }
-
-    .ui-resizable-se {
-        bottom: -5px;
-        right: -5px;
-    }
-
-    // XXX temporary styling while we transition from old modal to new modal
-    // styling
-    &.tempModalStyling {
-        .modalHeader {
-            display: flex;
-            padding: 0px 22px;
-            line-height: 60px;
-            height: 60px;
-            border-bottom: none;
-            text-transform: none;
-
-            .text {
-                font-size: 20px;
-                padding-left: 10px;
-                width: auto;
-            }
-
-            .icon, .close {
-                line-height: 60px;
-                top: 0px;
-            }
-            .xi-warning {
-                color: @color-macaroni-and-cheese;
-            }
-        }
-        .ui-icon-gripsmall-diagonal-se {
-            opacity: 0;
-        }
-        .modalBottom {
-            height: 60px;
-            .btn {
-                .rounded(8px);
-            }
-        }
-        .modalMain {
-            height: ~"calc(100% - 120px)";
-            padding: 0px 22px;
-            font-weight: 500;
         }
     }
 }
@@ -374,8 +347,14 @@
     display: none;
     overflow: visible;
     .transition(opacity 0.3s);
+    border-radius: 0;
+
     &.hidden {
         opacity: 0;
+    }
+
+    header, > div {
+        padding: 0;
     }
 
     .ui-resizable-e {
@@ -395,7 +374,7 @@
         .size(@width: 100%, @height: 30px);
         .cursor-move;
         text-align: center;
-        .font(@size: 15px, @line-height: 28px, @color: @color-white);
+        .font(@size: 15px, @line-height: 28px);
         .textOverflowOneLine;
         padding: 0 30px;
     }
@@ -945,14 +924,12 @@
 
     .closeJsonModal {
         .modalContainer.modalHeader.close();
-        .position(@top: 3px, @right: 4px);
-        color: @color-white;
+        .position(@top: 5px, @right: 10px);
     }
 
     .fullScreen, .exitFullScreen {
         cursor: pointer;
         opacity: @opacity-unhover;
-        color: @color-white;
         &:hover {
             opacity: @opacity-hover;
         }
@@ -1173,7 +1150,7 @@
         }
         .check {
             .size(@width: 20px, @height: 10px);
-            .position(absolute, @top: 10px, @left: 5px);
+            .position(absolute, @top: 0px, @left: 5px);
             color: @color-bg-select-blue;
             display: none;
         }
@@ -1190,48 +1167,26 @@
 #aggModal {
     .size(@width: 920px, @height: 650px, @min-width: 500px, @min-height: 650px);
 
-    .modalInstruction {
-        .icon {
-            color: @color-font-select-blue;
-        }
-    }
-
     .modalTopMain {
-        .size(@height: 57px);
-        .font(@weight: bold, @size: 14px, @line-height: 57px);
-        padding: 0 20px;
+        @height: 32px;
+        .size(@height: @height);
+        .font(@weight: bold, @line-height: @height);
+        padding-top: 0;
+        padding-bottom: 0;
 
-        > div {
-            float: left;
-            &#aggModal-tableName {
-                .size(@width: 100%);
-                .flex-display;
-            }
+        .progressSection {
+            text-align: right;
+            float: right;
+        }
 
-            .progressSection {
-                .flex(1 1 auto);
-                text-align: right;
-                padding-right: 40px;
-            }
+        #aggModal-backToProfile {
+            display: none;
+            float: right;
+            margin-left: 16px;
 
-            &#aggModal-backToProfile {
-                opacity: 0.7;
-                display: none;
-                cursor: pointer;
-                color: @color-font-greyish-brown;
-                .size(@width: 130px);
-                > * {
-                    float: right;
-                }
-                i {
-                    margin-top: 21px;
-                    margin-right: 10px;
-                    color: @color-font-greyish-brown;
-                }
-
-                &:hover {
-                    opacity: 1.0;
-                }
+            .icon {
+                position: relative;
+                top: 2px;
             }
         }
 
@@ -1248,9 +1203,6 @@
 
 
     &.profileMode {
-        #aggModal-tableName {
-            .size(@width: ~"calc(100% - 130px)") !important;
-        }
         #aggModal-backToProfile  {
             display: block !important;
         }
@@ -1288,7 +1240,6 @@
     }
 
     .mainAgg {
-        padding-top: 10px;
         .size(@height: ~"calc(100% - 149px)");
 
         .tableText {
@@ -1511,17 +1462,15 @@
 }
 
 #connectorConfigModal {
-    width: 710px;
-    height: 555px;
+    height: 549px;
+    @h-without-main: @modal-header-h + @modal-bottom-h;
 
     &.db {
-        height: 746px;
+        height: 747px;
     }
 
     .modalMain {
-        height: ~"calc(100% - 123px)";
-        padding: 22px;
-        border-bottom: 1px solid @color-border-softGray;
+        height: ~"calc(100% - @{h-without-main})";
     }
 
     .xc-loadView {
@@ -1641,17 +1590,13 @@ html.microsoft {
 #alertModal {
     @checkboxHeight: 36px;
     @instrHeight: 60px;
-    @modalBaseHeight: 167px;
+    @modalBaseHeight: 195px;
     @detailHeight: 75px;
     .size(@width: 580px, @height: @modalBaseHeight); // for admin, error case can have 4 buttons
     bottom: auto;
     z-index: 100;
     .flex-display;
     .flex-direction(column);
-
-    .modalHeader {
-        text-transform: uppercase;
-    }
 
     &.locked {
         z-index: @z-index-locked + 2;
@@ -1660,24 +1605,6 @@ html.microsoft {
         }
         .ui-resizable-handle {
             display: none; // no resizing locked modals
-        }
-    }
-
-    &.style-new {
-        .modalHeader {
-            border-bottom: none;
-            padding: 0px;
-            height: 44px;
-            line-height: 60px;
-            text-align: left;
-            font-size: 20px;
-        }
-
-        .modalBottom {
-            .flex(0 0 60px);
-            .btn {
-                width: 150px;
-            }
         }
     }
 
@@ -1740,6 +1667,10 @@ html.microsoft {
         }
     }
 
+    .content {
+        padding: 0;
+    }
+
     #alertDetail {
         display: none;
         .size(@width: 100%);
@@ -1777,7 +1708,7 @@ html.microsoft {
 
     #alertContent {
         .size(@width: 100%);
-        padding: 5px 20px;
+        padding: 0 24px;
         overflow: auto;
         vertical-align: middle;
         min-height: 50px;
@@ -1827,6 +1758,7 @@ html.microsoft {
     #alertInstruction {
         .size(@height: 60px);
         .flex(0 0 60px);
+        padding-top: 0;
 
         .text {
             overflow: auto;
@@ -1839,16 +1771,11 @@ html.microsoft {
     }
 
     #alertOption {
-        padding: 0 5px;
-        #alertCheckBox {
-            text-align: center;
-            margin: 15px auto 0px;
-            .size(@width: 150px);
+        padding: 0 24px;
 
+        #alertCheckBox {
             .text {
                 display: inline-block;
-                margin-left: 10px;
-                color: @color-text-lightGray;
             }
             // now make it disabled
             &.inactive {
@@ -1858,18 +1785,9 @@ html.microsoft {
         }
     }
 
-    .alertRadioButtons {
-        flex-direction: column;
-        width: 100%;
-        padding: 5px 20px;
-
-        .radioButton {
-            font-size: 14px;
-        }
-    }
-
     .modalBottom {
-        .flex(0 0 56px);
+        .flex(0 0 76px);
+        padding: 24px;
         .btn {
             .size(@width: 120px);
 
@@ -1901,7 +1819,10 @@ html.microsoft {
 /* End Of Alert Modal */
 
 #logoutModal {
-    .size(@width: 500px, @height: 270px, @min-width:500px, @min-height: 270px);
+    @h: 294px;
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: @h, @min-height: @h);
+
     &.clusterStop {
         .clusterStopProgress {
             display: block;
@@ -1932,8 +1853,7 @@ html.microsoft {
         }
     }
     .modalMain {
-        height: ~"calc(100% - 120px)";
-        padding: 0px 22px;
+        height: ~"calc(100% - @{h-without-main})";
         font-weight: 500;
     }
     .radioButtonGroup {
@@ -1981,28 +1901,17 @@ html.microsoft {
 
 #messageModal {
     @modal-h: 223px;
-    @header-h: 67px;
     @checkbox-h: 30px;
+    @h-without-main: @modal-header-h + @modal-bottom-h;
 
-    width: 636px;
     height: @modal-h;
-
-
-    &.compact {
-        .header {
-            border-bottom: none;
-            padding-top: 0px;
-            padding-bottom: 0px;
-            height: 44px;
-            line-height: 60px;
-        }
-    }
+    min-height:  @modal-h;
 
     &.noCheckbox {
         height: @modal-h - @checkbox-h;
-        .content {
-            min-height: @modal-h - @header-h - 1px - @checkbox-h;
+        min-height: @modal-h - @checkbox-h;
 
+        .content {
             .checkboxSection {
                 display: none;
             }
@@ -2010,9 +1919,7 @@ html.microsoft {
     }
 
     .content {
-        min-height: @modal-h - @header-h - 1px;
-        padding: 22px;
-        font-size: 14px;
+        height: ~"calc(100% - @{h-without-main})";
 
         .message {
             font-weight: normal;
@@ -2030,15 +1937,6 @@ html.microsoft {
 
             .icon {
                 color: @color-font-link-blue;
-            }
-        }
-
-        .buttonSection {
-            height: 30px;
-
-            .btn {
-                float: right;
-                margin-left: 10px;
             }
         }
     }
@@ -2119,9 +2017,7 @@ html.microsoft {
     .modalHeader {
         height: 30px;
         line-height: 30px;
-        .close {
-            top: 5px;
-        }
+
         .altText2 {
             display: none;
         }
@@ -2261,7 +2157,8 @@ html.microsoft {
 
 /* Delete Table Modal */
 #deleteTableModal {
-    .size(@width: 600px, @height: 608px, @min-width: 520px, @min-height: 500px);
+    @h-without-main: @modal-header-h + @modal-instr-h + @modal-bottom-h;
+    .size(@height: 608px, @min-width: 520px, @min-height: 500px);
     z-index: @z-index-locked + 1;
 
     .hint {
@@ -2315,14 +2212,13 @@ html.microsoft {
     }
 
     .modalMain {
-        .size(@height: ~"calc(100% - 150px)");
+        .size(@height: ~"calc(100% - @{h-without-main})");
         position: relative;
         padding: 8px;
 
         .section {
-            .size(@width: 100%, @height: ~"calc(100% - 50px)");
+            .size(@width: 100%, @height: 100%);
             border: 1px solid @color-bg-pinkish-grey2;
-            margin-top: 15px;
 
             &.orphan {
                 margin-top: 0;
@@ -2417,11 +2313,11 @@ html.microsoft {
 }
 
 #schemaSelectionModal {
-    .size(@width: 500px, @height: 600px);
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 600px);
 
     .modalMain {
-        padding: 15px;
-        height: ~"calc(100% - 92px)";
+        height: ~"calc(100% - @{h-without-main})";
 
         .label {
             height: 20px;
@@ -2431,7 +2327,29 @@ html.microsoft {
 
         .colSchemaSection {
             height: ~"calc(100% - 20px)";
-            overflow-y: auto;
+            // overflow-y: auto;
+            overflow: hidden;
+            
+            .buttonSection {
+                height: 30px;
+            }
+
+            .listSection {
+                height: ~"calc(100% - 30px)";
+
+                .title {
+                    height: 26px;
+                }
+
+                .addColumn {
+                    height: 20px;
+                }
+
+                .content {
+                    height: ~"calc(100% - 66px)";
+                    overflow-y: auto;
+                }
+            }
         }
     }
 }
@@ -2447,7 +2365,9 @@ html.microsoft {
 #profileModal {
     .size(@width: 1000px, @height: 615px, @min-width: 750px, @min-height: 440px);
 
-     @width-stats: 180px;
+    @width-stats: 180px;
+    border-radius: 0;
+    font-size: 12px;
 
     .modalLeft {
         .size(@width: ~"calc(100% - @{width-stats})");
@@ -2574,9 +2494,22 @@ html.microsoft {
         }
     }
 
+    .modalHeader {
+        height: 36px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    .modalInstruction {
+        height: 56px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border: 1px solid @color-border-softGray;
+    }
+
     .modalTopMain {
         .size(@height: 100px);
-        background-color: @color-white;
+        padding: 0;
 
         .sortAndRangeSection {
             .size(@width: 100%, @height: 60px);
@@ -2824,6 +2757,8 @@ html.microsoft {
     .modalBottom {
         .size(@height: 20px);
         background-color: @color-bg-white-eight;
+        padding-top: 0;
+        padding-bottom: 0;
 
         .scrollSection {
             .size(@width: 100%, @height: 11px);
@@ -3269,6 +3204,7 @@ html.microsoft {
         background-color: @color-bg-white-three;
         box-shadow: inset 1px 0 0 0 rgba(0, 0, 0, 0.2);
         .text-selection;
+        padding: 0;
 
         .ui-resizable-handle {
             left: -5px;
@@ -3444,23 +3380,12 @@ html.microsoft {
 /* End Of Profile Modal */
 
 #licenseModal {
-    .size(@width: 400px, @height: 220px, @min-width: 350px, @min-height: 220px);
-    .modalInstruction {
-        .text {
-            height: 20px;
-            margin-top: 7px;
-        }
-    }
-    .modalMain {
-        padding: 10px;
-    }
+    @h: 200px;
+    .size(@height: @h, @min-height: @h);
+
     .formRow {
         .flex-wrap(wrap);
         position: relative;
-        margin-bottom: 10px;
-        margin-top: 10px;
-        padding-left: 10px;
-        padding-right: 10px;
 
         label {
             .flex-display;
@@ -3470,9 +3395,6 @@ html.microsoft {
                 line-height: 30px;
             }
         }
-    }
-    .modalBottom {
-        padding: 10px;
     }
 }
 
@@ -3531,23 +3453,8 @@ html.microsoft {
     }
 
     .flex-direction(column);
-    .size(@width: 580px, @height: 560px, @min-width: 480px, @min-height: 560px);
+    .size( @height: 560px, @min-width: 480px, @min-height: 560px);
 
-    .modalHeader {
-        text-align: left;
-        .text {
-            padding-left: @sidePadding;
-        }
-    }
-    .modalInstruction {
-        padding-left: @sidePadding;
-        .flex(0 0 56px);
-        .text {
-            font-size: @fontSize;
-            .flex-display;
-            .align-self(center);
-        }
-    }
     .modalMain {
         border-bottom: 1px solid @color-bg-pinkish-grey2;
         padding: 20px @sidePadding;
@@ -3593,12 +3500,11 @@ html.microsoft {
             .options {
                 .flex-display;
                 .flex(1 1 auto);
-                // .justify-content(space-around);
                 .flex-wrap(wrap);
             }
             .checkboxSection {
                 &:first-child {
-                    .flex(0 0 230px);
+                    .flex(0 0 200px);
                 }
                 &.miniDump {
                     &.inactive {
@@ -3928,7 +3834,7 @@ html.microsoft {
 }
 
 #aboutModal {
-    .size(@width: 400px, @height: 425px);
+    .size(@height: 425px);
     bottom: auto;
 
     &.cloud {
@@ -3944,23 +3850,20 @@ html.microsoft {
     }
 
     .modalHeader {
-        .size(@height: 25px);
+        .size(@height: 31px);
         background-color: @color-about-gradient-top;
         .close {
-            top: 2px;
-            .icon {
-                font-size: 14px;
-            }
+            color: @color-white;
         }
     }
 
     .modalMain {
         height: 425px;
         position: relative;
-        .linear-gradient(top, @color-about-gradient-top,
-                         @color-about-gradient-bottom);
         padding: 30px 51px 23px 51px;
         .font(@size: 12px, @color: @color-white);
+        .linear-gradient(top, @color-about-gradient-top,
+        @color-about-gradient-bottom);
 
         .background {
             height: 100%;
@@ -4046,6 +3949,7 @@ html.microsoft {
 
     width: 800px;
     height: 500px;
+    @h-without-main: @modal-header-with-subHeader-h;
 
     &.loading, &.error {
         .toggleHex {
@@ -4085,7 +3989,7 @@ html.microsoft {
         .center-align;
     }
 
-    .modalInstruction {
+    .subHeader {
         .fileName {
             font-weight: bold;
         }
@@ -4096,7 +4000,7 @@ html.microsoft {
         @bottom-h: 50px;
         @topAndBottom-h: @top-h + @bottom-h;
 
-        height: ~"calc(100% - 92px)";
+        height: ~"calc(100% - @{h-without-main})";
         padding: 15px;
         overflow-x: auto;
         position: relative;
@@ -4189,31 +4093,33 @@ html.microsoft {
 }
 
 #dsInfoModal {
-    .size(@width: 205px, @height: 200px);
-    border: 1px solid @color-border-softGray;
+    .size(@width: 205px, @height: 200px, @min-width: 205px);
+    border-radius: 0;
 
     .modalHeader {
-        .size(@height: 25px);
+        padding: 0;
+        height: 26px;
 
-        .text {
+        .text, .icon {
             font-size: 14px;
-            line-height: 25px;
         }
 
-        .close {
-            top: 2px;
-            right: 7px;
+        .text {
+            text-align: center;
+            padding-right: 0;
+            width: 100%;
+        }
 
-            .icon {
-                font-size: 14px;
-            }
+        .icon {
+            top: -7px;
+            right: -12px;
         }
     }
 
     .modalMain {
         padding: 0;
         .font(@size: 12px, @align: center);
-        .size(@height: ~"calc(100% - 25px)");
+        .size(@height: ~"calc(100% - 26px)");
 
         .infoSection {
             .size(100%, 100%);
@@ -4271,10 +4177,12 @@ html.microsoft {
 }
 
 #fileInfoModal {
-    .size(@width: 320px, @height: 160px);
+    .size(@width: 320px, @height: 160px, @min-width: 320px);
 
     .modalHeader {
         .size(@height: 25px);
+        padding-top: 0;
+        padding-bottom: 0;
 
         .text {
             font-size: 14px;
@@ -4295,7 +4203,6 @@ html.microsoft {
     .modalMain {
         .font(@size: 12px);
         .size(@height: ~"calc(100% - 25px)");
-        padding: 10px 25px;
 
         .fileName {
             text-transform: none;
@@ -4343,13 +4250,14 @@ html.microsoft {
 
 #tooltipModal {
     // XXX TODO: Revisit this UI with Maggie once more than two walkthroughs exist.
-    .size(@width: 400px, @height: 200px);
+    @h-without-main: @modal-header-h;
+    .size(@height: 200px);
 
     .modalMain {
         padding: 0;
         overflow-y: auto;
         .font(@size: 12px, @align: center);
-        .size(@height: ~"calc(100% - 50px)");
+        .size(@height: ~"calc(100% - @{modal-header-h})");
 
         .item {
             width: 100%;
@@ -4384,7 +4292,8 @@ html.microsoft {
 #skewInfoModal {
     .size(@width: 920px, @height: 650px, @min-width: 500px, @min-height: 650px);
     @skewInfo-topMain: 50px;
-    @skewInfo-restOfMain: 92 + @skewInfo-topMain;
+    @skewInfo-restOfMain: @modal-header-h + @modal-instr-h + @skewInfo-topMain;
+    border-radius: 0;
 
     .modalInstruction {
         a {
@@ -4457,11 +4366,11 @@ html.microsoft {
 }
 
 #workbookInfoModal {
-    .size(@width: 550px, @height: 250px);
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 274px);
 
     .modalMain {
-        .size(@height: ~"calc(100% - 92px)");
-        padding: 10px 25px 0 25px;
+        .size(@height: ~"calc(100% - @{h-without-main})");
         .flex-display;
         .flex-direction(column);
 
@@ -4485,7 +4394,10 @@ html.microsoft {
 }
 
 #dfPublishModal {
-    .size(@width: 550px, @height: 320px);
+    @h-without-main: @modal-header-h + @modal-instr-h + @modal-bottom-h;
+    @h: 320px;
+    @cloud-h: @h - 62px;
+    .size(@height: @h);
 
     &.locked {
         pointer-events: none;
@@ -4496,12 +4408,11 @@ html.microsoft {
     }
 
     &.cloud {
-        height: 258px;
+        height: @cloud-h;
     }
 
     .modalMain {
-        .size(@height: ~"calc(100% - 148px)");
-        padding: 10px 25px 0 25px;
+        .size(@height: ~"calc(100% - @{h-without-main})");
         .flex-display;
         .flex-direction(column);
 
@@ -4566,11 +4477,11 @@ html.microsoft {
 }
 
 #dfSettingsModal {
-    .size(@width: 550px, @height: 240px);
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 264px);
 
     .modalMain {
-        .size(@height: ~"calc(100% - 92px)");
-        padding: 10px 25px 0 25px;
+        .size(@height: ~"calc(100% - @{h-without-main})");
         .flex-display;
         .flex-direction(column);
 
@@ -4587,19 +4498,18 @@ html.microsoft {
 }
 
 #dfBrowserModal {
-    .size(@width: 450px, @height: 480px);
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 480px);
     z-index: @z-index-modal + 1;
 
     .modalMain {
-        .size(@height: ~"calc(100% - 92px)");
-        padding: 12px;
+        .size(@height: ~"calc(100% - @{h-without-main})");
 
         .saveAs {
             height: 30px;
             margin-bottom: 10px;
 
             input {
-                background-color: @color-white;
                 width: ~"calc(100% - 62px)";
                 margin-left: 3px;
             }
@@ -4629,8 +4539,9 @@ html.microsoft {
 #dfUploadModal {
     @btn-w: 85px;
     @total-w: @btn-w + 10px;
+    @h-without-main: @modal-header-h + @modal-instr-h + @modal-bottom-h;
 
-    .size(@width: 550px, @height: 380px);
+    .size(@height: 404px);
 
     &.locked {
         pointer-events: none;
@@ -4641,8 +4552,7 @@ html.microsoft {
     }
 
     .modalMain {
-        padding: 10px 25px;
-        .size(@height: ~"calc(100% - 148px)");
+        .size(@height: ~"calc(100% - @{h-without-main})");
 
         .row {
             height: 30px;
@@ -4679,12 +4589,11 @@ html.microsoft {
     }
 
     .modalBottom {
-        padding-bottom: 20px;
         .buttonTooltipWrap {
             // Keep same as the button that it wraps
             margin-left: 10px;
             width: 150px;
-            height: 36px;
+            height: @height-btn;
             float: right;
         }
         .btn {
@@ -4698,7 +4607,7 @@ html.microsoft {
 
 /* ========== Dataflow download ============= */
 #dfDownloadModal {
-    .size(@width: 550px, @height: 291px);
+    .size(@height: 328px);
 
     &.locked {
         pointer-events: none;
@@ -4709,8 +4618,6 @@ html.microsoft {
     }
 
     .modalMain {
-        padding: 10px 25px;
-
         .row {
             height: 30px;
 
@@ -4734,10 +4641,6 @@ html.microsoft {
                 }
             }
 
-            input {
-                background-color: @color-white;
-            }
-
             .dropDownList {
                 width: 100%;
 
@@ -4754,11 +4657,11 @@ html.microsoft {
 
 /* ========== SQL Snippet List ============= */
 #sqlSnippetListModal {
-    .size(@width: 500px, @height: 600px);
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 600px);
 
     .modalMain {
-        padding: 15px 25px;
-        height: ~"calc(100% - 92px)";
+        height: ~"calc(100% - @{h-without-main})";
 
         .label {
             margin-bottom: 10px;
@@ -4780,11 +4683,11 @@ html.microsoft {
 
 /* ========== SQL Save List ============= */
 #sqlSnippetSaveModal {
-    .size(@width: 500px, @height: 600px);
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 600px);
 
     .modalMain {
-        padding: 15px 25px;
-        height: ~"calc(100% - 92px)";
+        height: ~"calc(100% - @{h-without-main})";
 
         .label {
             height: 30px;
@@ -4827,15 +4730,11 @@ html.microsoft {
 
 /* ========== SQL Snippet Rename ============= */
 #sqlSnippetRenameModal {
-    .size(@width: 370px, @height: 215px);
-
-    .modalInstruction {
-        height: 80px;
-    }
+    @h-without-main: @modal-header-h + @modal-instr-h + @modal-bottom-h;
+    .size(@height: 239px);
 
     .modalMain {
-        padding: 15px 25px;
-        height: ~"calc(100% - 182px)";
+        height: ~"calc(100% - @{h-without-main})";
         @margin: 10px;
 
         .label {
@@ -4849,6 +4748,7 @@ html.microsoft {
             }
             .text {
                 width: 70px;
+                float: left;
             }
         }
     }
@@ -4857,11 +4757,11 @@ html.microsoft {
 
 /* ========== SQL Func Setting ============= */
 #sqlFuncSettingModal {
-    .size(@width: 370px, @height: 150px);
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 174px);
 
     .modalMain {
-        padding: 15px 25px;
-        height: ~"calc(100% - 92px)";
+        height: ~"calc(100% - @{h-without-main})";
         @label-w: 160px;
         @margin: 10px;
         @total-w: @label-w + @margin;
@@ -4886,25 +4786,21 @@ html.microsoft {
 /* ========== End of SQL Func Setting ============= */
 
 #clusterStatusModal {
-    .size(@width: 640px, @height: 800px, @min-height: 300px, @max-height: 800px);
+    @h-without-main: @modal-header-with-subHeader-h + @modal-bottom-h;
+    .size(@height: 800px, @min-height: 300px, @max-height: 800px);
 
     .modalMain {
-        height: ~"calc(100% - 150px)";
-        padding: 10px;
+        height: ~"calc(100% - @{h-without-main})";
         overflow-y: auto;
     }
 
-    .modalInstruction {
-        b {
-            color: @color-font-link-blue;
-        }
-    }
-
     .section {
-        padding: 15px;
+        padding: 15px 0;
         border-bottom: 1px solid @color-border-softGray;
-        font-size: 14px;
-        color: @color-font-form-gray;
+
+        &:first-child {
+            padding-top: 0;
+        }
 
         &:last-child {
             border-bottom: none;
@@ -4922,7 +4818,7 @@ html.microsoft {
             font-weight: normal;
 
             &.row {
-                padding-left: 15px;
+                padding-left: 16px;
                 white-space: pre;
             }
         }
@@ -4931,22 +4827,20 @@ html.microsoft {
 
 /* Login Config Modal */
 #loginConfigModal {
-    .size(@width: 800px, @height:650px);
-    .font(@size: 13px, @weight: 600);
+    @h-without-main: @modal-header-with-subHeader-h + @modal-bottom-h;
+    .size(@height:650px);
     @rowHeight: 25px;
     @leftPadding: 20px;
     @labelWidth: 187px;
     .clearfix;
     bottom: auto;
-    z-index: @z-index-modal;
-
-    .modalHeader {
-        text-transform: uppercase;
-    }
 
     .modalMain {
-        height: ~"calc(100% - 150px)";
+        height: ~"calc(100% - @{h-without-main})";
         overflow-y: auto;
+        padding-left: 0;
+        padding-right: 0;
+        font-size: 12px;
     }
 
     .modalMainSection {
@@ -5189,15 +5083,12 @@ html.microsoft {
     top: auto;
     text-align: center;
     box-shadow: 0 2px 6px 2px rgba(62, 62, 62, 0.33);
-    .title {
-        font-size: 20px;
-        height: 100%;
-        width: 100%;
-        color: @color-white;
-        float: left;
-    }
+
     .modalContent {
         height: ~"calc(100% - 36px)";
+    }
+    .modalInstruction {
+        height: auto;
     }
     .chatBox {
         height: ~"calc(100% - 80px)";
@@ -5435,10 +5326,10 @@ html.microsoft {
 }
 
 #dagUDFErrorModal {
-    .size(@width: 700px, @height: 400px, @min-width: 550px, @min-height: 260px);
-    @modalInstructionHeight: 62px;
+    .size(@height: 400px, @min-height: 260px);
+    @top-main-h: 43px;
+    @h-without-main: @modal-header-h + @top-main-h + @modal-bottom-h;
     @modalRowHeight: 36px;
-    @modalBottomHeight: 56px;
 
     &.visible {
         display: flex !important;
@@ -5449,24 +5340,16 @@ html.microsoft {
         .modalInstruction {
             display: flex;
         }
-    }
 
-    .modalHeader {
-        padding: 0px 24px;
-        .text {
-            padding-left: 0px;
-            font-size: 16px;
-            font-weight: bold;
+        .modalMain {
+            height: ~"calc(100% - @{h-without-main} - @{modal-instr-h})";
         }
     }
+
     .modalInstruction {
-        border-bottom: none;
         display: none;
         flex: 1 0 auto;
         align-items: center;
-        padding: 0px 24px 16px;
-        height: auto;
-        font-weight: 500;
 
         .xi-error {
             color: @color-error-red;
@@ -5483,11 +5366,11 @@ html.microsoft {
             font-size: 13px;
         }
     }
-    .modalTop {
-        height: 36px;
-        line-height: 36px;
-        padding: 0 24px;
+
+    .modalTopMain {
+        height: @top-main-h;
     }
+
     .columnHeader {
         font-weight: bold;
         float: left;
@@ -5510,8 +5393,9 @@ html.microsoft {
     }
     .modalMain {
         overflow: auto;
-        border-bottom: 1px solid @color-border-menubar-grey;
+        // border-bottom: 1px solid @color-border-menubar-grey;
         padding: 0px;
+        height: ~"calc(100% - @{h-without-main})";
     }
 
     .noErrors {
@@ -5595,31 +5479,25 @@ html.microsoft {
     .btn-large {
         width: 250px;
     }
-    .modalBottom {
-        min-height: @modalBottomHeight;
-    }
 }
 
 #dagDescriptionModal, #dagCustomRenameModal {
-    .size(@width: 450px, @height: 250px, @min-width: 450px, @min-height: 250px);
+    @h-without-main: @modal-header-with-subHeader-h +  @modal-bottom-h;
 
-    .modalInstruction {
-        .text {
-            line-height: 36px;
-        }
-    }
     .modalMain {
-        .size(@height: ~"calc(100% - 152px)");
+        .size(@height: ~"calc(100% - @{h-without-main})");
         overflow: auto;
-        font-size: 13px;
     }
 
     .formRow {
         .flex-display;
         .flex-direction(column);
         height: 100%;
-        padding: 10px 25px;
     }
+}
+
+#dagDescriptionModal {
+    .size(@height: 250px, @min-height: 250px);
 
     .subHeading {
         .flex-display;
@@ -5629,35 +5507,22 @@ html.microsoft {
         .optionButtons {
             color: @color-font-light-blue;
             margin-right: 2px;
-            .icon {
-                font-size: 13px;
-            }
         }
     }
 
     .xc-textArea {
         width: 100%;
         .flex(1 0 auto);
-        font-size: 13px;
         background-color: @color-bg-list-hover-blue;
-    }
-    &.hasComment, &.hasDescription {
-        .size(400px, 350px);
     }
 }
 
 #dagCustomRenameModal {
-    .size(400px, 200px, @min-width: 400px, @min-height: 200px);
-    .modalMain {
-        .size(@height: auto);
-    }
-    .xc-input {
-        background-color: white;
-    }
+    .size(@height: 200px, @min-height: 200px);
 }
 
 #fileListModal {
-    .size(300px, 300px, @min-width: 300px, @min-height: 300px);
+    .size(@height: 300px, @min-height: 300px);
 
     &.load {
         .loadingSection {
@@ -5674,8 +5539,8 @@ html.microsoft {
 
     .loadingSection {
         display: none;
-        .position(absolute, @top: 36px, @left: 0);
-        .size(100%, ~"calc(100% - 36px)");
+        .position(absolute, @top: @modal-header-h, @left: 0);
+        .size(100%, ~"calc(100% - @{modal-header-h})");
         z-index: 10;
 
         .loadWrap {
@@ -5719,17 +5584,14 @@ html.microsoft {
         display: none;
     }
 
-    .modalHeader {
-        .text {
-            padding-left: 85px;
-            padding-right: 85px;
-        }
-    }
+
     .slidingSearchWrap {
-        top: 36px;
+        top: @modal-header-h;
+        padding: 0;
     }
+
     .modalMain {
-        .size(@height: ~"calc(100% - 36px)");
+        .size(@height: ~"calc(100% - @{modal-header-h})");
         overflow: auto;
         font-size: 13px;
     }
@@ -5853,8 +5715,9 @@ html.microsoft {
 
 #dsImportErrorModal {
     .size(750px, 400px, @min-width:750px, @min-height: 400px);
-    @left-main-padding: 18px;
+    @left-main-padding: 24px;
     @rowHeight: 44px;
+    @h-without-main: @modal-header-h;
 
     .ui-resizable-e {
         right: -13px;
@@ -5868,15 +5731,12 @@ html.microsoft {
         }
     }
 
-    .modalHeader {
-        font-size: 15px;
-    }
-
     .modalMain {
         .flex-display;
         .flex-direction(column);
-        height: ~"calc(100% - 36px)";
+        height: ~"calc(100% - @{h-without-main})";
         font-size: 12px;
+        padding: 0;
     }
 
     p {
@@ -6190,17 +6050,20 @@ html.microsoft {
 }
 
 #createPublishTableModal {
-    .size(@width: 500px, @height: 500px, @min-width: 500px, @min-height: 500px);
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 500px, @min-height: 500px);
     overflow: hidden;
 
-    .close {
-        color: @color-white;
-        right: 0px;
+    .modalHeader {
+        .close {
+            margin: 0;
+            color: @color-font-form-gray;
+        }
     }
+
     .modalMain {
-        height: ~"calc(100% - 56px - 36px)"; // 100% - modalBottom - modalHeader
+        height: ~"calc(100% - @{h-without-main})";
         overflow-y: auto;
-        font-size: 13px;
         display: block;
         position: relative;
 
@@ -6211,25 +6074,34 @@ html.microsoft {
             background: @color-white;
         }
 
-        .IMDName {
+
+        .IMDName, .IMDKey {
             width: 100%;
-            display: inline-flex;
-            padding-top: 30px;
-            padding-bottom: 10px;
-            float: left;
+
             .subHeading {
                 float: left;
+                margin-top: 0;
+
                 .label{
                     width: 100px;
-                    line-height: 12px;
+                    height: 26px;
+                    line-height: 26px;
+                    padding-left: 0;
+
                 }
             }
+        }
 
-            .inputWrap{
-                padding-right: 10px;
+        .IMDName {
+            display: inline-flex;
+            padding-bottom: 24px;
+            float: left;
+
+            .inputWrap {
                 border: 1px @color-border-softGray;
                 float: right;
                 width: ~"calc(100% - 120px)";
+                height: 26px;
                 margin-left: 20px;
                 input {
                     text-transform: uppercase;
@@ -6238,18 +6110,9 @@ html.microsoft {
         }
 
         .IMDKey {
-            width: 100%;
-            .subHeading {
-                float: left;
-                .label{
-                    width: 100px;
-                    line-height: 12px;
-                }
-            }
             .primaryKeys {
                 float: right;
                 width: ~"calc(100% - 120px)";
-                padding-right: 10px;
                 .primaryKeyList {
                     margin-bottom: 10px;
                     .xi-cancel {
@@ -6276,16 +6139,14 @@ html.microsoft {
             .disableKey {
                 margin-top: 10px;
                 float: left;
-                padding-left: 10px;
                 width: 150px;
                 .text {
                     float: left;
-                    width: 100px;
+                    width: 106px;
                 }
             }
             .btnWrap {
                 width: 200px;
-                padding-right: 11px;
                 padding-bottom: 10px;
                 float: right;
                 .text {
@@ -6312,11 +6173,11 @@ html.microsoft {
                 height: 20px;
                 .label {
                     margin-top: 15px;
+                    padding-left: 0;
                 }
             }
             .selectAllWrap {
                 float: right;
-                padding-right: 10px;
                 padding-top: 5px;
                 margin-top: 15px;
                 margin-right: -200px;
@@ -6325,7 +6186,6 @@ html.microsoft {
                 }
             }
             .columnsToPublish {
-                padding: 0 10px;
                 ::-webkit-scrollbar-thumb {
                     background: @color-bg-topBarGray2 !important;
                 }
@@ -6382,34 +6242,29 @@ html.microsoft {
 }
 
 #exportSQLTableModal {
-    .size(@width: 500px, @height: 600px, @min-width: 500px, @min-height: 600px);
-    .close {
-        color: @color-white;
-        right: 0px;
-    }
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 600px, @min-height: 600px);
     overflow: hidden;
+
     .modalMain {
-        height: ~"calc(100% - 56px - 36px)"; // 100% - modalBottom - modalHeader
-        font-size: 13px;
+        height: ~"calc(100% - @{h-without-main})";
         display: block;
         overflow: hidden;
+        padding-top: 12px;
+        padding-bottom: 12px;
 
         .exportDriver {
             .subHeading {
                 float: left;
-                .label {
-                    padding-left: 25px;
-                }
+                padding-left: 0;
             }
             #exportSQLTableDriverList {
                 float: right;
-                padding-right: 25px;
-                padding-top: 13px;
-                width: ~"calc(100% - 25px)";
+                margin-top: 13px;
+                width: 100%;
 
                 .iconWrapper {
                     top: 13px;
-                    right: 25px;
                 }
 
                 .list {
@@ -6421,14 +6276,14 @@ html.microsoft {
         .argsSectionBox {
             height: ~"calc(100% - 250px)";
             width: 100%;
-            // 100% - column div max height - export Driver height
-            padding: 25px 25px 0px 25px;
+            margin-top: 20px;
             float: left;
             .argsSection {
                 border: 1px solid @color-border-softGray;
                 max-height: 100%;
                 overflow-y: auto;
                 overflow-x: hidden;
+                padding-bottom: 8px;
 
                 .exportDescription {
                     padding-left: 10px;
@@ -6464,22 +6319,17 @@ html.microsoft {
 
         #exportSQLTableColumns {
             .subHeading {
-                width: 150px;
-                height: 20px;
-                .label {
-                    padding-left: 25px;
-                }
+                padding-left: 0;
             }
+
             .selectAllWrap {
                 float: right;
-                padding-right: 25px;
-                padding-top: 5px;
+
                 .text {
                     float: left;
                 }
             }
             .columnsToExport {
-                padding: 0 25px;
                 ::-webkit-scrollbar-thumb {
                     background: @color-bg-topBarGray2 !important;
                 }
@@ -6487,9 +6337,11 @@ html.microsoft {
                     background: @color-white;
                 }
                 .searchBox {
+                    position: relative;
+
                     .icon {
-                        .position(absolute, @right: 30px);
-                        margin-top: -20px;
+                        .position(absolute, @right: 10px);
+                        margin-top: 6px;
                         font-size: 14px;
                         color: @color-border-bar;
                     }
@@ -6538,8 +6390,8 @@ html.microsoft {
                         }
                     }
                     .flexSpace {
-                        .flex(1 1 150px);
-                        width: 150px;
+                        .flex(1 1 151px);
+                        width: 151px;
                     }
                 }
             }
@@ -6622,25 +6474,23 @@ html.microsoft {
 }
 
 #sqlQueryHistModal {
-    @headerHeight: 36px;
-
-    .size(@width: 600px, @height: 400px);
+    @h-without-main: @modal-header-h;
+    .size(@height: 400px);
 
     .content {
-        padding: 30px;
         .font(@weight: normal, @family: @font-code);
-        .size(@height: ~"calc(100% - @{headerHeight})");
+        .size(@height: ~"calc(100% - @{h-without-main})");
         overflow: auto;
         user-select: text;
     }
 }
 
 #fileManagerSaveAsModal {
-    .size(@width: 470px, @height: 480px);
+    @h-without-main: @modal-header-h + @modal-bottom-h;
+    .size(@height: 480px);
 
     .modalMain {
-        .size(@height: ~"calc(100% - 92px)");
-        padding: 12px 25px;
+        .size(@height: ~"calc(100% - @{h-without-main})");
 
         .saveAs {
             height: 30px;

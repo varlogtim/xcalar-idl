@@ -1,6 +1,7 @@
 <div id="sqlSnippetRenameModal" class="modalContainer">
     <!-- Header -->
     <header class="modalHeader">
+      <i class="infoIcon icon xi-warning"></i>
       <span class="text"><%= dicts.SQLEditor.RenameWarning %></span>
       <div class="close" data-container="body" data-toggle="tooltip" title=""
       data-original-title="<%= dicts.common.Close %>">
@@ -8,19 +9,18 @@
       </div>
     </header>
     <section class="modalInstruction">
-      <i class="icon xi-info-circle fa-18"></i>
       <div class="text"><%= dicts.SQLEditor.RenameModalInstr %></div>
     </section>
     <!-- card main -->
     <section class="modalMain">
-        <div class="label">
-            <span class="text"><%= dicts.common.SaveAs %>:</span>
-            <input type="text" class="name xc-input textOverflow">
-        </div>
+      <div class="label">
+        <div class="text"><%= dicts.common.SaveAs %>:</div>
+        <input type="text" class="name xc-input textOverflow">
+      </div>
     </section>
     <!-- Button Section -->
     <section class="modalBottom">
       <button type="button" class="btn confirm"><%= dicts.SQLEditor.Save %></button>
-      <button type="button" class="btn discard"><%= dicts.SQLEditor.Discard %></button>
+      <button type="button" class="btn btn-cancel discard"><%= dicts.SQLEditor.Discard %></button>
     </section>
 </div>

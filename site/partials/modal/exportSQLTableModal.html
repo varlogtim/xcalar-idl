@@ -7,7 +7,7 @@
         </div>
     </header>
     <!-- card main -->
-    <section class="modalMain">
+    <section class="modalMain border-top border-bottom">
         <div id="exportSQLTableColumns" class="exportColumnsSection formRow">
             <div class="subHeading clearfix">
                 <div class="label"><%= dicts.exportView.colsToExport %>:</div>
@@ -24,27 +24,8 @@
                     <input type="text" class="searchInput xc-input" placeholder="Search Columns">
                     <i class="icon xi-search colSearchIcon"></i>
                 </div>
-                <div class="filterHint"><%= dicts.dataflow.filterHint %></div>
-                <div class="list">
-                    <ul></ul>
-                    include "../../util/menuScrollArea.html"
-                </div>
                 <ul class="cols"></ul>
                 <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
-            </div>
-            <!-- rename section -->
-            <div class="renameSection clearfix xc-hidden">
-                <div class="subHeading clearfix">
-                <div><%= dicts.common.ColRenames %></div>
-                </div>
-                <p><%= dicts.common.ColRenameInstr %></p>
-                <div class="tableRenames">
-                <div class="subSubHeading clearfix">
-                    <div><%= dicts.exportView.CurrentColName %></div>
-                    <div><%= dicts.exportView.NewColName %></div>
-                </div>
-                <div class="renamePart"></div>
-                </div>
             </div>
         </div>
         <div class="exportDriver formRow">
@@ -61,7 +42,6 @@
                     include "../../util/menuScrollArea.html"
                 </div>
             </div>
-            <div class="descriptionText"></div>
         </div>
         <div class="argsSectionBox xc-hidden">
             <div class="argsSection"></div>

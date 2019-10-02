@@ -122,7 +122,7 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
                         </div>
                     </header>
                     <section className="modalInstruction oneLine">
-                        <i className="icon xi-info-circle"></i>
+                        <i className="infoIcon icon xi-info-circle"></i>
                         <div className="text">{instruct}</div>
                     </section>
                     <section className="modalMain">

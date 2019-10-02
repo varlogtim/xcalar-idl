@@ -192,7 +192,7 @@ describe("FileListModal Test", function() {
 
             FileListModal.Instance.show("dsId", null);
             expect($modal.height()).to.equal(400);
-            expect($modal.width()).to.equal(400);
+            expect($modal.width()).to.equal(500);
 
 
             expect($modal.find(".folder").length).to.equal(2); // dataset and "a" have folder class
