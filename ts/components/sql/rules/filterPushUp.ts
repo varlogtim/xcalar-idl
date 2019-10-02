@@ -9,6 +9,7 @@ class FilterPushUp {
         for (let i = 0; i < opNode.children.length; i++) {
             FilterPushUp.pushFromJoin(opNode.children[i], visitedMap);
         }
+        let retNode: XcOpNode = opNode;
         if (opNode.value.operation === "XcalarApiJoin" &&
             FilterPushUp.__findUDFInEvalString(opNode.value.args.evalString)) {
             const newEvalStruct = {
@@ -16,35 +17,32 @@ class FilterPushUp {
                 "newField": null
             };
             const newTableName = xcHelper.getTableName(opNode.value.args.dest) +
-                                 "_filter" + Authentication.getHashId();
+                                 "_TMPJOIN" + Authentication.getHashId();
             const filterObj = {
                 "operation": "XcalarApiFilter",
                 "args": {
-                    "source": opNode.name,
-                    "dest": newTableName,
+                    "source": newTableName,
+                    "dest": opNode.value.args.dest,
                     "eval": [newEvalStruct]
                 }
             };
-            const filterNode = new XcOpNode(newTableName, filterObj,
-                                            [opNode.name]);
+            const filterNode = new XcOpNode(opNode.name, filterObj,
+                                            [newTableName]);
             filterNode.parents = opNode.parents;
             filterNode.children = [opNode];
             for (let i = 0; i < opNode.parents.length; i++) {
                 const parent = opNode.parents[i];
                 parent.children[parent.children.indexOf(opNode)] = filterNode;
-                parent.sources[parent.sources.indexOf(opNode.name)] = newTableName;
-                if (typeof parent.value.args.source === "string") {
-                    parent.value.args.source = newTableName;
-                } else {
-                    const idx = parent.value.args.source.indexOf(opNode.name);
-                    parent.value.args.source[idx] = newTableName;
-                }
             }
             opNode.value.args.evalString = "";
             opNode.parents = [filterNode];
+            opNode.value.args.dest = newTableName;
+            opNode.name = newTableName;
+            visitedMap[newTableName] = opNode;
+            retNode = filterNode;
         }
-        visitedMap[opNode.name] = opNode;
-        return opNode;
+        visitedMap[retNode.name] = retNode;
+        return retNode;
     }
 
     static __findUDFInEvalString(evalString: string): boolean {

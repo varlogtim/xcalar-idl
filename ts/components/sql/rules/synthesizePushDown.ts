@@ -81,6 +81,7 @@ class SynthesizePushDown {
             }
             child.parents = [];
             child.value.args.dest = node.value.args.dest;
+            child.name = node.name;
             child.value.args.columns = allColumns;
             return child;
         } else {

@@ -239,7 +239,8 @@ class DedupPlan {
                                                node.value.args.eval[i].newField;
                 }
                 for (const item in node.colNameMaps[0]) {
-                    if (newColList.indexOf(node.colNameMaps[0][item]) != -1) {
+                    if (newColList.indexOf(node.colNameMaps[0][item]) != -1
+                        && item != node.colNameMaps[0][item]) {
                         delete node.colNameMaps[0][item];
                     }
                 }
