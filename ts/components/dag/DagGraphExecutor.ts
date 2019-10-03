@@ -697,14 +697,14 @@ class DagGraphExecutor {
 
         PromiseHelper.chain(queryPromises)
         .then(() => {
-            nodes.forEach((node) => {
-                node.setTable(null); // these table are only fake names
-            });
-
             let queryStr = JSON.stringify(allQueries);
             if (queryStr === "[]") { // can be empty if link out node
+                // don't reset tables, keep the ones that are set
                 return PromiseHelper.resolve();
             } else {
+                nodes.forEach((node) => {
+                    node.setTable(null); // these table are only fake names
+                });
                 let queryName = destTables[destTables.length - 1];
                 if (queryName.startsWith("DF2_")) {
                     queryName = "table_" + queryName;
