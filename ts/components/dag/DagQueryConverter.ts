@@ -510,8 +510,11 @@ class DagQueryConverter {
                 this._recursiveGetDagNodeInfo(node, dagNodeInfos);
             }
         }
-
+        let count = 0;
         for (let i in dagNodeInfos) {
+            if (!dagNodeInfos[i].title) {
+                dagNodeInfos[i].title = "Node " + (++count);
+            }
             finalNodeInfos.push(dagNodeInfos[i]);
         }
 
