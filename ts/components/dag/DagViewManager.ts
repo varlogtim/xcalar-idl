@@ -294,6 +294,29 @@ class DagViewManager {
         return $dataflowArea.find('.operator[data-nodeid="' + nodeId + '"]');
     }
 
+    public getNodeById(nodeId): DagNode {
+        let node;
+        try {
+            node = this.activeDag.getNode(nodeId);
+            if (!node) {
+                let id, view;
+                for ([id, view] of this.dagViewMap) {
+                    node = view.graph.getNode(nodeId);
+                    if (node) {
+                        let tabId = view.graph.getTabId();
+                        let tab = DagTabManager.Instance.getTabById(tabId);
+                        console.log("Dataflow: " + tab.getName());
+                        console.log(view.$dfArea.find('.operator[data-nodeid="' + nodeId + '"]'));
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        return node;
+    }
+
         /**
      * DagView.viewResult
      * @param dagNodeId

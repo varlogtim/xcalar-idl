@@ -1493,10 +1493,14 @@ class DagGraph extends Durable {
                 name: node.getTitle(),
                 type: node.getDisplayNodeType(),
                 description: node.getDescription(),
-                hint: node.getParamHint().fullHint,
-                overallStats: overallStats,
-                operations: node.getIndividualStats(true)
+                hint: node.getParamHint().fullHint
             }
+            if (node.getTag()) {
+                nodeStats.tag = node.getTag();
+            }
+            nodeStats.overallStats =  overallStats,
+            nodeStats.operations = node.getIndividualStats(true)
+
             stats.push(nodeStats);
         });
         return stats;

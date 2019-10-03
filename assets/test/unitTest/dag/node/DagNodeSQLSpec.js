@@ -56,6 +56,7 @@ describe("SQL Dag Node Test", () => {
         it("getSeralizeInfo should work", () => {
             let res = node._getSerializeInfo();
             let id = node.getId();
+            console.log(res);
             expect(res).to.deep.equal({
                 "version": 1,
                 "type": "sql",
@@ -80,7 +81,8 @@ describe("SQL Dag Node Test", () => {
                 "id": id,
                 "state": "Unused",
                 "configured": false,
-                "aggregates": []
+                "aggregates": [],
+                "tag": ""
             });
         });
     });

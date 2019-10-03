@@ -27,6 +27,7 @@ abstract class DagNode extends Durable {
     protected aggregates: string[];
     protected allowAggNode: boolean; // non-persistent
     protected display: DagNodeDisplayInfo; // coordinates are persistent
+    protected tag: string; // query node tag
     protected runStats: {
         nodes: {[key: string]: TableRunStats},
         hasRun: boolean,
@@ -72,6 +73,7 @@ abstract class DagNode extends Durable {
         this.allowAggNode = false;
         this.lineage = new DagLineage(this);
         this.columnDeltas = new Map();
+        this.tag = options.tag || "";
         if (options.columnDeltas) { // turn array into map
             options.columnDeltas.forEach((columnDelta) => {
                 let modifiedColumnDelta = $.extend({}, columnDelta);
@@ -299,6 +301,10 @@ abstract class DagNode extends Durable {
 
     public getTitle(): string {
         return this.title;
+    }
+
+    public getTag(): string {
+        return this.tag;
     }
 
     /**
@@ -1511,7 +1517,8 @@ abstract class DagNode extends Durable {
             error: this.error,
             configured: this.configured,
             aggregates: this.aggregates,
-            stats: null
+            stats: null,
+            tag: this.tag
         };
         if (includeStats) {
             if (this.runStats.hasRun) {
