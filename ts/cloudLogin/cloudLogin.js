@@ -489,7 +489,7 @@ $(".signup-login").click(function () {
     $("#signupTitle").toggle();
 })
 
-$("#forgotSection, .signupSection").click(function () {
+$("#forgotSection a, .signupSection a").click(function () {
     $("#loginFormError").hide();
     $("#loginNameBox").val("");
     $("#loginPasswordBox").val("");
