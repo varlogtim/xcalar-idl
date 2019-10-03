@@ -199,27 +199,36 @@ var cloudLogoutPathFunc = function(req, res, next) {
     request.get(logoutURL, {
         "json": true,
         "jar": j
-    }, (err, getRes, body) => {
-        if (err || body.message !== 'Logout successful') {
-            xcConsole.log(`Logout request error ${err}`);
+    }, (reqErr, getRes, body) => {
+        if (reqErr || body.message !== 'Logout successful') {
+            xcConsole.log(`Logout request error ${reqErr}`);
             xcConsole.log(`Logout request body ${body}`);
-            message['message'] = `Login error: ${JSON.stringify(err)} body: ${JSON.stringify(body)}`;
+            message['message'] = `Login error: ${JSON.stringify(reqErr)} body: ${JSON.stringify(body)}`;
             res.status(message.status).send(message);
             return;
         }
 
-        if (res.statusCode != httpStatus.OK) {
-            message = {
-                'status': res.statusCode,
-                'message': `Auth lambda returned status ${res.statusCode}`
-            };
-        } else {
-            message = {
-                'status': httpStatus.OK,
-                'message': body.message
-            };
-        }
-        res.status(message.status).send(message);
+        // even though the lambda should destroy the
+        // session record, destroy it here too to remove
+        // all traces
+        req.session.destroy(function(sessionErr) {
+            if (res.statusCode != httpStatus.OK) {
+                message = {
+                    'status': res.statusCode,
+                    'message': `Auth lambda returned status ${res.statusCode}`
+                };
+            } else {
+                message = {
+                    'status': httpStatus.OK,
+                    'message': body.message
+                };
+            }
+
+            res.clearCookie('connect.sid');
+            res.clearCookie('jwt_token', { httpOnly: true, signed: false });
+
+            res.status(message.status).send(message);
+        });
     });
 }
 
