@@ -117,6 +117,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                     arg.setRegex(true);
                 }
                 arg.setFormattedValue(rawValue);
+                self._formatArg(arg);
                 self._validateArg(arg);
             });
 

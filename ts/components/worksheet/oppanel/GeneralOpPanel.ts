@@ -1109,7 +1109,8 @@ class GeneralOpPanel extends BaseOpPanel {
         this._$panel.find('.group').each(function(i) {
             // const typeIds = [];
             const $inputs: JQuery = $(this).find('.arg');
-            const existingTypes: any = self._getExistingTypes(i);
+            // const existingTypes: any = self._getExistingTypes(i);
+            const existingTypes: any = {};
 
             $inputs.each(function() {
                 const $input: JQuery = $(this);

@@ -184,6 +184,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 }
                 arg.setValue(value);
                 arg.setFormattedValue(rawValue);
+                this._formatArg(arg);
                 this._validateArg(arg);
             });
 

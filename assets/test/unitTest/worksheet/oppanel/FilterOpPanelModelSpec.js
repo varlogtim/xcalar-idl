@@ -50,7 +50,7 @@ describe("FilterOpPanelModel Test", function() {
                 expect(model.groups[0].args.length).to.equal(2);
                 expect(model.groups[0].args[0].formattedValue).to.equal("1");
                 expect(model.groups[0].args[0].isValid).to.equal(true);
-                expect(model.groups[0].args[1].formattedValue).to.equal("2");
+                expect(model.groups[0].args[1].formattedValue).to.equal('"2"');
                 expect(model.groups[0].args[1].isValid).to.equal(true);
             });
 

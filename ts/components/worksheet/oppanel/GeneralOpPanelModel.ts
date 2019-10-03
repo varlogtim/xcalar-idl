@@ -743,7 +743,9 @@ abstract class GeneralOpPanelModel {
         } else {
             const quote = arg.charAt(0);
             if (arg.lastIndexOf(quote) === arg.length - 1) {
-                arg = arg.slice(1, -1); // remove surrounding quotes
+                if (!this._isNumberInQuotes(arg)) {
+                    arg = arg.slice(1, -1); // remove surrounding quotes
+                }
             }
         }
         return arg;
