@@ -275,8 +275,13 @@ $(document).ready(function() {
                 try {
                     if (data.loggedIn === true) {
                         redirect();
-                    } else if (isCloud()) {
-                        cloudLogin();
+                    } else {
+                        $.getScript(paths.cloudEnv)
+                        .always(function() {
+                            if (isCloud()) {
+                                cloudLogin();
+                            }
+                        });
                     }
                 } catch (e) {
                     console.error(e);
