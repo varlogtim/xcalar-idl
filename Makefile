@@ -1,11 +1,17 @@
 SHELL=/bin/bash
 
+ifeq ($(UNAME),Linux)
+	SHASUM=sha256sum
+else
+	SHASUM=shasum -a 256
+endif
+
 define package_sha
-$(shell shasum -a 256 $(PACKAGE_LOCK) | cut -c1-8)
+$(shell $(SHASUM) $(PACKAGE_LOCK) | cut -c1-8)
 endef
 
 define package_tar
-~/.cache/npm/node_modules-$(shell shasum -a 256 $(PACKAGE_LOCK) | cut -c1-8).tar
+~/.cache/npm/node_modules-$(shell $(SHASUM) $(PACKAGE_LOCK) | cut -c1-8).tar
 endef
 
 RC:=false
