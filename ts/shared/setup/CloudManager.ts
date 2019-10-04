@@ -28,6 +28,7 @@ class CloudManager {
         } else {
             XcUser.setCloudUserName(this._getUserName());
         }
+        this.checkCloud();
     }
 
     /**
@@ -82,6 +83,32 @@ class CloudManager {
         return this._sendRequest("s3/delete", {
             "fileName": fileName
         });
+    }
+
+    public checkCloud(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (!XVM.isCloud()) {
+            return PromiseHelper.resolve();
+        }
+        xcHelper.sendRequest("GET", "/service/checkCloud")
+        .then((ret) => {
+
+            if (!ret || ret.status !== 0 || !ret.clusterUrl) {
+                deferred.resolve();return; // XXX temporary
+                if (ret.error) {
+                    deferred.reject(ret.error);
+                } else {
+                    deferred.reject("Cluster is not started.");
+                }
+            } else {
+                XcUser.setClusterPrice(ret.clusterPrice);
+                deferred.resolve();
+            }
+        })
+        .fail((e) => {
+            deferred.reject(e);
+        });
+        return deferred.promise();
     }
 
     // XXX TODO: check if the implementation is correct

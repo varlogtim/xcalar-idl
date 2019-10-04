@@ -118,9 +118,15 @@ class UserMenu {
             $li.removeClass("warning");
             return;
         }
-        let num = Math.round(origNum);
+        let num;
+        if (origNum >= 1000) {
+            num = Math.round(origNum);
+        } else {
+            num = origNum.toPrecision(3);
+        }
+
         const credits: string = xcStringHelper.numToStr(num) + " Credits";
-        let needsWarning: boolean = (origNum < XcUser.creditWarningLimit);
+        let needsWarning: boolean = (origNum < XcUser.firstCreditWarningLimit);
 
         let $li: JQuery = $("#userMenu").find(".credits");
         $li.find(".num").text(credits);
@@ -129,10 +135,13 @@ class UserMenu {
                 // only show message if $li didn't previously have warning class
                 MessageModal.Instance.show({
                     title: "You are running low on credits...",
-                    msg: AlertTStr.LowOnCredits,
+                    msg: xcStringHelper.replaceMsg(AlertTStr.LowOnCredits, {
+                        time: XcUser.firstCreditWarningTime
+                    }),
                     sizeToText: true,
                     size: "medium",
-                    compact: true
+                    compact: true,
+                    isAlert: true
                 });
             }
             $li.addClass("warning");

@@ -714,7 +714,8 @@ AlertTStr = {
         "executed before the output can be used.",
     "SharedCustomOpDeleteTitle": "Delete",
     "ShardCustomOpDeleteMsg": "Are you sure you want to delete the operator?",
-    "LowOnCredits": "This is a reminder that you are running low on credits. To add more credits, go to the account dropdown and select add credits. There, you will be able to add credits or contact customer service."
+    "LowOnCredits": "This is a reminder that you are running low on credits and have <time> minutes remaining. To add more credits, go to the account dropdown and select add credits. There, you will be able to add credits or contact customer service.",
+    "ShutDownCredits": "You are almost out of credits and will be logged out in 1 minute. Please finish any work you have in progress."
 };
 
 ErrorMessageTStr = {

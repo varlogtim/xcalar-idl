@@ -1,12 +1,16 @@
 
 class XcUser {
-    public static creditWarningLimit: number = 5; // XXX temporary
+    public static firstCreditWarningLimit: number; // XXX temporary
+    public static lastCreditWarningLimit: number; // XXX temporary
     private static _currentUser: XcUser;
     private static _isLogoutTimerOn: boolean = false;
     private static readonly _logOutWarningTime = 60; // in seconds
     private static _creditUsageInterval = null;
-    private static _creditUsageCheckTime = 1 * 60 * 1000;
+    private static readonly _creditUsageCheckTime = 1 * 60 * 1000;
     private static _isIdleCheckOn = true;
+    private static _clusterPrice: number = null;
+    public static readonly firstCreditWarningTime: number = 20; // minutes
+    public static readonly lastCreditWarningTime: number = 1; // minutes
 
     public static get CurrentUser(): XcUser {
         return this._currentUser;
@@ -202,6 +206,12 @@ class XcUser {
         this._creditUsageInterval = setInterval(() => {
             this._checkCreditUsageHelper();
         }, this._creditUsageCheckTime);
+    }
+
+    public static setClusterPrice(price) {
+        this._clusterPrice = price;
+        this.firstCreditWarningLimit = price * this.firstCreditWarningTime; // 20 minutes worth of credit
+        this.lastCreditWarningLimit = price * this.lastCreditWarningTime; // 1 minute worth of credit
     }
 
     /* HACK TO SET CLOUD USERNAME */

@@ -204,6 +204,19 @@ class XcSocket {
             }
         });
 
+        socket.on("lowCreditWarning", () => {
+            if (XVM.isCloud()) {
+                MessageModal.Instance.show({
+                    title: "You are out of credits...",
+                    msg: AlertTStr.ShutDownCredits,
+                    sizeToText: true,
+                    size: "medium",
+                    compact: true,
+                    isAlert: true
+                });
+            }
+        });
+
         socket.on("consoleMsg", (msg) => {
             console.log(msg);
         });

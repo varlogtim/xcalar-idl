@@ -74,6 +74,7 @@ namespace xcManager {
             // First XD instance to run since cluster restart
             return oneTimeSetup();
         })
+        .then(CloudManager.Instance.checkCloud)
         .then(setupWKBKIndependentPanels)
         .then(setupSession) // restores info from kvStore
         .then(function() {

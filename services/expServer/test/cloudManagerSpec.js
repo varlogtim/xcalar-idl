@@ -108,7 +108,7 @@ describe("CloudManager Test", () => {
         expect(res).to.equal(1.23);
     });
 
-    it("_updateCredits should work", (done) => {
+    it("_updateCredits should not work if fetch doesn't return status", (done) => {
         cloudManager._updateCreditsTime = 100;
         let count = 0;
         request.post = (args) => {
@@ -135,10 +135,43 @@ describe("CloudManager Test", () => {
         setTimeout(() => {
             expect(count).to.equal(4);
             let res = cloudManager.getNumCredits();
+            expect(res).to.be.null;
+            done();
+        }, 150);
+    });
+
+    it("_updateCredits should work", (done) => {
+        cloudManager._updateCreditsTime = 100;
+        let count = 0;
+        request.post = (args) => {
+            count++;
+            if (count == 1 || count === 3) {
+                expect(args).to.deep.equal({
+                    url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/deduct',
+                    body: { username: 'test@xcalar.com' },
+                    json: true
+                });
+                return new Promise((res,rej) => res());
+            } else if (count === 2 || count === 4) {
+                expect(args).to.deep.equal({
+                    url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/get',
+                    body: { username: 'test@xcalar.com' },
+                    json: true
+                });
+                return new Promise((res,rej) => res({status: 0, credits: 2.34}));
+            }
+        }
+
+        cloudManager._updateCredits();
+
+        setTimeout(() => {
+            expect(count).to.equal(4);
+            let res = cloudManager.getNumCredits();
             expect(res).to.equal(2.34);
             done();
-        }, 250);
+        }, 150);
     });
+
 
     it("_updateCredits should shutdown cluster if credits == 0", (done) => {
         cloudManager._updateCreditsTime = 100;
@@ -158,7 +191,7 @@ describe("CloudManager Test", () => {
                     body: { username: 'test@xcalar.com' },
                     json: true
                 });
-                return new Promise((res,rej) => res({credits: 0}));
+                return new Promise((res,rej) => res({credits: 0, status: 0}));
             }
         }
         expect(cloudManager._stopClusterMessageSent).to.be.false;
@@ -189,6 +222,6 @@ describe("CloudManager Test", () => {
             socket.logoutMessage = oldSocket;
             cloudManager.stopCluster = oldStopCluster;
             done();
-        }, 150);
+        }, 50);
     });
 });

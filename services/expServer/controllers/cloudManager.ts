@@ -14,9 +14,12 @@ class CloudManager {
     // XXX do not change _updateCreditsTime - it is synced with AWS Lambda
     private _userName: string = "";
     private _awsURL: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"; // XXX temporary
-    private _stopClusterMessageSent: boolean;
+    private _stopClusterMessageSent: boolean = false;
+    private _lowCreditWarningSent: boolean = false;
+    private _clusterPrice: number = null;
 
     public constructor() {
+        this.checkCluster(); // to get cluster price
         this._fetchCredits();
         this._updateCredits();
     }
@@ -77,6 +80,9 @@ class CloudManager {
                     body: {"username": this._userName},
                     json: true
             });
+            if (data && data.clusterPrice) {
+                this._clusterPrice = data.clusterPrice;
+            }
             return data;
         } catch (e) {
             return {error: e};
@@ -85,19 +91,6 @@ class CloudManager {
 
     public getNumCredits(): number {
         return this._numCredits;
-    }
-
-    public async changeCredits(changeNum: string): Promise<any> {
-        try {
-            const data = request.post({
-                    url: this._awsURL + "/billing/update",
-                    body: {"username": this._userName, creditChange: changeNum},
-                    json: true
-            });
-            return data;
-        } catch (e) {
-            return {error: e};
-        }
     }
 
     public async logout(): Promise<any> {
@@ -109,45 +102,48 @@ class CloudManager {
         }
     }
 
-    //
     // should only be called once in constructor and then recursively, otherwise
     // user's credits will be deducted unnecessarily
-    private async _updateCredits(): Promise<any> {
-        clearTimeout(this._updateCreditsInterval);
-
-        this._updateCreditsInterval = setTimeout(() => {
-            this._updateCreditsHelper();
-        }, this._updateCreditsTime);
-
-        return this._numCredits;
-    }
-
     // deducts credits, gets credits, and calls _updateCredits which calls itself
-    private async _updateCreditsHelper(): Promise<void> {
+    private async _updateCredits(): Promise<void> {
+        clearTimeout(this._updateCreditsInterval);
         if (!this._userName) {
-            this._updateCredits();
+            this._updateCreditsInterval = setTimeout(() => {
+                this._updateCredits();
+            }, this._updateCreditsTime);
             return;
         }
         try {
             await this._deductCredits();
         } catch (e) {
-            xcConsole.error(e.error);
+            xcConsole.error("deduct credits error", e.error);
         }
 
         try {
             await this._fetchCredits();
         } catch (e) {
-            xcConsole.error(e);
+            xcConsole.error("fetch credits error", e);
         }
-        this._updateCredits();
+        this._updateCreditsInterval = setTimeout(() => {
+            this._updateCredits();
+        }, this._updateCreditsTime);
     }
 
     private async _deductCredits(): Promise<void> {
-        return await request.post({
+        try {
+           let res =  await request.post({
                 url: this._awsURL + "/billing/deduct",
                 body: {"username": this._userName},
                 json: true
-        });
+            });
+            if (res && res.status !== 0) {
+                xcConsole.error("deduct credits error", res);
+            }
+            return res;
+        } catch (e) {
+            xcConsole.error(e);
+            return e;
+        }
     }
 
     private async _fetchCredits(): Promise<number> {
@@ -158,24 +154,44 @@ class CloudManager {
                 json: true
             });
             let credits: number = null;
-            if (data && data.credits != null) {
+            if (data && data.status !== 0) {
+                xcConsole.error("fetch credits error", data);
+            } else if (data && data.credits != null) {
                 credits = data.credits;
             }
             this._numCredits = credits;
-            if (this._isOutOfCredits() && !this._stopClusterMessageSent) {
-                this._stopClusterMessageSent = true;
-                socket.logoutMessage({
-                    type: "noCredits"
-                });
-                this.stopCluster();
-                this.logout();
-            } else {
-                this._stopClusterMessageSent = false;
-            }
+            this._checkCreditsWarning();
             return credits;
         } catch (e) {
+            xcConsole.error(e);
             return null;
         }
+    }
+    // shuts down cluster if credits == 0, or sends socket warning if
+    // 1.5 minutes remain
+    private _checkCreditsWarning(): void {
+        if (this._isOutOfCredits() && !this._stopClusterMessageSent) {
+            this._stopClusterMessageSent = true;
+            socket.logoutMessage({
+                type: "noCredits"
+            });
+            this.stopCluster();
+            this.logout();
+        } else {
+            this._stopClusterMessageSent = false;
+            if (this._isLowOnCredits() && !this._lowCreditWarningSent) {
+                this._lowCreditWarningSent = true;
+                socket.lowCreditWarning();
+            } else {
+                this._lowCreditWarningSent = false;
+            }
+        }
+    }
+
+    private _isLowOnCredits(): boolean {
+        return (!isNaN(this._numCredits) &&
+                this._clusterPrice &&
+                this._numCredits < (1.5 * this._clusterPrice));
     }
 
     private _isOutOfCredits(): boolean {

@@ -409,6 +409,11 @@ class SocketUtil {
         this._ioSockets.emit("logoutMessage", args);
     }
 
+    public lowCreditWarning() {
+        if (!this._ioSockets) return;
+        this._ioSockets.emit("lowCreditWarning");
+    }
+
     public sendConsoleMsg(args) {
         if (!this._ioSockets) return;
         this._ioSockets.emit("consoleMsg", args);

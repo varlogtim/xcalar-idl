@@ -174,8 +174,8 @@ describe("UserMenu Test", function() {
         UserMenu.Instance.updateCredits(1504.4);
         expect($menu.find(".credits .num").text()).to.equal("1,504 Credits");
 
-        let cacheLimit = XcUser.creditWarningLimit;
-        XcUser.creditWarningLimit = 100;
+        let cacheLimit = XcUser.firstCreditWarningLimit;
+        XcUser.firstCreditWarningLimit = 100;
         expect($menu.find(".credits").hasClass("warning")).to.be.false;
         expect($("#messageModal").is(":visible")).to.be.false;
 
@@ -185,7 +185,7 @@ describe("UserMenu Test", function() {
         expect($("#messageModal").is(":visible")).to.be.true;
         $("#messageModal").find(".close").click();
 
-        XcUser.creditWarningLimit = cacheLimit;
+        XcUser.firstCreditWarningLimit = cacheLimit;
     });
 
 
