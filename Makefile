@@ -47,6 +47,7 @@ node_modules: node_modules/.tstamp
 
 node_modules/.tstamp: $(PACKAGE_LOCK)
 	mkdir -p $(@D) ~/.cache/npm
+	npm install --package-lock-only --save-dev
 	test -e $(call package_tar) && tar xf $(call package_tar) node_modules/ || npm install $(NPM_GRUNT_COLOR) --save-dev
 	test -e $(call package_tar) || tar cf $(call package_tar) --exclude=node_modules/.tstamp $(PACKAGE) $(PACKAGE_LOCK) node_modules/
 	/bin/touch $@
@@ -55,7 +56,6 @@ setup_npm: node_modules/.tstamp
 	node_modules/grunt/bin/grunt $(NPM_GRUNT_COLOR) init
 
 $(PACKAGE_LOCK): $(PACKAGE)
-	mkdir -p $(@D) ~/.cache/npm
-	test -e $(PACKAGE_LOCK) && test -e $(call package_tar) && tar xf $(call package_tar) node_modules/ || npm install $(NPM_GRUNT_COLOR) --save-dev
-	test -e $(call package_tar) || tar cf $(call package_tar) --exclude=node_modules/.tstamp $(PACKAGE) $(PACKAGE_LOCK) node_modules/
+	mkdir -p ~/.cache/npm
+	npm install $(NPM_GRUNT_COLOR) --save-dev
 	/bin/touch $@

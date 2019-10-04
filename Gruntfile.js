@@ -2206,7 +2206,7 @@ module.exports = function(grunt) {
         var cmdsets = [];
         cmdsets.push([expServerBldPath, ['npm install --no-save']]);
         cmdsets.push([expServerBldPath, ['npm uninstall --no-save ' + pkgList]]);
-        cmdsets.push([expServerBldPath, ['npm upgrade --no-save']]);
+        cmdsets.push([expServerBldPath, [`npm install ${'./' + jsClient.pkgFileName} ${'./' + jsSDK.pkgFileName}`]]);
         runCmds(cmdsets);
 
         function buildPackage(pkgSrcPath, pkgBldPath, isCopyConf = false) {
@@ -2266,7 +2266,7 @@ module.exports = function(grunt) {
         var cmdsets = [];
         cmdsets.push([xcrpcBldPath, ['npm install --no-save']]);
         cmdsets.push([xcrpcBldPath, ['npm uninstall --no-save ' + pkgList]]);
-        cmdsets.push([xcrpcBldPath, ['npm upgrade --no-save']]);
+        cmdsets.push([xcrpcBldPath, [`npm install ${'./' + jsClient.pkgFileName} ${'./' + jsSDK.pkgFileName}`]]);
         runCmds(cmdsets);
     });
 
