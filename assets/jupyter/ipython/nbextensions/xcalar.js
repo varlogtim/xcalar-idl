@@ -99,6 +99,7 @@ define(['base/js/utils'], function(utils) {
                         if (struct.newUntitled) {
                             prependSessionStub(username, userid, sessionName, token);
                             if (struct.publishTable) {
+
                                 appendPublishTableStub(struct.tableName, struct.colNames, struct.numRows);
                             }
                             if (!struct.noRenamePrompt) {
@@ -173,33 +174,7 @@ define(['base/js/utils'], function(utils) {
                 var text;
                 switch (stubName) {
                     case ("connWorkbook"):
-                        text = '# Xcalar Notebook Connector\n' +
-                                '# \n' +
-                                '# Connects this Jupyter Notebook to the Xcalar Workbook <' + sessionName + '>\n' +
-                                '#\n' +
-                                '# To use any data from your Xcalar Workbook, run this snippet before other \n' +
-                                '# Xcalar Snippets in your workbook. \n' +
-                                '# \n' +
-                                '# A best practice is not to edit this cell.\n' +
-                                '#\n' +
-                                '# If you wish to use this Jupyter Notebook with a different Xcalar Workbook \n' +
-                                '# delete this cell and click CODE SNIPPETS --> Connect to Xcalar Workbook.\n';
-                        text += '\n%matplotlib inline\n\n' +
-                                '# Importing third-party modules to faciliate data work. \n' +
-                                'import pandas as pd\n' +
-                                'import matplotlib.pyplot as plt\n\n' +
-                                '# Importing Xcalar packages and modules. \n' +
-                                '# For more information, search and post questions on discourse.xcalar.com\n' +
-                                'from xcalar.external.LegacyApi.XcalarApi import XcalarApi\n' +
-                                'from xcalar.external.LegacyApi.Session import Session\n' +
-                                'from xcalar.external.LegacyApi.WorkItem import WorkItem\n' +
-                                'from xcalar.external.LegacyApi.ResultSet import ResultSet\n' +
-                                'from xcalar.external.client import Client\n\n' +
-                                '# Create a XcalarApi object\nxcalarApi = XcalarApi(' + (token ? ('client_token="' + token + '"') : '') + ')\n';
-                        text += '# Connect to current workbook that you are in\n' +
-                                'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
-                                'xcalarApi.setSession(workbook)\n' +
-                                '# Create a Xcalar Client object\nxcalarClient = Client(client_token="' + token + '", user_name="' + username + '")';
+                        text = getConnectionSnippetText(username, userid, sessionName, token);
                         texts.push(text);
                         break;
                     case ("basicUDF"):
@@ -225,7 +200,7 @@ define(['base/js/utils'], function(utils) {
                             moduleName = args.moduleName;
 
                             dfName = args.tableName.replace(/[#-]/g, "_") + '_pd';
-                            tableStub = getPublishTableStub(args.tableName, args.allCols, 100);
+                            tableStub = getPublishTableStub(args.tableName, args.allCols, 100, dfName);
                         } else {
                             colsArg = "col1, col2, col3";
                             retStr = "str(col1) + str(col2) + str(col3)";
@@ -434,48 +409,21 @@ define(['base/js/utils'], function(utils) {
             }
             function prependSessionStub(username, userid, sessionName, token) {
                 var cell = Jupyter.notebook.insert_cell_above('code', 0);
-                var text = '# Xcalar Notebook Connector\n' +
-                                '# \n' +
-                                '# Connects this Jupyter Notebook to the Xcalar Workbook <' + sessionName + '>\n' +
-                                '#\n' +
-                                '# To use any data from your Xcalar Workbook, run this snippet before other \n' +
-                                '# Xcalar Snippets in your workbook. \n' +
-                                '# \n' +
-                                '# A best practice is not to edit this cell.\n' +
-                                '#\n' +
-                                '# If you wish to use this Jupyter Notebook with a different Xcalar Workbook \n' +
-                                '# delete this cell and click CODE SNIPPETS --> Connect to Xcalar Workbook.\n';
-                text += '\n%matplotlib inline\n\n' +
-                        '# Importing third-party modules to faciliate data work. \n' +
-                        'import pandas as pd\n' +
-                        'import matplotlib.pyplot as plt\n\n' +
-                        '# Importing Xcalar packages and modules. \n' +
-                        '# For more information, search and post questions on discourse.xcalar.com\n' +
-                        'from xcalar.external.LegacyApi.XcalarApi import XcalarApi\n' +
-                        'from xcalar.external.LegacyApi.Session import Session\n' +
-                        'from xcalar.external.LegacyApi.WorkItem import WorkItem\n' +
-                        'from xcalar.external.LegacyApi.ResultSet import ResultSet\n' +
-                        'from xcalar.external.client import Client\n\n' +
-                        '# Create a XcalarApi object\nxcalarApi = XcalarApi(' + (token ? ('client_token="' + token + '"') : '') + ')\n';
-                text += '# Connect to current workbook that you are in\n' +
-                        'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
-                        'xcalarApi.setSession(workbook)\n' +
-                        '# Create a Xcalar Client object\nxcalarClient = Client(client_token="' + token + '", user_name="' + username + '")';
+                var text = getConnectionSnippetText(username, userid, sessionName, token);
                 cell.set_text(text);
                 cell.execute();
                 Jupyter.notebook.save_notebook();
             }
 
-            function appendPublishTableStub(tableName, colNames, numRows) {
-                var text = getPublishTableStub(tableName, colNames, numRows);
-                tableName = tableName.replace(/[#-]/g, "_");
-                var dfName = tableName + '_pd';
+            function appendPublishTableStub(tableName, colNames, numRows, dfName) {
+                dfName = dfName || tableName.replace(/[#-]/g, "_") + "_pd";
+                var text = getPublishTableStub(tableName, colNames, numRows, dfName);
                 text += dfName + "\n";
                 insertCellToSelected([text]).execute();
                 Jupyter.notebook.save_notebook();
             }
 
-            function getPublishTableStub(tableName, colNames, numRows) {
+            function getPublishTableStub(tableName, colNames, numRows, dfName) {
                 var rowsText = "all";
                 if (numRows && numRows > 0) {
                     rowsText = numRows;
@@ -497,35 +445,20 @@ define(['base/js/utils'], function(utils) {
                             '\n' +
                             '# Imports data into a pandas dataframe.\n' +
                             'def getDataFrameFromDict():\n' +
-                            '    from collections import OrderedDict\n';
-                var rowLimit = "";
-                if (numRows && numRows > 0) {
-                    rowLimit = ", maxRecords=" + numRows;
-                }
-                var resultSetPtrName = 'resultSetPtr_' + tableName.split("#")[1];
-                var filterDict = '    col_list = [';
-                for (var i = 0; i<colNames.length;i++) {
-                    filterDict += '"' + colNames[i] + '",';
-                }
-                filterDict += ']\n        kv_list = []\n';
-                filterDict += '        for k in col_list:\n' +
-                              '            if k not in row:\n' +
-                              '                kv_list.append((k, None))\n' +
-                              '            else:\n' +
-                              '                kv_list.append((k, row[k]))\n' +
-                              '                if type(row[k]) is list:\n' +
-                              '                    for i in range(len(row[k])):\n' +
-                              '                        subKey = k + "[" + str(i) + "]"\n' +
-                              '                        if subKey in col_list:\n' +
-                              '                            row[subKey] = row[k][i]\n' +
-                              '        filtered_row = OrderedDict(kv_list)\n';
-                text += '    ' + resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '"' + rowLimit + ')\n';
-                tableName = tableName.replace(/[#-]/g, "_");
-                var dfName = tableName + '_pd';
-                text += '    ' + tableName + ' = []\n    for row in ' + resultSetPtrName + ':\n';
-                text += '    ' + filterDict + '\n        ' + tableName + '.append(filtered_row)\n';
-                text += '    return pd.DataFrame.from_dict(' + tableName + ')\n';
-                text += dfName + ' = getDataFrameFromDict()\n';
+                            '    table_name = "' + tableName + '"\n' +
+                            '    table_obj = session.get_table(table_name)\n' +
+                            '    col_list = ';
+                    text += "[";
+                    for (var i = 0; i < colNames.length;i++) {
+                        if (i > 0) {
+                            text += ',';
+                        }
+                        text += '"' + colNames[i] + '"';
+                    }
+                    text += ']\n' +
+                    '    return pd.DataFrame.from_dict(table_obj.records(num_rows=' + numRows + '))[col_list]\n' +
+                    dfName + ' = getDataFrameFromDict()\n' +
+                    dfName + '\n';
                 return text;
             }
 
@@ -1042,6 +975,42 @@ define(['base/js/utils'], function(utils) {
                         }
                     }
                 }
+            }
+
+            function getConnectionSnippetText(username, userid, sessionName, token) {
+                return  '# Xcalar Notebook Connector\n' +
+                '# \n' +
+                '# Connects this Jupyter Notebook to the Xcalar Workbook <' + sessionName + '>\n' +
+                '#\n' +
+                '# To use any data from your Xcalar Workbook, run this snippet before other \n' +
+                '# Xcalar Snippets in your workbook. \n' +
+                '# \n' +
+                '# A best practice is not to edit this cell.\n' +
+                '#\n' +
+                '# If you wish to use this Jupyter Notebook with a different Xcalar Workbook \n' +
+                '# delete this cell and click CODE SNIPPETS --> Connect to Xcalar Workbook.\n' +
+                '\n' +
+                '%matplotlib inline\n' +
+                '\n' +
+                '# Importing third-party modules to faciliate data work. \n' +
+                'import pandas as pd\n' +
+                'import matplotlib.pyplot as plt\n' +
+                '\n' +
+                '# Importing Xcalar packages and modules. \n' +
+                '# For more information, search and post questions on discourse.xcalar.com\n' +
+                'from xcalar.external.LegacyApi.XcalarApi import XcalarApi \n' +
+                'from xcalar.external.client import Client \n' +
+                '\n' +
+                '# Create a Xcalar Client object \n' +
+                'xcalarClient = Client(' + (token ? (client_token="' + token + '", user_name="admin") : '') + ')\n' +
+                '\n' +
+                '# Create a XcalarApi object\n' +
+                'xcalarApi = XcalarApi(' + (token ? ('client_token="' + token + '"') : '') + ')\n' +
+                '\n' +
+                '# Connect to current workbook that you are in\n' +
+                'workbook =  xcalarClient.get_workbook("' + sessionName + '")\n' +
+                'session = workbook.activate()\n' +
+                'xcalarApi.setSession(session)';
             }
 
             function resolveRequest(result, msgId) {
