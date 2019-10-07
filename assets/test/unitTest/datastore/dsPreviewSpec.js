@@ -1551,7 +1551,7 @@ describe("Dataset-DSPreview Test", function() {
             DSPreview.__testOnly__.toggleFormat("CONFLUENT");
             expect($formatText.data("format")).to.equal("CONFLUENT");
             // UI part
-            assert.isTrue($("#dsForm-cfNumRows").is(":visible"), "has number of rows");
+            // assert.isTrue($("#dsForm-cfNumRows").is(":visible"), "has number of rows");
         });
 
         after(function() {
@@ -2125,14 +2125,14 @@ describe("Dataset-DSPreview Test", function() {
             loadArgs.set({format: "CONFLUENT"});
 
             // Test for normal output
-            $("#dsForm-cfNumRows").val("5");
+            // $("#dsForm-cfNumRows").val("5");
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("CONFLUENT");
             expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("ingestFromConfluent");
             expect(res.udfQuery).to.be.an("object");
-            expect(res.udfQuery.numRows).to.equal(5);
+            expect(res.udfQuery.numRows).to.equal(-1);
             // restore
             $("#dsForm-cfNumRows").val("");
         });
@@ -2479,10 +2479,10 @@ describe("Dataset-DSPreview Test", function() {
             });
 
             expect(loadArgs.getFormat()).to.equal("CONFLUENT");
-            expect($("#dsForm-cfNumRows").val()).to.equal("5");
+            // expect($("#dsForm-cfNumRows").val()).to.equal("5");
 
             // restore
-            $("#dsForm-cfNumRows").val("");
+            // $("#dsForm-cfNumRows").val("");
         });
 
         it("should restore JSON", function() {

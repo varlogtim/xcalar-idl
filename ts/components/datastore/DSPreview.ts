@@ -2615,7 +2615,7 @@ namespace DSPreview {
             udfFunc = udfDef.udfFunc;
             udfQuery = udfDef.udfQuery;
         } else if (format === formatMap.CONFLUENT) {
-            let args = componentConfluentFormat.validateValues();
+            let args = componentConfluentFormat.validateValues(true);
             if (args == null) {
                 return null;
             }
@@ -3377,7 +3377,7 @@ namespace DSPreview {
                         toggleFormat("DATABASE");
                     }
                 } else if (DSTargetManager.isConfluentTarget(targetName)) {
-                    const args = componentConfluentFormat.validateValues();
+                    const args = componentConfluentFormat.validateValues(true);
                     let udfDef = componentConfluentFormat.getUDFDefinition({
                         numRows: args.numRows
                     });
@@ -6057,33 +6057,35 @@ namespace DSPreview {
         const { udfModule, udfFunction, $container } = options;
 
         // Constants
-        const ID_NUMROWS = 'dsForm-cfNumRows';
+        // const ID_NUMROWS = 'dsForm-cfNumRows';
         // Private variables
-        const $elementNumRows = $container.find(`#${ID_NUMROWS}`);
+        // const $elementNumRows = $container.find(`#${ID_NUMROWS}`);
 
         return {
             show: function() {
-                $container.find('.format.confluent').removeClass("xc-hidden");
+                // $container.find('.format.confluent').removeClass("xc-hidden");
             },
 
-            validateValues: function(): { numRows: number } {
-                try {
-                    const numRows = Number.parseInt($elementNumRows.val().trim());
-                    return { numRows: Number.isNaN(numRows) ? -1 : numRows };
-                } catch(e) {
-                    return null;
-                }
+            validateValues: function(isPreview: Boolean): { numRows: number } {
+                const numRows = isPreview ? 20 : -1;
+                return { numRows: numRows };
+                // try {
+                //     const numRows = Number.parseInt($elementNumRows.val().trim());
+                //     return { numRows: Number.isNaN(numRows) ? -1 : numRows };
+                // } catch(e) {
+                //     return null;
+                // }
             },
 
             restore: function(udfQuery: {numRows: number}) {
-                const { numRows = null } = udfQuery || {};
-                if (numRows != null) {
-                    $elementNumRows.val(`${numRows < 0 ? '': numRows}`);
-                }
+                // const { numRows = null } = udfQuery || {};
+                // if (numRows != null) {
+                //     $elementNumRows.val(`${numRows < 0 ? '': numRows}`);
+                // }
             },
 
             reset: function() {
-                $elementNumRows.val('20');
+                // $elementNumRows.val('20');
             },
 
             getUDFDefinition: function(params: {
