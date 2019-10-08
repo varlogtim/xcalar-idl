@@ -864,4 +864,36 @@ namespace CloudLogin {
             }
         });
     }
+    /* Unit Test Only */
+    if (window["unitTestMode"]) {
+        CloudLogin["__testOnly__"] = {
+            initialStatusCheck: initialStatusCheck,
+            cookieLogin: cookieLogin,
+            cookieLogout: cookieLogout,
+            checkCredit: checkCredit,
+            getCluster: getCluster,
+            clusterSelection: clusterSelection,
+            goToXcalar: goToXcalar,
+            showInitialScreens: showInitialScreens,
+            handleException: handleException,
+            checkLoginForm: checkLoginForm,
+            showFormError: showFormError,
+            validateEmail: validateEmail,
+            validatePassword: validatePassword,
+            hideTooltip: hideTooltip,
+            showTooltip: showTooltip,
+            showInputError: showInputError,
+            showPasswordErrorRows: showPasswordErrorRows,
+            checkSignUpForm: checkSignUpForm,
+            loadingWait: loadingWait,
+            checkVerifyForm: checkVerifyForm,
+            checkForgotPasswordForm: checkForgotPasswordForm,
+            checkClusterForm: checkClusterForm,
+            checkConfirmForgotPasswordForm: checkConfirmForgotPasswordForm,
+            showClusterIsReadyScreen: showClusterIsReadyScreen,
+            deployingClusterAnimation: deployingClusterAnimation,
+            handleEvents: handleEvents
+        }
+    }
+    /* End Of Unit Test Only */
 }
