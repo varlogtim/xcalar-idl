@@ -203,7 +203,24 @@ $(document).ready(function() {
     }
 
     function isCloud() {
-        return (typeof gCloud !== "undefined" && gCloud === true);
+        var deferred = PromiseHelper.deferred();
+        $.getScript("/" + paths.cloudEnv)
+        .then(function(res) {
+            if (res &&
+                typeof res === "string" &&
+                res.includes("gCloud")    
+            ) {
+                deferred.resolve(true);
+            } else {
+                deferred.resolve(false);
+            }
+        })
+        .fail(function() {
+            console.error("get script error");
+            deferred.reject();
+        });
+
+        return deferred.promise();
     }
 
     function cloudLogin() {
@@ -276,9 +293,9 @@ $(document).ready(function() {
                     if (data.loggedIn === true) {
                         redirect();
                     } else {
-                        $.getScript(paths.cloudEnv)
-                        .always(function() {
-                            if (isCloud()) {
+                        isCloud()
+                        .then(function(cloud) {
+                            if (cloud) {
                                 cloudLogin();
                             }
                         });
@@ -289,9 +306,12 @@ $(document).ready(function() {
             },
             "error": function(e) {
                 console.error(e);
-                if (isCloud()) {
-                    cloudLoginFailureHanlder();
-                }
+                isCloud()
+                .then(function(cloud) {
+                    if (cloud) {
+                        cloudLoginFailureHanlder();
+                    }
+                });
             }
         });
     }
