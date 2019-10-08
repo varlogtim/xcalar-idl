@@ -54,6 +54,7 @@ namespace Transaction {
     }
 
     interface TXLogOptions {
+        curId: number;
         msgId?: number;
         operation: string;
         sql?: SQLInfo;
@@ -67,6 +68,7 @@ namespace Transaction {
 
     // tx is short for transaction
    class TXLog {
+       curId: number;
         msgId: number;
         operation: string;
         cli: string;
@@ -79,8 +81,10 @@ namespace Transaction {
         udfSessionName?: string;
         currentNodeId?: string;
         parentNodeId?: string;
+        cachedTables: Map<string, string>;
 
         constructor(options: TXLogOptions) {
+            this.curId = options.curId;
             this.msgId = options.msgId || null;
             this.operation = options.operation;
             this.cli = "";
@@ -91,6 +95,7 @@ namespace Transaction {
             this.parentTxId = options.parentTxId || null;
             this.udfUserName = options.udfUserName;
             this.udfSessionName = options.udfSessionName;
+            this.cachedTables = new Map();
         }
 
 
@@ -124,6 +129,16 @@ namespace Transaction {
         setParentNodeId(nodeId: string) {
             this.parentNodeId = nodeId;
         }
+
+        setStoredQueryDest(nodeId: string, tabId: string, destTable: string) {
+            let key = nodeId + "#" + tabId;
+            this.cachedTables.set(key, destTable);
+        }
+
+        getStoredQueryDest(nodeId: string, tabId: string): string {
+            let key = nodeId + "#" + tabId;
+            return this.cachedTables.get(key);
+        }
     }
 
     // if you want to track the transaction in the monitor panel, pass in
@@ -151,6 +166,7 @@ namespace Transaction {
         }
 
         const txLog = new TXLog({
+            "curId": curId,
             "msgId": msgId,
             "operation": operation,
             "sql": options.sql,
@@ -216,6 +232,27 @@ namespace Transaction {
 
     export function get(txId: number): TXLog {
         return txCache[txId] || {};
+    }
+
+    export function getRootTx(txId): TXLog {
+        let parentTxId = _getParentNodeIds(txId);
+
+        function _getParentNodeIds(txId) {
+            let isValid = isValidTX(txId);
+            if (!isValid) return null;
+
+            const txLog = Transaction.get(txId);
+            if (txLog.parentTxId != null) {
+                return _getParentNodeIds(txLog.parentTxId);
+            } else {
+                return txId;
+            }
+        }
+        if (isValidTX(parentTxId)) {
+            return Transaction.get(parentTxId);
+        } else {
+            return null;
+        }
     }
 
     /**

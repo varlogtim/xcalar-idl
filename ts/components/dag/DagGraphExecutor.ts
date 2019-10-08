@@ -1094,8 +1094,12 @@ class DagGraphExecutor {
     public getRetinaArgs(isDeprecatedCall: boolean): any {
         const deferred = PromiseHelper.deferred();
         const nodeIds: DagNodeId[] = this._nodes.map(node => node.getId());
+        const simulateId: number = Transaction.start({
+            operation: "Simulate",
+            simulate: true
+        });
 
-        this._graph.getOptimizedQuery(nodeIds, this._isNoReplaceParam)
+        this._graph.getOptimizedQuery(nodeIds, this._isNoReplaceParam, simulateId)
         .then((ret) => {
             try {
                 let { queryStr, destTables } = ret;
@@ -1111,8 +1115,20 @@ class DagGraphExecutor {
                 console.error(e);
                 deferred.reject(e.message);
             }
+            Transaction.done(simulateId, {
+                noNotification: true,
+                noLog: true,
+                noCommit: true
+            });
         })
-        .fail(deferred.reject);
+        .fail((e) => {
+            Transaction.done(simulateId, {
+                noNotification: true,
+                noLog: true,
+                noCommit: true
+            });
+            deferred.reject(e);
+        });
         return deferred.promise();
     }
 

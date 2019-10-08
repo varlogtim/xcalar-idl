@@ -957,12 +957,18 @@ class DagNodeExecutor {
     // creates a new query from the linkOut's ancestors and runs it
     private _linkWithBatch(graph: DagGraph, node: DagNodeDFOut, optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let priorDestTable = node.getStoredQueryDest(this.tabId);
+        let priorDestTable;
+        let rootTx = Transaction.getRootTx(this.txId);
+        if (rootTx) {
+            priorDestTable = rootTx.getStoredQueryDest(node.getId(), graph.getTabId());
+        }
+
         let promise;
         if (priorDestTable) {
+            console.log("reusing cache", node);
             promise = PromiseHelper.resolve({queryStr: "", destTables:[priorDestTable]});
         } else {
-            promise = graph.getQuery(node.getId(), optimized, true, true);
+            promise = graph.getQuery(node.getId(), optimized, true, true, false, this.txId);
         }
         let destTable: string;
         promise
@@ -973,7 +979,7 @@ class DagNodeExecutor {
                 destTable = destTables[destTables.length - 1];
             }
             if (!priorDestTable) {
-                node.setStoredQueryDest(this.tabId, destTable);
+                rootTx.setStoredQueryDest(node.getId(), graph.getTabId(), destTable);
                 return XIApi.query(this.txId, destTable, queryStr);
             } else {
                 return PromiseHelper.resolve();

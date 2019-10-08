@@ -1,5 +1,5 @@
 describe("DagNodeExecutor Test", () => {
-    const txId = 1;
+    let txId = 1;
     const symTxId = 1.5;
     let symTxIdCount;
     let cachedTransactionGet;
@@ -11,6 +11,8 @@ describe("DagNodeExecutor Test", () => {
             return {
                 setCurrentNodeId: ()=>{},
                 setParentNodeId: ()=>{},
+                getStoredQueryDest: ()=>{},
+                setStoredQueryDest: ()=>{}
             }
         }
         UnitTest.testFinish(() => DagPanel.hasSetup())
@@ -1660,15 +1662,21 @@ describe("DagNodeExecutor Test", () => {
             }
         }
 
+        txId = Transaction.start({
+            operation: "test"
+        });
+
         const executor = new DagNodeExecutor(node, txId);
 
-         const oldQuery =  XIApi.query;
+        const oldQuery =  XIApi.query;
         let called = false;
-        XIApi.query = (txId, destTable, queryStr) => {
-            expect(txId).to.equal(1);
+
+        XIApi.query = (newTxId, destTable, queryStr) => {
+            expect(txId).to.equal(newTxId);
             expect(queryStr).to.equal("[]");
             called = true;
         };
+
 
         executor.run()
         .then(() => {
@@ -1728,8 +1736,8 @@ describe("DagNodeExecutor Test", () => {
 
          const oldQuery =  XIApi.query;
         let called = false;
-        XIApi.query = (txId, destTable, queryStr) => {
-            expect(txId).to.equal(1);
+        XIApi.query = (newTxId, destTable, queryStr) => {
+            expect(txId).to.equal(newTxId);
             expect(queryStr).to.equal("[]");
             called = true;
             return PromiseHelper.resolve();
@@ -1853,8 +1861,8 @@ describe("DagNodeExecutor Test", () => {
         const executor = new DagNodeExecutor(node, txId);
         const oldSynthesize =  XIApi.synthesize;
         let called = false;
-        XIApi.synthesize = (txId, colInfos, tableName, newTableName, sameSession) => {
-            expect(txId).to.equal(1);
+        XIApi.synthesize = (newTxId, colInfos, tableName, newTableName, sameSession) => {
+            expect(txId).to.equal(newTxId);
             expect(tableName).to.equal("testTable");
             expect(newTableName).not.to.be.empty;
             expect(newTableName).to.be.a("string");
@@ -1986,8 +1994,8 @@ describe("DagNodeExecutor Test", () => {
 
         const oldSynthesize =  XIApi.synthesize;
         let called = false;
-        XIApi.synthesize = (txId, colInfos, tableName, newTableName, sameSession) => {
-            expect(txId).to.equal(1);
+        XIApi.synthesize = (newTxId, colInfos, tableName, newTableName, sameSession) => {
+            expect(txId).to.equal(newTxId);
             expect(tableName).to.equal("testSource");
             expect(newTableName).not.to.be.empty;
             expect(newTableName).to.be.a("string");
@@ -1999,6 +2007,7 @@ describe("DagNodeExecutor Test", () => {
 
         executor.run(true)
         .then(() => {
+            txId = 1;
             expect(called).to.be.true;
             done();
         })

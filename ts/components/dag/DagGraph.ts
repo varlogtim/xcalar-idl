@@ -776,15 +776,19 @@ class DagGraph extends Durable {
      * @description gets query from multiple nodes, only used to create retinas
      * assumes nodes passed in were already validated
      * @param nodeIds
+     * @param noReplaceParam
+     * @param parentExecutor used to pass down to next executor so we can
+     * track the chain of txIds
      */
     public getOptimizedQuery(
         nodeIds: DagNodeId[],
-        noReplaceParam?: boolean
+        noReplaceParam?: boolean,
+        parentTxId?: number
     ): XDPromise<{queryStr: string, destTables: string[]}> {
          // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const clonedGraph = this.clone();
-        clonedGraph.setTabId(DagTab.generateId());
+        clonedGraph.setTabId(this.getTabId());
         this._normalizeSelfLinkingInOptimzedQuery(clonedGraph, nodeIds);
         let orderedNodes: DagNode[] = nodeIds.map((nodeId) => clonedGraph._getNodeFromId(nodeId));
         // save original sql nodes so we can cache query compilation
@@ -800,7 +804,8 @@ class DagGraph extends Durable {
                 optimized: true,
                 noReplaceParam: noReplaceParam,
                 sqlNodes: sqlNodes,
-                synthesizeDFOut: true
+                synthesizeDFOut: true,
+                parentTxId: parentTxId
             })
         );
         return executor.getBatchQuery();
@@ -893,13 +898,14 @@ class DagGraph extends Durable {
         optimized?: boolean,
         isCloneGraph: boolean = true,
         allowNonOptimizedOut: boolean = false,
-        forExecution: boolean = false
+        forExecution: boolean = false,
+        parentTxId?: number
     ): XDPromise<{queryStr: string, destTables: string[]}> {
         // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const graph = isCloneGraph ? this.clone() : this;
         if (!forExecution) {
-            graph.setTabId(DagTab.generateId());
+            graph.setTabId(this.getTabId());
         }
 
         const nodesMap: Map<DagNodeId, DagNode> = nodeId != null
@@ -918,7 +924,8 @@ class DagGraph extends Durable {
             new DagGraphExecutor(orderedNodes, graph, {
                 optimized: optimized,
                 allowNonOptimizedOut: allowNonOptimizedOut,
-                sqlNodes: sqlNodes
+                sqlNodes: sqlNodes,
+                parentTxId: parentTxId
             })
         );
         if (forExecution) {
