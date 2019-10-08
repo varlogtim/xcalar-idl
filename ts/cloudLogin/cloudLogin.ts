@@ -147,14 +147,23 @@ namespace CloudLogin {
             })
             .then(res => res.json())
             .then((billingGetResponse) => {
-                if (billingGetResponse.credits > 0) {
+                if (billingGetResponse.status === 1) {
+                    // first time user should start with some credits
                     resolve(true);
+                } else if (billingGetResponse.status === 0) {
+                    if (billingGetResponse.credits > 0) {
+                        resolve(true);
+                    } else {
+                        $("header").children().hide()
+                        $("#formArea").children().hide()
+                        $('#noCreditsForm').show();
+                        $('#noCreditsTitle').show();
+                        resolve(false);
+                    }
                 } else {
-                    $("header").children().hide()
-                    $("#formArea").children().hide()
-                    $('#noCreditsForm').show();
-                    $('#noCreditsTitle').show();
-                    resolve(false);
+                    console.error('checkCredit non-zero status:', billingGetResponse.error);
+                    handleException(billingGetResponse.error);
+                    reject(billingGetResponse.error);
                 }
             })
             .catch((error) => {
