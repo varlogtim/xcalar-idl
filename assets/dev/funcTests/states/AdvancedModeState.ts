@@ -1,6 +1,6 @@
 /*
 This file defines the state of Advanced mode in XD Func Test
-jdvancedModeState has the following operations:
+advancedModeState has the following operations:
 
 Tab operations
 * CreateTab - creates a new dataflow tab
@@ -9,6 +9,7 @@ Tab operations
 IN node operations
 * addDatasetNode - Adds a dataset node choosing a random dataset loaded
 * addLinkInNode - adds a link-in node chosing a random link-out nodes available
+* addTableLinkInNode - adds a link-in node chosing a random xd table available
 * addInputCustomNode - Adds a input custom node choosing a random custom nodes available.
 
 Column Node operations
@@ -24,6 +25,7 @@ Column Node operations
 
 OUT node operations
 * addLinkOutNode - Adds a linkout node by randomly choosing a parent from the dataflow.
+* addOptimizedLinkOutNode - Adds a optimized linkout node by randomly choosing a parent from the dataflow.
 
 Custom Node operations
 * createCustomNode - creates a custom node with random operations like linked list fashion.
@@ -42,12 +44,23 @@ Prune node operation
 
 class AdvancedModeState extends State {
     private dagTabManager: DagTabManager;
+    private dagViewManager: DagViewManager;
     private currentTab: DagTabUser;
     private xdfsArr: Object[];
     private mode: string;
     private maxAvgNumOfNodesPerTab: number;
     private run: number; // How many iterations ran in this state currently
     private currentWKBKId: string;
+    private optimizedDF: boolean;
+
+    static dfExecWhiteList: Set<string> = new Set([
+        // "All nodes have been executed"
+        DFTStr.AllExecuted,
+        // "Unconfigured"
+        DagNodeErrorType.Unconfigured,
+        // "Error: Invalid argument"
+        "Error: " + StatusTStr[StatusT.StatusInval]
+    ])
 
     private constructor(stateMachine: StateMachine, verbosity: string) {
         let name = "AdvancedMode";
@@ -64,6 +77,8 @@ class AdvancedModeState extends State {
 
         this.dagTabManager = DagTabManager.Instance;
         this.dagViewManager = DagViewManager.Instance;
+
+        this.optimizedDF = false;
     }
 
     private async createTab() {
@@ -71,6 +86,7 @@ class AdvancedModeState extends State {
             // In nodes
             this.addAction(this.addDatasetNode);
             this.addAction(this.addLinkInNode);
+            this.addAction(this.addTableLinkInNode);
             this.addAction(this.addInputCustomNode);
 
             // column nodes
@@ -82,6 +98,7 @@ class AdvancedModeState extends State {
 
             // out nodes
             this.addAction(this.addLinkOutNode);
+            this.addAction(this.addOptimizedLinkOutNode);
 
             // SQL nodes
             this.addAction(this.addSQLNode);
@@ -417,9 +434,54 @@ class AdvancedModeState extends State {
             "name": linkOutName,
             "linkAfterExecution": this._getRandomLiteral(ColumnType.boolean)
         });
-        //run
-        // await graph.execute();
         this.log(`Link Out node added in WKBK ${this.currentWKBKId}`);
+        return this;
+    }
+
+    // remove all the link out nodes in the current tab
+    private async _pruneLinkOutNodes() {
+        let graph: DagGraph = this.currentTab.getGraph();
+        let outNodeIds = [];
+        graph.nodesMap.forEach((node) => {
+            if (node.type == DagNodeType.DFOut) {
+                outNodeIds.push(node.getId());
+            }
+        })
+        if (outNodeIds.length != 0) {
+            await this.dagViewManager.dagViewMap.get(this.currentTab.getId()).removeNodes(outNodeIds);
+        }
+    }
+
+
+    // Optimized Out nodes
+    private async addOptimizedLinkOutNode() {
+        this.log(`Adding Optimized Link Out node.. in WKBK ${this.currentWKBKId}`);
+        this.log(`Prunning other link out nodes.. in WKBK ${this.currentWKBKId}`);
+        // This is necessary because:
+        // 1) Optimized dataflow cannot have multiple link out nodes
+        // 2) You can't have normal link out nodes cause it will fail the execute
+        await this._pruneLinkOutNodes();
+        this.log(`Done prunning other link out nodes.. in WKBK ${this.currentWKBKId}.`);
+        let cNode, allCols;
+        [cNode, allCols] = this.addNode({type:DagNodeType.DFOut, subType:"link out Optimized"});
+        if (cNode == undefined) {
+            this.log("There is only out node in current tab. Skip add optimized out node");
+            return this;
+        }
+        let linkOutName = Util.randName("OptimizedLinkout_" + Date.now());
+        let columns = allCols.getLineage().getColumns().map((progCol) => {
+            return {
+                "sourceName": progCol.backName,
+                "destName": progCol.backName,
+            }
+        });
+        cNode.setParam({
+            "name": linkOutName,
+            "linkAfterExecution": this._getRandomLiteral(ColumnType.boolean),
+            "columns": columns
+        });
+        this.log(`Optimized Link Out node added in WKBK ${this.currentWKBKId}`);
+        this.optimizedDF = true;
         return this;
     }
 
@@ -547,7 +609,15 @@ class AdvancedModeState extends State {
 
     private async runDF() {
         this.log(`Running dataflow ${this.currentTab.getName()} in WKBK ${this.currentWKBKId}`);
-        await this.currentTab.getGraph().execute();
+        if (!this.optimizedDF) {
+            await this.currentTab.getGraph().execute();
+        } else {
+            await this.currentTab.getGraph().execute(null, true);
+            // delete the DagTabOptimized tab
+            this.dagTabManager.removeTab(this.dagViewManager.activeDagTab.getId());
+            this.dagTabManager.switchTab(this.currentTab.getId());
+            this.optimizedDF = false;
+        }
         this.log(`Done running dataflow ${this.currentTab.getName()} in WKBK ${this.currentWKBKId}`);
     }
 
@@ -620,8 +690,8 @@ class AdvancedModeState extends State {
         //build dataflow
         let nodesCount = Math.floor(5 * Util.random());
         let idx = 1;
-        let ignoreActions = new Set(["createTab", "addLinkInNode", "createSQLFunc",
-                        "addLinkOutNode", "getTab", "createCustomNode",
+        let ignoreActions = new Set(["createTab", "addLinkInNode", "addTableLinkInNode", "createSQLFunc",
+                        "addLinkOutNode", "addOptimizedLinkOutNode", "getTab", "createCustomNode",
                         "addDatasetNode", "addCustomNode", "addSQLNode"]);
         let randomAction = this.addDatasetNode;
         await randomAction.call(this);
@@ -676,8 +746,8 @@ class AdvancedModeState extends State {
             // build dataflow
             let nodesCount = Math.floor(5*Util.random());
             let count = 1;
-            let ignoreActions = new Set(["createTab", "addLinkInNode", "addCustomNode",
-                                    "addLinkOutNode", "getTab", "createCustomNodes",
+            let ignoreActions = new Set(["createTab", "addLinkInNode", "addTableLinkInNode", "addCustomNode",
+                                    "addLinkOutNode", "addOptimizedLinkOutNode", "getTab", "createCustomNodes",
                                     "addDatasetNode", "createSQLFunc", "addSQLNode"]);
             while (count < nodesCount) {
                 let randomAction = Util.pickRandom(this.availableActions);
@@ -736,11 +806,24 @@ class AdvancedModeState extends State {
     // If so, we can't add more nodes other than data source to this tab
     private _onlyOutNode(graph) {
         graph.nodesMap.forEach((node)=>{
-            if(node.maxChildren > 0) {
+            if(node.maxChildren != 0) {
                 return false;
             }
         })
         return true;
+    }
+
+    // Check if the dataflow execution error is a "valid" error
+    private _validDFExecuteError(error) {
+        let errorMsg;
+        if (error && error.hasError && error.type) {
+            errorMsg = error.type;
+        } else if (error && error.error) {
+            errorMsg = error.error;
+        } else {
+            errorMsg = error;
+        }
+        return AdvancedModeState.dfExecWhiteList.has(errorMsg);
     }
 
     public async takeOneAction() {
@@ -776,6 +859,11 @@ class AdvancedModeState extends State {
                 delete error.node;
             }
             this.logError(error);
+            // XXX added back by https://gerrit.int.xcalar.com/#/c/17864/9/assets/dev/funcTests/states/AdvancedModeState.ts
+            // please remove if this is wrong
+            if (! this._validDFExecuteError(error)) {
+                throw error;
+            }
         }
         this.run++;
         return newState;
