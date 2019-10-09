@@ -249,6 +249,22 @@ namespace TooltipManager {
 
     }
 
+    function waitFor(selector, cnt = 0) {
+        const outCnt = 20;
+        const time = 500; // 0.5s per check
+        let $el = $(selector);
+
+        if ($el.length) {
+            nextStep();
+        } else if (cnt > outCnt) {
+            console.error("check time out");
+            nextStep();
+        } else {
+            setTimeout(() => {
+                waitFor(selector, cnt + 1);
+            }, time);
+        }
+    }
 
     /* controls nextStep whether it be forward, backwards or skipping
     *  @param {Object} arg : options include skip: boolean, back: boolean
@@ -510,7 +526,11 @@ namespace TooltipManager {
 
                     // stopPropagation didn't work and caused double click
                     // just nextStep() didn't work because the next element doesn't exist yet
-                    setTimeout(()=>nextStep(), 0);
+                    if (currentStep.wait_for_div) {
+                        waitFor(currentStep.wait_for_div);
+                    } else {
+                        setTimeout(()=>nextStep(), 0);
+                    }
                 });
             } else if (currentStep.type == TooltipType.Value) {
                 $clickEle.on("keyup.tooltip", () => {

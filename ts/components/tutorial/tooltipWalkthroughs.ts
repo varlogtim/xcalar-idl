@@ -383,11 +383,12 @@ namespace TooltipWalkthroughs {
                 interact_div: "#createWKBKbtn",
                 title: "Create a workbook",
                 text: "A workbook is a container where you design, troubleshoot, and execute your data models. Click 'Create New Workbook' to create a new workbook.",
-                type: TooltipType.Click
+                type: TooltipType.Click,
+                wait_for_div: "#workbookPanel .workbookBox.lastCreate",
             },
             {
-                highlight_div: ".bottomSection .box:nth-child(2)",
-                interact_div: ".bottomSection .box:nth-child(2)",
+                highlight_div: "#workbookPanel .workbookBox.lastCreate",
+                interact_div: "#workbookPanel .workbookBox.lastCreate",
                 title: "Rename and activate the workbook",
                 text: "Enter a new workbook name, then click the workbook card to activate and open it.",
                 type: TooltipType.Click

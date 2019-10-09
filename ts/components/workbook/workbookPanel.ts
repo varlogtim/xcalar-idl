@@ -575,7 +575,7 @@ namespace WorkbookPanel {
     export function createNewWorkbook(workbookName: string, description?: string, file?: File,
             fileData?: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
+        $workbookPanel.find(".workbookBox.lastCreate").removeClass("lastCreate");
         checkFileSize(file)
         .then(function() {
             return XcUser.CurrentUser.commitCheck();
@@ -603,6 +603,8 @@ namespace WorkbookPanel {
             if (wkbk != null) {
                 description = description || wkbk.getDescription();
             }
+            let $wkbkCard = getWorkbookBoxById(id);
+            $wkbkCard.addClass("lastCreate");
             return WorkbookPanel.edit(<string>id, workbookName, description, true);
         })
         .then(deferred.resolve)
