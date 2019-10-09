@@ -113,7 +113,7 @@ namespace TooltipWalkthroughs {
             }],
             0,
             {
-                closeOnModalClick: true,
+                closeOnModalClick: false,
                 includeNumbering: false
             }
         );
@@ -134,7 +134,7 @@ namespace TooltipWalkthroughs {
         }],
         0,
         {
-            closeOnModalClick: true,
+            closeOnModalClick: false,
             includeNumbering: false
         }
         );
@@ -277,7 +277,7 @@ namespace TooltipWalkthroughs {
             steps,
             0,
             {
-                closeOnModalClick: true,
+                closeOnModalClick: false,
                 includeNumbering: true
             }
         );
@@ -357,7 +357,7 @@ namespace TooltipWalkthroughs {
             }],
             0,
             {
-                closeOnModalClick: true,
+                closeOnModalClick: false,
                 includeNumbering: true
             }
         );
@@ -395,7 +395,7 @@ namespace TooltipWalkthroughs {
             }],
             0,
             {
-                closeOnModalClick: true,
+                closeOnModalClick: false,
                 includeNumbering: true
             }
         );
@@ -408,13 +408,13 @@ namespace TooltipWalkthroughs {
         // XXX TODO: Integrate with tutorial workbooks
         let builtInWalkthroughs = [{
             name: WKBModeName,
-            description: "Tour of the Workbook Browser UI"
+            description: "Tour of the Workbook Browser"
         }, {
             name: SQLModeName,
-            description: "Tour of Xcalar Design and the SQL Mode UI"
+            description: "Tour of Xcalar Design and the SQL Mode"
         }, {
             name: ADVModeName,
-            description: "Tour of the Dataflow Mode UI"
+            description: "Tour of the Dataflow Mode"
         }];
         if (storedTempWalkthrough) {
             builtInWalkthroughs.push({

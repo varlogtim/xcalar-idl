@@ -1214,7 +1214,7 @@ module.exports = {
         "noActive": "No active worksheets. Please create one first.",
         "learnMore": "Learn more about " + bldVars.prodName,
         "relatedDocs": "Xcalar Design Documentation",
-        "walkthroughs": "Available Walkthroughs",
+        "walkthroughs": "Xcalar Design Walkthroughs",
         "tuts": "Tutorials",
         "viewNewHelpDoc": "View our help documentation",
         "viewNews": "View Xcalar's most recent announcements",

@@ -7,7 +7,7 @@ namespace TooltipManager {
         popoverVertPadding: 19,
         popoverMargin: 10,
         highlightPadding: 10,
-        preventSelection: false, // prevent highlighted area from being clickable
+        // preventSelection: false, // prevent highlighted area from being clickable
         loop: false, // if true, returns to step 1 after last step
         includeNumbering: true,
         closeOnModalClick: false, // close modal when background is clicked
@@ -66,9 +66,9 @@ namespace TooltipManager {
                 setupVideoBreakpoints();
                 options.preventSelection = false;
             }*/
-            if (options.preventSelection) {
-                createElementLayer();
-            }
+            // if (options.preventSelection) {
+            createElementLayer();
+            // }
             createHighlightBox();
             createPopover(walkthroughInfo.isSingleTooltip, title);
             nextStep();
@@ -168,6 +168,14 @@ namespace TooltipManager {
 
     function createElementLayer() {
         $('body').append('<div id="intro-elementLayer"></div>');
+    }
+
+    function removeElementLayer(): void {
+        $('#intro-elementLayer').remove();
+    }
+
+    function elementLayerExists(): boolean {
+        return $('#intro-elementLayer').length > 0;
     }
 
     function createPopover(isSingleTooltip: boolean, title: string) {
@@ -313,6 +321,15 @@ namespace TooltipManager {
                 ensureOpenScreen(oldInteractiveEle);
             }
         }
+
+        if (currWalkthrough[stepNumber].type == TooltipType.Text) {
+            if (!elementLayerExists()) {
+                createElementLayer();
+            }
+        } else {
+            removeElementLayer();
+        }
+
         highlightNextElement();
     }
 
@@ -386,7 +403,7 @@ namespace TooltipManager {
 
     function moveElementLayer() {
         let rect: ClientRect | DOMRect = currElemRect;
-        if (options.preventSelection) {
+        if (elementLayerExists()) {
             $('#intro-elementLayer').css({
                 width: rect.width + 4,
                 height: rect.height + 8,
