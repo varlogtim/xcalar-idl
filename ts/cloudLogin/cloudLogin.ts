@@ -333,8 +333,8 @@ namespace CloudLogin {
         }
     }
 
-    function showInputError($element: JQuery, condition: boolean): void {
-        if (condition) {
+    function showInputError($element: JQuery, hideErrorCondition: boolean): void {
+        if (hideErrorCondition) {
             $element.find('.icon.xi-error').hide();
             $element.find('.input-tooltip').hide();
             $element.hover(
@@ -423,9 +423,9 @@ namespace CloudLogin {
         const checkedEULA: boolean = $("#signup-termCheck").prop('checked');
 
         if (signupSubmitClicked) {
-            showInputError($("#firstNameSection"), firstNameEmpty);
-            showInputError($("#lastNameSection"), lastNameEmpty);
-            showInputError($("#companySection"), companyEmpty);
+            showInputError($("#firstNameSection"), !firstNameEmpty);
+            showInputError($("#lastNameSection"), !lastNameEmpty);
+            showInputError($("#companySection"), !companyEmpty);
             showInputError($("#emailSection"), validateEmail(email1));
             showInputError($("#confirmEmailSection"), emailsMatch && validateEmail(email1));
             showInputError($("#passwordSection"), validatePassword(password1));
@@ -555,6 +555,15 @@ namespace CloudLogin {
         }
     }
 
+    function submitOnEnterPress($form: JQuery, $submitButton: JQuery): void {
+        $form.keypress(function(event) {
+            const keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == 13) {
+                $submitButton.click();
+            }
+        });
+    }
+
     function handleEvents(): void {
         $("#passwordSection").focusin(
             function () {
@@ -567,19 +576,11 @@ namespace CloudLogin {
             }
         )
 
-        $("#signupForm").keypress(function (event) {
-            const keycode = (event.keyCode ? event.keyCode : event.which);
-            if (keycode == 13) {
-                $("#signup-submit").click();
-            }
-        });
-
-        $("#loginForm").keypress(function (event) {
-            const keycode = (event.keyCode ? event.keyCode : event.which);
-            if (keycode == 13) {
-                $("#loginButton").click();
-            }
-        });
+        submitOnEnterPress($("#signupForm"), $("#signup-submit"));
+        submitOnEnterPress($("#loginForm"), $("#loginButton"));
+        submitOnEnterPress($("#verifyForm"), $("#verify-submit"));
+        submitOnEnterPress($("#forgotPasswordForm"), $("#forgot-password-submit"));
+        submitOnEnterPress($("#confirmForgotPasswordForm"), $("#confirm-forgot-password-submit"));
 
         $(".signup-login").click(function () {
             $("#signupForm").toggle();
