@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Executing a dataflow</title>
+        <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <link href="../../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
+        <script src="../../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home_cloud.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Executing a dataflow</h1>
+                                                <p>This topic describes the steps for executing a dataflow. It assumes that you have already created a dataflow as described in <a href="CreateEditDeleteDf.htm" class="MCXref xref">Creating and editing a dataflow</a>.</p>
+                                                <p>You can execute a partial dataflow or an entire dataflow. In addition, if the dataflow is built for optimized execution, you can execute the dataflow with or without optimization. For more information about optimized execution, see <a href="UnderstandDfOptimization.htm" class="MCXref xref">Understanding a dataflow with optimization</a>.</p>
+                                                <h2 class="noPageBreak">Requirements for a dataflow execution</h2>
+                                                <p>For a dataflow to be executed, all Nodes in the dataflow or the selected part of the dataflow must be executable. The following conditions must be met for a Node to be executable:</p>
+                                                <ul>
+                                                    <li value="1">The Node must be configured. </li>
+                                                    <li value="2">Unless the Node is the source Node (the first Node of a dataflow or a sub-dataflow), the Node must have a parent Node. In addition, all the parent Nodes must be executable.</li>
+                                                    <li value="3">
+                                                        <p>The Node must not depend on a <span class="UIelement">Single Value</span> Node that descends from that Node. For example, you cannot execute the dataflow in the following screenshot because the <span class="UIelement">Single Value</span> Node calculates the aggregate value from the result set of the Map Node, which in turn uses the aggregate value in the Map function. If the Single Value Node is linked to Node 4 (<span class="UIelement">Cast</span> Node) instead of the <span class="UIelement">Map</span> Node, you can execute the dataflow.</p>
+                                                        <p>
+                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-aggregate-after-map.png" alt="" title="" />
+                                                        </p>
+                                                    </li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Executing a partial dataflow</h2>
+                                                <p>Executing a partial dataflow is helpful in debugging the dataflow in smaller parts before moving on to the next part. To execute a partial dataflow:</p>
+                                                <ol>
+                                                    <li value="1">Display the dataflow in the dataflow editor.</li>
+                                                    <li value="2">
+                                                        <p>Select one or multiple Nodes. For more information about making multiple Node selections, see <a href="CreateEditDeleteDf.htm#Multi-se" class="MCXref xref">Multi-selecting Nodes</a>.</p>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>Right click anywhere in the canvas (but not on an unselected Node) and click <span class="UIelement">Execute</span>.</p>
+                                                        <p>The dataflow is executed and the results are displayed as described in <a href="#Results" class="MCXref xref">Results of executing a dataflow</a>.</p>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Executing an entire dataflow</h2>
+                                                <p>Executing an entire dataflow means executing all the Nodes of a dataflow including all the sub-dataflows in the current dataflow tab. To execute an entire dataflow:</p>
+                                                <ol>
+                                                    <li value="1">Display the dataflow in the dataflow editor.</li>
+                                                    <li value="2">Do one of the following:<ul><li value="1">Click the <span class="UIelement">Execute All</span> icon as shown in the following screenshot:<br /><br /><img src="../../../Resources/Images/XD_screenshots/xd-exe-buttons.png" /></li><li value="2">Deselect all Nodes in the dataflow. Right click on an empty space in the dataflow canvas and select <span class="UIelement">Execute All</span>. </li><li value="3"><p>If there is a <span class="UIelement">Link Out</span> or <span class="UIelement">Export</span> Node in the dataflow, deselect all Nodes, right click on an empty space in the dataflow canvas and select <span class="UIelement">Create Optimized Dataflow</span>. This creates and executes an optimized copy of the dataflow.</p><p>The dataflow is executed and the results are displayed as described in <a href="#Results" class="MCXref xref">Results of executing a dataflow</a>.<br /></p></li></ul></li>
+                                                    <li value="3">
+                                                        <p>While the dataflow is executing: </p>
+                                                        <ul style="list-style-type: circle;">
+                                                            <li value="1">To stop the execution, click on the red <span class="UIelement">Cancel Execution</span> icon on the top.</li>
+                                                            <li value="2">To make sure that the executing Node is always visible, right click on the dataflow canvas and select <span class="UIelement">Focus on running node</span>. This is useful when your dataflow is large and does not fit in the screen.</li>
+                                                        </ul>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak"><a name="Results"></a>Results of executing a dataflow</h2>
+                                                <p>The following list describes what happens when you execute a dataflow:</p>
+                                                <ul>
+                                                    <li value="1">The execution starts at the first Node of the dataflow or the partial dataflow.</li>
+                                                    <li value="2">When the execution is in progress, the percentage of completion is displayed for each Node.</li>
+                                                    <li value="3">After the execution of a Node is finished, a statistics box is displayed above the Node with the following information:<ul><li value="1">Number of rows in the result set (if applicable to the Node).</li><li value="2">Time taken to complete the execution.</li><li value="3">Skew of the result set (if applicable to the Node). Clicking on the skew number displays the details of the largest skew number of all the interim operations performed during the execution of the Node. For example, executing a <span class="UIelement">Group By</span> Node may internally perform an index operation and a group by operation. Both the operations generate a skew number and the larger skew number is displayed in the statistics box.</li></ul><div class="Note"><span class="label">NOTE</span>:&#160;Executing a Link Out Node does not produce a statistics box. </div></li>
+                                                    <li value="4">
+                                                        <p>If applicable, a result set for each executed Node is available for you to view by right clicking and selecting <span class="UIelement">View Result</span> on that Node. If you execute a <span class="UIelement">Single Value</span> Node, you can view the resultant value. For understanding the result set window, see <a href="ResultSetTasks.htm" class="MCXref xref">Understanding the result set view in Dataflow Mode</a>.</p>
+                                                    </li>
+                                                    <li value="5">As each Node executes, its status indicator changes color. For more information about the status indicator, see <a href="#Understa" class="MCXref xref">Understanding the Node status indicator</a>.</li>
+                                                    <li value="6">To drop the results of all Nodes, right click on the dataflow canvas and select <span class="UIelement">Reset All</span>. This is useful if you changed something in the dataflow and want to execute all the Nodes again. As a result of resetting, the status indicator of all Nodes turn yellow. </li>
+                                                </ul>
+                                                <h2 class="noPageBreak"><a name="Understa"></a>Understanding the Node status indicator</h2>
+                                                <p>Every Node in the dataflow has a status indicator. The following table explains the various states of the Node status indicator:</p>
+                                                <table class="TableStyle-SimpleTable" style="mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
+                                                                <p>Status indicator color</p>
+                                                            </th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
+                                                                <p>Description</p>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Clear</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>The Node is not configured. For example, immediately after you add a Node to a dataflow, the status indicator is clear. You must configure the Node before it is executable. To execute the entire dataflow, all Nodes must be configured.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Yellow</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">The Node is configured, but it does not have a result set. After you execute the Node, a result set is created.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Green</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>The Node was successfully executed and you can view its result set. However, if the result set has been dropped, the indicator remains green, and you must generate the result set again to view it.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
+                                                                <p class="tableParagraph">Red</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                                <p class="tableParagraph">The Node is incorrectly configured. For example, if a Node in the middle of a dataflow does not have a link to a parent Node, or if you entered invalid information during the Node configuration. </p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p>The following screenshot illustrates the Nodes with different status indicators:</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-node-status-indicators.png" />
+                                                    <br />
+                                                </p>
+                                                <h2 class="noPageBreak">Tracking the dataflow operations</h2>
+                                                <p>You can track the processing details of your dataflow operations from the <span class="UIelement">Operations</span> panel of <span class="GeneralGUIName1">Xcalar Design</span>. To learn more about displaying and canceling an operation, see <a href="../../SingleSourcing/admin_xd/display_operation_proc.htm" class="MCXref xref">Displaying the processing details of an operation</a>.</p>
+                                                <h2 class="noPageBreak">Listing of dataflow executions</h2>
+                                                <p>All dataflows in <span class="GeneralGUIName1">Xcalar Design</span> are listed in the <span class="UIelement">Dataflows</span> panel. Clicking on any of these dataflows displays the last state of the dataflow, including the execution status. However, there are a few cases in which the dataflow execution is listed in one of the following sub-folders:</p>
+                                                <ul>
+                                                    <li value="1"><span class="UIelement">Optimized Dataflows</span>: In <span class="GeneralGUIName1">Xcalar Design</span>, if you execute a dataflow as optimized, a new optimized version of the dataflow is created and listed in the <span class="UIelement">Optimized Dataflows</span> folder.</li>
+                                                    <li value="2"><span class="UIelement">Abandoned executions</span>: If you start a dataflow execution in <span class="GeneralGUIName1">Xcalar Design</span> and close or refresh your browser window while the dataflow is still executing,  the dataflow execution is considered abandoned and keeps on executing in the background. When you log into <span class="GeneralGUIName1">Xcalar Design</span> next time, if the system is unable to correlate the abandoned dataflow execution with an existing dataflow, it is listed in a folder called <span class="UIelement">Abandoned executions</span>. </li>
+                                                    <li value="3"><span class="UIelement">SDK Dataflows</span>: If a dataflow is executed through <span class="GeneralProductName3">Xcalar</span> SDK, it is listed in a dataflow folder called <span class="UIelement">SDK Dataflows</span>. If the dataflow is executed as optimized, it is listed in the <span class="UIelement">SDK Dataflows\Optimized SDK Dataflows</span> folder.</li>
+                                                </ul>
+                                                <p>Each dataflow in these folders has a status indicator, which can be in one of the following states:</p>
+                                                <ul>
+                                                    <li value="1">Yellow status indicator indicates that the dataflow is still executing. </li>
+                                                    <li value="2">Green status indicator indicates that the dataflow finished executing successfully.</li>
+                                                    <li value="3">Red status indicator indicates that the dataflow execution was canceled or it failed.</li>
+                                                    <li value="4">Clear status indicator is a rare phenomenon and it indicates that the execution did not start. </li>
+                                                </ul>
+                                                <p>To cancel the execution of a dataflow in these folders:</p>
+                                                <ol>
+                                                    <li value="1">Select the dataflow you want to cancel. Its status indicator must be yellow.</li>
+                                                    <li value="2">Click  the red <span class="UIelement">Cancel Execution</span> icon on top of the dataflow window. <br />The dataflow execution stops and its status indicator turns red.</li>
+                                                </ol>
+                                                <p>What you can or cannot do with a dataflow in these folders:</p>
+                                                <ul>
+                                                    <li value="1"> You can view, cancel execution, publish, duplicate and delete a dataflow. </li>
+                                                    <li value="2">
+                                                        <p>You cannot modify, configure or start execution of a dataflow.</p>
+                                                    </li>
+                                                </ul>
+                                                <p>If you delete all the dataflows from any of these folders, the folder is automatically deleted. </p>
+                                                <h2 class="noPageBreak">Next step</h2>
+                                                <p>The next step is to understand and work with the result sets as described in <a href="WorkingWithResults.htm" class="MCXref xref">Working with result sets in Dataflow Mode</a>.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

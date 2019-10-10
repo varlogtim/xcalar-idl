@@ -15,7 +15,7 @@
         --srcroot=<path>
             Root dir of xcalar-gui project. Defaults to cwd of Gruntfile
 
-        --product=[XD|XPE]
+        --product=[XD|Cloud|XPE]
             Defaults to XD
 
         --buildroot=<path>
@@ -81,9 +81,14 @@ var XLRDIR = 'XLRDIR';
 
 // different possible product types.
 var XD = "XD"; // regular Xcalar Design builds
+var Cloud = "Cloud"; // cloud builds
 var XPE = "XPE"; // for special builds of Xcalar Design intended to be run by nwjs in MacOS app
 var productTypes = {
     XD: {
+        'name': 'Xcalar Design', // default name to brand throughout GUIs for this product
+        'target': 'xcalar-gui' // dirname for build target
+    },
+    Cloud: {
         'name': 'Xcalar Design', // default name to brand throughout GUIs for this product
         'target': 'xcalar-gui' // dirname for build target
     },
@@ -222,6 +227,7 @@ var reactMapping = {
 // help content src in the actual src tree, for each product type
 var helpContentRootByProduct = {
     XD: helpContentRoot + XD,
+    Cloud: helpContentRoot + Cloud,
     XPE: helpContentRoot + XD
 }
 
@@ -2484,7 +2490,7 @@ module.exports = function(grunt) {
     */
     function generateHelpData() {
 
-        // gather all .htm files friom help dir
+        // gather all .htm files from help dir
         var commonRoot = BLDROOT + "assets/";
         var fullHelpPath = BLDROOT + helpContentMapping.src;
         var htmFilepaths = grunt.file.expand(fullHelpPath + "**/*.htm");
@@ -4459,7 +4465,7 @@ module.exports = function(grunt) {
                 grunt.task.run('cleanempty:finalBuild');
             }
 
-            if (PRODUCT != XD) {
+            if (PRODUCT != XD && PRODUCT != Cloud) {
                 grunt.task.run("check_for_xd_strings");
             }
 
@@ -5871,7 +5877,8 @@ module.exports = function(grunt) {
         }
 
         // PRODUCT to build
-        PRODUCT = grunt.option(BLD_OP_PRODUCT) || process.env[BLD_OP_PRODUCT] || XD;
+        // XXX TODO: remove the default set of Cloud when jenkins can build it
+        PRODUCT = grunt.option(BLD_OP_PRODUCT) || process.env[BLD_OP_PRODUCT] || Cloud || XD;
         if (productTypes.hasOwnProperty(PRODUCT)) {
             PROD_TARGET = productTypes[PRODUCT]['target'];
         } else {

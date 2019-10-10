@@ -472,7 +472,6 @@ module.exports = {
         "popOutBtn": "Undock",
         "toggleLog": "Toggle machine/human Log",
         "downloadLogBtn": "Download log",
-        "helpCategories": "Categories",
         "Help": "Help",
         "HelpSupport": "HELP & SUPPORT",
         "HelpTopics": "Help Topics",

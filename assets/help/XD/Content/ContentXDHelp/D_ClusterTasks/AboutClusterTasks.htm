@@ -46,53 +46,53 @@
 }
 
 </style>
-        <script src="../../../Resources/Scripts/custom.modernizr.js">
-        </script>
         <script src="../../../Resources/Scripts/jquery.min.js">
         </script>
-        <script src="../../../Resources/Scripts/require.min.js">
+        <script src="../../../Resources/Scripts/require.min.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/require.config.js">
+        <script src="../../../Resources/Scripts/require.config.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js">
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/plugins.min.js">
+        <script src="../../../Resources/Scripts/plugins.min.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapGlobal.js">
+        <script src="../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapDom.js">
+        <script src="../../../Resources/Scripts/MadCapDom.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapUtilities.js">
+        <script src="../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapXhr.js">
+        <script src="../../../Resources/Scripts/MadCapXhr.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapTextEffects.js">
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapSlideshow.js">
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapFeedback.js">
+        <script src="../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapDefault.js">
+        <script src="../../../Resources/Scripts/MadCapDefault.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapHelpSystem.js">
+        <script src="../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapToc.js">
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js">
+        <script src="../../../Resources/Scripts/MadCapToc.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js">
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js">
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapIndex.js">
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapGlossary.js">
+        <script src="../../../Resources/Scripts/MadCapIndex.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapParser.js">
+        <script src="../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapSearch.js">
+        <script src="../../../Resources/Scripts/MadCapParser.js" defer="defer">
         </script>
-        <script src="../../../Resources/Scripts/MadCapTopic.js">
+        <script src="../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js" defer="defer">
         </script>
         <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
         </script>
@@ -100,16 +100,16 @@
     <body>
         <div class="foundation-wrap off-canvas-wrapper">
             <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
-                <aside class="off-canvas position-right" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
                     <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
                     </ul>
                 </aside>
                 <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
                     <div data-sticky-container="" class="title-bar-container">
-                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
                             <div class="middle title-bar-section outer-row clearfix">
                                 <div class="menu-icon-container relative clearfix">
-                                    <button class="menu-icon" data-toggle="offCanvas"><span></span>
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
                                     </button>
                                 </div>
                             </div>
@@ -126,18 +126,21 @@
                                     <div class="nav-search row">
                                         <form class="search" action="#">
                                             <div class="search-bar search-bar-container needs-pie">
-                                                <input class="search-field needs-pie" type="search" placeholder="Search" />
-                                                <div class="search-filter-wrapper">
-                                                    <div class="search-filter">
-                                                        <div class="search-filter-content">
-                                                            <ul>
-                                                                <li>All Files</li>
-                                                            </ul>
-                                                        </div>
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
                                                     </div>
                                                 </div>
                                                 <div class="search-submit-wrapper" dir="ltr">
-                                                    <div class="search-submit" title="Search">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -147,15 +150,15 @@
                             </div>
                         </nav>
                     </div>
-                    <section class="main-section">
+                    <div class="main-section">
                         <div class="row outer-row sidenav-layout">
-                            <div class="sidenav-wrapper">
+                            <nav class="sidenav-wrapper">
                                 <div class="sidenav-container">
                                     <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
                                     </ul>
                                 </div>
-                            </div>
-                            <div class="body-container">
+                            </nav>
+                            <main id="main" class="body-container">
                                 <div data-mc-content-body="True">
                                     <div class="content">
                                         <p><a name="top"></a>
@@ -167,60 +170,57 @@
                                                         <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
                                                             <div class="button-group-container-left">
                                                                 <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                    <img alt="Navigate previous" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
                                                                 </button>
                                                                 <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                    <img alt="Navigate next" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
                                                                 </button>
                                                                 <div class="button-separator">
                                                                 </div>
                                                                 <button class="button needs-pie print-button" title="Print">
-                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                    <img alt="Print" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="nocontent">
-                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
                                                 <h1><span class="GeneralCompanyNameShort">Xcalar</span> management tasks</h1>
                                                 <p>This section describes the administration tasks that can be performed in <span class="GeneralGUIName1">Xcalar Design</span> for managing, monitoring, and troubleshooting <span class="GeneralCompanyNameShort">Xcalar</span>. These tasks are not specific to either the SQL&#160;Mode or the Dataflow Mode.</p>
-                                                <ul>
-                                                    <li value="1"><a href="L2_LoginConfig.htm" class="MCXref xref" xrefformat="{para}">Configuring users (admin only)</a>
-                                                    </li>
-                                                    <li value="2"><a href="D_CreateDataTarget.htm" class="MCXref xref" xrefformat="{para}">Creating connectors (admin only)</a>
-                                                    </li>
-                                                    <li value="3"><a href="../SingleSourcing/admin_xd/f_monitor_system.htm" class="MCXref xref" xrefformat="{para}">Monitoring the system (admin only)</a>
-                                                    </li>
-                                                    <li value="4"><a href="../SingleSourcing/admin_xd/g_release_memory_updated.htm" class="MCXref xref" xrefformat="{para}">Releasing memory</a>
-                                                    </li>
-                                                    <li value="5"><a href="../SingleSourcing/admin_xd/h_login_as_another_user.htm" class="MCXref xref" xrefformat="{para}">Accessing a Xcalar Design user account as an administrator</a>
-                                                    </li>
-                                                    <li value="6"><a href="../SingleSourcing/admin_xd/e_display_operation_proc.htm" class="MCXref xref" xrefformat="{para}">Displaying the processing details of an operation</a>
-                                                    </li>
-                                                    <li value="7"><a href="L_UseSetup.htm" class="MCXref xref" xrefformat="{para}">Managing the cluster (admin only)</a>
-                                                    </li>
-                                                    <li value="8"><a href="L_ClusterParam.htm" class="MCXref xref" xrefformat="{para}">Configuring Xcalar Compute Engine parameters (admin only)</a>
-                                                    </li>
-                                                    <li value="9"><a href="../SingleSourcing/troubleshooting/a_troubleshooting.htm" class="MCXref xref" xrefformat="{para}">Troubleshooting Xcalar</a>
-                                                    </li>
-                                                    <li value="10"><a href="../SingleSourcing/troubleshooting/b_getting_help.htm" class="MCXref xref" xrefformat="{para}">Getting Help from Xcalar</a>
-                                                    </li>
-                                                </ul>
+                                                <p data-mc-conditions="Cloud.Hidden"><a href="LoginConfig.htm" class="MCXref xref" xrefformat="{para}">Configuring users (admin only)</a>
+                                                </p>
+                                                <p data-mc-conditions="Cloud.Hidden"><a href="CreateDataTarget.htm" class="MCXref xref" xrefformat="{para}">Creating connectors</a>
+                                                </p>
+                                                <p><a href="../SingleSourcing/admin_xd/monitor_system.htm" class="MCXref xref" xrefformat="{para}">Monitoring the system</a>
+                                                </p>
+                                                <p><a href="../SingleSourcing/admin_xd/release_memory.htm" class="MCXref xref" xrefformat="{para}">Releasing memory</a>
+                                                </p>
+                                                <p data-mc-conditions="Cloud.Hidden"><a href="../SingleSourcing/admin_xd/login_as_another_user.htm" class="MCXref xref" xrefformat="{para}">Accessing a Xcalar Design user account as an administrator</a>
+                                                </p>
+                                                <p><a href="../SingleSourcing/admin_xd/display_operation_proc.htm" class="MCXref xref" xrefformat="{para}">Displaying the processing details of an operation</a>
+                                                </p>
+                                                <p data-mc-conditions="Cloud.Hidden"><a href="UseSetup.htm" class="MCXref xref" xrefformat="{para}">Managing the cluster (admin only)</a>
+                                                </p>
+                                                <p data-mc-conditions="Cloud.Hidden"><a href="ClusterParam.htm" class="MCXref xref" xrefformat="{para}">Configuring Xcalar Compute Engine parameters (admin only)</a>
+                                                </p>
+                                                <p data-mc-conditions="Cloud.Hidden"><a href="../SingleSourcing/troubleshooting/troubleshooting.htm" class="MCXref xref" xrefformat="{para}">Troubleshooting Xcalar</a>
+                                                </p>
+                                                <p><a href="../SingleSourcing/troubleshooting/getting_help.htm" class="MCXref xref" xrefformat="{para}">Getting Help from Xcalar</a>
+                                                </p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </main>
                         </div>
-                    </section><a data-close="true"></a>
+                    </div><a data-close="true"></a>
                 </div>
             </div>
-            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
         </div>
     </body>
 </html>

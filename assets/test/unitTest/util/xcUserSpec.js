@@ -530,6 +530,7 @@ describe('XcUser Test', () => {
                 xcHelper.sendRequest = oldRequest;
                 UserMenu.Instance.updateCredits = oldUpdateCredits;
                 XVM.isCloud = oldIsCloud;
+                clearInterval(XcUser._creditUsageInterval);
                 done();
             }, 100);
         });

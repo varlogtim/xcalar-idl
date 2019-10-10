@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Filtering in a result set column</title>
+        <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home_cloud.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Filtering in a result set column</h1>
+                                                <p>In Dataflow Mode, you can filter a result set column in one of the two ways:</p>
+                                                <ul>
+                                                    <li value="1">Select  values in a result set column and use an option from the drop-down to include or exclude them from the result set.</li>
+                                                    <li value="2">Use a column drop-down on a column header to specify conditions for filtering values in the column. </li>
+                                                </ul>
+                                                <p>You can filter any value, including NULL.</p>
+                                                <div class="Example"><span class="label">TIP:</span>&#160;Before filtering a result set, you might want to find the distribution of values through the <span class="UIelement">Profile </span>operation. See <a href="CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Using Profile to find the distribution of values in a column</a> for information about counting the number of times a value appears in a column. You can also use the <span class="UIelement">Profile</span> modal for filtering values as described in <a href="CountOccurrencesOfValues.htm#Filterin" class="MCXref xref" xrefformat="{para}">Filtering by using the Profile window</a>.</div>
+                                                <p>Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace. From the  sidebar, click the <span class="UIelement">Dataflow Panel</span> icon. The <span class="UIelement">Dataflow Mode</span> workspace opens.</p>
+                                                <h2 class="noPageBreak">Filtering based on a value selectable in a column</h2>
+                                                <p>If you want to filter a result set based on one or multiple values in a column:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>Right click a cell containing a value that you want to filter or exclude. </p>
+                                                        <p>The cell options are displayed. To select multiple values, use your computer's key combination (for example, Ctrl-Shift) when clicking additional cells. The value you select can be in any row. For example, to filter the value 10, click any cell containing 10 in the column. The result is same regardless of the row number.  </p>
+                                                    </li>
+                                                    <li value="2">To include the selected value, click <span class="UIelement">Filter this value</span>; to exclude the selected values, click <span class="UIelement">Exclude this value</span>. If multiple values are selected, the options are <span class="UIelement">Filter these values</span> and <span class="UIelement">Exclude these values</span>.</li>
+                                                </ol>
+                                                <p>The following screenshot shows the  cell options in the DayofWeek column and the cell containing value that you can include or exclude.</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-filter-on-cell.png" />
+                                                </p>
+                                                <h2 class="noPageBreak"><a name="Filterin"></a>Filtering based on a condition</h2>
+                                                <p>You can filter a result set based on a condition. For example, for a selected column, you can filter depending on whether the value string contains a particular substring. If the result of the filter function is true, the value is kept in the column. If the result of the filter function is false, the value is excluded from the column.</p>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;If you select a filter function not applicable to the data type of the column, an error message is displayed. Use the <span class="UIelement">Cast</span> field to change the type so that the function can run.&#160;This data type change is temporary.&#160;The column retains the original data type after the filter function.</div>
+                                                <p>You can also filter based on multiple conditions. For information about filtering on multiple conditions, see <a href="#filterMultiple" class="MCXref xref" xrefformat="{para}">Filtering based on multiple conditions</a>. </p>
+                                                <p> To filter data based on a condition:</p>
+                                                <ol>
+                                                    <li value="1">There are two ways of starting the filtering process - starting from a column header and starting from a <span class="UIelement">Filter</span> Node.<ul><li value="1"><span class="UIelement">Starting from a column header</span>: Display the result set on which you want to perform the <span class="UIelement">Filter</span> operation. Right click the header of the column containing the value you want to filter, and select <span class="UIelement">Filter</span>. </li><li value="2"><p><span class="UIelement">Starting from a Filter Node</span>: Click the <span class="UIelement">Row Ops</span> category in the <span class="UIelement">Dataflow Mode Toolbar</span>, to display the <span class="UIelement">Filter</span> Node. Drag the <span class="UIelement">Filter</span> Node to the dataflow canvas. Locate the Node with the result set on which you want to perform the <span class="UIelement">Filter</span> operation, and connect its output to the <span class="UIelement">Filter</span> Node. Right click the <span class="UIelement">Filter</span> Node and select <span class="UIelement">Configure</span>. </p><div class="Note"><span class="label">NOTE</span>:&#160;See <a href="../A_Dataflows/CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a> for more information on connecting Nodes and creating dataflows.</div></li></ul><p>The <span class="UIelement">Filter</span> configuration panel is displayed.</p></li>
+                                                    <li value="2">
+                                                        <p>Select a <span class="UIelement">Filter Function</span>. For example, for an Integer or Float column, you can select the <span class="UIelement">between</span> function to filter the values that exist between two values.</p>
+                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="#" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage" aria-expanded="false"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following functions are supported:</a></span>
+                                                            <div class="MCDropDownBody dropDownBody">
+                                                                <ul>
+                                                                    <li value="1">and</li>
+                                                                    <li value="2">between</li>
+                                                                    <li value="3">contains</li>
+                                                                    <li value="4">endsWith</li>
+                                                                    <li value="5">eq</li>
+                                                                    <li value="6">eqNonNull</li>
+                                                                    <li value="7">exists</li>
+                                                                    <li value="8">ge</li>
+                                                                    <li value="9">gt</li>
+                                                                    <li value="10">isBoolean</li>
+                                                                    <li value="11">isFloat</li>
+                                                                    <li value="12">isInf</li>
+                                                                    <li value="13">isInteger</li>
+                                                                    <li value="14">isNull</li>
+                                                                    <li value="15">isNumeric</li>
+                                                                    <li value="16">isString</li>
+                                                                    <li value="17">le</li>
+                                                                    <li value="18">like</li>
+                                                                    <li value="19">lt</li>
+                                                                    <li value="20">neq</li>
+                                                                    <li value="21">not</li>
+                                                                    <li value="22">or</li>
+                                                                    <li value="23">regex</li>
+                                                                    <li value="24">startsWith</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>Based on the description of the function, fill out the other fields. </p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;These functions work in the same way as the <span class="UIelement">Map</span> functions in the conditional category. For information about these Map functions, see <a href="../../E_Reference/MapFunctions.htm#Conditio" class="MCXref xref" xrefformat="{para}">Conditional functions</a>.</div>
+                                                    </li>
+                                                    <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="#" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage" aria-expanded="false"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
+                                                        <div class="MCDropDownBody dropDownBody">
+                                                            <p>For selecting columns:</p>
+                                                            <ul>
+                                                                <li value="1">By default, the name of the column from which you start the function is displayed as an argument. You can select another column.</li>
+                                                                <li value="2">If the column you want to select is not in the result set, go to the Data Browser to pull the column. Then you can select the column as input to the function.</li>
+                                                            </ul>
+                                                            <p>For typing a column name:</p>
+                                                            <ul>
+                                                                <li value="1">Always start with the dollar sign ($).</li>
+                                                                <li value="2">Always include the prefix if one exists. A derived column does not have a column name prefix.</li>
+                                                                <li value="3">To specify the resultant column name, type the name without preceding it with the dollar sign ($).</li>
+                                                                <li value="4">To avoid mistakes when typing a column name, click on the argument field, move your cursor to the active result set and click anywhere in the desired column. The column's name is automatically entered for you.</li>
+                                                                <li value="5">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                            </ul>
+                                                            <p>For typing an operand value:</p>
+                                                            <ul>
+                                                                <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
+                                                                <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                                <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>. It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
+                                                                <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>.&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
+                                                                <li value="5">
+                                                                    <p>Boolean values are case-insensitive. For example, in an input field that accepts a Boolean value, you can type true, True, false, or False.</p>
+                                                                </li>
+                                                            </ul>
+                                                            <p>In the panel, you can undo any typing with the undo key or key combination that you normally use in your browser.</p>
+                                                        </div>
+                                                    </div>
+                                                    <li value="4">If the function is for comparing strings, you can specify whether the string comparison is case sensitive. By default, the comparison is case sensitive.</li>
+                                                    <li value="5">
+                                                        <p> Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a new result set is displayed when the Node executes. </p>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak"><a name="filterMultiple" class="ForCSH"></a>Filtering based on multiple conditions</h2>
+                                                <p>You can specify multiple conditions for filtering and select how to combine the results as described below:</p>
+                                                <ul>
+                                                    <li value="1">The <span class="UIelement">and</span>&#160;operator means that all specified conditions must be true for a row to be included in the new result set.</li>
+                                                    <li value="2">The <span class="UIelement">or</span>&#160;operator means that at least one of the specified conditions must be true for a row to be included in the new result set.</li>
+                                                </ul>
+                                                <p>To filter based on multiple conditions:</p>
+                                                <ol>
+                                                    <li value="1">Follow the instructions in <a href="#Filterin" class="MCXref xref" xrefformat="{para}">Filtering based on a condition</a> to specify the first condition.</li>
+                                                    <li value="2">Click <span class="UIelement">Additional Conditions</span>. </li>
+                                                    <li value="3">Select a filter function and fill out the fields as you do for the first condition.</li>
+                                                    <li value="4">Repeat the last 2 steps for each additional condition.</li>
+                                                    <li value="5">Select the operator (or, and) to connect the conditions. </li>
+                                                    <li value="6">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a new result set is displayed when the Node executes. </p>
+                                                    </li>
+                                                </ol>
+                                                <h3>Example of filtering values that meet  all conditions</h3>
+                                                <p>The following example illustrates how to apply the <span class="UIelement">and</span> operator on two conditions.</p>
+                                                <p>In the result set named airlines, you can specify these conditions:</p>
+                                                <ul>
+                                                    <li value="1">The value in the DayOfWeek column is 1.</li>
+                                                    <li value="2">The value in the Carrier column is UA.</li>
+                                                </ul>
+                                                <p>Select the <span class="UIelement">and</span>&#160;operator in the <span class="UIelement">Filter</span>&#160;panel to indicate that a row must meet both the conditions to be included in the new result set. The following screenshots illustrate how to enter information in the&#160;<span class="UIelement">Filter</span>&#160;panel to specify these conditions:</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-filter-multiple-conditions.png" />
+                                                </p>
+                                                <p>The following partial screenshot illustrates the new result set, which includes only those rows that meet both the conditions.</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-filter-result-set.png" />
+                                                </p>
+                                                <p>You can change the <span class="UIelement">and</span> operator to <span class="UIelement">or</span> in the same filter and you will get a result set which has all the rows where DayOfWeek is 1 regardless of the Carrier and all the rows where Carrier is UA regardless of the value of DayOfWeek.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

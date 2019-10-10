@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Working with  temporal data</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <link href="../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../Home_cloud.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Working with  temporal data</h1>
+                                                <div class="Note"><span class="label">NOTE:</span> By default the IMD feature is not enabled in <span class="GeneralGUIName1">Xcalar Design</span>. <br />To enable the IMD  feature, log into <span class="GeneralGUIName1">Xcalar Design</span> and from the sidebar, expand the <span class="UIelement">System</span> icon, click the <span class="UIelement">Settings</span> icon, and then in the in the <span class="UIelement">General Settings</span> page, select the <span class="UIelement">Show IMD&#160;screen</span> check box and click <span class="UIelement">Save</span>. </div>
+                                                <p>This section provides information about using the <span class="GeneralGUIName1">Xcalar Design</span> IMD feature to analyze data that is continuously changing.</p>
+                                                <p>For  information on how to bring your base and delta data into <span class="GeneralProductName3">Xcalar</span> and for more information on how to work with temporal data, contact <span class="GeneralProductName3">Xcalar</span> at <a href="mailto:support@xcalar.com" title="Xcalar support email" alt="Xcalar support email">support@xcalar.com</a>.</p>
+                                                <h2 class="noPageBreak"> Working with mutable tables</h2>
+                                                <p>IMD stands for insert, modify (update), and delete, which are commonly used data manipulation operations for making changes to data.  The IMD feature in <span class="GeneralGUIName1">Xcalar Design</span> enables you to process, track changes, and view the data changes from these operations on your most current and historical temporal data for comparison and analysis.</p>
+                                                <p>The  IMD feature tracks  data changes through base tables, known as <span class="UIelement">Published Tables</span>, which support the insert, update, and delete data manipulation operations and enables you to revert to any data state in a Published Table at any given time. </p>
+                                                <div class="Note"><span class="label">NOTE:</span> Though <span class="GeneralProductName3">Xcalar</span> Published Tables are generally updated as part of an optimized dataflow pipeline that triggers data changes in real-time, you can also update Published tables from standalone datasets or multiple datasets that contain data timestamps. For more information about configuring a <span class="GeneralProductName3">Xcalar</span> dataflow pipeline for your real-time data changes, contact <span class="GeneralProductName3">Xcalar</span> at <a href="mailto:support@xcalar.com" title="Xcalar support email" alt="Xcalar support email">support@xcalar.com</a>. </div>
+                                                <h2 class="noPageBreak"><span class="GeneralProductName3">Xcalar</span> IMD table pre-requisite tasks</h2>
+                                                <p>To ensure that your data includes parameters that track data manipulation actions, the following tasks, if applicable, must be completed before generating your Published Table or applying updates from your delta table. </p>
+                                                <ul>
+                                                    <li value="1">Verify that the <span class="GeneralProductName3">Xcalar</span> table contains a column that can be used as a unique primary key identifier. This column identifies your data records and is used to track changes. </li>
+                                                    <li value="2">(Optional) If your <span class="GeneralProductName3">Xcalar</span> table contains a column that is used to sort the data in ascending or descending order, known as an <span class="UIelement">order by</span> column, run a <span class="GeneralGUIName1">Xcalar Design</span> <span class="UIelement">Sort</span> operation.</li>
+                                                    <li value="3">Verify that the <span class="GeneralProductName3">Xcalar</span> table contains an <i>opcode</i> column. For more information, see <a href="#Understa" class="MCXref xref">Understanding the Xcalar data manipulation action type column</a>.</li>
+                                                </ul>
+                                                <h3><a name="Understa"></a>Understanding the <span class="GeneralProductName3">Xcalar</span> data manipulation action type column</h3>
+                                                <p>The base table and each delta table must contain a data manipulation action type column, known as the <i>opcode</i> column, that identifies and tracks which IMD operations are performed during a data update.</p>
+                                                <p>You can either, create an <i>opcode</i> column  from a user-defined function (UDF)  or use the <i>opcode</i> column created by your change data capture (CDC) software. Whichever method you choose, you must verify that the  data manipulation action types and values are identical to the <span class="GeneralProductName3">Xcalar</span> data manipulation action types and values below:</p>
+                                                <ul>
+                                                    <li value="1"><span class="UIelement">0</span>, which represents a row that has been deleted.</li>
+                                                    <li value="2"><span class="UIelement">1</span>, which represents a row that has been inserted.</li>
+                                                    <li value="3"><span class="UIelement">2</span>, which represents a row that has been updated.</li>
+                                                </ul>
+                                                <div class="Note"><span class="label">TIP:</span> To change incorrect values in your <i>opcode</i> column, use the <span class="UIelement">Map</span> function in <span class="GeneralGUIName1">Xcalar Design</span>.</div>
+                                                <h2 class="noPageBreak">Working with the IMD screen</h2>
+                                                <p>This topic describes how to use the <span class="UIelement">IMD screen</span> to view and analyze your mutable data.</p>
+                                                <h3>Displaying the  IMD screen</h3>
+                                                <div class="Note"><span class="label">NOTE:</span> By default the IMD feature is not enabled in <span class="GeneralGUIName1">Xcalar Design</span>. <br />To enable the IMD  feature, log into <span class="GeneralGUIName1">Xcalar Design</span> and from the sidebar, expand the <span class="UIelement">System</span> icon, click the <span class="UIelement">Settings</span> icon, and then in the in the <span class="UIelement">General Settings</span> page, select the <span class="UIelement">Show IMD&#160;screen</span> check box and click <span class="UIelement">Save</span>.</div>
+                                                <p>To display the IMD&#160;screen:</p>
+                                                <ol>
+                                                    <li value="1">Verify that the IMD&#160;feature is enabled. </li>
+                                                    <li value="2">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">Sources</span> icon, then the <span class="UIelement">Tables</span> icon, and then in the Tables panel menu, click the <span class="UIelement">View IMD</span> icon <img src="../../Resources/Images/XD_assets/xd-imd_icon.png" />, which displays the <span class="UIelement">IMD screen</span> as shown in the following image.</li>
+                                                </ol>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../Resources/Images/XD_screenshots/imd_screen.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1039" data-mc-height="503" src="../../Resources/Images/XD_screenshots/imd_screen_thumb_0_150.png" tabindex="" /></a> </p>
+                                                <h2 class="noPageBreak">Understanding the IMD screen</h2>
+                                                <p>The <span class="GeneralGUIName1">Xcalar Design</span> IMD screen contains the following sections for viewing and working with your Published Tables:</p>
+                                                <ul>
+                                                    <li value="1">
+                                                        <p><span class="UIelement">Published Tables</span>, which lists the  Published tables that you are currently working with. </p>
+                                                    </li>
+                                                    <li value="2"><span class="UIelement">Inactive Tables</span>, which lists the  Published tables that you are currently not working with. </li>
+                                                    <div class="Note"><span class="label">NOTE: </span>You can apply data changes to Inactive Published tables.</div>
+                                                    <div class="Note"><span class="label">RECOMMENDATION:</span> Inactive Published tables use very little memory. Therefore, move all Published tables that you are  not working with into the <span class="UIelement">Inactive Tables</span> section.</div>
+                                                    <li value="3"><span class="UIelement">Details about</span> section, which provides the Published table's characteristics, including entries for each data update. For more information, see <a href="#Understa2" class="MCXref xref">Understanding the Details section</a>.</li>
+                                                    <li value="4"><span class="UIelement">Published Tables Timeline</span> section, which displays vertical time identifier lines  for the Published table's creation date and subsequent data updates. </li>
+                                                </ul>
+                                                <p>The following table lists the IMD&#160;screen UI elements:</p>
+                                                <table style="width: 100%;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');border-left-style: none;border-left-width: 1px;border-left-color: #000000;border-right-style: none;border-right-width: 1px;border-right-color: #000000;border-top-style: none;border-top-width: 1px;border-top-color: #000000;border-bottom-style: none;border-bottom-width: 1px;border-bottom-color: #000000;margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <caption data-mc-autonum="Table 1 "><span class="autonumber"><span>Table 1 </span></span>IMD screen elements</caption>
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" style="width: 719px;" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
+                                                                <p>Element</p>
+                                                            </th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
+                                                                <p>Description</p>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Date-picker </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_screenshots/imd_calendar.png" />
+                                                                </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>This field, enables you to display within the IMD screen a specific date range.</p>
+                                                                <p>Either enter a date using the <code>MM/DD/YYYY</code> format or select a date from the calendar element.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Time-picker </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_screenshots/imd_timepicker.png" />
+                                                                </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>This field, which is to the right of the date-picker, enables you to display the specific time based on a 12 hour clock.</p>
+                                                                <p>Either enter a time using the <code>HH:MM:SS</code> format or from the Time-picker element, select the plus or minus buttons to increase or decrease the time.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Timeline bar </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_screenshots/imd_timeline_bar.png" />
+                                                                </p>
+                                                                <p>&#160;</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>This element displays the date in increments of hours, days, weeks, and months.</p>
+                                                                <p>To zoom in and out, use the scroll wheel on your mouse.</p>
+                                                                <p>Hovering your mouse over the Timeline bar displays a tooltip with the exact date and time.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Time-bar </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>This element controls actions across all visible Published tables, such as displaying all data changes up to that time. </p>
+                                                                <p>A vertical time identifier line is displayed when the Published table is first created and for each time a data update occurs.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Generate Tables pop-up </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_screenshots/imd_tablepopup.png" />
+                                                                </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>This element opens when you click on the row or a Time-bar associated with a Published table in the <span class="UIelement">Published Tables</span> section of the IMD timeline screen.</p>
+                                                                <p>The Generate Tables pop-up contains the following action buttons:</p>
+                                                                <ul>
+                                                                    <li value="1"><span class="UIelement">Point in time</span>
+                                                                    </li>
+                                                                    <li value="2"><span class="UIelement">Latest</span>
+                                                                    </li>
+                                                                </ul>
+                                                                <p>For more information, see <a href="#Generati" class="MCXref xref">Generating a Xcalar table to analyze mutable data</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Scroll bar </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>This element enables you to scroll along the Published table's Timeline.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Check all check box </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>This check box, which is displayed inside the Published Tables and Inactive Tables header, enables you to quickly select or deselect all Published or Inactive tables.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Table Check box</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>This check box enables you to run actions on specific Published or Inactive tables.</p>
+                                                                <p>For example, you can disable specific Published tables when they are not required, such as when they are not required to be part of a <span class="UIelement">Point in time</span> or <span class="UIelement">Latest</span> action. </p>
+                                                                <ul>
+                                                                    <li value="1">Selecting this check box in the Published Tables section, keeps the Published table active and available for an operation or action.</li>
+                                                                    <li value="2">Deselecting this check box in the Published Tables section, keeps the Published table active but removes the Published table from an operation or action.  </li>
+                                                                </ul>
+                                                                <div class="Note"><span class="label">NOTE: </span>Data changes are still applied to deselected tables even though they are not viewable on the IMD Timeline.</div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Coalesce icon </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_assets/xd-imd_coalesce_icon.png" />
+                                                                </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>This icon appears when you select the check box of a Published table.</p>
+                                                                <p>Clicking this icon combines all the delta table data changes in the Published table. This action saves memory and improves refresh times.</p>
+                                                                <div class="Note"><span class="label">IMPORTANT:</span> Though this action saves memory and significantly reduces the amount of time to refresh your tables, it also removes all the delta table data updates from the Published table and prevents you from analyzing your data from a specific <span class="UIelement">Point in time</span>. </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Drag icon </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_screenshots/imd_drag_icon.png" /> <img src="../../Resources/Images/XD_screenshots/imd_grab_icon.png" /></p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>This element enables you to manually organize your Published and Inactive tables. Select and drag this icon to the required Published table hierarchy level.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Deactivate icon </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_assets/xd-imd_deactivate_icon.png" />
+                                                                </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>This icon appears when you select the check box of a Published table.</p>
+                                                                <p>Clicking  this icon changes the state of the Published table to <span class="UIelement">inactive</span>, and moves it to the <span class="UIelement">Inactive Tables</span> section.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Activate icon </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_assets/xd_imd_activate_icon.png" />
+                                                                </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>This icon appears when you select the check box of an Inactive Published table.</p>
+                                                                <p>Clicking  this icon changes the state of the Published table to <span class="UIelement">active</span> and moves it to the <span class="UIelement">Published Tables</span> section.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Sort icon </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_assets/xd-imd_sort_icon.png" />
+                                                                </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>This icon sorts the Published or Inactive tables list.</p>
+                                                                <p>Clicking this icon toggles between ascending or descending order.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Filter field</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>This field enables you to search for a specific Published table or filter out Published tables that are not of interest. </p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Refresh icon </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_assets/xd-refresh-temp-tables.png" />
+                                                                </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Clicking this icon refreshes the IMD screen. </p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
+                                                                <p>Trash can icon </p>
+                                                                <p>
+                                                                    <img src="../../Resources/Images/XD_assets/xd-trashcan.png" />
+                                                                </p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                                <p>This icon appears when you select the check box of either a Published table or an Inactive Published table.</p>
+                                                                <p>Clicking this icon deletes a Published Table.</p>
+                                                                <div class="Note"><span class="label">WARNING: </span>When a Published Table is deleted, all delta table updates and any descendant tables generated from a delta table or the Published table are no longer viewable from the IMD&#160;screen.<br /><br />To ensure that the data in the Published Table is available at a later time, do one of the following:<br /><b>-</b> Save memory by changing its state to <span class="UIelement">Inactive</span>.<br /><b>-</b> Generate a <span class="GeneralProductName3">Xcalar</span> table with either the <span class="UIelement">Latest</span> or <span class="UIelement">Coalesce</span> function before deletion, which ensures that a <span class="GeneralProductName3">Xcalar</span> table is available for creating a new Published table. <br /></div>
+                                                                <div class="Note"><span class="label">IMPORTANT:</span> Applying any new updates from the time you deleted the Published table will fail.</div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <h2 class="noPageBreak"><a name="Understa2"></a>Understanding the Details section</h2>
+                                                <p>The <span class="UIelement">Details</span> section contains information about your Published tables. It includes entries for each data update and lists the Published table's column names and data types.</p>
+                                                <p>Clicking on a Published table in the <span class="UIelement">Published Tables</span> section populates the entry fields in the <span class="UIelement">Details about</span> section, which are described in the following table:</p>
+                                                <table style="width: 100%;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <caption data-mc-autonum="Table 2 "><span class="autonumber"><span>Table 2 </span></span>IMD Details section</caption>
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
+                                                                <p>Field</p>
+                                                            </th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
+                                                                <p>Description</p>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Details about </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Displays the name of the Published Table.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Batch ID </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>Displays the identification number for each update of the Published Table. The first identification number, <span class="UIelement">0</span>, denotes when the Published Table was first generated.</p>
+                                                                <p>Clicking on a specific identification number opens the <span class="UIelement">Generate Tables pop-up</span> to the precise moment in the IMD&#160;timeline when the Published Table was first generated or when an update was applied.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Source </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Displays the name of the <span class="GeneralProductName3">Xcalar</span> table that provided the source data.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Primary Keys </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>Displays the unique column identifier for each record.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Timestamp </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Displays the date and time that the data entry was created.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Rows </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>Displays the total number of rows contained in the Published Table.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Inserts </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Displays the total number of rows inserted since the last update.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Updates </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>Displays the total number of row updated since the last update.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Deletes </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Displays the total number of rows deleted since the last update.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>View columns</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>Clicking this link lists the column names and their data types in the Published table.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                                <p>View table details</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                                <p>Clicking this link lists the data source location, identification number, creation date, and the row count of each data entry.</p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <h2 class="noPageBreak">Understanding the  Generate Tables popup</h2>
+                                                <p>The  <span class="UIelement">Generate tables</span> popup enables you to generate a <span class="GeneralProductName3">Xcalar</span> table  from the Published table using one of the following output types:</p>
+                                                <ul>
+                                                    <li class="has-children" value="1"><span class="UIelement">Point in time</span>, which  generates a <span class="GeneralProductName3">Xcalar</span> table for the selected active Published Table comprising all data changes up to that point.</li>
+                                                    <li value="2"><span class="UIelement">Latest</span>, which generates a <span class="GeneralProductName3">Xcalar</span>&#160;table for the selected active Published Table comprising all data changes up to the current time.</li>
+                                                </ul>
+                                                <h2 class="noPageBreak"><a name="Generati"></a>Generating a <span class="GeneralProductName3">Xcalar</span> table to analyze mutable data</h2>
+                                                <p>This topic describes how to generate a <span class="GeneralProductName3">Xcalar</span> table that displays current or historical results of the data updates in your Published table. </p>
+                                                <p>To generate a <span class="GeneralProductName3">Xcalar</span>&#160;table to analyze mutable data:</p>
+                                                <ol>
+                                                    <li value="1">Verify that the IMD&#160;feature is enabled. </li>
+                                                    <li value="2">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">Sources</span> icon, then the <span class="UIelement">Tables</span> icon, and then in the Tables panel menu, click the <span class="UIelement">View IMD</span>  icon <img src="../../Resources/Images/XD_assets/xd-imd_icon.png" /> .</li>
+                                                    <p>The <span class="UIelement">IMD screen</span> appears. </p>
+                                                    <li value="3">In the <span class="UIelement">Published Tables</span> section, select the row of the active Published table that is required to produce a <span class="GeneralProductName3">Xcalar</span> table.</li>
+                                                    <li value="4">Depending on which output type you require, do one of the following:</li>
+                                                    <ul style="list-style-type: circle;">
+                                                        <li value="1">To generate <span class="UIelement">Point in time</span> output, click on the Time-bar of the Published table's Batch ID that contains the ending time, and then from the <span class="UIelement">Generate Tables pop-up</span>, click  <span class="UIelement">Point in time</span>.</li>
+                                                        <li value="2">To generate <span class="UIelement">Latest</span> output, verify that the row of the Published table that is required to produce a <span class="GeneralProductName3">Xcalar</span> table is highlighted, click on the row, which opens the <span class="UIelement">Generate Tables pop-up</span> element, and then click <span class="UIelement">Latest</span>. </li>
+                                                    </ul>
+                                                    <p>A Table Node is created in the Dataflow Mode canvas and is displayed in the Preview section for analysis.</p>
+                                                    <li value="5">(Optional) To generate a <span class="GeneralProductName3">Xcalar</span> table containing specific columns and/or rows, from the <span class="UIelement">Generate Tables pop-up</span>, select the <span class="UIelement">ellipses menu</span> by the side of the <span class="GeneralProductName3">Xcalar</span> table button option and do one the following:</li>
+                                                    <ul style="list-style-type: circle;">
+                                                        <li value="1">To generate a <span class="GeneralProductName3">Xcalar</span> table containing rows and columns based on a condition:
+				<ol style="list-style-type: lower-alpha;"><li value="1">In the <span class="UIelement">Filter String</span> field, enter the condition as filter text.</li><p>For example, to generate a <span class="UIelement">Latest</span> <span class="GeneralProductName3">Xcalar</span> table that contains only rows of data that was inserted, enter <code>eq(XcalarOpCode, 1)</code>, where the filter syntax for the equal function is <code>function(operand1, operand2)</code>.</p><li value="2"> Click the <span class="GeneralProductName3">Xcalar</span> table option. </li><p>A Table Node is created in the Dataflow Mode canvas and is displayed in the Preview section for analysis.</p></ol><p>For more information on working with filtering in <span class="GeneralGUIName1">Xcalar Design</span>, see <a href="../C_XcalarAdvancedMode/B_Operations/FilterValue.htm" class="MCXref xref">Filtering in a result set column</a>.</p></li>
+                                                        <li value="2">To generate a <span class="GeneralProductName3">Xcalar</span> table containing specific columns:
+				<ol style="list-style-type: lower-alpha;"><li value="1">In the <span class="UIelement">Columns (comma separated)</span> field, enter each column name required in the output followed by a comma.</li><li value="2">Click the <span class="GeneralProductName3">Xcalar</span> table option.</li><p>A Table Node is created in the Dataflow Mode canvas and is displayed in the Preview section for analysis.</p></ol></li>
+                                                    </ul>
+                                                </ol>
+                                                <h2 class="noPageBreak">Conserving memory by compressing updates</h2>
+                                                <p>The IMD <span class="UIelement">Coalesce</span> function is similar to the <span class="UIelement">Latest</span> function, in that all data changes are combined within the Published table. But unlike the <span class="UIelement">Latest</span> function, the <span class="UIelement">Coalesce</span> function removes all the delta table updates from the Published table's Timeline, which  reduces the Published table's memory consumption. If you have a Published table that contains delta data that is no longer required for analysis, <span class="GeneralProductName3">Xcalar</span> recommends applying the IMD <span class="UIelement">Coalesce</span> function on the Published table. </p>
+                                                <div class="Note"><span class="label">NOTE:</span> As all previous delta table updates are removed from the Published table after applying the  <span class="UIelement">Coalesce</span> function, temporal data is no longer available for analysis.</div>
+                                                <p>To conserve memory by compressing updates:</p>
+                                                <ol>
+                                                    <li value="1">Verify that the IMD&#160;feature is enabled. </li>
+                                                    <li value="2">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">Sources</span> icon, then the <span class="UIelement">Tables</span> icon, and then in the Tables panel menu, click the <span class="UIelement">View IMD</span> icon <img src="../../Resources/Images/XD_assets/xd-imd_icon.png" />.</li>
+                                                    <p>The <span class="UIelement">IMD screen</span> appears. </p>
+                                                    <li value="3">In the <span class="UIelement">Published Tables</span> section, select the Published Table's check box.</li>
+                                                    <li value="4">Click the <span class="UIelement">Coalesce</span> icon <img src="../../Resources/Images/XD_assets/xd-imd_coalesce_icon.png" />. </li>
+                                                    <p>A COALESCE warning message appears, which states that the operation cannot be undone and asks you to confirm the action. </p>
+                                                    <li value="5">Click CONFIRM, which:</li>
+                                                    <ul>
+                                                        <li value="1">Combines all the delta table  updates in the Published table.</li>
+                                                        <li value="2">Removes all the delta table updates from the Published table and the Published table's Timeline.</li>
+                                                    </ul>
+                                                </ol>
+                                                <div class="Note"><span class="label">RECOMMENDATION:</span> Inactive Published tables use very little memory. Therefore, move all Published tables that you are  not working with into the <span class="UIelement">Inactive Tables</span> section.</div>
+                                                <h2 class="noPageBreak">Conserving memory by displaying less update time-bars</h2>
+                                                <p><span class="GeneralProductName3">Xcalar</span> conserves memory by limiting the number of viewable update time-bars to <span class="UIelement">128</span>. When the Published table exceeds this limit, a <span class="UIelement">Load More Updates</span> tooltip is displayed next to the last updated  time-bar:</p>
+                                                <ul>
+                                                    <li value="1">To display more instances of updated Published tables, click the <span class="UIelement">Load More Updates</span> element. </li>
+                                                    <p>Repeat until the <span class="UIelement">Load More Updates</span> tooltip disappears.</p>
+                                                    <li value="2">To revert to the update time-bar limit and conserve memory, click the refresh icon <img src="../../Resources/Images/XD_assets/xd-refresh-temp-tables.png" />.</li>
+                                                </ul>
+                                                <h2 class="noPageBreak">IMD Published table naming conventions</h2>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="#" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage" aria-expanded="false"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <p>To avoid any issues from the case sensitivity column naming differences between <span class="GeneralProductName3">Xcalar</span> and <span class="GeneralProductName3">Xcalar</span> SQL, column names are automatically processed into uppercase characters.</p>
+                                                        <ul>
+                                                            <li value="1">Length must not exceed 255 characters.</li>
+                                                            <li value="2">First character must be a letter of the alphabet.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9,  or underscore (_).</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

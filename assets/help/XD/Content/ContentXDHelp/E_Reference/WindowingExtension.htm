@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]|[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Understanding Windowing Extension</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <link href="../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../Home.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Understanding Windowing Extension</h1>
+                                                <p>The Windowing extension is useful for determining how data changes from one row to another. It uses the SQL Lead and Lag functions. You can run the Windowing extension on multiple columns.</p>
+                                                <div class="Note"><span class="label">EXAMPLE</span>: You have a result set about read access to a data storage system. The result set contains a Timestamp column and a Data_read column. You want to know how the amount of data read changes over time. The Windowing extension can sort the rows by Timestamp and create an additional column showing the amount of data read in another row for comparison. You can then perform other operations on this newly created column.</div>
+                                                <p>The following table describes each field of the Windowing extension:</p>
+                                                <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Field	</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Description</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Window On</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">	Names of the selected columns on which you run the SQL Lead or Lag function. Each column contains values that change from row to row, and you are interested in analyzing the changes. Data type of the column must be integer, float, or string.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Sort On</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Column on which you sort the result set. Sorting is necessary before you can compare data from different rows. Data type of the column must be integer, float, or string.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Sort order	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Ascending or descending.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Lag	</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">If you want to compare data to a previous row after the sort, fill out this field. For example, Enter 1 to compare the current row to the one immediately before it, enter 2 to compare the current row to the one that is 2 rows before, and so on. If you do not use this function, enter 0 in this field.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Lead	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">If you want to compare data to the next row after the sort, fill out this field. For example, enter 1 if you want to compare the current row to the one immediately after it, enter 2 to compare the current row to the one that is 2 rows after, and so on. If you do not use this function, enter 0 in this field.</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <h2 class="noPageBreak">Example of the Windowing extension</h2>
+                                                <p>In the result set named Disk, the columns Timestamp and Data_read show the time of each read access to a storage system and the amount of data read, respectively. The following is the Disk result set:</p>
+                                                <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Timestamp	</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Data_read</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">1451628003	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">17747</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">1451638804	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">17840</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">1451635204	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">17810</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
+                                                                <p class="tableParagraph">1451631604	</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                                <p class="tableParagraph">17777</p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p>Suppose you want to know by how much the data read changes from one timestamp to the next, fill out the fields in the Windowing modal window as follows:</p>
+                                                <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Field	</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Value</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Window On	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">$Data_read</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Sort On	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">$Timestamp</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Sort Order</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">ascending</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Lag	</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p class="tableParagraph">0</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Lead	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">1</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p>The Windowing extension creates the following result set:</p>
+                                                <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Timestamp</th>
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">	Data_read</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Data_read_	lead_1</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">1451628003	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">17747	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">17777</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">1451631604	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">17777	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">17810</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">1451635204	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">17810	</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">17840</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p>The new result set is sorted by Timestamp. The new column, Data_read_	lead_1, contains the Data_read value in the following row. This new column enables you to analyze the changes of data read over time. For example, to find out how much the data amount changes between two timestamps, invoke the subtraction function in the Map operation:</p>
+                                                <p><code>map(sub(Data_read_	lead_1, Data_read))</code>
+                                                </p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

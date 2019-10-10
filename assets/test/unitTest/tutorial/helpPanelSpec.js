@@ -32,22 +32,22 @@ describe("Help Panel Test", function() {
         }, 500);
     });
 
-    it("Should be able to display the documents screen", function(done) {
+    it("Should be able to display the documents screen", function() {
+        var opened = false;
+        window.open = () => {
+            opened = true;
+        }
         helpPanel.openHelpResource("docsResource");
-        setTimeout(function() {
-            expect($("#help-documentation").hasClass("active")).to.be.true;
-            expect($("#helpTab").hasClass("active")).to.be.true;
-            done();
-        }, 500);
+        expect(opened).to.be.true;
     });
 
     it("Should be able to open Discourse", function() {
-        var openedDiscourse = false;
-        window.open = (url) => {
-            openedDiscourse = true;
+        var opened = false;
+        window.open = () => {
+            opened = true;
         }
         helpPanel.openHelpResource("discourseResource");
-        expect(openedDiscourse).to.be.true;
+        expect(opened).to.be.true;
     });
 
     it("Should be able to open the support ticket modal", function(done) {

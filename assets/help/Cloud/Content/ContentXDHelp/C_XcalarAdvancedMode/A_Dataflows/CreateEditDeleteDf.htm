@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Dataflow Mode|[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Creating and editing a dataflow</title>
+        <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home_cloud.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Creating and editing a dataflow</h1>
+                                                <p>This topic describes how to create and edit a dataflow. It assumes that you are familiar with the purpose and the components of a dataflow, as described in <a href="AboutDf.htm" class="MCXref xref" xrefformat="{para}">Understanding a dataflow</a>.</p>
+                                                <h2 class="noPageBreak">Before creating a dataflow</h2>
+                                                <p>You can start creating a dataflow with any operation Node, but the dataflow cannot be executed successfully if it does not start with a data source. Therefore, verify that you have at least one data source before creating a dataflow. A data source can be one of the following items:</p>
+                                                <ul>
+                                                    <li value="1">a dataset created by you </li>
+                                                    <li value="2">a table created by you</li>
+                                                </ul>
+                                                <p data-mc-conditions="On-prem.Hidden">For more information about importing data into datasets and tables, see <a href="../../../ContentXDHelpCloud/a_getting_started/cld_imports.htm" class="MCXref xref" xrefformat="{para}">Importing data into Xcalar Design</a>.</p>
+                                                <h2 class="noPageBreak">Opening the dataflow editor</h2>
+                                                <p>To open the dataflow editor, verify that you are in the Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.  Then, from the sidebar, click the <span class="UIelement">Dataflows</span> icon, as shown in the following screenshot.</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/dataflow-icon-location.png" alt="" title="" />
+                                                </p>
+                                                <h2 class="noPageBreak">Creating a dataflow</h2>
+                                                <p>To create a dataflow:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>Click the plus icon in the dataflow editor or click the <span class="UIelement">Create new dataflow</span> button if it is displayed, as shown in the following screenshot.</p>
+                                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_assets/xd-dataflow-create.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="973" data-mc-height="431" src="../../../Resources/Images/XD_assets/xd-dataflow-create_thumb_0_150.png" tabindex="" /></a>
+                                                        </p>
+                                                    </li>
+                                                    <li value="2">
+                                                        <p>Select the <span class="UIelement">In</span> Node category. This displays all the Nodes that you can use to bring data in your dataflow:</p>
+                                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../../../Resources/Images/XD_screenshots/dataflow-create-source-node.png" data-mc-popup-alt=""><img class="MCPopupThumbnail img imgBigImage" data-mc-width="760" data-mc-height="246" src="../../../Resources/Images/XD_screenshots/dataflow-create-source-node_thumb_0_150.png" alt="" title="" tabindex="" /></a>
+                                                        </p>
+                                                    </li>
+                                                    <li value="3">Click and drag the Dataset or the Table Node to the dataflow canvas. </li>
+                                                    <li value="4">
+                                                        <p>(Optional) If you want to replace the default dataflow name, enter the name in the tab title and press Enter,</p>
+                                                        <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="#" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage" aria-expanded="false"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                            <div class="MCDropDownBody dropDownBody">
+                                                                <ul>
+                                                                    <li value="1">The name is case sensitive. </li>
+                                                                    <li value="2">Length must not exceed 255 characters.</li>
+                                                                    <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </ol>
+                                                <p>You now have a dataflow with one operation Node and it's listed in the Home folder of the <span class="UIelement">Dataflows</span> panel. At this point, either you can configure the Node in your dataflow, as described in <a href="NodeConfig.htm" class="MCXref xref" xrefformat="{para}">Configuring an operation Node</a>, or continue adding more operation Nodes, as described in <a href="#Editing" class="MCXref xref" xrefformat="{para}">Editing a dataflow</a>.</p>
+                                                <h2 class="noPageBreak"><a name="Editing"></a>Editing a dataflow</h2>
+                                                <p>To edit a dataflow:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>Find the dataflow, you wish to edit, in the Dataflows panel and click it. <br />The dataflow is displayed in the dataflow canvas.</p>
+                                                    </li>
+                                                    <li value="2">
+                                                        <p>To add a Node to a dataflow:</p>
+                                                        <ol style="list-style-type: lower-alpha;">
+                                                            <li value="1">
+                                                                <p>Click a Node category name in Dataflow Mode toolbar to display the Nodes available in that category. </p>
+                                                                <p>Alternatively, enter the name of the Node in the search field in the Dataflow Mode toolbar. When a drop-down list is displayed in the search field, click the desired Node name. The selected Node is highlighted.</p>
+                                                            </li>
+                                                            <li value="2">Drag the selected Node to the dataflow canvas.</li>
+                                                        </ol>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>(Optional)&#160;If you do not want to keep the default Node name such as <span class="UIelement">Node 1</span>, double-click the Node name and enter a new name. There are no restrictions on the characters for the name. You can also press Enter to start a new line if you want a multi-line Node name.</p>
+                                                        <p>After you finish entering the name, click anywhere outside the Node name field. You can change the Node name again at any time.</p>
+                                                    </li>
+                                                    <li value="4">
+                                                        <p>To connect the two Nodes, click the anchor of one Node and drag the cursor to any part of the other Node. You can start from the output anchor or the input anchor. Depending on the anchor you start from, <span class="GeneralGUIName1">Xcalar Design</span> creates a link to the appropriate anchor of the other Node. </p>
+                                                        <div class="Note"><span class="label">EXAMPLE</span>:&#160; In a dataflow with a dataset Node and a Filter Node, drag the cursor from the output anchor of the dataset Node to anywhere on the Filter Node. The dataflow now has a link from the output anchor of the dataset Node to the input anchor of the Filter Node.</div>
+                                                        <p>In a link, the Node with the output anchor connected is the parent Node, and the Node with the input anchor connected  is the child Node.</p>
+                                                    </li>
+                                                    <li value="5">
+                                                        <p>To change a link:</p>
+                                                        <ul>
+                                                            <li style="text-align: justify;" value="1">To remove a link, click a link. After it is highlighted, click <span class="UIelement">Remove Connection</span> in the pop-up.</li>
+                                                            <li style="text-align: justify;" value="2">To change the connection, you can either remove the link and make a new connection, or click the input anchor of the child Node and drag the cursor to a new parent Node.</li>
+                                                        </ul>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak"><a name="Multi-se"></a>Multi-selecting Nodes</h2>
+                                                <p>You can select more than one Node to perform a task such as removing or moving. </p>
+                                                <p>To select multiple Nodes, do one of the following:</p>
+                                                <ul>
+                                                    <li value="1">Hold down the Shift key when you click each Node.</li>
+                                                    <li value="2">Drag the cursor to draw a selection box to include the Nodes to be selected.</li>
+                                                    <li value="3">To select all Nodes, right click anywhere on the dataflow canvas and select <span class="UIelement">Select All</span>.</li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Removing a Node</h2>
+                                                <p>To remove a Node, right click the Node and select <span class="UIelement">Remove</span>. The Node and all the links to and from the Node are removed. If you want to remove all Nodes from a dataflow, deselect all Nodes, right click on the dataflow canvas and select <span class="UIelement">Remove All</span>.</p>
+                                                <h2 class="noPageBreak">Repositioning or aligning Nodes</h2>
+                                                <p>For readability, you might want to reposition the Nodes in a dataflow, for example, to avoid having two links  cross each other. Repositioning the Nodes does not affect the execution result, which only depends on the configuration and the order of the Node execution.</p>
+                                                <p>To move or align Nodes in a dataflow:</p>
+                                                <ul>
+                                                    <li value="1">To move a single Node, click and drag the selected Node to the desired position.</li>
+                                                    <li value="2">If you want all Nodes to be properly aligned, click anywhere on the dataflow canvas and select <span class="UIelement">Auto Align</span>.</li>
+                                                </ul>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160; <span class="GeneralGUIName1">Xcalar Design</span> saves all your work automatically. You do not need to manually save your changes.</div>
+                                                <h2 class="noPageBreak">Adding Comment to a dataflow</h2>
+                                                <p>If you want to add a comment in your dataflow, deselect all Nodes, right click on the dataflow canvas at the point where you want to add the comment and select <span class="UIelement">New Comment</span>. A text box is created for you to add your comment. You can drag the bottom right corner to change the size of the text box. </p>
+                                                <p>To copy, cut or remove the text box, right click anywhere in the text box and select the desired operation.</p>
+                                                <h2 class="noPageBreak">Next step</h2>
+                                                <p>If you have not configured the dataflow Nodes or if you want to change the configuration of a Node, see <a href="NodeConfig.htm" class="MCXref xref" xrefformat="{para}">Configuring an operation Node</a>.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

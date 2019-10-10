@@ -31,7 +31,6 @@ namespace xcManager {
         })
         .then(function() {
             XVM.setup();
-            // XXX TODO: remove this hack call
             CloudManager.Instance.setup();
 
             // xcrpc default service setup
@@ -74,7 +73,6 @@ namespace xcManager {
             // First XD instance to run since cluster restart
             return oneTimeSetup();
         })
-        .then(CloudManager.Instance.checkCloud)
         .then(setupWKBKIndependentPanels)
         .then(setupSession) // restores info from kvStore
         .then(function() {
@@ -1039,7 +1037,7 @@ namespace xcManager {
                 "platform": window.navigator.platform,
                 "logCursor": Log.getCursor()
             };
-            if (window["debugOn"]) {
+            if (window["debugOn"] || window['unitTestMode']) {
                 xcConsole.log(msg, url + ":" + line + ":" + column, {stack: stack});
             } else {
                 xcConsole.log(msg, url + ":" + line + ":" + column);

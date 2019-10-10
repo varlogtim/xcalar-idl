@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Applying a function on a column using a Map Node</title>
+        <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home_cloud.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Applying a function on a column using a Map Node</h1>
+                                                <p>A Map Node is used to apply a function on existing column values to create new meaningful values. The new values can be based on one or more columns. For example, you can perform an arithmetic calculation on the values of two columns to create a third column that contains the results of the calculation. The new value may also be generated without any column input. For example, you can generate a column of unique, random values.</p>
+                                                <p>The functions available in the Map Node configuration are called the Map functions. This section describes the steps for using a Map function. For descriptions of all Map functions, see <a href="../../E_Reference/MapFunctions.htm" class="MCXref xref" xrefformat="{para}">Map functions</a>.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Many  Map functions work in a similar way as Microsoft Excel functions. However, there might be differences, such as differences in the  number of operands accepted.&#160;Do not assume that the  Map functions are identical to the Excel functions even though they share the same name. </div>
+                                                <h2 class="noPageBreak">How a Map function works on Mixed, Array, or Object columns</h2>
+                                                <p>If you use a Mixed column as an input to a Map function, the function is run on the cells of a data type appropriate for the function. For all other cells, the function returns FNF (field not found). For example, if a Mixed column is the input for a div function, the division is performed only on numerical cells. FNF&#160;is displayed for each non-numerical cell in the resultant column. If you use an Array or Object column as input to a Map function, the input value is treated as FNF. </p>
+                                                <p>For more information about FNF, see <a href="UnderstandFNF.htm" class="MCXref xref" xrefformat="{para}">Working with a result set containing FNF</a>.</p>
+                                                <h2 class="noPageBreak">Applying a Map function</h2>
+                                                <p>Applying a Map function creates a new column with new values. To apply a Map function on a column:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace.</p>
+                                                    </li>
+                                                    <li value="2">
+                                                        <p>From the  sidebar, click the <span class="UIelement">Dataflow Panel</span> icon.</p>
+                                                        <p>The <span class="UIelement">Dataflow Mode</span> workspace opens.</p>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>There are two ways of applying a Map function on a column - starting from a result set and starting from a <span class="UIelement">Map</span> Node:</p>
+                                                        <ul>
+                                                            <li value="1">
+                                                                <p><span class="UIelement">Starting from a result set</span>: Display the result set on which you want to apply the Map function. Right click the header of the result set column and select <span class="UIelement">Map</span>. The <span class="UIelement">Map</span>&#160;configuration panel is displayed. </p>
+                                                            </li>
+                                                            <li value="2">
+                                                                <p><span class="UIelement"> Starting from a Map Node</span>: Click the <span class="UIelement">Column Ops</span> category of operations in the Dataflow Mode Toolbar. Drag the <span class="UIelement">Map</span> Node to the dataflow canvas. Locate the Node with the result set column on which you want to apply a Map function, and connect its output to the <span class="UIelement">Map</span> Node. Right click the <span class="UIelement">Map</span> Node and select <span class="UIelement">Configure</span>. The <span class="UIelement">Map</span>&#160;configuration panel is displayed.</p>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li value="4">
+                                                        <p>In the <span class="UIelement">Map</span> configuration panel, follow these steps to select a function:</p>
+                                                        <ol style="list-style-type: lower-alpha;">
+                                                            <li value="1">
+                                                                <p>Select a category of functions. </p>
+                                                                <p>The functions in the selected category are displayed.</p>
+                                                            </li>
+                                                            <li value="2">
+                                                                <p>Select a function.</p>
+                                                                <div class="Example"><span class="label">TIP:</span>&#160;You can quickly locate a function by entering its name or part of its name in the <span class="UIelement">Search map functions</span> field. Functions with a matching name are displayed in the <span class="UIelement">Category</span> and the <span class="UIelement">Function</span> columns.</div>
+                                                            </li>
+                                                        </ol>
+                                                    </li>
+                                                    <li value="5">Based on the description of the function, fill out the operand fields. </li>
+                                                    <li value="6">Accept the default name for the new column or enter a new name.</li>
+                                                    <li value="7">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The Node configuration is saved and a new result set is displayed when the Node executes. </p>
+                                                        <div class="Note"><span class="label">NOTE:</span> You&#160;can replace an existing derived column using a <span class="UIelement">Map</span> function if you use it in the <span class="UIelement">New Resultant Column Name</span>.</div>
+                                                    </li>
+                                                </ol>
+                                                <h3>Applying Python code on a column</h3>
+                                                <p>If you have a custom requirement for applying a function on a column, you can write a user-defined function (UDF) in Python and use that in the Map Node. For an example of a Map UDF, see <a href="../../E_Reference/UdfExamples.htm" class="MCXref xref" xrefformat="{para}">User-defined function  examples</a>.</p>
+                                                <h3>Example of using a type-casting function</h3>
+                                                <p>To create a column based on an existing column but with a different data type:</p>
+                                                <ol>
+                                                    <li value="1">Display the result set in which you want to change the column data type. </li>
+                                                    <li value="2">
+                                                        <p>Right click the header of the result set column and select <span class="UIelement">Map</span>. </p>
+                                                        <p>A <span class="UIelement">Map </span>Node is added to the dataflow and its configuration panel is displayed.</p>
+                                                    </li>
+                                                    <li value="3">In the <span class="UIelement">Category</span> field, select <span class="UIelement">type-casting</span>.</li>
+                                                    <li value="4">In the <span class="UIelement">Function</span> field, select the desired data type.</li>
+                                                    <li value="5">
+                                                        <p>In the <span class="UIelement">Value</span> field, select a column that you want to type-cast. </p>
+                                                    </li>
+                                                    <li value="6">(Optional) If the desired data type is integer, enter the base in the <span class="UIelement">Base</span> field. For example, for base 10, type <span class="UIelement">10</span>; for binary, type <span class="UIelement">2</span>. </li>
+                                                    <li value="7">Enter a column name in the <span class="UIelement">New Resultant Column Name</span> field or accept the system generated new name.</li>
+                                                    <li value="8">(Optional) To add more  functions, click <span class="UIelement">Apply Additional Functions</span> and repeat steps 3 to 7.</li>
+                                                    <li value="9">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The configuration is saved and a new result set with the new column is displayed when the Node executes. </p>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak"> Example of changing column values using a Map function</h2>
+                                                <p>To replace a string in a column with another string:</p>
+                                                <ol>
+                                                    <li value="1">Display the result set in which you want to change the column values. </li>
+                                                    <li value="2">
+                                                        <p>Right click the header of the result set column and select <span class="UIelement">Map</span>. </p>
+                                                        <p>A <span class="UIelement">Map </span>Node is added to the dataflow and its configuration panel is displayed.</p>
+                                                    </li>
+                                                    <li value="3">In the <span class="UIelement">Category</span> field, select <span class="UIelement">string</span>.</li>
+                                                    <li value="4">In the <span class="UIelement">Function</span> field, select <span class="UIelement">replace</span>.</li>
+                                                    <li value="5">In the <span class="UIelement">Original string to search</span> field, select a column that you want to change. </li>
+                                                    <li value="6">In the <span class="UIelement">Search string</span> field, enter the string you want to replace. </li>
+                                                    <li value="7">In the <span class="UIelement">Replace string</span> field, enter the string you want to replace with. </li>
+                                                    <li value="8">(Optional) If you want to ignore the case in the pattern matching, check <span class="UIelement">Ignore case</span>. </li>
+                                                    <li value="9">Enter a new column name in the <span class="UIelement">New Resultant Column Name</span> field or accept the system generated new name.</li>
+                                                    <li value="10">(Optional) To add more  functions, click <span class="UIelement">Apply Additional Functions</span> and repeat steps 3 to 9.</li>
+                                                    <li value="11">
+                                                        <p>Click <span class="UIelement">Save</span>. </p>
+                                                        <p>The configuration is saved and a new result set with the new column values is displayed when the Node executes. </p>
+                                                    </li>
+                                                </ol>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

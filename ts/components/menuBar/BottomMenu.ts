@@ -11,7 +11,6 @@ namespace BottomMenu {
         setupButtons();
         Log.setup();
         HelpPanel.Instance.setup();
-        DocsPanel.Instance.setup();
         initialize();
     };
 
@@ -331,12 +330,6 @@ namespace BottomMenu {
             UDFPanel.Instance.switchMode();
         } else {
             $("#udfButtonWrap").addClass("xc-hidden");
-        }
-
-        if (sectionId === "helpSection") {
-            $("#helpButtonWrap").removeClass("xc-hidden");
-        } else {
-            $("#helpButtonWrap").addClass("xc-hidden");
         }
 
         refreshEditor();

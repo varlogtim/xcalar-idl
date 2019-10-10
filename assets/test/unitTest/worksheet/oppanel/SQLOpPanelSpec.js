@@ -144,7 +144,9 @@ describe("SQLOpPanel Test", function() {
         it("Should show statusbox error if columns isnt a field", function() {
             sqlOpPanel.show(node, openOptions);
             $('#formWaitingBG').remove();
-            $("#sqlOpPanel .bottomSection .xc-switch").click();
+            if (!sqlOpPanel._isAdvancedMode()) {
+                $("#sqlOpPanel .bottomSection .xc-switch").click();
+            }
             editor.setValue(JSON.stringify({}, null, 4));
             $("#sqlOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
@@ -165,6 +167,9 @@ describe("SQLOpPanel Test", function() {
             };
             sqlOpPanel.show(node, openOptions);
             $('#formWaitingBG').remove();
+            if (!sqlOpPanel._isAdvancedMode()) {
+                $("#sqlOpPanel .bottomSection .xc-switch").click();
+            }
             editor.setValue(JSON.stringify(struct, null, 4));
             $("#sqlOpPanel .bottomSection .btn-submit").click();
             expect($("#alertModal").is(":visible")).to.be.false;

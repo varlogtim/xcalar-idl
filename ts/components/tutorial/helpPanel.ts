@@ -24,7 +24,6 @@ class HelpPanel {
                 }
                 $("#help-tutorial").addClass("active");
                 $("#help-tutorial").removeClass("xc-hidden");
-                $("#help-documentation").addClass("xc-hidden");
                 $tutSearch.removeClass("xc-hidden");
                 TutorialPanel.Instance.active();
                 StatusMessage.updateLocation(true, "Viewing Tutorial Workbooks");
@@ -33,13 +32,7 @@ class HelpPanel {
                 TooltipModal.Instance.show();
                 break;
             case ("docsResource"):
-                if (!$helpPanel.hasClass("active")) {
-                    MainMenu.openPanel("helpPanel");
-                }
-                $("#help-documentation").addClass("active");
-                $("#help-documentation").removeClass("xc-hidden");
-                $("#help-tutorial").addClass("xc-hidden");
-                StatusMessage.updateLocation(true, "Viewing Documentation");
+                this._openHelpDocs();
                 break;
             case ("discourseResource"):
                 window.open("https://discourse.xcalar.com/");
@@ -56,12 +49,21 @@ class HelpPanel {
 
     }
 
-    private _setupResources() {
-        const self = this;
+    private _setupResources(): void {
         // main menu
-        $('#helpSection').find('.helpResource').click(function() {
-            var $button = $(this);
-            self.openHelpResource($button.attr("id"));
-        });    
+        $('#helpSection').find('.helpResource').click((event) => {
+            let $button = $(event.currentTarget);
+            this.openHelpResource($button.attr("id"));
+        });
+    }
+
+    private _openHelpDocs(): void {
+        let url = "assets/help/user/Content/";
+        if (XVM.isCloud()) {
+            url += "Home_cloud.htm";
+        } else {
+            url += "Home.htm";
+        }
+        window.open(url);
     }
 }

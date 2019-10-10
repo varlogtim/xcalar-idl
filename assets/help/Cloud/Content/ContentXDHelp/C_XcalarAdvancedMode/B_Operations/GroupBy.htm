@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Grouping data in a result set</title>
+        <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <link href="../../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
+        <script src="../../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home_cloud.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Grouping data in a result set</h1>
+                                                <p>Grouping data in a result set works  in a similar way as you would use the Group By clause in SQL. </p>
+                                                <h2 class="noPageBreak">Understanding the Group&#160;By operation</h2>
+                                                <p>Before starting the Group By operation, determine what aggregate functions to use for the calculation. For example, when you use a result set containing airlines information, you might be interested in the average arrival delay time and the sum of distance. You can select more than one function on which <span class="GeneralProductName3">Xcalar</span> performs the Group By operation. </p>
+                                                <p>You also need to select the columns to group on. For example, from the airlines result set, you might want to see the arrival delay time and the sum of distance, which are grouped by the day of the week and the carrier name. In the new result set, you can see the aggregate function results (average arrival delay and total distance) for each column that it is grouped on. For example, one row of the new result set might show that on day 1, the total distance flown by the carrier named XE is 37845 with an average arrival delay of 58.2. </p>
+                                                <h2 class="noPageBreak">Aggregate functions supported</h2>
+                                                <p>The following aggregate functions are supported:</p>
+                                                <ul>
+                                                    <li value="1">Average (avg)</li>
+                                                    <li value="2">Average numeric (avgNumeric)</li>
+                                                    <li value="3">Count</li>
+                                                    <li value="4">List aggregate (listAgg)</li>
+                                                    <li value="5">Maximum (max)</li>
+                                                    <li value="6">Maximum float (maxFloat)</li>
+                                                    <li value="7">Maximum integer (maxInteger)</li>
+                                                    <li value="8">Maximum numeric (maxNumeric)</li>
+                                                    <li value="9">Maximum string (maxString)</li>
+                                                    <li value="10">Maximum timestamp (maxTimestamp)</li>
+                                                    <li value="11">Minimum (min)</li>
+                                                    <li value="12">Minimum float (minFloat)</li>
+                                                    <li value="13">Minimum integer (minInteger)</li>
+                                                    <li value="14">Minimum numeric (minNumeric)</li>
+                                                    <li value="15">Minimum string (minString)</li>
+                                                    <li value="16">Minimum timestamp (minTimestamp)</li>
+                                                    <li value="17">Sum (sum)</li>
+                                                    <li value="18">Sum integer (sumInteger)</li>
+                                                    <li value="19">Sum numeric (sumNumeric)</li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Using aggregate functions on mixed columns</h2>
+                                                <p>If a column's data type is mixed, the result of an aggregate function is undefined.&#160;Cast a mixed column to the desired data type before you run an aggregate function on it.</p>
+                                                <h3><a name="Understa"></a>Understanding the listAgg (list aggregate) function</h3>
+                                                <p>The listAgg function is a string function, which concatenates all strings in a column using a delimiter. Currently it adds the delimiter at the end of the final string too. </p>
+                                                <p>For example, if a column has values A, B and C in three different rows and you select the delimiter character as *, the result will be: </p>
+                                                <p class="CLIoutput">A*B*C*</p>
+                                                <p>The maximum number of characters in the result is 16,000. If the result exceeds this limit, it displays the following error message:</p>
+                                                <p class="CLIoutput">Error: Value too large for defined data type</p>
+                                                <p>If the column contains a null string, it displays the following error message:</p>
+                                                <p class="CLIoutput">Error: No such field found while running aggregate</p>
+                                                <h2 class="noPageBreak"><a name="Grouping"></a>Grouping data by columns</h2>
+                                                <p>Verify that you are in Dataflow Mode. If not, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to display the <span class="UIelement">Dataflow Mode</span> workspace. From the  sidebar, click the <span class="UIelement">Dataflow Panel</span> icon. The <span class="UIelement">Dataflow Mode</span> workspace opens.</p>
+                                                <p>To group data by one or more columns:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>Right click the header of the column that you want to group by to display the drop-down. Then select the <span class="UIelement">Group By…</span> menu item. </p>
+                                                        <p>Alternatively, select the <span class="UIelement">Aggregates</span> category in the Dataflow Mode toolbar. Drag the <span class="UIelement">Group By</span> Node to the dataflow canvas. Link an existing Node with a result set to the <span class="UIelement">Group By</span> Node. Right click on the <span class="UIelement">Group By</span> Node and select <span class="UIelement">Configure</span> from the drop-down. </p>
+                                                    </li>
+                                                    <li value="2">
+                                                        <p>In the <span class="UIelement">Group By</span> panel, if the column displayed for <span class="UIelement">Fields to group on</span> is not the desired column, select another column.</p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;You can leave <span class="UIelement">Fields to group on</span> empty and click the <span class="UIelement">None</span> check box instead. The purpose of not grouping on a specified field is to create a result set with aggregate values, as described in <a href="#Creating" class="MCXref xref">Creating a result set for listing aggregate values</a>.</div>
+                                                    </li>
+                                                    <li value="3">(Optional) In the <span class="UIelement">Group By</span> panel, click <span class="UIelement">Add Another Column</span> button&#160;to group on an additional column. For example, in the result set for airlines, you can start the <span class="UIelement">Group By</span> operation from the <span class="UIelement">Carrier</span> column and add the <span class="UIelement">DayOfWeek</span> column as a second column to group with. In the new result set, data is grouped by both the <span class="UIelement">Carrier</span> and the <span class="UIelement">DayOfWeek</span> columns.</li>
+                                                    <li value="4">
+                                                        <p>In the <span class="UIelement">Group By</span> panel, follow these steps to create a column based on the selected aggregate function:</p>
+                                                        <ol style="list-style-type: lower-alpha;">
+                                                            <li value="1">
+                                                                <p>Select an aggregate function in <span class="UIelement">Function to apply to group</span>.</p>
+                                                            </li>
+                                                            <li value="2">
+                                                                <p>(Optional)&#160;If you want to apply the aggregate function to distinct values only, click the <span class="UIelement">Distinct</span> check box. The operation will eliminate duplicate values in the column when calculating the aggregate value. </p>
+                                                                <div class="Example"><span class="label">EXAMPLE</span>:&#160;With <span class="UIelement">Distinct</span> selected, if you apply the sum function to a column with two rows, each containing the number 3. The result is 3 because only one occurrence of 3 is used when the sum is calculated.</div>
+                                                            </li>
+                                                            <li value="3">Enter the field name to which the function applies. For example, in the result set for airlines information, specify the <span class="UIelement">ArrDelay</span> field to which you apply the <span class="UIelement">avg</span> function. This function calculates the average arrival delay.</li>
+                                                        </ol>
+                                                    </li>
+                                                    <li value="5">Accept the default name for the new column or enter a new name.</li>
+                                                    <li value="6">
+                                                        <p>(Optional)&#160;If you want to apply another aggregate function to the <span class="UIelement">Group By</span> operation, follow these steps:</p>
+                                                        <ol style="list-style-type: lower-alpha;">
+                                                            <li value="1">Click <span class="UIelement">Apply Additional Functions</span>.</li>
+                                                            <li value="2">Specify the function name and the column to which the function applies.</li>
+                                                            <li value="3">Accept the default name for the new column or enter a new name.</li>
+                                                        </ol>
+                                                        <p>Repeat this step for each additional function.</p>
+                                                    </li>
+                                                    <li class="has-children" value="7">
+                                                        <p>(Optional) Click <span class="UIelement">Advanced Options</span> to further customize the result of the Group By operation. The following table describes the options:</p>
+                                                        <table class="TableStyle-SimpleTable" style="mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
+                                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                            <thead>
+                                                                <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Advanced option</th>
+                                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Description</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Include only erroneous rows</td>
+                                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">This option filters only those rows where the function cannot produce a value in at least one of the resultant columns.</td>
+                                                                </tr>
+                                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Join result back to original</td>
+                                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">This option joins the new result set to the original result set with a full outer join. Joining back the result provides a convenient way to compare the values in the column that results from the <span class="UIelement">Group By</span> operation to values in the original column.</td>
+                                                                </tr>
+                                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Include sample columns</td>
+                                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                                        <p>By default,  the new result set contains only the new column created from the <span class="UIelement">Group By</span> operation and the columns on which you group. All columns in the new result set, including the columns on which you group, become derived columns.&#160;The Data Browser for the new result set contains only the derived fields.</p>
+                                                                        <p>This option enables you to select additional columns to include in the new result set. The column created by the <span class="UIelement">Group By</span> function is a derived column. All prefixed columns retain the column prefix.</p>
+                                                                        <div class="Note"><span class="label">NOTE:</span>&#160;This option is not applicable if you select <span class="UIelement">Join result back to original</span> because the result set created by the Join operation automatically includes all the columns from the original result set.</div>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </li>
+                                                    <li value="8">Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set is displayed when the Node executes. </li>
+                                                </ol>
+                                                <p>The following screenshot shows an example of a result set created by a multi-column, multi-function <span class="UIelement">Group By</span> operation, without joining back to the original result set. </p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-groupby-multi-col-multi-func.png" />
+                                                </p>
+                                                <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="#" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage" aria-expanded="false"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <p>For selecting columns:</p>
+                                                        <ul>
+                                                            <li value="1">By default, the name of the column from which you start the function is displayed as an argument. You can select another column.</li>
+                                                            <li value="2">If the column you want to select is not in the result set, go to the Data Browser to pull the column. Then you can select the column as input to the function.</li>
+                                                        </ul>
+                                                        <p>For typing a column name:</p>
+                                                        <ul>
+                                                            <li value="1">Always start with the dollar sign ($).</li>
+                                                            <li value="2">Always include the prefix if one exists. A derived column does not have a column name prefix.</li>
+                                                            <li value="3">To specify the resultant column name, type the name without preceding it with the dollar sign ($).</li>
+                                                            <li value="4">To avoid mistakes when typing a column name, click on the argument field, move your cursor to the active result set and click anywhere in the desired column. The column's name is automatically entered for you.</li>
+                                                            <li value="5">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                        </ul>
+                                                        <p>For typing an operand value:</p>
+                                                        <ul>
+                                                            <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
+                                                            <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                            <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>. It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
+                                                            <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>.&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
+                                                            <li value="5">
+                                                                <p>Boolean values are case-insensitive. For example, in an input field that accepts a Boolean value, you can type true, True, false, or False.</p>
+                                                            </li>
+                                                        </ul>
+                                                        <p>In the panel, you can undo any typing with the undo key or key combination that you normally use in your browser.</p>
+                                                    </div>
+                                                </div>
+                                                <h2 class="noPageBreak"><a name="Creating"></a>Creating a result set for listing aggregate values</h2>
+                                                <p>You can use the <span class="UIelement">Group By</span>&#160;panel to create a result set listing aggregate values. For example, from a result set containing airlines data, you might want to create another result set listing the average delay time and the count of unique carriers. To create a result set containing aggregate values calculated on selected columns, follow the procedure described in <a href="#Grouping" class="MCXref xref">Grouping data by columns</a>. Instead of specifying a field to group on, click the None check box in the  <span class="UIelement">Group By</span>&#160;panel. </p>
+                                                <p>The following partial screenshot of the <span class="UIelement">Group By</span>&#160;panel illustrates how to create a result set with aggregate values. </p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-groupby-panel-aggregates.png" />
+                                                </p>
+                                                <p>The following screenshot shows the new result set, which  contains two columns and one row. The ArrDelay_avg1 column contains the average delay time, and the Carrier_count column contains the total carrier count. </p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-groupby-aggregate.png" alt="" title="" />
+                                                </p>
+                                                <h2 class="noPageBreak">Improving multi-column group by performance</h2>
+                                                <p>If a result set's skew value is high, you might experience performance degradation when running an operation, especially one that uses multiple keys, such as group by, join, or sort. You can improve performance by selecting the column with the most evenly distributed values as the first key. To see how values are distributed within a column, in a result set in Dataflow Mode, right click the column header and select <span class="UIelement">Profile</span>.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

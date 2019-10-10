@@ -118,10 +118,15 @@ class UserMenu {
             return;
         }
         let num;
-        if (origNum >= 1000) {
-            num = Math.round(origNum);
-        } else {
-            num = origNum.toPrecision(3);
+        try {
+            if (origNum >= 1000) {
+                num = Math.round(origNum);
+            } else {
+                num = origNum.toPrecision(3);
+            }
+        } catch (e) {
+            console.error(e);
+            return;
         }
 
         const credits: string = xcStringHelper.numToStr(num) + " Credits";

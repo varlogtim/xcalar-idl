@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="SQL Mode">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Xcalar SQL&#160;Limitations and Restrictions</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../Home_cloud.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1><span class="GeneralProductName3">Xcalar</span> SQL&#160;Limitations and Restrictions</h1>
+                                                <p>This section describes the limitations and restrictions when working with <span class="GeneralProductName3">Xcalar</span> SQL. For a list of SQL ANSI standard features and subfeatures and the support level <span class="GeneralProductName3">Xcalar</span> provides for each feature, see <a href="../E_Reference/sql_comply_tables.htm" class="MCXref xref" xrefformat="{para}">Xcalar SQL compliance</a>.</p>
+                                                <h2 class="noPageBreak">Window function restrictions:</h2>
+                                                <p>The following window functions are supported without the OVER clause:<ul style="list-style-type: square;"><li value="1">Values - FIRST_VALUE(), LAST_VALUE(), LAG(), LEAD()</li><li value="2">Ranking - CUME_DIST(), DENSE_RANK(), PERCENT_RANK(), ROW_NUMBER()</li></ul></p>
+                                                <div class="Note"><span class="label">IMPORTANT:</span> Window functions depend on sort ordering specified by the ORDER BY clause, which is part of the OVER clause. If you do not include the OVER clause when using the ORDER BY clause,&#160;the results are non-deterministic. </div>
+                                                <div class="Note"><span class="label">TIP:</span> Functions, such as LAG, LAST, LEAD, FIRST, and RANK do not persist the order after a calculation. If you do not want the inherent sort order result, <span class="GeneralProductName3">Xcalar</span> recommends adding another ORDER By clause outside of the ORDER BY clause at the end of a statement.</div>
+                                                <h3>Frame clause restrictions:</h3>
+                                                <p>In the frame clause of a window function, you must specify where the frame starts and  ends.</p>
+                                                <p>The <span class="GeneralProductName3">Xcalar</span> SQL default frame clause includes all the row values from the start of the partition through to the current row of the partition including all the rows that have the same values as the current row:</p>
+                                                <p>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</p>
+                                                <p>The frame clause requires the OVER () clause and must be associated with the ORDER&#160;BY clause.</p>
+                                                <p>Where:</p>
+                                                <ul>
+                                                    <li value="1">UNBOUNDED PRECEDING is where the frame starts with the first row of the partition.</li>
+                                                    <li value="2">CURRENT ROW is where the frame ends with the current row or last value of the current row based on the ORDER BY clause.</li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Operations not supported</h2>
+                                                <p>The following operations&#160;are not supported:</p>
+                                                <ul>
+                                                    <li value="1">SQL queries that run on less than one table</li>
+                                                    <li value="2">Counting values in multiple columns with the COUNT function. </li>
+                                                    <div class="Note"><span class="label">TIP:</span> Include the GROUP BY clause. For example, the following removes duplications and retrieves all possible column combinations from three columns before counting the values:<br /><p class="userInput">SELECT COUNT (*) FROM (SELECT COUNT(*) FROM <var>table</var> GROUP BY <var>col1</var>, <var>col2</var>, <var>col3</var>)</p></div>
+                                                    <li value="3">Regular expressions, such as REGEXP_SUBSTR.</li>
+                                                    <li value="4"><span class="GeneralProductName3">Xcalar</span> SQL does not have a default sort order, users must include the ORDER BY clause if sorting is required.</li>
+                                                    <li value="5">Timezones in the TIMESTAMP function.</li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Differences between <span class="GeneralProductName3">Xcalar</span> SQL&#160;and Oracle SQL</h2>
+                                                <p>The following list describes a few  differences between Oracle and <span class="GeneralProductName3">Xcalar</span> SQL and how to achieve with <span class="GeneralProductName3">Xcalar</span> SQL the same or similar results  as Oracle SQL:</p>
+                                                <ul>
+                                                    <li value="1"><span class="GeneralProductName3">Xcalar</span> SQL does not support Oracle pseudocolumns. </li>
+                                                    <div class="Note"><span class="label">NOTE:</span> The <span class="GeneralProductName3">Xcalar</span> SQL ROW_NUMBER function is similar to the Oracle SQL ROWID pseudocolumn function. For example, <code>SELECT ROW_NUMBER()FROM <var>table</var></code></div>
+                                                    <li value="2">In <span class="GeneralProductName3">Xcalar</span> SQL the padding character argument is mandatory for both LPAD and RPAD functions. Example syntax, </li>
+                                                    <ul style="list-style-type: circle;">
+                                                        <li value="1">Oracle SQL: <code>LPAD(<var>string</var>, <var>length</var> [,<var>pad</var>])</code></li>
+                                                        <li value="2"><span class="GeneralProductName3">Xcalar</span> SQL: <code>LPAD(<var>string</var>, <var>length</var>, <var>pad</var>)</code></li>
+                                                        <p>where,</p>
+                                                        <ul style="list-style-type: square;">
+                                                            <li value="1"><var>string</var>, is the original text string value. if the length of the original text is larger than the <var>length</var> parameter, extra characters are removed.</li>
+                                                            <li value="2"><var>length</var>, is the length of the text string after the padding value is included.</li>
+                                                            <li value="3"><var>pad</var>, is the character padding value.</li>
+                                                        </ul>
+                                                    </ul>
+                                                    <li value="3"><span class="GeneralProductName3">Xcalar</span> SQL does not support character removal with the LTRIM or RTRIM functions, the LTRIM and RTRIM functions only remove the whitespace character. Example syntax, </li>
+                                                    <ul style="list-style-type: circle;">
+                                                        <li value="1">Oracle SQL: <code>LTRIM(<var>string</var> </code><code>[,<var>trim_string</var>])</code> </li>
+                                                        <li value="2"><span class="GeneralProductName3">Xcalar</span> SQL: <code>LTRIM(<var>string</var>)</code></li>
+                                                        <p>where,</p>
+                                                        <ul style="list-style-type: square;">
+                                                            <li value="1"><var>string</var>, is the character value that you want trimmed. </li>
+                                                        </ul>
+                                                        <ul style="list-style-type: square;">
+                                                            <li value="1"><var>trim_string</var>, is the value of the trimmed characters.</li>
+                                                        </ul>
+                                                    </ul>
+                                                    <li value="4">You can only apply the <span class="GeneralProductName3">Xcalar</span> SQL TRUNC&#160;function on <span class="UIelement">TIMESTAMP</span> data types. The <span class="GeneralProductName3">Xcalar</span> SQL TRUNC&#160;function also requires both date and format arguments. Example syntax, </li>
+                                                    <ul style="list-style-type: circle;">
+                                                        <li value="1">Oracle SQL: <code>TRUNC(<var>date</var></code><code>[,<var>fmt</var>])</code> </li>
+                                                        <li value="2"><span class="GeneralProductName3">Xcalar</span> SQL: <code>TRUNC(<var>date, fmt</var>)</code></li>
+                                                        <p>where,</p>
+                                                        <ul style="list-style-type: square;">
+                                                            <li value="1"><var>date</var>, is the date value that you want truncated. </li>
+                                                            <li value="2"><var>fmt</var>, is the unit of measure for truncating.</li>
+                                                        </ul>
+                                                    </ul>
+                                                    <div class="Note"><span class="label">TIP</span>: <span class="GeneralProductName3">Xcalar</span> recommends using a user-defined function (UDF) for other data types. </div>
+                                                    <div class="Note"><span class="label">NOTE:</span> The <span class="GeneralProductName3">Xcalar</span> SQL ROUND() function is similar to the Oracle SQL TRUNC(number) function.</div>
+                                                    <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> SQL supports the ISO 8601 Date format.</div>
+                                                    <li value="5"><span class="GeneralProductName3">Xcalar</span> SQL does not support the Oracle SQL MEDIAN function, which returns the middle value from numeric or datetime data type values. </li>
+                                                    <div class="Note"><span class="label">TIP:</span> <span class="GeneralProductName3">Xcalar</span> recommends using the Dataflow Mode in <span class="GeneralGUIName1">Xcalar Design</span>.</div>
+                                                    <li value="6"><span class="GeneralProductName3">Xcalar</span> SQL does not support the Oracle SQL TO_CHAR function that converts a DATE or a NUMBER data type into a displayable text string. </li>
+                                                    <div class="Note"><span class="label">TIP</span>: <span class="GeneralProductName3">Xcalar</span> recommends using the STRING() function without an argument. </div>
+                                                    <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> does support the CHAR function.</div>
+                                                    <li value="7"><span class="GeneralProductName3">Xcalar</span> SQL does not support the Oracle SQL TO_NUMBER function that converts other data types to an integer data type. </li>
+                                                    <div class="Note"><span class="label">TIP</span>: <span class="GeneralProductName3">Xcalar</span> recommends using the <span class="GeneralProductName3">Xcalar</span> SQL INT(), FLOAT(), or MONEY() functions without an argument. </div>
+                                                    <li value="8">The Oracle SQL COALESCE function requires at least two arguments, whereas <span class="GeneralProductName3">Xcalar</span> SQL supports one or more arguments.</li>
+                                                </ul>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

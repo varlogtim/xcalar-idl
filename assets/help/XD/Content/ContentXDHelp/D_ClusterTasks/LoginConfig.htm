@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Configuring users (admin only)</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../Home.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Configuring users (admin only)</h1>
+                                                <p>This section describes how to configure user authentication through the <span class="UIelement">LOGIN CONFIGURATION</span> modal window in <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <h2 class="noPageBreak">Displaying the Login Configuration modal window</h2>
+                                                <p>To display the <span class="UIelement">Login Configuration</span> modal window:</p>
+                                                <ol>
+                                                    <li value="1">Log in to <span class="GeneralGUIName1">Xcalar Design</span> as either the <span class="GeneralCompanyNameShort">Xcalar</span> Admin user or the default admin user.</li>
+                                                    <li value="2">From the sidebar, click the <b>System</b> icon and then click the <b>Administration</b> icon <img src="../../Resources/Images/XD_assets/xd-administration.png" />.</li>
+                                                    <li value="3">In the <b>Administration</b> panel, click <span class="UIelement">Login Configuration</span>.</li>
+                                                </ol>
+                                                <p>The rest of this topic discusses the tasks that you can perform from the <span class="UIelement">Login Configuration</span> modal window. After filling out the required information, click <span class="UIelement">Save</span>. Your changes will take effect immediately.</p>
+                                                <h2 class="noPageBreak">Enabling or disabling an authentication method</h2>
+                                                <p> According to the platform on which you installed <span class="GeneralProductName3">Xcalar</span>, the following user authentication services are supported:</p>
+                                                <ul>
+                                                    <li value="1">For an on-premises <span class="GeneralProductName3">Xcalar</span> deployment, <span class="GeneralGUIName1">Xcalar Design</span> supports the Lightweight Directory Access Protocol (LDAP) user authentication for verifying user access. </li>
+                                                </ul>
+                                                <div class="Note"><span class="label">NOTE</span>: During the <span class="GeneralProductName3">Xcalar</span> installation, you can choose to configure your LDAP settings before or after the  installation. If you choose to configure your LDAP&#160;settings after installing <span class="GeneralProductName3">Xcalar</span>, you must create a default admin user account during installation by selecting the <b>CREATE DEFAULT ADMIN USER</b> check box.  </div>
+                                                <div class="Note"><span class="label">IMPORTANT: </span><span class="GeneralProductName3">Xcalar</span> recommends  creating a default administrator, as this account's credentials are stored locally on your cluster and can be used when the LDAP server is not available.</div>
+                                                <ul>
+                                                    <li value="1">For a Microsoft Azure Marketplace <span class="GeneralProductName3">Xcalar</span> cloud deployment, <span class="GeneralGUIName1">Xcalar Design</span> supports Azure Active Directory v2.0 user authentication or LDAP&#160;for verifying user access. </li>
+                                                    <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> recommends using Azure Active Directory v2.0 for user authentication. </div>
+                                                </ul>
+                                                <p>In the <span class="UIelement">Login Configuration</span> modal window, you can enable or disable LDAP,&#160;Azure AD authentication by selecting or deselecting its check box. For more information on how to fill out the required field settings, see either <a href="#Enabling" class="MCXref xref" xrefformat="{para}">Enabling LDAP authentication</a> or <a href="#Enabling2" class="MCXref xref" xrefformat="{para}">Enabling Azure AD&#160;v2.0 Common Endpoint authentication</a>.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;You must enable at least one authentication method. If both LDAP&#160;and Azure AD are disabled, users cannot access <span class="GeneralGUIName1">Xcalar Design</span>. Creating a <b>default admin</b> user during the <span class="GeneralProductName3">Xcalar</span> installation, grants administrator user access privileges to <span class="GeneralGUIName1">Xcalar Design</span> outside of the LDAP&#160;and Azure AD authentication method. This user is then able to enable LDAP or Azure AD authentication.  For more information about the default admin user account, see <a href="#Understa" class="MCXref xref" xrefformat="{para}">Understanding the default admin user account</a>. If you cannot use the default admin user account, call <span class="GeneralCompanyNameShort">Xcalar</span> for information about accessing your cluster again.</div>
+                                                <h2 class="noPageBreak"><a name="Enabling"></a>Enabling LDAP authentication</h2>
+                                                <p>LDAP authentication requires values that were collected during the <span class="GeneralProductName3">Xcalar</span> pre-installation tasks. For more information, see the <span class="GeneralProductName3">Xcalar</span> Installation Guide.</p>
+                                                <p>To enable LDAP Authentication:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>Log in to <span class="GeneralGUIName1">Xcalar Design</span> as either the <span class="GeneralCompanyNameShort">Xcalar</span> Admin user or the default admin user.</p>
+                                                    </li>
+                                                    <li value="2">From the sidebar, click the <b>System</b> icon and then click the <b>Administration</b> icon <img src="../../Resources/Images/XD_assets/xd-administration.png" />.</li>
+                                                    <li value="3">In the <b>Administration</b> panel, select <span class="UIelement">Login Configuration</span>.</li>
+                                                    <p>The <b>LOGIN CONFIGURATION</b> modal window appears.</p>
+                                                    <li value="4">Select the <b>ENABLE LIGHTWEIGHT DIRECTORY ACCESS PROTOCOL (LDAP) AUTHENTICATION</b> check box and then select your current LDAP implementation.</li>
+                                                    <li value="5">
+                                                        <p>In the <b>LDAP URL</b> field, enter the LDAP URL that is used to contact the LDAP Server.</p>
+                                                    </li>
+                                                    <li value="6">In the <b>USER DN</b> field, enter the location in the LDAP server in which to search for user entries. For example,</li>
+                                                    <p><code>cn=Users,dc=int,dc=xcalar,dc=net</code>
+                                                    </p>
+                                                    <li value="7">In the <b>SEARCH FILTER</b> field, enter the LDAP filter that is used to limit the returned number of user entries to one. For example,
+</li>
+                                                    <p><code>(&amp;(objectclass=user)(userPrincipalName=%username%))</code><![CDATA[           
+            ]]></p>
+                                                    <li value="8">In the <b>SERVER KEYFILE</b> field, enter the path to the LDAP security certificates that identify the server.</li>
+                                                    <li value="9">(AD option only) In the <b>AD USER GROUP</b> field, enter the name of the Active Directory's user group. For example, <b>Xce User</b>.</li>
+                                                    <li value="10">(AD option only) In the <b>AD ADMIN GROUP</b> field, enter the name of the Active Directory's administrator group. For example, <b>Xce Admin</b>.</li>
+                                                    <li value="11">(Optional AD option only) In the <b>AD DEFAULT&#160;DOMAIN</b> field, enter the domain name of your Active Directory, which is used as an optional default domain name. </li>
+                                                    <li value="12">(Optional AD option only) If your Active Directory's top level groups contain sub groups, select the <b>ENABLE GROUP SUBTREE SEARCHING</b> check box. This enables subgroup LDAP searching for AD LDAP.</li>
+                                                    <li value="13">(Optional AD option only) By default, when a user enters their user name and password to log in to <span class="GeneralGUIName1">Xcalar Design</span>, <span class="GeneralProductName3">Xcalar</span> authenticates the user by searching AD for both a user name and the AD domain name. If you require user authentication by <span class="GeneralProductName3">Xcalar</span> based on the user name only, select the <b>SEARCH USING USER ID ONLY</b> check box.</li>
+                                                    <li value="14"> If you require secure LDAP connections, select the <b>ENABLE TRANSPORTATION LAYER SECURITY (TLS)</b> check box. </li>
+                                                    <li value="15">Click <b>Confirm &amp; Save</b>.</li>
+                                                </ol>
+                                                <h2 class="noPageBreak"><a name="Enabling2"></a>Enabling Azure AD&#160;v2.0 Common Endpoint authentication</h2>
+                                                <p>The Azure AD authentication fields require Azure AD <span class="GeneralProductName3">Xcalar</span> resource identifiers. The following topics describe how to collect the identifiers and enable Azure AD authentication.</p>
+                                                <h3>Recording Azure AD <span class="GeneralProductName3">Xcalar</span> resource identifiers</h3>
+                                                <p>To record Azure AD <span class="GeneralProductName3">Xcalar</span> resource identifiers:</p>
+                                                <ol>
+                                                    <li value="1">In a browser, go the Microsoft Application Registration Portal and log in with the Microsoft Azure account that was used to register the <span class="GeneralProductName2">Xcalar Compute Engine</span> and <span class="GeneralGUIName1">Xcalar Design</span> services.<p>The <b>My applications</b> list appears.</p></li>
+                                                    <li value="2">Locate and select the <span class="GeneralProductName2">Xcalar Compute Engine</span> unique application name you provided when registering <span class="GeneralProductName3">Xcalar</span>. For example, <i>Production <span class="GeneralProductName3">Xcalar</span> Instance</i>.</li>
+                                                    <p>The <i><span class="GeneralProductName2">Xcalar Compute Engine</span> unique application name</i> <b>Registration</b> page appears.</p>
+                                                    <li value="3">From the <b>Platforms</b> section, record the <b>Application ID URI</b> value.</li>
+                                                    <li value="4">Go back to the <b>My applications</b> page by clicking the <b>My applications</b> link.</li>
+                                                    <p>The <b>My applications</b> list appears.</p>
+                                                    <li value="5">Locate and select the <span class="GeneralGUIName1">Xcalar Design</span> unique application name you provided when registering <span class="GeneralProductName3">Xcalar</span>. For example, <i>Production </i><span style="font-style: italic;" class="GeneralProductName3">Xcalar</span><i> Instance Client</i>.</li>
+                                                    <p>The <i><span class="GeneralGUIName1">Xcalar Design</span> unique application name</i> <b>Registration</b> page appears.</p>
+                                                    <li value="6">From the <b>Properties</b> section, record the <b>Application ID</b>.</li>
+                                                    <li value="7">Log out of the Microsoft Application Registration Portal.</li>
+                                                </ol>
+                                                <h3>Enabling Azure Active Directory Authentication</h3>
+                                                <p>To enable Azure Active Directory Authentication:</p>
+                                                <ol>
+                                                    <li value="1">Verify that <span class="GeneralProductName2">Xcalar Compute Engine</span> and <span class="GeneralGUIName1">Xcalar Design</span> were registered during the <span class="GeneralProductName3">Xcalar</span> installation and that the <b>Application ID URI</b> and <b>Application ID</b> values were recorded. </li>
+                                                    <li value="2">
+                                                        <p>Log in to <span class="GeneralGUIName1">Xcalar Design</span> as either the <span class="GeneralCompanyNameShort">Xcalar</span> Admin user or the default admin user.</p>
+                                                    </li>
+                                                    <li value="3">From the sidebar, click the <b>System</b> icon and then click the <b>Administration</b> icon <img src="../../Resources/Images/XD_assets/xd-administration.png" />.</li>
+                                                    <li value="4">From the <b>Administration</b> panel, select <span class="UIelement">Login Configuration</span>.</li>
+                                                    <p>The <b>LOGIN CONFIGURATION</b> modal window appears.</p>
+                                                    <li value="5">Select the ENABLE AZURE V2.0 COMMON AUTHENTICATION check box.</li>
+                                                    <li value="6">In the <b>CLIENT ID</b> field, enter the <b>Application ID</b> that you recorded from the Azure Application Registration Portal. For example, <code>3e956d1c-ac0d-4381-a755-9cc63b7d50hb</code>.</li>
+                                                    <li value="7">
+                                                        <p>In the <b>XCALAR USER SCOPE</b> field, enter the <b>Application ID URI</b> that you recorded from the Azure Application Registration Portal, using the following syntax:</p>
+                                                        <p><b>api://</b><i>Application ID URI</i><b>/</b><i>access_as_user</i>
+                                                        </p>
+                                                    </li>
+                                                    <p>For example: <code>api://3e956d1c-ac0d-4381-a755-9cc63b7c6dfh/<i>access_as_user</i></code></p>
+                                                    <p>Where:</p>
+                                                    <p><i>access_as_user</i> is the access name you gave for the <span class="GeneralProductName3">Xcalar</span> user.</p>
+                                                    <li value="8">In the <b>XCALAR ADMIN SCOPE</b> field, enter the <b>Application ID URI</b> that you recorded from Azure, using the following syntax:</li>
+                                                    <p><b>api://</b><i>Application ID URI</i><i>/access_as_admin</i>
+                                                    </p>
+                                                    <p>For example: <code>api://3e956d1c-ac0d-4381-a755-9cc63b7c6dfh/access_as_admin</code></p>
+                                                    <p>Where:</p>
+                                                    <p><i>access_as_admin</i> is the access name you gave for the <span class="GeneralProductName3">Xcalar</span> admin. </p>
+                                                    <li value="9">(Optional) In the <b>AZURE SCOPES</b> field, enter the identification number of other protected resources that require <span class="GeneralProductName3">Xcalar</span> access.</li>
+                                                    <li value="10">
+                                                        <p><span style="color: #b22222;"><span style="color: #000000;">(Optional) B2C fields have been provided for B2C services authentication to access services, such as Web API, social media, and local accounts. For more information on how to set up and register B2C authentication, see the Microsoft Azure B2C authentication documentation. For more information on using the B2C authentication fields, contact <span class="GeneralProductName3">Xcalar</span> support.</span></span>
+                                                        </p>
+                                                        <div class="Note"><span class="label">NOTE:</span> <span style="color: #b22222;"><span style="color: #000000;">When using B2C you must select the </span></span><b style="color: #000000;">ENABLE AZURE B2C</b><span style="color: #b22222;"><span style="color: #000000;"> check box</span></span><span style="color: #000000;">.</span></div>
+                                                    </li>
+                                                    <li value="11">Click <b>Confirm &amp; Save</b>.</li>
+                                                </ol>
+                                                <h2 class="noPageBreak"><a name="Understa"></a>Understanding the default admin user account</h2>
+                                                <p>Regardless of the user authentication method, you must set up an administrator user account before you can log in to <span class="GeneralGUIName1">Xcalar Design</span> as an admin user. This user account, created during the <span class="GeneralProductName3">Xcalar</span> installation, provides additional privileges, such as access to the <span class="UIelement" style="font-weight: bold;">Administration</span> panel. </p>
+                                                <p>The default admin user account, whose credentials are stored locally on your cluster, is a single user administrator account configured outside of an authentication service, such as LDAP or Azure AD. This account enables you to log in to <span class="GeneralGUIName1">Xcalar Design</span> if LDAP and Azure AD are not available or are disabled. After logging in as the default admin user, you can enable another authentication method or reconfigure LDAP&#160;or Azure AD&#160;to resolve problems. </p>
+                                                <h3>Creating the default admin user account</h3>
+                                                <p>To create the default admin user account, follow these steps:</p>
+                                                <ol>
+                                                    <li value="1">Select the <span class="UIelement">ENABLE&#160;DEFAULT&#160;ADMIN&#160;USER ACCOUNT</span> check box.</li>
+                                                    <li value="2">
+                                                        <p>Enter the following information:</p>
+                                                        <ul>
+                                                            <li value="1">User name.</li>
+                                                            <li value="2">User password, which must consist of at least one non-blank character.</li>
+                                                            <li value="3">Email address.</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li value="3">Click <span class="UIelement">Confirm&#160;&amp;&#160;Save</span>.</li>
+                                                </ol>
+                                                <h3>Changing the default admin user account information</h3>
+                                                <p>For an existing default admin user account, if you need to change the account information, follow these steps:</p>
+                                                <ol>
+                                                    <li value="1">If the default admin user account is not enabled, select the  <span class="UIelement">ENABLE&#160;DEFAULT&#160;ADMIN&#160;USER ACCOUNT</span> check box.</li>
+                                                    <li value="2">
+                                                        <p>Change the user name, user password, or email address.</p>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;You can change the password without providing the existing password. This step is useful, for example, if you forget your password and want to reset it.</div>
+                                                    </li>
+                                                    <li value="3">Click <span class="UIelement">Confirm&#160;&amp;&#160;Save</span>.</li>
+                                                </ol>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
