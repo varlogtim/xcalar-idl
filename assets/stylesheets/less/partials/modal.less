@@ -4251,22 +4251,22 @@ html.microsoft {
 #tooltipModal {
     // XXX TODO: Revisit this UI with Maggie once more than two walkthroughs exist.
     @h-without-main: @modal-header-h;
-    .size(@height: 200px);
+    .size(@height: 322px);
 
     .modalMain {
         padding: 0;
         overflow-y: auto;
-        .font(@size: 12px, @align: center);
+        .font(@size: 12px, @align: left);
         .size(@height: ~"calc(100% - @{modal-header-h})");
 
         .item {
             width: 100%;
-            height: 50px;
+            height: 94px;
             border-bottom: 1px solid @color-border-pinkish-grey2;
             .leftPart {
                 float: left;
-                padding-left: 10px;
-                width:  ~"calc(100% - 90px)";
+                padding: 25px 24px;
+                width:  ~"calc(100% - 162px)";
                 .tooltipName {
                     font-size: 20px;
                     font-weight: 600px;
@@ -4277,13 +4277,24 @@ html.microsoft {
                 }
             }
             .rightPart {
-                padding-top: 10px;
+                padding-top: 32px;
                 float: right;
-                width: 80px;
-                padding-right: 10px;
+                padding-right: 22px;
                 .btn {
-                    width: 70px;
+                    width: 130px;
                 }
+            }
+            &:first-child {
+                height: 81px;
+                .leftPart {
+                    padding-top: 12px;
+                }
+                .rightPart {
+                    padding-top: 22px;
+                }
+            }
+            &:last-child {
+                border-bottom: none;
             }
         }
     }
