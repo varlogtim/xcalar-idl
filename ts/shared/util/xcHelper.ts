@@ -1481,7 +1481,7 @@ namespace xcHelper {
                 startError = ColTStr.RenameStartInvalid;
                 lengthLimit = XcalarApisConstantsT.XcalarApiMaxFieldNameLen;
                 lengthError = ColTStr.LongName;
-                namePattern = /^((?![()\[\]{}^,"':]).)*((?![()\[\]{}^,"': ]).)$/;
+                namePattern = /^((?![()\[\]\.{}^,"':]).|\\.)*((?![()\[\]\.{}^,"': ]).|\\.)$/;
                 patternError = 'Invalid name. Ensure name does not contain the following characters: ^\',":()[]{}\\';
                 if (name === 'DATA' || preservedNames.indexOf(name.toLowerCase()) > -1) {
                     return ErrTStr.PreservedName;
@@ -1492,7 +1492,7 @@ namespace xcHelper {
                 startError = ColTStr.RenameStartInvalid;
                 lengthLimit = XcalarApisConstantsT.XcalarApiMaxFieldNameLen;
                 lengthError = ColTStr.LongName;
-                antiNamePattern = /^ | $|[\^,\(\)\[\]{}'"\.]|::/;
+                antiNamePattern = /^ | $|[\^,\(\)\[\]{}'"]|::|(?!\\\.)(.\.)/;
                 patternError = ColTStr.ColNameInvalidCharSpace;
                 if (name === 'DATA' || preservedNames.indexOf(name.toLowerCase()) > -1) {
                     return ErrTStr.PreservedName;

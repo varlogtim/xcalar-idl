@@ -34,7 +34,7 @@ fnName
     throw SyntaxError('Invalid udf name: ' + $ALPHANUMERIC.text);}}
     ;
 columnArg
-    : colElement DOUBLECOLON colElement
+    : prefix DOUBLECOLON colElement
     | colElement
     ;
 prefix
@@ -44,7 +44,9 @@ prefix
     }}
     ;
 colElement
-    : colName (DOT propertyName)* (LBRACKET integerLiteral RBRACKET)*
+    : colName
+    | colElement DOT propertyName
+    | colElement LBRACKET integerLiteral RBRACKET
     ;
 colName
     : ALPHANUMERIC
@@ -101,7 +103,7 @@ INTEGER: '-'? DIGIT+;
 STRING: ('"' ( ~('"'|'\\') | ('\\' .) )* '"') | ('\'' ( ~('\''|'\\') | ('\\' .) )* '\'');
 APOSTROPHE: '\'';
 SINGLEQUOTE: '"';
-ALPHANUMERIC: (ALPHANUMS | [_-] | '<' | '>') ((CHARALLOWED | ' ')* CHARALLOWED)?;
+ALPHANUMERIC: (ALPHANUMS | [_-] | '<' | '>') ((CHARALLOWED | ' ' | '\\.' | '\\[' | '\\]')* (CHARALLOWED | '\\.' | '\\[' | '\\]'))?;
 fragment A : [aA]; // match either an 'a' or 'A'
 fragment B : [bB];
 fragment C : [cC];
@@ -131,7 +133,7 @@ fragment Z : [zZ];
 fragment DIGIT: [0-9];
 fragment ALPHAS: [a-zA-Z];
 fragment ALPHANUMS: [a-zA-Z0-9];
-fragment CHARALLOWED: ~('(' | ')' | '[' | ']' | '{' | '}' | '^' | ',' | ':' | '"' | '\\' | '\'' | ' ');
+fragment CHARALLOWED: ~('(' | ')' | '[' | ']' | '{' | '}' | '^' | '.' | ',' | ':' | '"' | '\\' | '\'' | ' ');
 WS
     : [ \r\n\t]+ -> channel(HIDDEN)
     ;
