@@ -1502,7 +1502,7 @@ module.exports = function(grunt) {
         },
 
         assets_inline: {
-            all: {
+            login: {
                 options: {
                     minify: false
                 },
@@ -1511,6 +1511,15 @@ module.exports = function(grunt) {
                       dest: BLDROOT + "assets/htmlFiles/login.html" }
                 ],
             },
+            cloudLogin: {
+                options: {
+                    minify: false
+                },
+                files: [
+                    { src: BLDROOT + "cloudLogin/cloudLogin.html",
+                      dest: BLDROOT + "cloudLogin/cloudLogin.html" }
+                ],
+            }
         },
 
 
@@ -1549,6 +1558,16 @@ module.exports = function(grunt) {
             },
             raleway_css: {
                 path: BLDROOT + 'assets/htmlFiles/login.html',
+                pattern: 'raleway.css',
+                replacement: 'raleway.css.new'
+            },
+            opensans_css_cloudLogin: {
+                path: BLDROOT + 'cloudLogin/cloudLogin.html',
+                pattern: 'opensans.css',
+                replacement: 'opensans.css.new'
+            },
+            raleway_css_cloudLogin: {
+                path: BLDROOT + 'cloudLogin/cloudLogin.html',
                 pattern: 'raleway.css',
                 replacement: 'raleway.css.new'
             }
@@ -4466,14 +4485,23 @@ module.exports = function(grunt) {
             //                             new version is named login.css.new
             // sed:login_css (NOT WORKING) - change login.html to reference
             //                               login.css.new
-
             if (BLDTYPE == INSTALLER) {
-                //grunt.task.run('sed:icomoon');
                 grunt.task.run('embedFonts');
+                //grunt.task.run('sed:icomoon');
                 //grunt.task.run('sed:login_css');
                 grunt.task.run('sed:opensans_css');
                 grunt.task.run('sed:raleway_css');
-                grunt.task.run('assets_inline');
+                grunt.task.run('assets_inline:login');
+
+            } else if (BLDTYPE == DEV) {
+                grunt.task.run('embedFonts');
+                grunt.task.run('sed:opensans_css');
+                grunt.task.run('sed:raleway_css');
+
+                 // build for cloudLogin assets
+                grunt.task.run('sed:opensans_css_cloudLogin');
+                grunt.task.run('sed:raleway_css_cloudLogin');
+                grunt.task.run('assets_inline:cloudLogin');
             }
 
             // sym link from bld to src unit test dir

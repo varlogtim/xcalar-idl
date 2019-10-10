@@ -19,10 +19,24 @@ namespace CloudLogin {
     let localSessionId: string;
     let cognitoUser;
     let selectedClusterSize: string;
+    let progressBar: ProgressBar;
 
     export function setup(): void {
         initialStatusCheck();
         handleEvents();
+
+        progressBar = new ProgressBar({
+            $container: $("#loadingForm"),
+            completionTime: 100,
+            progressTexts: [
+                'Creating Xcalar cluster',
+                'Starting Xcalar cluster',
+                'Initializing Xcalar cluster',
+                'Running health checks',
+                'Setting up user preferences'
+            ],
+            numVisibleProgressTexts: 5
+        });
     }
 
     function initialStatusCheck(): void {
@@ -535,19 +549,6 @@ namespace CloudLogin {
         $("#loadingTitle").html("Your cluster is ready!");
         progressBar.end("Redirecting to Xcalar Cloud...")
     }
-
-    let progressBar = new ProgressBar({
-        $container: $("#loadingForm"),
-        completionTime: 100,
-        progressTexts: [
-            'Creating Xcalar cluster',
-            'Starting Xcalar cluster',
-            'Initializing Xcalar cluster',
-            'Running health checks',
-            'Setting up user preferences'
-        ],
-        numVisibleProgressTexts: 5
-    });
 
     function deployingClusterAnimation(): void {
         if (!progressBar.isStarted()) {
