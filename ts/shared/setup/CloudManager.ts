@@ -13,21 +13,15 @@ class CloudManager {
         this._apiUrl = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/";
     }
 
-    // XXX TODO: remove this hack
     /**
-     * CloudManager.Instance.hackSetUser
+     * CloudManager.Instance.setup
      */
-    public hackSetUser(): void {
+    public setup(): void {
         if (!XVM.isCloud()) {
             return;
         }
-        let hackUserName = xcLocalStorage.getItem("xcalarUsername");
-        if (hackUserName) {
-            this._getUserName = () => hackUserName;
-            XcUser.setCloudUserName(this._getUserName());
-        } else {
-            XcUser.setCloudUserName(this._getUserName());
-        }
+        // XXX Remove this hack
+        XcUser.setCloudUserName(this._getUserName());
         this.checkCloud();
     }
 
