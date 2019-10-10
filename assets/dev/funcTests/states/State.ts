@@ -20,6 +20,9 @@ abstract class State {
 
     public logError(errorMsg: any) {
         if (typeof errorMsg === "object") {
+            if (this.isCyclic(errorMsg)) {
+                console.log("cyclic case!");
+            }
             if (errorMsg instanceof Error) {
                 errorMsg = errorMsg.stack;
             } else if (errorMsg.error instanceof Error) {
@@ -80,4 +83,24 @@ abstract class State {
     /* -------------------------------Helper Function------------------------------- */
 
     abstract takeOneAction(): State;
+
+    private isCyclic(obj) {
+        let seenObjects = [];
+        function detect(obj) {
+            if (obj && typeof obj === 'object') {
+                if (seenObjects.indexOf(obj) !== -1) {
+                    return true;
+                }
+                seenObjects.push(obj);
+                for (let key in obj) {
+                    if (obj.hasOwnProperty(key) && detect(obj[key])) {
+                        console.log(obj + 'cycle at ' + key);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        return detect(obj);
+    }
 }
