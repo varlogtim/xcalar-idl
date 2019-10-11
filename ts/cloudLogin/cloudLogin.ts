@@ -6,18 +6,20 @@ interface ClusterGetResponse {
 }
 
 namespace CloudLogin {
+    const cookieAuthApiUrl: string = "https://605qwok4pl.execute-api.us-west-2.amazonaws.com";
+    const clusterLambdaApiUrl: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"
+
     const userPoolId: string = "us-west-2_Eg94nXgA5";
     const clientId: string = "69vk7brpkgcii8noqqsuv2dvbt";
-    const cookieAuthApiUrl: string = "https://605qwok4pl.execute-api.us-west-2.amazonaws.com";
-
     const poolData = {
         UserPoolId: userPoolId,
         ClientId: clientId
     };
     const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+    let cognitoUser;
+
     let localUsername: string;
     let localSessionId: string;
-    let cognitoUser;
     let selectedClusterSize: string;
     let progressBar: ProgressBar;
 
@@ -40,10 +42,13 @@ namespace CloudLogin {
     }
 
     function initialStatusCheck(): void {
-        fetch(cookieAuthApiUrl + "/prod/status", {
-            credentials: 'include',
+        sendRequest({
+            apiUrl: cookieAuthApiUrl,
+            action: "/prod/status",
+            fetchParams: {
+                credentials: 'include',
+            }
         })
-        .then(res => res.json())
         .then(response => {
             if (response.loggedIn === true) {
                 localUsername = response.emailAddress;
@@ -55,7 +60,7 @@ namespace CloudLogin {
             } else {
                 console.error('cookieLoggedInStatus unrecognized code:', response);
             }
-        }).catch(error => {
+        }).fail(error => {
             console.error('cookieLoggedInStatus error:', error);
             // handle it as a not logged in case
             showInitialScreens();
@@ -66,47 +71,40 @@ namespace CloudLogin {
         const $button = $("#loginButton");
         $button.addClass("xc-disabled");
         loadingWait(true);
-        fetch(cookieAuthApiUrl + "/prod/login", {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            method: 'POST',
-            credentials: 'include',
-            body: JSON.stringify({
-                "username": username,
-                "password": password
-            }),
-        }).then((response) => {
-            if (response.status === 200) {
-                $("#loginFormError").hide();
-                return response.json();
-            } else if (response.status === 401) {
-                // unauthorized
-                return Promise.reject("Wrong email or password.");
-
-                // TODO: ONCE /login RETURNS A CODE/STATUS FOR THIS CASE
-                // } else if (response.code === "UserNotConfirmedException") {
-                //     // correct email/password but email not confirmed
-                //     $("#loginFormError").hide();
-                //     $("header").children().hide();
-                //     $("#formArea").children().hide();
-                //     $("#verifyForm").show();
-                //     $("#verifyTitle").show();
-            } else {
-                // unrecognized code
-                return Promise.reject();
+        sendRequest({
+            apiUrl: cookieAuthApiUrl,
+            action: "/prod/login",
+            fetchParams: {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: 'POST',
+                credentials: 'include',
+                body: JSON.stringify({
+                    "username": username,
+                    "password": password
+                })
             }
         })
+            // TODO: ONCE /login RETURNS A CODE/STATUS FOR THIS CASE
+            // } else if (response.code === "UserNotConfirmedException") {
+            //     // correct email/password but email not confirmed
+            //     $("#loginFormError").hide();
+            //     $("header").children().hide();
+            //     $("#formArea").children().hide();
+            //     $("#verifyForm").show();
+            //     $("#verifyTitle").show();
         .then((res) => {
             localUsername = username;
             localSessionId = res.sessionId;
             $button.removeClass("xc-disabled");
+            $("#loginFormError").hide();
 
             $button.addClass("xc-disabled");
             var cb = () => $button.removeClass("xc-disabled");
             clusterSelection(cb);
         })
-        .catch((error) => {
+        .fail((error) => {
             console.error('cookieLogin error:', error);
             if (typeof error !== "string") {
                 error = "Login failed with unknown error.";
@@ -115,56 +113,45 @@ namespace CloudLogin {
             showFormError($("#loginFormError"), error);
             $button.removeClass("xc-disabled");
         })
-        .finally(() => loadingWait(false));
+        .always(() => loadingWait(false));
     }
 
     function cookieLogout(handleExceptionFlag: boolean): void {
         loadingWait(true);
-        fetch(cookieAuthApiUrl + "/prod/logout", {
-            credentials: 'include',
-        })
-        .then(response => {
-            if (response.status === 200) {
-                localSessionId = "";
-            } else if (response.status === 500) {
-                console.error('error logging out:', response);
-                if (handleExceptionFlag) {
-                    console.error('cookieLogout 500 code:', response);
-                    handleException(response);
-                }
-            } else {
-                console.error('cookieLogout unrecognized code:', response);
-                if (handleExceptionFlag) {
-                    handleException(response);
-                }
+        sendRequest({
+            apiUrl: cookieAuthApiUrl,
+            action: "/prod/logout",
+            fetchParams: {
+                credentials: 'include',
             }
-        }).catch(error => {
+        })
+        .fail(error => {
             console.error('cookieLogut error:', error);
             if (handleExceptionFlag) {
                 handleException(error);
             }
         })
-        .finally(() => loadingWait(false));
+        .always(() => loadingWait(false));
     }
 
     function checkCredit(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             loadingWait(true);
-            fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/get", {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: 'POST',
-                body: JSON.stringify({
-                    "username": localUsername
-                }),
+            sendRequest({
+                apiUrl: clusterLambdaApiUrl,
+                action: "/billing/get",
+                fetchParams: {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                        "username": localUsername
+                    }),
+                }
             })
-            .then(res => res.json())
             .then((billingGetResponse) => {
-                if (billingGetResponse.status === 1) {
-                    // first time user should start with some credits
-                    resolve(true);
-                } else if (billingGetResponse.status === 0) {
+                if (billingGetResponse.status === 0) {
                     if (billingGetResponse.credits > 0) {
                         resolve(true);
                     } else {
@@ -180,28 +167,36 @@ namespace CloudLogin {
                     reject(billingGetResponse.error);
                 }
             })
-            .catch((error) => {
-                console.error('checkCredit error caught:', error);
-                handleException(error);
-                reject(error);
+            .fail((error) => {
+                if (error.status === 1) {
+                    // first time user should start with some credits
+                    resolve(true);
+                } else {
+                    console.error('checkCredit error caught:', error);
+                    handleException(error);
+                    reject(error);
+                }
             })
-            .finally(() => loadingWait(false));
+            .always(() => loadingWait(false));
         });
     }
 
 
-    function getCluster(): Promise<void> {
+    function getCluster(): XDPromise<void> {
         loadingWait(true);
-        return fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/get", {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            method: 'POST',
-            body: JSON.stringify({
-                "username": localUsername
-            }),
+        return sendRequest({
+            apiUrl: clusterLambdaApiUrl,
+            action: "/cluster/get",
+            fetchParams: {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: 'POST',
+                body: JSON.stringify({
+                    "username": localUsername
+                }),
+            }
         })
-        .then(res => res.json())
         .then((clusterGetResponse) => {
             if (clusterGetResponse.status !== 0) {
                 // error
@@ -245,11 +240,39 @@ namespace CloudLogin {
                 }
             }
         })
-        .catch((error) => {
+        .fail((error) => {
             console.error('getCluster error caught:', error);
             handleException(error);
         })
-        .finally(() => loadingWait(false));
+        .always(() => loadingWait(false));
+    }
+
+    function startCluster(): void {
+        loadingWait(true);
+        sendRequest({
+            apiUrl: clusterLambdaApiUrl,
+            action: "/cluster/start",
+            fetchParams: {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: 'POST',
+                body: JSON.stringify({
+                    "username": localUsername,
+                    "clusterParams": {
+                        "type": selectedClusterSize
+                    }
+                })
+            }
+        })
+        .then((clusterStartResponse) => {
+            getCluster();
+        })
+        .fail((error) => {
+            console.error('startCluster error caught:', error);
+            handleException(error);
+        })
+        .always(() => loadingWait(false));
     }
 
     function clusterSelection(cb?: Function) {
@@ -311,7 +334,7 @@ namespace CloudLogin {
             showFormError($("#loginFormError"), "Fields missing or incomplete.");
             return false;
         } else if (!validateEmail(email) || !validatePassword(password)) {
-            showFormError($("#loginFormError"), "Incorrect email address or password.");
+            showFormError($("#loginFormError"), "Wrong Email or Password. Please try again.");
             return false;
         } else {
             $("#loginFormError").hide();
@@ -565,6 +588,35 @@ namespace CloudLogin {
         });
     }
 
+    function sendRequest({apiUrl, action, fetchParams}: {apiUrl: string, action: string, fetchParams: object}): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        const url: string = `${apiUrl}${action}`;
+        fetch(url, fetchParams)
+        .then((res) => {
+            if (res.status === httpStatus.OK) {
+                return res.json();
+            }
+            else if (res.status === 401) {
+                return PromiseHelper.reject('Wrong Email or Password.');
+            } else {
+                return PromiseHelper.reject('Server responsed with status ' + res.status + '.');
+            }
+        })
+        .then((res: any) => {
+            // XXX TODO: use a enum instead of 0
+            if (!res.status || res.status === 0) {
+                deferred.resolve(res);
+            } else {
+                deferred.reject(res);
+            }
+        })
+        .catch((e) => {
+            deferred.reject(e);
+        });
+
+        return deferred.promise();
+    }
+
     function handleEvents(): void {
         $("#passwordSection").focusin(
             function () {
@@ -724,29 +776,7 @@ namespace CloudLogin {
 
         $("#deployBtn").click(function () {
             if (checkClusterForm()) {
-                loadingWait(true);
-                fetch("https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/start", {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    method: 'POST',
-                    body: JSON.stringify({
-                        "username": localUsername,
-                        "clusterParams": {
-                            "clusterType": selectedClusterSize
-                        }
-                    }),
-                }).then(function (response) {
-                    return response.json();
-                })
-                .then(function (res) {
-                    if (res.status !== 0) {
-                        handleException(res.error);
-                    } else {
-                        getCluster();
-                    }
-                })
-                .finally(() => loadingWait(false));
+                startCluster();
             }
         });
 
