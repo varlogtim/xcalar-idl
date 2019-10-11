@@ -50,7 +50,7 @@ class CommentNode {
               "y": {
                 "$id": "#/properties/display/properties/y",
                 "type": "number",
-                "minimum": 0
+                "minimum": -20
               },
               "width": {
                 "$id": "#/properties/display/properties/width",

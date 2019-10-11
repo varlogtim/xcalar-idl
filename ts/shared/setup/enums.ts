@@ -315,7 +315,7 @@ enum SQLOps {
     Finalize = "finalizeTable",
     Ext = "extension",
     MarkPrefix = "markPrefix",
-    DFRerun = "Dataflow Rerun",
+    DFRerun = "Application Rerun",
     ExecSQL = "Execute SQL",
     RefreshTables = "refreshTables",
     // DF 2.0 operations
@@ -335,7 +335,7 @@ enum SQLOps {
     EditNodeTitle = "editNodeTitle",
     DagBulkOperation = "dagBulkOperation",
     DeleteDataflow = "deleteDataflow",
-    DataflowExecution = "Dataflow Execution"
+    DataflowExecution = "Application Execution"
 }
 
 enum XcalarMode {

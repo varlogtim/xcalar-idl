@@ -14,6 +14,7 @@ class DagTabManager {
     private _activeTab: DagTab;
     private _sqlPreviewTab: DagTab;
     private _hiddenDags: Map<string, DagTab>; // used to store undone tabs
+    private _statsTab: DagTab;
     private _event: XcEvent;
     private _setup: boolean;
 
@@ -92,6 +93,9 @@ class DagTabManager {
         if (!dagTab && this._sqlPreviewTab
             && this._sqlPreviewTab.getId() === tabId) {
             dagTab = this._sqlPreviewTab;
+        }
+        if (!dagTab && this._statsTab && this._statsTab.getId() === tabId) {
+            dagTab = this._statsTab;
         }
         return dagTab;
     }
@@ -188,6 +192,19 @@ class DagTabManager {
             this._switchTabs(tabIndex);
         }
         return tabId;
+    }
+
+    public newStatsTab(dagTab) {
+        this._statsTab = dagTab;
+        dagTab.load()
+        .then(() => {
+            const $container = $("#dagStatsPanel .dataflowWrap");
+            $container.find(".dataflowArea").remove();
+            const tabId = dagTab.getId();
+            DagViewManager.Instance.addDataflowHTML($container, tabId, true, true, true);
+            DagViewManager.Instance.renderStatsDag(dagTab);
+            dagTab.focus(true);
+        });
     }
 
     public newSQLTab(SQLNode: DagNodeSQL, isSqlPreview?: boolean): string {
@@ -895,6 +912,7 @@ class DagTabManager {
                     '<i class="icon xi-solid-circle dot"></i>' +
                 '</div>' +
             '</li>';
+
         this._getTabArea().append(html);
         DagViewManager.Instance.addDataflowHTML($("#dagView .dataflowWrap"), tabId, isViewOnly, isProgressGraph);
 

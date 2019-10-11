@@ -634,6 +634,71 @@ XcalarUpdateLicense = function(
                         .getLicenseService().updateLicense({newLicense: newLicense}));
 };
 
+XcalarListJobs = function(
+	date: string,
+	username: string
+): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    return PromiseHelper.resolve(JSON.stringify([["[{'file_path': '2019-12-03/12-40-9-xcRet_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1570749990348_36', 'dataflow_name': 'Dataflow 14', 'job_id': 'xcRet_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1570749990348_36', 'job_start_timestamp_microsecs': 1575405609065251, 'job_end_timestamp_microsecs': 1575405609288007}, {'file_path': '2019-12-03/12-40-19-xcRet_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574105020504_47', 'dataflow_name': 'Dataflow 14', 'job_id': 'xcRet_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574105020504_47', 'job_start_timestamp_microsecs': 1575405619863332, 'job_end_timestamp_microsecs': 1575405619937939}]"]]));
+    // var client = new xce.XceClient(xcHelper.getAppUrl() + "/service/xce/");
+    // var dataflowStatsHistoryService = new xce.DataflowStatsHistoryService(client);
+    // var getRequest = new proto.xcalar.compute.localtypes.DataflowStatsHistory.ListJobsRequest();
+
+	// getRequest.setDate(date);
+	// getRequest.setUsername(username);
+    // dataflowStatsHistoryService.listJobs(getRequest)
+    // .then(function(res) {
+	// 	const jobInfo = res.getJobsInfo();
+    //     deferred.resolve(jobInfo);
+    // })
+    // .fail(function(error: XcalarApiError) {
+    //     console.error("listJobs error" + error);
+	// 	deferred.reject(error);
+    // });
+
+    // return deferred.promise();
+};
+
+XcalarGetStatsForJob = function(
+    filePath: string,
+    username: string
+): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    let info = [["{'full_path': '/var/opt/xcalar/DataflowStatsHistory/2019-12-03/12-40-19-xcRet_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574105020504_47/stats.json', 'query_state_output': {'dataflow_name': 'Dataflow 14', 'job_id': 'xcRet_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574105020504_47', 'session_name': 'rudy', 'user_id_name': 'admin', 'job_status': 'StatusOk', 'job_state': 'qrFinished', 'job_start_timestamp_microsecs': 1575405619863332, 'job_end_timestamp_microsecs': 1575405619937939, 'total_time_elapsed_millisecs': 74, 'number_completed_operations': 5, 'number_failed_operations': 0, 'nodes': [{'sequence_num': 1, 'node_name': '.XcalarLRQ.4660.XcalarDS.Optimized.19455.admin.71374.classes', 'input_tables': '', 'output_tables': 'table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1570403532499_121#t_1575405892410_2', 'operator_name': 'XcalarApiBulkLoad', 'operator_state': 'DgDagStateReady', 'operator_status': 'StatusDgDagNodeNotReady', 'node_start_timestamp_microsecs': 1575405619865467, 'node_time_elapsed_millisecs': 62, 'node_end_timestamp_microsecs': 1575405619928171, 'input_parameters': '{\"loadInput\": {\"dest\": \".XcalarLRQ.4660.XcalarDS.Optimized.19455.admin.71374.classes\",\"loadArgs\": {\"sourceArgsList\": [{\"targetName\": \"Default Shared Root\",\"path\": \"/netstore/datasets/indexJoin/classes/classes.json\",\"fileNamePattern\": \"\",\"recursive\": false}],\"parseArgs\": {\"parserFnName\": \"default:parseJson\",\"parserArgJson\": \"{}\",\"fileNameFieldName\": \"\",\"recordNumFieldName\": \"\",\"allowRecordErrors\": false,\"allowFileErrors\": false,\"schema\": []},\"size\": 9223372036854775807},\"dagNodeId\": \"4677\"}}', 'input_size': 1317752, 'total_row_count_output_table': 6, 'rows_per_node_in_cluster': '6', 'total_node_count_in_cluster': 1, 'tag': 'dag_5D92982526BDF1D9_1570403532499_121', 'user_comment': '', 'libstats': [{'libruntime': {'fiberCache.hits': 2}, 'namespace': {'objects.opened': 1}, 'uk.msg.normal.bc': {'fastAllocs': 4, 'fastFrees': 4}, 'uk.msg': {'bigMessages': 1}, 'uk.sched.object.bc': {'fastAllocs': 2, 'fastFrees': 2}, 'uk.msgNumInvocationsCount': {'GetOperationStatus': 1, 'GVM2Broadcast': 1}, 'uk.msgNumCompletionsCount': {'GVM2Broadcast': 2}, 'xdb.local.bc': {'fastAllocs': 1}, 'liboperators': {'OperationsOutstanding': 1}, 'apis': {'ApisWorkOutstanding': 1, 'ApisWorkImmedOutstanding': 1, 'ApisStatScheduledOnRuntime': 1, 'XcalarApiQueryState': 1}, 'xcalarApis.bc': {'fastAllocs': 1}}]}, {'sequence_num': 2, 'node_name': 'table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1570403532499_121#t_1575405892410_2', 'input_tables': '.XcalarLRQ.4660.XcalarDS.Optimized.19455.admin.71374.classes', 'output_tables': 'table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42_SQLTAG_0#t_1575405893892_6', 'operator_name': 'XcalarApiIndex', 'operator_state': 'DgDagStateReady', 'operator_status': 'StatusDgDagNodeNotReady', 'node_start_timestamp_microsecs': 1575405619929136, 'node_time_elapsed_millisecs': 2, 'node_end_timestamp_microsecs': 1575405619931384, 'input_parameters': '{\"indexInput\": {\"source\": \".XcalarLRQ.4660.XcalarDS.Optimized.19455.admin.71374.classes\",\"dest\": \"table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1570403532499_121#t_1575405892410_2\",\"key\": [{\"name\": \"xcalarRecordNum\",\"type\": \"DfInt64\",\"keyFieldName\": \"xcalarRecordNum\",\"ordering\": \"Random\"}],\"prefix\": \"classes\",\"dhtName\": \"\",\"delaySort\": false,\"broadcast\": false}}', 'input_size': 533024, 'total_row_count_output_table': 6, 'rows_per_node_in_cluster': '6', 'total_node_count_in_cluster': 1, 'tag': 'dag_5D92982526BDF1D9_1570403532499_121', 'user_comment': '', 'libstats': [{'libruntime': {'fiberCache.hits': 7}, 'uk.msg.normal.bc': {'fastAllocs': 14, 'fastFrees': 14}, 'uk.msg': {'bigMessages': 2}, 'uk.sched.object.bc': {'fastAllocs': 7, 'fastFrees': 7}, 'uk.msgNumInvocationsCount': {'TableCreate': 1, 'TableCreationCompletion': 1, 'GetOperationStatus': 1, 'GVM2Broadcast': 4}, 'uk.msgNumCompletionsCount': {'TableCreate': 1, 'TableCreationCompletion': 1, 'GVM2Broadcast': 5}, 'xdb.local.bc': {'fastAllocs': 1}, 'xdb.pagekvbuf.bc': {'fastAllocs': 2, 'fastFrees': 1}, 'liboperators': {'OperationsOutstanding': 1}, 'optimizerQueryFieldsElt.bc': {'fastAllocs': 1}}]}, {'sequence_num': 3, 'node_name': 'table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42_SQLTAG_0#t_1575405893892_6', 'input_tables': 'table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1570403532499_121#t_1575405892410_2', 'output_tables': 'table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42#t_1575405892415_3', 'operator_name': 'XcalarApiSynthesize', 'operator_state': 'DgDagStateReady', 'operator_status': 'StatusDgDagNodeNotReady', 'node_start_timestamp_microsecs': 1575405619931416, 'node_time_elapsed_millisecs': 1, 'node_end_timestamp_microsecs': 1575405619933149, 'input_parameters': '{\"synthesizeInput\": {\"source\": \"table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1570403532499_121#t_1575405892410_2\",\"dest\": \"table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42_SQLTAG_0#t_1575405893892_6\",\"columns\": [{\"sourceColumn\": \"classes--class_name\",\"destColumn\": \"CLASS_NAME\",\"columnType\": \"DfString\"},{\"sourceColumn\": \"classes--class_id\",\"destColumn\": \"CLASS_ID\",\"columnType\": \"DfInt64\"},{\"sourceColumn\": \"classes--declareColumnHere\",\"destColumn\": \"DECLARECOLUMNHERE\",\"columnType\": \"DfInt64\"}],\"sameSession\": false}}', 'input_size': 34904, 'total_row_count_output_table': 6, 'rows_per_node_in_cluster': '6', 'total_node_count_in_cluster': 1, 'tag': 'dag_5D92982526BDF1D9_1574104985936_42', 'user_comment': '', 'libstats': [{'libruntime': {'fiberCache.hits': 7}, 'uk.msg.normal.bc': {'fastAllocs': 14, 'fastFrees': 14}, 'uk.msg': {'bigMessages': 1}, 'uk.sched.object.bc': {'fastAllocs': 7, 'fastFrees': 7}, 'uk.msgNumInvocationsCount': {'Synthesize': 1, 'TableCreationCompletion': 1, 'GetOperationStatus': 1, 'GVM2Broadcast': 4}, 'uk.msgNumCompletionsCount': {'Synthesize': 1, 'TableCreationCompletion': 1, 'GVM2Broadcast': 5}, 'xdb.local.bc': {'fastAllocs': 1}, 'xdb.pagekvbuf.bc': {'fastAllocs': 2, 'fastFrees': 1}, 'liboperators': {'OperationsOutstanding': 1}}]}, {'sequence_num': 4, 'node_name': 'table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42#t_1575405892415_3', 'input_tables': 'table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42_SQLTAG_0#t_1575405893892_6', 'output_tables': '.XcalarLRQExport.table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42#t_1575405892415_3', 'operator_name': 'XcalarApiFilter', 'operator_state': 'DgDagStateReady', 'operator_status': 'StatusDgDagNodeNotReady', 'node_start_timestamp_microsecs': 1575405619933385, 'node_time_elapsed_millisecs': 1, 'node_end_timestamp_microsecs': 1575405619935091, 'input_parameters': '{\"filterInput\": {\"source\": \"table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42_SQLTAG_0#t_1575405893892_6\",\"dest\": \"table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42#t_1575405892415_3\",\"eval\": [{\"evalString\": \"gt(CLASS_ID,2)\",\"newField\": \"\"}]}}', 'input_size': 33320, 'total_row_count_output_table': 4, 'rows_per_node_in_cluster': '4', 'total_node_count_in_cluster': 1, 'tag': 'dag_5D92982526BDF1D9_1574104985936_42', 'user_comment': '', 'libstats': [{'libruntime': {'fiberCache.hits': 7}, 'uk.msg.normal.bc': {'fastAllocs': 14, 'fastFrees': 14}, 'uk.msg': {'bigMessages': 1}, 'uk.sched.object.bc': {'fastAllocs': 7, 'fastFrees': 7}, 'uk.msgNumInvocationsCount': {'Filter': 1, 'TableCreationCompletion': 1, 'GetOperationStatus': 1, 'GVM2Broadcast': 4}, 'uk.msgNumCompletionsCount': {'Filter': 1, 'TableCreationCompletion': 1, 'GVM2Broadcast': 5}, 'xdb.local.bc': {'fastAllocs': 1}, 'xdb.pagekvbuf.bc': {'fastAllocs': 2, 'fastFrees': 1}, 'liboperators': {'OperationsOutstanding': 1}}]}, {'sequence_num': 5, 'node_name': '.XcalarLRQExport.table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42#t_1575405892415_3', 'input_tables': 'table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42#t_1575405892415_3', 'output_tables': '', 'operator_name': 'XcalarApiSynthesize', 'operator_state': 'DgDagStateReady', 'operator_status': 'StatusDgDagNodeNotReady', 'node_start_timestamp_microsecs': 1575405619935243, 'node_time_elapsed_millisecs': 2, 'node_end_timestamp_microsecs': 1575405619937261, 'input_parameters': '{\"synthesizeInput\": {\"source\": \"table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42#t_1575405892415_3\",\"dest\": \".XcalarLRQExport.table_DF2_5D92982526BDF1D9_1570402628583_0_dag_5D92982526BDF1D9_1574104985936_42#t_1575405892415_3\",\"columns\": [{\"sourceColumn\": \"CLASS_NAME\",\"destColumn\": \"CLASS_NAME\",\"columnType\": \"DfUnknown\"},{\"sourceColumn\": \"CLASS_ID\",\"destColumn\": \"CLASS_ID\",\"columnType\": \"DfUnknown\"},{\"sourceColumn\": \"DECLARECOLUMNHERE\",\"destColumn\": \"DECLARECOLUMNHERE\",\"columnType\": \"DfUnknown\"}],\"sameSession\": false}}', 'input_size': 34904, 'total_row_count_output_table': 4, 'rows_per_node_in_cluster': '4', 'total_node_count_in_cluster': 1, 'tag': '', 'user_comment': '', 'libstats': [{'libruntime': {'fiberCache.hits': 7}, 'uk.msg.normal.bc': {'fastAllocs': 14, 'fastFrees': 14}, 'uk.msg': {'bigMessages': 1}, 'uk.sched.object.bc': {'fastAllocs': 7, 'fastFrees': 7}, 'uk.msgNumInvocationsCount': {'Synthesize': 1, 'TableCreationCompletion': 1, 'GetOperationStatus': 1, 'GVM2Broadcast': 4}, 'uk.msgNumCompletionsCount': {'Synthesize': 1, 'TableCreationCompletion': 1, 'GVM2Broadcast': 5}, 'xdb.local.bc': {'fastAllocs': 1}, 'xdb.pagekvbuf.bc': {'fastAllocs': 2, 'fastFrees': 1}, 'liboperators': {'OperationsOutstanding': 1}}]}], 'xcalar_version': 'xcalar-2.0.4-1-jyang-207764bb-fcbd9e81 (Debug)'}, 'system_stats': [{}], 'iostats': [], 'cpustats': [], 'system_stats_units': {}}"]]
+    return PromiseHelper.resolve(JSON.stringify(info));
+    // var client = new xce.XceClient(xcHelper.getAppUrl() + "/service/xce/");
+    // var dataflowStatsHistoryService = new xce.DataflowStatsHistoryService(client);
+    // var getRequest = new proto.xcalar.compute.localtypes.DataflowStatsHistory.JobStatsRequest();
+
+    // getRequest.setFilePath(filePath);
+    // getRequest.setUsername(username);
+    // dataflowStatsHistoryService.getStatsForJob(getRequest)
+    // .then(function(res) {
+    //     const jobInfo = res.getJsonOutput();
+    //     deferred.resolve(jobInfo);
+    // })
+    // .fail(function(error: XcalarApiError) {
+    //     console.error("listJobs error" + error);
+	// 	deferred.reject(error);
+    // });
+
+    // return deferred.promise();
+};
+
 XcalarGetNodeName = function(
     nodeId: number
 ): XDPromise<string | {}> {

@@ -2499,6 +2499,37 @@ class DagGraph extends Durable {
         return converter.getResult();
     }
 
+    public static convertStatsToQueryNodes(nodes) {
+        let queryNodes = nodes.map((node) => {
+            // let inputName = xcHelper.getXcalarInputNameFromApiString(node.operater_name);
+            // let input = JSON.parse(node.input_parameters)[inputName];
+            let numRowsPerNode = node.rows_per_node_in_cluster.split(":");
+            numRowsPerNode = numRowsPerNode.map(rows => parseInt(rows));
+            let numRowsTotal = numRowsPerNode.reduce((total, curr) => {
+                return total + curr;
+            });
+            let queryNode = {
+                // operation: node.operator_name,
+                name: {name: node.node_name},
+                api: XcalarApisT[node.operator_name],
+                input: JSON.parse(node.input_parameters),
+                comment: node.user_comment,
+                tag: node.tag,
+                numNodes: node.total_node_count_in_cluster,
+                numWorkCompleted: numRowsTotal,
+                numWorkTotal: numRowsTotal,
+                numRowsTotal: numRowsTotal,
+                numRowsPerNode: numRowsPerNode,
+                state: DgDagStateT[node.operator_state],
+                status: StatusT[node.operator_status],
+                elapsed: {milliseconds: node.node_time_elapsed_millisecs},
+                sequence_num: node.sequence_num
+            }
+            return queryNode;
+        });
+        return queryNodes;
+    }
+
     public turnOnBulkStateSwitch(): void {
         this._isBulkStateSwitch = true;
         this._stateSwitchSet.clear();

@@ -229,11 +229,12 @@ class DagView {
     }
 
     // ok to pass in multiple nodes
-    public static selectNode($node: JQuery): void {
+    public static selectNode($node: JQuery): JQuery {
         $node.addClass("selected");
         if ($node.hasClass("operator")) {
             DagView._setSelectedStyle($node);
         }
+        return $node;
     }
 
     public static deselectNode($node) {
@@ -2774,7 +2775,8 @@ class DagView {
         stats: any,
         skewInfos?: any[],
         times?: number[],
-        broadcast: boolean = true
+        broadcast: boolean = true,
+        dagGraph?: DagGraph
     ): void {
         const $dfArea: JQuery = DagViewManager.Instance.getAreaByTab(tabId);
         let pct: number = (stats.state === DgDagStateT.DgDagStateReady) ? 100 : stats.curStepPct;
@@ -2782,9 +2784,15 @@ class DagView {
 
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
         let graph: DagGraph;
+        if (dagGraph) {
+            graph = dagGraph;
+        }
         let node: DagNode;
-        if (dagTab != null) {
-            graph = dagTab.getGraph();
+        if (graph || dagTab != null) {
+            if (!graph) {
+                graph = dagTab.getGraph();
+            }
+
             node = graph.getNode(nodeId);
             if (stats.started && node && node.getState() !== DagNodeState.Complete &&
                 node.getState() !== DagNodeState.Error) {
@@ -2794,16 +2802,19 @@ class DagView {
 
         if (skewInfos && stats.started) {
             $dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
-            if (dagTab == null || node == null) {
+            if (!dagGraph && (dagTab == null || node == null)) {
                 // sql graph may not have tab registered with dagTabManager
                 return;
+            }
+            if (!dagGraph) {
+                graph = dagTab.getGraph();
             }
 
             this._addProgressTooltip(graph, node, $dfArea, skewInfos, times, stats.state);
 
             if (stats.state === DgDagStateT.DgDagStateReady) {
                 const totalTime: number = times.reduce((a, b) => a + b, 0);
-                const graph: DagGraph = dagTab.getGraph()
+                let graph: DagGraph = dagGraph || dagTab.getGraph();
                 let shouldUpdate: boolean = false;
                 if (node instanceof DagNodeCustom) {
                     // custom node need to update till all is done
@@ -2875,7 +2886,7 @@ class DagView {
                 }
             });
 
-            this.updateNodeProgress(nodeId, this.tabId, overallStats, skewInfos, times);
+            this.updateNodeProgress(nodeId, this.tabId, overallStats, skewInfos, times, null, this.graph);
             DagNodeInfoPanel.Instance.update(nodeId, "stats");
         });
     }
@@ -4643,7 +4654,7 @@ class DagView {
             event: event,
             $element: $operator,
             $elements: $elements,
-            $container: DagView.$dagView,
+            $container: $(this.containerSelector),
             $dropTarget: this.$dfArea.find(".dataflowAreaWrapper"),
             round: DagView.gridSpacing,
             padding: DagView.gridSpacing,

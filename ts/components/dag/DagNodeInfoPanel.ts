@@ -31,6 +31,7 @@ class DagNodeInfoPanel {
             $("#dataflowMenu").find(".menuSection").addClass("xc-hidden");
             this._$panel.removeClass("xc-hidden");
         }
+        $("#dataflowInfoPanel").addClass("xc-hidden");
         if (this._activeNode === node && !needsRefresh) {
             return true;
         }
@@ -64,6 +65,7 @@ class DagNodeInfoPanel {
         if (!MainMenu.isFormOpen()) {
             $("#dagList").removeClass("xc-hidden");
         }
+        $("#dataflowInfoPanel").removeClass("xc-hidden");
         return true;
     }
 

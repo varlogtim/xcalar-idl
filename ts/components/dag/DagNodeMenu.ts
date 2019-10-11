@@ -64,12 +64,13 @@ namespace DagNodeMenu {
         xcMenu.add($menu);
 
         let $dfWrap = _getDFWrap();
-        $dfWrap.on("contextmenu", ".operator .main", function(event: JQueryEventObject) {
+        let $dfWraps = $dfWrap.add($("#dagStatsPanel .dataflowWrap"));
+        $dfWraps.on("contextmenu", ".operator .main", function(event: JQueryEventObject) {
             _showNodeMenu(event, $(this));
             return false; // prevent default browser's rightclick menu
         });
 
-        $dfWrap.on("contextmenu", function(event: JQueryEventObject) {
+        $dfWraps.on("contextmenu", function(event: JQueryEventObject) {
             _showNodeMenu(event, null);
             return false;
         });
@@ -235,6 +236,9 @@ namespace DagNodeMenu {
                 case ("viewSchema"):
                     _showDagSchemaPopup(dagNodeIds[0], tabId);
                     break;
+                case ("viewStats"):
+                    DagStatsModal.Instance.show(dagNodeIds[0], tabId);
+                    break;
                 case ("exitOpPanel"):
                     exitOpPanel();
                     break;
@@ -270,7 +274,12 @@ namespace DagNodeMenu {
                     _restoreDatasetFromNode(node);
                     break;
                 case ("restoreAllDataset"):
-                    _restoreAllDatasets();
+                    restoreAllDatasets();
+                    break;
+                case ("generateStatsDataflow"):
+                    DagStatsDataflowGenerator.Instance.generateStatsDataflow();
+                    break;
+                default:
                     break;
             }
         } catch (e) {
@@ -633,6 +642,9 @@ namespace DagNodeMenu {
         }
         if (activeTab instanceof DagTabOptimized) {
             classes += " optimizedTab ";
+        }
+        if (activeTab instanceof DagTabStats) {
+            classes += " statsTab ";
         }
         if ($dfArea.find(".comment.selected").length) {
             classes += " commentMenu ";
@@ -1028,7 +1040,8 @@ namespace DagNodeMenu {
         }
     }
 
-    function _restoreAllDatasets(): void {
+    export function restoreAllDatasets(ignoreWarnings?: boolean): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
             let tab: DagTab = DagViewManager.Instance.getActiveTab();
             let graph: DagGraph = tab.getGraph();
@@ -1043,17 +1056,25 @@ namespace DagNodeMenu {
             });
             if (dagNodes.length) {
                 let shareDS: boolean = (tab instanceof DagTabPublished);
-                DS.restoreSourceFromDagNode(dagNodes, shareDS);
+                DS.restoreSourceFromDagNode(dagNodes, shareDS)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
             } else {
-                Alert.show({
-                    title: AlertTStr.Title,
-                    msg: DSTStr.NoSourcesToRestore,
-                    isAlert: true
-                });
+                if (!ignoreWarnings) {
+                    Alert.show({
+                        title: AlertTStr.Title,
+                        msg: DSTStr.NoSourcesToRestore,
+                        isAlert: true
+                    });
+                }
+
+                deferred.reject();
             }
         } catch (e) {
+            deferred.reject();
             console.error(e);
         }
+        return deferred.promise();
     }
 
     function _showDagSchemaPopup(nodeId, tabId) {
@@ -1071,64 +1092,4 @@ namespace DagNodeMenu {
             dagView.addSchemaPopup(schemaPopup);
         }
     }
-
 }
-
-var statsInfo = {
-    "t_1571299988036_0": {
-        "unitTestDsTable5102::average_stars": {
-            "version": 1,
-            "id": "stats19567",
-            "colName": "unitTestDsTable5102::average_stars",
-            "frontColName": "unitTestDsTable5102::average_stars",
-            "type": "float",
-            "aggInfo": {
-                "count": 1000
-            },
-            "statsInfo": {
-                "unsorted": true
-            },
-            "groupByInfo": {
-                "buckets": {
-                    "0": {
-                        "max": 181,
-                        "sum": 1000,
-                        "table": "table_DF2_5DA822541ED2EFAA_1571299979591_0_dag_5DA822541ED2EFAA_1571299980526_37.profile.final60280#t_1571300146547_3",
-                        "colName": "average_stars",
-                        "bucketSize": 0
-                    }
-                },
-                "isComplete": true,
-                "nullCount": 0
-            }
-        }
-    },
-    "t_1571336932683_0": {
-        "unitTestDsTable5102::review_count": {
-            "version": 1,
-            "id": "stats49699",
-            "colName": "unitTestDsTable5102::review_count",
-            "frontColName": "unitTestDsTable5102::review_count",
-            "type": "integer",
-            "aggInfo": {
-                "count": 998
-            },
-            "statsInfo": {
-                "unsorted": true
-            },
-            "groupByInfo": {
-                "buckets": {
-                    "0": {
-                        "max": 153,
-                        "sum": 998,
-                        "table": "table_DF2_5DA822541ED2EFAA_1571299979591_0_dag_5DA822541ED2EFAA_1571300202550_37#t_1571336932683_0",
-                        "colName": "review_count",
-                        "bucketSize": 0
-                    }
-                },
-                "isComplete": true,
-                "nullCount": 0
-            }
-        }
-    }
-};

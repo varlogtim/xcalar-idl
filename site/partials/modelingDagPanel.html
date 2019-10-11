@@ -2,6 +2,16 @@
     include "worksheet/dagViewBar.html"
     <div id="dagViewContent" class="mainContent">
         include "worksheet/dagView.html"
+
+        <div id="dagStatsPanel" class="dagContainer  showProgressTips showConfigInfo xc-hidden">
+            <div class="dataflowMainArea">
+                <div class="queryList"></div>
+                <div class="dataflowWrap">
+                    <div id="dataflowStatsBtn"><i class="icon xi-graph"></i>View Stats</div>
+                </div>
+            </div>
+        </div>
+        include "worksheet/dagNodeMenu.html"
     </div>
     <div id="paramPopUp" class="dataflowParameterPopup">
         <div class="inputSection">

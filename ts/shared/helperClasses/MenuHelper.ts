@@ -356,7 +356,6 @@ class MenuHelper {
             this.$scrollListeningEls = null;
             $(window).off("resize.dropdownWinResize" + self.id);
         }
-
         if (self.options.onClose) {
             self.options.onClose();
         }

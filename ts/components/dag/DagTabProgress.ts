@@ -101,10 +101,11 @@ abstract class DagTabProgress extends DagTab {
         return this._isFocused;
     }
 
-    protected _constructGraphFromQuery(queryNodes: any[]): DagSubGraph {
+    protected _constructGraphFromQuery(queryNodes: any[], options = {}): DagSubGraph {
         const nameIdMap = {};
         const idToNamesMap = {};
-        const retStruct = DagGraph.convertQueryToDataflowGraph(queryNodes);
+        const retStruct = DagGraph.convertQueryToDataflowGraph(queryNodes, null, null, null, options);
+
         const nodeJsons = retStruct.dagInfoList;
         const nodeInfos = [];
         nodeJsons.forEach((nodeJson) => {
@@ -214,7 +215,7 @@ abstract class DagTabProgress extends DagTab {
             this._isDoneExecuting = queryStateOutput.queryState !== QueryStateT.qrProcessing;
             if (this._isDoneExecuting) {
                 this._inProgress = false;
-                DagViewManager.Instance.endOptimizedDFProgress(this._id, queryStateOutput);
+                DagViewManager.Instance.endOptimizedDFProgress(this._id, queryStateOutput, this);
                 // set table for last node in optimized dataflow
                 if (this instanceof DagTabOptimized) {
                     let sortedNodes = this._dagGraph.getSortedNodes();

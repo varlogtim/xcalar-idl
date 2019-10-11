@@ -5,10 +5,12 @@ class DagSchemaPopup {
     private _dagNode: DagNode;
     private _tableColumns: ProgCol[];
     private _dagView: DagView;
+    private _$dagArea: JQuery;
 
     public constructor(nodeId: DagNodeId, tabId: string) {
         this._nodeId = nodeId;
         this._tabId = tabId;
+        this._$dagArea = DagViewManager.Instance.getActiveArea().closest(".dagContainer");
         this._dagNode = DagViewManager.Instance.getActiveDag().getNode(nodeId);
         this._show();
         this._setupEvents();
@@ -31,17 +33,17 @@ class DagSchemaPopup {
     }
 
     public bringToFront() {
-        let $allPopups = $("#dagView").find(".dagSchemaPopup");
+        let $allPopups = this._$dagArea.find(".dagSchemaPopup");
         if ($allPopups.index(this._$popup) === $allPopups.length - 1) {
             // if popup is already at the end, don't move
             return;
         }
-        this._$popup.appendTo("#dagView");
+        this._$popup.appendTo(this._$dagArea);
     }
 
     private _show(): void {
         this._$popup = $(this._getHtml());
-        this._$popup.appendTo("#dagView");
+        this._$popup.appendTo(this._$dagArea);
         this._addEventListeners();
         this._dagView = DagViewManager.Instance.getActiveDagView();
 
@@ -52,8 +54,8 @@ class DagSchemaPopup {
             const $target = $(event.target);
             if ($target.closest('.dagSchemaPopup').length === 0 &&
                 !this._$popup.hasClass("pinned") &&
-                !$target.is("#dagView .dataflowWrap") &&
-                !$target.is("#dagView .dataflowArea")) {
+                !$target.is(this._$dagArea.find(".dataflowWrap")) &&
+                !$target.is(this._$dagArea.find(".dataflowArea"))) {
                 this._close();
             }
         });
@@ -357,7 +359,7 @@ class DagSchemaPopup {
     }
 
     private _clearLineage() {
-        const $dagView = $("#dagView");
+        const $dagView = this._$dagArea;
         $dagView.find(".lineageSelected").removeClass("lineageSelected");
         $dagView.find(".lineageTip").remove();
         $dagView.removeClass("hideProgressTips");

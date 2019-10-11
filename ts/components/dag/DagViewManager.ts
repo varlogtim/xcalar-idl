@@ -10,6 +10,7 @@ class DagViewManager {
     private dagViewMap: Map<string, DagView>;
     private _setup: boolean;
     private _isCopying: boolean;
+    private _isStatsPanel = false;
 
     private static _instance: DagViewManager;
 
@@ -40,7 +41,7 @@ class DagViewManager {
         this._addEventListeners();
         this._addDagViewListeners();
         this._setupDagSharedActionEvents();
-        // this._setupMode();
+
 
         DagTopBar.Instance.setup();
         DagCategoryBar.Instance.setup();
@@ -68,7 +69,13 @@ class DagViewManager {
         DagCategoryBar.Instance.showOrHideArrows();
         TblFunc.moveFirstColumn();
 
-        const $activeDfArea = this.$dfWrap.find(".dataflowArea.active");
+        let $activeDfArea;
+        if (this._isStatsPanel) {
+            $activeDfArea = $("#dagStatsPanel .dataflowArea");
+        } else {
+            $activeDfArea = this.$dfWrap.find(".dataflowArea.active");
+        }
+
         if ($activeDfArea.length) {
             const tabId = $activeDfArea.data("id");
             if (this.dagViewMap.has(tabId)) {
@@ -221,6 +228,33 @@ class DagViewManager {
         }
     }
 
+    public toggleDagStats(toStats: boolean) {
+        let $activeDfArea;
+        if (toStats) {
+            $activeDfArea = $("#dagStatsPanel .dataflowArea");
+            this._isStatsPanel = true;
+        } else {
+            $activeDfArea = this.$dfWrap.find(".dataflowArea.active");
+            this._isStatsPanel = false;
+        }
+        if (this.activeDagView) {
+            this.activeDagView.unfocus();
+        }
+
+        if ($activeDfArea.length) {
+            const tabId = $activeDfArea.data("id");
+            if (this.dagViewMap.has(tabId)) {
+                this.activeDagView = this.dagViewMap.get(tabId);
+                this.activeDag = this.activeDagView.getGraph();
+                this.activeDagTab = this.activeDagView.getTab();
+            }
+        }
+        if (this.activeDagView) {
+            this.activeDagView.focus();
+        }
+        this._updateDagView();
+    }
+
     public getActiveDagView(): DagView {
         return this.activeDagView;
     }
@@ -262,9 +296,11 @@ class DagViewManager {
         return deferred.promise();
     }
 
-    public addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isProgressGraph?: boolean) {
+    public addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isProgressGraph?: boolean,
+    isStatsGraph?: boolean) {
         $container.append(
             '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + ' ' +
+                (isStatsGraph ? ' statsGraph ' : '') +
                 (isProgressGraph? 'progressGraph': '') + '" data-id="' +tabId + '">\
                 <div class="dataflowAreaWrapper">\
                     <div class="commentArea"></div>\
@@ -395,8 +431,14 @@ class DagViewManager {
         DagUDFErrorModal.Instance.close();
     }
 
-    public endOptimizedDFProgress(queryName: string, queryStateOutput): void {
-        let tab: DagTabProgress = <DagTabProgress>DagTabManager.Instance.getTabById(queryName);
+    public endOptimizedDFProgress(queryName: string, queryStateOutput, dagTab?): void {
+        let tab: DagTabProgress;
+        if (dagTab) {
+            tab = dagTab;
+        } else {
+            tab = <DagTabProgress>DagTabManager.Instance.getTabById(queryName);
+
+        }
         if (!tab) {
             return;
         }
@@ -446,6 +488,18 @@ class DagViewManager {
         this.render($(this.containerSelector + " .dataflowArea"), this.activeDag, dagTab, true);
     }
 
+    public renderStatsDag(dagTab: DagTab): void {
+        this.containerSelector = "#dagStatsPanel";
+        this.activeDagTab = dagTab;
+        this.activeDag = dagTab.getGraph();
+        if (this.dagViewMap.has(dagTab.getId())) {
+            this.activeDagView = this.dagViewMap.get(dagTab.getId());
+        }
+        this.render($(this.containerSelector + " .dataflowArea"), this.activeDag, dagTab, false);
+        this.activeDagView.focus();
+        this._updateDagView();
+    }
+
     public toggleSqlPreview(sqlPreview: boolean) {
         this.isSqlPreview = sqlPreview;
         if (this.isSqlPreview) {
@@ -479,6 +533,7 @@ class DagViewManager {
                 $node = this.getNode(nodeId, tabId);
                 DagView.selectNode($node);
             });
+            return $node || $();
         }
         return $node;
     }
@@ -497,6 +552,8 @@ class DagViewManager {
         let containerSelector;
         if ($dfArea.closest("#dagView").length) {
             containerSelector = "#dagView";
+        } else if ($dfArea.closest("#dagStatsPanel").length) {
+            containerSelector = "#dagStatsPanel";
         } else if ($dfArea.length) {
             containerSelector = "#sqlDataflowArea";
         } else {
@@ -512,7 +569,7 @@ class DagViewManager {
             }
             this.activeDag = graph;
             this.activeDagView = newDagView;
-            this.activeDagTab = DagTabManager.Instance.getTabById(tabId);
+            this.activeDagTab = DagTabManager.Instance.getTabById(tabId) || dagTab;
             this.activeDagView.focus();
         }
         newDagView.render(null, null, noEvents);
@@ -1135,7 +1192,7 @@ class DagViewManager {
         const self = this;
 
         // moving node in dataflow area to another position
-        this.$dfWrap.on("mousedown", ".operator .main, .operator .iconArea, .comment", function (event) {
+        this.$dfWrap.add($("#dagStatsPanel .dataflowWrap")).on("mousedown", ".operator .main, .operator .iconArea, .comment", function (event) {
             self.activeDagView.operatorMousedown(event, $(this));
         });
 
@@ -1149,10 +1206,12 @@ class DagViewManager {
             self.activeDagView.connectorInMousedown(event, $(this));
         });
 
+        let $dfWraps = this.$dfWrap.add($("#dagStatsPanel .dataflowWrap"));
+
          // drag select multiple nodes
         let $dfArea;
         let $els;
-        this.$dfWrap.on("mousedown", function (event) {
+        $dfWraps.on("mousedown", function (event) {
             if (event.which !== 1 || self.activeDagTab == null ||
                 (isSystemMac && event.ctrlKey)) {
                 return;
@@ -1182,7 +1241,6 @@ class DagViewManager {
             }
         });
 
-
         this.$dfWrap.on("click", ".descriptionIcon", function () {
             const nodeId: DagNodeId = $(this).closest(".operator")
                 .data("nodeid");
@@ -1210,7 +1268,7 @@ class DagViewManager {
         });
 
         // add listeners to dagView and sqlMode graph
-        let $dfWraps = this.$dfWrap.add($("#sqlDataflowArea .dataflowWrap"));
+        $dfWraps = $dfWraps.add($("#sqlDataflowArea .dataflowWrap"));
 
         // add classes to skewTh and skewTd because we can't use
         // css to control their hover states together
@@ -1342,6 +1400,11 @@ class DagViewManager {
     private _getAreaByTab(tabId: string): JQuery {
         const index: number = DagTabManager.Instance.getTabIndex(tabId, this.isSqlPreview);
         if (index < 0) {
+            let dagView = this.dagViewMap.get(tabId);
+            if (dagView && dagView.getTab() instanceof DagTabStats) {
+                return dagView.$dfArea;
+            }
+
             return $();
         }
         return this.$dfWrap.find(".dataflowArea").eq(index);
@@ -1349,7 +1412,11 @@ class DagViewManager {
 
 
     private _getActiveArea(): JQuery {
-        return this.$dfWrap.find(".dataflowArea.active");
+        if (this._isStatsPanel) {
+            return $("#dagStatsPanel .dataflowArea");
+        } else {
+            return this.$dfWrap.find(".dataflowArea.active");
+        }
     }
 
 

@@ -162,7 +162,7 @@ namespace Profile {
      * @param tableId
      * @param colNum
      */
-    export function show(tableId: TableId, colNum: number, isBarChart: boolean): XDPromise<void> {
+    export function show(tableId: TableId, colNum: number, isBarChart?: boolean): XDPromise<void> {
         let table: TableMeta = gTables[tableId];
         if (table == null) {
             return PromiseHelper.reject("No table!");

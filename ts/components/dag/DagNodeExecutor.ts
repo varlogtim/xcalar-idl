@@ -25,6 +25,7 @@ class DagNodeExecutor {
     private aggNames: Map<string, string>;
     private isLinkInBatch: boolean;
 
+
     public constructor(
         node: DagNode,
         txId: number,

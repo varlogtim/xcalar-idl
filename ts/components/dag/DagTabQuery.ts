@@ -4,12 +4,14 @@ class DagTabQuery extends DagTabProgress {
     private static _abandonedQueryPrefix;
     private _isSDK: boolean;
     protected _state: string;
+    protected _isStatsGraph: boolean;
 
     constructor(options: {
         id: string,
         name: string,
         queryName: string,
-        state: string
+        state: string,
+        isStatsGraph?: boolean
     }) {
         super(options);
         this._queryName = options.queryName;
@@ -95,5 +97,9 @@ class DagTabQuery extends DagTabProgress {
         });
 
         return deferred.promise();
+    }
+
+    public isStatsGraph() {
+        return this._isStatsGraph;
     }
 }

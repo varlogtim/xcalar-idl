@@ -84,6 +84,9 @@ namespace Transaction {
         currentNodeInfo?: DagTagInfo;
         parentNodeInfo?: DagTagInfo;
         cachedTables: Map<string, string>;
+        queries: Map<string, string>;
+        currentNodeName?: string;
+        parentNodeName?: string;
 
         constructor(options: TXLogOptions) {
             this.curId = options.curId;
@@ -530,6 +533,7 @@ namespace Transaction {
 
         transactionCleaner();
     };
+
 
     // dstTableName is optional - only needed to trigger subQueryDone
     /**

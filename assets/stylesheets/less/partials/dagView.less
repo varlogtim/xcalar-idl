@@ -138,6 +138,18 @@
         }
     }
 
+    .toggleStatsPanel {
+        color: @color-font-link-blue;
+        line-height: 52px;
+        padding: 0 20px;
+        font-size: 12px;
+        display: none !important; // XXX temp hiding until backend is ready
+
+        + .divider {
+            display: none; // XXX temp hiding until backend is ready
+        }
+    }
+
     .divider {
         height: 25px;
         width: 1px;
@@ -1547,11 +1559,16 @@
                 }
             }
         }
-        &.optimizedTab {
+        &.optimizedTab, &.statsTab {
             .viewSchema, .findSourceNode {
                 display: list-item;
             }
         }
+        &.statsTab {
+          .viewStats {
+              display: list-item;
+          }
+       }
     }
     &.connectorMenu, &.edgeMenu {
         .removeInConnection {
@@ -1599,6 +1616,11 @@
                 .restoreAllDataset {
                     display: list-item;
                 }
+            }
+        }
+        &.statsTab {
+            .generateStatsDataflow {
+                display: list-item;
             }
         }
     }
@@ -2194,7 +2216,7 @@
             font-size: 12px;
             pointer-events: none;
         }
-    
+
         .arrows {
             position: absolute;
             top: 4px;
@@ -2239,7 +2261,7 @@
                 .xi-plus {
                     display: none;
                 }
-    
+
                 .xi-minus {
                     display: inline-block;
                 }
@@ -3065,3 +3087,85 @@
     background-color: transparent;
     z-index: 99;
 }
+
+#dagStatsPanel {
+    background: white;
+    overflow: hidden;
+
+    .queryList {
+        height: 50%;
+        .col-query span {
+            width: 100%;
+        }
+        .row-header .col-rows {
+            padding-right: 21px;
+            .flex-basis(86px);
+        }
+    }
+    .dataflowWrap {
+        box-shadow: 0px 0px 0px 1px #bbbbbb;
+        top: 50%;
+        height: 50%;
+        .dataflowArea {
+            display: block;
+        }
+    }
+    .runStats {
+        display: block !important;
+    }
+}
+
+#dataflowStatsBtn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1;
+    margin-top: 8px;
+    margin-right: 8px;
+    border-radius: 3px;
+    padding: 4px 10px;
+    color: #5CB2E8;
+    border: 1px solid #5CB2E8;
+    background: white;
+    cursor: pointer;
+    opacity: 0.9;
+
+    .icon {
+        margin-right: 8px;
+    }
+}
+
+#dataflowMenu {
+    &.dagStats {
+        #dagList {
+            display: none;
+        }
+        #dataflowInfoPanel {
+            display: block;
+        }
+    }
+    #dataflowInfoPanel {
+        display: none;
+        .topSection {
+            overflow: hidden;
+            .iconSection .icon {
+                cursor: pointer;
+                float: right;
+            }
+            .titleSection {
+                overflow: hidden;
+            }
+            .dataflowName {
+                width: 100%;
+                .textOverflowOneLine;
+            }
+        }
+        .mainSection {
+            padding: 10px;
+        }
+        .overallSection {
+            font-size: 12px;
+        }
+    }
+}
+

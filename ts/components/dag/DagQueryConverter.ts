@@ -44,6 +44,36 @@ class DagQueryConverter {
         }
     }
 
+    public static convertStats(nodes) {
+        let queryNodes = nodes.map((node) => {
+            // let inputName = xcHelper.getXcalarInputNameFromApiString(node.operater_name);
+            // let input = JSON.parse(node.input_parameters)[inputName];
+            let numRowsPerNode = node.rows_per_node_in_cluster.split(":");
+            numRowsPerNode = numRowsPerNode.map(rows => parseInt(rows));
+            let numRowsTotal = numRowsPerNode.reduce((total, curr) => {
+                return total + curr;
+            });
+            let queryNode = {
+                // operation: node.operator_name,
+                name: {name: node.node_name},
+                api: XcalarApisT[node.operator_name],
+                input: JSON.parse(node.input_parameters),
+                comment: node.user_comment,
+                tag: "",
+                numNodes: node.total_node_count_in_cluster,
+                numWorkCompleted: numRowsTotal,
+                numWorkTotal: numRowsTotal,
+                numRowsTotal: numRowsTotal,
+                numRowsPerNode: numRowsPerNode,
+                state: DgDagStateT[node.operator_state],
+                status: StatusT[node.operator_status],
+                elapsed: {milliseconds: node.node_time_elapsed_millisecs}
+            }
+            return queryNode;
+        });
+        return queryNodes;
+    }
+
     private upgradeQuery(dataflowInfo, nestedPrefix?, nodes?) {
         try {
             return this.convertHelper(dataflowInfo, nestedPrefix, nodes);
@@ -505,15 +535,18 @@ class DagQueryConverter {
     private _finalConvertIntoDagNodeInfoArray(nodes) {
         const finalNodeInfos = [];
         const dagNodeInfos = {};
-        const counter = {count: 0};
         for (let [_name, node] of nodes) {
             if (node.children.length === 0) {
-                this._recursiveGetDagNodeInfo(node, dagNodeInfos, counter);
+                this._recursiveGetDagNodeInfo(node, dagNodeInfos);
             }
         }
+        let count = 0;
         for (let i in dagNodeInfos) {
-            finalNodeInfos.push(dagNodeInfos[i]);
+            if (!dagNodeInfos[i].title) {
+                dagNodeInfos[i].title = "Node " + (++count);
+            }
             delete dagNodeInfos[i].table; // new dag nodes don't need tables
+            finalNodeInfos.push(dagNodeInfos[i]);
         }
 
         return finalNodeInfos;
@@ -824,7 +857,7 @@ class DagQueryConverter {
         return dagNodeInfo;
     }
 
-    private _recursiveGetDagNodeInfo(node, dagNodeInfos, counter) {
+    private _recursiveGetDagNodeInfo(node, dagNodeInfos) {
         if (dagNodeInfos[node.name]) {
             return dagNodeInfos[node.name];
         }
@@ -834,15 +867,11 @@ class DagQueryConverter {
         node.parents.forEach(child => {
             let childInfoId;
             if (child) {
-                const childInfo = this._recursiveGetDagNodeInfo(child, dagNodeInfos, counter);
+                const childInfo = this._recursiveGetDagNodeInfo(child, dagNodeInfos);
                 childInfoId = childInfo.id;
             }
             dagNodeInfo.parents.push(childInfoId);
         });
-        counter.count++;
-        if (!dagNodeInfos[node.name].title) {
-            dagNodeInfos[node.name].title = "Node " + counter.count;
-        }
         return dagNodeInfo;
     }
 

@@ -121,6 +121,7 @@ namespace xcManager {
         })
         .then(function() {
             try {
+                DagStatsPanel.Instance.setup();
                 // By default show panel
                 if (XVM.isSQLMode()) {
                     MainMenu.openPanel("sqlPanel");

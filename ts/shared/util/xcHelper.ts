@@ -2757,9 +2757,7 @@ namespace xcHelper {
         }
     }
 
-    export function getXcalarInputFromNode(node) {
-        let api: number = node.api;
-        let apiString: string = XcalarApisTStr[api];
+    export function getXcalarInputNameFromApiString(apiString: string): string {
         let val: string = apiString.substr('XcalarApi'.length);
         let inputName: string = "";
         switch (val) {
@@ -2780,6 +2778,13 @@ namespace xcHelper {
                 break;
         }
         inputName += 'Input';
+        return inputName;
+    }
+
+    export function getXcalarInputFromNode(node: XcalarApiDagNodeT) {
+        let api: number = node.api;
+        let apiString: string = XcalarApisTStr[api];
+        let inputName: string = getXcalarInputNameFromApiString(apiString);
 
         return node.input[inputName];
     }
