@@ -329,7 +329,7 @@ namespace CloudLogin {
     }
 
     function validatePassword(password): boolean {
-        return password.match(/(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/)
+        return password.match(/(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*(\W|_))/)
     }
 
     let signupSubmitClicked: boolean = false;
