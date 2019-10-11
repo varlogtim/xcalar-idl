@@ -733,7 +733,7 @@ namespace CloudLogin {
                     body: JSON.stringify({
                         "username": localUsername,
                         "clusterParams": {
-                            "type": selectedClusterSize
+                            "clusterType": selectedClusterSize
                         }
                     }),
                 }).then(function (response) {
