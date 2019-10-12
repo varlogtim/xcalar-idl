@@ -19,6 +19,13 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
+            return UnitTest.testFinish(()=>$("i.xi-user").hasClass("intro-highlightedElement"))
+        }).then(() => {
+            //user tip
+            expect($("i.xi-user").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
             return UnitTest.testFinish(()=>$("#tabButton").hasClass("intro-highlightedElement"))
         }).then(() => {
 
@@ -26,14 +33,6 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#tabButton").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#tabButton").click();
-
-            return UnitTest.testFinish(()=>$("#dataflowMenu").hasClass("intro-highlightedElement"))
-        }).then(() => {
-
-            // panel tip
-            expect($("#dataflowMenu").hasClass("intro-highlightedElement")).to.be.true;
-            expect($("#intro-popover").is(":visible")).to.be.true;
-            $("#intro-popover .next").click();
 
             return UnitTest.testFinish(()=>$(".dataflowMainArea").hasClass("intro-highlightedElement"))
         }).then(() => {
@@ -69,18 +68,26 @@ describe("Tooltip Flight Test", function(done) {
             return UnitTest.testFinish(()=>$("#dagView .operatorWrap .active .operator").eq(0).hasClass("intro-highlightedElement"))
         }).then(() => {
 
-            // node tip doubleclick
+            // dataset node tip doubleclick
             expect($("#dagView .operatorWrap .active .operator").eq(0).hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#dagView .operatorWrap .active .operator .main").eq(0).dblclick();
 
-            return UnitTest.testFinish(()=>$("#dagView").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$(".dataflowArea.active rect.main").hasClass("intro-highlightedElement"))
         }).then(() => {
 
             // view tip
-            expect($("#dagView").hasClass("intro-highlightedElement")).to.be.true;
+            expect($(".dataflowArea.active rect.main").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("#dagView .operatorWrap .active .operator").eq(0).hasClass("intro-highlightedElement"))
+        }).then(() => {
+
+            // sort node tip doubleclick
+            expect($("#dagView .operatorWrap .active .operator").eq(0).hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#dagView .operatorWrap .active .operator .main").eq(0).dblclick();
 
             return UnitTest.testFinish(()=>$("#dagView").hasClass("intro-highlightedElement"))
         }).then(() => {
@@ -121,10 +128,17 @@ describe("Tooltip Flight Test", function(done) {
         let oldIsCloud = XVM.isCloud;
         XVM.isCloud = () => true;
         TooltipWalkthroughs.startWalkthrough("SQL Mode")
-        UnitTest.testFinish(()=>$("#homeBtn").hasClass("intro-highlightedElement"))
+        UnitTest.testFinish(()=>$("#modeArea").hasClass("intro-highlightedElement"))
         .then(() => {
             //home tip
-            expect($("#homeBtn").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#modeArea").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("i.xi-user").hasClass("intro-highlightedElement"))
+        }).then(() => {
+            //user tip
+            expect($("i.xi-user").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
@@ -276,10 +290,17 @@ describe("Tooltip Flight Test", function(done) {
         XVM.isCloud = () => false;
         TooltipWalkthroughs.startWalkthrough("SQL Mode")
 
-        UnitTest.testFinish(()=>$("#homeBtn").hasClass("intro-highlightedElement"))
+        UnitTest.testFinish(()=>$("#modeArea").hasClass("intro-highlightedElement"))
         .then(() => {
             //home tip
-            expect($("#homeBtn").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#modeArea").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#intro-popover").is(":visible")).to.be.true;
+            $("#intro-popover .next").click();
+
+            return UnitTest.testFinish(()=>$("i.xi-user").hasClass("intro-highlightedElement"))
+        }).then(() => {
+            //user tip
+            expect($("i.xi-user").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
@@ -330,17 +351,6 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#sourceTblButton").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#sourceTblButton").click();
-
-            return UnitTest.testFinish(()=>!$("#dsFormView").hasClass("xc-hidden"))
-        }).then(() => {
-
-            expect(MainMenu.isMenuOpen()).to.be.true;
-            expect($("#dsFormView").hasClass("xc-hidden")).to.be.false;
-
-            //dsform tip
-            expect($("#dsForm-path .cardMain").hasClass("intro-highlightedElement")).to.be.true;
-            expect($("#intro-popover").is(":visible")).to.be.true;
-            $("#intro-popover .next").click();
 
             return UnitTest.testFinish(()=>$("#dsForm-target").hasClass("intro-highlightedElement"))
         }).then(() => {

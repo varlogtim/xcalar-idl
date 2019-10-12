@@ -330,6 +330,10 @@ namespace TooltipManager {
             removeElementLayer();
         }
 
+        if (currWalkthrough[stepNumber].pre_mousedown_div) {
+            $(currWalkthrough[stepNumber].pre_mousedown_div).mousedown();
+        }
+
         highlightNextElement();
     }
 
@@ -442,7 +446,7 @@ namespace TooltipManager {
                            (popoverBorderWidth * 2);
         let rect: ClientRect | DOMRect = currElemRect;
         let top: number = 0;
-        let minLeft: number = 5;
+        let minLeft: number = 0;
         let center: number = rect.left + (rect.width / 2);
         let centerVert: number = rect.top + (rect.height / 2);
         let tempLeft: number = center - (popoverWidth / 2);
@@ -453,6 +457,10 @@ namespace TooltipManager {
             userPosition = validPositions[positionIndex];
         } else {
             userPosition = 'auto';
+        }
+
+        if (currWalkthrough[stepNumber].position) {
+            userPosition = currWalkthrough[stepNumber].position;
         }
 
         if (userPosition === 'auto') {

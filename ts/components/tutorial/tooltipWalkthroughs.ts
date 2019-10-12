@@ -166,18 +166,13 @@ namespace TooltipWalkthroughs {
         }];
 
         let onPremSteps: TooltipInfo[] = [{
-            highlight_div: "#dsForm-path .cardMain",
-            text: "This panel enables you to locate your data.",
-            type: TooltipType.Text
-        },
-        {
             highlight_div: "#dsForm-target",
-            text: "Choose a connector to access your data. Connectors must be created before data can be imported from them.",
+            text: "This dropdown enables you to choose a connector to access your data. Connectors must be created before data can be imported from them.",
             type: TooltipType.Text
         },
         {
             highlight_div: "#filePath",
-            text: "Enter the path to your data source for the selected connector.",
+            text: "Here you can enter the path to your data source for the selected connector.",
             type: TooltipType.Text
         },
         {
@@ -199,14 +194,20 @@ namespace TooltipWalkthroughs {
 
         let dataStoreSteps: TooltipInfo[] = XVM.isCloud() ? cloudSteps : onPremSteps;
         let steps: TooltipInfo[] = [{
-            highlight_div: "#homeBtn",
-            text: "Welcome to Xcalar Design. This tooltip walk-through will familiarize you with the UI of Xcalar Design and its SQL Mode.",
+            highlight_div: "#modeArea",
+            text: "Welcome to Xcalar Design. This tooltip walk-through will familiarize you with the user interface of Xcalar Design and its SQL Mode.",
+            type: TooltipType.Text
+        },
+        {
+            highlight_div: ".xi-user",
+            text: "Relaunch this walkthrough anytime by clicking on the User icon and selecting Walkthroughs.",
             type: TooltipType.Text
         },
         {
             highlight_div: "#menuBar",
             text: "The sidebar enables you to access various features within Xcalar Design.",
-            type: TooltipType.Text
+            type: TooltipType.Text,
+            position: "right"
         },
         {
             highlight_div: "#dataStoresTab",
@@ -220,7 +221,7 @@ namespace TooltipWalkthroughs {
         },
         {
             highlight_div: "#monitorTab",
-            text: "The System icon provides tools for monitoring, managing, and troubleshooting the Xcalar cluster.",
+            text: "The System icon provides tools for monitoring, managing, and troubleshooting.",
             type: TooltipType.Text
         },
         {
@@ -239,7 +240,7 @@ namespace TooltipWalkthroughs {
         {
             highlight_div: "#sqlWorkSpace",
             interact_div: "#sqlWorkSpace",
-            text: "Click the SQL Workspace icon to start working in SQL.",
+            text: "Click the SQL Workspace icon to start working in SQL Editor.",
             type: TooltipType.Click,
         },
         {
@@ -265,7 +266,7 @@ namespace TooltipWalkthroughs {
         },
         {
             highlight_div: "#tutorialResource",
-            text: "This concludes the tour of the SQL Mode UI. To get more hands-on experience, view the tutorial workbooks.",
+            text: "This concludes the tour of the SQL Mode user interface. To get more hands-on experience, view the tutorial workbooks.",
             type: TooltipType.Text
         }];
         TooltipManager.start(
@@ -293,7 +294,12 @@ namespace TooltipWalkthroughs {
             },
             [{
                 highlight_div: "#modeArea",
-                text: "Welcome to Dataflow Mode. This user interface enables you to create and troubleshoot your data models through a combination of visual design, SQL and Python.",
+                text: "Welcome to Dataflow Mode. This user interface enables you to develop and troubleshoot your data models through a combination of visual design, SQL and Python.",
+                type: TooltipType.Text
+            },
+            {
+                highlight_div: ".xi-user",
+                text: "Relaunch this walkthrough anytime by clicking on the User icon and selecting Walkthroughs.",
                 type: TooltipType.Text
             },
             {
@@ -303,13 +309,8 @@ namespace TooltipWalkthroughs {
                 type: TooltipType.Click
             },
             {
-                highlight_div: "#dataflowMenu",
-                text: "The Dataflows panel is a visual directory structure for storing and managing your dataflows.",
-                type: TooltipType.Text
-            },
-            {
                 highlight_div: ".dataflowMainArea",
-                text: "The dataflow canvas is where you create and connect nodes to create dataflows.",
+                text: "The dataflow canvas is where you create and connect Nodes to create dataflows.",
                 type: TooltipType.Text
             },
             {
@@ -319,28 +320,36 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: "#dagView .operatorBar",
-                text: "Each category displays the operation Nodes you'll use to build your dataflows.",
+                text: "Each category displays the operation Nodes you'll use to build your dataflows. Double click or drag and drop Nodes from the toolbar to the dataflow canvas.",
                 type: TooltipType.Text
             },
             {
+                pre_mousedown_div: '.category-in',
                 highlight_div: "#dagView .operatorBar",
-                text: "Drag and drop Nodes from here to the dataflow canvas to create a dataflow. Nodes can be connected by dragging a Node anchor to another Node.",
+                text: "Before creating a dataflow, import at least one data source into a dataset. A dataflow must start with a source Node (a Dataset or a Table Node) to read the imported data.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView .operatorWrap .active .operator",
                 interact_div: "#dagView .operatorWrap .active .operator .main",
-                text: "Double click this Node to add it to the canvas.",
+                text: "Double click this Dataset Node to add it to the dataflow canvas.",
                 type: TooltipType.DoubleClick
             },
             {
-                highlight_div: "#dagView",
-                text: "Practice creating a dataflow by adding Nodes to the canvas and connecting them. Click the arrow when you're ready to continue.",
+                highlight_div: ".dataflowArea.active rect.main",
+                text: "Clicking on the Node and selecting Configure enables you to configure the Node. For example, you can configure a Dataset Node to read a dataset that you have imported.",
                 type: TooltipType.Text
             },
             {
+                pre_mousedown_div: '.category-rowOps',
+                highlight_div: "#dagView .operatorWrap .active .operator",
+                interact_div: "#dagView .operatorWrap .active .operator .main",
+                text: "Double click this Sort Node to add it to the dataflow canvas.",
+                type: TooltipType.DoubleClick,
+            },
+            {
                 highlight_div: "#dagView",
-                text: "Clicking a node displays a menu of actions. Select \"Configure\" to open a configuration panel on the left of the canvas.",
+                text: "You can connect the two Nodes by dragging the Dataset Node anchor to the Sort Node and then configure the Sort Node.",
                 type: TooltipType.Text
             },
             {
@@ -352,7 +361,7 @@ namespace TooltipWalkthroughs {
             ,
             {
                 highlight_div: "#tutorialResource",
-                text: "This concludes the tour of the Dataflow Mode UI. To get more hands-on experience, view the tutorial workbooks.",
+                text: "This concludes the tour of the Dataflow Mode user interface. To get more hands-on experience, view the tutorial workbooks.",
                 type: TooltipType.Text
             }],
             0,
