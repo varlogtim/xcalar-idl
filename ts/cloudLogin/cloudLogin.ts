@@ -1087,6 +1087,7 @@ namespace CloudLogin {
             cookieLogout: cookieLogout,
             checkCredit: checkCredit,
             getCluster: getCluster,
+            startCluster: startCluster,
             clusterSelection: clusterSelection,
             goToXcalar: goToXcalar,
             showInitialScreens: showInitialScreens,

@@ -4,7 +4,7 @@ describe("Cloud Login Test", () => {
         cloudLoginFunctions = CloudLogin["__testOnly__"];
     });
 
-    describe("Cloud Login Methods Test", function() {
+    describe("Cloud Login Validations", function() {
         it("validateEmail should work", () => {
             const wrongEmails = [
                 '',
@@ -65,6 +65,71 @@ describe("Cloud Login Test", () => {
                 correctValidation = cloudLoginFunctions.validatePassword(password);
                 expect(correctValidation).to.not.be.null;
             });
+        });
+    });
+
+    describe("Cloud Login Fetches", function() {
+        let oldFetch;
+        let fetchArgs;
+
+        before(function() {
+            oldFetch = fetch;
+            fetch = (...args) => {
+                fetchArgs = args;
+                return Promise.reject();
+            }
+        });
+        it("/status should be called correctly", function(done) {
+            cloudLoginFunctions.initialStatusCheck();
+            const [fetchUrl, fetchParams] = [fetchArgs[0], fetchArgs[1]];
+            expect(fetchUrl.endsWith("/status")).to.be.true;
+            expect(fetchParams.credentials).to.equal('include');
+            done();
+        });
+
+        it("/login should be called correctly", function(done) {
+            cloudLoginFunctions.cookieLogin('testLogin', 'testPassword');
+            const [fetchUrl, fetchParams] = [fetchArgs[0], fetchArgs[1]];
+            expect(fetchUrl.endsWith("/login")).to.be.true;
+            expect(fetchParams.credentials).to.equal('include');
+            expect(fetchParams.body).to.equal('{"username":"testLogin","password":"testPassword"}');
+            done();
+        });
+
+        it("/logout should be called correctly", function(done) {
+            cloudLoginFunctions.cookieLogout();
+            const [fetchUrl, fetchParams] = [fetchArgs[0], fetchArgs[1]];
+            expect(fetchUrl.endsWith("/logout")).to.be.true;
+            expect(fetchParams.credentials).to.equal('include');
+            done();
+        });
+
+        it("/billing/get should be called correctly", function(done) {
+            cloudLoginFunctions.checkCredit();
+            const [fetchUrl, fetchParams] = [fetchArgs[0], fetchArgs[1]];
+            expect(fetchUrl.endsWith("/billing/get")).to.be.true;
+            expect(fetchParams.body).to.exist;
+            done();
+        });
+
+        it("/cluster/get should be called correctly", function(done) {
+            cloudLoginFunctions.getCluster();
+            const [fetchUrl, fetchParams] = [fetchArgs[0], fetchArgs[1]];
+            expect(fetchUrl.endsWith("/cluster/get")).to.be.true;
+            expect(fetchParams.body).to.exist;
+            done();
+        });
+
+        it("/cluster/start should be called correctly", function(done) {
+            cloudLoginFunctions.startCluster();
+            const [fetchUrl, fetchParams] = [fetchArgs[0], fetchArgs[1]];
+            expect(fetchUrl.endsWith("/cluster/start")).to.be.true;
+            expect(fetchParams.body).to.exist;
+            done();
+        });
+
+        after(function() {
+            fetch = oldFetch;
         });
     });
 });
