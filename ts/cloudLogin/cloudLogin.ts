@@ -295,9 +295,38 @@ namespace CloudLogin {
             handleException(clusterGetResponse.error);
             return;
         }
-        var url = clusterGetResponse.clusterUrl + "/" + paths.login +
-        "?cloudId=" + encodeURIComponent(sessionId);
-        window.location.href = url;
+        const cb = () => {
+            var url = clusterGetResponse.clusterUrl + "/" + paths.login +
+            "?cloudId=" + encodeURIComponent(sessionId);
+            window.location.href = url;
+        };
+        checkExpServerIsUp(clusterGetResponse.clusterUrl, cb);
+    }
+
+    // XXX TODO: this should be done on lambda side
+    function checkExpServerIsUp(url, cb, cnt = 0): void {
+        let checkcer = () => {
+            fetch(url + "/app/service/getTime")
+            .then((res) => res.json())
+            .then(() => {
+                // succeed
+                console.log("server is up!");
+                cb();
+            })
+            .catch(() => {
+                if (cnt > 20) {
+                    handleException("Server is unresponsive");
+                } else {
+                    checkExpServerIsUp(cb, cnt + 1);
+                }
+            })
+        }
+
+        let time = (cnt + 1) * 5000; // 5s scale check
+        setTimeout(() => {
+            console.log("wait for", time, "to check server is up");
+            checkcer();
+        }, time);
     }
 
     function showInitialScreens(): void {
