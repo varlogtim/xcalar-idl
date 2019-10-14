@@ -157,11 +157,14 @@ describe("UserMenu Test", function() {
     });
 
     it("clicking on credits should show alert", () => {
+        var oldFunc = window.open;
+        var called = false;
+        window.open = () => called = true;
         $menu.find(".credits").mouseup();
-        expect($("#alertModal").is(":visible")).to.be.false;
+        expect(called).to.be.false;
         $menu.find(".credits").trigger(fakeEvent.mouseup);
-        expect($("#alertModal").is(":visible")).to.be.true;
-        UnitTest.hasAlertWithTitle("Add Credits");
+        expect(called).to.be.true;
+        window.open = oldFunc;
     });
 
     it("should update credits", () => {

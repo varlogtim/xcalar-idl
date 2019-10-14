@@ -29,11 +29,7 @@ class UserMenu {
             if (event.which !== 1) {
                 return;
             }
-            Alert.show({
-                "title": "Add Credits",
-                "msg": "Call Customer Service to add more credits.",
-                "isAlert": true
-            });
+            window.open(paths.cloudCredit);
         });
 
         $menu.on("mouseup", ".help", function(event: JQueryEventObject): void {
@@ -140,7 +136,9 @@ class UserMenu {
                 MessageModal.Instance.show({
                     title: "You are running low on credits...",
                     msg: xcStringHelper.replaceMsg(AlertTStr.LowOnCredits, {
-                        time: XcUser.firstCreditWarningTime
+                        time: XcUser.firstCreditWarningTime,
+                        path: paths.cloudCredit,
+                        link: paths.cloudCredit
                     }),
                     sizeToText: true,
                     size: "medium",
