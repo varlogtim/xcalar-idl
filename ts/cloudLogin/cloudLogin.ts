@@ -625,7 +625,7 @@ namespace CloudLogin {
             if (res.status === httpStatus.OK) {
                 return res.json();
             }
-            else if (res.status === 401) {
+            else if (res.status === httpStatus.Unauthorized) {
                 return PromiseHelper.reject('Wrong Email or Password.');
             } else {
                 return PromiseHelper.reject('Server responsed with status ' + res.status + '.');
