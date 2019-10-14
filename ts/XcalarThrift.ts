@@ -3950,7 +3950,7 @@ XcalarQueryWithCheck = function(
                 log: createQueryStateOutputLog(queryStateOutput)
             }
         }
-        const thriftError = thriftLog("XcalarQuery" + queryName, error);
+        const thriftError = thriftLog("XcalarQuery with name:" + queryName, error);
         deferred.reject(thriftError, queryStateOutput);
     });
 
@@ -3997,7 +3997,7 @@ function queryErrorStatusHandler(
             error: "Error:" + StatusTStr[error.xcalarStatus]
         } as ThriftError;
     } else {
-        thriftError = thriftLog("XcalarCancel" + opOrQuery, error);
+        thriftError = thriftLog("XcalarCancel " + opOrQuery, error);
         Log.errorLog("Cancel " + opOrQuery, null, null, thriftError);
     }
 
@@ -4043,7 +4043,7 @@ XcalarQueryDelete = function(queryName: string): XDPromise<StatusT> {
     xcalarQueryDelete(tHandle, queryName)
     .then(deferred.resolve)
     .fail(function(error) {
-        const thriftError = thriftLog("XcalarQueryDelete" + queryName, error);
+        const thriftError = thriftLog("XcalarQueryDelete " + queryName, error);
         Log.errorLog("Xcalar Query Delete " + queryName, null, null, thriftError);
         deferred.reject(thriftError);
     });
@@ -4064,7 +4064,7 @@ XcalarQueryList = function(namePattern) {
     xcalarQueryList(tHandle, namePattern)
     .then(deferred.resolve)
     .fail(function(error) {
-        const thriftError = thriftLog("XcalraQueryList" + namePattern, error);
+        const thriftError = thriftLog("XcalraQueryList " + namePattern, error);
         Log.errorLog("Xcalar Query List " + namePattern, null, null, thriftError);
         deferred.reject(thriftError);
     });
