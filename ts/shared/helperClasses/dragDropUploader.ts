@@ -5,6 +5,7 @@ class DragDropUploader {
     private onDropCallback: Function;
     private onErrorCallback: Function;
     private dragCount: number;
+    private activated: boolean;
 
     constructor(options: {
         $container: JQuery,
@@ -17,6 +18,7 @@ class DragDropUploader {
         this.onDropCallback = options.onDrop;
         this.onErrorCallback = options.onError || function(){};
         this.dragCount = 0;
+        this.activated = false;
         this.setup();
     }
 
@@ -37,9 +39,12 @@ class DragDropUploader {
     public toggle(activate: boolean): void {
         const self = this;
         if (!activate) {
+            this.activated = false;
             this.$container.off(".xcUpload");
             this.$container.removeClass("xc-fileDroppable");
-        } else {
+        } else if (!this.activated) {
+            // when it's not activated but to activate
+            this.activated = true;
             this.$container.addClass("xc-fileDroppable");
             this.$container.on('dragenter.xcUpload', function(event: JQueryEventObject) {
                 const dt = (<DragEvent>event.originalEvent).dataTransfer;
@@ -99,6 +104,8 @@ class DragDropUploader {
                     self.onDropCallback(files[0]);
                 }
             });
+        } else {
+            throw new Error("error case");
         }
     }
 }

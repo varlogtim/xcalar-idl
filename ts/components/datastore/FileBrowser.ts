@@ -279,6 +279,14 @@ namespace FileBrowser {
     }
 
     /**
+     * FileBrowser.removeFileToUpload
+     * @param fileName
+     */
+    export function removeFileToUpload(fileName: string): void {
+        filterFile(fileName);
+    }
+
+    /**
      * FileBrowser.hasFile
      */
     export function hasFile(fileName: string): boolean {

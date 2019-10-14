@@ -11,6 +11,7 @@ namespace CloudFileBrowser {
      * CloudFileBrowser.show
      */
     export function show(restore: boolean): void {
+        this.clear(); // necessary to reset first
         let targetName = DSTargetManager.getCloudS3Connector();
         let options = {
             cloud: true,
@@ -85,6 +86,7 @@ namespace CloudFileBrowser {
         })
         .fail((error) => {
             if (!isChecking) {
+                FileBrowser.removeFileToUpload(fileName);
                 FileBrowser.refresh();
                 _handleUploadError(error);
             }
@@ -121,7 +123,9 @@ namespace CloudFileBrowser {
             $container: $section,
             text: "Drop a file to upload",
             onDrop: (file) => {
-                _uploadFile(file);
+                if (!_getFileBrowser().hasClass("errorMode")) {
+                    _uploadFile(file);
+                }
             },
             onError: (error) => {
                 switch (error) {
