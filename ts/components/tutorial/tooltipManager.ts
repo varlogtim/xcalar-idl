@@ -190,7 +190,7 @@ namespace TooltipManager {
         if (title === WKBKTStr.Location) {
             const checked = checkBoxChecked ? "checked" : "";
             tooltipCheckbox = '<section>' +
-                                    '<div id="alertCheckBox" class="checkboxSection">' +
+                                    '<div class="alertCheckBox checkboxSection">' +
                                     '<div class="checkbox ' + checked + '">' +
                                     '<i class="icon xi-ckbox-empty"></i>' +
                                     '<i class="icon xi-ckbox-selected"></i>' +
@@ -244,8 +244,8 @@ namespace TooltipManager {
             closeWalkthrough();
         });
 
-        $popover.find('#alertCheckBox').click(function() {
-            const $checkBox = $popover.find('#alertCheckBox').find('.checkbox');
+        $popover.find('.alertCheckBox').click(function() {
+            const $checkBox = $popover.find('.alertCheckBox').find('.checkbox');
             checkBoxChecked = !checkBoxChecked;
             if (checkBoxChecked) {
                 $checkBox.addClass("checked");
