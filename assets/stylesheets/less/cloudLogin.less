@@ -30,7 +30,10 @@ body {
     max-width: 147px;
     display: inline-block;
     text-align: center;
-    text-decoration: underline;
+
+    a:hover {
+        text-decoration: underline;
+    }
 }
 
 .authForm {
@@ -100,7 +103,9 @@ body {
 }
 
 .auth-section {
-    text-decoration: underline;
+    a:hover {
+        text-decoration: underline;
+    }
 }
 
 .buttonSection {
@@ -151,7 +156,12 @@ a {
         position: relative;
         top: -2px;
         left: 3px;
+        cursor: default;
     }
+}
+
+i.icon.xi-error:before {
+    color: #FFACA3;
 }
 
 #resend-code {

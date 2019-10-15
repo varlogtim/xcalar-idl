@@ -402,8 +402,8 @@ namespace CloudLogin {
         }
     }
 
-    function showInputError($element: JQuery, hideErrorCondition: boolean): void {
-        if (hideErrorCondition) {
+    function showInputError($element: JQuery, hideErrorCondition: boolean, signupSubmitClicked: boolean): void {
+        if (!signupSubmitClicked || hideErrorCondition) {
             $element.find('.icon.xi-error').hide();
             $element.find('.input-tooltip').hide();
             $element.focusin(
@@ -503,16 +503,14 @@ namespace CloudLogin {
         const passwordsMatch: boolean = password1 === password2;
         const checkedEULA: boolean = $("#signup-termCheck").prop('checked');
 
-        if (signupSubmitClicked) {
-            showInputError($("#firstNameSection"), !firstNameEmpty);
-            showInputError($("#lastNameSection"), !lastNameEmpty);
-            showInputError($("#companySection"), !companyEmpty);
-            showInputError($("#emailSection"), validateEmail(email1));
-            showInputError($("#confirmEmailSection"), emailsMatch && validateEmail(email1));
-            showInputError($("#passwordSection"), validatePassword(password1));
-            showInputError($("#confirmPasswordSection"), passwordsMatch && validatePassword(password1));
-            showInputError($(".submitSection"), checkedEULA);
-        }
+        showInputError($("#firstNameSection"), !firstNameEmpty, signupSubmitClicked);
+        showInputError($("#lastNameSection"), !lastNameEmpty, signupSubmitClicked);
+        showInputError($("#companySection"), !companyEmpty, signupSubmitClicked);
+        showInputError($("#emailSection"), validateEmail(email1), signupSubmitClicked);
+        showInputError($("#confirmEmailSection"), emailsMatch && validateEmail(email1), signupSubmitClicked);
+        showInputError($("#passwordSection"), validatePassword(password1), signupSubmitClicked);
+        showInputError($("#confirmPasswordSection"), passwordsMatch && validatePassword(password1), signupSubmitClicked);
+        showInputError($(".submitSection"), checkedEULA, signupSubmitClicked);
 
         showPasswordErrorRows(password1);
 
@@ -669,6 +667,66 @@ namespace CloudLogin {
         return deferred.promise();
     }
 
+    function clearElements(elementsToTrigger: string[], elementsToHide: string[], elementsToEmpty: string[], clearFunction?: Function): void {
+        elementsToTrigger.forEach((elementToTrigger) => $(elementToTrigger).click(function () {
+            elementsToHide.forEach((element) => $(element).hide());
+            elementsToEmpty.forEach((element) => $(element).val(""));
+            if (typeof clearFunction === 'function') {
+                clearFunction();
+            }
+        }));
+    }
+
+    function clearForms() {
+        clearElements(
+            ["#forgotSection a", ".signupSection a"],
+            ["#loginFormError"],
+            ["#loginNameBox","#loginPasswordBox"]
+        );
+        clearElements(
+            [".already-have-account"],
+            ["#signupFormError"],
+            ["#loginNameBox", "#loginPasswordBox"]
+        );
+        clearElements(
+            ["#forgotSection a", ".signupSection a"],
+            ["#loginFormError"],
+            [
+                "#signup-firstName",
+                "#signup-lastName",
+                "#signup-company",
+                "#signup-email",
+                "#signup-confirmEmail",
+                "#signup-password",
+                "#signup-confirmPassword"
+            ],
+            () => {
+                $("#signup-termCheck").prop("checked",false);
+                signupSubmitClicked = false;
+                checkSignUpForm();
+            }
+        );
+        clearElements(
+            [".already-have-account"],
+            ["#forgotPasswordFormError"],
+            ["#forgot-password-email"]
+        );
+        clearElements(
+            [".already-have-account"],
+            ["#confirmForgotPasswordFormError"],
+            [
+                "#confirm-forgot-password-code",
+                "#confirm-forgot-password-new-password",
+                "#confirm-forgot-password-confirm-new-password"
+            ]
+        );
+        clearElements(
+            [".link-to-login"],
+            ["#clusterFormError"],
+            []
+        );
+    }
+
     function handleEvents(): void {
         $("#passwordSection").focusin(
             function () {
@@ -694,11 +752,7 @@ namespace CloudLogin {
             $("#signupTitle").toggle();
         })
 
-        $("#forgotSection a, .signupSection a").click(function () {
-            $("#loginFormError").hide();
-            $("#loginNameBox").val("");
-            $("#loginPasswordBox").val("");
-        })
+        clearForms();
 
         $("#signupForm").find(".input").keyup(function () {
             checkSignUpForm();
