@@ -1211,7 +1211,6 @@
     #aggModal-quickAgg {
         .aggTableField {
             margin-top: 5px;
-            background-color: @color-selectedCell-light;
 
             &.cell {
                 span {
@@ -1240,65 +1239,42 @@
     }
 
     .mainAgg {
-        .size(@height: ~"calc(100% - 149px)");
-
-        .tableText {
-            .size(@height: 29px);
-            .font(@weight: bold, @line-height: 29px, @color: @color-font-form-gray);
-            padding-left: 25px;
-        }
+        .size(@height: ~"calc(100% - 197px)");
+        border: 1px solid @color-agg-border-gray;
+        padding: 0;
+        margin: 12px 24px;
 
         .tabs {
             .size(@width: 40px, @height: 100%);
             display: inline;
             float: left;
-            background-color: @color-bg-white-three;
+            background-color: @color-agg-tab-bg;
+
             .tab {
-                border-top: 1px solid @color-border-pinkish-grey2;
-                border-right: 1px solid @color-border-pinkish-grey2;
-                border-bottom: 1px solid @color-border-pinkish-grey2;
+                border-right: 1px solid @color-agg-border-gray;
+                border-bottom: 1px solid @color-agg-border-gray;
                 height: 50%;
                 cursor: pointer;
-                color: @color-font-warm-grey-two;
+                color: @color-agg-tab-font;
                 .text {
                     padding-top: 7px;
                     padding-right: 6px;
                     display: inline-block;
                     .transform(rotate(-90deg));
-                    text-align: right;
                     width: 200px;
                     height: 200px;
                     font-size: 17px;
                 }
-                &#aggTab {
+                &:last-child {
                     border-bottom: 0px;
-                }
-                &#corrTab {
-                    border-top: 0px;
                 }
                 &.active {
                     background-color: @color-white;
-                    color: @color-font-select-blue !important;
-                    border: 0px;
-                    &#aggTab {
-                        border-bottom: 0px !important;
-                    }
-                    &#corrTab {
-                        border-top: 0px !important;
-                    }
-
-                    .icon {
-                        color: @color-font-select-blue;
-                        opacity: 1.0;
-                    }
+                    color: @color-font-form-gray;
+                    border-right: none;
+                    border-bottom: none;
+                    border-left: 2px solid  @color-agg-border-blue;
                 }
-            }
-            .icon {
-                margin-left: 10px;
-                margin-top: 10px;
-                color: @color-font-warm-grey-two;
-                opacity: 0.5;
-                .transform(rotate(-90deg))
             }
         }
 
@@ -1308,23 +1284,22 @@
 
         .aggTable {
             .position(relative); // for the .padding
-            .size(@width: ~"calc(100% - 50px)", @height: 100%);
+            .size(@width: ~"calc(100% - 40px)", @height: 100%);
             margin: 0 auto;
-            padding: 10px;
-            padding-top: 5px;
-            background: @color-bg-white-three;
+            padding: 0;
+            background-color: @color-white;
             float: right;
 
             .headerContainer {
                 .size(@width: 100%, @height: 36px);
                 .flex-display;
                 overflow: hidden;
-                border-bottom: 1px solid @color-border-pinkish-grey;
+                border-bottom: 1px solid @color-agg-border-gray;
 
                 .padding {
-                    .position(absolute, @top: 3px, @left: 10px);
+                    .position(absolute, @top: 0px, @left: 0px);
                     .size(@width: 120px, @height: 35px);
-                    background: @color-bg-white-three;
+                    background: @color-white;
                     z-index: 10;
                 }
 
@@ -1354,7 +1329,7 @@
             }
 
             .tableContainer {
-                .size(@width: 100%, @height: ~"calc(100% - 37px)");
+                .size(@width: 100%, @height: ~"calc(100% - 25px)");
                 .flex-display;
 
                 .aggContainer, .labelContainer {
@@ -1394,10 +1369,10 @@
                     }
 
                     > span {
-                        .size(@width: 100%, @height: 15px);
+                        .size(@width: 100%, @height: 20px);
                         text-align: center;
                         display: block;
-                        line-height: 15px;
+                        line-height: 20px;
 
                         &:not(.prefix) {
                             .position(relative, @top: -1px);
@@ -1431,7 +1406,7 @@
                 white-space: nowrap;
 
                 &.aggTableFlex {
-                    background-color: @color-bg-white-three;
+                    background-color: @color-white;
                     .dash {
                         color: @color-font-form-gray;
                     }
@@ -1439,11 +1414,10 @@
             }
 
             .rowLabel, .colLabel {
-                background-color: @color-bg-white-three !important;
+                background-color: @color-white;
 
                 &.active {
-                    background-color: @color-bg-white-nine !important;
-                    color: @color-black;
+                    background-color: @color-agg-tab-bg;
                 }
             }
         }
