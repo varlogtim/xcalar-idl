@@ -106,9 +106,12 @@ namespace CloudLogin {
         })
         .fail((error) => {
             console.error('cookieLogin error:', error);
-            if (typeof error !== "string") {
+            if (typeof error === "object" && error.message) {
+                error = error.message;
+            } else if (typeof error !== "string") {
                 error = "Login failed with unknown error.";
             }
+            error += error.endsWith('.') ? '' : '.';
             error += " Please try again.";
             showFormError($("#loginFormError"), error);
             $button.removeClass("xc-disabled");
@@ -403,6 +406,18 @@ namespace CloudLogin {
         if (hideErrorCondition) {
             $element.find('.icon.xi-error').hide();
             $element.find('.input-tooltip').hide();
+            $element.focusin(
+                function () {
+                    $(this).find(".input-tooltip").hide();
+                    focusTooltipShown = false;
+                }
+            )
+            $element.focusout(
+                function () {
+                    $(this).find(".input-tooltip").hide();
+                    focusTooltipShown = false;
+                }
+            )
             $element.hover(
                 function () {
                     hideTooltip($(this))
@@ -499,12 +514,18 @@ namespace CloudLogin {
             showInputError($(".submitSection"), checkedEULA);
         }
 
-        showPasswordErrorRows(password1)
+        showPasswordErrorRows(password1);
 
-        $(".tooltipRow i").removeClass("xi-cancel")
-        $(".tooltipRow i").addClass("xi-success")
-        $(".errorTooltipRow i").removeClass("xi-success")
-        $(".errorTooltipRow i").addClass("xi-cancel")
+        if (email1 === "") {
+            $('#emailSection .input-tooltip').text('Email cannot be empty');
+        } else {
+            $('#emailSection .input-tooltip').text('Email must be in a valid format');
+        }
+
+        $(".tooltipRow i").removeClass("xi-cancel");
+        $(".tooltipRow i").addClass("xi-success");
+        $(".errorTooltipRow i").removeClass("xi-success");
+        $(".errorTooltipRow i").addClass("xi-cancel");
 
         const inputIsCorrect: boolean = !firstNameEmpty &&
             !lastNameEmpty &&
@@ -512,15 +533,18 @@ namespace CloudLogin {
             validateEmail(email1) &&
             emailsMatch &&
             validatePassword(password1) &&
-            passwordsMatch &&
-            checkedEULA;
+            passwordsMatch;
 
-        if (inputIsCorrect) {
+        if (inputIsCorrect && checkedEULA) {
             $("#signupFormError").hide()
             return true;
         } else {
             if (signupSubmitClicked) {
-                showFormError($("#signupFormError"), "Fields missing or incomplete.");
+                if (inputIsCorrect && !checkedEULA) {
+                    showFormError($("#signupFormError"), "Please read and accept the End User License Agreement");
+                } else {
+                    showFormError($("#signupFormError"), "Fields missing or incomplete.");
+                }
             }
             return false;
         }
@@ -624,8 +648,7 @@ namespace CloudLogin {
         .then((res) => {
             if (res.status === httpStatus.OK) {
                 return res.json();
-            }
-            else if (res.status === httpStatus.Unauthorized) {
+            } else if (res.status === httpStatus.Unauthorized) {
                 return PromiseHelper.reject('Wrong Email or Password.');
             } else {
                 return PromiseHelper.reject('Server responsed with status ' + res.status + '.');
@@ -698,7 +721,7 @@ namespace CloudLogin {
 
         $("#loginButton").click(function () {
             if (checkLoginForm()) {
-                var username = $("#loginNameBox").val();
+                var username = $("#loginNameBox").val().toLowerCase();
                 var password = $("#loginPasswordBox").val();
                 cookieLogin(username, password);
             }
@@ -720,7 +743,7 @@ namespace CloudLogin {
 
         $("#signup-submit").click(function () {
             if (checkSignUpForm()) {
-                const username = $("#signup-email").val();
+                const username = $("#signup-email").val().toLowerCase();
                 const password = $("#signup-password").val();
 
                 const attributeList = [];
@@ -819,7 +842,7 @@ namespace CloudLogin {
         $("#forgot-password-submit").click(function () {
             if (checkForgotPasswordForm()) {
                 var userData = {
-                    Username: $("#forgot-password-email").val(),
+                    Username: $("#forgot-password-email").val().toLowerCase(),
                     Pool: userPool
                 };
                 cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
@@ -836,7 +859,11 @@ namespace CloudLogin {
                     },
                     onFailure: function (err) {
                         loadingWait(false);
-                        showFormError($("#forgotPasswordFormError"), err.message);
+                        if (err.code === 'UserNotFoundException') {
+                            showFormError($("#forgotPasswordFormError"), "Account doesn't exist.");
+                        } else {
+                            showFormError($("#forgotPasswordFormError"), err.message);
+                        }
                     }
                 });
             }
