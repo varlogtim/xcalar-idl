@@ -146,7 +146,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             }
             args.forEach((arg: OpPanelArg, index) => {
                 const rawValue = arg.getValue();
-                let value = self.formatArgToUI(rawValue);
+                let value = self.formatArgToUI(rawValue, arg.getTypeid());
                 if (argGroup.fnName === "regex" && args.length === 2 &&
                     index === 1) {
                     arg.setRegex(true);

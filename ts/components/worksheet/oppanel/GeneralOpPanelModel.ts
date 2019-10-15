@@ -731,24 +731,39 @@ abstract class GeneralOpPanelModel {
         return ({value: value, isString: shouldBeString});
     }
 
-    protected formatArgToUI(arg) {
-        if (arg.charAt(0) !== ("'") && arg.charAt(0) !== ('"')) {
-            if (this._isArgAColumn(arg)) {
+    // take a value from the eval string and decide whether quotes need
+    // to be stripped when dispalying in form input or if we need to add
+    // a $ prefix if we detect a column
+    protected formatArgToUI(value: string, typeid: number) {
+        if (value.charAt(0) !== ("'") && value.charAt(0) !== ('"')) {
+            if (this._isArgAColumn(value)) {
                 // it's a column
-                if (arg.charAt(0) !== gAggVarPrefix) {
+                if (value.charAt(0) !== gAggVarPrefix) {
                     // do not prepend colprefix if has aggprefix
-                    arg = gColPrefix + arg;
+                    value = gColPrefix + value;
                 }
             }
         } else {
-            const quote = arg.charAt(0);
-            if (arg.lastIndexOf(quote) === arg.length - 1) {
-                if (!this._isNumberInQuotes(arg)) {
-                    arg = arg.slice(1, -1); // remove surrounding quotes
+            const quote = value.charAt(0);
+            if (value.lastIndexOf(quote) === value.length - 1) {
+                const strShift: number = 1 << DfFieldTypeT.DfString;
+                const numberShift: number =
+                                (1 << DfFieldTypeT.DfInt32) |
+                                (1 << DfFieldTypeT.DfUInt32) |
+                                (1 << DfFieldTypeT.DfInt64) |
+                                (1 << DfFieldTypeT.DfUInt64) |
+                                (1 << DfFieldTypeT.DfFloat32) |
+                                (1 << DfFieldTypeT.DfFloat64);
+                const shouldBeString: boolean = (typeid & strShift) > 0;
+                const shouldBeNumber: boolean = (typeid & numberShift) > 0;
+                // if string is in quotes, then strip the quotes if
+                // input only accepts strings, or leave quotes if
+                if (!this._isNumberInQuotes(value) || (shouldBeString && !shouldBeNumber)) {
+                    value = value.slice(1, -1); // remove surrounding quotes
                 }
             }
         }
-        return arg;
+        return value;
     }
 
      // used in cases where arg could be type string and number

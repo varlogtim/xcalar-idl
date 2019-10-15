@@ -180,7 +180,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 if (index === 1) {
                     value = rawValue;
                 } else {
-                    value = this.formatArgToUI(rawValue);
+                    value = this.formatArgToUI(rawValue, arg.getTypeid());
                 }
                 arg.setValue(value);
                 arg.setFormattedValue(rawValue);

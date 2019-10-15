@@ -95,6 +95,21 @@ describe("GeneralOpPanelModel Test", function() {
             expect(func('"1184166469145378821"')).to.be.true;
         });
 
+        it("formatArgToUi should return correctly", () => {
+            var func = model.formatArgToUI.bind(model);
+            // 2 == string
+            // 508  = integer
+            // 527358 = multiple i.e. eq()
+            expect(func('col', 2)).to.equal('$col');
+            expect(func('^col', 2)).to.equal('^col');
+            expect(func('"col"', 2)).to.equal('col');
+            expect(func('"col"', 508)).to.equal('col');
+            expect(func('"col"', 527358)).to.equal('col');
+            expect(func("'col'", 2)).to.equal('col');
+            expect(func('"123"', 2)).to.equal('123');
+            expect(func('"123"', 508)).to.equal('"123"');
+            expect(func('"123"', 527358)).to.equal('"123"');
+        });
 
         it("function isActualPrefix", function() {
             var fn = model.isActualPrefix;
