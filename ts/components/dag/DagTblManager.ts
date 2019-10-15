@@ -540,7 +540,7 @@ class DagTblManager {
         this._synchGTables(backTableNames);
         removedTables.forEach((name: string) => {
             if (!this.cache[name].markedForDelete) {
-                console.error("The table " + name + " was deleted in a way that XD does not support.");
+                // console.error("The table " + name + " was deleted in a way that XD does not support.");
             }
             delete this.cache[name];
         });

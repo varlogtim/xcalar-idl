@@ -909,7 +909,8 @@ class DagView {
     }
 
     private _drawConnectionArea(nodes:  Map<DagNodeId, DagNode>, $wrapper: JQuery) {
-        var $svg = $(`<svg class="edgeSvg"/>`);
+        const scale = this.graph.getScale();
+        const $svg = $(`<svg class="edgeSvg" style="transform:scale(${scale});"/>`);
         const svg = d3.select($svg[0]);
         nodes.forEach((node: DagNode, nodeId: DagNodeId) => {
             node.getParents().forEach((parentNode, index) => {
