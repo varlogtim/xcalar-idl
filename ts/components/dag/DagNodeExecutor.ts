@@ -191,14 +191,14 @@ class DagNodeExecutor {
         return parentNode.getTable();
     }
 
-    private _generateTableName(): string {
+    private _generateTableName(tag?: string): string {
         let tabId = this.tabId;
         if (tabId == null) {
             tabId = this._getClosestTabId(this.txId);
         }
 
         return DagNodeExecutor.getTableNamePrefix(tabId) +
-        "_" + this.node.getId() + Authentication.getHashId();
+        "_" + this.node.getId() + (tag ? "_" + tag : "") + Authentication.getHashId();
     }
 
     private _getClosestTabId(txId) {
@@ -1454,7 +1454,9 @@ class DagNodeExecutor {
         const queryStruct = JSON.parse(queryStr);
         const newTableMap = {};
         const newTableSrcMap = {};
+        let tagCount = -1;
         queryStruct.forEach((operation) => {
+            tagCount++;
             if (operation.operation === "XcalarApiDeleteObjects") {
                 const namePattern = operation.args.namePattern;
                 if (namePattern && newTableMap[namePattern]) {
@@ -1491,7 +1493,7 @@ class DagNodeExecutor {
                 operation.args.dest = newDestTableName;
             } else if (operation.operation !== "XcalarApiAggregate") {
                 if (!newTableMap[operation.args.dest]) {
-                    newTableMap[operation.args.dest] = this._generateTableName();
+                    newTableMap[operation.args.dest] = this._generateTableName("SQLTAG_" + tagCount);
                 }
                 operation.args.dest = newTableMap[operation.args.dest];
             }
