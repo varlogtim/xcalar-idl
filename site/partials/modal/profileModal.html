@@ -1,7 +1,7 @@
 <!-- Profile Modal -->
 <div id="profileModal" class="modalContainer">
   <!-- Profile Modal Header -->
-  <header class="modalHeader">
+  <header class="modalHeader has-subHeader">
     <span class="text"><%= dicts.profile.header %></span>
     <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
       <i class="icon xi-exit-fullscreen"></i>
@@ -12,11 +12,8 @@
     <div class="close">
       <i class="icon xi-close"></i>
     </div>
+    <div class="subHeader instr"></div>
   </header>
-  <!-- Profile Modal Instruction -->
-  <section class="modalInstruction modalLeft">
-    <div class="text"></div>
-  </section>
   <!-- Profile Modal Top Main Section, profile icons -->
   <section class="modalTopMain modalLeft">
     <div class="sortAndRangeSection">
@@ -78,8 +75,8 @@
           </div>
         </div>
       </div>
-      <div class="row clearfix loadDisabled">
-        <div class="title">Graph</div>
+      <div class="switchSection row clearfix loadDisabled">
+        <div class="title">Graphs</div>
           <div id="graphSwitcher" class="graphSwitch xc-switch switch">
           <div class="slider"></div>
         </div>
@@ -171,8 +168,8 @@
   <!-- statistic section -->
   <section id="profile-stats" class="infoSection">
     <div class="popBar xc-action">
-      <i class="icon xi-next fa-12"></i>
-      <i class="icon xi-previous fa-12"></i>
+      <i class="icon xi-next"></i>
+      <i class="icon xi-previous"></i>
     </div>
     <!-- agginfo -->
     <div class="container aggInfo">

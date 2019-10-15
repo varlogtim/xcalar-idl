@@ -2340,7 +2340,6 @@ html.microsoft {
     .size(@width: 1000px, @height: 615px, @min-width: 750px, @min-height: 440px);
 
     @width-stats: 180px;
-    border-radius: 0;
     font-size: 12px;
 
     .modalLeft {
@@ -2384,7 +2383,7 @@ html.microsoft {
             }
         }
 
-         .modalInstruction, .modalTopMain, .modalMain, .modalBottom {
+        .modalTopMain, .modalMain, .modalBottom {
             .size(@width: ~"calc(100% - 10px)");
         }
     }
@@ -2468,40 +2467,50 @@ html.microsoft {
         }
     }
 
-    .modalHeader {
-        height: 36px;
-        padding-top: 5px;
-        padding-bottom: 5px;
-    }
+    @profile-header-h: 78px;
+    @modal-rangeSection-h: 84px;
+    @modal-inputSection-h: 56px;
+    @profile-top-main-h: @modal-rangeSection-h + @modal-inputSection-h;
+    @profile-bottom-h: 20px;
+    @modal-h-without-main: @profile-header-h + @profile-top-main-h + @profile-bottom-h;
 
-    .modalInstruction {
-        height: 56px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        border: 1px solid @color-border-softGray;
+    .modalHeader {
+        height: @profile-header-h;
+        padding-top: 16px;
+        padding-bottom: 16px;
     }
 
     .modalTopMain {
-        .size(@height: 100px);
+        .size(@height: @profile-top-main-h);
         padding: 0;
+        border-bottom: 1px solid @color-profile-gray;
+
+        > div {
+            border-top: 1px solid @color-profile-gray;
+        }
 
         .sortAndRangeSection {
-            .size(@width: 100%, @height: 60px);
-            padding: 2px 20px;
+            .size(@width: 100%, @height: @modal-rangeSection-h);
             .flex-display;
 
             > div {
                 .size(@height: 100%);
                 float: left;
+                border-left: 1px solid @color-profile-gray;
+                padding: 16px @modal-padding-horizontal;
+
+                &:first-child {
+                    border-left: none;
+                }
 
                 .title {
-                    .size(@height: 20px);
-                    .font(@size: 10px, @weight: 400, @color: @color-font-navy);
+                    .size(@height: 22px);
+                    line-height: 22px;
+                    font-weight: normal;
                 }
 
                 .radioButton {
                     .size(@height: 30px);
-
 
                     > div, > i, > input {
                         display: inline-block;
@@ -2516,7 +2525,6 @@ html.microsoft {
                     }
 
                     .text {
-
                         .font(@size: 13px, @color: @color-font-navy);
                         line-height: 30px;
                         .textOverflowOneLine;
@@ -2529,6 +2537,7 @@ html.microsoft {
 
                 .radioButton {
                     .flex(1 1 100px);
+                    min-width: 50px;
 
                     &.origin {
                         .flex(1 1 80px);
@@ -2548,8 +2557,6 @@ html.microsoft {
 
             .rangeSection {
                 .flex(1 1 auto);
-                padding-left: 10px;
-                border-left: 1px solid @color-border-pinkish-grey2;
 
                 .group {
                     .flex-display;
@@ -2559,6 +2566,10 @@ html.microsoft {
                     .styleDropDownList(200px, 30px);
                     .flex(1 1 200px);
                     margin-right: 20px;
+
+                    .list {
+                        width: ~"calc(100% + 30px)";
+                    }
 
                     .divider {
                         .size(@width: 100%, @height: 1px);
@@ -2598,8 +2609,14 @@ html.microsoft {
                 }
             }
 
-            > .row:last-child {
-                width: 26px;
+            .switchSection {
+                width: 150px;
+                padding-right: 0;
+                overflow: hidden;
+
+                .title {
+                    white-space: nowrap;
+                }
             }
 
             #graphSwitcher {
@@ -2608,9 +2625,8 @@ html.microsoft {
         }
 
         .inputSection {
-            padding: 5px 20px;
-            .size(@height: 40px);
-            background-color: @color-bg-white-eight;
+            padding: 16px @modal-padding-horizontal;
+            .size(@height: @modal-inputSection-h);
             .flex-display;
 
             > div {
@@ -2625,12 +2641,13 @@ html.microsoft {
 
                 input {
                     .size(@min-width: 80px);
+                    max-width: ~"calc(100% - 80px)";
                     background-color: @color-white;
                     margin: 0 10px;
                 }
 
                 .highlight {
-                    color: @color-font-select-blue;
+                    color: @color-font-link-blue;
                 }
             }
 
@@ -2698,7 +2715,7 @@ html.microsoft {
                         .position(relative);
 
                         .icon {
-                            color: @color-font-select-blue;
+                            color: @color-font-link-blue;
                             .position(absolute, @top: 1px, @left: 1px);
                         }
 
@@ -2720,17 +2737,14 @@ html.microsoft {
     }
 
     .modalMain {
-        .size(@height: ~"calc(100% - 212px)");
+        .size(@height: ~"calc(100% - @{modal-h-without-main})");
         .position(relative);
         overflow: hidden;
-        background-color: @color-bg-white-eight;
-        box-shadow: inset 0 1px 0 0 @color-bg-pinkish-grey2;
         padding: 0;
     }
 
     .modalBottom {
-        .size(@height: 20px);
-        background-color: @color-bg-white-eight;
+        .size(@height: @profile-bottom-h);
         padding-top: 0;
         padding-bottom: 0;
 
@@ -2748,7 +2762,7 @@ html.microsoft {
             }
 
             .rowScrollArea {
-                padding: 0px 25px;
+                padding: 0px;
 
                 .scrollBar {
                     .size(@width: 100%, @height: 10px);
@@ -2923,7 +2937,7 @@ html.microsoft {
                     }
 
                     .bar-extra {
-                        fill: @color-table-col-darkGray;
+                        fill: @color-profile-gray;
                         opacity: 1;
                     }
                 }
@@ -3100,7 +3114,7 @@ html.microsoft {
             }
 
             .bar-extra {
-                fill: @color-profile-bar-extra;
+                fill: @color-profile-gray;
             }
 
             .bar-border {
@@ -3145,7 +3159,7 @@ html.microsoft {
                 .size(15px, 15px);
                 font-size: 15px;
                 display: block;
-                color: @color-bg-select-blue;
+                color: @color-font-link-blue;
                 .position(absolute, @top: 7px, @right: 25px);
                 .transition(opacity 0.5s);
             }
@@ -3173,28 +3187,29 @@ html.microsoft {
     }
 
     #profile-stats {
-        .size(@width: @width-stats, @min-width: @width-stats, @height: ~"calc(100% - @{height-card-header})");
-        .position(absolute, @top: @height-card-header, @right: 0);
-        background-color: @color-bg-white-three;
-        box-shadow: inset 1px 0 0 0 rgba(0, 0, 0, 0.2);
+        .size(@width: @width-stats, @min-width: @width-stats, @height: ~"calc(100% - @{profile-header-h})");
+        .position(absolute, @top: @profile-header-h, @right: 0);
         .text-selection;
         padding: 0;
+        border-left: 1px solid @color-profile-gray;
 
         .ui-resizable-handle {
             left: -5px;
         }
 
         .popBar {
-            .size(@width: 24px, @height: @height-card-instr - 2);
-            .position(absolute, @top: 0, @left: -24px);
-            .rounded(5px 0 0 5px);
-            background-color: @color-bg-white-three;
-            box-shadow: -2px 0 0 0 @color-border-pinkish-grey2;
+            .size(@width: 18px, @height: 18px);
+            .position(absolute, @top: 20px, @left: -10px);
+            .rounded(100%);
+            background-color: @color-font-link-blue;
+            z-index: 100; // higher than .ui-resizable-w
 
             .icon {
-                .size(12px, 12px);
-                .font(@color: @color-font-dusk-blue);
-                .center-align;
+                color: @color-white;
+                font-size: 9px;
+                position: relative;
+                top: 5px;
+                left: 5px;
             }
         }
 

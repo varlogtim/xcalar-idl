@@ -583,9 +583,9 @@ namespace Profile {
     }
 
     function adjustStatsPanelWidth(width: number): void {
-        $("#profile-stats").width(width)
+        $("#profile-stats").outerWidth(width)
                            .css("left", "");
-        $modal.find(".modalLeft").width($modal.width() - width);
+        $modal.find(".modalLeft").outerWidth($modal.outerWidth() - width);
         resizeChart();
     }
 
@@ -705,16 +705,14 @@ namespace Profile {
             "type": statsCol.type
         });
 
-        instr += "<br>";
-
         // update instruction
         if (statsCol.groupByInfo.isComplete === true) {
-            instr += ProfileTStr.Instr;
+            instr += " " + ProfileTStr.Instr;
         } else {
-            instr += ProfileTStr.LoadInstr;
+            instr += " " + ProfileTStr.LoadInstr;
         }
 
-        $modal.find(".modalInstruction .text").html(instr);
+        $modal.find(".subHeader").html(instr);
 
         refreshAggInfo(aggKeys, statsCol, true);
         refreshStatsInfo(statsCol, false);
@@ -1148,7 +1146,7 @@ namespace Profile {
     }
 
     function getPosition(percent: number): string {
-        percent = Math.min(99.9, Math.max(0, percent * 100));
+        percent = Math.min(99.9, Math.max(0, percent * 100)) / 100;
 
         let $section = $modal.find(".scrollSection");
         let $scrollBar = $section.find(".scrollBar");
