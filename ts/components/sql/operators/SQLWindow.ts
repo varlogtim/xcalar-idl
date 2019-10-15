@@ -1147,7 +1147,7 @@ class SQLWindow {
                         }
                         let defaultValue: string = opStruct.defaults[i].literalEval;
                         if (opStruct.defaults[i].argType === "string") {
-                            defaultValue = "\"" + defaultValue + "\"";
+                            defaultValue = JSON.stringify(defaultValue);
                         } else if (opStruct.defaults[i].argType == null) {
                             if (node.renamedCols[opStruct.defaults[i].colStruct.colId]) {
                                 defaultValue = node.renamedCols[opStruct.defaults[i].colStruct.colId];

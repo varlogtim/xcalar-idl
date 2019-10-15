@@ -1542,10 +1542,10 @@ class SQLCompiler {
                     outStr += "None";
                 } else if (condTree.value.dataType === "string" ||
                     condTree.value.dataType === "calendarinterval") {
-                    outStr += '"' + condTree.value.value + '"';
+                    outStr += JSON.stringify(condTree.value.value);
                 } else if (condTree.value.dataType === "timestamp" ||
                            condTree.value.dataType === "date") {
-                    outStr += 'timestamp("' + condTree.value.value + '")';
+                    outStr += 'timestamp(' + JSON.stringify(condTree.value.value) + ')';
                 } else if (condTree.value.dataType.indexOf("decimal(") === 0) {
                     outStr += 'money(\'' + condTree.value.value + '\')';
                 } else {
