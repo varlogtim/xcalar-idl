@@ -1274,8 +1274,13 @@ class GeneralOpPanel extends BaseOpPanel {
             arg = arg.slice(1);
             if (arg.length > 1 && arg[arg.length - 1] === quote) {
                 arg = arg.slice(0, arg.length - 1);
-                const parsedVal: number = parseFloat(arg);
-                if (!isNaN(parsedVal) && String(parsedVal) === arg) {
+                // same check as xcSuggest.suggestType
+                const letterRex: RegExp = /[a-z]/i;
+                const parsedVal: number = Number(arg);
+                if (!isNaN(parsedVal) &&
+                    !letterRex.test(arg) &&
+                    !(arg.length > 1 && arg[0] === "0" && arg[1] !== ".")
+                ) {
                     return true;
                 } else {
                     return false;

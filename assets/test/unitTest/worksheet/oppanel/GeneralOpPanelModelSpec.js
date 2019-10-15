@@ -41,11 +41,14 @@ describe("GeneralOpPanelModel Test", function() {
 
     describe("General Panel Model Tests", function() {
         let model;
-        before(function () {
+        before(function (done) {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
             var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
-            mapOpPanel.show(node, options);
-            model = mapOpPanel.model;
+            mapOpPanel.show(node, options)
+            .always(function() {
+                model = mapOpPanel.model;
+                done();
+            });
         });
 
         it("validateColInputType should work", function() {
@@ -89,6 +92,7 @@ describe("GeneralOpPanelModel Test", function() {
             expect(func("'3''")).to.be.false;
             expect(func("'3t'")).to.be.false;
             expect(func("'3.342t'")).to.be.false;
+            expect(func('"1184166469145378821"')).to.be.true;
         });
 
 
