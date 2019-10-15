@@ -1324,7 +1324,11 @@ class DagNodeSQL extends DagNode {
                                                     sqlQueryObj.optimizations,
                                                     schemaQueryString);
                 } catch (e) {
-                    return PromiseHelper.reject(e);
+                    if (e.error && typeof e.error === "string") {
+                        return PromiseHelper.reject(e.error);
+                    } else {
+                        return PromiseHelper.reject(e);
+                    }
                 }
                 sqlQueryObj.xcQueryString = optimizeStruct.optimizedQueryString;
                 const aggregates = optimizeStruct.aggregates;

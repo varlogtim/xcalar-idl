@@ -29,7 +29,11 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                                     JSON.stringify(selectQuery))
                                     .optimizedQueryString;
             } catch(e) {
-                return promiseHelper.reject(e);
+                if (e.error && typeof e.error === "string") {
+                    return PromiseHelper.reject(e.error);
+                } else {
+                    return PromiseHelper.reject(e);
+                }
             }
             const prefixStruct = sqlUtil.addPrefix(
                 JSON.parse(queryWithDrop),

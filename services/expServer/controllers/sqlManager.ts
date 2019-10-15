@@ -837,7 +837,11 @@ class SqlManager {
                                                         JSON.stringify(selectQuery))
                                                         .optimizedQueryString;
                     } catch(e) {
-                        deferred.reject(e);
+                        if (e.error && typeof e.error === "string") {
+                            deferred.reject(e.error);
+                        } else {
+                            deferred.reject(e);
+                        }
                         return;
                     }
                 }
@@ -1023,7 +1027,11 @@ class SqlManager {
                                                     JSON.stringify(selectQuery))
                                                     .optimizedQueryString;
             } catch(e) {
-                deferred.reject(e);
+                if (e.error && typeof e.error === "string") {
+                    deferred.reject(e.error);
+                } else {
+                    deferred.reject(e);
+                }
                 return;
             }
             let prefixStruct: SQLAddPrefixReturnMsg = this.SqlUtil.addPrefix(
