@@ -19,6 +19,7 @@ namespace CloudFileBrowser {
         };
         FileBrowser.show(targetName, null, restore, options);
         _getFileBrowser().addClass("cloud");
+        $("#fileBrowserPath .text").attr("readonly", "readonly");
         uploader.toggle(true);
     }
 
@@ -47,6 +48,7 @@ namespace CloudFileBrowser {
     export function clear(): void {
         uploader.toggle(false);
         _getFileBrowser().removeClass("cloud");
+        $("#fileBrowserPath .text").removeAttr("readonly");
     }
 
     function _getFileBrowser(): JQuery {
