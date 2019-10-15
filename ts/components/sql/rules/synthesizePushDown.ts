@@ -93,7 +93,6 @@ class SynthesizePushDown {
         opNode: XcOpNode,
         visitedMap: {[name: string]: XcOpNode}
     ): XcOpNode {
-        let removeCurNode = false;
         if (visitedMap[opNode.name]) {
             return visitedMap[opNode.name];
         }
@@ -115,11 +114,9 @@ class SynthesizePushDown {
                 opNode.children[0].name = opNode.value.args.dest;
                 opNode.children[0].parents = opNode.parents;
                 retNode = opNode.children[0];
-                removeCurNode = true;
                 if (retNode.children.length > 0) {
-                    retNode.children[0] = SynthesizePushDown.
-                                            combineProjectWithSynthesize(
-                                            retNode.children[0], visitedMap);
+                    retNode = SynthesizePushDown.combineProjectWithSynthesize(
+                                                    retNode, visitedMap);
                 }
             } else {
                 const synNodeCopy = new XcOpNode(opNode.value.args.dest,
@@ -141,9 +138,8 @@ class SynthesizePushDown {
                 opNode.children[0].parents.splice(opNode.children[0]
                                                 .parents.indexOf(opNode),1);
                 if (retNode.children.length > 0) {
-                    retNode.children[0] = SynthesizePushDown.
-                                            combineProjectWithSynthesize(
-                                            retNode.children[0], visitedMap);
+                    retNode = SynthesizePushDown.combineProjectWithSynthesize(
+                                                    retNode, visitedMap);
                 }
             }
         } else if (opNode.value.operation === "XcalarApiSynthesize" &&
@@ -169,7 +165,6 @@ class SynthesizePushDown {
                 opNode.children[0].value.args.dest = opNode.value.args.dest;
                 opNode.children[0].name = opNode.value.args.dest;
                 opNode.children[0].parents = opNode.parents;
-                removeCurNode = true;
                 retNode = SynthesizePushDown.combineProjectWithSynthesize(
                                                 opNode.children[0], visitedMap);
             } else {
@@ -208,9 +203,7 @@ class SynthesizePushDown {
                                                 opNode.children[i], visitedMap);
             }
         }
-        if (!removeCurNode) {
-            visitedMap[opNode.name] = retNode;
-        }
+        visitedMap[opNode.name] = retNode;
         return retNode;
     }
 
