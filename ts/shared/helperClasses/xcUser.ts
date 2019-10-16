@@ -436,6 +436,16 @@ class XcUser {
                 this._isIdle = false;
             }
             $(document).off("mousemove.idleCheck");
+            $(document).off("keydown.idleCheck");
+        });
+        $(document).on("keydown.idleCheck", () => {
+            // as long as there is mouse move action, mark as not idle
+            if (!XcUser._isLogoutTimerOn) {
+                // when shutting down, disregard mousemovement
+                this._isIdle = false;
+            }
+            $(document).off("mousemove.idleCheck");
+            $(document).off("keydown.idleCheck");
         });
         this._idleChecker();
         this._isIdle = true;
