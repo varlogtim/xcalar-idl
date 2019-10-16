@@ -1002,7 +1002,7 @@ define(['base/js/utils'], function(utils) {
                 'from xcalar.external.client import Client \n' +
                 '\n' +
                 '# Create a Xcalar Client object \n' +
-                'xcalarClient = Client(' + (token ? (client_token="' + token + '", user_name="admin") : '') + ')\n' +
+                'xcalarClient = Client(' + (token ? ('client_token="' + token + '", user_name="admin"') : '') + ')\n' +
                 '\n' +
                 '# Create a XcalarApi object\n' +
                 'xcalarApi = XcalarApi(' + (token ? ('client_token="' + token + '"') : '') + ')\n' +
