@@ -1,19 +1,20 @@
 <!-- Json Modal -->
-<div id="jsonModal" class="modalContainer">
-  <div class="jsonDragArea modalHeader"><%= dicts.jsonModal.header %>
-    <div class="hint csHelp" data-topic="dataBrowserContents" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
+<div id="jsonModal" class="modalContainer large">
+  <header class="jsonDragArea modalHeader">
+    <span class="text"><%= dicts.jsonModal.header %></span>
+    <span class="hint csHelp" data-topic="dataBrowserContents" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
       <i class="icon xi-help fa-12"></i>
+    </span>
+    <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
+      <i class="icon xi-exit-fullscreen"></i>
     </div>
-  </div>
-  <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
-    <i class="icon xi-exit-fullscreen"></i>
-  </div>
-  <div class="headerBtn fullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>">
-    <i class="icon xi-fullscreen"></i>
-  </div>
-  <div class="closeJsonModal">
-    <i class="icon xi-close"></i>
-  </div>
+    <div class="headerBtn fullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>">
+      <i class="icon xi-fullscreen"></i>
+    </div>
+    <div class="closeJsonModal">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
   <div id="jsonSearchWrap" class="slidingSearchWrap">
     <div id="jsonSearch" class="searchbarArea closed">
       <i class="icon searchIcon xi-search"></i>

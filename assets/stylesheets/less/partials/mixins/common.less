@@ -857,25 +857,20 @@
 
 // sliding search input in data browser and preview file modal
 .slidingSearchWrap {
-    .size(257px, 33px);
+    .size(257px, 28px);
     .position(absolute, @top: 30px, @right: 0px);
     overflow: hidden;
     z-index: 2;
     pointer-events: none;
 
-    .icon {
-        color: @color-white;
-    }
-
     .searchbarArea {
         .size(@width: 254px, @height: 30px);
         .position(relative, @left: 3px);
         float: left;
-        background-color: @color-bg-cardHeader;
+        background-color: @color-bg-white-eight;
         white-space: nowrap;
         .transition(transform 0.3s);
         pointer-events: auto;
-
 
         &.closed {
             .transform(translate3d(222px, 0, 0));
