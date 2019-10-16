@@ -435,10 +435,18 @@ namespace TooltipManager {
         $popover.find('.text').html(currWalkthrough[stepNumber].text);
         let windowWidth: number = $(window).width();
         let windowHeight: number = $(window).height();
+        let titleHeight: number = $popover.find('.title').outerHeight();
         let textHeight: number = $popover.find('.text').outerHeight();
+        let textContainerPaddingTop: number = parseInt($popover.find('.textContainer').css("padding-top"));
         let textWidth: number = $popover.find('.text').outerWidth();
-        let popoverHeight: number = textHeight + (options.popoverVertPadding * 2) +
-                            (popoverBorderWidth * 2);
+        let bottomHeight: number = $popover.find('.bottomArea').outerHeight();
+        let popoverHeight: number =
+            titleHeight +
+            textHeight +
+            textContainerPaddingTop +
+            bottomHeight +
+            (options.popoverVertPadding * 2) +
+            (popoverBorderWidth * 2);
         // we can't directly calculate popover width because it has a
         // width transition that changes its width over time
         let popoverWidth: number = textWidth +
