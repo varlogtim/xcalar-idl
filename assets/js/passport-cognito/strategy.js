@@ -24,24 +24,37 @@ const log = bunyan.createLogger({
     }],
 });
 
-function errMsgHandler(err) {
+function errMsgHandler(err, msg) {
 
     // if err is an Error or a string, handle it
     if (typeof err === 'string')
-        return err;
+        return ({ message: `${msg}: ${err}`,
+                  code: 'InternalServiceException',
+                  object: null });
+
+    if (err && err.message && err.code)
+        return ({ message: `${msg}: ${err.message}`,
+                  code: err.code,
+                  object: null });
 
     if (err instanceof Error)
-        return err.message;
+        return ({ message: `${msg}: ${err.message}`,
+                  code: err.name,
+                  object: null });
 
     // if err is something else, try to stringify it
     var str;
     try {
         str = JSON.stringify(err);
     } catch (ex) {
-        return err;
+        return ({ message: `${msg}: <object>`,
+                  code: null,
+                  object: err });
     }
 
-    return str;
+    return ({ message: `${msg}: ${str}`,
+              code: null,
+              object: null });
 };
 
 /**
@@ -147,7 +160,7 @@ function Strategy(options, verify) {
         throw new TypeError(`CognitoStrategy requires a clientId to function`);
     }
 
-    this._options.keysUrl = options.keysUrl || `https://cognito-idp.${options.region}.amazonaws.com/${options.userPoolId}/.well-known/jwks.json`
+    this._options.keysUrl = options.keysUrl || `https://cognito-idp.${options.region}.amazonaws.com/${options.userPoolId}/.well-known/jwks.json`;
 
     this._options.keysReq = { method: 'GET',
                               uri: this._options.keysUrl,
@@ -267,7 +280,7 @@ Strategy.prototype._idTokenHandler = function idTokenHandler(idTokenString, vali
     const self = this;
 
     var parts = idTokenString.split('.');
-    console.log("idTokenString length: " + parts.length);
+    log.info("idTokenString length: " + parts.length);
     if (parts.length === 3) {
         log.info('Validating plain JWT');
         return self._validateResponse(idTokenString, validateOptions, req, callback);
@@ -351,7 +364,9 @@ Strategy.prototype.authenticate = function(req, options) {
                 self._authFlowHandler(params, validateOptions, req);
                 return true;
             } catch (authErr) {
-                return self.failWithLog(`Error during id token validation: ${errMsgHandler(authErr)}`);
+                return (self.failWithLog(
+                    errMsgHandler(authErr, 'Error during id token validation')
+                ));
             }
 
         } else {
@@ -381,7 +396,9 @@ Strategy.prototype.authenticate = function(req, options) {
                         self._authFlowHandler(params, validateOptions, req);
                         return true;
                     } catch (authErr) {
-                        return self.failWithLog(`Error during id token validation: ${errMsgHandler(authErr)}`);
+                        return (self.failWithLog(
+                            errMsgHandler(authErr, 'Error during id token validation')
+                        ));
                     }
                 }
             });
@@ -422,7 +439,9 @@ Strategy.prototype.authenticate = function(req, options) {
                     log.info('Cognito user pool get current user successful');
                     cognitoUser.getSession(function(err, result) {
                         if (err) {
-                            return self.failWithLog(`Cognito session retrieval error: ${errMsgHandler(err)}` );
+                            return (self.failWithLog(
+                                errMsgHandler(err, 'Cognito session retrieval error')
+                            ));
                         }
 
                         var validateOptions = {
@@ -441,14 +460,16 @@ Strategy.prototype.authenticate = function(req, options) {
                         };
 
                         if (result) {
-                            identityPoolAuth(params, validateOptions)
+                            identityPoolAuth(params, validateOptions);
                         }
                     });
                 }
             },
 
             onFailure: function(err) {
-                return self.failWithLog(`Cognito authentication failure:  ${errMsgHandler(err)}`);
+                return (self.failWithLog(
+                    errMsgHandler(err, 'Cognito authentication failure')
+                ));
             },
 
         });
@@ -458,8 +479,8 @@ Strategy.prototype.authenticate = function(req, options) {
     // because it creates a race in the constructor
     request(self._options.keysReq, (error, response, body) => {
         if (error) {
-            var errMsg = `Unable to retrieve JWT verification keys: ${errMsgHandler(error)}`;
-            return self.failWithLog(errMsg);
+            var errMsg = 'Unable to retrieve JWT verification keys';
+            return (self.failWithLog(errMsgHandler(error, errMsg)));
         }
 
         try {
@@ -488,14 +509,14 @@ Strategy.prototype.authenticate = function(req, options) {
                 identityPoolAuth(params, validateOptions);
             }
         } catch (err) {
-            var errMsg = `Unable to load JWT verification keys into key store: ${errMsgHandler(err)}`;
-            return self.failWithLog(errMsg);
+            var errMsg2 = 'Unable to load JWT verification keys into key store';
+            return (self.failWithLog(errMsgHandler(err, errMsg2)));
         }
     });
 }
 
 Strategy.prototype.failWithLog = function(message) {
-  this.log.info(`authentication failed due to: ${message}`);
+  this.log.info(`authentication failed due to: ${JSON.stringify(message)}`);
   return this.fail(message);
 };
 
