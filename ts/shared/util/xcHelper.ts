@@ -1455,12 +1455,13 @@ namespace xcHelper {
         let patternError: string;
         switch (category) {
             case ParserPatternCategory.UDFModule:
+                // UDF modules and function names allow <> for parameterization
                 startCharPattern = /[a-z_<]/;
                 lengthLimit = 1023;
                 namePattern = /^[a-zA-Z0-9_<>-]*$/;
                 break;
             case ParserPatternCategory.UDFFn:
-                startCharPattern = /[a-z_<]/;
+                startCharPattern = /[a-zA-Z_<]/;
                 lengthLimit = 1023;
                 namePattern = /^[a-zA-Z0-9_<>]*$/;
                 break;
@@ -1564,7 +1565,7 @@ namespace xcHelper {
                 namePattern = /^[a-z_][a-zA-Z0-9_]*$/;
                 break;
             case PatternCategory.UDFFn:
-                namePattern = /^[a-z_][a-zA-Z0-9_]*$/;
+                namePattern = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
                 break;
             case PatternCategory.UDFFnParam:
                 namePattern = /^[a-z_<][a-zA-Z0-9_<>]*$/;
