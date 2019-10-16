@@ -199,7 +199,7 @@ namespace TooltipWalkthroughs {
             type: TooltipType.Text
         },
         {
-            highlight_div: ".xi-user",
+            highlight_div: "#userNameArea",
             text: "Relaunch this walkthrough anytime by clicking on the User icon and selecting Walkthroughs.",
             type: TooltipType.Text
         },
@@ -298,7 +298,7 @@ namespace TooltipWalkthroughs {
                 type: TooltipType.Text
             },
             {
-                highlight_div: ".xi-user",
+                highlight_div: "#userNameArea",
                 text: "Relaunch this walkthrough anytime by clicking on the User icon and selecting Walkthroughs.",
                 type: TooltipType.Text
             },

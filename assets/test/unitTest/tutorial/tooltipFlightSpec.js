@@ -19,10 +19,10 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("i.xi-user").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#userNameArea").hasClass("intro-highlightedElement"))
         }).then(() => {
             //user tip
-            expect($("i.xi-user").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#userNameArea").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
@@ -135,10 +135,10 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("i.xi-user").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#userNameArea").hasClass("intro-highlightedElement"))
         }).then(() => {
             //user tip
-            expect($("i.xi-user").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#userNameArea").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
@@ -297,10 +297,10 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("i.xi-user").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#userNameArea").hasClass("intro-highlightedElement"))
         }).then(() => {
             //user tip
-            expect($("i.xi-user").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#userNameArea").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
