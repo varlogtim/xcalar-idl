@@ -12,10 +12,8 @@ class TableMenu extends AbstractMenu {
             if (node == null) {
                 return;
             }
-            let $lis: JQuery = $menu.find(".exportTable, .multiCast, .corrAgg, .jupyterTable, .advancedOptions");
-            if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
-                node.getMaxChildren() === 0
-            ) {
+            let $lis: JQuery = $menu.find(".exportTable, .multiCast, .jupyterTable, .advancedOptions");
+            if (this._isViewOnlyTab(node)) {
                 // when it's publish tab or it's dest node
                 $lis.addClass("xc-hidden");
             } else {

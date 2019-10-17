@@ -45,6 +45,16 @@ abstract class AbstractMenu {
         return event.which !== 1 || $(event.currentTarget).hasClass('unavailable');
     }
 
+    protected _isViewOnlyTab(node: DagNode): boolean {
+        if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
+            node.getMaxChildren() === 0 || (DagViewManager.Instance.getActiveDagView() &&
+            DagViewManager.Instance.getActiveDagView().isViewOnly())
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     protected _getCurrentNode(): DagNode {
         const nodeId: DagNodeId = DagTable.Instance.getBindNodeId();

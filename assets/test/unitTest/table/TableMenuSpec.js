@@ -11,34 +11,38 @@ describe('TableMenu Test', function() {
     var $cellMenu;
     var rightMouseup;
 
-    before(function() {
+    before(function(done) {
         UnitTest.onMinMode();
 
-        tableName = xcHelper.randName("test") + Authentication.getHashId();
-        tableId = xcHelper.getTableId(tableName);
-        let tableCols = [];
-        tableCols[11] = ColManager.newPullCol("col12", "col12", ColumnType.integer);
-        tableCols.push(ColManager.newDATACol());
-        gTables[tableId] = new TableMeta({
-            tableName: tableName,
-            tableId: tableId,
-            tableCols: tableCols
-        });
-        var fakeTable =
-        '<div class="xcTableWrap-' + tableId + '">' +
-            '<table class="xcTable-"' + tableId + '">' +
-            '</table>' +
-        '</div>';
-        $("#container").append(fakeTable);
-        $table = $('#xcTable-' + tableId);
-        $tableWrap = $('#xcTableWrap-' + tableId);
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            tableName = xcHelper.randName("test") + Authentication.getHashId();
+            tableId = xcHelper.getTableId(tableName);
+            let tableCols = [];
+            tableCols[11] = ColManager.newPullCol("col12", "col12", ColumnType.integer);
+            tableCols.push(ColManager.newDATACol());
+            gTables[tableId] = new TableMeta({
+                tableName: tableName,
+                tableId: tableId,
+                tableCols: tableCols
+            });
+            var fakeTable =
+            '<div class="xcTableWrap-' + tableId + '">' +
+                '<table class="xcTable-"' + tableId + '">' +
+                '</table>' +
+            '</div>';
+            $("#container").append(fakeTable);
+            $table = $('#xcTable-' + tableId);
+            $tableWrap = $('#xcTableWrap-' + tableId);
 
-        $tableMenu = $('#tableMenu');
-        $tableSubMenu = $('#tableSubMenu');
-        $colMenu = $('#colMenu');
-        $colSubMenu = $('#colSubMenu');
-        $cellMenu = $('#cellMenu');
-        rightMouseup = {"type": "mouseup", "which": 3};
+            $tableMenu = $('#tableMenu');
+            $tableSubMenu = $('#tableSubMenu');
+            $colMenu = $('#colMenu');
+            $colSubMenu = $('#colSubMenu');
+            $cellMenu = $('#cellMenu');
+            rightMouseup = {"type": "mouseup", "which": 3};
+            done();
+        });
     });
 
     describe('table menu actions', function() {

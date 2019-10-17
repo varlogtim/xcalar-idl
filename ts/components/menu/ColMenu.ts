@@ -21,20 +21,19 @@ class ColMenu extends AbstractMenu {
             return;
         }
         let $lis: JQuery = $menu.find(".groupby, .sort, .aggregate, .filter, " +
-                ".join, .map, .operations, .profile, .corrAgg, " +
+                ".join, .map, .operations," +
                 ".extensions, .changeDataType, .format, .roundToFixed, .round," +
                 ".project, .set, .splitCol");
         $lis.removeClass("unavailable");
         $lis.removeClass("xc-hidden");
         xcTooltip.remove($lis);
         // hide most menu options if published tab, terminal node, or view only
-        if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
-            node.getMaxChildren() === 0 || (DagViewManager.Instance.getActiveDagView() &&
-            DagViewManager.Instance.getActiveDagView().isViewOnly())
-        ) {
+        if (this._isViewOnlyTab(node)) {
             // when it's out node or published tab
             $lis.addClass("xc-hidden");
-        } else if (colType === ColumnType.object || colType === ColumnType.array) {
+        }
+
+        if (colType === ColumnType.object || colType === ColumnType.array) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, .join, " +
                 ".map, .operations, .profile, .corrAgg, .extensions, " +
                 ".changeDataType, .format, .roundToFixed, .round, .set");
