@@ -64,7 +64,8 @@ namespace TooltipWalkthroughs {
     export function startWorkbookBrowserWalkthrough(): void {
         setupInitialWalkthroughCheck()
         .then(() => {
-            if (showWorkbook) {
+            // cloud admin don't show workthrought as it's for support
+            if (showWorkbook && !(XVM.isCloud() && Admin.isAdmin())) {
                 workbookWalkthrough();
             }
         })
