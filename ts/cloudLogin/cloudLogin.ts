@@ -6,7 +6,7 @@ interface ClusterGetResponse {
 }
 
 namespace CloudLogin {
-    const cookieAuthApiUrl: string = "https://605qwok4pl.execute-api.us-west-2.amazonaws.com";
+    const cookieAuthApiUrl: string = "https://605qwok4pl.execute-api.us-west-2.amazonaws.com/prod";
     const clusterLambdaApiUrl: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"
 
     const userPoolId: string = "us-west-2_Eg94nXgA5";
@@ -21,13 +21,14 @@ namespace CloudLogin {
     let localUsername: string;
     let localSessionId: string;
     let selectedClusterSize: string;
-    let progressBar: ProgressBar;
+    let deployingProgressBar: ProgressBar;
+    let stoppingProgressBar: ProgressBar;
 
     export function setup(): void {
         initialStatusCheck();
         handleEvents();
 
-        progressBar = new ProgressBar({
+        deployingProgressBar = new ProgressBar({
             $container: $("#loadingForm"),
             completionTime: 100,
             progressTexts: [
@@ -39,12 +40,21 @@ namespace CloudLogin {
             ],
             numVisibleProgressTexts: 5
         });
+
+        stoppingProgressBar = new ProgressBar({
+            $container: $("#stoppingForm"),
+            completionTime: 25,
+            progressTexts: [
+                'Stopping Xcalar cluster'
+            ],
+            numVisibleProgressTexts: 1
+        });
     }
 
     function initialStatusCheck(): void {
         sendRequest({
             apiUrl: cookieAuthApiUrl,
-            action: "/prod/status",
+            action: "/status",
             fetchParams: {
                 credentials: 'include',
             }
@@ -73,7 +83,7 @@ namespace CloudLogin {
         loadingWait(true);
         sendRequest({
             apiUrl: cookieAuthApiUrl,
-            action: "/prod/login",
+            action: "/login",
             fetchParams: {
                 headers: {
                     "Content-Type": "application/json",
@@ -123,7 +133,7 @@ namespace CloudLogin {
         loadingWait(true);
         sendRequest({
             apiUrl: cookieAuthApiUrl,
-            action: "/prod/logout",
+            action: "/logout",
             fetchParams: {
                 credentials: 'include',
             }
@@ -184,8 +194,20 @@ namespace CloudLogin {
         });
     }
 
+    function showProgressBar(isStarting) {
+        if (isStarting) {
+            $("#loadingTitle").show();
+            $("#loadingForm").show();
+            deployingClusterAnimation();
+        } else {
+            $("#stoppingTitle").show();
+            $("#stoppingForm").show();
+            stoppingClusterAnimation();
+        }
+    }
 
-    function getCluster(): XDPromise<void> {
+
+    function getCluster(clusterIsStarting?: boolean): XDPromise<void> {
         loadingWait(true);
         return sendRequest({
             apiUrl: clusterLambdaApiUrl,
@@ -209,38 +231,42 @@ namespace CloudLogin {
                     clusterGetResponse.error === "Cluster is not reachable yet"
                 ) {
                     console.warn(clusterGetResponse);
-                    setTimeout(() => getCluster(), 3000);
+                    setTimeout(() => getCluster(clusterGetResponse.isStarting), 3000);
                     $("header").children().hide();
                     $("#formArea").children().hide();
-                    $("#loadingTitle").show();
-                    $("#loadingForm").show();
-                    deployingClusterAnimation();
+                    showProgressBar(clusterGetResponse.isStarting);
                     return;
                 } else {
                     handleException(clusterGetResponse.error);
                 }
             } else if (clusterGetResponse.isPending === false && clusterGetResponse.clusterUrl === undefined) {
                 // go to cluster selection screen
-                $("header").children().hide();
-                $("#formArea").children().hide();
-                $("#clusterTitle").show();
-                $("#clusterForm").show();
+
+                if (clusterIsStarting === false) {
+                    showClusterIsStoppedScreen();
+                    setTimeout(() => {
+                        showInitialScreens();
+                    }, 1000);
+                } else {
+                    $("header").children().hide();
+                    $("#formArea").children().hide();
+                    $("#clusterTitle").show();
+                    $("#clusterForm").show();
+                }
             } else if (clusterGetResponse.isPending) {
                 // go to wait screen
-                setTimeout(() => getCluster(), 3000);
+                setTimeout(() => getCluster(clusterGetResponse.isStarting), 3000);
                 $("header").children().hide();
                 $("#formArea").children().hide();
-                $("#loadingTitle").show();
-                $("#loadingForm").show();
-                deployingClusterAnimation();
+                showProgressBar(clusterGetResponse.isStarting);
             } else {
                 let cb = () => {
                     // redirect to cluster
-                    if (progressBar.isStarted()) {
+                    if (deployingProgressBar.isStarted()) {
                         showClusterIsReadyScreen();
                         setTimeout(() => {
                             goToXcalar(clusterGetResponse);
-                        }, 500);
+                        }, 1000);
                     } else {
                         goToXcalar(clusterGetResponse);
                     }
@@ -628,12 +654,23 @@ namespace CloudLogin {
 
     function showClusterIsReadyScreen(): void {
         $("#loadingTitle").html("Your cluster is ready!");
-        progressBar.end("Redirecting to Xcalar Cloud...")
+        deployingProgressBar.end("Redirecting to Xcalar Cloud...")
     }
 
     function deployingClusterAnimation(): void {
-        if (!progressBar.isStarted()) {
-            progressBar.start("Please wait while your cluster loads...");
+        if (!deployingProgressBar.isStarted()) {
+            deployingProgressBar.start("Please wait while your cluster loads...");
+        }
+    }
+
+    function showClusterIsStoppedScreen(): void {
+        $("#stoppingTitle").html("Your cluster has been shut down!");
+        stoppingProgressBar.end("Redirecting to the login page...")
+    }
+
+    function stoppingClusterAnimation(): void {
+        if (!stoppingProgressBar.isStarted()) {
+            stoppingProgressBar.start("Please wait while your cluster stops...");
         }
     }
 

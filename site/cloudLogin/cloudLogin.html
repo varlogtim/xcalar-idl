@@ -24,6 +24,7 @@
         <h2 class="loginHeader" id="forgotPasswordTitle" style="display: none">Password recovery</h2>
         <h2 class="loginHeader" id="confirmForgotPasswordTitle" style="display: none">Choose new password</h2>
         <h2 class="loginHeader" id="loadingTitle" style="display: none">Deploying your cluster</h2>
+        <h2 class="loginHeader" id="stoppingTitle" style="display: none">Stopping your cluster</h2>
         <h2 class="loginHeader" id="exceptionTitle" style="display: none">Ooops...</h2>
       </header>
     </div>
@@ -315,6 +316,11 @@
 
         <!-- loading -->
         <div id="loadingForm" class="authForm">
+          include "../partials/util/progressBar.html"
+        </div>
+
+        <!-- stopping -->
+        <div id="stoppingForm" class="authForm">
           include "../partials/util/progressBar.html"
         </div>
 
