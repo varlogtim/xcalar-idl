@@ -2191,6 +2191,7 @@ table.datasetTable {
             background-color: @color-white;
             color: @color-font-form-gray;
             padding: 0px;
+            height: 28px;
             &:hover, .hover {
                 background-color: @color-selectedCell-light;
                 .flex-left {
@@ -2213,13 +2214,17 @@ table.datasetTable {
         }
         .flexWrap.flex-right {
             .flex(1 1 auto);
-            padding: 5px 8px;
+            padding: 0px 8px;
+
+            .label {
+                line-height: 28px;
+            }
         }
 
         .xi-tick {
             position: absolute;
             right: 8px;
-            top: 8px;
+            top: 2px;
             display: none;
         }
 
