@@ -1506,7 +1506,7 @@ class SQLWindow {
                                             + node.sparkCols.length > 500) {
                 loopStruct.cli += ret.cli;
                 node.xcCols = [indexColStruct];
-                SQLSimulator.synthesize(node.usrCols.concat(node.xcCols), ret.newTableName)
+                SQLSimulator.project(node.usrCols.concat(node.xcCols), ret.newTableName)
                 .then(function(ret) {
                     deferred.resolve(ret);
                 })

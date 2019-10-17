@@ -63,7 +63,7 @@ class LogicalOptimizer {
                     aggregates: opGraph.aggregates};
         }
         // add synthesize to get minimum number of columns before prepending
-        SynthesizePushDown.addMinSynthesize(opGraph.root);
+        SynthesizePushDown.addMinProject(opGraph.root);
         // Second (optional) traversal - add prepended operators to the correct place
         if (prepArray) {
             const prepIdxMap = {};

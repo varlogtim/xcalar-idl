@@ -286,7 +286,7 @@ class SelectPushDown {
         }
         let valid = true;
         let hasAvg = false;
-        // Change gb, add select gb, check & handle avg, create synthesize to drop temp columns
+        // Change gb, add select gb, check & handle avg, create project to drop temp columns
         const newEvals = jQuery.extend(true, [], gbNode.value.args.eval);
         const selectGBs = [];
         const extraMapEvals = [];
@@ -366,11 +366,13 @@ class SelectPushDown {
         if (!valid) {
             return true;
         }
-        const newSynStruct = {dest: gbNode.name,
-                              columns: annotations};
-        const newSynNode = new XcOpNode(gbNode.name,
-                                        {operation: "XcalarApiSynthesize",
-                                         args: newSynStruct},
+        const newProStruct = {dest: gbNode.name,
+                              columns: annotations.map(function(col) {
+                                  return col.sourceColumn;
+                              })};
+        const newProNode = new XcOpNode(gbNode.name,
+                                        {operation: "XcalarApiProject",
+                                         args: newProStruct},
                                         []);
         gbNode.value.args.eval = newEvals;
         if (hasAvg) {
@@ -387,19 +389,19 @@ class SelectPushDown {
                                              args: newMapStruct},
                                             [newGBTableName]);
             newMapNode.children = [gbNode];
-            newMapNode.parents = [newSynNode];
-            newSynNode.children = [newMapNode];
-            newSynNode.sources = [newMapTableName];
-            newSynNode.value.args.source = newMapTableName;
+            newMapNode.parents = [newProNode];
+            newProNode.children = [newMapNode];
+            newProNode.sources = [newMapTableName];
+            newProNode.value.args.source = newMapTableName;
             if (gbNode.parents.length === 0) {
                 // GB node is root
-                gbNode.replaceWith = newSynNode;
+                gbNode.replaceWith = newProNode;
             } else {
-                newSynNode.parents = gbNode.parents;
-                newSynNode.parents.forEach(function(node) {
+                newProNode.parents = gbNode.parents;
+                newProNode.parents.forEach(function(node) {
                     while (node.children.indexOf(gbNode) != -1) {
                         const index = node.children.indexOf(gbNode);
-                        node.children[index] = newSynNode;
+                        node.children[index] = newProNode;
                     }
                 });
             }
@@ -409,24 +411,24 @@ class SelectPushDown {
         } else {
             const newGBTableName = xcHelper.getTableName(gbNode.name)
                                     + "_GBCOPY_" + Authentication.getHashId();
-            newSynNode.children = [gbNode];
-            newSynNode.sources = [newGBTableName];
-            newSynNode.value.args.source = newGBTableName;
+            newProNode.children = [gbNode];
+            newProNode.sources = [newGBTableName];
+            newProNode.value.args.source = newGBTableName;
             if (gbNode.parents.length === 0) {
                 // GB node is root
-                gbNode.replaceWith = newSynNode;
+                gbNode.replaceWith = newProNode;
             } else {
-                newSynNode.parents = gbNode.parents;
-                newSynNode.parents.forEach(function(node) {
+                newProNode.parents = gbNode.parents;
+                newProNode.parents.forEach(function(node) {
                     while (node.children.indexOf(gbNode) != -1) {
                         const index = node.children.indexOf(gbNode);
-                        node.children[index] = newSynNode;
+                        node.children[index] = newProNode;
                     }
                 });
             }
             gbNode.value.args.dest = newGBTableName;
             gbNode.name = newGBTableName;
-            gbNode.parents = [newSynNode];
+            gbNode.parents = [newProNode];
         }
         const newTableName = xcHelper.getTableName(curNode.name) + "_SELECTCOPY_"
                                 + Authentication.getHashId();

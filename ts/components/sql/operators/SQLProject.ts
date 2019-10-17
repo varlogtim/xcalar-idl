@@ -123,7 +123,7 @@ class SQLProject {
             SQLCompiler.produceSubqueryCli(subqueryArray)
             .then(function(cli) {
                 cliStatements += cli;
-                const colNameSet = new Set();
+                const colNameSet = new Set<string>();
                 node.usrCols.concat(node.xcCols).concat(node.sparkCols)
                 .map(function (col) {
                     colNameSet.add(SQLCompiler.getCurrentName(col));
@@ -133,7 +133,7 @@ class SQLProject {
             })
             .then(function(ret) {
                 cliStatements += ret.cli;
-                return SQLSimulator.synthesize(columns.concat(newXcCols), ret.newTableName);
+                return SQLSimulator.project(columns.concat(newXcCols), ret.newTableName);
             })
             .then(function(ret) {
                 node.usrCols = columns;
@@ -148,7 +148,7 @@ class SQLProject {
             SQLCompiler.produceSubqueryCli(subqueryArray)
             .then(function(cli) {
                 cliStatements += cli;
-                return SQLSimulator.synthesize(columns.concat(newXcCols), tableName);
+                return SQLSimulator.project(columns.concat(newXcCols), tableName);
             })
             .then(function(ret) {
                 node.usrCols = columns;

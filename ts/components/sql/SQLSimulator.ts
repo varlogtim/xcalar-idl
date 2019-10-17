@@ -102,7 +102,7 @@ class SQLSimulator {
         return deferred.promise();
     }
 
-    static synthesize(
+    static project(
         columns: SQLColumn[],
         tableName: string,
         newTableName?: string
@@ -110,18 +110,11 @@ class SQLSimulator {
         const deferred = PromiseHelper.deferred();
         const txId = SQLSimulator.start();
 
-        const colInfos = [];
+        const colNames = [];
         for (let col of columns) {
-            // For test use
-            // SQLUtil.assert(col.colType != null, "Unknown type in synthesize!");
-            const colInfo = {
-                orig: SQLCompiler.getCurrentName(col),
-                new: SQLCompiler.getCurrentName(col),
-                type: xcHelper.convertColTypeToFieldType(xcHelper.convertSQLTypeToColType(col.colType))
-            }
-            colInfos.push(colInfo);
+            colNames.push(col.rename || col.colName);
         }
-        XIApi.synthesize(txId, colInfos, tableName, newTableName)
+        XIApi.project(txId, colNames, tableName, newTableName)
         .then((finalTable) => {
             const cli = SQLSimulator.end(txId);
             deferred.resolve({

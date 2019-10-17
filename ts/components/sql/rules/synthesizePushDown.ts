@@ -1,30 +1,27 @@
 class SynthesizePushDown {
-    static addMinSynthesize(opNode: XcOpNode): void {
+    static addMinProject(opNode: XcOpNode): void {
         const visitedMap = {};
         const leafNodes = [];
         LogicalOptimizer.findLeafNodes(opNode, visitedMap, leafNodes);
         for (let i = 0; i < leafNodes.length; i++) {
             const colList = [];
             const createdColList = [];
-            if (leafNodes[i].value.operation !== "XcalarApiSynthesize" &&
+            if (leafNodes[i].value.operation !== "XcalarApiProject" &&
                 SynthesizePushDown.__getMinColumns(leafNodes[i],
                                                    colList, createdColList)) {
-                // Add a synthesize node before leaf
+                // Add a project node before leaf
                 // in most cases it will be combined to prepended synthesize or select later
                 const tempTableName = xcHelper.getTableName(leafNodes[i].value.args.source)
                                         + "_tmp" + Authentication.getHashId();
-                const synthesizeArgStruct = {source: leafNodes[i].value.args.source,
-                                           dest: tempTableName,
-                                           columns: colList.map(function(colName) {
-                                               return {sourceColumn: colName,
-                                                       destColumn: colName};
-                                           })};
-                const synthesizeNode = new XcOpNode(tempTableName,
-                                            {operation: "XcalarApiSynthesize",
-                                             args: synthesizeArgStruct},
+                const projectArgStruct = {source: leafNodes[i].value.args.source,
+                                          dest: tempTableName,
+                                          columns: colList};
+                const projectNode = new XcOpNode(tempTableName,
+                                            {operation: "XcalarApiProject",
+                                             args: projectArgStruct},
                                              leafNodes[i].sources);
-                synthesizeNode.parents = [leafNodes[i]];
-                leafNodes[i].children = [synthesizeNode];
+                projectNode.parents = [leafNodes[i]];
+                leafNodes[i].children = [projectNode];
                 leafNodes[i].sources = [tempTableName];
                 leafNodes[i].value.args.source = tempTableName;
             }

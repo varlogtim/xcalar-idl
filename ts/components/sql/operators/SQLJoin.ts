@@ -1156,7 +1156,7 @@ class SQLJoin {
         joinNode.xcCols = [];
         joinNode.sparkCols = joinNode.children[0].sparkCols;
 
-        SQLSimulator.synthesize(joinNode.children[0].usrCols
+        SQLSimulator.project(joinNode.children[0].usrCols
             .concat(joinNode.children[0].sparkCols), globalStruct.newTableName)
         .then(function(ret) {
             globalStruct.cli += ret.cli;
