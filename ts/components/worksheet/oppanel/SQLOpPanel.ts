@@ -250,16 +250,17 @@ class SQLOpPanel extends BaseOpPanel {
 
     private _toggleExpandSection($title: JQuery, restoreToDefault: boolean): void {
         // refer to opPanel.less @table-h & @title-h
-        const tableHeight = 180;
+        const tableHeight = 220;
         const titleHeight = 40;
         const maxHeight = "calc(100% - " + (titleHeight * 3) + "px)";
         if (restoreToDefault) {
             // back to default size
+            let instrHeight: number = this.$panel.find(".mainInstructions").outerHeight();
             this._toggleExpadHelper(this._$elemPanel.find(".maximize .icon"), true);
             this._$tableWrapper.removeClass("xc-hidden");
             this._$tableWrapper.css({height: tableHeight});
             this._$editorWrapper.css({height: "calc(100% - " +
-                                      (tableHeight + titleHeight * 3) + "px)"});
+                                      (tableHeight + titleHeight * 3 + instrHeight) + "px)"});
         } else if ($title.hasClass("tableTitle")) {
             // expand table mapping section
             this._toggleExpadHelper($title.find(".maximize .icon"), false);
