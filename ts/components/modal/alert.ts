@@ -358,9 +358,13 @@ namespace Alert {
                 $modal.height(height);
                 modalHelper.center({verticalQuartile: true});
             }
+        } else if ($modal.find(".modalBottom button").length >= 4) {
+            // make it larger size
+            $modal.width(650);
+            $modal.resizable( "option", "minWidth", 650);
         } else {
-            $modal.width(580);
-            $modal.resizable( "option", "minWidth", 580);
+            $modal.width(500);
+            $modal.resizable( "option", "minWidth", 500);
         }
     }
 

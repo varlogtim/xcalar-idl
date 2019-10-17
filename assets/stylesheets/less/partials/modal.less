@@ -1,18 +1,23 @@
 // ========== Modal CSS ==========
 @modal-padding-horizontal: 24px;
-@modal-padding-vetical: 12px;
+@modal-padding-vertical: 24px;
+@modal-padding-section: 24px;
 @modal-header-text-h: 26px;
-@modal-header-h: @modal-header-text-h + @modal-padding-vetical * 2;
+@modal-header-h: @modal-header-text-h + @modal-padding-vertical;
 @modal-subHeader-h: 20px;
 @modal-header-with-subHeader-h: @modal-header-h + @modal-subHeader-h;
-@modal-instr-h: @height-modal-instr;
-@modal-bottom-h: @modal-padding-vetical * 4 + @height-btn;
+@modal-instr-h: 38px + @modal-padding-section;
+@modal-instr-oneLine-h: 19px + @modal-padding-section;
+@modal-bottom-h: @modal-padding-section + @height-btn + @modal-padding-vertical;
 @modal-normal-w: 500px;
 @modal-large-w: 650px;
 
+.modalHorizontalPadding() {
+    padding-left: @modal-padding-horizontal;
+    padding-right: @modal-padding-horizontal;
+}
+
 .modalContainer {
-    @padding-horizontal: @modal-padding-horizontal;
-    @padding-vetical: @modal-padding-vetical;
     @close-icon-size: 18px;
 
     display: none;
@@ -47,15 +52,13 @@
         }
     }
 
-    > header, > div:not(.ui-resizable-handle):not(.tooltip), > section {
-        padding: @padding-vetical @padding-horizontal;
-    }
-
     .modalHeader {
         .size(@width: 100%, @height:  @modal-header-h);
         .noSelection;
         .cursor-move;
         text-align: left;
+        .modalHorizontalPadding;
+        padding-top: @modal-padding-vertical;
 
         &.has-subHeader {
             height: @modal-header-with-subHeader-h;
@@ -68,8 +71,8 @@
         .text {
             .font(@size: 20px, @weight: 600);
             display: inline-block;
-            padding-right: @padding-horizontal;
-            line-height: @modal-header-h - @padding-vetical * 2;
+            padding-right: @modal-padding-horizontal;
+            line-height: @modal-header-text-h;
             .textOverflowOneLine;
         }
 
@@ -78,28 +81,29 @@
             .xc-action;
             .size(@width: @close-icon-size, @height: @close-icon-size);
             position: absolute;
-            top: @padding-vetical;
+            top: @modal-padding-vertical;
 
             .icon {
                 display: inline-block;
                 .position(absolute, @top: 0, @right: 0);
                 .size(@width: @close-icon-size, @height: @close-icon-size);
                 line-height: @close-icon-size;
+                font-size: @close-icon-size;
             }
         }
 
         @padding-close: 12px;
 
         .close {
-            right: @padding-horizontal;
+            right: @modal-padding-horizontal;
         }
 
         .fullScreen {
-            right: @padding-horizontal + @close-icon-size + @padding-close;
+            right: @modal-padding-horizontal + @close-icon-size + @padding-close;
         }
 
         .exitFullScreen {
-            right: @padding-horizontal + @close-icon-size * 2 + @padding-close * 2;
+            right: @modal-padding-horizontal + @close-icon-size * 2 + @padding-close * 2;
         }
     }
 
@@ -145,40 +149,41 @@
 
     .modalInstruction {
         .size(@width: 100%, @height: @modal-instr-h);
+        .modalHorizontalPadding;
+        padding-top: @modal-padding-section;
         overflow: hidden;
         .flex-display;
         .flex-direction(row);
         .text-selection;
+
+        &.oneLine {
+            height: @modal-instr-oneLine-h;
+        }
     }
 
     .modalTopMain {
         .size(@width: 100%);
-        // .no-selection;
+        .modalHorizontalPadding;
+        padding-top: @modal-padding-section;
     }
 
     .modalMain {
-        // .no-selection;
-        &.border-bottom {
-            border-bottom: 1px solid @color-border-softGray;
-            padding-bottom: @padding-vetical * 2;
-        }
-
-        &.border-top {
-            border-top: 1px solid @color-border-softGray;
-            padding-top: @padding-vetical * 2;
-        }
+        .modalHorizontalPadding;
+        padding-top: @modal-padding-section;
     }
 
     .modalSubMain {
         .size(@width: 100%);
-        // .no-selection;
+        .modalHorizontalPadding;
+        padding-top: @modal-padding-section;
     }
 
     .modalBottom {
         .size(@width: 100%, @height: @modal-bottom-h);
         .no-selection;
-        padding-top: @padding-vetical * 2;
-        padding-bottom: @padding-vetical * 2;
+        .modalHorizontalPadding;
+        padding-top: @modal-padding-section;
+        padding-bottom: @modal-padding-vertical;
 
         .bottomItem, .btn {
             float: right;
@@ -1165,10 +1170,13 @@
 
 /* Quick Aggregate Modal */
 #aggModal {
+    @modal-top-main-h: 32px;
+    @h-without-main: @modal-header-h + @modal-instr-h + @modal-top-main-h;
+
     .size(@width: 920px, @height: 650px, @min-width: 500px, @min-height: 650px);
 
     .modalTopMain {
-        @height: 32px;
+        @height: @modal-top-main-h;
         .size(@height: @height);
         .font(@weight: bold, @line-height: @height);
         padding-top: 0;
@@ -1239,10 +1247,11 @@
     }
 
     .mainAgg {
-        .size(@height: ~"calc(100% - 197px)");
+        @h: @h-without-main + @modal-padding-section + @modal-padding-vertical;
+        .size(@height: ~"calc(100% - @{h})");
         border: 1px solid @color-agg-border-gray;
+        margin: @modal-padding-section @modal-padding-horizontal @modal-padding-vertical @modal-padding-horizontal;
         padding: 0;
-        margin: 12px 24px;
 
         .tabs {
             .size(@width: 40px, @height: 100%);
@@ -1436,7 +1445,7 @@
 }
 
 #connectorConfigModal {
-    height: 549px;
+    height: 532px;
     @h-without-main: @modal-header-h + @modal-bottom-h;
 
     &.db {
@@ -1566,7 +1575,7 @@ html.microsoft {
     @instrHeight: 60px;
     @modalBaseHeight: 195px;
     @detailHeight: 75px;
-    .size(@width: 580px, @height: @modalBaseHeight); // for admin, error case can have 4 buttons
+    .size(@width: 500px, @height: @modalBaseHeight); // for admin, error case can have 4 buttons
     bottom: auto;
     z-index: 100;
     .flex-display;
@@ -1624,7 +1633,7 @@ html.microsoft {
     &.flex {
         #alertActions {
             .flex-display;
-            .justify-content(space-around);
+            .justify-content(flex-end);
 
             .btn {
                 margin-right: 5px;
@@ -1682,7 +1691,7 @@ html.microsoft {
 
     #alertContent {
         .size(@width: 100%);
-        padding: 0 24px;
+        padding: 0 @modal-padding-horizontal;
         overflow: auto;
         vertical-align: middle;
         min-height: 50px;
@@ -1694,14 +1703,14 @@ html.microsoft {
         overflow-y: auto; // for ie
 
         .text {
-            text-align: center;
+            text-align: left;
             word-break: break-word;
             white-space: pre-line;
             .text-selection;
             .flex(1 0 auto);
             .flex-display;
             .align-items(center);
-            max-width: 100%;// for ie
+            width: 100%;
 
             &.left-align {
                 text-align: left;
@@ -1732,7 +1741,6 @@ html.microsoft {
     #alertInstruction {
         .size(@height: 60px);
         .flex(0 0 60px);
-        padding-top: 0;
 
         .text {
             overflow: auto;
@@ -1745,7 +1753,7 @@ html.microsoft {
     }
 
     #alertOption {
-        padding: 0 24px;
+        padding: 0 @modal-padding-horizontal;
 
         #alertCheckBox {
             .text {
@@ -1761,7 +1769,6 @@ html.microsoft {
 
     .modalBottom {
         .flex(0 0 76px);
-        padding: 24px;
         .btn {
             .size(@width: 120px);
 
@@ -1981,7 +1988,7 @@ html.microsoft {
 }
 
 #jupyterUDFTemplateModal {
-    .size(@width: 470px, @height: 310px, @min-height: 310px);
+    .size(@height: 310px, @min-height: 310px);
     font-size: 12px;
 
     .ui-resizable-handle {
@@ -2003,12 +2010,10 @@ html.microsoft {
         }
     }
     .modalMain {
-        padding: 20px 25px;
+        padding: 20px @modal-padding-horizontal;
         height: ~"calc(100% - 145px)";
     }
-    .modalBottom {
-        padding-right: 10px;
-    }
+
     .form {
         display: none;
     }
@@ -2115,10 +2120,6 @@ html.microsoft {
         .selecting {
             background-color: #c2e0f3;
         }
-        &.columnsList {
-            // so that the dropdown doesn't block the confirm button
-            width: ~"calc(100% - 200px)";
-        }
 
         span.inactiveDF {
             font-style: italic;
@@ -2131,8 +2132,8 @@ html.microsoft {
 
 /* Delete Table Modal */
 #deleteTableModal {
-    @h-without-main: @modal-header-h + @modal-instr-h + @modal-bottom-h;
-    .size(@height: 608px, @min-width: 520px, @min-height: 500px);
+    @h-without-main: @modal-header-h + @modal-instr-oneLine-h + @modal-bottom-h;
+    .size(@height: 608px, @min-height: 500px);
     z-index: @z-index-locked + 1;
 
     .hint {
@@ -2188,7 +2189,6 @@ html.microsoft {
     .modalMain {
         .size(@height: ~"calc(100% - @{h-without-main})");
         position: relative;
-        padding: 8px;
 
         .section {
             .size(@width: 100%, @height: 100%);
@@ -3429,10 +3429,10 @@ html.microsoft {
     }
 
     &.bundleError {
-        .defaultIcon, .defaultText {
+        .defaultText {
             display: none !important;
         }
-        .altIcon, .errorText {
+        .errorText {
             display: block;
             color: @color-error-border-light;
         }
@@ -3841,8 +3841,11 @@ html.microsoft {
     .modalHeader {
         .size(@height: 31px);
         background-color: @color-about-gradient-top;
+        padding: 0;
+
         .close {
             color: @color-white;
+            top: 13px;
         }
     }
 
@@ -4100,12 +4103,13 @@ html.microsoft {
         }
 
         .icon {
-            top: -7px;
+            top: -19px;
             right: -12px;
         }
     }
 
     .modalMain {
+        border-top: 1px solid @color-border-softGray;
         padding: 0;
         .font(@size: 12px, @align: center);
         .size(@height: ~"calc(100% - 26px)");
@@ -4192,6 +4196,7 @@ html.microsoft {
     .modalMain {
         .font(@size: 12px);
         .size(@height: ~"calc(100% - 25px)");
+        padding-top: 12px;
 
         .fileName {
             text-transform: none;
@@ -4367,7 +4372,7 @@ html.microsoft {
 
 #workbookInfoModal {
     @h-without-main: @modal-header-h + @modal-bottom-h;
-    .size(@height: 274px);
+    .size(@height: 288px);
 
     .modalMain {
         .size(@height: ~"calc(100% - @{h-without-main})");
@@ -4526,6 +4531,11 @@ html.microsoft {
             .fileName {
                 opacity: 0.8;
                 cursor: default;
+            }
+
+            .listView {
+                border: 1px solid @color-border-softGray;
+                height: ~"calc(100% - 31px)";
             }
         }
     }
@@ -4758,7 +4768,7 @@ html.microsoft {
 /* ========== SQL Func Setting ============= */
 #sqlFuncSettingModal {
     @h-without-main: @modal-header-h + @modal-bottom-h;
-    .size(@height: 174px);
+    .size(@height: 180px);
 
     .modalMain {
         height: ~"calc(100% - @{h-without-main})";
@@ -4846,7 +4856,6 @@ html.microsoft {
     .modalMainSection {
         vertical-align: middle;
         background-color: @color-white;
-        padding: 10px;
         &:not(:last-child) {
             border-bottom: 1px solid @color-border-pinkish-grey2;
         }
@@ -5327,7 +5336,7 @@ html.microsoft {
 
 #dagUDFErrorModal {
     .size(@height: 400px, @min-height: 260px);
-    @top-main-h: 43px;
+    @top-main-h: 67px;
     @h-without-main: @modal-header-h + @top-main-h + @modal-bottom-h;
     @modalRowHeight: 36px;
 
@@ -5518,7 +5527,8 @@ html.microsoft {
 }
 
 #dagCustomRenameModal {
-    .size(@height: 200px, @min-height: 200px);
+    @h: 201px;
+    .size(@height: @h, @min-height: @h);
 }
 
 #fileListModal {
@@ -6251,7 +6261,12 @@ html.microsoft {
         display: block;
         overflow: hidden;
         padding-top: 12px;
-        padding-bottom: 12px;
+
+        .subHeading {
+            .label {
+                padding-left: 0;
+            }
+        }
 
         .exportDriver {
             .subHeading {
@@ -6262,14 +6277,6 @@ html.microsoft {
                 float: right;
                 margin-top: 13px;
                 width: 100%;
-
-                .iconWrapper {
-                    top: 13px;
-                }
-
-                .list {
-                    top: 39px;
-                }
             }
         }
 
@@ -6474,7 +6481,7 @@ html.microsoft {
 }
 
 #sqlQueryHistModal {
-    @h-without-main: @modal-header-h;
+    @h-without-main: @modal-header-h + @modal-bottom-h;
     .size(@height: 400px);
 
     .content {
@@ -6528,6 +6535,7 @@ html.microsoft {
                 padding: 0px;
                 .addressContent {
                     border: none;
+                    padding: 0;
                 }
             }
 
@@ -6562,7 +6570,7 @@ html.microsoft {
             }
 
             .mainSection {
-                border: none;
+                border: 1px solid @color-border-softGray;
             }
         }
     }

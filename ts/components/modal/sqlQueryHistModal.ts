@@ -16,7 +16,7 @@ class SqlQueryHistModal {
         // Setup event listeners
         const eventNameSpace = 'SqlQueryHistModal';
         this._$modal.off(`.${eventNameSpace}`);
-        this._$modal.on(`click.close.${eventNameSpace}`, '.close', () => this._close());
+        this._$modal.on(`click.close.${eventNameSpace}`, '.close, .cancel', () => this._close());
     }
 
     public show(

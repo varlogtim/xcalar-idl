@@ -89,9 +89,9 @@ export default class DeleteTableModal extends React.Component<{}, DeleteTableMod
         minHeight: string
     } {
         return {
-            width: "600px",
+            width: "650px",
             height: "608px",
-            minWidth: "520px",
+            minWidth: "500px",
             minHeight: "500px"
         };
     }

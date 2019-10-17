@@ -1319,7 +1319,7 @@ FileManagerTStr = {
     "ReplaceTitle": "Overwrite File",
     "ReplaceMsg": "already exists. Are you sure you want to overwrite it?",
     "COPYTO": "COPY FILE",
-    "SAVEAS": "SAVE AS",
+    "SAVEAS": "Save AS",
 }
 
 UDFTStr = {
