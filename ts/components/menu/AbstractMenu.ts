@@ -65,10 +65,14 @@ abstract class AbstractMenu {
         type: DagNodeType,
         input: object,
         subType?: DagNodeSubType,
-        parentNodeId?: DagNodeId
+        parentNodeId?: DagNodeId,
+        configured?: boolean
     ): DagNode {
         parentNodeId = parentNodeId || DagTable.Instance.getBindNodeId();
-        return DagViewManager.Instance.autoAddNode(type, subType, parentNodeId, input);
+        return DagViewManager.Instance.autoAddNode(type,
+            subType, parentNodeId, input, undefined, undefined, {
+                configured: configured
+            });
     }
 
     protected _openOpPanel(node: DagNode, colNames: string[]): void {

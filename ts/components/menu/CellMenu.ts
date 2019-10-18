@@ -157,11 +157,11 @@ class CellMenu extends AbstractMenu {
     private _createNodeAndShowForm(evalString: string): void {
         try {
             const type: DagNodeType = DagNodeType.Filter;
-            const input: object = {
+            const input: DagNodeFilterInputStruct = {
                 evalString: evalString
             };
-            const node: DagNodeFilter = <DagNodeFilter>this._addNode(type, input);
-            this._openOpPanel(node, []);
+            const node: DagNodeFilter = <DagNodeFilter>this._addNode(type, input, undefined, undefined, true);
+            DagViewManager.Instance.run([node.getId()], false);
         } catch (e) {
             console.error("error", e);
             Alert.error(ErrTStr.Error, ErrTStr.Unknown);

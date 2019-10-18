@@ -22,7 +22,7 @@ class ColMenu extends AbstractMenu {
         }
         let $lis: JQuery = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                 ".join, .map, .operations," +
-                ".extensions, .changeDataType, .format, .roundToFixed, .round," +
+                ".changeDataType, .format, .roundToFixed, .round," +
                 ".project, .set, .splitCol");
         $lis.removeClass("unavailable");
         $lis.removeClass("xc-hidden");
@@ -35,7 +35,7 @@ class ColMenu extends AbstractMenu {
 
         if (colType === ColumnType.object || colType === ColumnType.array) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, .join, " +
-                ".map, .operations, .profile, .corrAgg, .extensions, " +
+                ".map, .operations, .profile, .corrAgg, " +
                 ".changeDataType, .format, .roundToFixed, .round, .set");
             $lis.addClass("unavailable");
             if (colType === ColumnType.object) {
@@ -49,7 +49,7 @@ class ColMenu extends AbstractMenu {
             }
         } else if (isNewCol) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
-                ".join, .operations, .profile, .corrAgg, .extensions, " +
+                ".join, .operations, .profile, .corrAgg, " +
                 ".changeDataType, .format, .roundToFixed, .round, .project, .set");
             $lis.addClass("unavailable");
             xcTooltip.add($lis, {
@@ -66,7 +66,7 @@ class ColMenu extends AbstractMenu {
         }  else if (colType === ColumnType.undefined || colType == null) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .operations, .profile, .corrAgg, " +
-                    ".extensions, .format, .roundToFixed, .round, " +
+                    ".format, .roundToFixed, .round, " +
                     ".project, .set");
             $lis.addClass("unavailable");
             xcTooltip.add($lis, {
@@ -99,7 +99,6 @@ class ColMenu extends AbstractMenu {
             ["a", "aggregate"],
             ["c", "corrAgg"],
             ["d", "hideColumn.newColumn"],
-            ["e", "extensions"],
             ["f", "filter"],
             ["g", "groupby"],
             ["h", "hideColumn"],
@@ -232,15 +231,6 @@ class ColMenu extends AbstractMenu {
             this._createNodeAndShowForm(DagNodeType.Project, tableId, colNums);
         });
 
-        $colMenu.on('mouseup', '.extensions', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-            const colNums: number[] = $colMenu.data("colNums");
-            const tableId: TableId = $colMenu.data('tableId');
-            this._createNodeAndShowForm(DagNodeType.Extension, tableId, colNums);
-        });
-
         $colMenu.on('mouseup', '.exitOp', (event) => {
             if (event.which !== 1) {
                 return;
@@ -257,20 +247,6 @@ class ColMenu extends AbstractMenu {
     private _addSubMenuActions(): void {
         const $colMenu: JQuery = this._getMenu();
         const $subMenu: JQuery = this._getSubMenu();
-        $subMenu.on('click', '.inputAction', (event) => {
-            $(event.currentTarget).siblings('input').trigger(fakeEvent.enter);
-        });
-
-        $subMenu.on('keypress', 'input', (event) => {
-            if (event.which === keyCode.Enter) {
-                var $input = $(event.currentTarget);
-                if ($input.closest('.extensions').length) {
-                    $input.siblings('.inputAction').find('.extensions')
-                                                   .trigger(fakeEvent.mouseup);
-                }
-            }
-        });
-
         $subMenu.on('mouseup', '.changeFormat', (event) => {
             if (event.which !== 1) {
                 return;
@@ -461,8 +437,6 @@ class ColMenu extends AbstractMenu {
                 return this._getJoinParam(columns);
             case DagNodeType.Set:
                 return this._getSetParam(progCols);
-            case DagNodeType.Extension:
-                return null;
             default:
                 throw new Error("Unsupported type!");
         }

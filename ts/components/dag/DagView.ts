@@ -1638,6 +1638,7 @@ class DagView {
         y?: number,
         options: {
             nodeTitle?: string
+            configured?: boolean
         } = {}
     ): DagNode {
         let logActions = [];
@@ -1653,7 +1654,8 @@ class DagView {
             type: newType,
             subType: subType,
             input: input,
-            display: originalCoors
+            display: originalCoors,
+            state: options.configured ? DagNodeState.Configured : undefined
         };
         if (options.nodeTitle) {
             nodeInfo.title = options.nodeTitle;

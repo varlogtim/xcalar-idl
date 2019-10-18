@@ -637,25 +637,6 @@ describe('TableMenu Test', function() {
                 Profile.show = cachedFunc;
             });
 
-            it('extensions', function() {
-                var cachedFunc = ColMenu.prototype._createNodeAndShowForm;
-                var called = false;
-                ColMenu.prototype._createNodeAndShowForm = function(type, tId, colNums) {
-                    expect(type).to.equal(DagNodeType.Extension);
-                    expect(colNums[0]).to.equal(12);
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                };
-
-                $colMenu.find('.extensions').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $colMenu.find('.extensions').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColMenu.prototype._createNodeAndShowForm = cachedFunc;
-            });
-
             describe('exit op', function() {
                 it('ext', function() {
                     var cachedFunc = BottomMenu.close;
