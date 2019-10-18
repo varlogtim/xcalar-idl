@@ -97,13 +97,13 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("#bottomMenuBarTabs").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#helpMenuTab").hasClass("intro-highlightedElement"))
         }).then(() => {
 
             // help button tip
-            expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#helpMenuTab").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
-            $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+            $("#helpMenuTab").click();
 
             return UnitTest.testFinish(()=>$("#tutorialResource").hasClass("intro-highlightedElement"))
         }).then(() => {
@@ -257,13 +257,13 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("#bottomMenuBarTabs").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#helpMenuTab").hasClass("intro-highlightedElement"))
         }).then(() => {
 
             // help button tip
-            expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#helpMenuTab").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
-            $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+            $("#helpMenuTab").click();
 
             return UnitTest.testFinish(()=>$("#tutorialResource").hasClass("intro-highlightedElement"))
         }).then(() => {
@@ -424,13 +424,13 @@ describe("Tooltip Flight Test", function(done) {
             expect($("#intro-popover").is(":visible")).to.be.true;
             $("#intro-popover .next").click();
 
-            return UnitTest.testFinish(()=>$("#bottomMenuBarTabs").hasClass("intro-highlightedElement"))
+            return UnitTest.testFinish(()=>$("#helpMenuTab").hasClass("intro-highlightedElement"))
         }).then(() => {
 
             // help button tip
-            expect($("#bottomMenuBarTabs").hasClass("intro-highlightedElement")).to.be.true;
+            expect($("#helpMenuTab").hasClass("intro-highlightedElement")).to.be.true;
             expect($("#intro-popover").is(":visible")).to.be.true;
-            $("#bottomMenuBarTabs #helpMenuTab.sliderBtn").click();
+            $("#helpMenuTab").click();
 
             return UnitTest.testFinish(()=>$("#tutorialResource").hasClass("intro-highlightedElement"))
         }).then(() => {

@@ -260,8 +260,8 @@ namespace TooltipWalkthroughs {
             type: TooltipType.Text,
         },
         {
-            highlight_div: "#bottomMenuBarTabs",
-            interact_div: "#bottomMenuBarTabs",
+            highlight_div: "#helpMenuTab",
+            interact_div: "#helpMenuTab",
             text: "Click the Help icon to get help and support.",
             type: TooltipType.Click
         },
@@ -354,8 +354,8 @@ namespace TooltipWalkthroughs {
                 type: TooltipType.Text
             },
             {
-                highlight_div: "#bottomMenuBarTabs",
-                interact_div: "#bottomMenuBarTabs #helpMenuTab.sliderBtn",
+                highlight_div: "#helpMenuTab",
+                interact_div: "#helpMenuTab",
                 text: "Click the Help icon to get help and support.",
                 type: TooltipType.Click
             }
