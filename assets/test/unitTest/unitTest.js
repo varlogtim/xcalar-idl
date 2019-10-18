@@ -58,6 +58,7 @@ window.UnitTest = (function(UnitTest, $) {
                     console.log("Test Exited");
                     alert("Test Exited");
                 }
+                console.log("has mixpanel?", window.gTestMode);
                 if (!resultsSent) {
                     sendResultsToParent();
                     removeUserFromKVStore();

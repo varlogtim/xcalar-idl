@@ -145,9 +145,13 @@ namespace Alert {
         const id: string = Alert.show(alertOptions);
         setInfoIcon(true);
         if (typeof mixpanel !== "undefined") {
+            let errorMsg: string = msg;
+            if (msg == null && options && options.msgTemplate) {
+                msg = JSON.stringify(options.msgTemplate);
+            }
             xcMixpanel.errorEvent("alertError", {
-                title: title,
-                errorMsg: msg
+                title: title || AlertTStr.Title,
+                errorMsg: errorMsg
             });
         }
         return id;
