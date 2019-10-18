@@ -6,6 +6,7 @@ import * as http from "http";
 import * as https from "https";
 import * as cookie from "cookie";
 import * as jwt from "jsonwebtoken";
+import { cloudMode, getNodeCloudOwner } from "../expServer";
 
 import * as tail from "./tail";
 import * as xcConsole from "./expServerXcConsole.js";
@@ -1065,8 +1066,16 @@ class ExpServerSupport {
 
     private checkAuthImpl(req, res, next) {
         let message = { "status": httpStatus.Unauthorized, "success": false };
-        if (! req.session.hasOwnProperty('loggedIn') ||
-            ! req.session.loggedIn ) {
+        let notLoggedIn = !req.session.hasOwnProperty('loggedIn') ||
+            !req.session.loggedIn;
+        let nodeCloudOwner = getNodeCloudOwner();
+
+        if (cloudMode == 1) {
+            notLoggedIn = notLoggedIn ||
+                (req.session.username !== nodeCloudOwner);
+        }
+
+	if (notLoggedIn) {
             res.status(message.status).send(message);
             next('router');
             return;
@@ -1083,8 +1092,16 @@ class ExpServerSupport {
 
     private checkAuthAdminImpl(req, res, next) {
         let message = { "status": httpStatus.Unauthorized, "success": false };
-        if (! req.session.hasOwnProperty('loggedInAdmin') ||
-            ! req.session.loggedInAdmin ) {
+        let notLoggedIn = !req.session.hasOwnProperty('loggedIn') ||
+            !req.session.loggedInAdmin;
+        let nodeCloudOwner = getNodeCloudOwner();
+
+        if (cloudMode == 1) {
+            notLoggedIn = notLoggedIn ||
+                (req.session.username !== nodeCloudOwner);
+        }
+
+	if (notLoggedIn) {
             res.status(message.status).send(message);
             next('router');
             return;

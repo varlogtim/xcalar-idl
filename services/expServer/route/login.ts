@@ -4,7 +4,7 @@ import * as HttpStatus from "../../../assets/js/httpStatus";
 const httpStatus = HttpStatus.httpStatus;
 import * as crypto from "crypto";
 import atob = require("atob");
-import { cloudMode, sessionSecret } from "../expServer";
+import { cloudMode, sessionSecret, getNodeCloudOwner } from "../expServer";
 import * as request from "request";
 import * as url from "url";
 import * as signature from "cookie-signature";
@@ -14,6 +14,9 @@ import { Router } from "express"
 export const router: any = Router()
 
 import loginManager from "../controllers/loginManager"
+
+var cloudAdminUser = process.env.XCE_CLOUD_ADMIN_USER ?
+    process.env.XCE_CLOUD_ADMIN_USER : "xdpadmin";
 
 // Start of LDAP calls
 /*
@@ -87,6 +90,14 @@ var cloudLoginPathFunc = function(req, res, next) {
     }
 
     if (req.body.xiusername && req.body.xipassword) {
+        var nodeCloudOwner = getNodeCloudOwner();
+
+        if ((req.body.xiusername != nodeCloudOwner) &&
+            (req.body.xiusername != cloudAdminUser)) {
+            res.status(message.status).send(message);
+            return next('router');
+        }
+
         if (!process.env.XCE_SAAS_LAMBDA_URL) {
             message["message"] = "XCE_SAAS_LAMBDA_URL is not set";
             res.status(message.status).send(message);
@@ -96,14 +107,12 @@ var cloudLoginPathFunc = function(req, res, next) {
         var loginURL = process.env.XCE_SAAS_LAMBDA_URL;
         loginURL = loginURL.replace(/\/?$/, '/');
         loginURL += 'login';
-        var j = request.jar();
 
         request.post(loginURL, {
             "json": {
                 "username": req.body.xiusername,
-                "password": req.body.xipassword
-            },
-            "jar": j
+                "password": req.body.xipassword,
+            }
         }, (err, postRes, body) => {
             if (err || body.message !== 'Authentication successful') {
                 xcConsole.log(`Login request error ${err}`);
@@ -113,17 +122,17 @@ var cloudLoginPathFunc = function(req, res, next) {
                 return;
             }
 
-            support.create_login_jwt(req, res);
-
-            var cookies = j.getCookies(loginURL);
-            var prev = res.getHeader('Set-Cookie') || []
-            var header = [];
+            var cookies = postRes['headers']['set-cookie'];
             for (var idx in cookies) {
-                var data = cookies[idx].toString();
-                header = Array.isArray(prev) ? prev.concat(data) : [prev, data];
+                var cookieParts = cookies[idx].split('; ');
+                for (var idx2 in cookieParts) {
+                    if (cookieParts[idx2].toLowerCase().startsWith('domain')) {
+                        cookieParts[idx2] = `Domain=${req.hostname}`;
+                    }
+                }
+                cookies[idx] = cookieParts.join('; ');
             }
-            res.setHeader('Set-Cookie', header);
-
+            res.setHeader('Set-Cookie', cookies);
             message = {
                 'status': httpStatus.OK,
                 'message': "Authentication successful"
@@ -141,6 +150,14 @@ var cloudLoginPathFunc = function(req, res, next) {
                 message['message'] = `Session store error: ${JSON.stringify(err)}`;
                 res.status(message.status).send(message);
                 return;
+            }
+
+            var nodeCloudOwner = getNodeCloudOwner();
+
+            if ((sess.username != nodeCloudOwner) &&
+                (sess.username != cloudAdminUser)) {
+                res.status(message.status).send(message);
+                return next('router');
             }
 
             if (sess && sess.loggedIn === true) {
@@ -161,6 +178,7 @@ var cloudLoginPathFunc = function(req, res, next) {
 
             res.status(message.status).send(message);
         });
+
 
     } else {
         res.status(message.status).send(message);

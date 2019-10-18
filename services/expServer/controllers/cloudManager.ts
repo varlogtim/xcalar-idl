@@ -1,6 +1,7 @@
 // ExpServer side
 import * as xcConsole from "../utils/expServerXcConsole.js";
 import socket from "./socket";
+import { cloudMode } from "../expServer";
 var request = require('request-promise-native');
 
 class CloudManager {
@@ -19,9 +20,11 @@ class CloudManager {
     private _clusterPrice: number = null;
 
     public constructor() {
-        this.checkCluster(); // to get cluster price
-        this._fetchCredits();
-        this._updateCredits();
+        if (cloudMode === 1) {
+            this.checkCluster(); // to get cluster price
+            this._fetchCredits();
+            this._updateCredits();
+        }
     }
 
     public setup(token: string): void {
@@ -38,7 +41,7 @@ class CloudManager {
     }> {
         // TO-DO make an SDK call to AWS DynamoDB to read
         // set this.clusterUrl and this.s3Url
-        return {clusterUrl: "", cfnId: "", credits: null};
+        return { clusterUrl: "", cfnId: "", credits: null };
     }
 
     /**
@@ -51,9 +54,9 @@ class CloudManager {
         // 1. update stack with params to stop any EC2 instances
         // 2. update dynamoDB to remove cluster_url
         try {
-            const data: {status: number} = await request.post({
+            const data: { status: number } = await request.post({
                 url: this._awsURL + "/cluster/stop",
-                body: {"username": this._userName},
+                body: { "username": this._userName },
                 json: true
             });
             xcConsole.log("cluster shutting down", data);
@@ -66,7 +69,7 @@ class CloudManager {
             if (!repeatTry) {
                 return this.stopCluster(true);
             }
-            return {error: e};
+            return { error: e };
         }
     }
 
@@ -76,16 +79,16 @@ class CloudManager {
     public async checkCluster(): Promise<any> {
         try {
             const data = request.post({
-                    url: this._awsURL + "/cluster/get",
-                    body: {"username": this._userName},
-                    json: true
+                url: this._awsURL + "/cluster/get",
+                body: { "username": this._userName },
+                json: true
             });
             if (data && data.clusterPrice) {
                 this._clusterPrice = data.clusterPrice;
             }
             return data;
         } catch (e) {
-            return {error: e};
+            return { error: e };
         }
     }
 
@@ -95,10 +98,13 @@ class CloudManager {
 
     public async logout(): Promise<any> {
         try {
-            let logoutResult = await request.get("https://1jqb965i1d.execute-api.us-west-2.amazonaws.com/prod/logout");
+            let authLambdaUrl = process.env.XCE_SAAS_LAMBDA_URL;
+            authLambdaUrl.replace(/\/$/, "");
+            authLambdaUrl += "/logout";
+            let logoutResult = await request.get(authLambdaUrl);
             return logoutResult
         } catch (e) {
-            return {error: e};
+            return { error: e };
         }
     }
 
@@ -131,9 +137,9 @@ class CloudManager {
 
     private async _deductCredits(): Promise<void> {
         try {
-           let res =  await request.post({
+            let res = await request.post({
                 url: this._awsURL + "/billing/deduct",
-                body: {"username": this._userName},
+                body: { "username": this._userName },
                 json: true
             });
             if (res && res.status !== 0) {
@@ -148,9 +154,9 @@ class CloudManager {
 
     private async _fetchCredits(): Promise<number> {
         try {
-            const data: {status: number, credits: number} = await request.post({
+            const data: { status: number, credits: number } = await request.post({
                 url: this._awsURL + "/billing/get",
-                body: {"username": this._userName},
+                body: { "username": this._userName },
                 json: true
             });
             let credits: number = null;
@@ -190,14 +196,14 @@ class CloudManager {
 
     private _isLowOnCredits(): boolean {
         return (!isNaN(this._numCredits) &&
-                this._clusterPrice &&
-                this._numCredits < (1.5 * this._clusterPrice));
+            this._clusterPrice &&
+            this._numCredits < (1.5 * this._clusterPrice));
     }
 
     private _isOutOfCredits(): boolean {
         return (!isNaN(this._numCredits) &&
-                (typeof this._numCredits === "number") &&
-                this._numCredits <= 0);
+            (typeof this._numCredits === "number") &&
+            this._numCredits <= 0);
     }
 
     /* HACK TO SET USER NAME */

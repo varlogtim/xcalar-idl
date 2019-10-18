@@ -32,8 +32,12 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var defaultSessionAge = require('./utils/expServerSupport.js').default.defaultSessionAge;
     var sessionOpts = {};
 
+    var awsEc2MetadataAddr = 'http://169.254.169.254/latest/dynamic/instance-identity/document';
+    var nodeCloudOwner = null;
+
     var sessionSecret = 'keyboard cat';
     exports.sessionSecret = sessionSecret;
+    var AWS = require('aws-sdk');
 
     if (cloudMode === 0) {
         var FileStore = require('session-file-store')(session);
@@ -43,7 +47,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             secret: sessionSecret
         };
 
-        var sessionOpts = {
+        sessionOpts = {
             saveUninitialized: false,
             resave: false,
             rolling: true,
@@ -53,6 +57,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         };
     } else {
         var DynamoDBStore = require('connect-dynamodb')(session);
+        var request = require('request-promise-native');
 
         var cloudSessionTable = process.env.XCE_CLOUD_SESSION_TABLE ?
             process.env.XCE_CLOUD_SESSION_TABLE : 'SessionTable';
@@ -72,9 +77,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             writeCapacityUnits: 5
         };
 
-        console.log(dynamoDbOpts);
-
-        var sessionOpts = {
+        sessionOpts = {
             saveUninitialized: false,
             resave: false,
             rolling: true,
@@ -262,7 +265,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // Invoke the xcrpc router
     app.use(require('./route/xcrpc.js').router);
 
-    require('./utils/dag/dagUtils.js')
+    require('./utils/dag/dagUtils.js');
 
     function getOperatingSystem() {
         var deferred = jQuery.Deferred();
@@ -285,6 +288,75 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         });
         return deferred.promise();
     }
+
+    function getCloudIdentity() {
+        if (cloudMode == 0) {
+            return jQuery.Deferred().resolve().promise();
+        }
+
+        var deferred = jQuery.Deferred();
+
+        request.get(awsEc2MetadataAddr, function(err, res, body) {
+            if (err) {
+                xcConsole.log(`Failure: Get cloud identity ${err}`);
+                return deferred.reject("Failed to get cloud identity");
+            }
+
+            return deferred.resolve(JSON.parse(body));
+        });
+
+        return deferred.promise();
+    }
+
+    function getCloudTags(ec2Data) {
+        if (cloudMode == 0) {
+            return jQuery.Deferred().resolve().promise();
+        }
+
+        xcConsole.log(`EC2 data: ${JSON.stringify(ec2Data)}`);
+
+        var deferred = jQuery.Deferred();
+
+        AWS.config.credentials = new AWS.EC2MetadataCredentials();
+        var ec2 = new AWS.EC2({region: ec2Data.region});
+
+        var params = {
+            Filters: [
+                { Name: "resource-id",
+                  Values: [ ec2Data.instanceId ] },
+                { Name: "tag:Owner",
+                  Values: [ "*" ] }
+            ]
+        };
+
+        ec2.describeTags(params, function(err, data) {
+
+            if (err) {
+                xcConsole.log(`Failure: Get owner tag ${err}`);
+                deferred.reject("Failed to get owner tag");
+                return;
+            }
+
+            xcConsole.log(`Tag data: ${JSON.stringify(data)}`);
+
+            if (data && data.Tags && data.Tags[0] && data.Tags[0].Value) {
+                nodeCloudOwner = data.Tags[0].Value;
+                xcConsole.log(`Cloud owner is ${nodeCloudOwner}`);
+                deferred.resolve();
+            } else {
+                xcConsole.log(`Got owner tag but could not find owner name: ${data}`);
+                deferred.reject("Failed to find owner name in owner tag data");
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    function getNodeCloudOwner() {
+        return nodeCloudOwner;
+    }
+    exports.getNodeCloudOwner = getNodeCloudOwner;
+
 
     function getCertificate(data) {
         var ca = '';
@@ -316,7 +388,13 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         return ca;
     }
 
-    getOperatingSystem()
+    getCloudIdentity()
+    .then(function(data) {
+        return getCloudTags(data);
+    })
+    .then(function() {
+        return getOperatingSystem();
+    })
     .always(function(data) {
         data = data.toLowerCase();
         // This is helpful for test and variable can be used in future development
