@@ -1471,28 +1471,7 @@ abstract class DagNode extends Durable {
     }
 
     protected _getSkewValue(rows) {
-        let skewness = null;
-        const len = rows.length;
-        const even = 1 / len;
-        const total = rows.reduce(function(sum, value) {
-            return sum + value;
-        }, 0);
-        if (total === 1) {
-            // 1 row has no skewness
-            skewness = 0;
-        } else {
-            // change to percentage
-            rows = rows.map(function(row) {
-                return row / total;
-            });
-
-            skewness = rows.reduce(function(sum, value) {
-                return sum + Math.abs(value - even);
-            }, 0);
-
-            skewness = Math.floor(skewness * 100);
-        }
-        return skewness;
+        return xcHelper.calculateSkew(rows);
     }
 
     protected _clearConnectionMeta(): void {

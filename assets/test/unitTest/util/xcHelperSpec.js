@@ -2170,6 +2170,35 @@ describe("xcHelper Test", function() {
         });
     });
 
+    it("xcHelper.calculateSkew should work", function() {
+        var tests = [{
+            "rows": [0, 100],
+            "expect": 100
+        }, {
+            "rows": [0, 1],
+            "expect": 0
+        }, {
+            "rows": [100],
+            "expect": 0
+        }, {
+            "rows": [0, 0, 100],
+            "expect": 100
+        }, {
+            "rows": [10, 10, 10],
+            "expect": 0
+        }, {
+            "rows": [36, 46, 47],
+            "expect": 8
+        }];
+
+        tests.forEach(function(test) {
+            let skew = xcHelper.calculateSkew(test.rows);
+            if (skew !== test.expect) {
+                console.error("test fail", JSON.stringify(test));
+            }
+            expect(skew).to.equal(test.expect);
+        });
+    });
 
     after(function() {
         StatusBox.forceHide();

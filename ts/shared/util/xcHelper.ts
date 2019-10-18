@@ -2821,6 +2821,37 @@ namespace xcHelper {
 
         return deferred.promise();
     }
+
+    /**
+     * xcHelper.calculateSkew
+     * @param rows
+     */
+    export function calculateSkew(rows: number[]): number {
+        let skewness: number = null;
+        let len: number = rows.length;
+        let even: number = 1 / len;
+        let total: number = rows.reduce((sum, value) => {
+            return sum + value;
+        }, 0);
+        if (total === 1) {
+            // 1 row has no skewness
+            skewness = 0;
+        } else if (len === 1) {
+            // one row has no skew
+            skewness = 0;
+        } else {
+            // change to percantage
+            rows = rows.map((row) => row / total);
+
+            // the total skew
+            skewness = rows.reduce((sum, value) => {
+                return sum + Math.abs(value - even);
+            }, 0);
+            skewness = skewness * len / (2 * (len - 1));
+            skewness = Math.floor(skewness * 100);
+        }
+        return skewness;
+    }
 }
 
 if (typeof exports !== "undefined") {
