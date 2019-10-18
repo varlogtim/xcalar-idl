@@ -1639,6 +1639,7 @@ class DagView {
         options: {
             nodeTitle?: string
             configured?: boolean
+            forceAdd?: boolean
         } = {}
     ): DagNode {
         let logActions = [];
@@ -1675,7 +1676,8 @@ class DagView {
             if (parentNode.getMaxChildren() !== 0 && !node.isSourceNode()) {
                 connectToParent = true;
             }
-            if (parentNode.getType() === DagNodeType.Sort &&
+            if (!options.forceAdd &&
+                parentNode.getType() === DagNodeType.Sort &&
                 (newType !== DagNodeType.Export &&
                     newType !== DagNodeType.PublishIMD)) {
                 // do not encourage connecting to sort node if next node

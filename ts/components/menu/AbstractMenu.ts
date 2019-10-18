@@ -71,7 +71,8 @@ abstract class AbstractMenu {
         parentNodeId = parentNodeId || DagTable.Instance.getBindNodeId();
         return DagViewManager.Instance.autoAddNode(type,
             subType, parentNodeId, input, undefined, undefined, {
-                configured: configured
+                configured: configured,
+                forceAdd: true
             });
     }
 

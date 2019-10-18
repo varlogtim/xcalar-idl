@@ -784,6 +784,7 @@ class DagViewManager {
         options?: {
             nodeTitle?: string,
             configured?: boolean
+            forceAdd?: boolean
         }
     ): DagNode {
         return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y, options);
