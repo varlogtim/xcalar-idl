@@ -563,7 +563,12 @@ class XcUser {
     public restartActivityTimer(): void {
         clearTimeout(this._activityTimer);
         this._activityTimer = window.setTimeout(() => {
-            this.logout();
+            if (this._isXcalarIdle()) {
+                // make sure user is real idle then logout
+                this.logout();
+            } else {
+                this.idleCheck(); // reset the check
+            }
         }, this._idleTimeLimit);
     }
 
