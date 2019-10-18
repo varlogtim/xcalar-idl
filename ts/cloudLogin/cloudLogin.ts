@@ -78,8 +78,7 @@ namespace CloudLogin {
     }
 
     function cookieLogin(username: string, password: string): void {
-        const $button = $("#loginButton");
-        $button.addClass("xc-disabled");
+        localUsername = username;
         loadingWait(true);
         sendRequest({
             apiUrl: cookieAuthApiUrl,
@@ -96,35 +95,30 @@ namespace CloudLogin {
                 })
             }
         })
-            // TODO: ONCE /login RETURNS A CODE/STATUS FOR THIS CASE
-            // } else if (response.code === "UserNotConfirmedException") {
-            //     // correct email/password but email not confirmed
-            //     $("#loginFormError").hide();
-            //     $("header").children().hide();
-            //     $("#formArea").children().hide();
-            //     $("#verifyForm").show();
-            //     $("#verifyTitle").show();
         .then((res) => {
-            localUsername = username;
             localSessionId = res.sessionId;
-            $button.removeClass("xc-disabled");
-            $("#loginFormError").hide();
-
-            $button.addClass("xc-disabled");
-            var cb = () => $button.removeClass("xc-disabled");
-            clusterSelection(cb);
+            clusterSelection();
         })
         .fail((error) => {
             console.error('cookieLogin error:', error);
-            if (typeof error === "object" && error.message) {
-                error = error.message;
-            } else if (typeof error !== "string") {
-                error = "Login failed with unknown error.";
+            if (error.code === "UserNotConfirmedException") {
+                $("#loginFormError").hide();
+                $("header").children().hide();
+                $("#formArea").children().hide();
+                $("#verifyForm").show();
+                $("#verifyTitle").show();
+                ensureCognitoUserExists();
+                cognitoResendConfirmationCode();
+            } else {
+                if (typeof error === "object" && error.message) {
+                    error = error.message;
+                } else if (typeof error !== "string") {
+                    error = "Login failed with unknown error.";
+                }
+                error += error.endsWith('.') ? '' : '.';
+                error += " Please try again.";
+                showFormError($("#loginFormError"), error);
             }
-            error += error.endsWith('.') ? '' : '.';
-            error += " Please try again.";
-            showFormError($("#loginFormError"), error);
-            $button.removeClass("xc-disabled");
         })
         .always(() => loadingWait(false));
     }
@@ -309,17 +303,18 @@ namespace CloudLogin {
         .always(() => loadingWait(false));
     }
 
-    function clusterSelection(cb?: Function) {
+    // function clusterSelection(cb?: Function) {
+    function clusterSelection() {
         checkCredit()
         .then((hasCredit) => {
             if (hasCredit) {
                 return getCluster();
             }
-        })
-        .finally(() => {
-            if (typeof cb === "function") {
-                cb();
-            }
+        // })
+        // .finally(() => {
+        //     if (typeof cb === "function") {
+        //         cb();
+        //     }
         });
     }
 
@@ -686,19 +681,25 @@ namespace CloudLogin {
     function sendRequest({apiUrl, action, fetchParams}: {apiUrl: string, action: string, fetchParams: object}): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const url: string = `${apiUrl}${action}`;
+        let statusCode: number;
         fetch(url, fetchParams)
         .then((res) => {
-            if (res.status === httpStatus.OK) {
+            statusCode = res.status;
+            if (res.status === httpStatus.OK || res.status === httpStatus.Unauthorized) {
                 return res.json();
-            } else if (res.status === httpStatus.Unauthorized) {
-                return PromiseHelper.reject('Wrong Email or Password.');
             } else {
                 return PromiseHelper.reject('Server responsed with status ' + res.status + '.');
             }
         })
         .then((res: any) => {
             // XXX TODO: use a enum instead of 0
-            if (!res.status || res.status === 0) {
+            if (statusCode === httpStatus.Unauthorized) {
+                if (res.code === "UserNotConfirmedException") {
+                    deferred.reject(res);
+                } else {
+                    deferred.reject('Wrong Email or Password.');
+                }
+            } else if (!res.status || res.status === 0) {
                 deferred.resolve(res);
             } else {
                 deferred.reject(res);
@@ -771,6 +772,29 @@ namespace CloudLogin {
         );
     }
 
+    function ensureCognitoUserExists() {
+        if (!cognitoUser) {
+            var userData = {
+                Username: localUsername,
+                Pool: userPool
+            };
+            cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        }
+    }
+
+    function cognitoResendConfirmationCode() {
+        cognitoUser.resendConfirmationCode(function (err, result) {
+            loadingWait(false);
+            if (err) {
+                console.error(err);
+                showFormError($("#verifyFormError"), err.message);
+                return;
+            } else {
+                $("#verifyFormError").hide();
+            }
+        });
+    }
+
     function handleEvents(): void {
         $("#passwordSection").focusin(
             function () {
@@ -827,16 +851,7 @@ namespace CloudLogin {
 
         $("#resend-code").click(function () {
             loadingWait(true);
-            cognitoUser.resendConfirmationCode(function (err, result) {
-                loadingWait(false);
-                if (err) {
-                    console.error(err);
-                    showFormError($("#verifyFormError"), err.message);
-                    return;
-                } else {
-                    $("#verifyFormError").hide();
-                }
-            });
+            cognitoResendConfirmationCode();
         })
 
         $("#signup-submit").click(function () {
@@ -910,8 +925,6 @@ namespace CloudLogin {
         });
 
         $("#clusterForm").find(".radioButton").click(function () {
-            // document.getElementById("deployBtn").classList.remove('btn-disabled');
-
             selectedClusterSize = $(this).data('option');
 
             if ($(this).hasClass("active") || (!$(this).is(":visible"))) {
