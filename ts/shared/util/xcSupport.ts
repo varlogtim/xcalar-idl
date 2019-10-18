@@ -54,7 +54,10 @@ namespace XcSupport {
             : xcStringHelper.replaceMsg(AlertTStr.TryConnect, {
                 second: timeRemain
             });
-
+        if (error == null) {
+            // not ready case
+            msg = "Xcalar Design is setting up, please wait" + ".".repeat(cnt % 3 + 1);
+        }
         Alert.updateMsg(alertId, msg);
 
         clearTimeout(_connectionCheckTimer);
@@ -157,7 +160,6 @@ namespace XcSupport {
         checkXcalarConnection()
             .fail((error) => {
                 const res = XcSupport.connectionError(error);
-                Log.backup();
                 checkConnectionTrigger(10, res.id, res.error);
             });
     }
@@ -170,21 +172,31 @@ namespace XcSupport {
         error: string
     } {
         let title: string;
+        let id: string;
         if (error != null &&
             typeof error === "object" &&
             error.status === StatusT.StatusClusterNotReady
         ) {
-            error = "Cluster is starting.";
-            title = "Starting Cluster";
+            error = null;
+            title = "Please wait";
+            id = Alert.show({
+                title,
+                msg: "Xcalar Design is setting up, please wait.",
+                isAlert: true,
+                lockScreen: true,
+                hideButtons: ["downloadLog", "genSub"]
+            })
         } else {
+            // error case
+            Log.backup();
             error = AlertTStr.NoConnect;
             title = ThriftTStr.CCNBEErr;
+            id = Alert.error(title, error, {
+                lockScreen: true,
+                noLogout: true
+            });
         }
 
-        const id: string = Alert.error(title, error, {
-            lockScreen: true,
-            noLogout: true
-        });
         return {
             id,
             error

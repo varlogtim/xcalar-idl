@@ -226,7 +226,8 @@ var reactMapping = {
 
 // help content src in the actual src tree, for each product type
 var helpContentRootByProduct = {
-    XD: helpContentRoot + XD,
+    XD: helpContentRoot + Cloud, // XXX make XD build Cloud Doc until jenkins get fixed
+    // XD: helpContentRoot + XD,
     Cloud: helpContentRoot + Cloud,
     XPE: helpContentRoot + XD
 }
@@ -5878,7 +5879,7 @@ module.exports = function(grunt) {
 
         // PRODUCT to build
         // XXX TODO: remove the default set of Cloud when jenkins can build it
-        PRODUCT = grunt.option(BLD_OP_PRODUCT) || process.env[BLD_OP_PRODUCT] || Cloud || XD;
+        PRODUCT = grunt.option(BLD_OP_PRODUCT) || process.env[BLD_OP_PRODUCT] || XD;
         if (productTypes.hasOwnProperty(PRODUCT)) {
             PROD_TARGET = productTypes[PRODUCT]['target'];
         } else {
