@@ -292,8 +292,8 @@ class ExportSQLTableModal {
             self._submitForm();
         });
 
-        $('#exportSQLTableColumns .selectAllWrap .checkbox').click(function(event) {
-            let $box: JQuery = $(this);
+        $('#exportSQLTableColumns .selectAllWrap').click(function(event) {
+            let $box: JQuery = $(this).find(".checkbox");
             event.stopPropagation();
             if ($box.hasClass("active")) {
                 return;

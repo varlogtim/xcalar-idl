@@ -4272,7 +4272,6 @@ html.microsoft {
     .size(@width: 920px, @height: 650px, @min-width: 500px, @min-height: 650px);
     @skewInfo-topMain: 50px;
     @skewInfo-restOfMain: @modal-header-h + @modal-instr-h + @skewInfo-topMain;
-    border-radius: 0;
 
     .modalInstruction {
         a {
@@ -4283,7 +4282,7 @@ html.microsoft {
 
     .modalTopMain {
         .size(@height: @skewInfo-topMain);
-        padding: 0 20px;
+        padding: 0 @modal-padding-horizontal;
         .font(@size: 14px, @line-height: @skewInfo-topMain);
         .flex-display;
         .text-selection;
@@ -4305,9 +4304,7 @@ html.microsoft {
 
     .modalMain {
         .size(@height: ~"calc(100% - @{skewInfo-restOfMain})");
-        padding: 20px;
-        background-color: @color-bg-white-three;
-        box-shadow: inset 0 1px 0 0 @color-border-pinkish-grey2;
+        padding: @modal-padding-vertical @modal-padding-horizontal;
 
         .chart {
             .size(100%, 100%);
@@ -6124,6 +6121,11 @@ html.microsoft {
                 margin-top: 10px;
                 float: left;
                 width: 150px;
+
+                .checkbox {
+                    margin-left: 0;
+                }
+
                 .text {
                     float: left;
                     width: 106px;
@@ -6319,6 +6321,7 @@ html.microsoft {
                 }
                 .searchBox {
                     position: relative;
+                    clear: both;
 
                     .icon {
                         .position(absolute, @right: 10px);

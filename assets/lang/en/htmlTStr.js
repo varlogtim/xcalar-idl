@@ -841,8 +841,7 @@ module.exports = {
 
     "skewInfoModal": {
         "Title": "Result Set Data Distribution in Cluster",
-        "instr": "This graph shows the distribution of the result set's data across all nodes in the cluster. Skew in the data may impact the performance of the cluster. To find out more about data skew, please reference",
-        "link": "the link"
+        "instr": "This graph shows the distribution of the result set's data across all nodes in the cluster. Skew in the data may impact the performance of the cluster. To find out more about data skew, please reference help documentation.",
     },
 
     "dataflow": {

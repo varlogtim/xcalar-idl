@@ -228,8 +228,8 @@ class CreatePublishTableModal {
             self._addKeyField();
         });
 
-        this._$modal.on('click', '.keyOptions .disableKey .checkbox', function () {
-            let $box: JQuery = $(this);
+        this._$modal.on('click', '.keyOptions .disableKey', function () {
+            let $box: JQuery = $(this).find(".checkbox");
             event.stopPropagation();
             if ($box.hasClass("checked")) {
                 $box.removeClass("checked");
