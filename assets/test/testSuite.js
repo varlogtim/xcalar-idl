@@ -5,7 +5,6 @@ window.TestSuite = (function($, TestSuite) {
 
     var defaultCheckTimeout = 120000; // 2min
     var disableIsPass = true;
-    window.gTestMode = true;
 
     // constructor
     function TestRunner() {
@@ -650,6 +649,7 @@ window.TestSuite = (function($, TestSuite) {
 
 
     TestSuite.createTest = function() {
+        xcMixpanel.off();
         return new TestRunner();
     };
 

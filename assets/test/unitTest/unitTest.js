@@ -12,7 +12,6 @@ mocha.setup({
 // global
 expect = chai.expect;
 assert = chai.assert;
-window.gTestMode = true;
 
 function getTestNameRegex() {
     var urlArgs = xcHelper.decodeFromUrl(window.location.href);
@@ -47,6 +46,7 @@ window.UnitTest = (function(UnitTest, $) {
 
     UnitTest.setup = function() {
         $(document).ready(function() {
+            xcMixpanel.off();
             xcGlobal.setup();
             setupTestDatasets();
             mocha.run(function() {
@@ -58,7 +58,6 @@ window.UnitTest = (function(UnitTest, $) {
                     console.log("Test Exited");
                     alert("Test Exited");
                 }
-                console.log("has mixpanel?", window.gTestMode);
                 if (!resultsSent) {
                     sendResultsToParent();
                     removeUserFromKVStore();

@@ -2,6 +2,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
     xcMixpanel.forDev = function() {
         return true;
     };
+
     let events;
     if (xcMixpanel.forDev()) {
         events = {
@@ -52,11 +53,12 @@ window.xcMixpanel = (function($, xcMixpanel) {
     let lastSubPanelTime = currTime;
     let lastMouseMoveTime = currTime;
     let pageLoaded = false;
+    let off = false; // XXXX TODO: change it to false to turn it on
 
     xcMixpanel.setup = function() {
         var c = document;
         var a = window.mixpanel || [];
-        if (window.gTestMode) {
+        if (off) {
             return;
         }
         if (!a.__SV) {
@@ -122,11 +124,25 @@ window.xcMixpanel = (function($, xcMixpanel) {
         }
     };
 
+    xcMixpanel.off = function() {
+        off = true;
+    };
+
+    xcMixpanel.isOff = function() {
+        if (off) {
+            return true;
+        } else if (window.location.href.includes("localhost")) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     xcMixpanel.init = function() {
-        return; // XXX disabling
-        if (window.gTestMode) {
+        if (xcMixpanel.isOff()) {
             return;
         }
+        // XXX TODO: use only one id, remove the check of xcMixpanel.forDev
         if (xcMixpanel.forDev()) {
             window.mixpanel.init("8d64739b0382a6a440afaab1a57f5051");
         } else {
@@ -198,14 +214,13 @@ window.xcMixpanel = (function($, xcMixpanel) {
     };
 
     xcMixpanel.pageLoadEvent = () => {
+        if (xcMixpanel.isOff()) {
+            return;
+        }
         if (!events.pageLoad) {
             return;
         }
-        return; // disabling
-        // pageLoaded = true; // XXX disabling
-        if (window.gTestMode) {
-            return;
-        }
+        pageLoaded = true;
         let currTime = Date.now();
         pageLoadTime = lastModeTime = lastPanelTime = currTime;
         let $mainPanel = $(".mainPanel.active");
@@ -243,7 +258,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
                     console.log(data);
                 },
                 error: function(error) {
-                    console.log(error);
+                    console.error(error);
                 }
             });
         }
@@ -295,7 +310,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
                                                     .getNode(log.options.nodeId);
                 node = dagNode.getDisplayNodeType();
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
             xcMixpanel.track("Op - " + log.title, {
                 "eventType": "transaction",
@@ -725,8 +740,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
     }
 
     xcMixpanel.track = (eventName, eventProperties, jqueryEvent) => {
-        return; // XXX disabling
-        if (window.gTestMode) {
+        if (xcMixpanel.isOff()) {
             return;
         }
         eventProperties = eventProperties || {};
@@ -772,9 +786,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
             if (!properties.triggeredByUser && !properties.el) {
                 return;
             }
-        }
-        if (window.gTestMode || !pageLoaded) {
-            return;
         }
         mixpanel.track(eventName, properties);
     }
