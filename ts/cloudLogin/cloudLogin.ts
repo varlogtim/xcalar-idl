@@ -430,52 +430,64 @@ namespace CloudLogin {
         }
     }
 
-    function showInputError($element: JQuery, hideErrorCondition: boolean, signupSubmitClicked: boolean): void {
-        if (!signupSubmitClicked || hideErrorCondition) {
-            $element.find('.icon.xi-error').hide();
-            $element.find('.input-tooltip').hide();
-            $element.focusin(
-                function () {
-                    $(this).find(".input-tooltip").hide();
-                    focusTooltipShown = false;
-                }
-            )
-            $element.focusout(
-                function () {
-                    $(this).find(".input-tooltip").hide();
-                    focusTooltipShown = false;
-                }
-            )
-            $element.hover(
-                function () {
-                    hideTooltip($(this))
-                },
-                function () {
-                    hideTooltip($(this))
-                }
-            );
-        } else {
-            $element.find('.icon.xi-error').css('display', 'inline-block');
-            $element.focusin(
-                function () {
-                    $(this).find(".input-tooltip").show();
+    function showTooltipOnFocus($element: JQuery, error: boolean) {
+        const $tooltip = $element.find(".input-tooltip");
+
+        $element.unbind('focusin focusout');
+
+        $element.focusin(
+            function () {
+                if (error) {
+                    $tooltip.show();
                     focusTooltipShown = true;
-                }
-            )
-            $element.focusout(
-                function () {
-                    $(this).find(".input-tooltip").hide();
+                } else {
+                    $tooltip.hide();
                     focusTooltipShown = false;
                 }
-            )
-            $element.hover(
-                function () {
-                    showTooltip($(this))
-                },
-                function () {
-                    hideTooltip($(this))
-                }
-            );
+            }
+        )
+        $element.focusout(
+            function () {
+                $tooltip.hide();
+                focusTooltipShown = false;
+            }
+        )
+        if ($element.find('input').is(":focus")) {
+            if (error) {
+                $tooltip.show();
+                focusTooltipShown = true;
+            } else {
+                $tooltip.hide();
+                focusTooltipShown = false;
+            }
+        }
+    }
+
+    function showInputError($element: JQuery, inputIsCorrect: boolean, showSuccessIcon: boolean): void {
+        const $icon = $element.find('.icon').not(".input-tooltip .icon");
+
+        $element.unbind('mouseenter mouseleave');
+
+        if (inputIsCorrect) {
+            showTooltipOnFocus($element, false);
+
+            if (showSuccessIcon) {
+                $icon.removeClass('xi-error');
+                $icon.addClass('xi-success');
+                $icon.show();
+            } else {
+                $icon.hide();
+            }
+        } else {
+            if (signupSubmitClicked) {
+                showTooltipOnFocus($element, true);
+                $element.hover(() => showTooltip($element), () => hideTooltip($element));
+                $icon.removeClass('xi-success');
+                $icon.addClass('xi-error');
+                $icon.show();
+            } else {
+                $icon.hide();
+            }
         }
     }
 
@@ -531,16 +543,18 @@ namespace CloudLogin {
         const passwordsMatch: boolean = password1 === password2;
         const checkedEULA: boolean = $("#signup-termCheck").prop('checked');
 
-        showInputError($("#firstNameSection"), !firstNameEmpty, signupSubmitClicked);
-        showInputError($("#lastNameSection"), !lastNameEmpty, signupSubmitClicked);
-        showInputError($("#companySection"), !companyEmpty, signupSubmitClicked);
-        showInputError($("#emailSection"), validateEmail(email1), signupSubmitClicked);
-        showInputError($("#confirmEmailSection"), emailsMatch && validateEmail(email1), signupSubmitClicked);
-        showInputError($("#passwordSection"), validatePassword(password1), signupSubmitClicked);
-        showInputError($("#confirmPasswordSection"), passwordsMatch && validatePassword(password1), signupSubmitClicked);
-        showInputError($(".submitSection"), checkedEULA, signupSubmitClicked);
+        showInputError($("#firstNameSection"), !firstNameEmpty, false);
+        showInputError($("#lastNameSection"), !lastNameEmpty, false);
+        showInputError($("#companySection"), !companyEmpty, false);
+        showInputError($("#emailSection"), validateEmail(email1), true);
+        showInputError($("#confirmEmailSection"), emailsMatch && validateEmail(email1), true);
+        showInputError($("#passwordSection"), validatePassword(password1), true);
+        showInputError($("#confirmPasswordSection"), passwordsMatch && validatePassword(password1), true);
+        showInputError($(".submitSection"), checkedEULA, false);
 
         showPasswordErrorRows(password1);
+
+        showTooltipOnFocus($("#passwordSection"), !validatePassword(password1));
 
         if (email1 === "") {
             $('#emailSection .input-tooltip').text('Email cannot be empty');
