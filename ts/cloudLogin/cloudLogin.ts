@@ -577,24 +577,27 @@ namespace CloudLogin {
     }
 
     let loadingWaitIntervalID: number;
+    let buttonsLoadingDisabled: boolean = false;
+    let fetchesInProgress: number = 0;
 
     function loadingWait(waitFlag: boolean): void {
-        if (waitFlag) {
+        fetchesInProgress += waitFlag ? 1 : -1;
+        if (fetchesInProgress > 0 && !buttonsLoadingDisabled) {
             $('.auth-section').addClass('auth-link-disabled');
             $('.btn').addClass('btn-disabled');
-
             $('.btn').append('<span class="loading-dots"></span>')
             let dotsCount: number = 0
             loadingWaitIntervalID = <any>setInterval(function() {
                 dotsCount = (dotsCount + 1) % 4;
                 $('.btn .loading-dots').text('.'.repeat(dotsCount));
             }, 1000);
-        } else {
+            buttonsLoadingDisabled = true;
+        } else if (fetchesInProgress < 1) {
             $('.auth-section').removeClass('auth-link-disabled');
             $('.btn').removeClass('btn-disabled');
-
-            clearInterval(loadingWaitIntervalID);
             $('.btn .loading-dots').remove();
+            clearInterval(loadingWaitIntervalID);
+            buttonsLoadingDisabled = false;
         }
     }
 
