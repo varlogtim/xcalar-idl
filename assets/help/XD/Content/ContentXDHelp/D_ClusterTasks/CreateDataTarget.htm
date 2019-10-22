@@ -206,8 +206,51 @@
                                                     </li>
                                                     <li value="3">From the <span class="UIelement">Connector Type</span> list, select the connector type that best suites your source data's storage repository and access authentication method. For more information, see <a href="../SingleSourcing/connectors/understand_data_target_types.htm" class="MCXref xref" xrefformat="{para}">Understanding the connector types</a>.</li>
                                                     <li value="4">
-                                                        <p>Based on the selected connector type, entry fields appear that require  access credentials, and the location of the connector's source data storage.</p>
-                                                        <p data-mc-conditions="Cloud.Hidden">For example, if you select the <span class="UIelement">Shared File System</span> connector type, enter the path for the <span class="GeneralProductName3">Xcalar</span> cluster's shared storage mount area.</p>
+                                                        <p>Based on the selected connector type, entry fields appear that require  access credentials, and the location of the connector's source data storage:</p>
+                                                        <ul>
+                                                            <li value="1"><span class="UIelement">azure blob storage account with sas token</span>: Enter the sas_token and account_name.</li>
+                                                            <li value="2"><span class="UIelement">Confluent Kafka</span>: In the kafka_url field, enter the REST API endpoint URL for the Kafka server.</li>
+                                                            <li value="3"><span class="UIelement">Database</span>: Enter the dbtype (MSSQL/MYSQL/Oracle/PG/Hive/DB2), dbname, hostname of the database server, port of the database server, and the user id.</li>
+                                                            <li value="4">
+                                                                <p><span class="UIelement">HttpFs</span>: Enter the Httpfs node in the following form: <cite>&lt;FQDN of httpfs node&gt;:&lt;port number&gt;</cite> </p>
+                                                                <p>Multiple HttpFs nodes can be entered separated by a semicolon. For example:</p>
+                                                                <p> http://httpfsnode1.example.com;http://httpfsnode2.example.com:14001;http://httpfsnode3.example.com</p>
+                                                                <p>For protocol, you can use https or http. The default protocol is http, and the default port is 4000. </p>
+                                                            </li>
+                                                            <li value="5">
+                                                                <p><span class="UIelement">HttpFs with Kerberos</span>: Enter the Kerberos configuration file path, the keytab, and the HttFs node. </p>
+                                                                <p>To create a keytab, refer to https://kb.iu.edu/d/aumh. </p>
+                                                                <p>Enter the Httpfs node in the following form: <cite>&lt;FQDN of httpfs node&gt;:&lt;port number&gt;</cite> </p>
+                                                                <p>Multiple HttpFs nodes can be entered separated by a semicolon. For example:</p>
+                                                                <p> http://httpfsnode1.example.com;http://httpfsnode2.example.com:14001;http://httpfsnode3.example.com</p>
+                                                                <p>For protocol, you can use https or http. The default protocol is http, and the default port is 4000. </p>
+                                                            </li>
+                                                            <li value="6"><span class="UIelement">S3 Account with Specified Credentials</span>: Fields secret_access_key and access_key are the required fields.</li>
+                                                            <li value="7" data-mc-conditions="Cloud.Hidden"><span class="UIelement">Shared File System</span>: Enter the path for the <span class="GeneralProductName3">Xcalar</span> cluster's shared storage mount area.</li>
+                                                            <li value="8" data-mc-conditions="Cloud.Hidden"><span class="UIelement">Symmetric Pre-sharded Filesystem</span>: Enter the path with data that has been sharded across different cluster nodes. The path must be at the same on all nodes.</li>
+                                                            <li value="9">
+                                                                <p><span class="UIelement">WebHDFS</span>: Enter the namenode in the following form: &lt;FQDN of namenode&gt;:&lt;port number&gt;</p>
+                                                                <p>Multiple namenodes can be entered separated by a semicolon. For example,</p>
+                                                                <p>http://namenode1.example.com;http://namenode2.example.com:50071;http://namenode3.example.com</p>
+                                                                <p> For protocol, you can use https or http. The default protocol is http, and the default port is 50070.</p>
+                                                            </li>
+                                                            <li value="10">
+                                                                <p><span class="UIelement">WebHDFS with Kerberos</span>: Enter the Kerberos configuration file path, the keytab, and the namenode. </p>
+                                                                <p>To create a keytab, refer to https://kb.iu.edu/d/aumh. </p>
+                                                                <p>Enter the namenode in the following form: &lt;FQDN of namenode&gt;:&lt;port number&gt;</p>
+                                                                <p>Multiple namenodes can be entered separated by a semicolon. For example,</p>
+                                                                <p>http://namenode1.example.com;http://namenode2.example.com:50071;http://namenode3.example.com</p>
+                                                                <p> For protocol, you can use https or http. The default protocol is http, and the default port is 50070.</p>
+                                                            </li>
+                                                        </ul>
+                                                        <p>The following connector types do not need any other info:</p>
+                                                        <ul>
+                                                            <li value="1">Azure Blob Storage Account with Environmental Credentials</li>
+                                                            <li value="2">Generated</li>
+                                                            <li value="3">Google Cloud Storage Account with Environmental Credentials</li>
+                                                            <li value="4">S3 Account with Environmental Credentials</li>
+                                                            <li value="5" data-mc-conditions="Cloud.Hidden">Single Node Filesystem</li>
+                                                        </ul>
                                                     </li>
                                                     <li value="5">
                                                         <p>(Optional) Verify each field's entry values. </p>

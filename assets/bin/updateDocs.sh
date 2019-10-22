@@ -1,4 +1,4 @@
-please be in xcalar-gui folder first and run ./assets/bin/updateDocs.sh 
+#please be in xcalar-gui folder first and run ./assets/bin/updateDocs.sh 
 rm -rf ~/xcalar-gui/assets/help/XD/*
 scp -r jenkins@skywalker.int.xcalar.com:/netstore/doc/help/Internal/XDHelp/* assets/help/XD/
 

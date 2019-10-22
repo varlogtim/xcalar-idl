@@ -189,44 +189,50 @@
                                                     </div>
                                                 </div>
                                                 <h1>Debugging a dataflow</h1>
-                                                <p>This topic describes how to debug a dataflow. It assumes that you know how to create and edit a dataflow as described in <a href="CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a>.</p>
-                                                <p>Steps to debug a dataflow while building it:</p>
+                                                <p>This topic describes the best practices for developing dataflows, detecting issues, and debugging them. It assumes that you know how to create and edit a dataflow as described in <a href="CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a>.</p>
+                                                <h2 class="noPageBreak">Best practices for developing a dataflow</h2>
+                                                <p><span class="GeneralProductName3">Xcalar</span> provides a lot of features for debugging your data models in the <span class="GeneralGUIName1">Xcalar Design</span> UI. Here are some good practices to make it easier:</p>
+                                                <ul>
+                                                    <li value="1">Build modular dataflows using the <span class="UIelement">Link In</span> and <span class="UIelement">Link Out</span> Nodes so that it is easier to isolate the problems.</li>
+                                                    <li value="2">Remove or hide the columns that you are not going to use. It reduces the clutter and improves the focus.</li>
+                                                    <li value="3">Missing data may produce unexpected results. Either remove the rows with missing values or fill them up with something meaningful. </li>
+                                                    <li value="4">Once you have developed your dataflow, add meaningful descriptions or comments to the Nodes for a quick recollection of functionality at a later time.</li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Detecting problems in a dataflow</h2>
+                                                <p>Here are some general guidelines for detecting problems after the execution of a dataflow:<ul><li value="1">Check the status of every Node. If it is red, the Node generated an error.</li><li value="2">If the icon of a Map Node appears red with an exclamation sign, the Node generated errors. Click on the red area of the Node to display a list of errors.</li><li value="3">View the Node stats:<ul style="list-style-type: square;"><li value="1">Compare the number of rows of each Node with the previous Node. If the number of rows is unusually different than your expectations, analyze the result sets.</li><li value="2">If the time taken to execute a Node seems high, you might want to change the configuration of the Node or redesign the dataflow. For example, if a SQL Node is taking a long time to execute, you might want to rewrite the SQL snippet.</li><li value="3">Look at the skew number of each Node. If the skew number is high, you might want to find out the reason. Joins with not enough number of unique key values is a common cause of high skew.</li></ul></li></ul></p>
+                                                <h2 class="noPageBreak">Debugging by analyzing a result set</h2>
+                                                <p>Here are some general guidelines for analyzing your result set:</p>
+                                                <ul>
+                                                    <li value="1">Sort the columns both in ascending and descending order to check for out of range values or FNFs.</li>
+                                                    <li value="2">Profile a column to check for unexpected values or to view the distribution of key values.</li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Example of analyzing a result set</h2>
+                                                <p>Let's say you want to use the airline carriers data in your dataflow:</p>
                                                 <ol>
-                                                    <li value="1">Add a Node, configure it and execute it.</li>
-                                                    <li value="2">View the result set and make sure that it's correct. If not, either change its configuration or add a new Node  to get the results you want.</li>
-                                                    <li value="3">Repeat the previous 2 steps until the complete model is built.</li>
-                                                </ol>
-                                                <p>For example, let's say you want to find out which carriers fly to a specific destination:</p>
-                                                <ol>
-                                                    <li value="1">Start to create a dataflow with a Dataset Node and configure it to read the <cite>carriers </cite>dataset. </li>
+                                                    <li value="1">Create a new dataflow and add a <span class="UIelement">Dataset</span> Node. Configure the Node to read the <cite>carriers </cite>dataset. </li>
                                                     <li value="2">
-                                                        <p>Execute the Dataset Node and examine the result set as shown in the following screenshot:</p>
+                                                        <p>Execute the <span class="UIelement">Dataset</span> Node and examine the result set, as shown in the following screenshot:</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-debug-df1.png" />
                                                         </p>
                                                     </li>
                                                     <li value="3">
-                                                        <p>Notice that some carrier names are starting with a number. These are the defunct carriers that are no longer in service. Before you move forward in your dataflow, you want to remove these carriers from the result set. To do that, connect a Filter Node to the Dataset Node and configure it to remove all the carrier names starting with a number. Execute the Filter Node and examine the result set again:</p>
+                                                        <p>Sort the Carrier column in ascending order and notice that some carrier names are starting with a number. These are the defunct carriers that are no longer in service. Before you move forward in your dataflow, you want to remove these carriers from the result set. </p>
+                                                        <p>Connect a <span class="UIelement">Filter</span> Node to the <span class="UIelement">Dataset</span> Node and configure it to remove all the carrier names starting with a number. Execute the <span class="UIelement">Filter</span> Node and examine the result set:</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-debug-df2.png" />
                                                         </p>
-                                                        <div class="Note"><span class="label">NOTE</span>: You can also use the Profile option on a column header to view the distribution of values in a column and find anomalies. </div>
+                                                        <div class="Note"><span class="label">NOTE</span>: You can also use the <span class="UIelement">Profile</span> option on a column header to view the distribution of values in a column and find anomalies. </div>
                                                     </li>
                                                     <li value="4">
-                                                        <p>The Filter operation worked as per your configuration, but now you notice some duplicate carrier names ending in parenthesis and numbers. These need to be filtered out too. Change the configuration of the Filter Node and add another filter function to make sure that not only the carrier names start with an alphabet, but they also end with an alphabet too. Execute the Filter Node again, and now you get the result set you wanted:</p>
+                                                        <p>The Filter operation worked as per the configuration. On further examination, notice some duplicate carrier names ending in parenthesis, which need to be filtered out. </p>
+                                                        <p>Add another filter function in the previous <span class="UIelement">Filter</span> Node to make sure that the carrier names end with an alphabet. Execute the <span class="UIelement">Filter</span> Node, and now you get a clean list of carriers:</p>
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-debug-df3.png" />
                                                         </p>
-                                                        <p>You have debugged reading the carriers data into your dataflow and you are now ready for the next part of the data model. </p>
+                                                        <p>You have cleaned the carriers data and it is ready to be used in the next part of the data model. </p>
                                                     </li>
                                                 </ol>
-                                                <p>To debug an existing dataflow that seems to be generating wrong results:</p>
-                                                <ol>
-                                                    <li value="1">Execute and view the results of each Node from the beginning of the dataflow.</li>
-                                                    <li value="2">Make sure that the results are as per your expectation. If not, check the configuration of the Node and reconfigure, if required. Alternatively add another Node between this Node and the next Node to get the desired results.</li>
-                                                    <li value="3">Repeat the previous 2 steps until you get the desired results.</li>
-                                                </ol>
-                                                <p> </p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

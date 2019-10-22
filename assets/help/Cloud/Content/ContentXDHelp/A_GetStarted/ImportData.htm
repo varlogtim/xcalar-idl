@@ -213,7 +213,7 @@
                                                     </li>
                                                     <li value="6"><a href="#Setting3" class="MCXref xref">Setting the format parameters</a>
                                                     </li>
-                                                    <li value="7"><a href="#Applying" class="MCXref xref">Applying an import parser or import user-defined function</a>
+                                                    <li value="7"><a href="#Applying" class="MCXref xref">Applying an import parser or an import user-defined function</a>
                                                     </li>
                                                     <li value="8"><a href="#Configur" class="MCXref xref">Configuring the schema</a>
                                                     </li>
@@ -321,7 +321,7 @@
                                                     <li value="4">Text</li>
                                                     <li value="5">XML</li>
                                                     <li value="6">Parquet File</li>
-                                                    <li value="7">Custom Format. If your data source requires custom processing during the import,  see <a href="#Applying" class="MCXref xref">Applying an import parser or import user-defined function</a>.</li>
+                                                    <li value="7">Custom Format. If your data source requires custom processing during the import,  see <a href="#Applying" class="MCXref xref">Applying an import parser or an import user-defined function</a>.</li>
                                                 </ul>
                                                 <div class="Note"><span class="label">NOTE:</span> If you select an incorrect format, the preview section will display an error message with a recommendation for a format that <span class="GeneralProductName3">Xcalar</span> can parse with this data.</div>
                                                 <div class="Note"><span class="label">NOTE</span>: If the data source is an Excel file, you can import data from one Excel worksheet, which can be any worksheet from the Excel workbook.</div>
@@ -420,22 +420,14 @@
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Parquet File</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Parquet File</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
                                                                 <p>If your data source is a parquet file or parquet dataset, follow the additional instructions in <a href="ImportParquet.htm" class="MCXref xref">Importing from a Parquet file or dataset</a>.</p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
-                                                                <p class="tableParagraph">Number of rows</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
-                                                                <p class="tableParagraph">If your data source is Confluent Kafka, enter the number of rows you want to import, in this field. </p>
                                                             </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <h3><a name="Applying"></a>Applying an import parser or import user-defined function</h3>
+                                                <h3><a name="Applying"></a>Applying an import parser or an import user-defined function</h3>
                                                 <p>If your data source requires custom data processing during the import, you may have to write an import parser in the form of an import user-defined function (UDF). In <span class="GeneralProductName3">Xcalar</span>, UDFs are written in Python. To apply a UDF&#160;during an import, you must select the <span class="UIelement">Custom Format</span> format even if the original format of the data source is one of the listed formats in the <span class="UIelement">Format</span> list. For example, if your data source is a <span class="UIelement">CSV</span> file, which  during parsing requires a UDF to remove illegal characters, you must select <span class="UIelement">Custom Format</span> and not <span class="UIelement">Separated Values</span>. </p>
                                                 <div class="Note"><span class="label">IMPORTANT:</span> If the format of your data source is CSV,  you can change the column names and their data types directly from the <span class="UIelement">Previewing</span> section. For all other <span class="GeneralProductName3">Xcalar</span> supported formats, you must use a UDF to change the column names and the data types.</div>
                                                 <p>To apply an import parser or an import UDF:</p>
@@ -444,7 +436,7 @@
                                                     <li value="2">Do one of the following:</li>
                                                     <ul style="list-style-type: circle;">
                                                         <li value="1">If the UDF already exists, from the <span class="UIelement">UDF&#160;Module</span> list, select the module that contains the function.</li>
-                                                        <li value="2">If the UDF does not exist, click <span class="UIelement">Write Parser Using Jupyter</span>, which opens the JUPYTER NOTEBOOK workspace for you to either write a new UDF or edit an existing UDF with the required parsing code. For more information on writing an import parser or import UDF using Jupyter Notebook, see <a href="../C_XcalarAdvancedMode/D_Jupyter/UsingJupyter.htm#Creating" class="MCXref xref">Writing an import parser as a user-defined function</a>.<br />After saving the UDF module, from the <span class="UIelement">UDF&#160;Module</span> list, select the new UDF module containing the function.</li>
+                                                        <li value="2">If the UDF does not exist, click <span class="UIelement">Write Parser Using Jupyter</span>, which opens the JUPYTER NOTEBOOK workspace for you to either write a new UDF or edit an existing UDF with the required parsing code. For more information on writing an import parser or an import UDF using Jupyter Notebook, see <a href="../C_XcalarAdvancedMode/D_Jupyter/UsingJupyter.htm#Creating" class="MCXref xref">Writing an import parser as a user-defined function</a>.<br />After saving the UDF module, from the <span class="UIelement">UDF&#160;Module</span> list, select the new UDF module containing the function.</li>
                                                     </ul>
                                                     <li value="3">
                                                         <p>(Optional) If you have additional parameters in your import UDF (other than the required fullPath and inStream), enter the argument name value pairs in JSON format in the <span class="UIelement">UDF Args</span> field. Do not enter the name value pair for fullPath and inStream. For example, if the third parameter in your import UDF is a Boolean parameter called <code>withHeader</code> and you want to pass <code>true</code> for the value, enter the following in the <span class="UIelement">UDF Args</span> field:</p>
@@ -456,7 +448,7 @@
                                                     <div class="Note"><span class="label">TIP:</span> During parsing, <span class="GeneralGUIName1">Xcalar Design</span> displays the percentage completed. You can terminate the preview generation process at any time by clicking the <span class="UIelement">Cancel</span> icon.<br /></div>
                                                     <div class="Note"><span class="label">IMPORTANT:</span>  If you imported CSV formatted data, you cannot continue to make changes from the preview section after selecting the  <span class="UIelement">Custom Format</span> format setting. If you changed a column name or a data type in the <span class="UIelement">Previewing</span> section before you selected the <span class="UIelement">Custom Format</span> format, all your changes are overridden. In this case,  you must modify your UDF to include these changes and re-apply.</div>
                                                 </ol>
-                                                <p>For more information about UDFs, see <a href="../D_ClusterTasks/UDFUnderstand.htm" class="MCXref xref">Understanding user-defined functions</a> and <a href="../E_Reference/UdfExamples.htm#Example" class="MCXref xref">Example of using an import user-defined function</a>.</p>
+                                                <p>For more information about UDFs, see <a href="../D_ClusterTasks/UDFUnderstand.htm" class="MCXref xref">Understanding user-defined functions</a> and <a href="../E_Reference/UdfExamples.htm#Example" class="MCXref xref">Example of an import user-defined function</a>.</p>
                                                 <h3><a name="Configur"></a>Configuring the schema</h3>
                                                 <p>If you are creating a table, specify the table schema, as described in this section. </p>
                                                 <p>If you are creating a dataset, you can specify the schema as described in this section only if the format of the file is CSV. For all other formats you cannot configure the schema.</p>

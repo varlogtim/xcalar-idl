@@ -188,8 +188,9 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1><a name="Example"></a>Example of importing an XML&#160;data source</h1>
+                                                <h1>Example of importing an XML&#160;data source</h1>
                                                 <p>An XML data source can be imported into a dataset as well as into a table. However, the process of importing into datasets and tables is slightly different. This topic describes the procedure for both.</p>
+                                                <h2 class="noPageBreak"><a name="Example2"></a>Example XML file</h2>
                                                 <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="#" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage" aria-expanded="false"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The partial content of the XML file (books.xml) used in the example:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <div class="Code">
@@ -277,19 +278,49 @@
                                                     <li value="1">From the sidebar, click on the <span class="UIelement">Sources </span>icon and then click the <span class="UIelement">Tables </span>icon.</li>
                                                     <li value="2">In the <span class="UIelement">Tables </span>panel, click on the <span class="UIelement">Import Data Source</span> icon.</li>
                                                     <li value="3">
-                                                        <p>Browse and select an XML file in the <span class="UIelement">Select Data Source Location</span> window and click <span class="UIelement">Next</span>. We are using books.xml as an example.</p>
+                                                        <p>Browse and select an XML file in the <span class="UIelement">Select Data Source Location</span> window and click <span class="UIelement">Next</span>. We are using books.xml as an example as shown in <a href="#Example2" class="MCXref xref" xrefformat="{para}">Example XML file</a>.</p>
                                                         <p>The <span class="UIelement">Import Data Source</span> window is displayed with the preview of the file. <span class="GeneralProductName3">Xcalar</span> detects the file format as XML.</p>
                                                     </li>
-                                                    <li value="4">The XML preview shows that it's a catalog of books. If you wish to extract all the books with their details, enter the following in the XPath field:<br /><code>/catalog/book</code></li>
+                                                    <li value="4">
+                                                        <p>The XML preview shows that it's a catalog of books. If you wish to extract all the books with their details, enter the following in the XPath field:<br /><code>/catalog/book</code></p>
+                                                        <p>
+                                                            <img src="../../Resources/Images/XD_screenshots/xd-xml-import.png" />
+                                                        </p>
+                                                    </li>
                                                     <li value="5">
-                                                        <p>Click&#160;on the Refresh icon  to see the table preview. Notice that the <span class="UIelement">Schema </span>text box is still empty because the <span class="UIelement">book </span>column is an object and it cannot be imported into a table directly. You have to specify the schema to extract all elements.</p>
+                                                        <p>Click&#160;on the Refresh icon  to see the table preview. </p>
+                                                        <p>The preview shows a table with a single column called book and each cell in this column contains the details of one book:</p>
+                                                        <p>
+                                                            <img src="../../Resources/Images/XD_screenshots/xd-xml-preview.png" />
+                                                        </p>
+                                                        <p>Notice that the <span class="UIelement">Schema </span>text box is still empty because the <span class="UIelement">book </span>column is an object and it cannot be imported into a table directly. You have to specify the schema to extract all elements.</p>
                                                     </li>
                                                     <li value="6">
-                                                        <p>Enter&#160;the <code>name</code>, <code>newName</code> and <code>type</code> for each of the name value pairs of the book object in the <span class="UIelement">Schema </span>text box as shown below:<br /><code>[{"name":"book._id", "newName": "id", "type":"string"},{"name":"book.author", "newName": "author", "type":"string"},{"name":"book.description", "newName": "description", "type":"string"},{"name":"book.genre", "newName": "genre", "type":"string"},{"name":"book.price", "newName": "price", "type":"string"},{"name":"book.publish_date", "newName": "publish_date", "type":"string"},{"name":"book.title", "newName": "title", "type":"string"}]</code></p>
-                                                        <p>The <span class="UIelement">name</span> field represents the element to extract, the <span class="UIelement">newName </span>field represents the new column name for that element and the <span class="UIelement">type</span> field represents the type of the column.</p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;If the original column contains an array, access its elements using a subscript. For example, the first element of a category array can be accessed as category[0], second element can be accessed as category[1], and so on.</div>
+                                                        <p>In the <span class="UIelement">Schema</span> field, enter the XML array or object column names and their data type. The syntax is as follows:</p>
+                                                        <p>[... ,{"name":"<var>object_colname.keyname</var>", "newName": "<var>new_colname</var>", "type":"<var>data_type</var>"},{"name":"<var>array_colname</var>[<var>index_no</var>]","newName": "<var>new_colname</var>", "type":"<var>data_type</var>"}, ... ]</p>
+                                                        <p>Where</p>
+                                                        <ul style="list-style-type: circle;">
+                                                            <li value="1"><var>object_colname</var> is the existing name of the column that contains the XML objects. </li>
+                                                            <li value="2"><var>keyname</var> is the name of the key of a key-value pair in the XML object. </li>
+                                                            <li value="3"><var>new_colname</var> is the new name for the column that will contain the object values for the specified key or specified array elements.</li>
+                                                            <li value="4"><var>array_colname</var> is the existing name of the column that contains the XML arrays. </li>
+                                                            <li value="5"><var>index_no</var> is the index number. The index number enables you to select a specific element in the array.  Index numbers start at 0.</li>
+                                                            <div class="Note"><span class="label">NOTE:</span> If you use a number that is larger than the number of elements in the array, a value of null is returned.</div>
+                                                            <li value="6"><var>data_type</var> is the data type format of the column. Choose from boolean, integer, float, string, timestamp, and money. For more information on the data types formats that <span class="GeneralProductName3">Xcalar</span> supports, see <a href="../E_Reference/DataTypes.htm" class="MCXref xref" xrefformat="{para}">Data types supported</a>.</li>
+                                                        </ul>
+                                                        <p>If you want to import the _id, author, description, genre, price, publish_date, and title of all the books in our example, enter the following text in the <span class="UIelement">Schema </span>text box as shown below:</p>
+                                                        <div class="Code">
+                                                            <p class="CLIoutput">[{"name":"book._id", "newName": "id", "type":"string"},{"name":"book.author", "newName": "author", "type":"string"},{"name":"book.description", "newName": "description", "type":"string"},{"name":"book.genre", "newName": "genre", "type":"string"},{"name":"book.price", "newName": "price", "type":"string"},{"name":"book.publish_date", "newName": "publish_date", "type":"string"},{"name":"book.title", "newName": "title", "type":"string"}]</p>
+                                                        </div>
+                                                        <div class="Note"><span class="label">NOTE</span>:&#160;If the original column contains an array, access its elements using an index, starting from 0. For example, the first element of a category array can be accessed as category[0], second element can be accessed as category[1], and so on.</div>
                                                     </li>
                                                     <li value="7">
+                                                        <p>(Optional) To augment the new nested element columns by adding a column that displays the path that you entered in step 4, select the <span class="UIelement">Matched XPath</span> check box. </p>
+                                                    </li>
+                                                    <li value="8">
+                                                        <p>(Optional) To augment the new nested element columns by adding a column that displays the element's hierarchical XML path and index value (node-set position), select the <span class="UIelement">Element XPath</span> check box. </p>
+                                                    </li>
+                                                    <li value="9">
                                                         <p>Click&#160;<span class="UIelement">Create Table</span>. </p>
                                                         <p>A table is created with the following columns - id, author, description, genre, price, publish_date and title:</p>
                                                         <p>

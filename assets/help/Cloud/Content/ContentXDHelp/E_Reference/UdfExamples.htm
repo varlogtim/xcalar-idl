@@ -193,7 +193,7 @@
                                                 <p>This section provides examples for the following user-defined function (UDF)&#160;types: </p>
                                                 <ul>
                                                     <li value="1"> Map UDF - a UDF for a mapping operation</li>
-                                                    <li value="2">Import UDF - a UDF for parsing the input data during an import</li>
+                                                    <li value="2">Import UDF - a UDF for parsing the input data during an import, also known as import parser</li>
                                                 </ul>
                                                 <h2 class="noPageBreak">Example of a Map user-defined function</h2>
                                                 <p>Suppose you have the following result set in <span class="GeneralGUIName1">Xcalar Design</span> showing some events and their dates, and you want to add a column that shows the day of the week for each event. You can write a Map UDF to create this new Weekday column.</p>
@@ -311,7 +311,7 @@
                                                 </p>
                                                 <p>If the error information in the modal is not sufficient, click <span class="UIelement">Generate detailed error table</span> in the modal. This adds another <span class="UIelement">Map </span>Node in the dataflow and displays a new result set with <span class="UIelement">erroneous rows only</span> and the new resultant column displays the details of each error.</p>
                                                 <div class="Note"><span class="label">NOTE</span>: Once you have fixed all the errors, delete the system generated <span class="UIelement">Map </span>Node with <span class="UIelement">erroneous rows only</span>.</div>
-                                                <h2 class="noPageBreak"><a name="Example"></a>Example of using an import user-defined function</h2>
+                                                <h2 class="noPageBreak"><a name="Example"></a>Example of an import user-defined function</h2>
                                                 <p>If you want to import the data, which is not natively supported by <span class="GeneralProductName3">Xcalar</span>, you can write an import parser in the form of a user-defined function (UDF) to parse the data as per your requirements and use the UDF during the import process. In the following example, the data source is an XML&#160;file, which you can convert into JSON&#160;with an import UDF.</p>
                                                 <h3><a name="Coding"></a>Coding the import user-defined function</h3>
                                                 <p>Write the following code in the UDF editor and save it in a module named <span class="UIelement">convertxmltojson</span>. The source data to be converted is shown as comments in this example to illustrate how the user-defined function (UDF) works.</p>

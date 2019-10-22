@@ -46,6 +46,7 @@
 }
 
 </style>
+        <link href="../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../../Resources/Scripts/jquery.min.js">
         </script>
         <script src="../../../Resources/Scripts/require.min.js" defer="defer">
@@ -198,6 +199,67 @@
                                                 </ul>
                                                 <p>Due to the subjective nature of the factors involved, <span class="GeneralProductName3">Xcalar</span> cannot recommend a specific cluster size for your needs. However, <span class="GeneralProductName3">Xcalar</span> makes it easy for you to experiment with different cluster sizes and select the one that fits your needs. </p>
                                                 <h2 class="noPageBreak">Selecting a cluster size</h2>
+                                                <p>Here are the available <span class="GeneralProductName3">Xcalar</span> cluster sizes:</p>
+                                                <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 1009px;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <caption data-mc-autonum="Table 2 "><span class="autonumber"><span>Table 2 </span></span>Cluster sizes</caption>
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" style="width: 150px;" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" style="width: 236px;" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" style="width: 454px;" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
+                                                                <p>Cluster size</p>
+                                                            </th>
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Memory size (GB)</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Credit usage per hour (1 credit = $2.00)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>XS</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">32</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
+                                                                <p>1</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">S</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">64</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">2</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">M</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">128</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">4</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>L</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                                <p>256</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
+                                                                <p>8</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                                <p class="tableParagraph">XL</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">
+                                                                <p class="tableParagraph">512</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
+                                                                <p class="tableParagraph">16</p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
                                                 <p><span class="GeneralProductName3">Xcalar</span> recommends that as a first time user, start with the smallest available cluster. Import your data files into the cluster and monitor its performance. If it appears slow, log out and select a bigger cluster size. </p>
                                                 <p>After the import, start building a data model. At any given point, if you find the performance to be slow, log out and select a bigger cluster size. <br /></p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;There is no penalty for switching a cluster, however, every time you switch a cluster, you lose the intermediate results of your data model executions and you have to execute the data model from the beginning.</div>
@@ -206,10 +268,10 @@
                                                 <ul>
                                                     <li value="1">
                                                         <p>You are billed only when the cluster is running.</p>
-                                                        <p>It is recommended that you stop the cluster when you are not using it. <span class="GeneralGUIName1">Xcalar Design</span> also provides a setting to control the idle duration after which the user is automatically logged out and the idle cluster is automatically stopped. For more information on this setting, see <a href="../../ContentXDHelp/C_XcalarAdvancedMode/A_Dataflows/GeneralSettings.htm" class="MCXref xref" xrefformat="{para}">Configuring general  settings</a>. </p>
+                                                        <p>It is recommended that you stop the cluster when you are not using it. <span class="GeneralGUIName1">Xcalar Design</span> also provides a setting to control the idle duration after which the user is automatically logged out and the idle cluster is automatically stopped. For more information on this setting, see <a href="../../ContentXDHelp/C_XcalarAdvancedMode/A_Dataflows/GeneralSettings.htm" class="MCXref xref">Configuring general  settings</a>. </p>
                                                     </li>
                                                     <li value="2">
-                                                        <p><span class="GeneralProductName3">Xcalar</span> uses per minute billing.</p>
+                                                        <p><span class="GeneralProductName3">Xcalar</span> uses per minute billing and decrements the credits at the start of every minute.</p>
                                                         <p>This helps you in experimenting with different cluster sizes without wasting money on long billing cycles.</p>
                                                     </li>
                                                 </ul>

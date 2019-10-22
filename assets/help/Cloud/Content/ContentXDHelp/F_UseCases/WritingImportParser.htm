@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Writing an import parser</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../Home_cloud.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Writing an import parser</h1>
+                                                <p>If you want to import the data, which is not natively supported by <span class="GeneralProductName3">Xcalar</span>, you can write an import parser to parse the data as per your requirements. Let's take an example. Suppose you have a movies rating data file which looks like this:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Usecases/uc3-tabular-data.png" />
+                                                </p>
+                                                <p>The Genre column contains multiple genres separated by commas and you want to find out the correlation between a genre and the IMDB_Rating. This requires you to split the Genre column such that a new column is created for each genre and filled in with a 1 or 0 depending on whether the movie belongs to that genre or not:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Usecases/uc3-expected-result.png" />
+                                                </p>
+                                                <h2 class="noPageBreak">Challenge</h2>
+                                                <p>The first instinct of an <span class="GeneralGUIName1">Xcalar Design</span> user is to use the standard Split operation on the Genre column. After you perform a split operation on the Genre column, it looks like this:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Usecases/uc3-split-result.png" />
+                                                </p>
+                                                <p>The Split operation splits the column values into new columns but different genres are mixed up in each column depending on how they were stored in the input file. This is not what we want. We want a separate column for each genre with value 1 or 0.</p>
+                                                <h2 class="noPageBreak">Solution</h2>
+                                                <p>To split the individual genres into their own columns, we need to write an import parser using <span class="GeneralProductName3">Xcalar</span>'s import UDF framework.</p>
+                                                <h3>Examining the data file</h3>
+                                                <p>Before we write the import UDF, let’s examine the data file to understand how we can split the columns:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Usecases/uc3-csv-data.png" />
+                                                </p>
+                                                <p>In the input file, a comma is used as a delimiter as well as a part of column values. When we import files in <span class="GeneralGUIName1">Xcalar Design</span>, such formatting is automatically taken care of by <span class="GeneralGUIName1">Xcalar Design</span> but now that we have to parse the file in the import UDF, we need to take care of it in our parser code.</p>
+                                                <h3>Writing the import UDF code</h3>
+                                                <p>An import UDF is written as a Python function. In this function, you can use as many parameters as needed but the first two parameters must be <span class="UIelement">fullPath</span> and <span class="UIelement">inStream</span>, where <span class="UIelement">fullPath</span> is the full pathname of the data source and <span class="UIelement">inStream</span> is the input stream of the content of the data source.</p>
+                                                <p>For our example, the import UDF code requires two passes on the data:</p>
+                                                <ol>
+                                                    <li value="1">In the first pass, the code reads the whole file and creates a dictionary of all the genres.</li>
+                                                    <li value="2">In the second pass, the code:<ol style="list-style-type: lower-alpha;"><li value="1">Creates a copy of the dictionary.</li><li value="2">Reads a line from <span class="UIelement">inStream</span>.</li><li value="3">Splits the line into column values.</li><li value="4">Strips off any white spaces from the column values and saves the <span class="UIelement">Title</span> and the <span class="UIelement">IMDB_Rating</span> in the dictionary.</li><li value="5">Splits the Genre column on comma.</li><li value="6">For each genre, strips off the white space, removes any characters that are considered illegal in an <span class="GeneralProductName3">Xcalar</span> column name, and saves the genre name in the dictionary.</li><li value="7">Yields the column dictionary for the line.</li><li value="8">Repeats the steps of the second pass till EOF.</li></ol></li>
+                                                </ol>
+                                                <p>Here is a sample import UDF code for our example:</p>
+                                                <div class="Code"><pre xml:space="preserve">import codecs
+import csv
+Utf8Reader = codecs.getreader("utf-8")
+
+# helper function to create a column dictionary
+def create_dict(utf8Stream):
+    # clean dictionary
+    clean_dict = {"Title":0, "IMDB_Rating":0}
+ 
+    # read the csv file
+    csv_reader = csv.reader(utf8Stream, delimiter=',')
+
+    # add genre columns to the dictionary
+    for line in csv_reader:
+        try:
+            for genre in line[2].split(","):
+                genre = genre.strip(" \"\n")
+                genre = genre.replace('-', '_')
+                if len(genre) &gt; 0: 
+                    clean_dict[genre] = 0
+        except:
+            pass
+    return clean_dict
+
+def split_genres(fullPath, inStream):
+    # convert binary stream to utf-8 text stream
+    utf8Stream = Utf8Reader(inStream)
+
+    # create a clean dictionary of all the columns
+    clean_dict = create_dict(utf8Stream)
+
+    # reset the input stream
+    utf8Stream.seek(0)
+    csv_reader = csv.reader(utf8Stream, delimiter=',')
+
+    # for each row
+    for line_tokens in csv_reader:
+        # make a copy of the clean dictionary
+        d = clean_dict.copy()
+
+        # save the title in the title column
+        d["Title"] = line_tokens[0].strip(" \"\n")
+
+        # save the rating in the imdb_rating column
+        d["IMDB_Rating"] = line_tokens[1].strip(" \"\n")
+
+        # save the genres in the respective genre columns
+        try:
+            for genre in line_tokens[2].split(","):
+                genre = genre.strip(" \"\n")
+                genre = genre.replace('-', '_')
+                if len(genre) &gt; 0:
+                    d[genre] = 1
+        except:
+            pass
+        yield d</pre>
+                                                </div>
+                                                <p>Save this UDF as <span class="UIelement">movie_genre.py</span>.</p>
+                                                <p>For more information on understanding and creating UDFs, see <a href="../D_ClusterTasks/UDFUnderstand.htm" class="MCXref xref" xrefformat="{para}">Understanding user-defined functions</a> and <a href="../D_ClusterTasks/UDFTasks.htm" class="MCXref xref" xrefformat="{para}">Creating and managing user-defined functions</a>.</p>
+                                                <h3>Applying the import UDF</h3>
+                                                <p>Let’s apply the import UDF on the input data. Click on the <span class="UIelement">Sources</span> tab and then the <span class="UIelement">Import Data Source</span>. Select the Connector where you have the data file. Find the file and select it.</p>
+                                                <p>In the Format window, select <span class="UIelement">Custom Format</span> for the Format, <span class="UIelement">movie_genre</span> for the Module, and <span class="UIelement">split_generes</span> for the Function. Click <span class="UIelement">Apply UDF</span>.</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Usecases/uc3-import-options.png" />
+                                                </p>
+                                                <p>The file is read and passed through the <span class="UIelement">movie_genre:split_genres</span> UDF function, creating individual columns for each of the genres. After the process is finished, the preview of the data is displayed with a separate column for each genre:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Usecases/uc3-expected-result.png" />
+                                                </p>
+                                                <p>Click <span class="UIelement">Create Dataset</span> to finish importing the file and now you have a dataset with all the genres split into their own columns in a dataset named <span class="UIelement">genres</span>.</p>
+                                                <p data-mc-conditions="On-prem.Hidden">For more information on importing data, see <a href="../../ContentXDHelpCloud/a_getting_started/cld_imports.htm" class="MCXref xref" xrefformat="{para}">Importing data into Xcalar Design</a>.</p>
+                                                <h2 class="noPageBreak">Summary</h2>
+                                                <p>The ability to write your own import parsers gives you tremendous flexibility in parsing your input data. Using it in combination with visual design tools of Xcalar Design makes it even simpler for you to transform and debug your data-wrangling job at every step.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
