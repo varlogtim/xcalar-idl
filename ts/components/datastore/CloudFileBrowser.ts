@@ -74,7 +74,10 @@ namespace CloudFileBrowser {
     function _uploadFile(file?: File): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let fileName: string = file.name.replace(/C:\\fakepath\\/i, '').trim();
-
+        if (file.size && (file.size / MB) > 7) {
+            _handleUploadError("File size: " + (file.size / MB) + "MB");
+            return PromiseHelper.reject();
+        }
         let isChecking: boolean = true;
         _overwriteCheck(fileName)
         .then(() => {
