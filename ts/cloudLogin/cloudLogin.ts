@@ -38,7 +38,9 @@ namespace CloudLogin {
                 'Running health checks',
                 'Setting up user preferences'
             ],
-            numVisibleProgressTexts: 5
+            numVisibleProgressTexts: 5,
+            startWidth: parseInt(sessionStorage.getItem('XcalarDeployingProgressBarWidth')) || 5,
+            firstTextId: parseInt(sessionStorage.getItem('XcalarDeployingProgressBarFirstTextId')) || 0
         });
 
         stoppingProgressBar = new ProgressBar({
@@ -47,7 +49,9 @@ namespace CloudLogin {
             progressTexts: [
                 'Stopping Xcalar cluster'
             ],
-            numVisibleProgressTexts: 1
+            numVisibleProgressTexts: 1,
+            startWidth: parseInt(sessionStorage.getItem('XcalarStoppingProgressBarWidth')) || 5,
+            firstTextId: parseInt(sessionStorage.getItem('XcalarStoppingProgressBarFirstTextId')) || 0
         });
     }
 
@@ -672,23 +676,47 @@ namespace CloudLogin {
 
     function showClusterIsReadyScreen(): void {
         $("#loadingTitle").html("Your cluster is ready!");
-        deployingProgressBar.end("Redirecting to Xcalar Cloud...")
+        deployingProgressBar.end("Redirecting to Xcalar Cloud...");
+        clearInterval(deployingProgressBarCheckIntervalID);
+        sessionStorage.setItem('XcalarDeployingProgressBarWidth', "");
+        sessionStorage.setItem('XcalarDeployingProgressBarFirstTextId', "");
     }
+
+    let deployingProgressBarCheckIntervalID: number;
 
     function deployingClusterAnimation(): void {
         if (!deployingProgressBar.isStarted()) {
             deployingProgressBar.start("Please wait while your cluster loads...");
+
+            clearInterval(deployingProgressBarCheckIntervalID);
+            deployingProgressBarCheckIntervalID = <any>setInterval(function() {
+                const {width, firstTextId} = deployingProgressBar.getProgress();
+                sessionStorage.setItem('XcalarDeployingProgressBarWidth', String(width));
+                sessionStorage.setItem('XcalarDeployingProgressBarFirstTextId', String(firstTextId - 1));
+            }, 1000);
         }
     }
 
+    let stoppingProgressBarCheckIntervalID: number;
+
     function showClusterIsStoppedScreen(): void {
         $("#stoppingTitle").html("Your cluster has been shut down!");
-        stoppingProgressBar.end("Redirecting to the login page...")
+        stoppingProgressBar.end("Redirecting to the login page...");
+        clearInterval(stoppingProgressBarCheckIntervalID);
+        sessionStorage.setItem('XcalarStoppingProgressBarWidth', "");
+        sessionStorage.setItem('XcalarStoppingProgressBarFirstTextId', "");
     }
 
     function stoppingClusterAnimation(): void {
         if (!stoppingProgressBar.isStarted()) {
             stoppingProgressBar.start("Please wait while your cluster stops...");
+
+            clearInterval(stoppingProgressBarCheckIntervalID);
+            stoppingProgressBarCheckIntervalID = <any>setInterval(function() {
+                const {width, firstTextId} = stoppingProgressBar.getProgress();
+                sessionStorage.setItem('XcalarStoppingProgressBarWidth', String(width));
+                sessionStorage.setItem('XcalarStoppingProgressBarFirstTextId', String(firstTextId - 1));
+            }, 1000);
         }
     }
 

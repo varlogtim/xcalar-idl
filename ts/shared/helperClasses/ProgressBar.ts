@@ -3,6 +3,8 @@ interface ProgressBarOptions {
     progressTexts: string[], // status text to loop through
     numVisibleProgressTexts: number, // number of status texts that should be visible
     completionTime: number, // estimated time the operation should take to complete
+    startWidth?: number, // width (percentage) to start the progress from. default is 5
+    firstTextId?: number, // which text to show (all previous are shown)
 }
 
 class ProgressBar {
@@ -22,6 +24,9 @@ class ProgressBar {
     private _textTimeout: NodeJS.Timeout;
 
     constructor(options: ProgressBarOptions) {
+        this._startWidth = options.startWidth || this._startWidth;
+        this._firstTextId = options.firstTextId || this._firstTextId;
+
         this._$container = options.$container;
         this._progressTexts = options.progressTexts;
         this._numVisibleProgressTexts = options.numVisibleProgressTexts;
@@ -109,6 +114,13 @@ class ProgressBar {
             this._textTimeout = setTimeout(() => {
                 this._animateTexts();
             }, this._completionTime / this._progressTexts.length);
+        }
+    }
+
+    public getProgress() {
+        return {
+            width: this._width,
+            firstTextId: this._firstTextId
         }
     }
 }
