@@ -15,7 +15,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
 
     var cloudMode = process.env.XCE_CLOUD_MODE == 1 ?
         parseInt(process.env.XCE_CLOUD_MODE) : 0;
-    exports.cloudMode = cloudMode;
 
     if (process.env.NODE_ENV !== "test") {
         require('console-stamp')(console, { pattern: "yyyy/mm/dd'T'HH:MM:ss.l'Z'o", labelPrefix: "[Xcalar ExpServer ", labelSuffix: "]" });
@@ -36,8 +35,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var nodeCloudOwner = null;
 
     var sessionSecret = 'keyboard cat';
-    exports.sessionSecret = sessionSecret;
-    var AWS = require('aws-sdk');
 
     if (cloudMode === 0) {
         var FileStore = require('session-file-store')(session);
@@ -56,8 +53,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             cookie: { maxAge: sessionAges[defaultSessionAge] }
         };
     } else {
+        var AWS = require('aws-sdk');
         var DynamoDBStore = require('connect-dynamodb')(session);
-        var request = require('request-promise-native');
 
         var cloudSessionTable = process.env.XCE_CLOUD_SESSION_TABLE ?
             process.env.XCE_CLOUD_SESSION_TABLE : 'SessionTable';
@@ -294,6 +291,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             return jQuery.Deferred().resolve().promise();
         }
 
+        var request = require('request-promise-native');
         var deferred = jQuery.Deferred();
 
         request.get(awsEc2MetadataAddr, function(err, res, body) {
@@ -321,15 +319,16 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         var ec2 = new AWS.EC2({region: ec2Data.region});
 
         var params = {
+            InstanceIds: [
+                ec2Data.instanceId
+            ],
             Filters: [
-                { Name: "resource-id",
-                  Values: [ ec2Data.instanceId ] },
-                { Name: "tag:Owner",
-                  Values: [ "*" ] }
+                { Name: "tag-key",
+                  Values: [ "Owner" ] }
             ]
         };
 
-        ec2.describeTags(params, function(err, data) {
+        ec2.describeInstances(params, function(err, data) {
 
             if (err) {
                 xcConsole.log(`Failure: Get owner tag ${err}`);
@@ -337,14 +336,29 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                 return;
             }
 
-            xcConsole.log(`Tag data: ${JSON.stringify(data)}`);
+            //xcConsole.log(`Tag data: ${JSON.stringify(data)}`);
 
-            if (data && data.Tags && data.Tags[0] && data.Tags[0].Value) {
-                nodeCloudOwner = data.Tags[0].Value;
+            if (data && data.Reservations && data.Reservations[0] &&
+                data.Reservations[0].Instances && data.Reservations[0].Instances[0] &&
+                data.Reservations[0].Instances[0].Tags) {
+                var ownerTag = null;
+                var tags = data.Reservations[0].Instances[0].Tags;
+                for (idx in tags) {
+                    if (tags[idx].Key == "Owner") {
+                        ownerTag = tags[idx].Value;
+                    }
+                }
+
+                if (!ownerTag) {
+                    xcConsole.log(`Got tag data but could not find owner tag: ${JSON.stringify(data)}`);
+                    deferred.reject("Failed to find owner tag in tag data");
+                }
+
+                nodeCloudOwner = ownerTag;
                 xcConsole.log(`Cloud owner is ${nodeCloudOwner}`);
                 deferred.resolve();
             } else {
-                xcConsole.log(`Got owner tag but could not find owner name: ${data}`);
+                xcConsole.log(`Got owner tag but could not find owner name: ${JSON.stringify(data)}`);
                 deferred.reject("Failed to find owner name in owner tag data");
             }
         });
@@ -355,8 +369,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     function getNodeCloudOwner() {
         return nodeCloudOwner;
     }
-    exports.getNodeCloudOwner = getNodeCloudOwner;
-
 
     function getCertificate(data) {
         var ca = '';
@@ -446,6 +458,10 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     function fakeBootstrapXlrRoot(func) {
         bootstrapXlrRoot = func;
     }
+
+    exports.cloudMode = cloudMode;
+    exports.sessionSecret = sessionSecret;
+    exports.getNodeCloudOwner = getNodeCloudOwner;
 
     if (process.env.NODE_ENV === "test") {
         exports.getOperatingSystem = getOperatingSystem;
