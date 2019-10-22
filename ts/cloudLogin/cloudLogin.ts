@@ -879,14 +879,6 @@ namespace CloudLogin {
             );
         });
 
-        $("#confirm-forgot-password-resend-code").click(function () {
-            cognitoResendConfirmationCode();
-            showFormSuccess(
-                $("#confirmForgotPasswordFormMessage"),
-                "A new verification code has been sent to your email address. Enter it below to change your password"
-            );
-        });
-
         $("#signup-submit").click(function () {
             if (checkSignUpForm()) {
                 const username = $("#signup-email").val().toLowerCase();
