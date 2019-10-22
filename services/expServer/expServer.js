@@ -15,7 +15,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
 
     var cloudMode = process.env.XCE_CLOUD_MODE == 1 ?
         parseInt(process.env.XCE_CLOUD_MODE) : 0;
-
+    // XXX tempoary put export here due to file require order issue
+    // as a refactor, this should be put to a separate module
+    exports.cloudMode = cloudMode;
     if (process.env.NODE_ENV !== "test") {
         require('console-stamp')(console, { pattern: "yyyy/mm/dd'T'HH:MM:ss.l'Z'o", labelPrefix: "[Xcalar ExpServer ", labelSuffix: "]" });
     }
@@ -35,7 +37,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var nodeCloudOwner = null;
 
     var sessionSecret = 'keyboard cat';
-
+    // XXX tempoary put export here due to file require order issue
+    // as a refactor, this should be put to a separate module
+    exports.sessionSecret = sessionSecret;
     if (cloudMode === 0) {
         var FileStore = require('session-file-store')(session);
 
@@ -459,8 +463,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         bootstrapXlrRoot = func;
     }
 
-    exports.cloudMode = cloudMode;
-    exports.sessionSecret = sessionSecret;
     exports.getNodeCloudOwner = getNodeCloudOwner;
 
     if (process.env.NODE_ENV === "test") {
