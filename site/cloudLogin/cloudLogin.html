@@ -36,7 +36,7 @@
 
         <!-- login -->
         <div id="loginForm" class="clearfix authForm" autocomplete="off">
-          <div id="loginFormError" class="formError" style="display: none">
+          <div id="loginFormMessage" class="formMessage" style="display: none">
             <i class="icon xi-error"></i>
             <span class="text">Wrong email or password. Please try again.</span>
           </div>
@@ -69,7 +69,7 @@
           <div class="title">
             Sign up and start transforming your data!
           </div>
-          <div id="signupFormError" class="formError" style="display: none">
+          <div id="signupFormMessage" class="formMessage" style="display: none">
             <i class="icon xi-error"></i>
             <span class="text">Fields missing or incomplete.</span>
           </div>
@@ -167,7 +167,7 @@
           <div class="title">
             Please type the verification code sent to your email
           </div>
-          <div id="verifyFormError" class="formError" style="display: none">
+          <div id="verifyFormMessage" class="formMessage" style="display: none">
             <i class="icon xi-error"></i>
             <span class="text">Please enter your verification code.</span>
           </div>
@@ -175,7 +175,7 @@
             <input id="verify-code" class="input" required autocomplete="off">
             <div class="label">Verification Code</div>
           </div>
-          <div id="resend-code" class="auth-section">
+          <div id="verify-resend-code" class="auth-section resend-code">
             <a>Didn't receive a code? <b>Resend it.</b></a>
           </div>
           <div class="section submitSection clearfix">
@@ -188,7 +188,7 @@
           <div class="title">
             We will send a password reset code to the email below:
           </div>
-          <div id="forgotPasswordFormError" class="formError" style="display: none">
+          <div id="forgotPasswordFormMessage" class="formMessage" style="display: none">
             <i class="icon xi-error"></i>
             <span class="text">Please enter a valid email for password recovery.</span>
           </div>
@@ -208,7 +208,7 @@
 
         <!-- confirm forgot password -->
         <div id="confirmForgotPasswordForm" class="authForm" autocomplete="off">
-          <div id="confirmForgotPasswordFormError" class="formError" style="display: none">
+          <div id="confirmForgotPasswordFormMessage" class="formMessage" style="display: none">
             <i class="icon xi-error"></i>
             <span class="text">Please fill all fields correctly to reset password. New password must contain lowercase,
               uppercase, number, a special character, and must be at least 8 characters long.</span>
@@ -225,6 +225,9 @@
             <input id="confirm-forgot-password-confirm-new-password" class="input" type="password" required
               autocomplete="off">
             <div class="label">Confirm New Password</div>
+          </div>
+          <div id="confirm-forgot-password-resend-code" class="auth-section resend-code">
+            <a>Didn't receive a code? <b>Resend it.</b></a>
           </div>
           <div class="section clearfix">
             <button id="confirm-forgot-password-submit" class="btn">
@@ -253,7 +256,7 @@
           <div class="title">
             Select the option that fits your needs:
           </div>
-          <div id="clusterFormError" class="formError" style="display: none">
+          <div id="clusterFormMessage" class="formMessage" style="display: none">
             <i class="icon xi-error"></i>
             <span class="text">Please select your cluster size.</span>
           </div>
@@ -326,7 +329,7 @@
 
         <!-- exception -->
         <div id="exceptionForm" class="authForm">
-          <div id="exceptionFormError" class="formError">
+          <div id="exceptionFormMessage" class="formMessage">
             <i class="icon xi-error"></i>
             <span class="text"></span>
           </div>

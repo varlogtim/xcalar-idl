@@ -102,7 +102,7 @@ namespace CloudLogin {
         .fail((error) => {
             console.error('cookieLogin error:', error);
             if (error.code === "UserNotConfirmedException") {
-                $("#loginFormError").hide();
+                $("#loginFormMessage").hide();
                 $("header").children().hide();
                 $("#formArea").children().hide();
                 $("#verifyForm").show();
@@ -117,7 +117,7 @@ namespace CloudLogin {
                 }
                 error += error.endsWith('.') ? '' : '.';
                 error += " Please try again.";
-                showFormError($("#loginFormError"), error);
+                showFormError($("#loginFormMessage"), error);
             }
         })
         .always(() => loadingWait(false));
@@ -378,7 +378,7 @@ namespace CloudLogin {
             error = "A server error has ocurred."
         }
 
-        $("#exceptionFormError .text").html(error);
+        $("#exceptionFormMessage .text").html(error);
 
         cookieLogout(false);
         $("header").children().hide();
@@ -391,20 +391,31 @@ namespace CloudLogin {
         const email: string = $("#loginNameBox").val();
         const password: string = $("#loginPasswordBox").val();
         if (!email || !password) {
-            showFormError($("#loginFormError"), "Fields missing or incomplete.");
+            showFormError($("#loginFormMessage"), "Fields missing or incomplete.");
             return false;
         } else if (!validateEmail(email) || !validatePassword(password)) {
-            showFormError($("#loginFormError"), "Wrong Email or Password. Please try again.");
+            showFormError($("#loginFormMessage"), "Wrong Email or Password. Please try again.");
             return false;
         } else {
-            $("#loginFormError").hide();
+            $("#loginFormMessage").hide();
             return true;
         }
     }
 
-    function showFormError($errorBox, errorText): void {
+    function showFormError($errorBox: JQuery, errorText: string): void {
+        const $icon = $errorBox.find('.icon');
+        $icon.removeClass('xi-success');
+        $icon.addClass('xi-error');
         $errorBox.children(".text").html(errorText);
         $errorBox.show();
+    }
+
+    function showFormSuccess($successBox: JQuery, successText: string): void {
+        const $icon = $successBox.find('.icon');
+        $icon.removeClass('xi-error');
+        $icon.addClass('xi-success');
+        $successBox.children(".text").html(successText);
+        $successBox.show();
     }
 
     function validateEmail(email): boolean {
@@ -576,14 +587,14 @@ namespace CloudLogin {
             passwordsMatch;
 
         if (inputIsCorrect && checkedEULA) {
-            $("#signupFormError").hide()
+            $("#signupFormMessage").hide()
             return true;
         } else {
             if (signupSubmitClicked) {
                 if (inputIsCorrect && !checkedEULA) {
-                    showFormError($("#signupFormError"), "Please read and accept the End User License Agreement");
+                    showFormError($("#signupFormMessage"), "Please read and accept the End User License Agreement");
                 } else {
-                    showFormError($("#signupFormError"), "Fields missing or incomplete.");
+                    showFormError($("#signupFormMessage"), "Fields missing or incomplete.");
                 }
             }
             return false;
@@ -618,10 +629,10 @@ namespace CloudLogin {
     function checkVerifyForm(): boolean {
         const code: string = $("#verify-code").val();
         if (!code) {
-            showFormError($("#verifyFormError"), "Please enter your verification code.");
+            showFormError($("#verifyFormMessage"), "Please enter your verification code.");
             return false;
         } else {
-            $("#verifyFormError").hide();
+            $("#verifyFormMessage").hide();
             return true;
         }
     }
@@ -629,20 +640,20 @@ namespace CloudLogin {
     function checkForgotPasswordForm(): boolean {
         let forgotPasswordEmail: string = $("#forgot-password-email").val()
         if (forgotPasswordEmail && validateEmail(forgotPasswordEmail)) {
-            $("#forgotPasswordFormError").hide();
+            $("#forgotPasswordFormMessage").hide();
             return true;
         } else {
-            showFormError($("#forgotPasswordFormError"), "Please enter a valid email for password recovery.");
+            showFormError($("#forgotPasswordFormMessage"), "Please enter a valid email for password recovery.");
             return false;
         }
     }
 
     function checkClusterForm(): boolean {
         if (!selectedClusterSize) {
-            showFormError($("#clusterFormError"), "Please select your cluster size.");
+            showFormError($("#clusterFormMessage"), "Please select your cluster size.");
             return false;
         } else {
-            $("#clusterFormError").hide();
+            $("#clusterFormMessage").hide();
             return true;
         }
     }
@@ -652,11 +663,11 @@ namespace CloudLogin {
         const newPassword1: string = $("#confirm-forgot-password-new-password").val();
         const newPassword2: string = $("#confirm-forgot-password-confirm-new-password").val();
         if (verificationCode && newPassword1 && validatePassword(newPassword1) && newPassword1 === newPassword2) {
-            $("#confirmForgotPasswordFormError").hide();
+            $("#confirmForgotPasswordFormMessage").hide();
             return true;
         } else {
             showFormError(
-                $("#confirmForgotPasswordFormError"),
+                $("#confirmForgotPasswordFormMessage"),
                 "Please fill all fields correctly to reset password. New password must contain lowercase, " +
                 "uppercase, number, a special character, and must be at least 8 characters long. "
             );
@@ -742,17 +753,17 @@ namespace CloudLogin {
     function clearForms() {
         clearElements(
             ["#forgotSection a", ".signupSection a"],
-            ["#loginFormError"],
+            ["#loginFormMessage"],
             ["#loginNameBox","#loginPasswordBox"]
         );
         clearElements(
             [".already-have-account"],
-            ["#signupFormError"],
+            ["#signupFormMessage"],
             ["#loginNameBox", "#loginPasswordBox"]
         );
         clearElements(
             ["#forgotSection a", ".signupSection a"],
-            ["#loginFormError"],
+            ["#loginFormMessage"],
             [
                 "#signup-firstName",
                 "#signup-lastName",
@@ -770,12 +781,12 @@ namespace CloudLogin {
         );
         clearElements(
             [".already-have-account"],
-            ["#forgotPasswordFormError"],
+            ["#forgotPasswordFormMessage"],
             ["#forgot-password-email"]
         );
         clearElements(
             [".already-have-account"],
-            ["#confirmForgotPasswordFormError"],
+            ["#confirmForgotPasswordFormMessage"],
             [
                 "#confirm-forgot-password-code",
                 "#confirm-forgot-password-new-password",
@@ -784,7 +795,7 @@ namespace CloudLogin {
         );
         clearElements(
             [".link-to-login"],
-            ["#clusterFormError"],
+            ["#clusterFormMessage"],
             []
         );
     }
@@ -800,14 +811,13 @@ namespace CloudLogin {
     }
 
     function cognitoResendConfirmationCode() {
+        loadingWait(true);
         cognitoUser.resendConfirmationCode(function (err, result) {
             loadingWait(false);
             if (err) {
                 console.error(err);
-                showFormError($("#verifyFormError"), err.message);
+                showFormError($("#verifyFormMessage"), err.message);
                 return;
-            } else {
-                $("#verifyFormError").hide();
             }
         });
     }
@@ -866,10 +876,21 @@ namespace CloudLogin {
             }
         });
 
-        $("#resend-code").click(function () {
-            loadingWait(true);
+        $("#verify-resend-code").click(function () {
             cognitoResendConfirmationCode();
-        })
+            showFormSuccess(
+                $("#verifyFormMessage"),
+                "An email verification code has been sent to your email address. Enter it below to confirm your account"
+            );
+        });
+
+        $("#confirm-forgot-password-resend-code").click(function () {
+            cognitoResendConfirmationCode();
+            showFormSuccess(
+                $("#confirmForgotPasswordFormMessage"),
+                "A new verification code has been sent to your email address. Enter it below to change your password"
+            );
+        });
 
         $("#signup-submit").click(function () {
             if (checkSignUpForm()) {
@@ -902,10 +923,10 @@ namespace CloudLogin {
                 userPool.signUp(username, password, attributeList, null, function (err, result) {
                     if (err) {
                         console.error(err);
-                        showFormError($("#signupFormError"), err.message);
+                        showFormError($("#signupFormMessage"), err.message);
                         return;
                     } else {
-                        $("#verifyFormError").hide();
+                        $("#verifyFormMessage").hide();
                     }
                     cognitoUser = result.user;
 
@@ -928,14 +949,15 @@ namespace CloudLogin {
                     loadingWait(false);
                     if (err) {
                         console.error(err);
-                        showFormError($("#verifyFormError"), err.message);
+                        showFormError($("#verifyFormMessage"), err.message);
                         return;
                     } else {
-                        $("#verifyFormError").hide();
+                        $("#verifyFormMessage").hide();
                         $("header").children().hide();
                         $("#formArea").children().hide();
                         $("#loginTitle").show();
                         $("#loginForm").show();
+                        showFormSuccess($("#loginFormMessage"), "Your email address was verified successfully. Log in to access your account!");
                     }
                 });
             }
@@ -979,7 +1001,7 @@ namespace CloudLogin {
                 cognitoUser.forgotPassword({
                     onSuccess: function () {
                         loadingWait(false);
-                        $("#forgotPasswordFormError").hide();
+                        $("#forgotPasswordFormMessage").hide();
                         $("#forgotPasswordForm").hide();
                         $("#forgotPasswordTitle").hide();
                         $("#confirmForgotPasswordForm").show();
@@ -988,9 +1010,9 @@ namespace CloudLogin {
                     onFailure: function (err) {
                         loadingWait(false);
                         if (err.code === 'UserNotFoundException') {
-                            showFormError($("#forgotPasswordFormError"), "Account doesn't exist.");
+                            showFormError($("#forgotPasswordFormMessage"), "Account doesn't exist.");
                         } else {
-                            showFormError($("#forgotPasswordFormError"), err.message);
+                            showFormError($("#forgotPasswordFormMessage"), err.message);
                         }
                     }
                 });
@@ -1005,7 +1027,7 @@ namespace CloudLogin {
                 cognitoUser.confirmPassword(verificationCode, newPassword, {
                     onSuccess: function () {
                         loadingWait(false);
-                        $("#confirmForgotPasswordFormError").hide();
+                        $("#confirmForgotPasswordFormMessage").hide();
                         $("#confirmForgotPasswordForm").hide();
                         $("#confirmForgotPasswordTitle").hide();
                         $("#loginForm").show();
@@ -1013,7 +1035,7 @@ namespace CloudLogin {
                     },
                     onFailure: function (err) {
                         loadingWait(false);
-                        showFormError($("#confirmForgotPasswordFormError"), err.message);
+                        showFormError($("#confirmForgotPasswordFormMessage"), err.message);
                     }
                 });
             }
