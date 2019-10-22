@@ -179,13 +179,19 @@ namespace XcSupport {
         ) {
             error = null;
             title = "Please wait";
+            if (Alert.isOpen()) {
+                // force close any wrong error alert first
+                gMinModeOn = true;
+                Alert.forceClose();
+                gMinModeOn = false;
+            }
             id = Alert.show({
                 title,
                 msg: "Xcalar Design is setting up, please wait.",
                 isAlert: true,
                 lockScreen: true,
                 hideButtons: ["downloadLog", "genSub"]
-            })
+            });
         } else {
             // error case
             Log.backup();

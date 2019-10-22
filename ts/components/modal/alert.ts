@@ -142,6 +142,11 @@ namespace Alert {
             detail: log,
             isAlert: true
         });
+        const $modal = getModal();
+        if (isModalLocked($modal, alertOptions.lockScreen)) {
+            return $modal.data("id");
+        }
+
         const id: string = Alert.show(alertOptions);
         setInfoIcon(true);
         if (typeof mixpanel !== "undefined") {
