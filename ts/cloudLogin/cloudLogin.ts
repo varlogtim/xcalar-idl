@@ -123,8 +123,7 @@ namespace CloudLogin {
         .always(() => loadingWait(false));
     }
 
-    function cookieLogout(handleExceptionFlag: boolean): void {
-        loadingWait(true);
+    function cookieLogout(): void {
         sendRequest({
             apiUrl: cookieAuthApiUrl,
             action: "/logout",
@@ -134,11 +133,7 @@ namespace CloudLogin {
         })
         .fail(error => {
             console.error('cookieLogut error:', error);
-            if (handleExceptionFlag) {
-                handleException(error);
-            }
-        })
-        .always(() => loadingWait(false));
+        });
     }
 
     function checkCredit(): Promise<boolean> {
@@ -380,7 +375,7 @@ namespace CloudLogin {
 
         $("#exceptionFormMessage .text").html(error);
 
-        cookieLogout(false);
+        cookieLogout();
         $("header").children().hide();
         $("#formArea").children().hide();
         $("#exceptionTitle").show();
@@ -865,7 +860,7 @@ namespace CloudLogin {
         });
 
         $(".logOutLink").click(function () {
-            cookieLogout(true);
+            cookieLogout();
         });
 
         $("#loginButton").click(function () {
