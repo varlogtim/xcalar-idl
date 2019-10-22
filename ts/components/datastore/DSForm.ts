@@ -109,6 +109,10 @@ namespace DSForm {
         return $("#dsForm-target input").val();
     }
 
+    /**
+     * DSForm.setDataTarget
+     * @param targetName
+     */
     export function setDataTarget(targetName: string): void {
         $("#dsForm-target input").val(targetName);
         if (DSTargetManager.isGeneratedTarget(targetName)) {
@@ -128,7 +132,7 @@ namespace DSForm {
         }
 
         if (DSTargetManager.isDatabaseTarget(targetName)) {
-            DSForm.addHistoryPath(targetName, `/${targetName}`);
+            DSForm.addHistoryPath(targetName, DSForm.getDBConnectorPath(targetName));
         }
 
         let historyPaths = historyPathsSet[targetName];
@@ -137,6 +141,14 @@ namespace DSForm {
             oldPath = historyPaths[0] || "";
         }
         $filePath.val(oldPath).focus();
+    }
+
+    /**
+     * DSForm.getDBConnectorPath
+     * @param connector
+     */
+    export function getDBConnectorPath(connector: string): string {
+        return `/${connector}/`;
     }
 
     function setPathMenu(): void {

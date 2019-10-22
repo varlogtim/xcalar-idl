@@ -38,6 +38,10 @@ describe("Dataset-DSForm Test", function() {
             DSForm.__testOnly__.resetForm();
             expect($filePath.val()).to.be.empty;
         });
+
+        it("DSForm.getDBConnectorPath should work", function() {
+            expect(DSForm.getDBConnectorPath("test")).to.equal("/test/");
+        });
     });
 
     describe("Inner getter and setter test", function() {
@@ -140,8 +144,10 @@ describe("Dataset-DSForm Test", function() {
 
     describe("UI Behavior Test", function() {
         it("should select default shared root", function() {
-            $('#dsForm-targetMenu li:contains(Default Shared Root)').trigger(fakeEvent.mouseup);
-            expect($("#dsForm-target").find(".text").val()).to.equal("Default Shared Root");
+            if (!XVM.isCloud()) {
+                $('#dsForm-targetMenu li:contains(Default Shared Root)').trigger(fakeEvent.mouseup);
+                expect($("#dsForm-target").find(".text").val()).to.equal("Default Shared Root");
+            }
         });
 
         it("should set the history path dropdown to empty", function() {

@@ -40,4 +40,29 @@ class DSDBConfig extends DSConnectorPanel {
             $input.val(targetName);
         });
     }
+
+    protected _onSelectConnector(connector: string): void {
+        this._getPathInput().val(DSForm.getDBConnectorPath(connector));
+    }
+
+    protected _addEventListeners(): void {
+        super._addEventListeners();
+
+        this._getCard().find(".browse").click(() => {
+            this._preview();
+        });
+    }
+
+    private _preview(): void {
+        let res = this._validatePreview();
+        if (res == null) {
+            return;
+        }
+        let {paths, connector} = res;
+        let cb = () => this._restoreFromPreview(connector, paths);
+        this._clear();
+        FileBrowser.show(connector, paths[0].path, false, {
+            backCB: cb
+        });
+    }
 }

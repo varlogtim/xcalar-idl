@@ -32,17 +32,46 @@ describe("DSDBConfig Test", function() {
         ConnectorConfigModal.Instance.show = oldFunc;
     });
 
+    it("should browse", function() {
+        var called = false;
+        var oldFunc = FileBrowser.show;
+        FileBrowser.show = function() {
+            called = true;
+        };
+
+        $dropdown.find("input").val("connector");
+        $card.find(".path input").val("path");
+        $card.find(".browse").click();
+
+        expect(called).to.equal(true);
+        FileBrowser.show = oldFunc;
+    });
+
+    it("back from file browser should restore form", function() {
+        var oldFunc = FileBrowser.show;
+        FileBrowser.show = function(_connector, _path, _restore, options) {
+            options.backCB();
+        };
+
+        $dropdown.find("input").val("connector");
+        $card.find(".path input").val("path");
+        $card.find(".browse").click();
+
+        expect($card.find(".path input").val()).to.equal("path");
+        FileBrowser.show = oldFunc;
+    });
+
     it("back from preview should restore form", function() {
         var oldFunc = DSPreview.show;
         DSPreview.show = function(_arg, cb) {
             cb();
         };
 
-        $dropdown.find("input").val("target");
-        $card.find(".path input").eq(0).val("path");
+        $dropdown.find("input").val("connector");
+        $card.find(".path input").val("path");
         $card.find(".confirm").click();
 
-        expect($card.find(".path input").eq(0).val()).to.equal("path");
+        expect($card.find(".path input").val()).to.equal("path");
         DSPreview.show = oldFunc;
     });
 
@@ -53,7 +82,7 @@ describe("DSDBConfig Test", function() {
         $card.find(".path input").eq(0).val("path");
         $card.find(".back").click();
         expect(called).to.equal(null);
-        expect($card.find(".path input").eq(0).val()).to.equal("");
+        expect($card.find(".path input").val()).to.equal("");
 
         DataSourceManager.startImport = oldFunc;
     });

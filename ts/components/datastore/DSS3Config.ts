@@ -40,4 +40,6 @@ class DSS3Config extends DSConnectorPanel {
             $input.val(targetName);
         });
     }
+
+    protected _onSelectConnector(_connector: string): void {};
 }
