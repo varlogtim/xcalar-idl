@@ -1,19 +1,27 @@
-const { expect, assert } = require('chai');
+const { expect } = require('chai');
 const request = require('request-promise-native');
 
 describe("CloudManager Test", () => {
     let socket = require(__dirname + "/../../expServer/controllers/socket.js").default;
-    var cloudManager = require(__dirname + "/../../expServer/controllers/cloudManager.js").default;
-
+    let cloudManager = require(__dirname + "/../../expServer/controllers/cloudManager.js").default;
+    let url = cloudManager._awsURL;
     let oldRequestPost;
     let oldNumCredits;
     let oldUpdateCreditsTime;
+    let expectBody;
 
     before(() => {
         oldRequestPost = request.post;
-        cloudManager.setUserName("test@xcalar.com");
         oldNumCredits = cloudManager._numCredits;
         oldUpdateCreditsTime = cloudManager._updateCreditsTime;
+        expectBody = {
+            username: "test@xcalar.com",
+            instanceId: "i-test"
+        };
+
+        request.post = () => new Promise((res) => res());
+        cloudManager.setup("test@xcalar.com", "i-test");
+        clearTimeout(cloudManager._updateCreditsInterval);
     });
 
     after(() => {
@@ -22,23 +30,12 @@ describe("CloudManager Test", () => {
         cloudManager._updateCreditsTime = oldUpdateCreditsTime;
     });
 
-    it("getUserInfo should work", (done) => {
-        cloudManager.getUserInfo()
-        .then((res) => {
-            expect(res).to.deep.equal({clusterUrl: "", cfnId: "", credits: null});
-            done();
-        })
-        .catch(() => {
-            done("fail");
-        });
-    });
-
     it("stopCluster should work", (done) => {
         let called = false;
         request.post = (args) => {
             expect(args).to.deep.equal({
-                url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/stop',
-                body: { username: 'test@xcalar.com' },
+                url: url + '/cluster/stop',
+                body: expectBody,
                 json: true
               });
             called = true;
@@ -58,8 +55,8 @@ describe("CloudManager Test", () => {
         let called = false;
         request.post = (args) => {
             expect(args).to.deep.equal({
-                url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/stop',
-                body: { username: 'test@xcalar.com' },
+                url: url + '/cluster/stop',
+                body: expectBody,
                 json: true
               });
             called = true;
@@ -85,8 +82,8 @@ describe("CloudManager Test", () => {
         request.post = (args) => {
             console.log("*#&(*#W&$W(#*&$W(#&", args)
             expect(args).to.deep.equal({
-                url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/cluster/get',
-                body: { username: 'test@xcalar.com' },
+                url: url + '/cluster/get',
+                body: expectBody,
                 json: true
               });
             called = true;
@@ -115,15 +112,15 @@ describe("CloudManager Test", () => {
             count++;
             if (count == 1 || count === 3) {
                 expect(args).to.deep.equal({
-                    url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/deduct',
-                    body: { username: 'test@xcalar.com' },
+                    url: url + '/billing/deduct',
+                    body: expectBody,
                     json: true
                 });
                 return new Promise((res,rej) => res());
             } else if (count === 2 || count === 4) {
                 expect(args).to.deep.equal({
-                    url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/get',
-                    body: { username: 'test@xcalar.com' },
+                    url: url + '/billing/get',
+                    body: expectBody,
                     json: true
                 });
                 return new Promise((res,rej) => res({credits: 2.34}));
@@ -147,15 +144,15 @@ describe("CloudManager Test", () => {
             count++;
             if (count == 1 || count === 3) {
                 expect(args).to.deep.equal({
-                    url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/deduct',
-                    body: { username: 'test@xcalar.com' },
+                    url: url + '/billing/deduct',
+                    body: expectBody,
                     json: true
                 });
                 return new Promise((res,rej) => res());
             } else if (count === 2 || count === 4) {
                 expect(args).to.deep.equal({
-                    url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/get',
-                    body: { username: 'test@xcalar.com' },
+                    url: url + '/billing/get',
+                    body: expectBody,
                     json: true
                 });
                 return new Promise((res,rej) => res({status: 0, credits: 2.34}));
@@ -180,15 +177,15 @@ describe("CloudManager Test", () => {
             count++;
             if (count == 1) {
                 expect(args).to.deep.equal({
-                    url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/deduct',
-                    body: { username: 'test@xcalar.com' },
+                    url: url + '/billing/deduct',
+                    body: expectBody,
                     json: true
                 });
                 return new Promise((res,rej) => res());
             } else if (count === 2) {
                 expect(args).to.deep.equal({
-                    url: 'https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/billing/get',
-                    body: { username: 'test@xcalar.com' },
+                    url: url + '/billing/get',
+                    body: expectBody,
                     json: true
                 });
                 return new Promise((res,rej) => res({credits: 0, status: 0}));

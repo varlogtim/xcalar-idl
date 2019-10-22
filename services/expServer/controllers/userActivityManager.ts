@@ -1,7 +1,6 @@
 import socket from "../controllers/socket";
 import cloudManager from "../controllers/cloudManager";
 import * as xcConsole from "../utils/expServerXcConsole";
-
 // tracks user activity, receives updates from transactionManager and from XD's
 // post request
 class UserActivityManager {

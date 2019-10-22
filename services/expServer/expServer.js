@@ -13,6 +13,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var dgram = require('dgram');
     var path = require("path");
 
+    var cloudInstanceId;
     var cloudMode = process.env.XCE_CLOUD_MODE == 1 ?
         parseInt(process.env.XCE_CLOUD_MODE) : 0;
     // XXX tempoary put export here due to file require order issue
@@ -40,6 +41,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // XXX tempoary put export here due to file require order issue
     // as a refactor, this should be put to a separate module
     exports.sessionSecret = sessionSecret;
+    var userActivityManager = require("./controllers/userActivityManager").default;
+    var cloudManager = require("./controllers/cloudManager").default;
+
     if (cloudMode === 0) {
         var FileStore = require('session-file-store')(session);
 
@@ -320,6 +324,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         var deferred = jQuery.Deferred();
 
         AWS.config.credentials = new AWS.EC2MetadataCredentials();
+        cloudInstanceId = ec2Data.instanceId;
         var ec2 = new AWS.EC2({region: ec2Data.region});
 
         var params = {
@@ -430,6 +435,11 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             // Create local xcrpc client
             const url = "http://" + hostname + ":" + port + "/service/xce";
             Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, url);
+            if (cloudMode) {
+                cloudManager.setup(getNodeCloudOwner(), cloudInstanceId);
+                userActivityManager.updateUserActivity();
+            }
+
             if (process.env.NODE_ENV === "test") {
                 exports.server = httpServer;
             }

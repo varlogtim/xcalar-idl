@@ -20,8 +20,6 @@ class CloudManager {
         if (!XVM.isCloud()) {
             return;
         }
-        // XXX Remove this hack
-        XcUser.setCloudUserName(this._getUserName());
         this.checkCloud();
     }
 

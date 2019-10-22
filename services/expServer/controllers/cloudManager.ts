@@ -1,47 +1,26 @@
 // ExpServer side
 import * as xcConsole from "../utils/expServerXcConsole.js";
 import socket from "./socket";
-import { cloudMode } from "../expServer";
 var request = require('request-promise-native');
 
 class CloudManager {
-    private clusterUrl: string;
-    private s3Url: string;
-    private cfnId: string;
-    private userId: string;  // identity_id returned from cognito
     private _numCredits: number = null;
     private _updateCreditsInterval: NodeJS.Timer;
     private _updateCreditsTime: number = 1 * 60 * 1000; // check every minute
     // XXX do not change _updateCreditsTime - it is synced with AWS Lambda
-    private _userName: string = "";
+    private _userName: string;
+    private _instanceId: string;
     private _awsURL: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"; // XXX temporary
     private _stopClusterMessageSent: boolean = false;
     private _lowCreditWarningSent: boolean = false;
     private _clusterPrice: number = null;
 
-    public constructor() {
-        if (cloudMode === 1) {
-            this.checkCluster(); // to get cluster price
-            this._fetchCredits();
-            this._updateCredits();
-        }
-    }
-
-    public setup(token: string): void {
-        // TO-DO Get the credentials using the token, setup DynamoDB & CFN client
-    }
-    /**
-     * Given a userId, return the running cluster url (if any),
-     * previous/existing CloudFormation stack id (if any) and remaining credits
-     */
-    public async getUserInfo(): Promise<{
-        clusterUrl: string, // running expServer means running cluster
-        cfnId: string // running expServer means running CFN stack
-        credits: number
-    }> {
-        // TO-DO make an SDK call to AWS DynamoDB to read
-        // set this.clusterUrl and this.s3Url
-        return { clusterUrl: "", cfnId: "", credits: null };
+    public setup(userName: string, instanceId: string): void {
+        this._userName = userName;
+        this._instanceId = instanceId;
+        this.checkCluster(); // to get cluster price
+        this._fetchCredits();
+        this._updateCredits();
     }
 
     /**
@@ -56,7 +35,7 @@ class CloudManager {
         try {
             const data: { status: number } = await request.post({
                 url: this._awsURL + "/cluster/stop",
-                body: { "username": this._userName },
+                body: this._getBody(),
                 json: true
             });
             xcConsole.log("cluster shutting down", data);
@@ -80,7 +59,7 @@ class CloudManager {
         try {
             const data = request.post({
                 url: this._awsURL + "/cluster/get",
-                body: { "username": this._userName },
+                body: this._getBody(),
                 json: true
             });
             if (data && data.clusterPrice) {
@@ -139,7 +118,7 @@ class CloudManager {
         try {
             let res = await request.post({
                 url: this._awsURL + "/billing/deduct",
-                body: { "username": this._userName },
+                body: this._getBody(),
                 json: true
             });
             if (res && res.status !== 0) {
@@ -156,7 +135,7 @@ class CloudManager {
         try {
             const data: { status: number, credits: number } = await request.post({
                 url: this._awsURL + "/billing/get",
-                body: { "username": this._userName },
+                body: this._getBody(),
                 json: true
             });
             let credits: number = null;
@@ -206,11 +185,11 @@ class CloudManager {
             this._numCredits <= 0);
     }
 
-    /* HACK TO SET USER NAME */
-    public setUserName(name) {
-        this._userName = name;
-        this._fetchCredits();
-        return this._userName;
+    private _getBody(): {username: string, instanceId: string} {
+        return {
+            "username": this._userName,
+            "instanceId": this._instanceId
+        };
     }
 }
 

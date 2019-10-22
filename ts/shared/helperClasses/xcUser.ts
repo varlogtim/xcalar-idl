@@ -214,15 +214,6 @@ class XcUser {
         this.lastCreditWarningLimit = price * this.lastCreditWarningTime; // 1 minute worth of credit
     }
 
-    // XXX TODO: remove this hack
-    /* HACK TO SET CLOUD USERNAME */
-    public static setCloudUserName(name) {
-        xcHelper.sendRequest("POST", "/service/updateCloudUserName", {name: name})
-        .always((res) => {
-            console.log(res);
-        });
-    }
-
     private _username: string;
     private _fullUsername: string;
     private _isAdmin: boolean;
