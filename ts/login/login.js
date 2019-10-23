@@ -225,6 +225,7 @@ $(document).ready(function() {
 
     function cloudLogin() {
         // pattern is url?cloudId=sessionId
+        // for admin access: pattern is url?admin=true
         var param = urlParam;
         var sessionId = param["cloudId"];
         if (sessionId) {
@@ -270,6 +271,9 @@ $(document).ready(function() {
                     cloudLoginFailureHanlder();
                 }
             });
+        } else if (!param.hasOwnProperty("admin")) {
+            // if url includes amdin, then we can allow normal login
+            cloudLoginFailureHanlder();
         }
     }
 

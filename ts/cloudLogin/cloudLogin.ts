@@ -25,7 +25,8 @@ namespace CloudLogin {
     let stoppingProgressBar: ProgressBar;
 
     export function setup(): void {
-        initialStatusCheck();
+        let forceLogout = checkForceLogout();
+        initialStatusCheck(forceLogout);
         handleEvents();
 
         deployingProgressBar = new ProgressBar({
@@ -55,7 +56,7 @@ namespace CloudLogin {
         });
     }
 
-    function initialStatusCheck(): void {
+    function initialStatusCheck(forceLogout?: boolean): void {
         sendRequest({
             apiUrl: cookieAuthApiUrl,
             action: "/status",
@@ -63,22 +64,34 @@ namespace CloudLogin {
                 credentials: 'include',
             }
         })
-        .then(response => {
-            if (response.loggedIn === true) {
+        .then((response) => {
+            if (forceLogout) {
+                if (response.loggedIn) {
+                    cookieLogout();
+                }
+                logoutAndShowInitialScreens();
+            } else if (response.loggedIn === true) {
                 localUsername = response.emailAddress;
                 localSessionId = response.sessionId;
                 clusterSelection();
             } else if (response.loggedIn === false) {
-                showInitialScreens();
-                localSessionId = "";
+                logoutAndShowInitialScreens();
             } else {
                 console.error('cookieLoggedInStatus unrecognized code:', response);
+                logoutAndShowInitialScreens();
             }
-        }).fail(error => {
+        })
+        .fail((error) => {
             console.error('cookieLoggedInStatus error:', error);
             // handle it as a not logged in case
-            showInitialScreens();
+            logoutAndShowInitialScreens();
         });
+    }
+
+    function logoutAndShowInitialScreens(): void {
+        localUsername = "";
+        localSessionId = "";
+        showInitialScreens();
     }
 
     function cookieLogin(username: string, password: string): void {
@@ -362,7 +375,7 @@ namespace CloudLogin {
     function showInitialScreens(): void {
         $("header").children().hide()
         $("#formArea").children().hide()
-        const signupScreen: boolean = new URLSearchParams(window.location.search).has("signup");
+        const signupScreen: boolean = hasParamInURL("signup");
         if (signupScreen) {
             $("#signupTitle").show();
             $("#signupForm").show();
@@ -843,6 +856,23 @@ namespace CloudLogin {
                 return;
             }
         });
+    }
+
+    function hasParamInURL(param): boolean {
+        return new URLSearchParams(window.location.search).has(param);
+    }
+
+    function checkForceLogout(): boolean {
+        let forceLogout = hasParamInURL("logout");
+        if (forceLogout) {
+            // don't show logout as part of the URL
+            clearURL();
+        }
+        return forceLogout;
+    }
+
+    function clearURL(): void {
+        window.history.pushState({}, document.title, "/");
     }
 
     function handleEvents(): void {
