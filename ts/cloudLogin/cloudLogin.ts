@@ -691,7 +691,7 @@ namespace CloudLogin {
             clearInterval(deployingProgressBarCheckIntervalID);
             deployingProgressBarCheckIntervalID = <any>setInterval(function() {
                 const {width, firstTextId} = deployingProgressBar.getProgress();
-                sessionStorage.setItem('XcalarDeployingProgressBarWidth', String(width));
+                sessionStorage.setItem('XcalarDeployingProgressBarWidth', String(width - 1));
                 sessionStorage.setItem('XcalarDeployingProgressBarFirstTextId', String(firstTextId - 1));
             }, 1000);
         }
@@ -714,7 +714,7 @@ namespace CloudLogin {
             clearInterval(stoppingProgressBarCheckIntervalID);
             stoppingProgressBarCheckIntervalID = <any>setInterval(function() {
                 const {width, firstTextId} = stoppingProgressBar.getProgress();
-                sessionStorage.setItem('XcalarStoppingProgressBarWidth', String(width));
+                sessionStorage.setItem('XcalarStoppingProgressBarWidth', String(width - 1));
                 sessionStorage.setItem('XcalarStoppingProgressBarFirstTextId', String(firstTextId - 1));
             }, 1000);
         }
