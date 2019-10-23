@@ -533,7 +533,7 @@ namespace CloudLogin {
         }
 
         // Validate special characters
-        const specialCharacters: RegExp = /\W/g;
+        const specialCharacters: RegExp = /(\W|_)/g;
         if (password.match(specialCharacters)) {
             $("#passwordSpecialTooltipError").removeClass("errorTooltipRow");
         } else {
