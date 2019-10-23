@@ -64,7 +64,7 @@ class DagTopBar {
         }
 
         if (graph != null) {
-            let scale = graph.getScale() * 100;
+            let scale = Math.round(graph.getScale() * 100);
             $topBar.find(".zoomPercentInput").val(scale);
         }
     }
@@ -116,18 +116,26 @@ class DagTopBar {
             self._updateZoom();
         });
 
-        $topBar.find(".zoomPercent").on('keyup', function(e) {
+        $topBar.find(".zoomPercentInput").on('keyup', function(e) {
             if (e.which == 13) {
                 e.preventDefault();
-                let percent: number = $(this).find("input").val();
+                let percent: number = $(this).val();
                 if (percent <= 0 || percent > 200) {
-                    StatusBox.show("Zoom must be between 0% and 200%",
+                    StatusBox.show("Zoom must be between 1% and 200%",
                         $(this));
                     return;
                 }
+                percent = Math.round(percent) || 1;
+                $(this).val(percent);
                 DagViewManager.Instance.zoom(true, percent / 100)
                 self._checkZoom();
             }
+        });
+
+        $topBar.find(".zoomPercentInput").blur(() => {
+            // if user types without saving, we should reset the zoom to the
+            // last saved zoom
+            this._updateZoom();
         });
 
         // settings button
@@ -139,7 +147,7 @@ class DagTopBar {
     private _updateZoom(): void {
         let dagTab = DagViewManager.Instance.getActiveDag();
         if (dagTab != null) {
-            let percent = dagTab.getScale() * 100;
+            let percent = Math.round(dagTab.getScale() * 100);
             $("#dagViewBar .zoomPercent input").val(percent);
             this._checkZoom();
         }

@@ -209,16 +209,16 @@
 .modalContainer.style-new {
     // Box shadows:
     @shadow-color: hsl(210, 60%, 12%);
-    @box-shadow--default:   -1px 3px 12px fade(@shadow-color, 15%), 
-                            0 4px 12px fade(@shadow-color, 15%), 
+    @box-shadow--default:   -1px 3px 12px fade(@shadow-color, 15%),
+                            0 4px 12px fade(@shadow-color, 15%),
                             -1px 2px 6px fade(@shadow-color, 20%);
 
-    @box-shadow--pinned:    -1px 1px 6px fade(@shadow-color, 15%), 
-                            0 1px 4px fade(@shadow-color, 20%), 
+    @box-shadow--pinned:    -1px 1px 6px fade(@shadow-color, 15%),
+                            0 1px 4px fade(@shadow-color, 20%),
                             0 1px 6px fade(@shadow-color, 20%);
 
-    @box-shadow--hover:     0 15px 32px fade(@shadow-color, 10%), 
-                            0 10px 24px fade(@shadow-color, 15%), 
+    @box-shadow--hover:     0 15px 32px fade(@shadow-color, 10%),
+                            0 10px 24px fade(@shadow-color, 15%),
                             -2px 4px 8px fade(@shadow-color, 10%);
 
     @header-h: 67px;
@@ -408,6 +408,7 @@
         padding-bottom: 10px;
         line-height: 20px;
         position: relative; // for dropdown menu
+        background-color: @color-white;
 
         &:not(:last-child) {
             border-right: 1px solid @color-border-white-two;
@@ -440,13 +441,16 @@
             .dragHandle {
                 pointer-events: none;
             }
+            .optionsBar {
+                padding-left: @modal-padding-horizontal;
+            }
         }
 
         &.ui-sortable-helper {
-            height: ~"calc(100% - 30px)" !important;
+            height: ~"calc(100% - 73px)" !important;
             box-shadow: -1px 0px 0px @color-bg-pinkish-grey2;
             .prettyJson {
-                height: ~"calc(100% - 48px)";
+                height: ~"calc(100% - 80px)";
             }
         }
         &.active {
@@ -644,7 +648,7 @@
 
     .optionsBar {
         height: 61px;
-        padding: 16px 0 16px @modal-padding-horizontal;
+        padding: 16px 0 16px 0px;
 
         .dragHandle {
             .size(20px, 100%);
@@ -2277,7 +2281,7 @@ html.microsoft {
             height: ~"calc(100% - 20px)";
             // overflow-y: auto;
             overflow: hidden;
-            
+
             .buttonSection {
                 height: 30px;
             }
