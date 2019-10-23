@@ -41,6 +41,8 @@ class ConnectorConfigModal {
         DSTargetManager.getTargetTypeList(true)
         .then(() => {
             this._render();
+            // XXX TODO: make the modalHelper auto resolve it
+            this._modalHelper.refreshTabbing();
         })
         .fail((error) => {
             console.error(error);
