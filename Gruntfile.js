@@ -249,6 +249,12 @@ var BLD_FLAG_RC_SHORT = 'rc';
 var BLD_FLAG_RC_LONG = 'removedebugcomments';
 var FASTCOPY = 'fastcopy';
 var DO_CLEAN = 'clean';
+// cli options for building cloud login page
+var AUTH_LAMBDA = 'XCE_SAAS_AUTH_LAMBDA_URL';
+var MAIN_LAMBDA = 'XCE_SAAS_MAIN_LAMBDA_URL';
+var POOL_ID = 'XCE_CLOUD_USER_POOL_ID';
+var CLIENT_ID = 'XCE_CLOUD_CLIENT_ID';
+
 // delimeter user should use for cli options that can take lists
 var OPTIONS_DELIM = ",";
 
@@ -358,7 +364,15 @@ var VALID_OPTIONS = {
         [DESC_KEY]: "As flag: do live reload on all watched files."
             + "\n\t\tAs option: A single filetype, or comma sep list of filetypes you'd like to do live reload on. "
             + "\n\t\tIf list begins with -, will do livereload on all types EXCEPT that/those specififed."},
-
+    // build cloud constants
+    [AUTH_LAMBDA]:
+        {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Authentication lambda url"},
+    [MAIN_LAMBDA]:
+        {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Main lambda url, e.g. for cluster, billing, s3, etc"},
+    [POOL_ID]:
+        {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "User pool id from AWS Cognito"},
+    [CLIENT_ID]:
+        {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Client id from AWS Cognito"},
     // flags
     [BLD_FLAG_TIMESTAMP_BLDDIR]:
         {[FLAG_KEY]: true, [DESC_KEY]: "Creates int. dir for bld output, which is timestamp when bld begins"},
@@ -2156,6 +2170,10 @@ module.exports = function(grunt) {
         if (BLDTYPE === DEV) {
             grunt.task.run("generate_tsdef");
         }
+        if (grunt.option(MAIN_LAMBDA) && grunt.option(AUTH_LAMBDA) &&
+            grunt.option(POOL_ID) && grunt.option(CLIENT_ID)) {
+            grunt.task.run("build_cloud_constants");
+        }
     });
 
     /**
@@ -3438,6 +3456,15 @@ module.exports = function(grunt) {
         grunt.task.run("copy:exp_server_js");
 
         grunt.task.run("clean_js");
+    });
+
+    grunt.task.registerTask("build_cloud_constants", "Build Cloud constants", function() {
+        var path = BLDROOT + "assets/js/cloudConstants.js";
+        var contents = 'const XCE_SAAS_MAIN_LAMBDA_URL = "' + grunt.option(MAIN_LAMBDA) + '";\n' +
+                       'const XCE_SAAS_AUTH_LAMBDA_URL = "' + grunt.option(AUTH_LAMBDA) + '";\n' +
+                       'const XCE_CLOUD_USER_POOL_ID = "' + grunt.option(POOL_ID) + '";\n' + // XXX Add this to env var
+                       'const XCE_CLOUD_CLIENT_ID = "' + grunt.option(CLIENT_ID) + '";'; // XXX Add this to env var
+        grunt.file.write(path, contents);
     });
 
     // Generate TS definition file for jsTStr.js

@@ -322,6 +322,10 @@ router.get("/service/checkCloud", [support.checkAuth], (_req, res) => {
     });
 });
 
+router.get("/service/getApiUrl", [support.checkAuth], (_req, res) => {
+    res.status(httpStatus.OK).send(cloudManager.getApiUrl());
+});
+
 router.get("/service/getCredits", [support.checkAuth], (_req, res) => {
     const numCredits: number = cloudManager.getNumCredits();
     res.status(httpStatus.OK).send(JSON.stringify(numCredits));

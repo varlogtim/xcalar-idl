@@ -98,13 +98,13 @@ var cloudLoginPathFunc = function(req, res, next) {
             return next('router');
         }
 
-        if (!process.env.XCE_SAAS_LAMBDA_URL) {
-            message["message"] = "XCE_SAAS_LAMBDA_URL is not set";
+        if (!process.env.XCE_SAAS_AUTH_LAMBDA_URL) {
+            message["message"] = "XCE_SAAS_AUTH_LAMBDA_URL is not set";
             res.status(message.status).send(message);
             return next('router');
         }
 
-        var loginURL = process.env.XCE_SAAS_LAMBDA_URL;
+        var loginURL = process.env.XCE_SAAS_AUTH_LAMBDA_URL;
         loginURL = loginURL.replace(/\/?$/, '/');
         loginURL += 'login';
 
@@ -191,8 +191,8 @@ var cloudLogoutPathFunc = function(req, res, next) {
         'message': 'Authentication failure'
     }
 
-    if (!process.env.XCE_SAAS_LAMBDA_URL) {
-        message["message"] = "XCE_SAAS_LAMBDA_URL is not set";
+    if (!process.env.XCE_SAAS_AUTH_LAMBDA_URL) {
+        message["message"] = "XCE_SAAS_AUTH_LAMBDA_URL is not set";
         res.status(message.status).send(message);
         return next('router');
     }
@@ -206,7 +206,7 @@ var cloudLogoutPathFunc = function(req, res, next) {
     }
 
     var j = request.jar();
-    var logoutURL = process.env.XCE_SAAS_LAMBDA_URL;
+    var logoutURL = process.env.XCE_SAAS_AUTH_LAMBDA_URL;
     logoutURL = logoutURL.replace(/\/?$/, '/');
     logoutURL += 'logout';
 

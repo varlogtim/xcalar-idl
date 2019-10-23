@@ -31,8 +31,9 @@ namespace xcManager {
         })
         .then(function() {
             XVM.setup();
-            CloudManager.Instance.setup();
-
+            return CloudManager.Instance.setup();
+        })
+        .then(function() {
             // xcrpc default service setup
             Xcrpc.createClient(Xcrpc.DEFAULT_CLIENT_NAME, xcHelper.getApiUrl());
 

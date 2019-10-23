@@ -6,16 +6,11 @@ interface ClusterGetResponse {
 }
 
 namespace CloudLogin {
-    const cookieAuthApiUrl: string = "https://605qwok4pl.execute-api.us-west-2.amazonaws.com/prod";
-    const clusterLambdaApiUrl: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"
-
-    const userPoolId: string = "us-west-2_Eg94nXgA5";
-    const clientId: string = "69vk7brpkgcii8noqqsuv2dvbt";
-    const poolData = {
-        UserPoolId: userPoolId,
-        ClientId: clientId
-    };
-    const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+    let userPoolId: string;
+    let clientId: string;
+    let cookieAuthApiUrl: string;
+    let mainApiUrl: string;
+    let userPool;
     let cognitoUser;
 
     let localUsername: string;
@@ -25,6 +20,15 @@ namespace CloudLogin {
     let stoppingProgressBar: ProgressBar;
 
     export function setup(): void {
+        userPoolId = XCE_CLOUD_USER_POOL_ID;
+        clientId = XCE_CLOUD_CLIENT_ID;
+        cookieAuthApiUrl = XCE_SAAS_AUTH_LAMBDA_URL;
+        mainApiUrl = XCE_SAAS_MAIN_LAMBDA_URL;
+        const poolData = {
+            UserPoolId: userPoolId,
+            ClientId: clientId
+        };
+        userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
         let forceLogout = checkForceLogout();
         initialStatusCheck(forceLogout);
         handleEvents();
@@ -157,7 +161,7 @@ namespace CloudLogin {
         return new Promise((resolve, reject) => {
             loadingWait(true);
             sendRequest({
-                apiUrl: clusterLambdaApiUrl,
+                apiUrl: mainApiUrl,
                 action: "/billing/get",
                 fetchParams: {
                     headers: {
@@ -216,7 +220,7 @@ namespace CloudLogin {
     function getCluster(clusterIsStarting?: boolean): XDPromise<void> {
         loadingWait(true);
         return sendRequest({
-            apiUrl: clusterLambdaApiUrl,
+            apiUrl: mainApiUrl,
             action: "/cluster/get",
             fetchParams: {
                 headers: {
@@ -290,7 +294,7 @@ namespace CloudLogin {
     function startCluster(): void {
         loadingWait(true);
         sendRequest({
-            apiUrl: clusterLambdaApiUrl,
+            apiUrl: mainApiUrl,
             action: "/cluster/start",
             fetchParams: {
                 headers: {

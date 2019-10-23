@@ -9,20 +9,33 @@ class CloudManager {
     private _apiUrl: string;
     private _s3Info: {bucket: string};
 
-    public constructor() {
-        this._apiUrl = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod/";
-    }
+    public constructor() {}
 
     /**
      * CloudManager.Instance.setup
      */
-    public setup(): void {
+    public setup(): XDPromise<void> {
         if (!XVM.isCloud()) {
-            return;
+            return PromiseHelper.resolve();;
         }
         this.checkCloud();
+        return this.setApiUrl();
     }
 
+    public setApiUrl(): XDPromise<void> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        xcHelper.sendRequest("GET", "/service/getApiUrl")
+        .then((apiUrl) => {
+            this._apiUrl = apiUrl;
+            deferred.resolve();
+        })
+        .fail((e) => {
+            console.error("Failed to set cloud api url.", e);
+            // always resolve as cloud setup failure shouldn't block other components
+            deferred.resolve();
+        });
+        return deferred.promise();
+    }
     /**
      * CloudManager.Instance.getS3BucketInfo
      */
@@ -110,7 +123,7 @@ class CloudManager {
 
     private _sendRequest(action: string, payload: object): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        const url: string = `${this._apiUrl}${action}`;
+        const url: string = `${this._apiUrl}/${action}`;
         payload = {
             "username": this._getUserName(),
             ...payload

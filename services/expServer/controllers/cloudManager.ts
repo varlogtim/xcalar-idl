@@ -10,7 +10,7 @@ class CloudManager {
     // XXX do not change _updateCreditsTime - it is synced with AWS Lambda
     private _userName: string;
     private _instanceId: string;
-    private _awsURL: string = "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"; // XXX temporary
+    private _awsURL: string = process.env.XCE_SAAS_MAIN_LAMBDA_URL || "https://g6sgwgkm1j.execute-api.us-west-2.amazonaws.com/Prod"; // XXX temporary
     private _stopClusterMessageSent: boolean = false;
     private _lowCreditWarningSent: boolean = false;
     private _clusterPrice: number = null;
@@ -71,13 +71,20 @@ class CloudManager {
         }
     }
 
+    /**
+     * get lambda url for cluster, billing, s3, etc
+     */
+    public getApiUrl(): string {
+        return this._awsURL;
+    }
+
     public getNumCredits(): number {
         return this._numCredits;
     }
 
     public async logout(): Promise<any> {
         try {
-            let authLambdaUrl = process.env.XCE_SAAS_LAMBDA_URL;
+            let authLambdaUrl = process.env.XCE_SAAS_AUTH_LAMBDA_URL;
             authLambdaUrl.replace(/\/$/, "");
             authLambdaUrl += "/logout";
             let logoutResult = await request.get(authLambdaUrl);
