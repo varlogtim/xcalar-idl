@@ -220,27 +220,31 @@ window.xcMixpanel = (function($, xcMixpanel) {
         if (!events.pageLoad) {
             return;
         }
-        pageLoaded = true;
-        let currTime = Date.now();
-        pageLoadTime = lastModeTime = lastPanelTime = currTime;
-        let $mainPanel = $(".mainPanel.active");
-        currentPanel = $mainPanel.attr("id");
-        currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
+        try {
+            pageLoaded = true;
+            let currTime = Date.now();
+            pageLoadTime = lastModeTime = lastPanelTime = currTime;
+            let $mainPanel = $(".mainPanel.active");
+            currentPanel = $mainPanel.attr("id");
+            currentSubPanel = $mainPanel.find(".subPanel:visible").attr("id");
 
-        const userIdUnique = XcUser.CurrentUser._userIdUnique();
-        if (userIdUnique){
-            mixpanel.identify(userIdUnique);
-            mixpanel.people.set({
-                "$last_name": userIdUnique
+            const userIdUnique = XcUser.CurrentUser._userIdUnique;
+            if (userIdUnique){
+                mixpanel.identify(userIdUnique);
+                mixpanel.people.set({
+                    "$last_name": userIdUnique
+                });
+            }
+
+            xcMixpanel.track("User Enter", {
+                "eventType": "pageLoad"
             });
-        }
 
-        xcMixpanel.track("User Enter", {
-            "eventType": "pageLoad"
-        });
-
-        if (!xcMixpanel.forDev()) {
-            // emailNotification(name);
+            if (!xcMixpanel.forDev()) {
+                // emailNotification(name);
+            }
+        } catch (e) {
+            conosle.error("pageLoadEvent error", e);
         }
 
         function emailNotification(username) {
