@@ -13,6 +13,7 @@ namespace DSTargetManager {
     let udfModuleHint: InputDropdownHint;
     let udfFuncHint: InputDropdownHint;
     const xcalar_cloud_s3: string = "xcalar_cloud_s3_env";
+    const xcalar_public_s3: string = "Public S3";
     const cloudTargetBlackList: string[] = ["shared",
     "sharednothingsymm", "sharednothingsingle"]
 
@@ -131,7 +132,7 @@ namespace DSTargetManager {
      * @param noWaitIcon
      */
     export function refreshTargets(noWaitIcon: boolean): XDPromise<any> {
-        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
         let updateTargetMenu = function(targets) {
             let html: HTML = targets.map(function(targetName) {
                 return "<li>" + targetName + "</li>";
@@ -164,13 +165,10 @@ namespace DSTargetManager {
         }
 
         let targetList;
-        XcalarTargetList()
+        getConnectorList()
         .then(function(res) {
             targetList = res;
-            cacheTargets(targetList);
-            if (XVM.isCloud()) {
-                return PromiseHelper.alwaysResolve(createCloudS3Connector());
-            }
+            return cloudConnectorSetup();
         })
         .then(function() {
             let targets: string[] = Object.keys(targetSet).sort();
@@ -325,6 +323,29 @@ namespace DSTargetManager {
         return xcalar_cloud_s3;
     }
 
+    function getConnectorList(): XDPromise<any> {
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
+        XcalarTargetList()
+        .then((targetList) => {
+            cacheTargets(targetList);
+            deferred.resolve(targetList);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function cloudConnectorSetup(): XDPromise<void> {
+        if (!XVM.isCloud()) {
+            return PromiseHelper.resolve();
+        }
+
+        return PromiseHelper.alwaysResolve(createCloudS3Connector())
+        .then(() => {
+            return PromiseHelper.alwaysResolve(createPublicS3Connector())
+        });
+    }
+
     // for cloud file upload use
     function createCloudS3Connector(): XDPromise<string> {
         if (targetSet[xcalar_cloud_s3] != null) {
@@ -333,20 +354,26 @@ namespace DSTargetManager {
             return PromiseHelper.resolve();
         }
 
-        let deferred: XDDeferred<string> = PromiseHelper.deferred();
-        // let targetType: string = S3Connector;
         let targetType: string = "s3environ";
         let targetName: string = xcalar_cloud_s3;
         let targetParams = {authenticate_requests: "true"};
-        XcalarTargetCreate(targetType, targetName, targetParams)
-        .then(() => {
-            deferred.resolve(targetName);
-        })
-        .fail(() => {
-            deferred.reject();
-        });
+        return XcalarTargetCreate(targetType, targetName, targetParams);
+    }
 
-        return deferred.promise();
+    // a public s3 connector
+    function createPublicS3Connector(): XDPromise<string> {
+        if (targetSet[xcalar_public_s3] != null) {
+            return PromiseHelper.resolve();
+        }
+
+        let targetType: string = "s3environ";
+        let targetName: string = xcalar_public_s3;
+        let targetParams = {authenticate_requests: "false"};
+        return XcalarTargetCreate(targetType, targetName, targetParams)
+        .then(() => {
+            // update the list
+            return getConnectorList();
+        });
     }
 
     function addEventListeners(): void {
@@ -486,10 +513,13 @@ namespace DSTargetManager {
     }
 
     function isDefaultTarget(targetName: string): boolean {
-        let defaultTargetList = ["Default Shared Root",
-                                "Preconfigured Azure Storage Account",
-                                "Preconfigured Google Cloud Storage Account",
-                                "Preconfigured S3 Account"];
+        let defaultTargetList = [
+            "Default Shared Root",
+            "Preconfigured Azure Storage Account",
+            "Preconfigured Google Cloud Storage Account",
+            "Preconfigured S3 Account",
+            xcalar_public_s3
+        ];
         return defaultTargetList.includes(targetName);
     }
 
@@ -504,7 +534,8 @@ namespace DSTargetManager {
     }
 
     function isReservedTargetName(targetName: string): boolean {
-        return targetName === xcalar_cloud_s3;
+        return targetName === xcalar_cloud_s3 ||
+                targetName === xcalar_public_s3;
     }
 
     function cacheTargets(targetList): string[] {
