@@ -171,7 +171,7 @@ namespace CloudLogin {
                 }
             })
             .then((billingGetResponse) => {
-                if (billingGetResponse.status === 0) {
+                if (billingGetResponse.status === ClusterLambdaApiStatusCode.OK) {
                     if (billingGetResponse.credits > 0) {
                         resolve(true);
                     } else {
@@ -188,7 +188,7 @@ namespace CloudLogin {
                 }
             })
             .fail((error) => {
-                if (error.status === 1) {
+                if (error.status === ClusterLambdaApiStatusCode.NO_CREDIT_HISTORY) {
                     // first time user should start with some credits
                     resolve(true);
                 } else {
@@ -231,11 +231,11 @@ namespace CloudLogin {
             }
         })
         .then((clusterGetResponse) => {
-            if (clusterGetResponse.status !== 0) {
+            if (clusterGetResponse.status !== ClusterLambdaApiStatusCode.OK) {
                 // error
                 console.error('getCluster error. cluster/get returned: ', clusterGetResponse);
                 // XXX TODO: remove this hack fix when lambda fix it
-                if (clusterGetResponse.status === 8 &&
+                if (clusterGetResponse.status === ClusterLambdaApiStatusCode.CLUSTER_ERROR &&
                     clusterGetResponse.error === "Cluster is not reachable yet"
                 ) {
                     console.warn(clusterGetResponse);
@@ -406,7 +406,7 @@ namespace CloudLogin {
 
     function handleException(error: any): void {
         const errorMsg = getErrorMessage(error, "An unknown server error has ocurred.");
-        if (error.status === 3) { // XXX use enum
+        if (error.status === ClusterLambdaApiStatusCode.NO_AVAILABLE_STACK) {
             let displayText =
             'We are currently experiencing an overwhelmingly high demand for our product. ' +
             'Please contact Xcalar support at <a href="mailto:info@xcalar.com">info@xcalar.com</a> ' +
@@ -773,7 +773,7 @@ namespace CloudLogin {
         })
         .then((res: any) => {
             // XXX TODO: use a enum instead of 0
-            if (statusCode === httpStatus.OK && (!res.status || res.status === 0)) {
+            if (statusCode === httpStatus.OK && (!res.status || res.status === ClusterLambdaApiStatusCode.OK)) {
                 deferred.resolve(res);
             // TODO: remove this else if after /login returns object - not stringified object
             } else if (statusCode === httpStatus.Unauthorized && res.code !== "UserNotConfirmedException") {

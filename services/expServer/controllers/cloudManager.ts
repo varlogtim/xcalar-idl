@@ -1,6 +1,7 @@
 // ExpServer side
 import * as xcConsole from "../utils/expServerXcConsole.js";
 import socket from "./socket";
+import { ClusterLambdaApiStatusCode } from "../../../assets/js/cloudEnums.js";
 var request = require('request-promise-native');
 
 class CloudManager {
@@ -36,7 +37,7 @@ class CloudManager {
                 json: true
             });
             xcConsole.log("cluster shutting down", data);
-            if (!repeatTry && (!data || data.status !== 0)) {
+            if (!repeatTry && (!data || data.status !== ClusterLambdaApiStatusCode.OK)) {
                 return this.stopCluster(true);
             } else {
                 return data;
@@ -128,7 +129,7 @@ class CloudManager {
                 body: this._getBody(),
                 json: true
             });
-            if (res && res.status !== 0) {
+            if (res && res.status !== ClusterLambdaApiStatusCode.OK) {
                 xcConsole.error("deduct credits error", res);
             }
             return res;
@@ -146,7 +147,7 @@ class CloudManager {
                 json: true
             });
             let credits: number = null;
-            if (data && data.status !== 0) {
+            if (data && data.status !== ClusterLambdaApiStatusCode.OK) {
                 xcConsole.error("fetch credits error", data);
             } else if (data && data.credits != null) {
                 credits = data.credits;

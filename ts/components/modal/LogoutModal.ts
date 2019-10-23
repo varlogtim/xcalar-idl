@@ -96,7 +96,7 @@ class LogoutModal {
         .then((res) => {
             this._getModal().addClass("clusterStop");
             this._progressBar.start("Cluster shut down");
-            if (res && res.status === 0) {
+            if (res && res.status === ClusterLambdaApiStatusCode.OK) {
                 return this._checkClusterStopped();
             } else {
                 return PromiseHelper.reject(res);
@@ -133,7 +133,7 @@ class LogoutModal {
                     setTimeout(() => {
                         checkHelper();
                     }, self._clusterStopCheckTime);
-                } else if (ret && ret["status"] === 0) {
+                } else if (ret && ret["status"] === ClusterLambdaApiStatusCode.OK) {
                     deferred.resolve();
                 } else {
                     deferred.reject(ret);
