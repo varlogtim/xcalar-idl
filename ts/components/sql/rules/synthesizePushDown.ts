@@ -9,6 +9,10 @@ class SynthesizePushDown {
             if (leafNodes[i].value.operation !== "XcalarApiProject" &&
                 SynthesizePushDown.__getMinColumns(leafNodes[i],
                                                    colList, createdColList)) {
+                // If none of the columns are used, skip the project
+                if (colList.length === 0) {
+                    return;
+                }
                 // Add a project node before leaf
                 // in most cases it will be combined to prepended synthesize or select later
                 const tempTableName = xcHelper.getTableName(leafNodes[i].value.args.source)
