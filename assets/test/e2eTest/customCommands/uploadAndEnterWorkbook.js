@@ -8,6 +8,8 @@ class UploadAndEnterWorkbook extends EventEmitter {
                 this.api.pause(1000);
             }
             this.api
+                .waitForElementNotVisible("#initialLoadScreen", 2 * 60 * 1000)
+                .waitForElementNotVisible("#modalBackground", 10 * 1000)
                 .uploadWorkbook(workbookName, isUpgrade)
                 .waitForWorkbookReady()
                 .activateWorkbook(isUpgrade);

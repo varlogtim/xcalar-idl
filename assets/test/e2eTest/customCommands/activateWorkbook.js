@@ -21,7 +21,7 @@ class ActivateWorkbook extends EventEmitter {
 
                 }
                 this.api
-                .waitForElementNotVisible("#modalBackground")
+                .waitForElementNotVisible("#modalBackground", 10 * 1000)
                 .pause(3000);
 
                 if (isUpgrade) {
