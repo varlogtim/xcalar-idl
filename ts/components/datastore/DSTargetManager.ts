@@ -424,7 +424,11 @@ namespace DSTargetManager {
         $("#dsTarget-import").click(function(event) {
             event.preventDefault();
             let targetName: string = $gridView.find(".grid-unit.active").data("name");
-            MainMenu.openPanel("datastorePanel", "inButton");
+            if (XVM.isSQLMode()) {
+                MainMenu.openPanel("datastorePanel", "sourceTblButton");
+            } else {
+                MainMenu.openPanel("datastorePanel", "inButton");
+            }
             DataSourceManager.setMode(XVM.isSQLMode());
             DSForm.show();
             DSForm.setDataTarget(targetName);
