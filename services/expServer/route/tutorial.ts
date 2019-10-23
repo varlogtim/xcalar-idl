@@ -6,7 +6,7 @@ export const router = Router();
 import tutorialManager from "../controllers/tutorialManager";
 
 router.post("/tutorial/download",
-            [support.checkAuthAdmin], function(req, res) {
+            [support.checkAuth], function(req, res) {
     if (!tutorialManager.s3Initialize()) {
         return res.jsonp({
             status: Status.Error,
