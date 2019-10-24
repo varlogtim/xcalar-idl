@@ -356,6 +356,7 @@ ErrTStr = {
     "RestoreDSNoLoadArgs": "No load args in the configuration, cannot restore dataset.",
     "ParseSchema": "Invalid text to parse as schema",
     'CannotCancel': "Cannot cancel the operation",
+    'NoBucketAccess': "You don't have access to the s3 bucket, please check your access permission or confiugre to use a valid bucket.",
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
                       ' choose another name.',

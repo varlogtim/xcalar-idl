@@ -669,7 +669,7 @@ module.exports = {
         "Target": "Connector",
         "Targets": "Connectors",
         "Retry": "Retry",
-        "RetryPoint": "Please try to import data with different parameters.",
+        "RetryPoint": "Please try to import data with different configuration.",
         "TableInstr": "Dataset has been created. Click on the \"Create Dataflow\" button below or the \"Dataflow\" button in the sidebar to start using it.",
         "DSInfo": "Dataset Information",
         "UsedBy": "Used By",

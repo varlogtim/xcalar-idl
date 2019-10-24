@@ -103,15 +103,15 @@ namespace DS {
             nodeArray.push(dagNode);
         });
 
+        if (nameToDagMap.size > 0) {
+            // go to dataset panel to restore
+            MainMenu.openPanel("datastorePanel", "inButton");
+        }
+
         nameToDagMap.forEach((dagNodes) => {
             let promise = restoreSourceFromDagNodeHelper(dagNodes, share, failures);
             promises.push(promise);
         });
-
-        if (promises.length > 0) {
-            // go to dataset panel to restore
-            MainMenu.openPanel("datastorePanel", "inButton");
-        }
 
         PromiseHelper.when(...promises)
         .then(() => {
@@ -158,7 +158,7 @@ namespace DS {
 
     function restoreSourceFromLoadArgs(loadArgs: any): XDPromise<DSObj> {
         let newDSName = getNewDSName(loadArgs.args.dest);
-        return restoreDatasetFromLoadArgs(newDSName, JSON.stringify(loadArgs));
+        return restoreDatasetHelper(newDSName, JSON.stringify(loadArgs));
     }
 
     function loadArgsAdapter(loadArgsStr: string): string | null {
@@ -221,7 +221,7 @@ namespace DS {
             loadArgs,
             DagParamManager.Instance.getParamMap()
         );
-        restoreDatasetFromLoadArgs(newDSName, loadArgs)
+        restoreDatasetHelper(newDSName, loadArgs)
         .then((dsObj) => {
             if (share) {
                 let dsId = dsObj.getId();
@@ -258,21 +258,6 @@ namespace DS {
 
         return deferred.promise();
     }
-
-    function restoreDatasetFromLoadArgs(
-        fullDSName: string,
-        loadArgsStr: string
-    ): XDPromise<DSObj> {
-        let deferred: XDDeferred<DSObj> = PromiseHelper.deferred();
-        restoreDatasetHelper(fullDSName, loadArgsStr)
-        .then(deferred.resolve)
-        .fail((error) => {
-            Alert.error(ErrTStr.RestoreDS, error.error);
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    };
 
     function restoreDatasetHelper(
         fullDSName: string,
@@ -658,7 +643,7 @@ namespace DS {
         dsArgs: any,
         options: {
             dsToReplace?: string,
-            restoreArgs?: string
+            restoreArgs?: object
         }
     ): XDPromise<DSObj> {
         options = options || {};
@@ -1530,7 +1515,7 @@ namespace DS {
     function createDSHelper(
         txId: number,
         dsObj: DSObj,
-        restoreArgs: string
+        restoreArgs: object
     ): XDPromise<void> {
         let datasetName = dsObj.getFullName();
         let def: XDPromise<void>;
@@ -1571,6 +1556,11 @@ namespace DS {
                     deferred.reject(error);
                 });
             } else {
+                // if already created, remove the dataset from backend
+                // as the creation failed
+                if (hasCreate) {
+                    XcalarDatasetDelete(datasetName);
+                }
                 deferred.reject(error);
             }
         });
@@ -1588,7 +1578,7 @@ namespace DS {
     function importHelper(
         dsObj: DSObj,
         sql: object,
-        restoreArgs: string
+        restoreArgs: object
     ): XDPromise<DSObj> {
         let deferred: XDDeferred<DSObj> = PromiseHelper.deferred();
         let dsName = dsObj.getName();
@@ -1657,6 +1647,10 @@ namespace DS {
             let created = false;
             let displayError = null;
             if (typeof error === "object") {
+                if (isDifferentCloudBucketError(restoreArgs)) {
+                    error.error = ErrTStr.NoBucketAccess + "\n" + error.error;
+                }
+
                 created = error.created;
                 displayError = error.error;
             }
@@ -1690,6 +1684,16 @@ namespace DS {
         });
 
         return deferred.promise();
+    }
+
+    function isDifferentCloudBucketError(restoreArgs: any): boolean {
+        try {
+            let connector: string = restoreArgs.sourceArgsList[0].targetName;
+            return connector === DSTargetManager.getCloudS3Connector();
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
     }
 
     function alertSampleSizeLimit(dsName: string): void {
