@@ -3,11 +3,15 @@
     "filter" : "*.js",
     "custom_commands_path": ["../../test/e2eTest/customCommands"],
     "globals_path": "../../test/e2eTest/globalModule.js",
-    "launch_url": "http://localhost:8888/",
+    "launch_url": "https://localhost:8443/",
     "webdriver" : {
       "start_process": true,
       "server_path": "node_modules/.bin/chromedriver",
-      "port": 9515
+      "log_path": "",
+      "port": 9515,
+      "cli_args": [
+            "--verbose"
+        ]
     },
 
     "test_settings" : {
@@ -19,7 +23,12 @@
           "browserName": "chrome",
           "chromeOptions": {
             "args": ["--headless", "window-size=4000,2000"]
-          }
+          },
+          "loggingPrefs": {
+                "driver": "ALL",
+                "server": "OFF",
+                "browser": "ALL"
+            }
         }
       },
       "jenkins": {
@@ -29,10 +38,15 @@
         "desiredCapabilities": {
           "browserName": "chrome",
           "chromeOptions": {
-            "args": ["--headless", "window-size=6000,3000"]
-          }
+            "args": ["--headless", "window-size=6000,3000", "--no-sandbox"]
+          },
+          "loggingPrefs": {
+                "driver": "ALL",
+                "server": "OFF",
+                "browser": "ALL"
+           }
         }
-      }
+    }
     },
     "chrome" : {
       "desiredCapabilities": {
