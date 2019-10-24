@@ -294,8 +294,9 @@ class DagViewManager {
         return $dataflowArea.find('.operator[data-nodeid="' + nodeId + '"]');
     }
 
-    public getNodeById(nodeId): DagNode {
-        let node;
+    public getNodeAndTabById(nodeId): {node: DagNode, tab: DagTab} {
+        let node: DagNode;
+        let tab: DagTab;
         try {
             node = this.activeDag.getNode(nodeId);
             if (!node) {
@@ -304,7 +305,7 @@ class DagViewManager {
                     node = view.graph.getNode(nodeId);
                     if (node) {
                         let tabId = view.graph.getTabId();
-                        let tab = DagTabManager.Instance.getTabById(tabId);
+                        tab = DagTabManager.Instance.getTabById(tabId);
                         console.log("Dataflow: " + tab.getName());
                         console.log(view.$dfArea.find('.operator[data-nodeid="' + nodeId + '"]'));
                         break;
@@ -314,7 +315,10 @@ class DagViewManager {
         } catch (e) {
             console.log(e);
         }
-        return node;
+        return {
+            node: node,
+            tab: tab
+        };
     }
 
         /**
@@ -445,15 +449,18 @@ class DagViewManager {
     }
 
 
-    public selectNodes(tabId: string, nodeIds?: DagNodeId[]): void {
+    public selectNodes(tabId: string, nodeIds?: DagNodeId[]): JQuery {
+        let $node: JQuery;
         if (!nodeIds) {
-            DagView.selectNode(this._getAreaByTab(tabId).find(".operator"));
+            $node = this._getAreaByTab(tabId).find(".operator")
+            DagView.selectNode($node);
         } else {
             nodeIds.forEach((nodeId) => {
-                const $node: JQuery = this.getNode(nodeId, tabId);
+                $node = this.getNode(nodeId, tabId);
                 DagView.selectNode($node);
             });
         }
+        return $node;
     }
 
     public render($dfArea?: JQuery, graph?: DagGraph, dagTab?: DagTab, noEvents?: boolean) {

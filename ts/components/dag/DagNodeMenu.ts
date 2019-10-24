@@ -145,6 +145,9 @@ namespace DagNodeMenu {
                 case ("focusRunning"):
                     _focusRunningNode();
                     break;
+                case ("findSourceNode"):
+                    _findSourceNode(dagNodeIds[0], tabId);
+                    break;
                 case ("findOptimizedSource"):
                     _findOptimizedSource(tabId);
                     break;
@@ -960,6 +963,50 @@ namespace DagNodeMenu {
             DagViewManager.Instance.selectNodes(tabId, [nodeId]);
         } catch (e) {
             Alert.error(AlertTStr.Error, e.message);
+        }
+    }
+
+    // for optimized dataflows
+    function _findSourceNode(nodeId: DagNodeId, tabId: string): void {
+        try {
+            let statsDagTab = DagTabManager.Instance.getTabById(tabId);
+            if (statsDagTab) {
+                let id = statsDagTab.getId();
+                let node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
+                let tag = node.getTag();
+                let parentNode;
+                let parentTab;
+                // try to get source node from tag
+                if (tag) {
+                    let parentNodeIds = tag.split(",");
+                    let parentNodeId = parentNodeIds[parentNodeIds.length - 1];
+                    let res = DagViewManager.Instance.getNodeAndTabById(parentNodeId);
+                    if (res.node && res.tab) {
+                        parentNode = res.node;
+                        parentTab = res.tab;
+                    }
+                }
+                // if tag didn't work, try using retina name
+                if ((!parentNode || !parentTab) && id.startsWith("xcRet")) {
+                    id = id.slice("xcRet_".length);
+                    id = id.slice(0, id.indexOf("_dag"));
+                    parentTab = DagTabManager.Instance.getTabById(id);
+                }
+                if (parentTab) {
+                    let sourceTabId = parentTab.getId();
+                    DagTabManager.Instance.switchTab(sourceTabId);
+                    if (parentNode) {
+                        let $node = DagViewManager.Instance.selectNodes(sourceTabId, [parentNode.getId()]);
+                        $node.scrollintoview({duration: 0});
+                    } else {
+                        Alert.error("Warning", "The original dataflow is \"" + parentTab.getName() + "\" but the source node could not be found.");
+                    }
+                } else {
+                    Alert.error("Warning", "Source node could not be found.");
+                }
+            }
+        } catch (e) {
+            console.error(e);
         }
     }
 
