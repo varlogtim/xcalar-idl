@@ -2,6 +2,7 @@ import * as xcConsole from "../utils/expServerXcConsole";
 import * as express from "express";
 import socketio = require("socket.io");
 import sharedsession = require("express-socket.io-session");
+import UserActivityManager from "../controllers/userActivityManager";
 
 interface User {
     user: string,
@@ -268,6 +269,16 @@ class SocketUtil {
                 socket.broadcast.emit("refreshDagCategory", args);
             });
 
+            socket.on("updateUserActivity", (args: {isCloud: boolean}): void => {
+                if (self.checkIoSocketAuth(socket)) {
+                    return;
+                }
+                if (args.isCloud) {
+                    UserActivityManager.updateUserActivity(true);
+                }
+                socket.broadcast.emit("updateUserActivity", args);
+            });
+
             addDSSocketEvent(socket);
 
             function registerBrowserSession(user) {
@@ -412,6 +423,11 @@ class SocketUtil {
     public lowCreditWarning() {
         if (!this._ioSockets) return;
         this._ioSockets.emit("lowCreditWarning");
+    }
+
+    public updateUserActivity() {
+        if (!this._ioSockets) return;
+        this._ioSockets.emit("updateUserActivity");
     }
 
     public sendConsoleMsg(args) {

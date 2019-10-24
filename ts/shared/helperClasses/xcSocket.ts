@@ -217,6 +217,10 @@ class XcSocket {
             }
         });
 
+        socket.on("updateUserActivity", (args) => {
+            XcUser.CurrentUser.updateUserActivity(args);
+        });
+
         socket.on("consoleMsg", (msg) => {
             console.log(msg);
         });

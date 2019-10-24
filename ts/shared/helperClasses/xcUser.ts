@@ -1,4 +1,3 @@
-
 class XcUser {
     public static firstCreditWarningLimit: number; // XXX temporary
     public static lastCreditWarningLimit: number; // XXX temporary
@@ -9,6 +8,7 @@ class XcUser {
     private static readonly _creditUsageCheckTime = 1 * 60 * 1000;
     private static _isIdleCheckOn = true;
     private static _clusterPrice: number = null;
+    private static _clusterStopCountdown: number;
     public static readonly firstCreditWarningTime: number = 20; // minutes
     public static readonly lastCreditWarningTime: number = 1; // minutes
 
@@ -43,8 +43,8 @@ class XcUser {
             XcUser.setUserSession(user);
             XcUser.CurrentUser.extendCookies();
             if (this._isIdleCheckOn) {
+                XcUser.CurrentUser._isIdle = false;
                 XcUser.CurrentUser.idleCheck();
-                XcUser.CurrentUser.restartActivityTimer();
             }
         };
 
@@ -138,8 +138,6 @@ class XcUser {
     public static clusterStopWarning() {
         const interval = 1000; // 60sec, 59sec, 58sec etc
         let timeLeft = this._logOutWarningTime;
-        let timeout = null;
-
         XcUser.toggleLogoutTimer(true); // declares countdown timer to be on
 
         const alertId = Alert.show({
@@ -150,18 +148,22 @@ class XcUser {
                 {
                     name: "Keep Using",
                     className: "keepUsing btn-primary",
-                    func: function() {
-                        clearTimeout(timeout);
-                        XcUser.toggleLogoutTimer(false);
-                        xcHelper.sendRequest("POST", "/service/updateUserActivity");
+                    func: () => {
+                        clearTimeout(this._clusterStopCountdown);
+                        this.toggleLogoutTimer(false);
+                        XcUser.CurrentUser._isIdle = false;
+                        XcUser.CurrentUser.idleCheck();
+                        XcSocket.Instance.sendMessage("updateUserActivity", {
+                            isCloud: XVM.isCloud(),
+                            removeClusterStopCountdown: true
+                        });
                     }
                 }
             ]
         });
-        updateTimer();
 
-        function updateTimer() {
-            timeout = window.setTimeout(() => {
+        const updateTimer = () => {
+            this._clusterStopCountdown = window.setTimeout(() => {
                 timeLeft--;
                 timeLeft = Math.max(timeLeft, 0);
                 if (timeLeft === 0) {
@@ -174,6 +176,7 @@ class XcUser {
                 }
             }, interval);
         }
+        updateTimer();
     }
 
     public static logout(): void {
@@ -226,6 +229,7 @@ class XcUser {
     private _activityCheckTime: number = 60 * 1000; // how often to check mouse movement
     private _commitFlag: string;
     private _defaultCommitFlag: string = "commit-default";
+    private _lastSocketUpdate: number = 0; // time when last actiivity update message sent to socket
 
 
     public constructor(username: string, isAdmin = false) {
@@ -409,40 +413,6 @@ class XcUser {
     }
 
     /**
-     * Check if user has been idle, (default = 1 minutes)
-     * if yes, do nothing, otherwise, send notification to expServer (cloud)
-     * and extend cookies
-     * Note that cookies will expire at 30th minute, so here we
-     * check every 10 to 29 minutes to ensure they can be extended
-     */
-    public idleCheck(): void {
-        if (this !== XcUser.CurrentUser) {
-            throw "Invalid User";
-        }
-
-        $(document).on("mousemove.idleCheck", () => {
-            // as long as there is mouse move action, mark as not idle
-            if (!XcUser._isLogoutTimerOn) {
-                // when shutting down, disregard mousemovement
-                this._isIdle = false;
-            }
-            $(document).off("mousemove.idleCheck");
-            $(document).off("keydown.idleCheck");
-        });
-        $(document).on("keydown.idleCheck", () => {
-            // as long as there is mouse move action, mark as not idle
-            if (!XcUser._isLogoutTimerOn) {
-                // when shutting down, disregard mousemovement
-                this._isIdle = false;
-            }
-            $(document).off("mousemove.idleCheck");
-            $(document).off("keydown.idleCheck");
-        });
-        this._idleChecker();
-        this._isIdle = true;
-    }
-
-    /**
      * default to 25 minutes, otherwise should return
      * a value specified in genSettings
      */
@@ -466,30 +436,11 @@ class XcUser {
         }
         this._idleTimeLimit = val;
         if (XcUser._isIdleCheckOn || !XVM.isCloud()) {
-            this._idleChecker();
-            this.restartActivityTimer();
+            this._isIdle = false;
+            this.idleCheck();
         }
         if (XVM.isCloud()) {
             xcHelper.sendRequest("POST", "/service/updateLogoutInterval", {time: val});
-        }
-    }
-
-    public disableIdleCheck(): void {
-        XcUser._isIdleCheckOn = false;
-        console.info("idle check is disabled!");
-        clearTimeout(this._idleChckTimer);
-        clearTimeout(this._activityTimer);
-        if (XVM.isCloud()) {
-            xcHelper.sendRequest("POST", "/service/disableIdleCheck");
-        }
-    }
-
-    public enableIdleCheck(): void {
-        XcUser._isIdleCheckOn = true;
-        this.idleCheck();
-        this.restartActivityTimer();
-        if (XVM.isCloud()) {
-            xcHelper.sendRequest("POST", "/service/enableIdleCheck");
         }
     }
 
@@ -510,17 +461,63 @@ class XcUser {
         }, cookiesUpdateTime);
     }
 
-    private _idleChecker(): void {
-        // This timer is used to check if user has been idle
-        // for '_activityCheckTime' minutes (default is 1 minute)
+    public disableIdleCheck(): void {
+        XcUser._isIdleCheckOn = false;
+        console.info("idle check is disabled!");
         clearTimeout(this._idleChckTimer);
+        clearTimeout(this._activityTimer);
+        if (XVM.isCloud()) {
+            xcHelper.sendRequest("POST", "/service/disableIdleCheck");
+        }
+    }
+
+    public enableIdleCheck(): void {
+        XcUser._isIdleCheckOn = true;
+        this._isIdle = false;
+        this.idleCheck();
+        if (XVM.isCloud()) {
+            xcHelper.sendRequest("POST", "/service/enableIdleCheck");
+        }
+    }
+
+    // received from socket, will not produce a rebroadcast
+    public updateUserActivity(options?: {removeClusterStopCountdown: boolean}): void {
+        this._isIdle = false;
+        this.idleCheck(true);
+        if (options && options.removeClusterStopCountdown) {
+            // close the cluster inactivity alert
+            clearTimeout(XcUser._clusterStopCountdown);
+            XcUser.toggleLogoutTimer(false);
+            if ($("#alertModal").is(":visible") &&
+                $("#alertHeader .text").text() === "Cluster Inactivity") {
+                $("#alertModal").find(".close").click();
+            }
+        }
+    }
+
+    /**
+     * Check if user has been idle, (default = 1 minutes)
+     * if yes, do nothing, otherwise, send notification to expServer (cloud)
+     * and extend cookies
+     * Note that cookies will expire at 30th minute, so here we
+     * check every 10 to 29 minutes to ensure they can be extended
+     */
+    public idleCheck(noBroadcast?: boolean): void {
+        if (this !== XcUser.CurrentUser) {
+            throw "Invalid User";
+        }
+
         if (!this._isXcalarIdle()) {
-            if (XVM.isCloud()) {
-                // tell expServer there was activity
-                xcHelper.sendRequest("POST", "/service/updateUserActivity");
+            if (!noBroadcast) {
+                this._broadcastUserActivity();
             }
             this.restartActivityTimer();
         }
+        this._isIdle = true;
+
+        // This timer is used to check if user has been idle
+        // for '_activityCheckTime' minutes (default is 1 minute)
+        clearTimeout(this._idleChckTimer);
         this._idleChckTimer = window.setTimeout(() => {
             if ($("#container").hasClass("locked")) {
                 return; // if it's error, skip the check
@@ -528,6 +525,17 @@ class XcUser {
                 this.idleCheck(); // reset the check
             }
         }, this._activityCheckTime);
+
+        $(document).off(".idleCheck");
+
+        $(document).on("mousemove.idleCheck keydown.idleCheck", () => {
+            // as long as there is mouse move or keydown action, mark as not idle
+            if (!XcUser._isLogoutTimerOn) {
+                // when shutting down, disregard mousemovement
+                this._isIdle = false;
+            }
+            $(document).off(".idleCheck");
+        });
     }
 
     private _isXcalarIdle(): boolean {
@@ -554,13 +562,25 @@ class XcUser {
     public restartActivityTimer(): void {
         clearTimeout(this._activityTimer);
         this._activityTimer = window.setTimeout(() => {
-            if (this._isXcalarIdle()) {
-                // make sure user is real idle then logout
+            if (this._isXcalarIdle() && XcUser._isIdleCheckOn) {
+                // make sure user is really idle then logout
                 this.logout();
             } else {
                 this.idleCheck(); // reset the check
             }
-        }, this._idleTimeLimit);
+        }, this._idleTimeLimit + (30 * 1000));
+        // extra time allows expServer to trigger the logout first
+    }
+
+    private _broadcastUserActivity() {
+        // tell expServer there was activity, as long as we didn't
+        // already do it in the past 30 seconds
+        if (Date.now() - this._lastSocketUpdate > (30 * 1000)) {
+            XcSocket.Instance.sendMessage("updateUserActivity", {
+                isCloud: XVM.isCloud()
+            });
+            this._lastSocketUpdate = Date.now();
+        }
     }
 
     private commitMismatchHandler(): void {

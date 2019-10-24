@@ -234,7 +234,7 @@ namespace UserSettings {
             // remove admin only settings
             $("#monitorGenSettingsCard .optionSet.admin").remove();
         }
-        
+
         if (!XVM.isCloud()) {
             // remove cloud only settings
             $("#monitorGenSettingsCard .optionSet.cloudOnly").remove();

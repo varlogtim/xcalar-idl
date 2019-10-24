@@ -279,13 +279,8 @@ router.get("/service/logs/slave",
     });
 });
 
-router.get("/service/getTime", function(_req, res) {
+router.get("/service/getTime", [support.checkAuth], function(_req, res) {
     res.status(httpStatus.OK).send(JSON.stringify(Date.now()));
-});
-
-router.post("/service/updateUserActivity", [support.checkAuth], (_req, res) => {
-    UserActivityManager.updateUserActivity();
-    res.status(httpStatus.OK).send();
 });
 
 router.post("/service/disableIdleCheck", [support.checkAuth], (_req, res) => {

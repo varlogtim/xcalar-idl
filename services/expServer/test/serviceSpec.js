@@ -19,7 +19,6 @@ describe('ExpServer Service Test', function() {
     var oldGetMatch;
     var oldCheckAuth;
     var oldCheckAuthAdmin;
-    var oldUpdateUserActivity;
     var oldDisableUserActivity;
     var oldEnableUserActivity;
     var oldStopCluster;
@@ -47,7 +46,6 @@ describe('ExpServer Service Test', function() {
         oldSetPatch = support.setHotPatch;
         oldCheckAuth = support.checkAuthImpl;
         oldCheckAuthAdmin = support.checkAuthAdminImpl;
-        oldUpdateUserActivity = userActivityManager.updateUserActivity;
         oldDisableUserActivity = userActivityManager.disableIdleCheck;
         oldEnableUserActivity = userActivityManager.enableIdleCheck;
         oldStopCluster = cloudManager.stopCluster;
@@ -65,7 +63,6 @@ describe('ExpServer Service Test', function() {
         support.setHotPatch = fakeFunc;
         support.checkAuthImpl = fakeCheck;
         support.checkAuthAdminImpl = fakeCheck;
-        userActivityManager.updateUserActivity = fakeFunc;
         userActivityManager.disableIdleCheck = fakeFunc;
         userActivityManager.enableIdleCheck = fakeFunc;
         cloudManager.stopCluster = fakeFunc;
@@ -85,7 +82,6 @@ describe('ExpServer Service Test', function() {
         support.setHotPatch = oldSetPatch;
         support.checkAuthImpl = oldCheckAuth;
         support.checkAuthAdminImpl = oldCheckAuthAdmin;
-        userActivityManager.updateUserActivity = oldUpdateUserActivity;
         userActivityManager.disableIdleCheck = oldDisableUserActivity;
         userActivityManager.enableIdleCheck = oldEnableUserActivity;
         cloudManager.stopCluster = oldStopCluster;
@@ -289,15 +285,6 @@ describe('ExpServer Service Test', function() {
         });
     });
 
-    it("update user activity should work", function(done) {
-        var data = {
-            url: 'http://localhost:12224/service/updateUserActivity'
-        };
-        request.post(data, function (err, res, body){
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
-    });
 
     it("disable idle check should work", function(done) {
         var data = {

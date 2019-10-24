@@ -17,9 +17,14 @@ class UserActivityManager {
     private _logoutTimer; // {setTimeout} 1 minute timer set when user has been
     // idle for 30 minutes. Will log out at the end of 1 minute.
     private _isCheckDisabled: boolean = false;
+    private _lastSocketUpdate: number = 0; // time when last actiivity update message sent to socket
 
-    public updateUserActivity() {
+    public updateUserActivity(noBroadcast?: boolean) {
         this._restartActivityTimer();
+        if (!noBroadcast && (Date.now() - this._lastSocketUpdate > (30 * 1000))) {
+            socket.updateUserActivity();
+            this._lastSocketUpdate = Date.now();
+        }
     }
 
     public disableIdleCheck() {
@@ -64,7 +69,9 @@ class UserActivityManager {
                 cloudManager.logout();
             }, this._logoutWarningTime);
 
-        }, this._inactivityTime);
+        }, this._inactivityTime - this._logoutWarningTime);
+        // set timer for 1 minute less than required time so that we
+        // can provide a 1 minute warning
     }
 }
 
