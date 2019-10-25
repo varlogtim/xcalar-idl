@@ -47,6 +47,7 @@ window.UnitTest = (function(UnitTest, $) {
     UnitTest.setup = function() {
         $(document).ready(function() {
             xcMixpanel.off();
+            loginMixpanel.off();
             xcGlobal.setup();
             setupTestDatasets();
             mocha.run(function() {

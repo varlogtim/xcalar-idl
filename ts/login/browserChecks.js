@@ -5,7 +5,13 @@
  * in loginPart.html; this check should therefore be run before any of the
  * scripts in loginPart.html)
  */
-
+window["isBrowserMicrosoft"] = false;
+window["isBrowserEdge"] = false;
+window["isBrowserIE"] = false;
+window["isBrowserChrome"] = false;
+window["isBrowserFirefox"] = false;
+window["isBrowserSafari"] = false;
+window["isSystemMac"] = false;
 function browserCheck() {
     var userAgent = navigator.userAgent;
     if (/MSIE 10/i.test(userAgent)) {

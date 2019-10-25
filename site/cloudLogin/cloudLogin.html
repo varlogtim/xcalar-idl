@@ -1,11 +1,13 @@
 <html>
 
 <head>
+<title>Xcalar Developer Cloud</title>
   <link href='../3rd/fonts/raleway/raleway.css' rel='stylesheet' type='text/css'>
   <link href='../3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
   <link href="../assets/stylesheets/css/login.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" type="text/css" href="../assets/stylesheets/css/cloudLogin.css" />
-  <title>Xcalar Developer Cloud</title>
+  <!-- browserChecks.js must run before all other scripts -->
+  <script src="../assets/js/login/browserChecks.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -350,10 +352,14 @@
   <script src="../assets/js/cloudConstants.js"></script>
   <script src="../assets/js/cloudEnums.js"></script>
   <script src="../assets/js/cloudLogin/cloudLogin.js"></script>
-
+  <script src="../assets/js/shared/setup/enums.js"></script>
+  <script src="../assets/js/shared/helperClasses/MouseEvents.js"></script>
+  <script src="../assets/js/cloudLogin/loginMixpanel.js"></script>
   <script>
+
     $(document).ready(function() {
       CloudLogin.setup();
+      loginMixpanel.setup();
     });
   </script>
 </body>

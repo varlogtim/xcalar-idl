@@ -78,15 +78,16 @@ namespace CloudLogin {
                 localUsername = response.emailAddress;
                 localSessionId = response.sessionId;
                 clusterSelection();
+                loginMixpanel.setUsername(localUsername);
             } else if (response.loggedIn === false) {
                 logoutAndShowInitialScreens();
             } else {
-                console.error('cookieLoggedInStatus unrecognized code:', response);
+                xcConsoleError('cookieLoggedInStatus unrecognized code:', response);
                 logoutAndShowInitialScreens();
             }
         })
         .fail((error) => {
-            console.error('cookieLoggedInStatus error:', error);
+            xcConsoleError('cookieLoggedInStatus error:', error);
             // handle it as a not logged in case
             logoutAndShowInitialScreens();
         });
@@ -121,7 +122,7 @@ namespace CloudLogin {
             clusterSelection();
         })
         .fail((error) => {
-            console.error('cookieLogin error:', error);
+            xcConsoleError('cookieLogin error:', error);
             if (error.code === "UserNotConfirmedException") {
                 $("#loginFormMessage").hide();
                 showScreen("verify");
@@ -146,7 +147,7 @@ namespace CloudLogin {
             }
         })
         .fail(error => {
-            console.error('cookieLogut error:', error);
+            xcConsoleError('cookieLogut error:', error);
         });
     }
 
@@ -176,7 +177,7 @@ namespace CloudLogin {
                         resolve(false);
                     }
                 } else {
-                    console.error('checkCredit non-zero status:', billingGetResponse.error);
+                    xcConsoleError('checkCredit non-zero status:', billingGetResponse.error);
                     handleException(billingGetResponse.error);
                     reject(billingGetResponse.error);
                 }
@@ -186,7 +187,7 @@ namespace CloudLogin {
                     // first time user should start with some credits
                     resolve(true);
                 } else {
-                    console.error('checkCredit error caught:', error);
+                    xcConsoleError('checkCredit error caught:', error);
                     handleException(error);
                     reject(error);
                 }
@@ -225,7 +226,7 @@ namespace CloudLogin {
         .then((clusterGetResponse) => {
             if (clusterGetResponse.status !== ClusterLambdaApiStatusCode.OK) {
                 // error
-                console.error('getCluster error. cluster/get returned: ', clusterGetResponse);
+                xcConsoleError('getCluster error. cluster/get returned: ', clusterGetResponse);
                 // XXX TODO: remove this hack fix when lambda fix it
                 if (clusterGetResponse.status === ClusterLambdaApiStatusCode.CLUSTER_ERROR &&
                     clusterGetResponse.error === "Cluster is not reachable yet"
@@ -268,7 +269,7 @@ namespace CloudLogin {
             }
         })
         .fail((error) => {
-            console.error('getCluster error caught:', error);
+            xcConsoleError('getCluster error caught:', error);
             handleException(error);
         })
         .always(() => loadingWait(false));
@@ -297,7 +298,7 @@ namespace CloudLogin {
             getCluster();
         })
         .fail((error) => {
-            console.error('startCluster error caught:', error);
+            xcConsoleError('startCluster error caught:', error);
             handleException(error);
         })
         .always(() => loadingWait(false));
@@ -342,14 +343,14 @@ namespace CloudLogin {
                     }
                 })
             }
-    
+
             let time = (cnt) * 1000; // 5s scale check
             setTimeout(() => {
                 console.log("wait for", time, "to check server is up");
                 checkcer();
             }, time);
         } catch (e) {
-            console.error(e);
+            xcConsoleError(e);
             handleException(null);
         }
     }
@@ -853,7 +854,7 @@ namespace CloudLogin {
         cognitoUser.resendConfirmationCode(function (err, result) {
             loadingWait(false);
             if (err) {
-                console.error(err);
+                xcConsoleError(err);
                 showFormError($("#verifyFormMessage"), err.message);
                 return;
             }
@@ -966,7 +967,7 @@ namespace CloudLogin {
 
                 userPool.signUp(username, password, attributeList, null, function (err, result) {
                     if (err) {
-                        console.error(err);
+                        xcConsoleError(err);
                         showFormError($("#signupFormMessage"), err.message);
                         return;
                     } else {
@@ -989,7 +990,7 @@ namespace CloudLogin {
                 cognitoUser.confirmRegistration(code, true, function (err, result) {
                     loadingWait(false);
                     if (err) {
-                        console.error(err);
+                        xcConsoleError(err);
                         showFormError($("#verifyFormMessage"), err.message);
                         return;
                     } else {

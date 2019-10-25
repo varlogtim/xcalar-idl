@@ -244,7 +244,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 // emailNotification(name);
             }
         } catch (e) {
-            conosle.error("pageLoadEvent error", e);
+            console.error("pageLoadEvent error", e);
         }
 
         function emailNotification(username) {
@@ -759,7 +759,8 @@ window.xcMixpanel = (function($, xcMixpanel) {
         };
 
         // special properties for click events
-        if (eventProperties.eventType === "click" && jqueryEvent) {
+        if ((eventProperties.eventType === "click" ||
+            eventProperties.eventType === "input") && jqueryEvent) {
             let $el = $(jqueryEvent.target);
             let $modal = $el.closest(".modalContainer");
             let $mainMenu = $el.closest(".mainMenu");
