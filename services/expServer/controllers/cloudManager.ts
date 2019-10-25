@@ -25,13 +25,10 @@ class CloudManager {
 
     /**
      * Stop the running cluster
-     * @param cfnId
+     * @param repeatTry
      */
     public async stopCluster(repeatTry?: boolean): Promise<any> {
         xcConsole.log("stop cluster");
-        // TO-DO
-        // 1. update stack with params to stop any EC2 instances
-        // 2. update dynamoDB to remove cluster_url
         try {
             const data: { status: number } = await request.post({
                 url: this._awsURL + "/cluster/stop",
@@ -47,6 +44,9 @@ class CloudManager {
         } catch (e) {
             if (!repeatTry) {
                 return this.stopCluster(true);
+            } else {
+                xcConsole.log("retry stop cluster fails, stop deduct credits");
+                clearTimeout(this._updateCreditsInterval);
             }
             return { error: e };
         }
