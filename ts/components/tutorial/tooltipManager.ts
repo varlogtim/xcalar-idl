@@ -519,7 +519,7 @@ namespace TooltipManager {
 
 
         if (left + popoverWidth > windowWidth) {
-            left = windowWidth - popoverWidth - options.popoverMargin;
+            left = windowWidth - popoverWidth;
             $infoArrow.css('left', currElemRect.left - left - 5);
             $popoverNumber.addClass('left');
         }
