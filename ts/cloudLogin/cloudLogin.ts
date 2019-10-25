@@ -131,14 +131,10 @@ namespace CloudLogin {
                 ensureCognitoUserExists();
                 cognitoResendConfirmationCode();
             } else {
-                if (typeof error === "object" && error.message) {
-                    error = error.message;
-                } else if (typeof error !== "string") {
-                    error = "Login failed with unknown error.";
-                }
-                error += error.endsWith('.') ? '' : '.';
-                error += " Please try again.";
-                showFormError($("#loginFormMessage"), error);
+                let errorMsg = getErrorMessage(error, "Login failed with unknown error.");
+                errorMsg += errorMsg.endsWith('.') ? '' : '.';
+                errorMsg += " Please try again.";
+                showFormError($("#loginFormMessage"), errorMsg);
             }
         })
         .always(() => loadingWait(false));
@@ -319,18 +315,12 @@ namespace CloudLogin {
         .always(() => loadingWait(false));
     }
 
-    // function clusterSelection(cb?: Function) {
     function clusterSelection() {
         checkCredit()
         .then((hasCredit) => {
             if (hasCredit) {
                 return getCluster();
             }
-        // })
-        // .finally(() => {
-        //     if (typeof cb === "function") {
-        //         cb();
-        //     }
         });
     }
 
@@ -389,18 +379,41 @@ namespace CloudLogin {
         }
     }
 
-    function handleException(error: any): void {
-        if (!(typeof error === 'string') && !(error instanceof String)) {
-            error = "A server error has ocurred."
+    function getErrorMessage(error: any, defaultMsg: string = "unknown error") {
+        if (typeof error === "object" && (error.message || error.error)) {
+            error = error.message || error.error;
+        } else if (typeof error !== 'string' && !(error instanceof String)) {
+            error = defaultMsg;
         }
+        return error;
+    }
 
-        $("#exceptionFormMessage .text").html(error);
+    function showExceptionScreen(
+        errorMsg: string = "An unknown error has occurred...",
+        displayText: string = "To try again, refresh this page, or contact Xcalar support at (408) 471-1711"
+    ): void {
+        $("#exceptionForm #exceptionFormMessage .text").html(errorMsg);
+        $("#exceptionForm .title").html(displayText);
 
-        cookieLogout();
         $("header").children().hide();
         $("#formArea").children().hide();
         $("#exceptionTitle").show();
         $("#exceptionForm").show();
+    }
+
+    function handleException(error: any): void {
+        const errorMsg = getErrorMessage(error, "An unknown server error has ocurred.");
+        if (error.status === 3) { // XXX use enum
+            let displayText =
+            'We are currently experiencing an overwhelmingly high demand for our product. ' +
+            'Please contact Xcalar support at <a href="mailto:info@xcalar.com">info@xcalar.com</a> ' +
+            'or call us at (408) 471-1711. Thank you for your patience.'
+            showExceptionScreen(errorMsg, displayText);
+        } else {
+            showExceptionScreen(errorMsg);
+        }
+
+        cookieLogout();
     }
 
     function checkLoginForm(): boolean {
@@ -753,22 +766,15 @@ namespace CloudLogin {
         fetch(url, fetchParams)
         .then((res) => {
             statusCode = res.status;
-            if (res.status === httpStatus.OK || res.status === httpStatus.Unauthorized) {
-                return res.json();
-            } else {
-                return PromiseHelper.reject('Server responsed with status ' + res.status + '.');
-            }
+            return res.json();
         })
         .then((res: any) => {
             // XXX TODO: use a enum instead of 0
-            if (statusCode === httpStatus.Unauthorized) {
-                if (res.code === "UserNotConfirmedException") {
-                    deferred.reject(res);
-                } else {
-                    deferred.reject('Wrong Email or Password.');
-                }
-            } else if (!res.status || res.status === 0) {
+            if (statusCode === httpStatus.OK && (!res.status || res.status === 0)) {
                 deferred.resolve(res);
+            // TODO: remove this else if after /login returns object - not stringified object
+            } else if (statusCode === httpStatus.Unauthorized && res.code !== "UserNotConfirmedException") {
+                deferred.reject('Wrong Email or Password.');
             } else {
                 deferred.reject(res);
             }
