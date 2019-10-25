@@ -164,6 +164,7 @@ namespace CloudLogin {
                         "Content-Type": "application/json",
                     },
                     method: 'POST',
+                    credentials: 'include',
                     body: JSON.stringify({
                         "username": localUsername
                     }),
@@ -223,6 +224,7 @@ namespace CloudLogin {
                     "Content-Type": "application/json",
                 },
                 method: 'POST',
+                credentials: 'include',
                 body: JSON.stringify({
                     "username": localUsername
                 }),
@@ -297,6 +299,7 @@ namespace CloudLogin {
                     "Content-Type": "application/json",
                 },
                 method: 'POST',
+                credentials: 'include',
                 body: JSON.stringify({
                     "username": localUsername,
                     "clusterParams": {
