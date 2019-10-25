@@ -40,8 +40,8 @@ namespace CloudLogin {
                 'Creating Xcalar cluster',
                 'Starting Xcalar cluster',
                 'Initializing Xcalar cluster',
-                'Running health checks',
-                'Setting up user preferences'
+                'Setting up user preferences',
+                'Running health checks'
             ],
             numVisibleProgressTexts: 5,
             startWidth: parseInt(sessionStorage.getItem('XcalarDeployingProgressBarWidth')) || 5,
