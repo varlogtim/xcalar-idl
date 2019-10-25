@@ -920,9 +920,20 @@ class DagNodeExecutor {
         optimized?: boolean
     ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        if (optimized && node.getTable()) {
+        if (optimized) {
+            let sourceTable: string = node.getTable();
+            if (!sourceTable && graph === dfInNode.getGraph()) {
+                // when link is in the same dataflow, as optimized
+                // execution make a clone of graph, it loese the cached table
+                // need to find the real link out node
+                let realLinkOutNode: DagNodeDFOut = dfInNode.getLinkedNodeAndGraph(true).node;
+                sourceTable = realLinkOutNode.getTable();
+            }
+
+            if (!sourceTable) {
+                throw new Error("Cannot find source result in the linked node correctly.");
+            }
             const desTable = this._generateTableName();
-            const sourceTable = node.getTable();
             // get table outside from batch flow, so sameSession must be set to false
             XIApi.synthesize(this.txId, [], sourceTable, desTable, false)
             .then(deferred.resolve)

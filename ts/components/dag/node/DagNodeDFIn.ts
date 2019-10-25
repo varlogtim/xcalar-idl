@@ -48,10 +48,13 @@ class DagNodeDFIn extends DagNodeIn {
         super.setParam();
     }
 
-    public getLinkedNodeAndGraph(): {graph: DagGraph, node: DagNodeDFOut} {
+    public getLinkedNodeAndGraph(skipSelfSearch?: boolean): {graph: DagGraph, node: DagNodeDFOut} {
         const param: DagNodeDFInInputStruct = this.input.getInput(true);
-        const dataflowId: string = param.dataflowId;
         const linkOutName: string = param.linkOutName;
+        let dataflowId: string = param.dataflowId;
+        if (skipSelfSearch && dataflowId === DagNodeDFIn.SELF_ID) {
+            dataflowId = this._graph.getTabId();
+        }
         const candidateGraphs: DagGraph[] = this._findLinkedGraph(dataflowId);
         if (candidateGraphs.length === 0) {
             throw new Error(DagNodeLinkInErrorType.NoGraph);
@@ -128,6 +131,10 @@ class DagNodeDFIn extends DagNodeIn {
     public hasSource(): boolean  {
         const input: DagNodeDFInInputStruct = this.getParam();
         return (input.source != "" && input.source != null);
+    }
+
+    public getGraph(): DagGraph {
+        return this._graph;
     }
 
     /**
