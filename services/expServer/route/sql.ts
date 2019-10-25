@@ -4,10 +4,10 @@ import * as xcConsole from "../utils/expServerXcConsole";
 import sqlManager from "../controllers/sqlManager"
 import support from "../utils/expServerSupport"
 
-// set default timeout to 20 min
-const defaultSQLTimeout: number = process.env.EXP_SQL_TIMEOUT &&
-                        !isNaN(parseInt(process.env.EXP_SQL_TIMEOUT)) ?
-                        parseInt(process.env.EXP_SQL_TIMEOUT) : 1200000;
+// set default timeout to 4 hrs(caddy default timeout)
+const defaultSQLTimeout: number = process.env.XCE_EXP_TIMEOUT &&
+                        !isNaN(parseInt(process.env.XCE_EXP_TIMEOUT)) ?
+                        parseInt(process.env.XCE_EXP_TIMEOUT) : 14400000;
 
 router.post("/xcsql/query", function(req, res) {
     req.setTimeout(defaultSQLTimeout);
