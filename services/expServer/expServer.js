@@ -379,6 +379,18 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         return nodeCloudOwner;
     }
 
+    function getExpServerPort() {
+        return serverPort;
+    }
+
+    function getThriftPort() {
+        return thriftPort;
+    }
+
+    function getJupyterPort() {
+        return jupyterPort;
+    }
+
     function getCertificate(data) {
         var ca = '';
         if (data.indexOf("centos") > -1) {
@@ -474,6 +486,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     }
 
     exports.getNodeCloudOwner = getNodeCloudOwner;
+    exports.getExpServerPort = getExpServerPort;
+    exports.getThriftPort = getThriftPort;
+    exports.getJupyterPort = getJupyterPort;
 
     if (process.env.NODE_ENV === "test") {
         exports.getOperatingSystem = getOperatingSystem;
