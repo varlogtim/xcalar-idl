@@ -56,7 +56,8 @@
         </div>
       </div>
     </div>
-    <div class="optionSet admin">
+    <!-- show logout interval if cloud or if admin -->
+    <div class="optionSet adminOrCloudOnly">
       <div class="label"><%= dicts.monitor.logOutInterval %></div>
       <div id="logOutIntervalSlider" class="optionSelector rangeSliderWrap">
         <div class="rangeSlider">

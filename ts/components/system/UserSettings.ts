@@ -230,14 +230,17 @@ namespace UserSettings {
         if (XVM.isCloud()) {
             // remove prem only settings
             $("#monitorGenSettingsCard .optionSet.onPremOnly").remove();
-        } else if (!Admin.isAdmin()) {
-            // remove admin only settings
-            $("#monitorGenSettingsCard .optionSet.admin").remove();
-        }
-
-        if (!XVM.isCloud()) {
+        } else {
             // remove cloud only settings
             $("#monitorGenSettingsCard .optionSet.cloudOnly").remove();
+            if (!Admin.isAdmin()) {
+                $("#monitorGenSettingsCard .optionSet.adminOrCloudOnly").remove();
+            }
+        }
+
+        if (!Admin.isAdmin()) {
+            // remove admin only settings
+            $("#monitorGenSettingsCard .optionSet.admin").remove();
         }
     }
 
@@ -459,7 +462,7 @@ namespace UserSettings {
                 if (XVM.isCloud() && Admin.isAdmin()) {
                     // don't allow admin to login as user not allow
                     Alert.show({
-                        "title": "Access Deined",
+                        "title": "Access Denied",
                         "msg": "The cloud user doesn't enable Xcalar support!",
                         // XXX TODO: enable it when auth work is done
                         // "lockScreen": true
