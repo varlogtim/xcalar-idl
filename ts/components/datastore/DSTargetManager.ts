@@ -14,9 +14,17 @@ namespace DSTargetManager {
     let udfFuncHint: InputDropdownHint;
     const xcalar_cloud_s3: string = "xcalar_cloud_s3_env";
     const xcalar_public_s3: string = "Public S3";
+    // connectors for IMD, generted by XCE
+    const xcalar_table_gen: string = "TableGen";
+    const xcalar_table_store: string = "TableStore";
     const cloudTargetBlackList: string[] = ["shared",
-    "sharednothingsymm", "sharednothingsingle"]
-
+    "sharednothingsymm", "sharednothingsingle"];
+    const reservedList: string[] = [
+        xcalar_cloud_s3,
+        xcalar_public_s3,
+        xcalar_table_gen,
+        xcalar_table_store
+    ];
 
     export const S3Connector: string = "s3fullaccount";
     export const DBConnector: string = "dsn";
@@ -538,14 +546,24 @@ namespace DSTargetManager {
     }
 
     function isReservedTargetName(targetName: string): boolean {
-        return targetName === xcalar_cloud_s3 ||
-                targetName === xcalar_public_s3;
+        return reservedList.includes(targetName);
+    }
+
+    function isHiddenTarget(targetName: string): boolean {
+        if (XVM.isCloud()) {
+            return targetName === xcalar_table_gen ||
+                targetName === xcalar_table_store;
+        } else {
+            return false;
+        }
     }
 
     function cacheTargets(targetList): string[] {
         targetSet = {};
         targetList.forEach(function(target) {
-            if (isAccessibleTarget(target.type_id)) {
+            if (isAccessibleTarget(target.type_id) &&
+                !isHiddenTarget(target.name)
+            ) {
                 targetSet[target.name] = target;
             }
         });
