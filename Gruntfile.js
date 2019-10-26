@@ -130,6 +130,7 @@ var TRUNK = "trunk";
 var INSTALLER = "installer";
 var DEV = "dev";
 var DEBUG = "debug";
+var CLOUD_LOGIN = "cloud_login";
 var BUILD_REACT = "build_react";
 
 // Other Tasks
@@ -603,6 +604,11 @@ var VALID_TASKS = {
             [BLD_TASK_KEY]: true,
             [DESC_KEY]:
                 "\n\t\tBuild react"
+        },
+        [CLOUD_LOGIN]: {
+            [BLD_TASK_KEY]: true,
+            [DESC_KEY]:
+                "\n\t\tBuild Cloud Login page"
         },
         [TEST]: {
             [BLD_TASK_KEY]:false,
@@ -1968,7 +1974,6 @@ module.exports = function(grunt) {
     grunt.task.registerTask(INSTALLER, function() {
 
         grunt.task.run("build");
-
         grunt.task.run("new_config_file"); // clear developer configuration details
 
         // minify AFTER above tasks
@@ -2007,6 +2012,16 @@ module.exports = function(grunt) {
         grunt.task.run('cachebreakerbuild');
         grunt.task.run("finalize");
 
+    });
+
+    /**
+     * grunt cloud_login
+     */
+    grunt.task.registerTask(CLOUD_LOGIN, "Build Cloud login page", function() {
+        var config = grunt.config('assets_inline');
+        config.cloudLogin.options.minify = true;
+        grunt.config('assets_inline', config);
+        grunt.task.run(DEV);
     });
 
                 /**
@@ -4527,12 +4542,12 @@ module.exports = function(grunt) {
                 grunt.task.run('sed:raleway_css');
                 grunt.task.run('assets_inline:login');
 
-            } else if (BLDTYPE == DEV) {
+            } else if (BLDTYPE == DEV || BLDTYPE === CLOUD_LOGIN) {
                 grunt.task.run('embedFonts');
                 grunt.task.run('sed:opensans_css');
                 grunt.task.run('sed:raleway_css');
 
-                 // build for cloudLogin assets
+                // build for cloudLogin assets
                 grunt.task.run('sed:opensans_css_cloudLogin');
                 grunt.task.run('sed:raleway_css_cloudLogin');
                 grunt.task.run('assets_inline:cloudLogin');
@@ -4542,7 +4557,7 @@ module.exports = function(grunt) {
             // (tests are run from the bld dest;
             // would need to re-build every time change make to a unit
             // test that you want reflected)
-            if (BLDTYPE == DEV || BLDTYPE == DEBUG) {
+            if (BLDTYPE == DEV || BLDTYPE == DEBUG || BLDTYPE === CLOUD_LOGIN) {
                 var symlinkTo = SRCROOT + UNIT_TEST_FOLDER;
                 var symlinkPath = BLDROOT + UNIT_TEST_FOLDER;
                 // need to check if the symlink already exists;
