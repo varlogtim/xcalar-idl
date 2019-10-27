@@ -476,11 +476,10 @@ $(document).ready(function() {
                 .removeClass("btnInProgress")
                 .removeData("oldhtml");
         } else {
-            var text = $btn.text();
             var oldhtml = $btn.html();
             html = '<div class="animatedEllipsisWrapper">' +
                         '<div class="text">' +
-                            text +
+                            'LOGGING IN' +
                         '</div>' +
                         '<div class="animatedEllipsis">' +
                           '<div>.</div>' +
