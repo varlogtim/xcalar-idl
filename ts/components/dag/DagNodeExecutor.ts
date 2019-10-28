@@ -975,8 +975,10 @@ class DagNodeExecutor {
         }
 
         let promise;
+        let noQueryNeeded = false;
         if (priorDestTable) {
             console.log("reusing cache", node);
+            noQueryNeeded = true;
             promise = PromiseHelper.resolve({queryStr: "", destTables:[priorDestTable]});
         } else {
             promise = graph.getQuery(node.getId(), optimized, true, true, false, this.txId);
@@ -990,9 +992,16 @@ class DagNodeExecutor {
                 destTable = destTables[destTables.length - 1];
             }
             if (!priorDestTable) {
+                try {
+                    let queryLen: number = JSON.parse(queryStr).length;
+                    if (queryLen === 0) {
+                        noQueryNeeded = true;
+                    }
+                } catch (e) {}
                 rootTx.setStoredQueryDest(node.getId(), graph.getTabId(), destTable);
                 return XIApi.query(this.txId, destTable, queryStr);
             } else {
+                noQueryNeeded = true;
                 return PromiseHelper.resolve();
             }
         })
@@ -1004,7 +1013,9 @@ class DagNodeExecutor {
             }
         })
         .then((finaTable: string) => {
-            this.node.beCompleteState();
+            if (noQueryNeeded) {
+                this.node.beCompleteState();
+            } // else will be completed when queryStateOutput returns
             deferred.resolve(finaTable);
         })
         .fail(deferred.reject);
