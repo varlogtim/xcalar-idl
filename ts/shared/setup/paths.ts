@@ -1,7 +1,7 @@
 var paths = {
     dologout: 'assets/htmlFiles/dologout.html',
     login: 'assets/htmlFiles/login.html',
-    cloudLogin: 'https://cloud.test.xcalar.cloud', // XXX TODO: change to the real login url
+    cloudLogin: 'https://my.xcalar.cloud',
     cloudCredit: "https://xcalar.com/credits/",
     cloudEnv: "assets/js/env/cloudEnv.js",
     indexAbsolute: "/index.html",
