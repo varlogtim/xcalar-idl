@@ -12,10 +12,11 @@ describe('XVM Test', () => {
             Alert.show = (arg) => { testArg = arg };
             XVM.__testOnly__.showInvalidLicenseAlert('test');
             expect(testArg).to.be.an('object');
-            expect(Object.keys(testArg).length).to.equal(3);
+            expect(Object.keys(testArg).length).to.equal(4);
             expect(testArg.title).to.equal(AlertTStr.LicenseErr);
             expect(testArg.isAlert).to.be.true;
-            expect(testArg.msg).to.equal('test\n' + AlertTStr.LicenseErrMsg);
+            expect(testArg.msg).to.equal(AlertTStr.LicenseErrMsg);
+            expect(testArg.detail).to.equal("test");
             Alert.show = oldFunc;
             XVM.isCloud = oldIsCloud;
         });

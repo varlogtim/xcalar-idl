@@ -28,7 +28,8 @@ namespace XVM {
         Alert.show({
             title: AlertTStr.LicenseErr,
             isAlert: true,
-            msg: error + '\n' + AlertTStr.LicenseErrMsg
+            msg: AlertTStr.LicenseErrMsg,
+            detail: error
         });
     }
 
