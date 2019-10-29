@@ -801,44 +801,58 @@ table.datasetTable {
 }
 /* End of Source Card */
 
-/* S3 Config Card */
 #dsForm-s3Config, #dsForm-dbConfig {
+    #dsForm-path;
+}
+
+/* S3 Config Card */
+#dsForm-s3Config {
     #dsForm-path;
 
     .cardMain {
-        padding-bottom: 20px;
+        > .pathSection {
+            height: auto;
+            line-height: normal;
+        }
     }
 
     .pathSection {
-        margin-top: 15px;
-
         .path {
+            height: 30px;
+            line-height: 30px;
             position: relative;
 
-            .addPath {
-                margin-left: 10px;
-                font-size: 17px;
-                color: @color-font-link-blue;
-                line-height: 30px;
-            }
-
             &:not(:first-child) {
+                margin-top: 20px;
                 label {
                     visibility: hidden;
-                }
-            }
-
-            &:not(:last-child) {
-                .addPath {
-                    display: none;
                 }
             }
         }
     }
 
-    .cardBottom {
-        .confirm {
-            margin-right: 160px;
+    .addPathSection {
+
+        .addPath {
+            color: @color-font-link-blue;
+            margin-right: 12px;
+            margin-left: 150px;
+
+            .icon {
+                font-size: 20px;
+                position: relative;
+                top: 4px;
+            }
+
+            .text {
+                text-decoration: underline;
+            }
+        }
+
+        .orBrowser {
+            button {
+                margin-left: 12px;
+            }
         }
     }
 
@@ -885,43 +899,48 @@ table.datasetTable {
             color: @color-font-link-blue;
         }
     }
+
     .cardMain {
         .size(@min-height: 120px);
         padding-top: 30px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid @color-border-softGray;
 
-        .content {
+        > div {
             .size(@width: 80%);
-            margin: 15px auto 0 auto;
+            margin: 20px auto 0 auto;
+            .size(@height: 30px);
+            line-height: 30px;
 
             &:first-child {
                 margin-top: 0;
             }
+        }
 
+        .content {
             > label, > div, > button, > input {
                 float: left;
             }
 
             > label {
                 .size(@width: 150px);
+                font-weight: bold;
             }
 
             .dropDownList {
                 .styleDropDownList(~"calc(100% - 310px)", 30px);
+
+                &.long {
+                    width: ~"calc(100% - 150px)";
+                }
 
                 .list {
                     left: 1px;
                 }
             }
 
-            &.target {
-                .size(@height: 30px);
-                line-height: 30px;
-            }
-
             &.path {
-                .size(@height: 30px);
                 .input-box(100%, 30px);
-                line-height: 30px;
 
                 input {
                     .vertical-align;
@@ -946,8 +965,8 @@ table.datasetTable {
     .cardBottom {
         margin: 0 10%;
         padding-right: 0;
-        padding-top: 10px;
-        padding-bottom: 20px;
+        padding-top: 24px;
+        padding-bottom: 24px;
     }
 }
 /* End of Path Card */

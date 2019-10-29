@@ -17,57 +17,7 @@ abstract class DSConnectorPanel {
         return this._getPathSection().find(".path input");
     }
 
-    protected _addEventListeners(): void {
-        //set up dropdown list for target
-        let $card = this._getCard();
-        this._addDropdownListeners();
-
-        $card.on("click", ".confirm", () => {
-            this._submitForm();
-        });
-
-        $card.on("click", ".addPath", () => {
-            this._addPath();
-        });
-
-        $card.find(".back").click(() => {
-            // back to data source panel
-            this._clear();
-            DataSourceManager.startImport(null);
-        });
-
-        this._getMultiDSSection().on("click", ".switch, .switchLabel", (el) => {
-            let $switch = $(el.currentTarget).closest(".switchWrap").find(".switch");
-            if ($switch.hasClass("on")) {
-                $switch.removeClass("on");
-                $switch.next().removeClass("highlighted");
-                $switch.prev().addClass("highlighted");
-            } else {
-                $switch.addClass("on");
-                $switch.prev().removeClass("highlighted");
-                $switch.next().addClass("highlighted");
-            }
-        });
-    }
-
-    protected _restoreFromPreview(connector: string, paths: {path: string}[]): void {
-        this.show();
-        this._getConnectorSection().find("input").val(connector);
-        
-        let $pathSection = this._getPathSection();
-        paths.forEach((path, i) => {
-            let $input: JQuery;
-            if (i === 0) {
-                $input = $pathSection.find(".path input").eq(0);
-            } else {
-                let $path = this._addPath();
-                $input = $path.find("input");
-            }
-            $input.val(path.path);
-        });
-    }
-
-    protected _clear(): void {
+    private _clear(): void {
         this._focusOnPath();
         this._getPathSection().find(".path").each((i, el) => {
             let $path = $(el);
@@ -78,38 +28,7 @@ abstract class DSConnectorPanel {
             }
         });
         this._getMultiDSSection().addClass("xc-hidden");
-    }
-
-    protected _validatePreview(): {
-        connector: string,
-        paths: {path: string}[]
-    } | null {
-        let $path: JQuery = this._getPathInput();
-        let $target = this._getConnectorSection().find("input");
-        let eles = [{$ele: $target}];
-        let paths: {path: string}[] = [];
-
-        $path.each((_i, el) => {
-            let $ele = $(el);
-            let path: string = $ele.val().trim();
-            if (path !== "") {
-                paths.push({ path });
-            }
-        });
-        if (paths.length === 0) {
-            // when all path is empty
-            eles.push({ $ele: $path.eq(0) });
-        }
-        let valid: boolean = xcHelper.validate(eles);
-        if (!valid) {
-            return null;
-        }
-
-        let connector: string = $target.val();
-        return {
-            connector,
-            paths
-        };
+        this._getCard().find(".orBrowser").removeClass("xc-hidden")
     }
 
     private _getConnectorSection(): JQuery {
@@ -134,7 +53,91 @@ abstract class DSConnectorPanel {
         $path.find("input").val("");
         $pathSection.append($path);
         this._getMultiDSSection().removeClass("xc-hidden");
+        this._getCard().find(".orBrowser").addClass("xc-hidden")
         return $path;
+    }
+
+    private _validatePreview(checkPath: boolean): {
+        connector: string,
+        paths: {path: string}[]
+    } | null {
+        let $path: JQuery = this._getPathInput();
+        let $target = this._getConnectorSection().find("input");
+        let eles = [{$ele: $target}];
+        let paths: {path: string}[] = [];
+
+        $path.each((_i, el) => {
+            let $ele = $(el);
+            let path: string = $ele.val().trim();
+            if (path !== "") {
+                paths.push({ path });
+            }
+        });
+        if (paths.length === 0 && checkPath) {
+            // when all path is empty
+            eles.push({ $ele: $path.eq(0) });
+        }
+        let valid: boolean = xcHelper.validate(eles);
+        if (!valid) {
+            return null;
+        }
+
+        let connector: string = $target.val();
+        return {
+            connector,
+            paths
+        };
+    }
+
+    private _restoreFromPreview(connector: string, paths: {path: string}[]): void {
+        this.show();
+        this._getConnectorSection().find("input").val(connector);
+
+        let $pathSection = this._getPathSection();
+        paths.forEach((path, i) => {
+            let $input: JQuery;
+            if (i === 0) {
+                $input = $pathSection.find(".path input").eq(0);
+            } else {
+                let $path = this._addPath();
+                $input = $path.find("input");
+            }
+            $input.val(path.path);
+        });
+    }
+
+    private _preview(): void {
+        let res = this._validatePreview(false);
+        if (res == null) {
+            return;
+        }
+        let {paths, connector} = res;
+        let path: string = paths[0] ? paths[0].path : "";
+        path = DSForm.normalizePath(path);
+        let cb = () => this._restoreFromPreview(connector, paths);
+        this._clear();
+        FileBrowser.show(connector, path, false, {
+            backCB: cb
+        });
+    }
+
+    private _submitForm(): void {
+        let res = this._validatePreview(true);
+        if (res == null) {
+            return;
+        }
+        let {paths, connector} = res;
+        let multiDS: boolean = this._getMultiDSSection().find(".switch").hasClass("on");
+        if (paths.length === 1) {
+            multiDS = false;
+        }
+        let cb = () => this._restoreFromPreview(connector, paths);
+        this._clear();
+        DSPreview.show({
+            targetName: connector,
+            files: paths,
+            multiDS: multiDS,
+        }, cb, false);
     }
 
     private _addDropdownListeners(): void {
@@ -159,22 +162,40 @@ abstract class DSConnectorPanel {
         }).setupListeners();
     }
 
-    private _submitForm(): void {
-        let res = this._validatePreview();
-        if (res == null) {
-            return;
-        }
-        let {paths, connector} = res;
-        let multiDS: boolean = this._getMultiDSSection().find(".switch").hasClass("on");
-        if (paths.length === 1) {
-            multiDS = false;
-        }
-        let cb = () => this._restoreFromPreview(connector, paths);
-        this._clear();
-        DSPreview.show({
-            targetName: connector,
-            files: paths,
-            multiDS: multiDS,
-        }, cb, false);
+    private _addEventListeners(): void {
+        //set up dropdown list for target
+        let $card = this._getCard();
+        this._addDropdownListeners();
+
+        $card.on("click", ".confirm", () => {
+            this._submitForm();
+        });
+
+        $card.on("click", ".addPath", () => {
+            this._addPath();
+        });
+
+        $card.find(".browse").click(() => {
+            this._preview();
+        });
+
+        $card.find(".back").click(() => {
+            // back to data source panel
+            this._clear();
+            DataSourceManager.startImport(null);
+        });
+
+        this._getMultiDSSection().on("click", ".switch, .switchLabel", (el) => {
+            let $switch = $(el.currentTarget).closest(".switchWrap").find(".switch");
+            if ($switch.hasClass("on")) {
+                $switch.removeClass("on");
+                $switch.next().removeClass("highlighted");
+                $switch.prev().addClass("highlighted");
+            } else {
+                $switch.addClass("on");
+                $switch.prev().removeClass("highlighted");
+                $switch.next().addClass("highlighted");
+            }
+        });
     }
 }

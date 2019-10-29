@@ -337,6 +337,13 @@ namespace DSTargetManager {
         return xcalar_cloud_s3;
     }
 
+    /**
+     * DSTargetManager.getPublicS3Connector
+     */
+    export function getPublicS3Connector(): string {
+        return xcalar_public_s3;
+    }
+
     function getConnectorList(): XDPromise<any> {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
         XcalarTargetList()

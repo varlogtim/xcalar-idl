@@ -29,6 +29,7 @@ class DSS3Config extends DSConnectorPanel {
         .map((targetName) => `<li>${targetName}</li>`)
         .join("");
         html = '<li class="createNew">+ Create New Amazon S3 Connector</li>' +
+                '<li class="public">' + DSTargetManager.getPublicS3Connector() + '</li>' +
                 html;
         return html;
     }

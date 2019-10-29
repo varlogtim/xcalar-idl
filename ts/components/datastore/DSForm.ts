@@ -76,6 +76,23 @@ namespace DSForm {
         }
     }
 
+    /**
+     * DSForm.normalizePath
+     * @param path
+     */
+    export function normalizePath(path: string): string {
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+
+        let parts:string[] = path.split("/");
+        if (parts[parts.length-1].indexOf(".") == -1 &&
+            !path.endsWith("/")) {
+            path = path + "/";
+        }
+        return path;
+    }
+
     function isValidPathToBrowse(): boolean {
         let isValid = xcHelper.validate([{
             $ele: $("#dsForm-target").find(".text")
@@ -174,15 +191,7 @@ namespace DSForm {
         if (!DSTargetManager.isGeneratedTarget(targetName)
             && !DSTargetManager.isConfluentTarget(targetName)
         ) {
-            if (!path.startsWith("/")) {
-                path = "/" + path;
-            }
-
-            let parts:string[] = path.split("/");
-            if (parts[parts.length-1].indexOf(".") == -1 &&
-                !path.endsWith("/")) {
-                path = path + "/";
-            }
+            path = DSForm.normalizePath(path);
         }
         if (DSTargetManager.isDatabaseTarget(targetName)) {
             path = `/${targetName}`;

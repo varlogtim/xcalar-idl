@@ -79,6 +79,10 @@ describe("Datastore-DSTargetManger Test", function() {
         it("DSTargetManager.getCloudS3Connector should work", function() {
             expect(DSTargetManager.getCloudS3Connector()).to.equal("xcalar_cloud_s3_env");
         });
+
+        it("DSTargetManager.getPublicS3Connector should work", function() {
+            expect(DSTargetManager.getPublicS3Connector()).to.equal("Public S3");
+        });
     });
 
     describe("Create S3 Target Test", function() {

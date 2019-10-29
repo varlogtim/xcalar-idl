@@ -162,7 +162,7 @@ namespace TooltipWalkthroughs {
         }, {
             highlight_div: "#dsForm-source .more",
             interact_div: "#dsForm-source .more",
-            text: "The More Connectors button enables you to select advanced connectors to connect to your data source.",
+            text: "The All Connectors button enables you to select advanced connectors to connect to your data source.",
             type: TooltipType.Text
         }];
 

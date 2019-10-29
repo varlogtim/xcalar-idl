@@ -10,7 +10,7 @@
     <div class="content target">
       <label>S3 Connector:</label>
       <!-- s3 connector dropdown -->
-      <div class="dropDownList connector">
+      <div class="dropDownList long connector">
         <input class="text" type="text" placeholder="Select a S3 connector" spellcheck="false" disabled>
         <div class="iconWrapper">
           <i class="icon xi-arrow-down"></i>
@@ -26,10 +26,19 @@
     <div class="pathSection">
       <div class="content path">
         <label>Data Source Path:</label>
-        <div class="dropDownList">
+        <div class="dropDownList long">
           <input type="text" spellcheck="false">
         </div>
-        <i class="addPath icon xi-plus-circle-outline xc-action" data-toggle="tooltip" data-placement="top" data-container="body" data-title="Add path"></i>
+      </div>
+    </div>
+    <div class="content addPathSection">
+      <div class="addPath xc-action">
+        <i class="icon xi-plus-circle-outline xc-action" data-toggle="tooltip" data-placement="top" data-container="body" data-title="Add path"></i>
+        <span class="text">Add Path</span>
+      </div>
+      <div class="orBrowser">
+        <span class="text">or</span>
+        <button class="btn btn-secondary browse" type="button"><%= dicts.common.Browse %>...</button>
       </div>
     </div>
     <!-- import option -->
