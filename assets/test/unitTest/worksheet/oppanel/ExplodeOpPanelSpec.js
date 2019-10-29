@@ -47,7 +47,7 @@ describe('ExplodeOpPanel Test', () => {
             const delimiterProps = args[1];
             expect(delimiterProps.type).to.equal('string');
             expect(delimiterProps.inputVal).to.equal(',');
-            expect(delimiterProps.valueCheck).to.deep.equal({checkType: 'stringNoEmptyValue', args: []});
+            expect(delimiterProps.valueCheck).to.deep.equal({checkType: 'stringNoTrimNoEmptyValue', args: []});
 
             // section#3: dest column
             const destColProps = args[2];
@@ -85,6 +85,22 @@ describe('ExplodeOpPanel Test', () => {
                 setParamCalled = false; // restore
                 closeCalled = false; // restore
                 return PromiseHelper.resolve();
+            });
+
+            // Case: valid parameters - space as delimiter
+            testList.push(() => {
+                const deferred = PromiseHelper.deferred();
+                opPanel._dataModel.setDelimiter(' ');
+                opPanel._updateUI();
+                setTimeout(() => {
+                    opPanel._submitForm();
+                    expect(setParamCalled).to.equal(true);
+                    expect(closeCalled).to.equal(true);
+                    setParamCalled = false; // restore
+                    closeCalled = false; // restore
+                    deferred.resolve();
+                }, 0);
+                return deferred.promise();
             });
 
             // Case: invalid parameters
