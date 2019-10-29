@@ -18,6 +18,7 @@ namespace CloudLogin {
     let selectedClusterSize: string;
     let deployingProgressBar: ProgressBar;
     let stoppingProgressBar: ProgressBar;
+    let loginTimeoutTimer: number;
 
     export function setup(): void {
         userPoolId = XCE_CLOUD_USER_POOL_ID;
@@ -248,6 +249,11 @@ namespace CloudLogin {
                     }, 1000);
                 } else {
                     showScreen("cluster");
+                    clearTimeout(loginTimeoutTimer);
+                    loginTimeoutTimer = <any>setTimeout(() => {
+                        showInitialScreens();
+                        cookieLogout();
+                    }, 1800000);
                 }
             } else if (clusterGetResponse.isPending) {
                 // go to wait screen
@@ -918,6 +924,7 @@ namespace CloudLogin {
         });
 
         $(".logOutLink").click(function () {
+            clearTimeout(loginTimeoutTimer);
             cookieLogout();
         });
 
@@ -1017,6 +1024,7 @@ namespace CloudLogin {
 
         $("#deployBtn").click(function () {
             if (checkClusterForm()) {
+                clearTimeout(loginTimeoutTimer);
                 startCluster();
             }
         });
