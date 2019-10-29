@@ -3899,7 +3899,7 @@ XcalarQueryCheck = function(
         try {
             queryStateOutput.queryGraph.node.forEach((node) => {
                 if (node.status != null && node.status !== StatusT.StatusOk) {
-                    node.thriftError = thriftLog("XcalarQuery", node.status);
+                    node.thriftError = thriftLog("XcalarQuery Node", node.status);
                 }
             });
         } catch (e) {
