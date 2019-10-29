@@ -58,6 +58,10 @@ class LogoutModal {
             $modal.find(".radioButton").removeClass("active");
             $(this).addClass("active");
         });
+        $modal.on("click", ".subLabel", function() {
+            $modal.find(".radioButton").removeClass("active");
+            $(this).prev().addClass("active"); // click the previous radio button
+        });
     }
 
     private _autoClusterStop(): XDPromise<void> {
@@ -65,19 +69,15 @@ class LogoutModal {
         this._getModal().addClass("locked clusterStop autoClusterStop");
 
         this._progressBar.start("Please wait while your cluster shuts down...");
+
         this._checkClusterStopped()
-        new Promise((res, rej) => {
-            setTimeout(() => {
-                rej();
-            }, 10000)
-        })
         .then(() => {
             XcUser.CurrentUser.logout();
             this._progressBar.end("Completed");
             this._close();
             deferred.resolve();
         })
-        .catch((error) => {
+        .fail((error) => {
             this._handleClusterStopFailure(error)
             .then(deferred.resolve)
             .fail(deferred.reject)
@@ -90,12 +90,13 @@ class LogoutModal {
 
     private _stopCluster(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._getModal().addClass("locked");
+        let $modal = this._getModal()
+        $modal.addClass("locked");
 
         xcHelper.sendRequest("POST", "/service/stopCloud")
         .then((res) => {
             this._getModal().addClass("clusterStop");
-            this._progressBar.start("Cluster shut down");
+            this._progressBar.start("Shutting Down");
             if (res && res.status === ClusterLambdaApiStatusCode.OK) {
                 return this._checkClusterStopped();
             } else {
@@ -162,13 +163,17 @@ class LogoutModal {
     // it didn't stop
     private _handleClusterStopFailure(error): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (error && error.error) {
-            error = error.error;
+        if (error) {
+            if (error.error && typeof error.error !== "function") {
+                error = error.error;
+            } else if (error.responseJSON && error.responseJSON.error) {
+                error = error.responseJSON.error;
+            }
         }
         XVM.checkVersion(true)
         .then(() => {
             this._progressBar.reset();
-            Alert.error("Stop Cluster Failed", error);
+            Alert.error("Stop Cluster Failed", error, {sizeToText: true});
             deferred.reject(error);
         })
         .fail(() => {

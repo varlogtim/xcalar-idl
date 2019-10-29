@@ -1669,7 +1669,7 @@ html.microsoft {
 
     #alertContent {
         .size(@width: 100%);
-        padding: 0 @modal-padding-horizontal;
+        padding: 8px @modal-padding-horizontal;
         overflow: auto;
         vertical-align: middle;
         min-height: 50px;
@@ -1788,9 +1788,15 @@ html.microsoft {
         .logoutOptions {
             display: none;
         }
+        .text.clusterStopText {
+            display: block;
+        }
+        .text.userActivated {
+            display: none;
+        }
     }
     &.autoClusterStop {
-        .text.userActivated {
+        .text.userActivated, .text.clusterStopText {
             display: none;
         }
         .text.autoActivated {
@@ -1809,6 +1815,9 @@ html.microsoft {
         .modalBottom, .close {
             .xc-disabled;
         }
+    }
+    .clusterStopText {
+        display: none;
     }
     .modalMain {
         height: ~"calc(100% - @{h-without-main})";
