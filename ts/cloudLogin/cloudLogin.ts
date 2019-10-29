@@ -14,6 +14,9 @@ namespace CloudLogin {
     let loginTimeoutTimer: number;
     let cloudLoginCognitoService: CloudLoginCognitoService;
     let cloudLoginLambdaService: CloudLoginLambdaService;
+    let pendingTimeoutTimer: number;
+    let getClusterTimer: number;
+    let pendingTimeoutHappened: boolean = false;
 
     export function setup(): void {
         cloudLoginCognitoService = new CloudLoginCognitoService;
@@ -160,11 +163,13 @@ namespace CloudLogin {
         }
     }
 
-
     function getCluster(clusterIsStarting?: boolean): XDPromise<void> {
         loadingWait(true);
         return cloudLoginLambdaService.clusterGetRequest(localUsername)
         .then((clusterGetResponse) => {
+            if (pendingTimeoutHappened) {
+                return;
+            }
             if (clusterGetResponse.status !== ClusterLambdaApiStatusCode.OK) {
                 // error
                 xcConsoleError('getCluster error. cluster/get returned: ', clusterGetResponse);
@@ -197,8 +202,17 @@ namespace CloudLogin {
                 }
             } else if (clusterGetResponse.isPending) {
                 // go to wait screen
-                setTimeout(() => getCluster(clusterGetResponse.isStarting), 3000);
+                getClusterTimer = <any>setTimeout(() => {
+                    getCluster(clusterGetResponse.isStarting);
+                }, 3000);
                 showProgressBar(clusterGetResponse.isStarting);
+                if (!pendingTimeoutTimer) {
+                    pendingTimeoutTimer = <any>setTimeout(() => {
+                        pendingTimeoutHappened = true;
+                        handleException("Server took too long to respond");
+                        clearTimeout(getClusterTimer); // so that 401 doesn't overwrite error message
+                    }, 600000);
+                }
             } else {
                 if (deployingProgressBar.isStarted()) {
                     showClusterIsReadyScreen();
@@ -604,7 +618,6 @@ namespace CloudLogin {
     }
 
     let deployingProgressBarCheckIntervalID: number;
-
     function deployingClusterAnimation(): void {
         if (!deployingProgressBar.isStarted()) {
             deployingProgressBar.start("Please wait while your cluster loads...");
