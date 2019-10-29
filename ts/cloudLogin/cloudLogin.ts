@@ -124,10 +124,7 @@ namespace CloudLogin {
             console.error('cookieLogin error:', error);
             if (error.code === "UserNotConfirmedException") {
                 $("#loginFormMessage").hide();
-                $("header").children().hide();
-                $("#formArea").children().hide();
-                $("#verifyForm").show();
-                $("#verifyTitle").show();
+                showScreen("verify");
                 ensureCognitoUserExists();
                 cognitoResendConfirmationCode();
             } else {
@@ -175,10 +172,7 @@ namespace CloudLogin {
                     if (billingGetResponse.credits > 0) {
                         resolve(true);
                     } else {
-                        $("header").children().hide()
-                        $("#formArea").children().hide()
-                        $('#noCreditsForm').show();
-                        $('#noCreditsTitle').show();
+                        showScreen("noCredits");
                         resolve(false);
                     }
                 } else {
@@ -203,12 +197,10 @@ namespace CloudLogin {
 
     function showProgressBar(isStarting) {
         if (isStarting) {
-            $("#loadingTitle").show();
-            $("#loadingForm").show();
+            showScreen("loading");
             deployingClusterAnimation();
         } else {
-            $("#stoppingTitle").show();
-            $("#stoppingForm").show();
+            showScreen("stopping");
             stoppingClusterAnimation();
         }
     }
@@ -240,8 +232,6 @@ namespace CloudLogin {
                 ) {
                     console.warn(clusterGetResponse);
                     setTimeout(() => getCluster(clusterGetResponse.isStarting), 3000);
-                    $("header").children().hide();
-                    $("#formArea").children().hide();
                     showProgressBar(clusterGetResponse.isStarting);
                     return;
                 } else {
@@ -256,16 +246,11 @@ namespace CloudLogin {
                         showInitialScreens();
                     }, 1000);
                 } else {
-                    $("header").children().hide();
-                    $("#formArea").children().hide();
-                    $("#clusterTitle").show();
-                    $("#clusterForm").show();
+                    showScreen("cluster");
                 }
             } else if (clusterGetResponse.isPending) {
                 // go to wait screen
                 setTimeout(() => getCluster(clusterGetResponse.isStarting), 3000);
-                $("header").children().hide();
-                $("#formArea").children().hide();
                 showProgressBar(clusterGetResponse.isStarting);
             } else {
                 let cb = () => {
@@ -369,16 +354,23 @@ namespace CloudLogin {
         }
     }
 
+    function hideCurrentScreen(): void {
+        $("#cloudLoginHeader").children().hide();
+        $("#formArea").children().hide();
+    }
+
+    function showScreen(screenName: string): void {
+        hideCurrentScreen();
+        $("#" + screenName + "Title").show();
+        $("#" + screenName + "Form").show();
+    }
+
     function showInitialScreens(): void {
-        $("header").children().hide()
-        $("#formArea").children().hide()
         const signupScreen: boolean = hasParamInURL("signup");
         if (signupScreen) {
-            $("#signupTitle").show();
-            $("#signupForm").show();
+            showScreen("signup");
         } else {
-            $("#loginTitle").show();
-            $("#loginForm").show();
+            showScreen("login");
         }
     }
 
@@ -398,10 +390,7 @@ namespace CloudLogin {
         $("#exceptionForm #exceptionFormMessage .text").html(errorMsg);
         $("#exceptionForm .title").html(displayText);
 
-        $("header").children().hide();
-        $("#formArea").children().hide();
-        $("#exceptionTitle").show();
-        $("#exceptionForm").show();
+        showScreen("exception");
     }
 
     function handleException(error: any): void {
@@ -924,10 +913,7 @@ namespace CloudLogin {
         })
 
         $(".link-to-login").click(function () {
-            $("header").children().hide();
-            $("#formArea").children().hide();
-            $("#loginTitle").show();
-            $("#loginForm").show();
+            showScreen("login");
         });
 
         $(".logOutLink").click(function () {
@@ -988,10 +974,7 @@ namespace CloudLogin {
                     }
                     cognitoUser = result.user;
 
-                    $("#signupForm").hide();
-                    $("#signupTitle").hide();
-                    $("#verifyForm").show();
-                    $("#verifyTitle").show();
+                    showScreen("verify");
                 });
             } else {
                 signupSubmitClicked = true;
@@ -1011,10 +994,7 @@ namespace CloudLogin {
                         return;
                     } else {
                         $("#verifyFormMessage").hide();
-                        $("header").children().hide();
-                        $("#formArea").children().hide();
-                        $("#loginTitle").show();
-                        $("#loginForm").show();
+                        showScreen("login");
                         showFormSuccess($("#loginFormMessage"), "Your email address was verified successfully. Log in to access your account!");
                     }
                 });
@@ -1041,10 +1021,7 @@ namespace CloudLogin {
         });
 
         $("#forgotSection a").click(function () {
-            $("#loginForm").hide();
-            $("#loginTitle").hide();
-            $("#forgotPasswordForm").show();
-            $("#forgotPasswordTitle").show();
+            showScreen("forgotPassword");
         });
 
         $("#forgot-password-submit").click(function () {
@@ -1060,10 +1037,7 @@ namespace CloudLogin {
                     onSuccess: function () {
                         loadingWait(false);
                         $("#forgotPasswordFormMessage").hide();
-                        $("#forgotPasswordForm").hide();
-                        $("#forgotPasswordTitle").hide();
-                        $("#confirmForgotPasswordForm").show();
-                        $("#confirmForgotPasswordTitle").show();
+                        showScreen("confirmForgotPassword");
                     },
                     onFailure: function (err) {
                         loadingWait(false);
@@ -1086,10 +1060,7 @@ namespace CloudLogin {
                     onSuccess: function () {
                         loadingWait(false);
                         $("#confirmForgotPasswordFormMessage").hide();
-                        $("#confirmForgotPasswordForm").hide();
-                        $("#confirmForgotPasswordTitle").hide();
-                        $("#loginForm").show();
-                        $("#loginTitle").show();
+                        showScreen("login");
                     },
                     onFailure: function (err) {
                         loadingWait(false);
