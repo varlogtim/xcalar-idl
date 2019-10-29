@@ -17,8 +17,14 @@ namespace DSTargetManager {
     // connectors for IMD, generted by XCE
     const xcalar_table_gen: string = "TableGen";
     const xcalar_table_store: string = "TableStore";
-    const cloudTargetBlackList: string[] = ["shared",
-    "sharednothingsymm", "sharednothingsingle"];
+    const cloudTargetBlackList: string[] = [
+        "shared",
+        "sharednothingsymm",
+        "sharednothingsingle",
+        "azblobenviron",
+        "gcsenviron",
+        "s3environ"
+    ];
     const reservedList: string[] = [
         xcalar_cloud_s3,
         xcalar_public_s3,
