@@ -33,7 +33,7 @@ class DeleteTableModalService {
                         "name": node.name,
                         "size": node.size,
                         "sizeText": xcHelper.sizeTranslator(node.size),
-                        "locked": DagTblManager.Instance.hasLock(node.name),
+                        "locked": DagTblManager.Instance.hasLock(node.name) || node.pinned,
                         "checked": false,
                         ...this._getDateInfo(node.name)
                     });
@@ -85,8 +85,9 @@ class DeleteTableModalService {
                 .then(() => {
                     resolve();
                 })
-                .fail(() => {
+                .fail((err) => {
                     reject();
+                    this._failHandler(err);
                 })
                 .always(() => {
                     // should re-dected memory usage
@@ -199,6 +200,72 @@ class DeleteTableModalService {
             });
         }
         return tables;
+    }
+
+    // XXX replace window variables with react components
+    private _failHandler(args: any[]): void {
+        let $container = $(`#${id}`);
+        let hasSuccess: boolean = false;
+        let failedTables: string[] = [];
+        let failedMsg: string = "";
+        let failFound: boolean = false;
+        let noDelete: boolean = false;
+        let xcStringHelper = window["xcStringHelper"];
+        let StatusBox = window["StatusBox"];
+        let ErrTStr = window["ErrTStr"];
+        let StatusMessageTStr = window["StatusMessageTStr"];
+        let ErrWRepTStr = window["ErrWRepTStr"];
+        args = args || [];
+        for (let i = 0; i < args.length; i++) {
+            if (args[i] && args[i].error && args[i].tableName) {
+                failFound = true;
+                let tableName: string = args[i].tableName
+                failedTables.push(tableName);
+                let error: string = args[i].error;
+                if (!failedMsg && error !== ErrTStr.CannotDropLocked) {
+                    failedMsg = error;
+                } else if (error === ErrTStr.CannotDropLocked) {
+                    noDelete = true;
+                }
+
+                let $gridUnit = $container.find('.grid-unit').filter((_i, el) => {
+                    let $grid = $(el);
+                    return ($grid.find('.name').text() === tableName);
+                });
+                $gridUnit.addClass('failed');
+
+            } else if (args[i] == null) {
+                hasSuccess = true;
+            }
+        }
+        if (!failFound) {
+            return;
+        }
+
+        if (!failedMsg && noDelete) {
+            // only show cannot dropped message if ther are no other
+            // fail messages
+            failedMsg = ErrTStr.CannotDropLocked;
+        }
+        let errorMsg;
+        if (hasSuccess) {
+            if (failedTables.length === 1) {
+                errorMsg = failedMsg + ". " +
+                xcStringHelper.replaceMsg(ErrWRepTStr.ResultSetNotDeleted, {
+                    "name": failedTables[0]
+                });
+            } else {
+                errorMsg = failedMsg + ". " +
+                           StatusMessageTStr.PartialDeleteResultSetFail + ".";
+            }
+        } else {
+            errorMsg = failedMsg + ". " + ErrTStr.NoResultSetDeleted;
+        }
+        let $firstGrid = $container.find('.grid-unit.failed').eq(0);
+        StatusBox.show(errorMsg, $firstGrid, false, {
+            "side": "left",
+            "highZindex": true
+        });
     }
 }
 

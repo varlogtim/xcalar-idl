@@ -2773,19 +2773,31 @@ namespace XIApi {
             bailOnError: false,
             checkTime: checkTime
         };
+
         XcalarQueryWithCheck(queryName, queryStr, txId, checkOptions)
         .then((res) => {
             // results come back in random order so we create a map of names
-            let resMap: Map<string, number> = new Map();
+            let resMap: Map<string, {
+                error: string,
+                state: DgDagStateT
+            }> = new Map();
             const nodes: any[] = res.queryGraph.node;
             nodes.forEach((node) => {
-                resMap.set(node.input.deleteDagNodeInput.namePattern, node.state);
+                let error;
+                if (node.thriftError && node.thriftError.error) {
+                    error = node.thriftError.error;
+                }
+                resMap.set(node.input.deleteDagNodeInput.namePattern, {
+                    error: error,
+                    state: node.state
+                });
             });
 
             let hasError: boolean = false;
             let results: object[] = arrayOfQueries.map((query: any) => {
                 const tableName: string = query.args.namePattern;
-                const state: number = resMap.get(tableName);
+                const tableInfo = resMap.get(tableName);
+                const state: number = tableInfo.state;
 
                 if (state === DgDagStateT.DgDagStateReady ||
                     state === DgDagStateT.DgDagStateDropped
@@ -2794,14 +2806,23 @@ namespace XIApi {
                     return null;
                 } else {
                     hasError = true;
-                    return {error: DgDagStateTStr[state]};
+                    let error;
+                    if (tableInfo.error) {
+                        error = tableInfo.error;
+                    } else {
+                        error = DgDagStateTStr[state];
+                    }
+                    return {
+                        error: error,
+                        tableName: tableName
+                    };
                 }
             });
 
             if (hasError) {
-                deferred.reject.apply(this, results);
+                deferred.reject(results);
             } else {
-                deferred.resolve.apply(this, results);
+                deferred.resolve(results);
             }
             if (typeof MonitorPanel !== "undefined") {
                 MonitorPanel.tableUsageChange();
@@ -2810,9 +2831,12 @@ namespace XIApi {
         .fail(() => {
             var results = [];
             for (var i = 0; i < arrayOfQueries.length; i++) {
-                results.push({error: DgDagStateTStr[DgDagStateT.DgDagStateError]});
+                results.push({
+                    error: DgDagStateTStr[DgDagStateT.DgDagStateError],
+                    tableName: arrayOfQueries[i].args.namePattern
+                });
             }
-            deferred.reject.apply(this, results);
+            deferred.reject(results);
         });
 
         return deferred.promise();

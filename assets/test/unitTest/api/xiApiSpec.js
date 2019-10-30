@@ -1093,7 +1093,7 @@ describe('XIApi Test', () => {
                     done();
                 });
             });
-            
+
             it("should fail under invalid primary key", (done) => {
                 XIApi.publishTable(0, ["nonexist"], "source", "dest", basicCols)
                 .then(() => {
@@ -2365,7 +2365,7 @@ describe('XIApi Test', () => {
 
                 XIApi.deleteTables(1, arrayOfQueries)
                     .then((result) => {
-                        expect(result).to.equal(null);
+                        expect(result).to.deep.equal([null]);
                         done();
                     })
                     .fail(() => {
@@ -2401,7 +2401,7 @@ describe('XIApi Test', () => {
 
                 XIApi.deleteTables(null, arrayOfQueries)
                     .then((result) => {
-                        expect(result).to.equal(null);
+                        expect(result).to.deep.equal([null]);
                         done();
                     })
                     .fail(() => {
@@ -2440,7 +2440,7 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .fail((error) => {
-                        expect(error).to.be.an('object');
+                        expect(error).to.be.an('array');
                         done();
                     })
                     .always(() => {
@@ -2463,7 +2463,7 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .fail((error) => {
-                        expect(error).to.be.an('object');
+                        expect(error).to.be.an('array');
                         done();
                     })
                     .always(() => {
