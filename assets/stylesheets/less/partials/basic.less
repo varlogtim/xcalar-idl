@@ -574,7 +574,6 @@ body {
     .size(@width: 100%, @height: @height-homeBtn);
     color: @color-font-form-gray;
     background-color: @color-bg-topBarGray2;
-    box-shadow: 0px 0.25px 0px @color-bg-cardHeader;
     padding-left: @width-menuPadding;
     padding-right: @width-userBox;
     overflow: hidden;
@@ -728,15 +727,6 @@ body {
         font-size: 17px;
         line-height: 19px;
     }
-
-    #userNameArea {
-        background-color: @color-white;
-        border-radius: 2px;
-        color: @color-bg-cancel-gray-hover;
-        .icon {
-            font-size: 17px;
-        }
-    }
 }
 
 #userNameArea {
@@ -746,18 +736,13 @@ body {
     display: inline-block;
     background-color: transparent;
     outline: 0;
-    opacity: @opacity-unhover;
     padding: 0;
     border: 0;
-    cursor: pointer;
+    background-color: @color-white;
+    border-radius: 2px;
 
     .icon {
-        .font(@size: 18px, @color: @color-font-warm-grey-two);
-    }
-
-    &:hover, &:focus {
-        background-color: @color-bg-white-two;
-        opacity: @opacity-hover;
+        font-size: 17px;
     }
 
     &:active {
@@ -1210,11 +1195,11 @@ input {
 
 .searchbarArea {
     .position(relative);
-    .input-box (100%, 25px);
+    .input-box(100%, 25px);
 
     .counter {
         .position(absolute, @top: 5px, @right: 79px);
-        .size (@height: 30px);
+        .size(@height: 30px);
         .font(@color: @color-text-graySoft, @size: 12px);
         pointer-events: none;
     }

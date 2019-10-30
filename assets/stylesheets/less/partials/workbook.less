@@ -206,61 +206,12 @@
         }
     }
 
-    .newsBox, .tutBox {
+    .tutBox {
         .section {
             margin-bottom: 10px;
             height: 50%;
         }
-        hr {
-            position: absolute;
-            width: ~"calc(100% - 2px)";
-            left: 0px;
-            top: 50%;
-            border: 1px solid @color-border-white-five;
-            margin: 0px;
-        }
-        li {
-            list-style-type: disc;
-        }
-    }
 
-    .newsBox {
-        .innerContent {
-            min-width: auto;
-        }
-        .description {
-            margin-top: 8px;
-            li {
-                margin-bottom: 0px;
-            }
-        }
-
-        section:last-child {
-            .description {
-                margin-top: 4px;
-            }
-        }
-
-        a {
-            color: @color-font-form-gray;
-            text-decoration: none;
-            &:hover {
-                color: @color-font-select-blue;
-                text-decoration: underline;
-            }
-        }
-
-        li > span {
-            cursor: pointer;
-            &:hover {
-                color: @color-font-select-blue;
-                text-decoration: underline;
-            }
-        }
-
-    }
-
-    .tutBox {
         .helpText {
             margin-top: 2px;
             font-weight: normal;

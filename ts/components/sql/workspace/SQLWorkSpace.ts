@@ -97,16 +97,15 @@ class SQLWorkSpace {
             minHeight: 36,
             start: function () {
                 $panel.addClass("resizing");
-                rightSectionHeight = $rightSection.height();
+                rightSectionHeight = $rightSection.outerHeight();
             },
             resize: function (_event, ui) {
                 let pct = ui.size.height / rightSectionHeight;
                 if (ui.position.top <= 100) {
                     pct = (rightSectionHeight - 100) / rightSectionHeight;
-                    $histSection.height(rightSectionHeight - 100)
+                    $histSection.outerHeight(rightSectionHeight - 100)
                              .css("top", 100);
                 }
-
                 $resultSection.outerHeight(100 * (1 - pct) + "%");
             },
             stop: function (_event, ui) {
@@ -115,10 +114,10 @@ class SQLWorkSpace {
                     ui.position.top = 100;
                     pct = (rightSectionHeight - 100) / rightSectionHeight;
                 }
-                let pctTop = ui.position.top / rightSectionHeight;
+                let pctTop = 1 - pct;
                 $histSection.css("top", 100 * pctTop + "%")
-                         .height(100 * pct + "%");
-                $resultSection.outerHeight(100 * (1 - pct) + "%");
+                         .outerHeight(100 * pct + "%");
+                $resultSection.outerHeight(100 * pctTop + "%");
                 $panel.removeClass("resizing");
             }
         });

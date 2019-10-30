@@ -626,7 +626,7 @@
     .text {
         color: @color-font-greyish-brown;
         background-color: @color-white;
-        border: 1px solid @color-border-softGray;
+        border: 1px solid @color-border-menugray;
         border-right: none;
         .font(@size: 14px);
         padding-left: 10px;
@@ -640,7 +640,7 @@
 
     .iconWrapper {
         background-color: @color-white;
-        border: 1px solid @color-border-softGray;
+        border: 1px solid @color-border-menugray;
         cursor: pointer;
         float: right;
         .size(30px, 30px);
@@ -654,7 +654,7 @@
 
         .icon {
             @size: 10px;
-            .size(@width: @size, @height: @size);
+            .size(@width: @size, @height: 6px);
             .center-align;
             display: block;
             top: 50%;
@@ -966,7 +966,7 @@
     input {
         .size(@width: @w, @height: @h);
         .font(@size: 14px, @weight: 600, @line-height: @h);
-        border: solid 1px @color-border-white-five-darker;
+        border: solid 1px @color-border-menugray;
         padding: 0 10px;
         text-align: left;
         background-color: @color-bg-white-three;
@@ -1013,7 +1013,7 @@
 .xc-textArea {
     resize: none;
     padding: 8px;
-    border: 1px solid @color-border-softGray;
+    border: 1px solid @color-border-menugray;
     &:focus {
         outline: none;
         border-color: @color-border-softBlue;
@@ -1128,11 +1128,11 @@
 
         .row {
             &:hover {
-                background-color: #EDF2F7;
+                background-color: @color-bg-list-hover-blue;
             }
 
             &.selected {
-                background-color: @color-bg-topBarGray2;
+                background-color: @color-bg-dropdown-hover-gray;
             }
         }
     }
@@ -1380,6 +1380,52 @@
 .xc-action {
     cursor: pointer;
     .xc-hover;
+}
+
+// for icon
+.xc-icon-action {
+    color: @color-bg-cardHeader;
+    cursor: pointer;
+
+    &:hover {
+        color: @color-border-grayBlue;
+    }
+}
+
+.xc-iconWrap-action {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background-color: transparent;
+    .rounded(3px);
+
+    .icon {
+        @size: 12px;
+        color: @color-bg-cardHeader;
+        font-size: @size;
+        width: @size;
+        height: @size;
+        display: block;
+        .center-align();
+    }
+
+    &:hover, &:focus {
+        background-color: @color-bg-topBarGray2;
+    }
+}
+
+.xc-innerIcon-action {
+    cursor: pointer;
+
+    .icon {
+        color: @color-bg-cardHeader;
+    }
+
+    &:hover, &:focus {
+        .icon {
+            color: @color-border-grayBlue;
+        }
+    }
 }
 
 .xc-hover {

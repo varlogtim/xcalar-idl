@@ -2,14 +2,16 @@
   <div class="topSection">
     <span class="label"><%= dicts.common.Tables %></span>
     <span class="actionArea">
-      <div class="xc-action refresh">
+      <div class="xc-iconWrap-action refresh action"
+        title="<%= dicts.common.Refresh %>" data-container="body"
+        data-toggle="tooltip" data-placement="top">
         <i class="icon xi-refresh"></i>
-        <span><%= dicts.common.Refresh %></span>
       </div>
-      <div class="tooltipWrapper">
-        <div class="xc-action viewSchema">
+      <div class="tooltipWrapper action">
+        <div class="xc-iconWrap-action viewSchema"
+        title="<%= dicts.dag.viewSchema %>" data-container="body"
+        data-toggle="tooltip" data-placement="top">
           <i class="icon xi-show"></i>
-          <span><%= dicts.dag.viewSchema %></span>
         </div>
       </div>
     </span>
