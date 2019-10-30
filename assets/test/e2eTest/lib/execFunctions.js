@@ -112,5 +112,90 @@ module.exports = {
 
     clearConsole: function() {
         console.clear();
+    },
+
+    // change xcalarQueryCheck so that we console error query failures
+    hackXcalarQueryCheck: function() {
+        window.XcalarQueryCheck = function (queryName, canceling, txId, options) {
+            if (tHandle == null) {
+                return PromiseHelper.resolve(null);
+            }
+            const deferred = PromiseHelper.deferred();
+            if (insertError(arguments.callee, deferred)) {
+                return (deferred.promise());
+            }
+            options = options || {};
+            let noCleanup = options.noCleanup;
+            let checkTime = options.checkTime || 1000; // 1s per check
+            if (canceling) {
+                checkTime = options.checkTime || 2000;
+            }
+            let origCheckTime = checkTime;
+            cycle();
+            function cycle() {
+                setTimeout(function () {
+                    XcalarQueryState(queryName)
+                        .then(function (queryStateOutput) {
+                        const state = queryStateOutput.queryState;
+                        let numNodes = queryStateOutput.queryGraph.numNodes;
+                        if (numNodes > 1000) {
+                            // don't check as frequently if we have thousands of nodes
+                            // add a maximum of 5 seconds per check
+                            checkTime = origCheckTime + (Math.min(5, Math.floor(numNodes / 1000)) * 1000);
+                        }
+                        Transaction.update(txId, queryStateOutput);
+                        if (state === QueryStateT.qrFinished ||
+                            state === QueryStateT.qrCancelled) {
+                            addThriftErrorLogToQueryOutput(queryStateOutput);
+                            if (noCleanup) {
+                                deferred.resolve(queryStateOutput);
+                            }
+                            else {
+                                // clean up query when done
+                                XcalarQueryDelete(queryName)
+                                    .always(function () {
+                                    deferred.resolve(queryStateOutput);
+                                });
+                            }
+                        }
+                        else if (state === QueryStateT.qrError) {
+                            // clean up query when done
+                            XcalarQueryDelete(queryName)
+                                .always(function () {
+                                deferred.reject(queryStateOutput.queryStatus, queryStateOutput);
+                            });
+                        }
+                        else {
+                            cycle();
+                        }
+                    })
+                        .fail(function () {
+                        if (canceling) {
+                            XcalarQueryDelete(queryName);
+                        }
+                        deferred.reject.apply(this, arguments);
+                    });
+                }, checkTime);
+            }
+            function addThriftErrorLogToQueryOutput(queryStateOutput) {
+                try {
+                    let hasError = false;
+                    queryStateOutput.queryGraph.node.forEach((node) => {
+                        if (node.status != null && node.status !== StatusT.StatusOk) {
+                            hasError = true;
+                            node.thriftError = thriftLog("XcalarQuery Node", node.status);
+                        }
+                    });
+                    //XXX THIS IS THE HACK
+                    if (hasError) {
+                        console.error(JSON.stringify(queryStateOutput, null, 4));
+                    }
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            }
+            return (deferred.promise());
+        };
     }
 };

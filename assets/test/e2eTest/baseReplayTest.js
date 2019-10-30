@@ -30,6 +30,10 @@ function replay(testConfig, tags) {
             browser.uploadAndEnterWorkbook(testConfig.workbook);
         },
 
+        'hackXcalarQueryCheck': function(browser) {
+            browser.execute(execFunctions.hackXcalarQueryCheck, []);
+        },
+
         'disable auto exec': function(browser) {
             browser.execute(execFunctions.disableAutoExec, []);
         },
