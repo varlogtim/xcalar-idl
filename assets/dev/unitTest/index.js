@@ -91,7 +91,7 @@ async function runTest(testType, hostname) {
         await page.coverage.startJSCoverage({ resetOnNavigation: true });
         // }
         console.log("Opening page:", url)
-        await page.goto(url);
+        await page.goto(url, {timeout: 120000});
         // time out after 1 day
         await page.waitForSelector('#testFinish', {timeout: 864000000});
         const results = await page.evaluate(() => document.querySelector('#testFinish').textContent);
@@ -223,7 +223,7 @@ async function runFuncTests() {
         url = `${hostname}/funcTest.html?noPopup=y&animation=y&cleanup=y&user=${userName}&iterations=${iterations}&seed=${seed}`;
         console.log("Opening page:", url)
         try {
-            await page.goto(url);
+            await page.goto(url, {timeout: 120000});
             pages.push(page);
         } catch (error) {
            console.log(`Error opening url: ${url}`, error);
