@@ -1217,7 +1217,7 @@ module.exports = {
         "viewNewHelpDoc": "View our help documentation",
         "viewNews": "View Xcalar's most recent announcements",
         "visit": "Visit",
-        "welcomeXI": "Welcome to <b>" + bldVars.prodName + "</b>",
+        "welcomeXI": "Welcome to " + bldVars.prodName,
         "Wkbk": "Workbook",
         "Wkbkname": "Workbook Name",
         "Edit": "Edit Workbook",

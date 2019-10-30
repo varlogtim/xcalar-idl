@@ -415,11 +415,6 @@ namespace WorkbookPanel {
             }
         });
 
-        $workbookSection.on("click", ".vertBarBtn", function() {
-            xcTooltip.hideAll();
-            StatusBox.forceHide();
-        });
-
         // Events for the actual workbooks
         // anywhere on workbook card
         $workbookSection.on("click", ".activate", function(event) {
@@ -854,12 +849,13 @@ namespace WorkbookPanel {
             name: workbook.getName()
         });
         if (workbook.jupyterFolder) {
-            msg += "\nThe following Jupyter folder will also be deleted: " + workbook.jupyterFolder;
+            msg += "\nThe following Jupyter folder will also be deleted: " + workbook.jupyterFolder + ".";
         }
 
         Alert.show({
             "title": WKBKTStr.Delete,
             "msg": msg,
+            "sizeToText": true,
             "onConfirm": () => {
                 deleteWorkbookHelper(workbookId);
             }
