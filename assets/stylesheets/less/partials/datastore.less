@@ -1702,8 +1702,9 @@ table.datasetTable {
 
 /* Data Form Preview */
 #dsForm-preview {
-    .size(@min-width: 750px, @height: ~"calc(100% - 5px)");
+    .size(@min-width: 750px, @height: 100%);
     overflow: hidden;
+    margin-bottom: 0;
 
     &.minimize {
         .cardMain {
@@ -2488,7 +2489,7 @@ table.datasetTable {
                 width: 12px;
                 height: 5px;
                 border-top: 5px solid transparent;
-                border-right: 5px solid @color-border-darkGray;
+                border-right: 5px solid @color-font-edge;
                 bottom: 1px;
                 right: 1px;
                 opacity: 0.5;

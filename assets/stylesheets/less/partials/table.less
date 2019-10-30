@@ -125,7 +125,7 @@ html.edge {
         }
         &.dataCol {
             .flexRow {
-                background-color: @color-bg-white-five !important;
+                background-color: @color-border-menugray !important;
                 height: @height-xcColHeaderOuter - 10px;
             }
         }
@@ -261,8 +261,6 @@ html.edge {
             .size(@width: ~"calc(100% + 5px)", @height: 1px);
             content: "";
             display: block;
-            border-bottom: 1px solid rgba(0,0,0,0.15);
-            box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.08);
         }
         &::before {
             .transition(opacity 0.3s);
@@ -335,8 +333,7 @@ html.edge {
             .size(@width: 100%);
             text-align: center;
             outline: none;
-            // cursor: default;
-            .font(@weight: 600);
+            font-weight: normal;
         }
 
         &:focus {
@@ -1094,7 +1091,7 @@ html.edge {
                 .position(absolute, @right: 3px, @bottom: 4px);
                 .size(@width: 15px, @height: 11px);
                 border-top: 11px solid transparent;
-                border-right: 11px solid @color-border-darkGray;
+                border-right: 11px solid @color-font-edge;
                 opacity: 0.4;
             }
             &.dropdownBoxHidden {
@@ -1341,7 +1338,7 @@ html.edge {
         .typeIcon;
 
         .type.icon {
-            color: @color-font-greyish-brown;
+            color: @color-font-edge;
         }
 
         .dropDown;
@@ -1569,7 +1566,7 @@ html.edge {
             background-color: @color-white;
             border-style: solid;
             border-width: 0 0 1px 0;
-            border-color: rgba(0, 0, 0, 0.2);
+            border-color: @color-bg-topBarGray2;
 
 
             .sortIcon {

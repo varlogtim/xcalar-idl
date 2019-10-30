@@ -551,7 +551,7 @@
         .transition(opacity 0.02s linear);
         .transition-delay(0.05s);
         border-top: 11px solid transparent;
-        border-right: 11px solid @color-border-darkGray;
+        border-right: 11px solid @color-font-edge;
         &:hover {
             opacity: 1 !important;
         }
@@ -572,7 +572,7 @@
             .size(@width: 12px, @height: 7px);
             .position(absolute, @right: 6px, @bottom: 7px);
             border-top: 7px solid transparent;
-            border-right: 7px solid @color-border-darkGray;
+            border-right: 7px solid @color-font-edge;
         }
     }
 }
@@ -984,12 +984,32 @@
     }
 }
 
+.xc-search-input {
+    .size(@height: 24px);
+    position: relative;
+
+    input {
+        font-size: 12px;
+        .rounded(3px);
+        .size(@height: 24px);
+        padding-left: 22px;
+        line-height: 24px;
+        background-color: @color-white;
+    }
+
+    > .icon {
+        .font(@size: 14px);
+        .position(absolute, @top: 6px, @left: 5px);
+        color: @color-border-bar;
+    }
+}
+
 .xc-input {
     @width: 100%;
     @height: 30px;
     .size(@width: @width, @height: @height);
     .font(@size: 14px, @weight: 600, @line-height: @height);
-    border: solid 1px @color-border-white-five-darker;
+    border: solid 1px @color-border-menugray;
     padding: 0 10px;
     text-align: left;
     background-color: @color-bg-white-three;
@@ -1745,7 +1765,7 @@ html.firefox {
 
 .xc-tableArea {
     background-color: @color-xpe-docker-starter-bg;
-    @div-h: 20px;
+    @div-h: 22px;
 
     .tableScrollBar {
         height: ~"calc(100% - @{height-xcColHeaderOuter})";
@@ -1846,7 +1866,7 @@ html.firefox {
                 padding: 0 9px;
                 float: left;
                 background-color: @color-white;
-                border: 1px solid @color-border-softGray;
+                border: 1px solid @color-border-menugray;
 
                 .text {
                     .font(@size: 11px, @line-height: 22px, @color: @color-font-edge);
@@ -1876,7 +1896,7 @@ html.firefox {
         .skewInfoArea {
             .position(relative);
             cursor: pointer;
-            border-right: 1px solid @color-border-warmGray;
+            border-right: 1px solid @color-border-menugray;
             padding: 0 10px;
             margin-right: 10px;
             padding-top: 3px;
@@ -1909,7 +1929,7 @@ html.firefox {
                 .font(@size: 8px);
 
                 &:before {
-                    .size(8px, 8px);
+                    .size(8px, 7px);
                     display: block;
                     .center-align;
                 }
@@ -1940,6 +1960,10 @@ html.firefox {
         .tableCover {
             top: @height-xcColHeaderOuter !important;
         }
+
+        // &::-webkit-scrollbar-thumb {
+        //     background: @color-border-grayBlue !important;
+        // }
     }
 }
 

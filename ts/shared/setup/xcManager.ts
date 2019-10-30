@@ -120,42 +120,47 @@ namespace xcManager {
             return PromiseHelper.alwaysResolve(promise);
         })
         .then(function() {
-            // By default show panel
-            if (XVM.isSQLMode()) {
-                MainMenu.openPanel("sqlPanel");
-            } else {
-                MainMenu.openPanel("dagPanel");
-                MainMenu.open(true);
-            }
-            if (firstTimeUser) {
-                // show hint to create datasets if no tables have been created
-                // in this workbook
-                showDatasetHint();
-            }
-            StatusMessage.updateLocation(false, null);
-            if (!isBrowserFirefox && !isBrowserIE) {
-                gMinModeOn = false; // turn off min mode
-            }
+            try {
+                // By default show panel
+                if (XVM.isSQLMode()) {
+                    MainMenu.openPanel("sqlPanel");
+                } else {
+                    MainMenu.openPanel("dagPanel");
+                    MainMenu.open(true);
+                }
+                if (firstTimeUser) {
+                    // show hint to create datasets if no tables have been created
+                    // in this workbook
+                    showDatasetHint();
+                }
+                StatusMessage.updateLocation(false, null);
+                if (!isBrowserFirefox && !isBrowserIE) {
+                    gMinModeOn = false; // turn off min mode
+                }
 
-            setupStatus = SetupStatus.Success;
+                setupStatus = SetupStatus.Success;
 
-            console.log('%c ' + CommonTxtTstr.XcWelcome + ' ',
-            'background-color: #5CB2E8; ' +
-            'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
+                console.log('%c ' + CommonTxtTstr.XcWelcome + ' ',
+                'background-color: #5CB2E8; ' +
+                'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
-            xcSocket.addEventsAfterSetup();
-            // start heartbeat check
-            XcSupport.heartbeatCheck();
+                xcSocket.addEventsAfterSetup();
+                // start heartbeat check
+                XcSupport.heartbeatCheck();
 
-            if (!window["isBrowserSupported"]) {
-                Alert.error(AlertTStr.UnsupportedBrowser, "", {
-                    msgTemplate: AlertTStr.BrowserVersions,
-                    sizeToText: true
-                });
-            }
+                if (!window["isBrowserSupported"]) {
+                    Alert.error(AlertTStr.UnsupportedBrowser, "", {
+                        msgTemplate: AlertTStr.BrowserVersions,
+                        sizeToText: true
+                    });
+                }
 
-            if (typeof mixpanel !== "undefined") {
-                xcMixpanel.pageLoadEvent();
+                if (typeof mixpanel !== "undefined") {
+                    xcMixpanel.pageLoadEvent();
+                }
+            } catch (e) {
+                console.error(e);
+                return PromiseHelper.reject(e);
             }
 
             return TooltipWalkthroughs.checkFirstTimeTooltip();

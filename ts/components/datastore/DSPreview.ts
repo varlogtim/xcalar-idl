@@ -5571,6 +5571,7 @@ namespace DSPreview {
                 "title": DSTStr.DetectInvalidCol,
                 "instr": DSTStr.DetectInvalidColInstrForce,
                 "msgTemplate": table,
+                "sizeToText": true,
                 "onCancel": function() {
                     xcUIHelper.enableSubmit($form.find(".confirm"));
                     deferred.reject();
@@ -5588,6 +5589,7 @@ namespace DSPreview {
                 "title": DSTStr.DetectInvalidCol,
                 "instr": DSTStr.DetectInvalidColInstr,
                 "msgTemplate": table,
+                "sizeToText": true,
                 "onConfirm": deferred.resolve,
                 "onCancel": function() {
                     xcUIHelper.enableSubmit($form.find(".confirm"));
@@ -5693,6 +5695,7 @@ namespace DSPreview {
             "title": DSTStr.DetectInvalidCol,
             "instr": DSTStr.DetectInvalidColInstrForce,
             "msgTemplate": table,
+            "sizeToText": true,
             "onConfirm": deferred.resolve,
             "onCancel": function() {
                 xcUIHelper.enableSubmit($form.find(".confirm"));
