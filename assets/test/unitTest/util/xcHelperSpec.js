@@ -1212,6 +1212,17 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("a_b");
     });
 
+    it("xcHelper.cleanseSQLColName should work", function() {
+        var res = xcHelper.cleanseSQLColName("a/b");
+        expect(res).to.equal("a_b");
+
+        var res = xcHelper.cleanseSQLColName("a/^]::b");
+        expect(res).to.equal("a_b");
+
+        var res = xcHelper.cleanseSQLColName("a/:/b");
+        expect(res).to.equal("a___b");
+    });
+
     it("xcHelper.castStrHelper should work", function() {
         // case 1
         var res = xcHelper.castStrHelper("test", ColumnType.boolean);
