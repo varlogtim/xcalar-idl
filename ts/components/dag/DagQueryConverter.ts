@@ -505,17 +505,15 @@ class DagQueryConverter {
     private _finalConvertIntoDagNodeInfoArray(nodes) {
         const finalNodeInfos = [];
         const dagNodeInfos = {};
+        const counter = {count: 0};
         for (let [_name, node] of nodes) {
             if (node.children.length === 0) {
-                this._recursiveGetDagNodeInfo(node, dagNodeInfos);
+                this._recursiveGetDagNodeInfo(node, dagNodeInfos, counter);
             }
         }
-        let count = 0;
         for (let i in dagNodeInfos) {
-            if (!dagNodeInfos[i].title) {
-                dagNodeInfos[i].title = "Node " + (++count);
-            }
             finalNodeInfos.push(dagNodeInfos[i]);
+            delete dagNodeInfos[i].table; // new dag nodes don't need tables
         }
 
         return finalNodeInfos;
@@ -826,7 +824,7 @@ class DagQueryConverter {
         return dagNodeInfo;
     }
 
-    private _recursiveGetDagNodeInfo(node, dagNodeInfos) {
+    private _recursiveGetDagNodeInfo(node, dagNodeInfos, counter) {
         if (dagNodeInfos[node.name]) {
             return dagNodeInfos[node.name];
         }
@@ -836,11 +834,15 @@ class DagQueryConverter {
         node.parents.forEach(child => {
             let childInfoId;
             if (child) {
-                const childInfo = this._recursiveGetDagNodeInfo(child, dagNodeInfos);
+                const childInfo = this._recursiveGetDagNodeInfo(child, dagNodeInfos, counter);
                 childInfoId = childInfo.id;
             }
             dagNodeInfo.parents.push(childInfoId);
         });
+        counter.count++;
+        if (!dagNodeInfos[node.name].title) {
+            dagNodeInfos[node.name].title = "Node " + counter.count;
+        }
         return dagNodeInfo;
     }
 

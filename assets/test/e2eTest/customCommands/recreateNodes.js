@@ -4,7 +4,14 @@ const execFunctions = require('../lib/execFunctions');
 class RecreateNodes extends EventEmitter {
     command(nodeInfos, dfId, dfIdMapping, cb) {
         const self = this;
-        const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [], nodeTypes: [], nodeIdMap: {} };
+        const commandResult = {
+            IMDNames: [],
+            nodeElemIDs: [],
+            nodeIDs: [],
+            nodeTypes: [],
+            nodeIdMap: {},
+            datasets: []
+        };
         let customOutputMap = new Map();
         let customNodesMap = new Map();
         this.api.execute(execFunctions.clearConsole, [], () => {});
@@ -190,12 +197,15 @@ class RecreateNodes extends EventEmitter {
             // Additional actions after configuring the node
             this.api.perform(() => {
                 if (nodeInfo.type === 'dataset') {
-                    this.api.restoreDataset(".dataflowArea.active .dataset:nth-child(" + (i + 1) + ") .main");
+                    this.api.restoreDataset(".dataflowArea.active .dataset:nth-child(" + (i + 1) + ") .main", (res) => {
+                        if (res && res.datasetId) {
+                            // console.log("restoring", res.datasetId);
+                            commandResult.datasets.push(res.datasetId);
+                        }
+                    });
                 }
             });
         });
-
-
 
         // Create any applicable custom nodes
         this.api.perform(() => {

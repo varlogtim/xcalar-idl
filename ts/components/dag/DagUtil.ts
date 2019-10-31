@@ -23,10 +23,10 @@ class DagUtil {
         if (regEx && tableName.includes("#")) {
             generalTableName = tableName.split("#")[0] + ".*";
         }
-        DagTblManager.Instance.deleteTable(generalTableName, true, regEx);
-
+        let allTables = DagTblManager.Instance.deleteTable(generalTableName, true, regEx);
+        allTables.push(tableName);
         let hasPendingDelete = this._tablesPendingDelete.length > 0;
-        this._tablesPendingDelete.push(tableName);
+        this._tablesPendingDelete = this._tablesPendingDelete.concat(allTables);
         if (hasPendingDelete) {
             return PromiseHelper.resolve();
         } else {
@@ -43,6 +43,10 @@ class DagUtil {
     }
 
     private static _deleteTableHelper(tables: string[]): XDPromise<void> {
+        tables = [...new Set(tables)]; // remove duplicate tables
+        if (!tables.length) {
+            return PromiseHelper.resolve();
+        }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         // Delete the node's table now
         var sql = {

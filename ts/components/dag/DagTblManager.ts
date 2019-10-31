@@ -175,10 +175,11 @@ class DagTblManager {
      * @param forceDelete if true, deletes locked tables. if false, ignores locked tables
      * @param regEx If true, uses "name" to patternmatch
      */
-    public deleteTable(name: string, forceDelete: boolean, regEx?: boolean): void {
+    public deleteTable(name: string, forceDelete: boolean, regEx?: boolean): string[] {
         if (!this.configured) {
-            return;
+            return [];
         }
+        let tablesToDelete = [];
         if (regEx) {
             let match: RegExp = new RegExp(name);
             let toDelete: string[] = Object.keys(this.cache)
@@ -186,6 +187,7 @@ class DagTblManager {
             toDelete.forEach((key: string) => {
                 if (!this.cache[key].locked || forceDelete) {
                     this.cache[key].markedForDelete = true;
+                    tablesToDelete.push(key);
                 }
             });
         } else {
@@ -200,12 +202,14 @@ class DagTblManager {
                     clockCount: 0,
                     timestamp: -1
                 };
-                return;
+                return [name];
             }
             if (!this.cache[name].locked || forceDelete) {
                 this.cache[name].markedForDelete = true;
+                tablesToDelete.push(name);
             }
         }
+        return tablesToDelete;
     }
 
     // returns list of table names
@@ -523,6 +527,21 @@ class DagTblManager {
         })
         .fail(deferred.reject);
         return deferred.promise();
+    }
+
+    // one use is when a dataflow finishes executing, we
+    // sync up with the tables that were created
+    public update(): void {
+        if (!this.configured) {
+            return;
+        }
+        XcalarGetTables("*")
+        .then((res: XcalarApiListDagNodesOutputT) => {
+            this._synchWithBackend(res);
+        })
+        .fail((e) => {
+            console.error(e);
+        });
     }
 
     /**

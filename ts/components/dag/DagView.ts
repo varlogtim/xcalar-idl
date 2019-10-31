@@ -3472,18 +3472,12 @@ class DagView {
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.TableRemove, (info) => {
-            const tableName: string = info.table;
+            // table deletion occurs in DagGraph.ts
             const nodeId: DagNodeId = info.nodeId;
             if (DagTable.Instance.getBindNodeId() === nodeId) {
                 DagTable.Instance.close();
             }
             DagNodeInfoPanel.Instance.update(nodeId, "params");
-            const node: DagNode = info.node;
-            const nodeType: DagNodeType = node.getType();
-            // When not link in or link out node
-            if (nodeType !== DagNodeType.DFIn && nodeType !== DagNodeType.DFOut) {
-                DagUtil.deleteTable(tableName, true);
-            }
         });
 
         this._registerGraphEvent(this.graph, DagNodeEvents.ResultSetChange, (info) => {

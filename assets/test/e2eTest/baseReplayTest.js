@@ -23,6 +23,59 @@ function replay(testConfig, tags) {
         },
 
         after: function(browser) {
+            if (testConfig.IMDNames && testConfig.IMDNames.length) {
+                browser
+                .click("#dataStoresTab")
+                .click("#sourceTblButton")
+                .click("#datastoreMenu .table .iconSection .refresh")
+                .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
+                .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]')
+
+                testConfig.IMDNames.forEach((IMDName) => {
+                    browser
+                        .moveToElement('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 20, 20)
+                        .mouseButtonClick("right")
+                        .moveToElement("#tableGridViewMenu li.delete", 10, 10)
+                        .mouseButtonClick("left")
+                        .click("#alertModal .confirm")
+                        .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]');
+                });
+            }
+            // if (testConfig.datasets && testConfig.datasets.length) {
+            if (false) { // XXX disabled due to backend bug where dataset
+                // cannot be deactivated
+                browser.perform(() => {
+                    browser.click("#dataStoresTab");
+                    browser.isVisible("#datastoreMenu .menuSection.in", (results) => {
+                        if (results.value) {
+                            /* is visible, good */
+                        } else {
+                            browser.click("#inButton");
+                        }
+                        browser
+                        .execute(execFunctions.scrollIntoView, ["#dsListSection .grid-unit:last-child"], () => {})
+                            testConfig.datasets.forEach(datasetId => {
+                                browser
+                                .execute(execFunctions.scrollIntoView, [`#dsListSection .grid-unit[data-dsid="${datasetId}"]`], () => {})
+                                .moveToElement(`#dsListSection .grid-unit[data-dsid="${datasetId}"]`, 10, 10)
+                                .mouseButtonClick('right')
+                                .waitForElementVisible("#gridViewMenu", 1000)
+                                .click("#gridViewMenu .deactivate")
+                                .waitForElementVisible("#alertModal", 10000)
+                                .click("#alertModal .confirm")
+                                .waitForElementVisible(`#dsListSection .grid-unit[data-dsid="${datasetId}"].inActivated`, 20000)
+                                .moveToElement(`#dsListSection .grid-unit[data-dsid="${datasetId}"]`, 10, 10)
+                                .mouseButtonClick('right')
+                                .waitForElementVisible("#gridViewMenu", 1000)
+                                .click("#gridViewMenu .delete")
+                                .waitForElementVisible("#alertModal", 10000)
+                                .click("#alertModal .confirm")
+                                .waitForElementNotVisible("#modalBackground", 10000);
+                            });
+
+                    });
+                });
+            }
             browser.deleteWorkbook(browser.globals.finalWorkbookName, browser.globals.user);
         },
 
@@ -30,6 +83,8 @@ function replay(testConfig, tags) {
             browser.uploadAndEnterWorkbook(testConfig.workbook);
         },
 
+        // this changes XcalarQueryCheck so that we can console.error
+        // the error in case it fails
         'hackXcalarQueryCheck': function(browser) {
             browser.execute(execFunctions.hackXcalarQueryCheck, []);
         },
@@ -97,8 +152,9 @@ function replay(testConfig, tags) {
                 browser.switchTab(newTabName)
                 .recreateNodes(testTabs[tabName].nodes, testTabDfMapping.get(tabName), testDfIdMapping, function(result) {
                     testConfig.IMDNames = result.IMDNames;
-
                     testNodeIdMapping.set(newTabName, result.nodeIdMap);
+                    testConfig.datasets = testConfig.datasets || [];
+                    testConfig.datasets = testConfig.datasets.concat(result.datasets);
                     console.log(result);
                 });
                 browser
@@ -270,28 +326,33 @@ function replay(testConfig, tags) {
             }
         },
 
-        // remove imd table
-        'clean up': function(browser) {
-            if (testConfig.IMDNames && testConfig.IMDNames.length) {
-                browser
-                .click("#dataStoresTab")
-                .click("#sourceTblButton")
-                .click("#datastoreMenu .table .iconSection .refresh")
-                .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
-                .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]')
+        'resetDatasetNodes': function(browser) {
+            // The validation nodes must be DFLinkOut
+            for (const tabName of Object.keys(testTabs)) {
+                browser.perform(() => {
+                    const newTabName = testTabMapping.get(tabName);
+                    browser.switchTab(newTabName);
 
-                testConfig.IMDNames.forEach((IMDName) => {
-                    browser
-                        .moveToElement('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 20, 20)
-                        .mouseButtonClick("right")
-                        .moveToElement("#tableGridViewMenu li.delete", 10, 10)
-                        .mouseButtonClick("left")
-                        .click("#alertModal .confirm")
-                        .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]');
+                    const datasetNodes = testTabs[tabName].nodes.filter((node) => {
+                        return node.type === "dataset";
+                    });
+                    datasetNodes.forEach((datasetNode) => {
+                        let datasetNodeId = testNodeIdMapping.get(newTabName)[datasetNode.nodeId];
+                        // reset the dataset node so we can delete the dataset at cleanup
+                        browser
+                        .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"]', 30, 15)
+                        .mouseButtonClick('right')
+                        .waitForElementVisible("#dagNodeMenu", 1000)
+                        .moveToElement("#dagNodeMenu li.resetNode", 10, 1)
+                        .mouseButtonClick('left')
+                        .waitForElementVisible('#alertModal', 10000)
+                        .click('#alertModal .confirm')
+                        .waitForElementNotVisible("#modalBackground", 10000);
+                    });
                 });
             }
-        },
-
+            browser.pause(3000); // wait for tables to be deleted
+        }
     };
 }
 

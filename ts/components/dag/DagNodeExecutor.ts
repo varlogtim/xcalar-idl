@@ -966,22 +966,22 @@ class DagNodeExecutor {
     }
 
     // creates a new query from the linkOut's ancestors and runs it
-    private _linkWithBatch(graph: DagGraph, node: DagNodeDFOut, optimized?: boolean): XDPromise<string> {
+    private _linkWithBatch(graph: DagGraph, linkOutNode: DagNodeDFOut, optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let priorDestTable;
         let rootTx = Transaction.getRootTx(this.txId);
         if (rootTx) {
-            priorDestTable = rootTx.getStoredQueryDest(node.getId(), graph.getTabId());
+            priorDestTable = rootTx.getStoredQueryDest(linkOutNode.getId(), graph.getTabId());
         }
 
         let promise;
         let noQueryNeeded = false;
         if (priorDestTable) {
-            console.log("reusing cache", node);
+            console.log("reusing cache", linkOutNode);
             noQueryNeeded = true;
             promise = PromiseHelper.resolve({queryStr: "", destTables:[priorDestTable]});
         } else {
-            promise = graph.getQuery(node.getId(), optimized, true, true, false, this.txId);
+            promise = graph.getQuery(linkOutNode.getId(), optimized, true, true, false, this.txId);
         }
         let destTable: string;
         promise
@@ -990,6 +990,19 @@ class DagNodeExecutor {
             if ("object" == typeof destTables) {
                 // get the last dest table
                 destTable = destTables[destTables.length - 1];
+                let newDestTable: string = this._generateTableName();
+                try {
+                    // give final table name a name matching the
+                    // the link in node's id
+                    let query = JSON.parse(queryStr);
+                    let lastQuery = query[query.length - 1];
+                    lastQuery.args.dest = newDestTable;
+                    destTables[destTables.length - 1] = newDestTable;
+                    destTable = newDestTable;
+                    queryStr = JSON.stringify(query);
+                } catch(e) {
+                    console.error(e);
+                }
             }
             if (!priorDestTable) {
                 try {
@@ -998,7 +1011,7 @@ class DagNodeExecutor {
                         noQueryNeeded = true;
                     }
                 } catch (e) {}
-                rootTx.setStoredQueryDest(node.getId(), graph.getTabId(), destTable);
+                rootTx.setStoredQueryDest(linkOutNode.getId(), graph.getTabId(), destTable);
                 return XIApi.query(this.txId, destTable, queryStr);
             } else {
                 noQueryNeeded = true;
@@ -1006,8 +1019,8 @@ class DagNodeExecutor {
             }
         })
         .then(() => {
-            if (node.getSubType() === DagNodeSubType.DFOutOptimized) {
-                return this._synthesizeDFOutInBatch(destTable, node, false);
+            if (linkOutNode.getSubType() === DagNodeSubType.DFOutOptimized) {
+                return this._synthesizeDFOutInBatch(destTable, linkOutNode, false);
             } else {
                 return PromiseHelper.resolve(destTable);
             }

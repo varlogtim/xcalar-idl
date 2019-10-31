@@ -67,6 +67,19 @@ class DagNodeCustomInput extends DagNode {
     protected _getColumnsUsedInInput() {
         return null;
     }
+
+    protected _removeTable(): void {
+        if (this.table) {
+            let tableName: string = this.table;
+            delete this.table;
+            this.events.trigger(DagNodeEvents.TableRemove, {
+                table: tableName,
+                nodeId: this.getId(),
+                node: this
+            });
+
+        }
+    }
 }
 
 if (typeof exports !== 'undefined') {

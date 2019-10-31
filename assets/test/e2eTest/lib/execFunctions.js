@@ -106,7 +106,7 @@ module.exports = {
     },
 
     getRestoredDatasetId: function() {
-        let $el = $("#dsListSection .grid-unit.ds:not(.xc-hidden):last");
+        let $el = $("#dsListSection .grid-unit.ds:not(.xc-hidden).active");
         return $el.data("dsid");
     },
 
@@ -181,7 +181,8 @@ module.exports = {
                 try {
                     let hasError = false;
                     queryStateOutput.queryGraph.node.forEach((node) => {
-                        if (node.status != null && node.status !== StatusT.StatusOk) {
+                        if (node.status != null && node.status !== StatusT.StatusOk &&
+                            node.api !== XcalarApisTFromStr.XcalarApiDeleteObjects) {
                             hasError = true;
                             node.thriftError = thriftLog("XcalarQuery Node", node.status);
                         }

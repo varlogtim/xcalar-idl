@@ -133,6 +133,7 @@ abstract class DagTabProgress extends DagTab {
         };
 
         const graph: DagSubGraph = new DagSubGraph(retStruct.tableNewDagIdMap, retStruct.dagIdToTableNamesMap);
+        graph.setNoTableDelete();
         graph.rebuildGraph(graphInfo);
         graph.initializeProgress();
         this._dagGraph = graph;

@@ -9,7 +9,7 @@ abstract class DagNode extends Durable {
     private children: DagNode[];
     private description: string;
     private title: string;
-    private table: string;
+    protected table: string;
     private state: DagNodeState;
     protected error: string;
     private configured: boolean;

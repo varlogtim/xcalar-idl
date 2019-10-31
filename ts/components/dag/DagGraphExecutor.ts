@@ -509,6 +509,8 @@ class DagGraphExecutor {
                 Transaction.done(txId, {
                     noLog: true,
                 });
+
+                DagTblManager.Instance.update(); // sync backtables with cache
                 return PromiseHelper.alwaysResolve(MemoryAlert.Instance.check());
             })
             .then(() => deferred.resolve())

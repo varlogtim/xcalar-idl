@@ -7,7 +7,7 @@ namespace WorkbookManager {
     let progressTimeout: any;
     const descriptionKey: string = "workBookDesc-1";
     const sysWkbkNamePattern: string = ".system_workbook_";
-
+    let _isSetup = false;
     /**
     * WorkbookManager.setup
     * initial setup
@@ -25,6 +25,7 @@ namespace WorkbookManager {
         WorkbookManager.getWKBKsAsync(refreshing)
         .then(syncSessionInfo)
         .then(function(wkbkId) {
+            _isSetup = true;
             if (wkbkId == null) {
                 setURL(null, true);
                 deferred.reject(WKBKTStr.NoWkbk);
@@ -37,6 +38,8 @@ namespace WorkbookManager {
         .fail(function(error) {
             if (error !== WKBKTStr.NoWkbk) {
                 console.error("Setup Workbook fails!", error);
+            } else {
+                _isSetup = true;
             }
             deferred.reject(error);
         });
@@ -1116,6 +1119,9 @@ namespace WorkbookManager {
     * @param info - info from socket containing operation, workbook id and new value
     */
     export function updateWorkbooks(info: any): void {
+        if (!_isSetup) {
+            return;
+        }
         const activeWkbk: string = WorkbookManager.getActiveWKBK();
         if (info.action === "deactivate" &&
             activeWkbk && activeWkbk === info.triggerWkbk) {

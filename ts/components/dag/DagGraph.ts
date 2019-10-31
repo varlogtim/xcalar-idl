@@ -10,6 +10,7 @@ class DagGraph extends Durable {
     private parentTabId: string;
     private _isBulkStateSwitch: boolean;
     private _stateSwitchSet: Set<DagNode>;
+    private _noTableDelete: boolean = false;
 
 
     protected operationTime: number;
@@ -79,8 +80,8 @@ class DagGraph extends Durable {
     /**
      * Generates the serializable version of this graph.
      */
-    public getSerializableObj(includeStats?: boolean): DagGraphInfo {
-        return this._getDurable(includeStats);
+    public getSerializableObj(includeStats?: boolean, clearTables?: boolean): DagGraphInfo {
+        return this._getDurable(includeStats, clearTables);
     }
 
     public rebuildGraph(graphJSON: {
@@ -295,6 +296,10 @@ class DagGraph extends Durable {
         });
     }
 
+    public setNoTableDelete() {
+        this._noTableDelete = true;
+    }
+
     /**
      * Filter node based on the callback
      * @param callback return true for valid case
@@ -468,8 +473,18 @@ class DagGraph extends Durable {
             this.events.trigger(DagNodeEvents.ProgressChange, info);
         })
         .registerEvents(DagNodeEvents.TableRemove, (info) => {
+            if (this._noTableDelete) {
+                return;
+            }
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.TableRemove, info);
+            const tableName: string = info.table;
+            const node: DagNode = info.node;
+            const nodeType: DagNodeType = node.getType();
+            if (nodeType !== DagNodeType.DFIn && nodeType !== DagNodeType.DFOut
+                && nodeType !== DagNodeType.CustomInput) {
+                DagUtil.deleteTable(tableName, true);
+            }
         })
         .registerEvents(DagNodeEvents.ResultSetChange, (info) => {
             info.tabId = this.parentTabId;
@@ -1731,7 +1746,8 @@ class DagGraph extends Durable {
         let nodes: DagNodeInfo[] = [];
         // Assemble node list
         this.nodesMap.forEach((node: DagNode) => {
-            nodes.push(node.getSerializableObj(includeStats));
+            let nodeInfo = node.getSerializableObj(includeStats);
+            nodes.push(nodeInfo);
         });
         let comments: CommentInfo[] = [];
         this.commentsMap.forEach((comment) => {
