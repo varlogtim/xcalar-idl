@@ -313,7 +313,7 @@
 .btn, .btn-primary {
     .noSelection;
     display: inline-block;
-    border: 0;
+    border: 1px solid transparent;
     outline: 0;
     padding-top: 0px;
     padding-bottom: 0px;
@@ -355,6 +355,7 @@
     line-height: 30px;
     text-overflow: clip; // IE will add dots to icons ...
     border-radius: 0;
+    border: 0;
 
     i.icon {
         line-height: 30px;
@@ -368,7 +369,6 @@
 .btn-cancel, .btn-secondary, .btn-back, .btn-clear  {
     background-color: @color-white;
     color: @color-font-link-blue;
-
     border: 1px solid @color-bg-cancel-gray;
 
     &.iconBtn {
@@ -1308,7 +1308,7 @@
         z-index: 1;
 
         &:before {
-            background-color: @color-font-light-blue;
+            background-color: @color-font-link-blue;
         }
     }
     .rightArea {
@@ -1419,7 +1419,7 @@
     .rounded(3px);
 
     .icon {
-        @size: 12px;
+        @size: 14px;
         color: @color-bg-cardHeader;
         font-size: @size;
         width: @size;
@@ -1570,7 +1570,7 @@
     }
 
     &.on {
-        background-color: @color-font-form-gray;
+        background-color: @color-bg-softBlue;
         .slider {
             left: 12px;
         }

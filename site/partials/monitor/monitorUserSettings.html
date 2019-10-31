@@ -5,33 +5,33 @@
   <div class="optionsContainer cardMain">
     <!-- show data col -->
     <div class="optionSet">
-      <div class="label"><%= dicts.monitor.showDataCol %></div>
       <div class="optionSelector">
         <div id="showDataColBox" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
+      <div class="label"><%= dicts.monitor.showDataCol %></div>
     </div>
 
     <div class="optionSet">
-      <div class="label">Show IMD screen</div>
       <div class="optionSelector">
         <div id="showIMD" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
+      <div class="label">Show IMD screen</div>
     </div>
 
     <div class="optionSet">
-      <div class="label"><%= dicts.monitor.hideSysOps %></div>
       <div class="optionSelector">
         <div id="hideSysOps" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
+      <div class="label"><%= dicts.monitor.hideSysOps %></div>
     </div>
 
     <div class="optionSet">
@@ -48,13 +48,13 @@
       </div>
     </div>
     <div class="optionSet admin onPremOnly">
-      <div class="label"><%= dicts.monitor.DISABLESHARE %></div>
       <div class="optionSelector">
         <div id="disableDSShare" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
+      <div class="label"><%= dicts.monitor.DISABLESHARE %></div>
     </div>
     <!-- show logout interval if cloud or if admin -->
     <div class="optionSet adminOrCloudOnly">
@@ -71,29 +71,29 @@
       </div>
     </div>
     <div class="optionSet admin cloudOnly">
-      <div class="label">Shut down cluster after inactivity</div>
       <div class="optionSelector">
         <div id="enableInactivityCheck" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
+      <div class="label">Shut down cluster after inactivity</div>
     </div>
     <div class="optionSet cloudOnly">
-      <div class="label">Enable Xcalar support login</div>
-      <i class="qMark icon xi-unknown"
-      data-toggle="tooltip"
-      data-container="body"
-      data-title="This setting enables the Xcalar support to log into your Xcalar cluster and help you troubleshoot. By default, it is not enabled."
-      data-placement="top"></i>
       <div class="optionSelector">
         <div id="enableXcalarSupport" class="checkbox">
           <i class="icon xi-ckbox-empty fa-13"></i>
           <i class="icon xi-ckbox-selected fa-13"></i>
         </div>
       </div>
+      <div class="label">Enable Xcalar support login</div>
+      <i class="qMark icon xi-unknown"
+      data-toggle="tooltip"
+      data-container="body"
+      data-title="This setting enables the Xcalar support to log into your Xcalar cluster and help you troubleshoot. By default, it is not enabled."
+      data-placement="top"></i>
     </div>
-</div>
+  </div>
   <div class="cardBottom">
     <button id="userSettingsSave" class="btn btn-submit btn-rounded"><%= dicts.common.Save %></button>
     <button id="userSettingsDefault" class="btn btn-secondary btn-rounded"><%= dicts.exportView.restoreDefaults %></button>

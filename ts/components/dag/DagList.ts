@@ -690,7 +690,7 @@ class DagList extends Durable {
         const tooltip: string = 'data-toggle="tooltip" ' +
                                 'data-container="body" ' +
                                 'data-title="' + title + '"';
-        return `<i class="${type} ${icon} icon xc-action" ${tooltip}></i>`;
+        return `<i class="${type} ${icon} icon xc-icon-action" ${tooltip}></i>`;
     }
 
     private _togglLoadState(dagTab: DagTab, isLoading: boolean): void {

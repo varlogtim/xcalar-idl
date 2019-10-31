@@ -37,7 +37,7 @@
         }
     }
 
-    .xc-switch, .xc-action {
+    .xc-switch, .xc-action, .xc-icon-action {
         float: right;
     }
 
@@ -51,7 +51,6 @@
         .input-box(@w: 30px, @h: 25px);
         input {
             padding: 0 4px;
-            background: @color-bg-white-nine;
         }
 
         .value {
@@ -153,6 +152,7 @@
         }
 
         .deleteIcon, .xi-close {
+            color: @color-bg-cardHeader;
             overflow: hidden; // maintains height
         }
 
@@ -350,7 +350,7 @@
                 padding-right: 10px;
             }
             .text:not(:first-child) {
-                border-left: 1px solid @color-bg-white-nine;
+                border-left: 1px solid @color-border-softGray;
                 padding-left: 10px;
             }
         }
@@ -498,7 +498,6 @@
 
             .mainSvg {
                 .position(relative, @top: 10px, @right: 0);
-                // background-color: @color-white;
                 display: inline-block;
                 overflow: hidden;
             }
@@ -560,7 +559,7 @@
             stroke: @color-bg-graph-gray;
         }
 
-        .line{
+        .line {
             fill: none;
             stroke-width: 2px;
 
@@ -615,7 +614,7 @@
 
             .gridSvg {
                 .position(@top: 10px, @right: 0);
-                background: @color-bg-white-seven;
+                background: @color-bg-list-hover-blue;
             }
         }
     }
@@ -665,7 +664,7 @@
                 hr {
                     width: 60px;
                     border: none;
-                    border-top: 1px solid @color-border-monitor-label;
+                    border-top: 1px solid @color-border-softGray;
                     display: block;
                     .nomargin-padding;
                     margin: 0 auto;
@@ -1127,7 +1126,7 @@
             .listWrap {
                 width: 100%;
                 margin: 0 auto 5px auto;
-                background-color: @color-bg-white-three;
+                background-color: @color-bg-topBarGray2;
 
                 ul {
                     width: 100%;
@@ -1221,11 +1220,13 @@
 }
 
 #monitor-queryDetail {
-    .size(@height: ~"calc(100% - 5px)");
+    .size(@height: 100%);
+    margin-bottom: 0;
 
     .cardMain {
         .size(@height: ~"calc(100% - @{height-card-header})");
         padding-top: 0;
+        border-top: 1px solid @color-bg-cancel-gray-hover;
 
         .title {
             .font(@size: 14px, @weight: 700, @color: @color-font-edge);
@@ -1305,7 +1306,7 @@
 
         .op {
             .size(@width: 200px, @height: 80px);
-            border-right: 1px solid @color-bg-pinkish-grey2;
+            border-right: 1px solid @color-border-menugray;
             padding-left: 15px;
             padding-top: 10px;
             position: relative;
@@ -1351,7 +1352,6 @@
 
             .icon {
                 float: right;
-                color: @color-bg-99-grey;
                 .vertical-align;
 
                 &:first-child {
@@ -1407,11 +1407,10 @@
 
     .divider {
         .size(@width: 100%, @height: 1px);
-        background-color: @color-bg-pinkish-grey2;
+        background-color: @color-border-menugray;
     }
 
     .operationSection {
-        // .size(@height: ~"calc(100% - 262px)");
         padding: 20px;
         .flex-display;
         .flex(1 2 auto);
@@ -1424,7 +1423,6 @@
             .copy {
                 float: right;
                 font-weight: 600;
-                cursor: pointer;
 
                 .icon {
                     float: right;
@@ -2191,7 +2189,7 @@
         }
 
         .title {
-            color: @color-log-blue;
+            color: @color-font-link-blue;
             cursor: pointer;
             &:hover {
                 .expand {
@@ -2271,10 +2269,10 @@
 
 
     .mainSection {
-        // xx allows horizontal scrolling  (temporary)
         display: inline-block;
         width: auto;
         min-width: 100%;
+        height: 100%;
     }
 
     .cardMain {
@@ -2302,14 +2300,14 @@
 
     .label {
         display: inline-block;
-        padding-right: 24px;
+        margin-right: 16px;
         float: left;
     }
 
     .qMark {
         position: relative;
         top: 18px;
-        margin-left: -20px;
+        margin-left: -8px;
         float: left;
         height: 15px;
         width: 15px;
@@ -2330,8 +2328,10 @@
     .checkbox {
         height: 21px;
         margin-top: 13px;
+        margin-right: 16px;
+
         .icon {
-            font-size: 18px;
+            font-size: 16px;
         }
     }
 

@@ -566,7 +566,7 @@ describe('QueryManager Test', function() {
                 'data-id="' + id + '">' +
                     '<div class="queryInfo">' +
                         '<div class="rightPart">' +
-                            '<i class="icon xi-trash xc-action deleteIcon"></i>' +
+                            '<i class="icon xi-trash xc-icon-action deleteIcon"></i>' +
                             '<div class="checkbox">' +
                                 '<i class="icon xi-ckbox-empty fa-13"></i>' +
                                 '<i class="icon xi-ckbox-selected fa-13"></i>' +
