@@ -969,13 +969,12 @@
         border: solid 1px @color-border-menugray;
         padding: 0 10px;
         text-align: left;
-        background-color: @color-bg-white-three;
+        background-color: @color-white;
         .textOverflowOneLine;
 
         &:focus {
             outline: none;
             border-color: @color-border-softBlue;
-            background-color: @color-white;
         }
 
         &.error {
@@ -1564,7 +1563,7 @@
     .slider {
         .size(@width: 12px, @height: 12px);
         .rounded(100%);
-        .position(relative, @left: 0, @top: -1px);
+        .position(relative, @left: -2px, @top: -1px);
         border: 1px solid @color-bg-cardHeader;
         background-color: @color-white;
         .transition(left 0.2s);
@@ -1573,7 +1572,7 @@
     &.on {
         background-color: @color-font-form-gray;
         .slider {
-            left: 11px;
+            left: 12px;
         }
     }
 

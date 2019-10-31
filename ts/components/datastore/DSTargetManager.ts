@@ -1000,7 +1000,7 @@ namespace DSTargetManager {
         return params.map(function(param, index) {
             let labelName: string = "dsTarget-param-" + index;
             let type: string = param.secret ? "password" : "text";
-            let inputClass: string = "xc-input";
+            let inputClass: string = "xc-input white";
             let descrp = param.description;
 
             if (param.optional) {

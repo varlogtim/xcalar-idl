@@ -125,7 +125,6 @@ html.safari {
 
     #datastore-in-view-topBar {
         display: none;
-        height: @height-card-header;
     }
 
     &.import {
@@ -147,6 +146,8 @@ html.safari {
 
 #datastore-in-view-topBar {
     background-color: @color-bg-topBarGray2;
+    border-bottom: 1px solid @color-border-grayBlue;
+    height: @height-card-header + 1px;
 
     .tabs {
         float: left;
@@ -924,7 +925,6 @@ table.datasetTable {
 
             > label {
                 .size(@width: 150px);
-                font-weight: bold;
             }
 
             .dropDownList {
@@ -944,6 +944,7 @@ table.datasetTable {
 
                 input {
                     .vertical-align;
+                    background-color: @color-white;
                 }
 
                 .btn {
@@ -1097,8 +1098,8 @@ table.datasetTable {
                 .size(@height: 28px);
                 .flex(1 1 10px);
                 .font(@size: 12px, @line-height: 28px);
-                border-top: 1px solid @color-border-white-five-darker;
-                border-bottom: 1px solid @color-border-white-five-darker;
+                border-top: 1px solid @color-border-menugray;
+                border-bottom: 1px solid @color-border-menugray;
                 text-align: right;
                 padding-left: 5px;
             }
@@ -1111,8 +1112,8 @@ table.datasetTable {
                 background-color: @color-white;
                 .textOverflowOneLine;
                 .font(@size: 12px, @line-height: 26px);
-                border-top: 1px solid @color-border-white-five-darker;
-                border-bottom: 1px solid @color-border-white-five-darker;
+                border-top: 1px solid @color-border-menugray;
+                border-bottom: 1px solid @color-border-menugray;
                 border-left: none;
                 border-right: none;
             }
@@ -1169,14 +1170,9 @@ table.datasetTable {
             position: relative;
             padding-top: 1px;
 
-            .xc-icon {
+            .xc-iconWrap-action {
                 float: right;
                 margin-left: 8px;
-                .size(24px, 24px);
-
-                .icon {
-                    width: 17px;
-                }
             }
 
             #fileBrowserSortMenu {
@@ -1186,9 +1182,6 @@ table.datasetTable {
                  li {
                     .position(relative);
                     padding: 0 6px 0 8px;
-                    .label {
-                        .position(relative, @top: 1px);
-                    }
                     .icon {
                         display: none;
                         float: right;
@@ -1251,8 +1244,8 @@ table.datasetTable {
 
         .titleSection {
             .size(@width: 100%, @height: 40px);
-            background-color: @color-bg-white-seven;
-            box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+            background-color: @color-bg-list-hover-blue;
+            border-bottom: 1px solid @color-border-menugray;
 
             .title {
                 .size(@height: 40px);
@@ -1262,10 +1255,10 @@ table.datasetTable {
                 }
 
                 &.select {
-                    color: @color-font-select-blue;
+                    color: @color-font-link-blue;
 
                     .icon {
-                        color: @color-font-select-blue;
+                        color: @color-font-link-blue;
                     }
                 }
 
@@ -1275,7 +1268,6 @@ table.datasetTable {
                 }
 
                 .label {
-                    // .size(@width: ~"calc(100% - 20px)");
                     .textOverflowOneLine;
                     .font(@size: 14px, @line-height: 40px);
                     padding-right: 10px;
@@ -1502,10 +1494,12 @@ table.datasetTable {
                 cursor: default;
                 box-shadow: none;
                 align-items: center;
-                border-top: solid 1px rgba(0, 0, 0, 0.2);
-                border-bottom: solid 1px rgba(0, 0, 0, 0.2);
-                margin-top: -1px;
+                border-top: 1px solid @color-border-menugray;
                 padding-left: 5px;
+
+                &:last-child {
+                    border-bottom: 1px solid @color-border-menugray;
+                }
 
                 .gridIcon {
                     .font(@size: 16px);
@@ -1520,12 +1514,15 @@ table.datasetTable {
                     .checkBox {
                         align-items: center;
                     }
-                    // border-top: 1px solid @color-font-link-blue;
-                    // border-bottom: 1px solid @color-font-link-blue;
-                    border-color: @color-font-link-blue;
-                }
-                &.selected, &.hovering {
-                    z-index: 1;
+                    border-top-color: @color-font-link-blue;
+
+                    + .grid-unit {
+                        border-top-color: @color-font-link-blue;
+                    }
+
+                    &:last-child {
+                        border-bottom-color: @color-font-link-blue;
+                    }
                 }
             }
         }
@@ -1534,6 +1531,8 @@ table.datasetTable {
             background-color: @color-bg-topBarGray2;
             display: flex;
             align-items: center;
+            border-bottom: 1px solid @color-border-menugray;
+
             .content {
                 margin-left: 11px;
                 font-size: 11px;
@@ -1542,7 +1541,7 @@ table.datasetTable {
         .fileInfoContainer {
             .size(@width: @fileInfoWidth, @height: 100%);
             float: left;
-            border-left: 1px solid @color-border-pinkish-grey2;
+            border-left: 1px solid @color-border-menugray;
             .flex-display;
             .flex-direction(column);
 
@@ -1872,8 +1871,8 @@ table.datasetTable {
                 }
 
                 .text {
-                    border-left: 1px solid @color-border-white-five-darker;
-                    border-right: 1px solid @color-border-white-five-darker;
+                    border-left: 1px solid @color-border-menugray;
+                    border-right: 1px solid @color-border-menugray;
                 }
 
                 .iconWrapper {
@@ -2673,6 +2672,10 @@ table.datasetTable {
         padding-bottom: 15px;
 
         #dsForm-tblSchema {
+            label {
+                margin-top: 5px;
+            }
+
             .multiLine {
                 margin-top: 5px;
                 .qMark {
@@ -2695,6 +2698,7 @@ table.datasetTable {
 
         .listInfo {
             cursor: pointer;
+            font-weight: bold;
         }
 
         input {
@@ -2718,7 +2722,7 @@ table.datasetTable {
             }
 
             &.termination {
-                .size(@height: 115px);
+                .size(@height: 150px);
 
                 .qMark {
                     top: 15px;
@@ -3028,19 +3032,20 @@ table.datasetTable {
             .size(@width: @row-width, @height: 30px);
             .font(@size: 14px, @line-height: 30px);
             text-align: left;
-            &.prevFileLabel, &.prevTableLabel {
+            &.prevFileLabel {
                 width: 48%;
                 margin-right: 0px;
+                font-weight: bold;
             }
         }
 
         .inputWrap {
             .input-box(@w: 310px, @h: 30px);
-            // max-width: ~"calc(100% - 370px)";s
 
             input {
                 width: 100%;
                 max-width: 100%;
+                background-color: @color-white;
             }
         }
 
@@ -3395,17 +3400,19 @@ table.datasetTable {
     .divider {
         margin-top: 10px;
         .size(@width: 100%, @height: 1px, @min-height: 1px);
-        background-color: @color-font-pinkish-grey2;
+        background-color: @color-bg-dropdown-gray;
     }
 
     .thinDivider {
         margin-top: 10px;
         .size(@width: 100%, @height: 1px, @min-height: 1px);
-        background-color: @color-bg-list-hover-blue;
+        background-color: @color-bg-topBarGray2;
     }
 
     .advancedDivider {
         background-color: @color-bg-topBarGray2;
+        margin-top: 16px;
+        margin-bottom: 16px;
     }
 
     .inputable {
@@ -4293,8 +4300,9 @@ table.datasetTable {
 // ds target
 #datastore-target-view {
     .cardContainer {
-        .size(@min-height: ~"calc(100% - 5px)", @max-height: 100%);
+        height: 100%;
         overflow-y: auto;
+        margin-bottom: 0;
 
         .cardMain {
             .text-selection;
@@ -4421,27 +4429,9 @@ table.datasetTable {
         padding-top: 0px !important;
         height: ~"calc(100% - 92px)" !important;
     }
-    .cardContainer {
-        .cardInstruction {
-            // .size(@height: 70px);
-            border: none;
-            // .icon {
-            //     line-height: 42px;
-            // }
-            // .defaultText {
-            //     .flex-display;
-            //     .align-items(@align: center);
-            // }
-        }
-    }
     .formSection {
         &.name {
-            margin-top: 0px;
-            background-color: @color-bg-graph-gray;
-            height: 100px !important;
-            #dsTarget-name {
-                background-color: @color-white;
-            }
+            margin-top: 30px;
             .flex-display;
             .align-items(center);
             padding: 0px;

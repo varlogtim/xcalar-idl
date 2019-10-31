@@ -8,18 +8,6 @@
     z-index: @z-index-homeBtn;
     cursor: pointer;
 
-    &::after {
-        content: "";
-        display: block;
-        position: absolute;
-        bottom: 0px;
-        width: 100%;
-        height: 4px;
-        z-index: @z-index-homeBtn;
-        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
-        pointer-events: none;
-    }
-
     .logo {
         .center-align;
         position: absolute;
@@ -123,6 +111,10 @@
     float: left;
     cursor: pointer;
     .noSelection;
+
+    &#dataStoresTab {
+        border-top: 1px solid @color-bg-dusk-blue;
+    }
 
     &.active:not(.fromMainMenu) {
         background-color: @color-bg-dusk-blue !important;
@@ -271,6 +263,8 @@
     }
 
     &.closed {
+        border-right: 1px solid @color-border-grayBlue;
+
         .mainContent {
             display: none;
         }
