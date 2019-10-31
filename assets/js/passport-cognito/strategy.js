@@ -387,7 +387,9 @@ Strategy.prototype.authenticate = function(req, options) {
             //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
             AWS.config.credentials.refresh((error) => {
                 if (error) {
-                    return self.failWithLog('Cognito identity pool credentials refresh error: ' + error);
+                    return (self.failWithLog(
+                        errMsgHandler('Cognito identity pool credentials refresh error: ' + error)
+                    ));
                 } else {
                     params.identityId = AWS.config.credentials.identityId;
 
