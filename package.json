@@ -4,7 +4,8 @@
   "description": "Installs the packages that are required to build Xcalar Design",
   "main": "Gruntfile.js",
   "scripts": {
-    "test": "NODE_ENV=test XCE_INSTALLER_ROOT=/tmp TMPDIR=/tmp node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha xcalar-gui/services/expServer/test/*.js --dir xcalar-gui/services/test/report"
+    "test": "NODE_ENV=test XCE_INSTALLER_ROOT=/tmp TMPDIR=/tmp node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha xcalar-gui/services/expServer/test/*.js --dir xcalar-gui/services/test/report",
+    "start": "cd assets/dev && node server"
   },
   "repository": {
     "type": "git",
