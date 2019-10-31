@@ -1,5 +1,7 @@
 SHELL=/bin/bash
 
+UNAME := $(shell uname)
+
 ifeq ($(UNAME),Linux)
 	SHASUM=sha256sum
 else
