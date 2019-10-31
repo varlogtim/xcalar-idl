@@ -1931,7 +1931,7 @@ class SQLCompiler {
         if (isNewCol) {
             name = xcHelper.stripPrefixInColName(name);
         }
-        let ret = xcHelper.stripColName(name, true, true).toUpperCase();
+        let ret = xcHelper.cleanseSQLColName(name).toUpperCase();
         if (cutName && ret.length > XcalarApisConstantsT.XcalarApiMaxFieldNameLen / 2) {
             ret = ret.substring(ret.length - XcalarApisConstantsT.XcalarApiMaxFieldNameLen / 2)
                   + "_" + Authentication.getHashId().substring(3);
