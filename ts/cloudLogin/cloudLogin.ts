@@ -421,9 +421,9 @@ namespace CloudLogin {
         if (!email || !password) {
             showFormError($("#loginFormMessage"), "Fields missing or incomplete.");
             return false;
-        } else if (!validateEmail(email) || !validatePassword(password)) {
-            showFormError($("#loginFormMessage"), "Wrong Email or Password. Please try again.");
-            return false;
+        // } else if (!validateEmail(email) || !validatePassword(password)) {
+        //     showFormError($("#loginFormMessage"), "Wrong Email or Password. Please try again.");
+        //     return false;
         } else {
             $("#loginFormMessage").hide();
             return true;
