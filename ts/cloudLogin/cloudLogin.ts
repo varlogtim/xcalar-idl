@@ -1004,6 +1004,7 @@ namespace CloudLogin {
             checkConfirmForgotPasswordForm: checkConfirmForgotPasswordForm,
             showClusterIsReadyScreen: showClusterIsReadyScreen,
             deployingClusterAnimation: deployingClusterAnimation,
+            getErrorMessage: getErrorMessage,
             handleEvents: handleEvents
         }
     }

@@ -80,6 +80,7 @@ describe("Cloud Login Test", () => {
                 return Promise.reject();
             }
         });
+
         it("/status should be called correctly", function(done) {
             cloudLoginFunctions.initialStatusCheck();
             const [fetchUrl, fetchParams] = [fetchArgs[0], fetchArgs[1]];
@@ -131,6 +132,213 @@ describe("Cloud Login Test", () => {
 
         after(function() {
             fetch = oldFetch;
+        });
+    });
+
+    describe("Successful fetch responses handled correctly", function() {
+        let oldFetch;
+        let response;
+        let endpointsCalled = [];
+        let paramsPassed = [];
+
+        before(function(done) {
+            oldFetch = fetch;
+            fetch = (...args) => {
+                endpointsCalled.push(args[0]);
+                paramsPassed.push(args[1]);
+                return new Promise((resolve) => {
+                    resolve({
+                        status: httpStatus.OK,
+                        json: () => new Promise((resolve) => {
+                            resolve(response)
+                        })
+                    });
+                });
+            }
+            done();
+        });
+
+        it("if /status is loggedIn then /billing/get/ is called", (done) => {
+            response = {
+                loggedIn: true
+            };
+            cloudLoginFunctions.initialStatusCheck();
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/status'))).to.include(true);
+                expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).to.include(true);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        it("if /status is not loggedIn then /billing/get/ is not called", (done) => {
+            response = {
+                loggedIn: false
+            };
+            cloudLoginFunctions.initialStatusCheck();
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/status'))).to.include(true);
+                expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).not.to.include(true);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        it("if /login is successful then /billing/get/ is called", (done) => {
+            response = {
+            };
+            cloudLoginFunctions.cookieLogin();
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/login'))).to.include(true);
+                expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).to.include(true);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        it("if /login is successful but /billing/get/ returns 0 credits then /cluster/get/ is not called", (done) => {
+            response = {
+                status: ClusterLambdaApiStatusCode.OK,
+                credits: 0,
+            };
+            cloudLoginFunctions.cookieLogin();
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/login'))).to.include(true);
+                expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).to.include(true);
+                expect(endpointsCalled.map(url => url.endsWith('/cluster/get'))).not.to.include(true);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        it("if /login is successful and /billing/get/ returns > 0 credits then /cluster/get/ is called", (done) => {
+            response = {
+                status: ClusterLambdaApiStatusCode.OK,
+                credits: 100,
+            };
+            cloudLoginFunctions.cookieLogin();
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/login'))).to.include(true);
+                expect(endpointsCalled.map(url => url.endsWith('/billing/get'))).to.include(true);
+                expect(endpointsCalled.map(url => url.endsWith('/cluster/get'))).to.include(true);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        it("if /logout is called nothing else is called", (done) => {
+            response = {
+            };
+            cloudLoginFunctions.cookieLogout();
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/logout'))).to.include(true);
+                // doesn't work because checkExpServerIsUp /getTime
+                // keeps being recursively called from previous test
+                // expect(endpointsCalled.length).to.be.equal(1);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        // with HTML could be checked for progress bars
+        it("if /cluster/get is successful ...", (done) => {
+            response = {
+                status: ClusterLambdaApiStatusCode.OK,
+            };
+            cloudLoginFunctions.getCluster();
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/cluster/get'))).to.include(true);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        it("if /cluster/get returns not OK exception logout is called", (done) => {
+            response = {
+                status: ClusterLambdaApiStatusCode.AUTH_ERROR,
+            };
+            cloudLoginFunctions.getCluster();
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/logout'))).to.include(true);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        it("if /cluster/start is called, then /cluster/get is called", (done) => {
+            response = {
+            };
+            cloudLoginFunctions.startCluster();
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/cluster/start'))).to.include(true);
+                expect(endpointsCalled.map(url => url.endsWith('/cluster/get'))).to.include(true);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        it("handleExceptions calls logout", (done) => {
+            cloudLoginFunctions.handleException({error: 'test'});
+            UnitTest.timeoutPromise(1)
+            .then(() => {
+                expect(endpointsCalled.map(url => url.endsWith('/logout'))).to.include(true);
+                endpointsCalled = [];
+                endpointsCparamsPassedalled = [];
+                done();
+            });
+        });
+
+        after(function() {
+            fetch = oldFetch;
+        });
+    });
+
+    describe("getErrorMessage should correctly process errors", function() {
+        it("should return string unchanged", () => {
+            const argumentStrings = [
+                '',
+                'Error',
+                '123.@3123',
+                'An error has occured: Error!'
+            ];
+
+            returnedStrings = argumentStrings.map(string => cloudLoginFunctions.getErrorMessage(string));
+            expect(returnedStrings).to.deep.equal(argumentStrings);
+            expect(cloudLoginFunctions.getErrorMessage('test1', 'test2')).to.equal('test1');
+        });
+
+        it("should show object error string", () => {
+            expect(cloudLoginFunctions.getErrorMessage({error: 'test1'})).to.equal('test1');
+            expect(cloudLoginFunctions.getErrorMessage({message: 'test2'})).to.equal('test2');
+            expect(cloudLoginFunctions.getErrorMessage({hello: 'one', message: 'test3'})).to.equal('test3');
+            expect(cloudLoginFunctions.getErrorMessage({error: 'test5', message: 'test4'})).to.equal('test4');
+            expect(cloudLoginFunctions.getErrorMessage({error: 'test6'}, 'test7')).to.equal('test6');
+        });
+
+        it("should show default error otherwise", () => {
+            expect(cloudLoginFunctions.getErrorMessage()).to.equal('unknown error');
+            expect(cloudLoginFunctions.getErrorMessage(123)).to.equal('unknown error');
+            expect(cloudLoginFunctions.getErrorMessage({})).to.equal('unknown error');
+            expect(cloudLoginFunctions.getErrorMessage({test: 'test'})).to.equal('unknown error');
+            expect(cloudLoginFunctions.getErrorMessage({test: 'test'}, 'test1')).to.equal('test1');
         });
     });
 });
