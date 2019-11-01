@@ -6,30 +6,22 @@ interface ClusterGetResponse {
 }
 
 namespace CloudLogin {
-    let userPoolId: string;
-    let clientId: string;
-    let cookieAuthApiUrl: string;
-    let mainApiUrl: string;
-    let userPool;
-    let cognitoUser;
-
     let localUsername: string;
     let localSessionId: string;
-    let selectedClusterSize: string;
+    let selectedClusterSize: 'XS'|'S'|'M'|'L'|'XL';
     let deployingProgressBar: ProgressBar;
     let stoppingProgressBar: ProgressBar;
     let loginTimeoutTimer: number;
+    let cloudLoginCognitoService: CloudLoginCognitoService;
+    let cloudLoginLambdaService: CloudLoginLambdaService;
 
     export function setup(): void {
-        userPoolId = XCE_CLOUD_USER_POOL_ID;
-        clientId = XCE_CLOUD_CLIENT_ID;
-        cookieAuthApiUrl = XCE_SAAS_AUTH_LAMBDA_URL;
-        mainApiUrl = XCE_SAAS_MAIN_LAMBDA_URL;
-        const poolData = {
-            UserPoolId: userPoolId,
-            ClientId: clientId
-        };
-        userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        cloudLoginCognitoService = new CloudLoginCognitoService;
+        cloudLoginLambdaService = new CloudLoginLambdaService;
+
+        cloudLoginCognitoService.setup();
+        cloudLoginLambdaService.setup();
+
         let forceLogout = checkForceLogout();
         initialStatusCheck(forceLogout);
         handleEvents();
@@ -62,13 +54,7 @@ namespace CloudLogin {
     }
 
     function initialStatusCheck(forceLogout?: boolean): void {
-        sendRequest({
-            apiUrl: cookieAuthApiUrl,
-            action: "/status",
-            fetchParams: {
-                credentials: 'include',
-            }
-        })
+        cloudLoginLambdaService.statusRequest()
         .then((response) => {
             if (forceLogout) {
                 if (response.loggedIn) {
@@ -103,21 +89,7 @@ namespace CloudLogin {
     function cookieLogin(username: string, password: string): void {
         localUsername = username;
         loadingWait(true);
-        sendRequest({
-            apiUrl: cookieAuthApiUrl,
-            action: "/login",
-            fetchParams: {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: 'POST',
-                credentials: 'include',
-                body: JSON.stringify({
-                    "username": username,
-                    "password": password
-                })
-            }
-        })
+        cloudLoginLambdaService.loginRequest(username, password)
         .then((res) => {
             localSessionId = res.sessionId;
             clusterSelection();
@@ -127,7 +99,7 @@ namespace CloudLogin {
             if (error.code === "UserNotConfirmedException") {
                 $("#loginFormMessage").hide();
                 showScreen("verify");
-                ensureCognitoUserExists();
+                cloudLoginCognitoService.ensureCognitoUserExists(localUsername);
                 cognitoResendConfirmationCode();
             } else {
                 let errorMsg = getErrorMessage(error, "Login failed with unknown error.");
@@ -140,13 +112,7 @@ namespace CloudLogin {
     }
 
     function cookieLogout(): void {
-        sendRequest({
-            apiUrl: cookieAuthApiUrl,
-            action: "/logout",
-            fetchParams: {
-                credentials: 'include',
-            }
-        })
+        cloudLoginLambdaService.logoutRequest()
         .fail(error => {
             xcConsoleError('cookieLogut error:', error);
         });
@@ -155,20 +121,7 @@ namespace CloudLogin {
     function checkCredit(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             loadingWait(true);
-            sendRequest({
-                apiUrl: mainApiUrl,
-                action: "/billing/get",
-                fetchParams: {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    method: 'POST',
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        "username": localUsername
-                    }),
-                }
-            })
+            cloudLoginLambdaService.billingGetRequest(localUsername)
             .then((billingGetResponse) => {
                 if (billingGetResponse.status === ClusterLambdaApiStatusCode.OK) {
                     if (billingGetResponse.credits > 0) {
@@ -210,20 +163,7 @@ namespace CloudLogin {
 
     function getCluster(clusterIsStarting?: boolean): XDPromise<void> {
         loadingWait(true);
-        return sendRequest({
-            apiUrl: mainApiUrl,
-            action: "/cluster/get",
-            fetchParams: {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: 'POST',
-                credentials: 'include',
-                body: JSON.stringify({
-                    "username": localUsername
-                }),
-            }
-        })
+        return cloudLoginLambdaService.clusterGetRequest(localUsername)
         .then((clusterGetResponse) => {
             if (clusterGetResponse.status !== ClusterLambdaApiStatusCode.OK) {
                 // error
@@ -279,23 +219,7 @@ namespace CloudLogin {
 
     function startCluster(): void {
         loadingWait(true);
-        sendRequest({
-            apiUrl: mainApiUrl,
-            action: "/cluster/start",
-            fetchParams: {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: 'POST',
-                credentials: 'include',
-                body: JSON.stringify({
-                    "username": localUsername,
-                    "clusterParams": {
-                        "type": selectedClusterSize
-                    }
-                })
-            }
-        })
+        cloudLoginLambdaService.clusterStartRequest(localUsername, selectedClusterSize)
         .then((clusterStartResponse) => {
             getCluster();
         })
@@ -725,32 +649,6 @@ namespace CloudLogin {
         });
     }
 
-    function sendRequest({apiUrl, action, fetchParams}: {apiUrl: string, action: string, fetchParams: object}): XDPromise<any> {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        const url: string = `${apiUrl}${action}`;
-        let statusCode: number;
-        fetch(url, fetchParams)
-        .then((res) => {
-            statusCode = res.status;
-            return res.json();
-        })
-        .then((res: any) => {
-            if (statusCode === httpStatus.OK && (!res.status || res.status === ClusterLambdaApiStatusCode.OK)) {
-                deferred.resolve(res);
-            // TODO: remove this else if after /login returns object - not stringified object
-            } else if (statusCode === httpStatus.Unauthorized && res.code !== "UserNotConfirmedException") {
-                deferred.reject('Wrong Email or Password.');
-            } else {
-                deferred.reject(res);
-            }
-        })
-        .catch((e) => {
-            deferred.reject(e);
-        });
-
-        return deferred.promise();
-    }
-
     function clearElements(elementsToTrigger: string[], elementsToHide: string[], elementsToEmpty: string[], clearFunction?: Function): void {
         elementsToTrigger.forEach((elementToTrigger) => $(elementToTrigger).click(function () {
             elementsToHide.forEach((element) => $(element).hide());
@@ -811,19 +709,9 @@ namespace CloudLogin {
         );
     }
 
-    function ensureCognitoUserExists() {
-        if (!cognitoUser) {
-            var userData = {
-                Username: localUsername,
-                Pool: userPool
-            };
-            cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-        }
-    }
-
     function cognitoResendConfirmationCode() {
         loadingWait(true);
-        cognitoUser.resendConfirmationCode(function (err, result) {
+        cloudLoginCognitoService.resendConfirmationCode(function (err, result) {
             loadingWait(false);
             if (err) {
                 xcConsoleError(err);
@@ -915,41 +803,29 @@ namespace CloudLogin {
                 const username = $("#signup-email").val().toLowerCase();
                 const password = $("#signup-password").val();
 
-                const attributeList = [];
+                const givenName = $("#signup-firstName").val()
+                const familyName = $("#signup-lastName").val()
+                const company = $("#signup-company").val()
 
-                const dataGivenName = {
-                    Name: 'given_name',
-                    Value: $("#signup-firstName").val()
-                };
-                const dataFamilyName = {
-                    Name: 'family_name',
-                    Value: $("#signup-lastName").val()
-                };
-                const dataCompany = {
-                    Name: 'custom:company',
-                    Value: $("#signup-company").val()
-                };
-
-                const attributeFirstName = new AmazonCognitoIdentity.CognitoUserAttribute(dataGivenName);
-                const attributeFamilyName = new AmazonCognitoIdentity.CognitoUserAttribute(dataFamilyName);
-                const attributeCompany = new AmazonCognitoIdentity.CognitoUserAttribute(dataCompany);
-
-                attributeList.push(attributeFirstName);
-                attributeList.push(attributeFamilyName);
-                attributeList.push(attributeCompany);
-
-                userPool.signUp(username, password, attributeList, null, function (err, result) {
-                    if (err) {
-                        xcConsoleError(err);
-                        showFormError($("#signupFormMessage"), err.message);
-                        return;
-                    } else {
-                        $("#verifyFormMessage").hide();
+                cloudLoginCognitoService.signUp(
+                    givenName,
+                    familyName,
+                    company,
+                    username,
+                    password,
+                    null,
+                    function (err, result) {
+                        if (err) {;
+                            xcConsoleError(err);
+                            showFormError($("#signupFormMessage"), err.message);
+                            return;
+                        } else {
+                            $("#verifyFormMessage").hide();
+                        }
+                        showScreen("verify");
+                        return result.user;
                     }
-                    cognitoUser = result.user;
-
-                    showScreen("verify");
-                });
+                );
             } else {
                 signupSubmitClicked = true;
                 checkSignUpForm();
@@ -960,7 +836,7 @@ namespace CloudLogin {
             if (checkVerifyForm()) {
                 var code = $("#verify-code").val();
                 loadingWait(true);
-                cognitoUser.confirmRegistration(code, true, function (err, result) {
+                cloudLoginCognitoService.confirmRegistration(code, function (err, result) {
                     loadingWait(false);
                     if (err) {
                         xcConsoleError(err);
@@ -1001,14 +877,10 @@ namespace CloudLogin {
 
         $("#forgot-password-submit").click(function () {
             if (checkForgotPasswordForm()) {
-                var userData = {
-                    Username: $("#forgot-password-email").val().toLowerCase(),
-                    Pool: userPool
-                };
-                cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+                const username = $("#forgot-password-email").val().toLowerCase();
 
                 loadingWait(true);
-                cognitoUser.forgotPassword({
+                cloudLoginCognitoService.forgotPassword(username, {
                     onSuccess: function () {
                         loadingWait(false);
                         $("#forgotPasswordFormMessage").hide();
@@ -1031,7 +903,7 @@ namespace CloudLogin {
                 var verificationCode = $("#confirm-forgot-password-code").val();
                 var newPassword = $("#confirm-forgot-password-new-password").val();
                 loadingWait(true);
-                cognitoUser.confirmPassword(verificationCode, newPassword, {
+                cloudLoginCognitoService.confirmPassword(verificationCode, newPassword, {
                     onSuccess: function () {
                         loadingWait(false);
                         $("#confirmForgotPasswordFormMessage").hide();

@@ -1,6 +1,7 @@
 describe("Cloud Login Test", () => {
     let cloudLoginFunctions;
     before(function() {
+        CloudLogin.setup();
         cloudLoginFunctions = CloudLogin["__testOnly__"];
     });
 
