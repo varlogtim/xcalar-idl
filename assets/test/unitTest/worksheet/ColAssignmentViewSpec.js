@@ -6,33 +6,38 @@ describe('ColAssignmentView Test', function() {
     var prefix = "prefix";
     var node;
 
-    before(function(){
+    before(function(done){
         console.clear();
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
         console.log("Col assignmentView test");
-        MainMenu.openPanel("dagPanel");
-        node = new DagNodeMap({subType: "cast"});
-        const parentNode = new DagNodeFilter({});
-        parentNode.getLineage = function() {
-            return {getColumns: function() {
-                return [new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
-                    type: "integer"
-                }), new ProgCol({
-                    backName: xcHelper.getPrefixColName(prefix, 'stringCol'),
-                    type: "string"
-                })]
-            }}
-        };
-        node.getParents = function() {
-            return [parentNode];
-        };
 
-        xcTooltip.hideAll();
-        $castOpPanel = $("#castOpPanel");
-        $castSection = $("#castOpPanel .opSection");
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            MainMenu.openPanel("dagPanel");
+            node = new DagNodeMap({subType: "cast"});
+            const parentNode = new DagNodeFilter({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
+                        type: "integer"
+                    }), new ProgCol({
+                        backName: xcHelper.getPrefixColName(prefix, 'stringCol'),
+                        type: "string"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            };
+
+            xcTooltip.hideAll();
+            $castOpPanel = $("#castOpPanel");
+            $castSection = $("#castOpPanel .opSection");
+            done();
+        });
     });
 
     describe("Basic Function Test", function() {

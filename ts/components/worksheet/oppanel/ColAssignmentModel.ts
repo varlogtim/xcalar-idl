@@ -518,6 +518,7 @@ class ColAssignmentModel {
         const map: Map<string, ProgCol> = this._getNameMap(this.resultCols);
         let checkName = (name: string) => !map.has(name);
         name = xcHelper.parsePrefixColName(name).name;
+        name = xcHelper.stripColName(name);
         return xcHelper.uniqueName(name, checkName, null);
     }
 
