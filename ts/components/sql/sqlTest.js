@@ -17,7 +17,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     var sqlNode;
     var sqlNodeElement;
     var testDagGraph;
-    $.getJSON("assets/test/json/SQLTest.json", undefined, function(data) {
+    $.getJSON("assets/test/json/SQLTest-a.json", function(data) {
         sqlTestCases = data.xcTest.testCases;
         sqlTestAnswers = data.xcTest.answers;
         tpchCases = data.tpchTest.testCases;

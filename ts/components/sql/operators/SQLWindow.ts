@@ -788,6 +788,7 @@ class SQLWindow {
                 const newColNames = [];
                 const tempColStructs = [];
                 const tempColsToKeep = opStruct.tempColsToKeep || [];
+                const colIdsUsed = [];
                 for (const i in opStruct.aggCols) {
                     if (opStruct.aggCols[i].argType) {
                         mapStrs.push(opStruct.aggCols[i].argType + "("
@@ -800,6 +801,19 @@ class SQLWindow {
                         newColNames.push(tempColName);
                         tempColStructs.push({colName: tempColName});
                         opStruct.aggCols[i].colStruct = tempColStructs[tempColStructs.length - 1];
+                    } else if (colIdsUsed.indexOf(opStruct.aggCols[i].colStruct.colId) !== -1) {
+                        // If same column is used in multiple first/last, need to make copy first
+                        mapStrs.push(opStruct.aggCols[i].colStruct.colType + "("
+                                     + SQLCompiler.getCurrentName(opStruct.aggCols[i].colStruct) + ")");
+                        const tempColName = SQLCompiler.cleanseColName("XC_WINDOW_"
+                                                + opStruct.aggCols[i].colStruct.colName + "_"
+                                                + Authentication.getHashId().substring(3)
+                                                + "_" + i);
+                        newColNames.push(tempColName);
+                        tempColStructs.push({colName: tempColName});
+                        opStruct.aggCols[i].colStruct = tempColStructs[tempColStructs.length - 1];
+                    } else {
+                        colIdsUsed.push(opStruct.aggCols[i].colStruct.colId);
                     }
                 }
                 if (mapStrs.length !== 0) {
@@ -1021,6 +1035,7 @@ class SQLWindow {
             case ("lead"): {
                 let windowStruct;
                 const rightKeyColStructs = [];
+                opStruct.colStructTrack = Array(opStruct.keyCols.length);
                 const keyColIds = opStruct.keyCols.map(function(item) {
                     return item.colStruct ? item.colStruct.colId : undefined;
                 })
@@ -1084,6 +1099,19 @@ class SQLWindow {
                         if (item.colId && keyColIds.indexOf(item.colId) != -1 ||
                             keyColNames.indexOf(SQLCompiler.getCurrentName(item))
                             != -1) {
+                            if (item.colId && keyColIds.indexOf(item.colId) != -1) {
+                                for (let i = 0; i < keyColIds.length; i++) {
+                                    if (keyColIds[i] === item.colId) {
+                                        opStruct.colStructTrack[i] = item;
+                                    }
+                                }
+                            } else {
+                                for (let i = 0; i < keyColNames.length; i++) {
+                                    if (keyColNames[i] === SQLCompiler.getCurrentName(item)) {
+                                        opStruct.colStructTrack[i] = item;
+                                    }
+                                }
+                            }
                             rightKeyColStructs.push(item);
                         }
                         for (let i = 0; i < groupByCols.length; i++) {
@@ -1127,9 +1155,9 @@ class SQLWindow {
                     cli += ret.cli;
                     node.usrCols = node.usrCols.concat(newColStructs);
                     const mapStrs = [];
-                    for (let i = 0; i < rightKeyColStructs.length; i++) {
+                    for (let i = 0; i < opStruct.colStructTrack.length; i++) {
                         let mapStr = "if(";
-                        switch (rightKeyColStructs[i].colType) {
+                        switch (opStruct.colStructTrack[i].colType) {
                             case ("int"):
                                 mapStr = "ifInt(";
                                 break;
@@ -1156,16 +1184,16 @@ class SQLWindow {
                             }
                         }
                         // Need to check rename here
-                        for (let i = 0; i < leftJoinCols.length - 1; i++) {
+                        for (let j = 0; j < leftJoinCols.length - 1; j++) {
                             mapStr += "and(eq(" +
-                            SQLCompiler.getCurrentName(leftJoinCols[i]) + ", " +
-                            SQLCompiler.getCurrentName(rightJoinCols[i]) + "),";
+                            SQLCompiler.getCurrentName(leftJoinCols[j]) + ", " +
+                            SQLCompiler.getCurrentName(rightJoinCols[j]) + "),";
                         }
                         if (groupByCols.length === 0) {
                             mapStr += "exists(" +
                                 SQLCompiler.getCurrentName(newIndexColStruct) +
                                 "), " +
-                                SQLCompiler.getCurrentName(rightKeyColStructs[i])
+                                SQLCompiler.getCurrentName(opStruct.colStructTrack[i])
                                 + ", " + defaultValue + ")";
                         } else {
                             mapStr += "eq(" +
@@ -1174,7 +1202,7 @@ class SQLWindow {
                                 SQLCompiler.getCurrentName(
                                 rightJoinCols[leftJoinCols.length - 1]) + ")" +
                                 Array(leftJoinCols.length).join(")") + ", " +
-                                SQLCompiler.getCurrentName(rightKeyColStructs[i])
+                                SQLCompiler.getCurrentName(opStruct.colStructTrack[i])
                                 + ", " + defaultValue + ")";
                         }
                         mapStrs.push(mapStr);

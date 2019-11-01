@@ -130,6 +130,7 @@ interface SQLWindowArgument {
     defaults?: SQLWindowOperatorArg[]; // SQLColumn | string
     offset?: number;
     tempColsToKeep?: SQLColumn[];
+    colStructTrack?: SQLColumn[];
 }
 
 interface SQLWindowLeadMap {
