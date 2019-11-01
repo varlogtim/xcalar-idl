@@ -123,16 +123,28 @@ var cloudLoginPathFunc = function(req, res, next) {
             }
 
             var cookies = postRes['headers']['set-cookie'];
+            var outCookies = [];
             for (var idx in cookies) {
+                var domainField = false;
+                var sessionCookie = false;
                 var cookieParts = cookies[idx].split('; ');
+                // the auth lambda sends back two connect.sid cookies (one with
+                // a domain one without) but sqldf only expects one -- so only
+                // pass on the one with the domain
                 for (var idx2 in cookieParts) {
                     if (cookieParts[idx2].toLowerCase().startsWith('domain')) {
                         cookieParts[idx2] = `Domain=${req.hostname}`;
+                        domainField = true;
+                    }
+                    if (cookieParts[idx2].toLowerCase().startsWith('connect.sid')) {
+                        sessionCookie = true;
                     }
                 }
-                cookies[idx] = cookieParts.join('; ');
+                if ((!sessionCookie) || (sessionCookie && domainField)) {
+                    outCookies.push(cookieParts.join('; '));
+                }
             }
-            res.setHeader('Set-Cookie', cookies);
+            res.setHeader('Set-Cookie', outCookies);
             message = {
                 'status': httpStatus.OK,
                 'message': "Authentication successful"
