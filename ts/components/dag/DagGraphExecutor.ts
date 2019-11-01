@@ -597,7 +597,10 @@ class DagGraphExecutor {
             let nodeIdsSet: Set<DagNodeId> = new Set();
             queryStateOutput.queryGraph.node.forEach((queryNode) => {
                 // query's tag contains a list of dagNodeIds it's linked to
-                let nodeIdCandidates = queryNode.tag.split(",");
+                let nodeIdCandidates = [];
+                try {
+                    nodeIdCandidates = JSON.parse(queryNode.comment).nodeIds || [];
+                } catch (e) {}
                 nodeIdCandidates.forEach((nodeId) => {
                     if (nodeId) {
                         nodeIdsSet.add(nodeId);
@@ -764,20 +767,10 @@ class DagGraphExecutor {
                 return PromiseHelper.reject(e);
             }
 
-            let tagNodeIds = [];
-            this._getParentNodeIds(tagNodeIds, this._currentTxId);
+            let parentNodeIds = [];
+            Transaction.getParentNodeIds(parentNodeIds, this._currentTxId);
             queries.forEach((query) => {
-                if (query.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
-                    tagNodeIds.push(node.getId());
-                    let curTags = [];
-                    if (query.tag) {
-                        curTags = query.tag.split(",");
-                    }
-                    let finalTagNodeIds = tagNodeIds.concat(curTags);
-                    query.tag = finalTagNodeIds.join(",");
-                    tagNodeIds.pop();
-                }
-
+                xcHelper.addNodeIdToQueryComment(query, parentNodeIds, node.getId());
                 allQueries.push(query);
             });
             if (destTable != null) {
@@ -795,17 +788,6 @@ class DagGraphExecutor {
             deferred.reject(err);
         });
         return deferred.promise();
-    }
-
-    private _getParentNodeIds(parentNodeIds, txId) {
-        const txLog = Transaction.get(txId);
-        if (!txLog) return;
-        if (txLog.parentNodeId) {
-            parentNodeIds.unshift(txLog.parentNodeId);
-        }
-        if (txLog.parentTxId) {
-            this._getParentNodeIds(parentNodeIds, txLog.parentTxId);
-        }
     }
 
 
@@ -1550,7 +1532,10 @@ class DagGraphExecutor {
     // Looks at query's tag for list of dagNodeIds it belongs to. Then checks
     // to see if the graph has that node id.
     private _getDagNodeIdFromQueryInfo(queryNodeInfo: XcalarApiDagNodeT): DagNodeId {
-        let nodeIdCandidates = queryNodeInfo.tag.split(",");
+        let nodeIdCandidates = [];
+        try {
+            nodeIdCandidates = JSON.parse(queryNodeInfo.comment).nodeIds || [];
+        } catch (e) {}
         let nodeId: DagNodeId;
         for (let i = 0; i < nodeIdCandidates.length; i++) {
             nodeId = nodeIdCandidates[i];

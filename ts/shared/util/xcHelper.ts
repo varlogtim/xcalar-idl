@@ -2852,6 +2852,23 @@ namespace xcHelper {
         }
         return skewness;
     }
+
+    // mutates the query and changes the comment property
+    export function addNodeIdToQueryComment(query, parentNodeIds, curNodeId) {
+        if (query.operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+            return;
+        }
+        parentNodeIds.push(curNodeId);
+        let queryComment = {nodeIds: []};
+        try {
+            queryComment = JSON.parse(query.comment);
+        } catch (e){}
+        let curCommentNodeIds = queryComment.nodeIds || [];
+        let finalCommentNodeIds = parentNodeIds.concat(curCommentNodeIds);
+        queryComment.nodeIds = finalCommentNodeIds;
+        query.comment = JSON.stringify(queryComment);
+        parentNodeIds.pop();
+    }
 }
 
 if (typeof exports !== "undefined") {

@@ -978,7 +978,7 @@ namespace DagNodeMenu {
                 let parentTab;
                 // try to get source node from tag
                 if (tag) {
-                    let parentNodeIds = tag.split(",");
+                    let parentNodeIds = tag || [];
                     let parentNodeId = parentNodeIds[parentNodeIds.length - 1];
                     let res = DagViewManager.Instance.getNodeAndTabById(parentNodeId);
                     if (res.node && res.tab) {

@@ -2393,7 +2393,7 @@ namespace XIApi {
 
             const deferred: XDDeferred<any> = PromiseHelper.deferred();
             const txLog = Transaction.get(txId);
-            _addDagNodeIdToQueryTag(queryStr, txId);
+            _addDagNodeIdToQueryComment(queryStr, txId);
 
             options = $.extend({
                 bailOnError: true,
@@ -2433,44 +2433,22 @@ namespace XIApi {
         }
     }
 
-    function _getParentNodeIds(parentNodeIds, txId) {
-        const txLog = Transaction.get(txId);
-        if (!txLog) return;
-        if (txLog.parentNodeId) {
-            parentNodeIds.unshift(txLog.parentNodeId);
-        }
-        if (txLog.parentTxId) {
-            _getParentNodeIds(parentNodeIds, txLog.parentTxId);
-        }
-    }
-
-
     // add nodeId and nested nodeIds as query tag to track
     // relationship between query and dagNode
     // 1 dagNode can contain many queries, and 1 query can contain
     // multiple dagNode(id)s from the 1 dag node it belongs to as well as
     // that dagNode's container (ex. node can have a sql node container)
-    function _addDagNodeIdToQueryTag(queryStr, txId) {
+    function _addDagNodeIdToQueryComment(queryStr, txId) {
         const txLog = Transaction.get(txId);
         if (!txLog.currentNodeId) {
             return;
         }
         let parentNodeIds = [];
-        _getParentNodeIds(parentNodeIds, txId);
+        Transaction.getParentNodeIds(parentNodeIds, txId);
         try {
             const query = JSON.parse(queryStr);
             query.forEach(q => {
-                if (q.operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
-                    return;
-                }
-                parentNodeIds.push(txLog.currentNodeId);
-                let curTags = [];
-                if (q.tag) {
-                    curTags = q.tag.split(",");
-                }
-                let finalTagNodeIds = parentNodeIds.concat(curTags);
-                q.tag = finalTagNodeIds.join(",");
-                parentNodeIds.pop();
+                xcHelper.addNodeIdToQueryComment(q, parentNodeIds, txLog.currentNodeId);
             });
             queryStr = JSON.stringify(query);
         } catch (e) {

@@ -1268,10 +1268,11 @@ class DagQueryConverter {
             dagNodeInfo.state =  DagNodeState.Configured;
         }
 
-        if (node.rawNode && node.rawNode.tag) {
-            dagNodeInfo.tag = node.rawNode.tag;
+        if (node.rawNode && node.rawNode.comment) {
+            try {
+                dagNodeInfo.tag = JSON.parse(node.rawNode.comment).nodeIds || [];
+            } catch (e) {}
         }
-
 
         dagNodeInfo.configured = true;
         if (node.isActive) {

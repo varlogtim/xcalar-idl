@@ -607,6 +607,17 @@ namespace Transaction {
         }
     }
 
+    export function getParentNodeIds(parentNodeIds, txId) {
+        const txLog = Transaction.get(txId);
+        if (!txLog) return;
+        if (txLog.parentNodeId) {
+            parentNodeIds.unshift(txLog.parentNodeId);
+        }
+        if (txLog.parentTxId) {
+            getParentNodeIds(parentNodeIds, txLog.parentTxId);
+        }
+    }
+
     function isValidTX(txId: number): boolean {
         if (txId == null) {
             console.error("transaction does't exist!");

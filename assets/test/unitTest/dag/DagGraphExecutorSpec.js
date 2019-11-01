@@ -381,7 +381,7 @@ describe("Dag Graph Executor Test", () => {
                 elapsed: {milliseconds: 5},
                 queryState: QueryStateT.qrFinished,
                 queryGraph: {node: [{
-                tag: "nodeId1,nodeId2"
+                comment: JSON.stringify({nodeIds: ["nodeId1","nodeId2"]})
             }]}})
         };
 
@@ -396,7 +396,7 @@ describe("Dag Graph Executor Test", () => {
                 "queryGraph": {
                   "node": [
                     {
-                      "tag": "nodeId1,nodeId2"
+                      "comment": JSON.stringify({nodeIds: ["nodeId1","nodeId2"]})
                     }
                   ]
                 }

@@ -388,7 +388,10 @@ class DagSubGraph extends DagGraph {
     // Looks at query's tag for list of dagNodeIds it belongs to. Then checks
     // to see if the graph has that node id.
     private _getDagNodeIdFromQueryInfo(queryNodeInfo: XcalarApiDagNodeT): DagNodeId {
-        let nodeIdCandidates = queryNodeInfo.tag.split(",");
+        let nodeIdCandidates = [];
+        try {
+            nodeIdCandidates = JSON.parse(queryNodeInfo.comment).nodeIds || [];
+        } catch (e) {}
         let nodeId: DagNodeId;
         for (let i = 0; i < nodeIdCandidates.length; i++) {
             nodeId = nodeIdCandidates[i];
