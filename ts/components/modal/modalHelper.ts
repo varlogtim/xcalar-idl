@@ -372,7 +372,7 @@ class ModalHelper {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const options: ModalHelperOptions = $.extend(this.options, extraOptions) || {};
         const $modal: JQuery = this.$modal;
-        const numModalsOpen: number = $('.modalContainer:visible:not(#aboutModal):not(#liveHelpModal)').length;
+        const numModalsOpen: number = $('.modalContainer:visible:not(.noBackground)').length;
         $(document).off("keydown.xcModal" + this.id);
         $(document).off("keydown.xcModalTabbing" + this.id);
         $modal.removeClass("noBackground");
