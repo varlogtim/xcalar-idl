@@ -50,9 +50,14 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 return parentNode.getLineage().getColumns(false, true);
             })[0] || [];
             // hide xcalar imd columns
+            let validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes();
             this._columns = this._columns.filter((col: ProgCol) => {
                 let name = col.getFrontColName();
-                return !PTblManager.InternalColumns.includes(name);
+                let type: ColumnType = col.getType();
+                return !PTblManager.InternalColumns.includes(name) &&
+                    validTypes.includes(type) ||
+                    type === ColumnType.unknown ||
+                    type === ColumnType.undefined;
             });
             this._setupColumnHints();
             this._restorePanel(dagNode.getParam());
