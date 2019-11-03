@@ -11,6 +11,10 @@ CsvSchemaModeT = {
   'CsvSchemaModeUseSchemaFile' : 2,
   'CsvSchemaModeUseLoadInput' : 3
 };
+CsvDialectT = {
+  'CsvDialectDefault' : 0,
+  'CsvDialectXcalarSnapshot' : 1
+};
 CsvSchemaModeTStr = {
   0 : 'none',
   1 : 'header',
@@ -22,4 +26,12 @@ CsvSchemaModeTFromStr = {
   'header' : 1,
   'schemaFile' : 2,
   'loadInput' : 3
+};
+CsvDialectTStr = {
+  0 : 'default',
+  1 : 'xcalarSnapshot'
+};
+CsvDialectTFromStr = {
+  'default' : 0,
+  'xcalarSnapshot' : 1
 };
