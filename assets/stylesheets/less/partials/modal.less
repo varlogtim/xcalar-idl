@@ -6051,14 +6051,6 @@ html.microsoft {
         display: block;
         position: relative;
 
-        ::-webkit-scrollbar-thumb {
-            background: @color-bg-topBarGray2 !important;
-        }
-        ::-webkit-scrollbar-track {
-            background: @color-white;
-        }
-
-
         .IMDName, .IMDKey {
             width: 100%;
 
@@ -6175,12 +6167,6 @@ html.microsoft {
                 }
             }
             .columnsToPublish {
-                ::-webkit-scrollbar-thumb {
-                    background: @color-bg-topBarGray2 !important;
-                }
-                ::-webkit-scrollbar-track {
-                    background: @color-white;
-                }
                 .cols {
                     padding-top: 1px;
                     border-left: 1px solid @color-bg-white-five;
@@ -6248,6 +6234,8 @@ html.microsoft {
         }
 
         .exportDriver {
+            height: 79px;
+
             .subHeading {
                 float: left;
                 padding-left: 0;
@@ -6260,7 +6248,7 @@ html.microsoft {
         }
 
         .argsSectionBox {
-            height: ~"calc(100% - 250px)";
+            height: ~"calc(100% - 300px)";
             width: 100%;
             margin-top: 20px;
             float: left;
@@ -6283,6 +6271,7 @@ html.microsoft {
                         .label {
                             height: 25px;
                             margin-top: 10px;
+                            padding-left: 10px;
                         }
                     }
                     .dropDownList {
@@ -6304,6 +6293,8 @@ html.microsoft {
         }
 
         #exportSQLTableColumns {
+            max-height: 191px;
+
             .subHeading {
                 padding-left: 0;
             }
@@ -6316,12 +6307,6 @@ html.microsoft {
                 }
             }
             .columnsToExport {
-                ::-webkit-scrollbar-thumb {
-                    background: @color-bg-topBarGray2 !important;
-                }
-                ::-webkit-scrollbar-track {
-                    background: @color-white;
-                }
                 .searchBox {
                     position: relative;
                     clear: both;
