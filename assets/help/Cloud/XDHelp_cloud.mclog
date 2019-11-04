@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<MadCapLog Protocol="2" Description="MadCap Flare 2019 r2 Generated XDHelpCloudTargets/XDHelp_cloud.fltar" Date="2019-10-17T16:49:33.4031800-07:00">
+<MadCapLog Protocol="2" Description="MadCap Flare 2019 r2 Generated XDHelpCloudTargets/XDHelp_cloud.fltar" Date="2019-11-04T12:06:32.2307392-08:00">
     <Messages>Compiling target XDHelp_cloud...
 Removing previously generated content...
 Loading skin info...
@@ -588,7 +588,7 @@ Generated Skins\Default\Stylesheets\Topic.micro-content.css
 Generated Default.htm
 Saving result set...
 Ignored Compiler Warnings: 217
-Output generated in 33 second(s).
+Output generated in 29 second(s).
 
 Done
 Saving log to "C:\Users\Ruchi Garg\xcalar-docs\oh_docs\Output\Ruchi_Garg\XDHelpCloudTargets\XDHelp_cloud\XDHelp_cloud.mclog"

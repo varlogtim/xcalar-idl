@@ -192,7 +192,6 @@
                                                 <h1><a name="Data"></a>Understanding the connector types</h1>
                                                 <p>This section lists the connector types that are supported by <span class="GeneralProductName3">Xcalar</span>, which are based on the source data's storage repository type and access authentication method. </p>
                                                 <p>Accessing  source data stored in a repository requires a <span class="GeneralProductName3">Xcalar</span> <span class="UIelement">Connector</span>, which contains metadata about your source data's format, storage location and repository type, and access authentication method. </p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;The text <em>Environmental Credentials</em> in a <span class="UIelement">Connector Type</span> name indicates that the credentials for accessing the source data are configured from environment variables outside of the connector creation process. </div>
                                                 <p>The following table describes the <span class="GeneralProductName3">Xcalar</span> connector types:</p>
                                                 <table style="mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 1009px;" class="TableStyle-SimpleTable" cellspacing="0">
                                                     <caption data-mc-autonum="Table 1 "><span class="autonumber"><span>Table 1 </span></span>Connector types</caption>
@@ -211,49 +210,35 @@
                                                     <tbody>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>Microsoft Cloud storage</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Azure Blob Storage Account with Environmental Credentials</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
-                                                                <p>An Azure Storage account that authorizes access from an Azure storage account authentication file and either a shared access signature (SAS) token or an access key, whose locations are set in the following environment variables:</p>
-                                                                <ul>
-                                                                    <li value="1">AZURE_STORAGE_ACCOUNT</li>
-                                                                    <li value="2">AZURE_STORAGE_KEY</li>
-                                                                    <li value="3">AZURE_STORAGE_SAS_TOKEN</li>
-                                                                </ul>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
                                                                 <p class="tableParagraph">Microsoft Cloud storage</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Azure Blob Storage Account with SAS Token</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">An Azure Storage account that requires access with a shared access signature (SAS) token.</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Confluent Kafka Platform</td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Confluent Kafka</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">A connector to connect to a Confluent Kafka Platform using a REST API end point. It is used to import a specified number of rows for a specified topic, starting from the beginning of the topic.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Azure Blob Storage Account with SAS Token</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">An Azure Storage account that requires access with a shared access signature (SAS) token.</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                                <p>&#160;</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                                <p>Custom</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
-                                                                <p>This advanced feature requires a complete understanding of how <span class="GeneralProductName3">Xcalar</span> uses user-defined functions (UDFs) to import various kinds of data sources. </p>
-                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Confluent Kafka Platform</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Confluent Kafka</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">A connector to connect to a Confluent Kafka Platform using a REST API end point. It is used to import a specified number of rows for a specified topic, starting from the beginning of the topic.</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p class="tableParagraph">Relational database</p>
+                                                                <p>&#160;</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
-                                                                <p class="tableParagraph">Database</p>
+                                                                <p>Custom</p>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
+                                                                <p>This advanced feature requires a complete understanding of how <span class="GeneralProductName3">Xcalar</span> uses user-defined functions (UDFs) to import various kinds of data sources. </p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">Relational database</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                                <p class="tableParagraph">Database</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
                                                                 <p class="tableParagraph">A SQL&#160;database, data warehouse, or data lake, such as the following:</p>
                                                                 <ul>
                                                                     <li value="1">Apache data warehouse</li>
@@ -265,30 +250,23 @@
                                                                 </ul>
                                                             </td>
                                                         </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2" data-mc-conditions="On-prem.Hidden">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Private Amazon S3 storage</td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">File Browser</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">A connector to connect to the private Amazon S3 bucket created for you by Xcalar. You can upload a file from your computer to this S3 bucket and import it as a dataset or table for your data model.</td>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1" data-mc-conditions="On-prem.Hidden">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Private Amazon S3 storage</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">File Browser</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">A connector to connect to the private Amazon S3 bucket created for you by Xcalar. You can upload a file from your computer to this S3 bucket and import it as a dataset or table for your data model.</td>
                                                         </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
                                                                 <p>Pro-grammatically generated in memory</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Generated</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Generated</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
                                                                 <p>This is an advanced connector used with an import UDF mainly for two purposes:</p>
                                                                 <ul>
                                                                     <li value="1">To generate a test dataset of fake data using python libraries. The resultant data exists in memory only, not in a storage system. </li>
                                                                     <li value="2">To import data evenly and in parallel across all cores from one single file. </li>
                                                                 </ul>
                                                             </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                                <p class="tableParagraph">Google Cloud Storage</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Google Cloud Storage Account with Environmental Credentials</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">A Google Cloud Storage account that authorizes access from a Google services account authentication file whose location is set in the GOOGLE_APPLICATION_CREDENTIALS environment variable. For more information about Google Cloud account authentication for application Clients, see the Google documentation.</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
@@ -319,25 +297,10 @@
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                                <p class="tableParagraph">Amazon S3 storage</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">S3 Account with Environmental Credentials</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
-                                                                <p>An Amazon S3 storage account, that authorizes access to the account's buckets from an AWS Boto3 configuration file that contains the following S3 storage authentication credentials:</p>
-                                                                <ul>
-                                                                    <li value="1">aws_access_key_id</li>
-                                                                    <li value="2">aws_secret_access_key</li>
-                                                                    <li value="3">aws_session_token</li>
-                                                                </ul>
-                                                                <p data-mc-conditions="On-prem.Hidden">This connector links to your private S3 bucket created by <span class="GeneralProductName3">Xcalar</span>.</p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
                                                                 <p>Amazon S3 storage</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">S3 Account with Specified Credentials</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">S3 Account with Specified Credentials</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
                                                                 <p>An Amazon S3 storage account that authorizes access to the account's buckets. During the connector creation task you will be required to supply the values of:</p>
                                                                 <ul>
                                                                     <li value="1">secret_access_key</li>
@@ -345,43 +308,43 @@
                                                                 </ul>
                                                             </td>
                                                         </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
                                                                 <p class="tableParagraph">MapR platform</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Secured MapR Cluster Account</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Secured MapR Cluster Account</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
                                                                 <p>A MapR cluster platform that authorizes access using authentication credentials from an authorized MapR user. </p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>MapR platform</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                                <p class="tableParagraph">Secured MapR Cluster Account Impersonation</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
+                                                                <p class="tableParagraph">A MapR cluster platfrom that authorizes access from a MapR impersonation ticket. </p>
                                                             </td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                                <p>MapR platform</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
-                                                                <p class="tableParagraph">Secured MapR Cluster Account Impersonation</p>
-                                                            </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
-                                                                <p class="tableParagraph">A MapR cluster platfrom that authorizes access from a MapR impersonation ticket. </p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
                                                                 <p class="tableParagraph">Apache Hadoop data lake</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
                                                                 <p>WebHDFS</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
                                                                 <p>An  Apache Hadoop Distributed File System (HDFS) data storage system that  is accessed through the WebHDFS protocol.</p>
                                                             </td>
                                                         </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
                                                                 <p>Apache Hadoop data lake</p>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">WebHDFS with Kerberos</td>
-                                                            <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">An HDFS data storage system  that uses Kerberos authentication and is accessed through the WebHDFS protocol.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">WebHDFS with Kerberos</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column1-Body2">An HDFS data storage system  that uses Kerberos authentication and is accessed through the WebHDFS protocol.</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
