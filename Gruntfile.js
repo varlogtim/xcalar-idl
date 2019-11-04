@@ -204,11 +204,19 @@ var jsMapping = {
     required: []};
 var helpContentRoot = "assets/help/";
 var helpContentMapping = {
-    src: helpContentRoot + 'user/', // src in the bldroot after initial copy at bld start
-    dest: "assets/js/shared/util/helpHashTags.js",
-    exclude: {},
-    remove: [],
-    required: []};
+    XD: {
+        src: helpContentRoot + XD,
+        dest: "assets/js/shared/util/helpHashTags.js",
+        helpHashTags: "helpHashTags",
+        csLookup: "csLookup"
+    },
+    Cloud: {
+        src: helpContentRoot + Cloud,
+        dest: "assets/js/shared/util/helpHashTags_Cloud.js",
+        helpHashTags: "helpHashTagsCloud",
+        csLookup: "csLookupCloud"
+    }
+};
 var typescriptMapping = {
     src:  'ts/',
     dest: "assets/js/",
@@ -222,16 +230,8 @@ var expServerTSMapping = {
     remove: [],
     required: ['services/expServer']};
 var reactMapping = {
-        src:  'src/',
+     src:  'src/',
 };
-
-// help content src in the actual src tree, for each product type
-var helpContentRootByProduct = {
-    XD: helpContentRoot + Cloud, // XXX make XD build Cloud Doc until jenkins get fixed
-    // XD: helpContentRoot + XD,
-    Cloud: helpContentRoot + Cloud,
-    XPE: helpContentRoot + XD
-}
 
 // path rel src to the unitTest folder
 var UNIT_TEST_FOLDER = 'assets/test/unitTest';
@@ -1102,26 +1102,6 @@ module.exports = function(grunt) {
                 src: '**/*', // copies everything starting from not including the top level html src, in to the staging dir, maintaining dir strucoture
                 expand: true,
                 dest: BLDROOT + htmlMapping.dest,
-            },
-            /**
-                There is a help content dir for generating the help anchors, for each individual product,
-                under assets/help/
-                Only want the dir relevant to product being built, in our final build, and want it in assets/help/user
-
-                Therefore, will want to:
-
-                1. cp assets/help/<PRODUCT> --> assets/help/user <-- what this target does
-                2. delete all other dirs in assets/help/ beside assets/help/user <-- clean up portion of generating help contaent will take care ofe this
-
-                In the case of a dev bld, of course you don't want to do step 2 because it would be the project src itself
-            */
-            transferDesiredHelpContent: {
-                options: {},
-                cwd: BLDROOT + helpContentRootByProduct[PRODUCT], // worked with and without trailing '/'
-                src: "**/*", // get ALL files at and nested within cwd.  THey will all be paths relative to cwd (retaining dir structure)
-                expand: true, // need this option to make sure you go nested; it fails when I take it out.  allows you to expand items in 'src' arg dynamically
-                dest: BLDROOT + helpContentMapping.src, // confusing naming, it's src because this is the src of where the relative files should be
-                    // required generating the actual helep content. hence, why we are creating it now; this target is setting up for that process.
             },
 
             /**
@@ -2358,118 +2338,27 @@ module.exports = function(grunt) {
         This will be done parsing through htm documentation and parsing
         Generate help tags file
 
-        Will store 2 variables:
+        Will store variables:
 
         var csLookup: <n entries per file; one for each 'ForCSH' <a href> class tag
 
-        var helpHashTags: <1 entry per file>
+        or
+
+        var csLookupCloud
     */
     grunt.task.registerTask("help_contents", function() {
-
-        // you have XD help content in the src code that was copied in
-        // copy what you need in to /usr and delete the rest
-        // corner casE: srcroot and destdir are the same.  In that case still do the usr dir,
-        // but don't delete...
-        grunt.task.run('copy:transferDesiredHelpContent');
-        // generate structs file using the relevant help content
-        grunt.task.run("generate_help_structs_file");
-
-        // file for searching help content in XD
-        grunt.task.run("generate_help_search_insight_file");
-
-        // delete out those folders not related (this could be done before or after the main generateHelpStructsFile task,
-        // but putting it after in case there ever are some pending tasks for cleanup)
-        if (SRCROOT != BLDROOT) {
-            grunt.task.run("cleanup_help_content_dir");
-        }
+        generateCSLookupFile(XD);
+        generateCSLookupFile(Cloud);
     });
 
-    /**
-        Generates the htm file for searching help in XD
-        Insert custom styling so it conforms to the XD style
-    */
-    grunt.task.registerTask("generate_help_search_insight_file", function() {
-
-        /**
-            get all the html files (except those in 3rd)
-             for each html file.. and squash them to go js/<get rid stuff>/filename
-
-            - Generate a file SearchInsight..html
-
-            In that file:.
-
-            - Open the file assets/help/user/Content/Search.htm
-            - read through it, writing each of its line, until you hit <style> tag...
-                when you hit the <style> tag,
-                you add in the content from site/partials/mcf.html
-                TYhen you keep going and write the rest of the Search.htm fila
-        */
-        readFile = BLDROOT + 'assets/help/user/Content/Search.htm';
-        insertFile = BLDROOT + 'site/partials/mcf.html';
-        // anew file loc
-        basefilename = path.basename(readFile, path.extname(readFile));
-        origFileLoc = path.dirname(readFile); // dir to put in
-        if (!origFileLoc.endsWith(path.sep)) { origFileLoc = origFileLoc + path.sep; }
-
-        newfilename = path.basename(readFile, path.extname(readFile)) + 'Insight.htm';
-        newfileloc = origFileLoc + newfilename;
-
-        // read contents of the files
-        filecont = grunt.file.read(readFile);
-        insertFileCont = grunt.file.read(insertFile);
-
-        /**
-            Insert the custom style contents, right before the initial <style> tag
-            'split', on <style> - will not save delimeter... so split,
-            write out the first pice (content before first <Style>, write the custom stuff,
-            , add back in your delimeter <style>, and then the rest of the data
-        */
-        var styleDelim = '<style>';
-        stylesplit = filecont.split(styleDelim);
-        var newContent = "";
-        if (stylesplit.length < 2) {
-            grunt.fail.fatal("Trying to inserted custom style section in to"
-                + readFile
-                + "\nSearchin for style tag: '"
-                + styleDelim
-                + "', but I can not find this tag in the file!");
-        } else {
-
-            // section prior to initial <style> tag
-            newContent = newContent + stylesplit[0];
-
-            // insert custom styling
-            newContent = newContent + "\n\n<!-- Begin section inserted by Grunt -->\n";
-            newContent = newContent + insertFileCont;
-            newContent = newContent + "\n<!-- End section inserted by Grunt -->\n\n";
-
-            // insert back in the style delim
-            newContent = newContent + styleDelim;
-
-            // now add in all remaining pieces in the split ( in case there were more than one style tags)
-            for (var i = 1; i < stylesplit.length; i++) {
-                newContent = newContent + stylesplit[i];
-            }
-
-            // write the new file
-            writeAutoGeneratedFile(newfileloc, newContent, " File for generating search insight");
-        }
-    });
-
-    /**
-        generate a js file that defines some structs to be used by js files.
-
-        var <structVar> = <JSON data>
-    */
-    grunt.task.registerTask("generate_help_structs_file", function() {
-
-        var helpStructsFilepath = BLDROOT + helpContentMapping.dest,
-            content = "";
+    function generateCSLookupFile(productName) {
+        var helpStructsFilepath = BLDROOT + helpContentMapping[productName].dest;
+        var content = "";
 
         // get the data for generating these
         // will be in form: keys (name of a struct var you want to define)
         // value being, the data structure to jsonify
-        var structVarsData = generateHelpData();
+        var structVarsData = generateHelpData(productName);
 
         // generate a String as you want the file to be, holding this data
         for (var structVar of Object.keys(structVarsData)) {
@@ -2483,32 +2372,7 @@ module.exports = function(grunt) {
 
         // create the new file that holds the struct data
         writeAutoGeneratedFile(helpStructsFilepath, content, "help structs file");
-
-    });
-
-    /**
-        removes unneeded help content from bld.
-
-        (The src code has dirs help/XD, but only one used,
-        and it gets renamed as help/user.
-        This cleanup task is deleting those unused ones.)
-    */
-    grunt.task.registerTask("cleanup_help_content_dir", function() {
-
-        // go through the help content dir and delete everything that's not the user dir
-        var helpContentRootFull = BLDROOT + helpContentRoot;
-        var helpDirs = grunt.file.expand(helpContentRootFull + "*");//, {filter:'isDirectory'});
-        for (var helpDir of helpDirs) {
-            if (!helpDir.endsWith(path.sep)) { helpDir = helpDir + path.sep; }
-            var helpDirAbsSrc = BLDROOT + helpContentMapping.src;
-            if (helpDirAbsSrc !== helpDir) { // we're only getting the dirs at that top level; not recursive
-            //if ( helpDirAbsSrc !== helpDir && !grunt.file.doesPathContain(helpDirAbsSrc, helpDir) ) {
-                grunt.log.write("Delete unneeded help content dir : " + helpDir + " ... ");
-                grunt.file.delete(helpDir);
-                grunt.log.ok();
-            }
-        }
-    });
+    }
 
     /**
         creates a data structure that holds data for all struct vars you'd like to create
@@ -2522,51 +2386,22 @@ module.exports = function(grunt) {
 ,        you'd have to look through the htm files for each struct you want to get data for
 
     */
-    function generateHelpData() {
+    function generateHelpData(productName) {
 
         // gather all .htm files from help dir
-        var commonRoot = BLDROOT + "assets/";
-        var fullHelpPath = BLDROOT + helpContentMapping.src;
+        var fullHelpPath = BLDROOT + helpContentMapping[productName].src + "/";
         var htmFilepaths = grunt.file.expand(fullHelpPath + "**/*.htm");
 
-        var myStructs = {};
         // structs to fill up
-        var helpHashTags = "helpHashTags";
-        var csLookup = "csLookup";
-        myStructs.helpHashTags = []; // structs being generated
-        myStructs.csLookup = {};
+        var myStructs = {};
+        var csLookup = helpContentMapping[productName].csLookup;
+        myStructs[csLookup] = {};
 
         // for each of ithe files, create the struct data
-        var relativeTo = commonRoot + "js/";
         for (var htmFilepath of htmFilepaths) {
 
-            //fullFilepath = BLDROOT + htmFile;
             grunt.log.debug("help file processing: " + htmFilepath);
             var $ = cheerio.load(fs.readFileSync(htmFilepath, "utf8")); // get a DOM for this file using cheerio
-
-            /*
-                ENTRY FOR 'HELP HASH TAGS' STRUCT
-                This is the <h1> data in the file.
-                There is an agreement that there should be only one per documentation file.
-                So, if you encounter more than one; fail
-            */
-
-            $('h1').each(function() {  // gets each 'h1' selector
-                // check if more than one
-                if (myStructs[helpHashTags].hasOwnProperty(htmFilepath)) {
-                    grunt.fail.fatal("Error encountered generating Help hash tags from documentation.\n"
-                        + "\nFile: "
-                        + htmFilepath
-                        + " has more than one h1'\n"
-                        + "There is an agreement that there can only be one h1 per documentation file!");
-                }
-                // put in key for this
-                text = $(this).text();
-                relPath = path.relative(relativeTo, htmFilepath);
-                if (relPath.indexOf("/Content/ContentXDHelp") > 0) {
-                    myStructs[helpHashTags].push({'url':relPath, 'title': text});
-                }
-            });
 
             /**
                 ENTR(IES) FOR 'CS LOOKUP STRUCT
@@ -2607,7 +2442,6 @@ module.exports = function(grunt) {
                         + " but there should only be one such entry among ALL the documentation files."
                         + "\n\nOutput of '" + grepCmd + "' (executed from " + fullHelpPath + "):\n\n"
                         + grepCmdOutput;
-                    //grunt.fail.fatal(failMsg); // leave this out for now while issue being addressed
                     grunt.log.warn(failMsg); // at least warn user?
                 }
 

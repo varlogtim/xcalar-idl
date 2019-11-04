@@ -2,11 +2,11 @@ class CSHelp {
     private static _instance: CSHelp;
 
     private constructor() {
-        const lookup = csLookup;
-        const helpBaseUrl = paths.helpUserContent;
 
         $(document).on("click", ".csHelp", function() {
             const topic = $(this).attr("data-topic");
+            const helpBaseUrl = HelpPanel.Instance.getHelpDocBaseURL();
+            const lookup = XVM.isCloud() ? csLookupCloud : csLookup;
             const url = helpBaseUrl + "ContentXDHelp/" + lookup[topic];
             window.open(url, "xcalar");
         });

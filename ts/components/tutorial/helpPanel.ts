@@ -7,7 +7,15 @@ class HelpPanel {
 
     public setup(): void {
         this._setupResources();
-    };
+    }
+
+    public getHelpDocBaseURL(): string {
+        if (XVM.isCloud()) {
+            return "assets/help/Cloud/Content/";
+        } else {
+            return "assets/help/XD/Content/";
+        }
+    }
 
     /**
      * Opens the relevant help panel resource.
@@ -58,7 +66,7 @@ class HelpPanel {
     }
 
     private _openHelpDocs(): void {
-        let url = "assets/help/user/Content/";
+        let url = this.getHelpDocBaseURL();
         if (XVM.isCloud()) {
             url += "Home_cloud.htm";
         } else {
