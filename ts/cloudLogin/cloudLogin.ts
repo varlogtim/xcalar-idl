@@ -316,9 +316,11 @@ namespace CloudLogin {
     }
 
     function goToXcalar(clusterGetResponse: ClusterGetResponse): void {
+        loadingWait(true);
         const sessionId: string = localSessionId;
         if (!sessionId || !clusterGetResponse.clusterUrl) {
             handleException(clusterGetResponse.error);
+            loadingWait(false);
             return;
         }
         var url = clusterGetResponse.clusterUrl + "/" + paths.login +
