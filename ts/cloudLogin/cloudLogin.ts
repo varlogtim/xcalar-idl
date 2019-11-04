@@ -902,7 +902,7 @@ namespace CloudLogin {
             }
         });
 
-        $("#verify-resend-code").click(function () {
+        $("#verify-resend-code span").click(function () {
             cognitoResendConfirmationCode();
             showFormSuccess(
                 $("#verifyFormMessage"),
