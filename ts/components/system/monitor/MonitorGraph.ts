@@ -383,12 +383,10 @@ class MonitorGraph {
         // only update memusage if change detected AND
         // first time, screen is visible, or interval is infrequent
         // AND it's been at least 10 seconds since last call
-        return (this._hasTableUsageChange &&
-                WorkbookManager.getActiveWKBK() != null &&
-                ($("#monitor-system").is(":visible") ||
+        return ($("#monitor-system").is(":visible") ||
                 this._freshData ||
                 this._intervalTime > 19999) &&
-                (Date.now() - this._lastTableUsageTime > 10000));
+                (Date.now() - this._lastTableUsageTime > 10000);
     }
 
     private _getTableUsage(sessions: any): number {
