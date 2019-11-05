@@ -407,10 +407,6 @@ namespace xcManager {
         }
     }
 
-    function isCloud(): boolean {
-        return (typeof gCloud !== "undefined" && gCloud === true);
-    }
-
     function oneTimeSetup(): XDPromise<any> {
         function initLocks() {
             const keys: any = WorkbookManager.getGlobalScopeKeys(Durable.Version);
@@ -670,7 +666,7 @@ namespace xcManager {
     }
 
     function hotPatch(): XDPromise<void> {
-        if (isCloud()) {
+        if (XVM.isCloud()) {
             // cloud don't need to use hotpatch
             return PromiseHelper.resolve();
         }

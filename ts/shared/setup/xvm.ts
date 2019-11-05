@@ -107,7 +107,6 @@ namespace XVM {
         kvVersionStore = new KVStore(key, gKVScope.USER);
         _mode = XVM.Mode.SQL;
         [majorVersion, minorVersion, revisionVersion] = XCALARVERSION.split(".");
-        _cloud = (typeof gCloud !== "undefined" && gCloud === true) || false;
     }
 
     /**
@@ -228,6 +227,9 @@ namespace XVM {
      * XVM.isCloud
      */
     export function isCloud(): boolean {
+        if (_cloud === undefined) {
+            _cloud = (typeof gCloud !== "undefined" && gCloud === true) || false;
+        }
         return _cloud;
     }
 
