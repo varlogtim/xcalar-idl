@@ -558,6 +558,10 @@ namespace DSTargetManager {
         return !XVM.isCloud() || !cloudTargetBlackList.includes(targetType);
     }
 
+    function isWhiteListTarget(targetName: string): boolean {
+        return XVM.isCloud() && targetName === xcalar_public_s3;
+    }
+
     function isReservedTargetName(targetName: string): boolean {
         return reservedList.includes(targetName);
     }
@@ -575,7 +579,8 @@ namespace DSTargetManager {
         targetSet = {};
         targetList.forEach(function(target) {
             if (isAccessibleTarget(target.type_id) &&
-                !isHiddenTarget(target.name)
+                !isHiddenTarget(target.name) ||
+                isWhiteListTarget(target.name)
             ) {
                 targetSet[target.name] = target;
             }
