@@ -1307,7 +1307,6 @@ class DagNodeSQL extends DagNode {
                 return SQLCompiler.compile(sqlQueryObj);
             })
             .then(function(sqlQueryObj: SQLQuery) {
-                self.setNewTableName(sqlQueryObj.newTableName);
                 self.setColumns(sqlQueryObj.allColumns);
                 let optimizeStruct;
                 try {
@@ -1332,15 +1331,19 @@ class DagNodeSQL extends DagNode {
                 }
                 sqlQueryObj.xcQueryString = optimizeStruct.optimizedQueryString;
                 const aggregates = optimizeStruct.aggregates;
+                const replaceRetStruct = self.replaceSQLTableName(sqlQueryObj.xcQueryString,
+                                                                  sqlQueryObj.newTableName);
+                self.setNewTableName(replaceRetStruct.newDestTableName);
                 self.setAggregatesCreated(aggregates);
-                self.setXcQueryString(sqlQueryObj.xcQueryString);
+                self.setXcQueryString(replaceRetStruct.newQueryStr);
                 const retStruct = {
-                    newTableName: sqlQueryObj.newTableName,
-                    xcQueryString: sqlQueryObj.xcQueryString,
+                    newTableName: replaceRetStruct.newDestTableName,
+                    xcQueryString: replaceRetStruct.newQueryStr,
                     allCols: sqlQueryObj.allColumns,
                     tableSrcMap: tableSrcMap
                 }
                 self.updateSubGraph();
+                self.updateSubGraph(replaceRetStruct.newTableMap);
                 // recalculate the lineage after compilation
                 const lineage = self.getLineage();
                 lineage.reset();
@@ -1480,6 +1483,89 @@ class DagNodeSQL extends DagNode {
             retStruct.tableNewDagIdMap[tableName] = newId;
         }
         retStruct.outputDagId = oldIdNewIdMap.get(retStruct.outputDagId);
+    }
+
+    /**
+     * Since fake table names are created by compiler, we need to replace all of
+     * them before execution. Used both here and in DagNodeExecutor with different arguments
+     * @param queryStr  xcalar query string
+     * @param oldDestTableName  destTableName created by compiler
+     * @param tabId     id of current tab
+     * @param tableSrcMap   {compilerTableName: sourceId}
+     * @param replaceMap    {sourceId: newParentTableName}
+     */
+    public replaceSQLTableName(
+        queryStr: string,
+        oldDestTableName: string,
+        tabId?: string,
+        tableSrcMap?: {},
+        replaceMap?: {}
+    ): {newQueryStr: string,
+        newDestTableName: string,
+        newTableSrcMap: {},
+        newTableMap: {}} {
+        const queryStruct = JSON.parse(queryStr);
+        const newTableMap = {};
+        const newTableSrcMap = {};
+        const newDestTableName = this._generateTableName("SQLTAG_DEST", tabId);
+        let tagCount = -1;
+        queryStruct.forEach((operation) => {
+            if (operation.operation === "XcalarApiDeleteObjects") {
+                const namePattern = operation.args.namePattern;
+                if (namePattern && newTableMap[namePattern]) {
+                    operation.args.namePattern = newTableMap[namePattern];
+                }
+                return;
+            }
+            let source = operation.args.source;
+            // source replacement
+            if (typeof source === "string") {
+                source = [source];
+            }
+            for (let i = 0; i < source.length; i++) {
+                if (tabId && tableSrcMap && replaceMap) {
+                    if (!newTableMap[source[i]]) {
+                        const idx = tableSrcMap[source[i]];
+                        if (idx) {
+                            newTableMap[source[i]] = replaceMap[idx];
+                            newTableSrcMap[replaceMap[idx]] = idx;
+                        } else {
+                            // console.log("publish table as source: ", source[i]);
+                            continue;
+                        }
+                    }
+                    source[i] = newTableMap[source[i]];
+                } else {
+                    newTableMap[source[i]] = newTableMap[source[i]] || source[i];
+                    source[i] = newTableMap[source[i]];
+                }
+            }
+            if (source.length === 1) {
+                operation.args.source = source[0];
+            } else {
+                operation.args.source = source;
+            }
+            // dest replacement
+            if (operation.args.dest === oldDestTableName) {
+                newTableMap[operation.args.dest] = newDestTableName;
+                operation.args.dest = newDestTableName;
+            } else if (operation.operation !== "XcalarApiAggregate") {
+                if (!newTableMap[operation.args.dest]) {
+                    tagCount++;
+                    newTableMap[operation.args.dest] = this._generateTableName("SQLTAG_" + tagCount, tabId);
+                }
+                operation.args.dest = newTableMap[operation.args.dest];
+            }
+        });
+        return {newQueryStr: JSON.stringify(queryStruct),
+                newDestTableName: newDestTableName,
+                newTableSrcMap: newTableSrcMap,
+                newTableMap: newTableMap};
+    }
+
+    private _generateTableName(tag: string, tabId?: string): string {
+        return "table_" + (tabId ? tabId : "") + "_" + this.getId()
+                + (tag ? "_" + tag : "") + Authentication.getHashId();
     }
 }
 

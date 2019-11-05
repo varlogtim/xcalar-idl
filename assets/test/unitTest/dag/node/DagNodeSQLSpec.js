@@ -85,6 +85,64 @@ describe("SQL Dag Node Test", () => {
                 "tag": ""
             });
         });
+
+        it("replaceSQLTableName should work", () => {
+            let queryString = JSON.stringify([
+                {
+                    "operation": "XcalarApiSynthesize",
+                    "args": {
+                        "source": "a",
+                        "dest": "b",
+                        "columns": [
+                            {
+                                "sourceColumn": "classes::class_name",
+                                "destColumn": "CLASS_NAME",
+                                "columnType": "DfString"
+                            },
+                            {
+                                "sourceColumn": "classes::class_id",
+                                "destColumn": "CLASS_ID",
+                                "columnType": "DfInt64"
+                            }
+                        ],
+                        "sameSession": true,
+                        "numColumns": 2
+                    }
+                }
+            ]);
+            let tableSrcMap = {"a": 1};
+            let replaceMap = {"1": "a"};
+            let oldTableName = "b";
+            let tabId = "tabId";
+            let res = node.replaceSQLTableName(queryString, oldTableName, tabId, tableSrcMap, replaceMap);
+            let newTableName = res.newDestTableName;
+    
+            expect(res.newTableMap).to.deep.equal({a:"a", b: newTableName});
+            expect(res.newTableSrcMap).to.deep.equal({a:1});
+            expect(JSON.parse(res.newQueryStr)).to.deep.equal([
+                {
+                    "operation": "XcalarApiSynthesize",
+                    "args": {
+                        "source": "a",
+                        "dest": newTableName,
+                        "columns": [
+                            {
+                                "sourceColumn": "classes::class_name",
+                                "destColumn": "CLASS_NAME",
+                                "columnType": "DfString"
+                            },
+                            {
+                                "sourceColumn": "classes::class_id",
+                                "destColumn": "CLASS_ID",
+                                "columnType": "DfInt64"
+                            }
+                        ],
+                        "sameSession": true,
+                        "numColumns": 2
+                    }
+                }
+            ]);
+        });
     });
     describe("saving config", () => {
         describe("compile", () => {
@@ -354,6 +412,16 @@ describe("SQL Dag Node Test", () => {
                 let cache5 = node.updateSubGraph;
                 node.updateSubGraph = () => {};
 
+                let cache6 = node.replaceSQLTableName;
+                node.replaceSQLTableName = (query, tName) => {
+                    return {
+                        newQueryStr: query,
+                        newDestTableName: tName,
+                        newTableSrcMap: {},
+                        newTableMap: {}
+                    };
+                }
+
                 let identifiers = new Map();
                 identifiers.set(1, "a");
 
@@ -375,6 +443,7 @@ describe("SQL Dag Node Test", () => {
                     SQLCompiler.compile = cache3;
                     LogicalOptimizer.optimize = cache4;
                     node.updateSubGraph = cache5;
+                    node.replaceSQLTableName = cache6;
                     done();
                 })
                 .fail(() => {

@@ -2095,7 +2095,7 @@ describe("DagNodeExecutor Test", () => {
 
         const executor = new DagNodeExecutor(node, txId);
         let called = false;
-        executor._replaceSQLTableName = (queryStr) => {
+        node.replaceSQLTableName = (queryStr) => {
             expect(queryStr).to.equal("testQuery");
             called = true;
             return {
@@ -2130,65 +2130,6 @@ describe("DagNodeExecutor Test", () => {
         .always(() => {
 
         });
-    });
-
-    it("_replaceSQLTableName should work", () => {
-        let node = createNode();
-        const executor = new DagNodeExecutor(node, txId);
-        let queryString = JSON.stringify([
-            {
-                "operation": "XcalarApiSynthesize",
-                "args": {
-                    "source": "a",
-                    "dest": "b",
-                    "columns": [
-                        {
-                            "sourceColumn": "classes::class_name",
-                            "destColumn": "CLASS_NAME",
-                            "columnType": "DfString"
-                        },
-                        {
-                            "sourceColumn": "classes::class_id",
-                            "destColumn": "CLASS_ID",
-                            "columnType": "DfInt64"
-                        }
-                    ],
-                    "sameSession": true,
-                    "numColumns": 2
-                }
-            }
-        ]);
-        let tableSrcMap = {"a": 1};
-        let replaceMap = {"1": "a"};
-        let oldTableName = "b";
-        let newTableName = "c";
-        let res = executor._replaceSQLTableName(queryString, tableSrcMap, replaceMap, oldTableName, newTableName);
-
-        expect(res.newTableMap).to.deep.equal({a:"a", b: "c"});
-        expect(res.newTableSrcMap).to.deep.equal({a:1});
-        expect(JSON.parse(res.newQueryStr)).to.deep.equal([
-            {
-                "operation": "XcalarApiSynthesize",
-                "args": {
-                    "source": "a",
-                    "dest": "c",
-                    "columns": [
-                        {
-                            "sourceColumn": "classes::class_name",
-                            "destColumn": "CLASS_NAME",
-                            "columnType": "DfString"
-                        },
-                        {
-                            "sourceColumn": "classes::class_id",
-                            "destColumn": "CLASS_ID",
-                            "columnType": "DfInt64"
-                        }
-                    ],
-                    "sameSession": true,
-                    "numColumns": 2
-                }
-            }
-        ]);
     });
 
     it("_mapEvalStrAggs", () => {

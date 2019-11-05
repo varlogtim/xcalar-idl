@@ -1379,7 +1379,7 @@ class DagNodeExecutor {
             lineage.reset();
             lineage.getChanges();
         }
-        const newDestTableName = self._generateTableName();
+        let newDestTableName: string;
         node.setSQLQuery({
             queryString: params.sqlQueryStr,
             dataflowId: this.tabId
@@ -1405,11 +1405,12 @@ class DagNodeExecutor {
                 replaceMap[idx + 1] = newTableName;
             });
             const oldDestTableName = node.getNewTableName();
-            const replaceRetStruct = self._replaceSQLTableName(ret.xcQueryString,
-                                                        node.getTableSrcMap(),
-                                                        replaceMap,
+            const replaceRetStruct = node.replaceSQLTableName(ret.xcQueryString,
                                                         oldDestTableName,
-                                                        newDestTableName);
+                                                        self.tabId,
+                                                        node.getTableSrcMap(),
+                                                        replaceMap);
+            newDestTableName = replaceRetStruct.newDestTableName;
             node.setTableSrcMap(replaceRetStruct.newTableSrcMap);
             node.setXcQueryString(replaceRetStruct.newQueryStr);
             node.setNewTableName(newDestTableName);
@@ -1466,76 +1467,6 @@ class DagNodeExecutor {
             deferred.reject(error);
         });
         return deferred.promise();
-    }
-
-    /**
-     * Since fake table names are created by compiler, we need to replace all of
-     * them before execution
-     * @param queryStr  xcalar query string
-     * @param tableSrcMap   {compilerTableName: sourceId}
-     * @param replaceMap    {sourceId: newParentTableName}
-     * @param oldDestTableName  destTableName created by compiler
-     * @param newDestTableName  new destTableName
-     */
-    private _replaceSQLTableName(
-        queryStr: string,
-        tableSrcMap: {},
-        replaceMap: {},
-        oldDestTableName: string,
-        newDestTableName: string
-    ): {newQueryStr: string,
-        newTableSrcMap: {},
-        newTableMap: {}} {
-        const queryStruct = JSON.parse(queryStr);
-        const newTableMap = {};
-        const newTableSrcMap = {};
-        let tagCount = -1;
-        queryStruct.forEach((operation) => {
-            tagCount++;
-            if (operation.operation === "XcalarApiDeleteObjects") {
-                const namePattern = operation.args.namePattern;
-                if (namePattern && newTableMap[namePattern]) {
-                    operation.args.namePattern = newTableMap[namePattern];
-                }
-                return;
-            }
-            let source = operation.args.source;
-            // source replacement
-            if (typeof source === "string") {
-                source = [source];
-            }
-            for (let i = 0; i < source.length; i++) {
-                if (!newTableMap[source[i]]) {
-                    const idx = tableSrcMap[source[i]];
-                    if (idx) {
-                        newTableMap[source[i]] = replaceMap[idx];
-                        newTableSrcMap[replaceMap[idx]] = idx;
-                    } else {
-                        // console.log("publish table as source: ", source[i]);
-                        continue;
-                    }
-                }
-                source[i] = newTableMap[source[i]];
-            }
-            if (source.length === 1) {
-                operation.args.source = source[0];
-            } else {
-                operation.args.source = source;
-            }
-            // dest replacement
-            if (operation.args.dest === oldDestTableName) {
-                newTableMap[operation.args.dest] = newDestTableName;
-                operation.args.dest = newDestTableName;
-            } else if (operation.operation !== "XcalarApiAggregate") {
-                if (!newTableMap[operation.args.dest]) {
-                    newTableMap[operation.args.dest] = this._generateTableName("SQLTAG_" + tagCount);
-                }
-                operation.args.dest = newTableMap[operation.args.dest];
-            }
-        });
-        return {newQueryStr: JSON.stringify(queryStruct),
-                newTableSrcMap: newTableSrcMap,
-                newTableMap: newTableMap};
     }
 
     private _sqlFuncIn(): XDPromise<string> {
