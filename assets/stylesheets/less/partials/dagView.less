@@ -2146,9 +2146,41 @@
     }
 }
 
-.dagSchemaPopup.modalContainer.style-new {
+.dagSchemaPopup.modalContainer {
     font-size: 12px;
     @row-height: 28px;
+
+     // Box shadows:
+     @shadow-color: hsl(210, 60%, 12%);
+     @box-shadow--default:   -1px 3px 12px fade(@shadow-color, 15%),
+                             0 4px 12px fade(@shadow-color, 15%),
+                             -1px 2px 6px fade(@shadow-color, 20%);
+
+     @box-shadow--pinned:    -1px 1px 6px fade(@shadow-color, 15%),
+                             0 1px 4px fade(@shadow-color, 20%),
+                             0 1px 6px fade(@shadow-color, 20%);
+
+     @box-shadow--hover:     0 15px 32px fade(@shadow-color, 10%),
+                             0 10px 24px fade(@shadow-color, 15%),
+                             -2px 4px 8px fade(@shadow-color, 10%);
+
+     @header-h: 67px;
+
+     box-shadow: @box-shadow--default;
+     background-color: @color-white;
+     color: @color-font-form-gray;
+     transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1);
+
+    &:hover, &:active, &:focus {
+        box-shadow: @box-shadow--hover;
+        &.pinned {
+            box-shadow: @box-shadow--pinned;
+        }
+    }
+
+    &.pinned {
+        box-shadow: @box-shadow--pinned;
+    }
 
     &.active {
         display: block !important;
@@ -2161,25 +2193,43 @@
     .ui-icon-gripsmall-diagonal-se {
         visibility: hidden;
     }
+
     &:hover {
         .ui-icon-gripsmall-diagonal-se {
             visibility: visible;
         }
     }
+
     .header {
+        border-bottom: 1px solid @color-border-softGray;
+        background-color: @color-white;
+        color: @color-font-form-gray;
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+
         height: 58px;
         padding: 0px 22px;
         line-height: 58px;
+
 
         .title {
             width: ~"calc(100% - 44px)";
             .textOverflowOneLine;
             font-size: 20px;
             margin-top: 0px;
+            color: @color-font-form-gray;
+            text-align: left;
 
-            .tableName {
+            .text {
+                font-size: 20px;
+                font-weight: 600;
+                position: relative;
+                text-transform: none;
+                width: auto;
                 margin-left: 0px;
                 top: 0px;
+                height: 58px;
+                line-height: 58px;
             }
         }
         .pinArea {
@@ -2195,10 +2245,18 @@
         }
 
         .close {
+            cursor: pointer;
+            position: absolute;
+            right: 16px;
             line-height: @row-height;
             top: 0px;
-            height: 58px;
+            right: 16px;
+            .size(@width: 22px, @height: 58px);
+
             .icon {
+                display: inline-block;
+                .position(absolute, @top: 0, @right: 0);
+                .size(@width: 22px, @height: 22px);
                 line-height: 58px;
                 font-size: 18px;
             }
