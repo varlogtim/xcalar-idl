@@ -210,7 +210,8 @@ i.icon.xi-error:before {
     padding: 10px;
     padding-right: 30px;
     position: absolute;
-    top: 12px;
+    top: calc(~"50% + 8px");
+    transform: translateY(-50%);
     left: calc(~"100% + 16px");
 
     .passwordRequirementsHeader {
@@ -241,7 +242,7 @@ i.icon.xi-error:before {
 .input-tooltip::after {
     content: "";
     position: absolute;
-    top: 18px;
+    top: 50%;
     right: 100%;
     margin-top: -10px;
     border-width: 10px;
