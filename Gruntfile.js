@@ -3486,10 +3486,14 @@ module.exports = function(grunt) {
         grunt.log.writeln(("[" + executeFrom + "]$ ").red + (tscmd).green.bold);
         // 0, 2 are valid exit codes for typescript; warnings printed to stdout - capture
         var cmdOutput = runShellCmd(tscmd, [0,2]).stdout;
-        if (cmdOutput && BLDTYPE == DEV) {
-            END_OF_BUILD_WARNINGS.push("Found warnings when running " +
-                "tsc command: " + tscmd + "\n\n" + cmdOutput);
-        }
+
+        // XXX the cmdOutput is false alert now, which is not useful
+        // XXX it showed be fixed and show real error when we move to webpack
+
+        // if (cmdOutput && BLDTYPE == DEV) {
+        //     END_OF_BUILD_WARNINGS.push("Found warnings when running " +
+        //         "tsc command: " + tscmd + "\n\n" + cmdOutput);
+        // }
         grunt.file.setBase(currCwd); //  switch back before continuing
 
         if (removeMap) {
