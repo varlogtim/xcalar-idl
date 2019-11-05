@@ -247,6 +247,7 @@ namespace CloudLogin {
             loadingWait(false);
             return;
         }
+        loginMixpanel.login(localUsername);
         var url = clusterGetResponse.clusterUrl + "/" + paths.login +
         "?cloudId=" + encodeURIComponent(sessionId);
         window.location.href = url;

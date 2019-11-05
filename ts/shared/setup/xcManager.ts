@@ -1088,6 +1088,9 @@ namespace xcManager {
         let msalAgentApplication: Msal.UserAgentApplication = null;
         const config: any = getMsalConfigFromLocalStorage();
 
+        if (typeof mixpanel !== "undefined") {
+            xcMixpanel.logout();
+        }
         if (config != null &&
             config.hasOwnProperty('msal') &&
             config.msal.hasOwnProperty('enabled') &&

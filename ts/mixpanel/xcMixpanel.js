@@ -268,6 +268,21 @@ window.xcMixpanel = (function($, xcMixpanel) {
         }
     };
 
+    xcMixpanel.logout = () => {
+        let currTime = Date.now();
+        let timeInLastMode = Math.round((currTime - lastModeTime) / 1000);
+        let timeInLastPanel = Math.round((currTime - lastPanelTime) / 1000);
+
+        xcMixpanel.track("Logout", {
+            "duration":  Math.round((currTime - pageLoadTime) / 1000),
+            "timeInLastMode": timeInLastMode,
+            "lastMode": XVM.isSQLMode() ? "sqlMode" : "dataflowMode",
+            "timeInLastPanel": timeInLastPanel,
+            "lastPanel": currentPanel,
+            "eventType": "logout"
+        });
+    }
+
     xcMixpanel.pageUnloadEvent = () => {
         if (!events.pageUnload) {
             return;

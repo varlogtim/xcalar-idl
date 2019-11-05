@@ -206,6 +206,16 @@ namespace loginMixpanel {
         }
     };
 
+    export function login(username) {
+        if (isOff()) {
+            return;
+        }
+        track("Login", {
+            "username": username,
+            "eventType": "login"
+        })
+    }
+
     const clickListener = () => {
         $(document).mouseup(function(event) {
             if (!event.hasOwnProperty("originalEvent")) {
