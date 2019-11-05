@@ -795,8 +795,34 @@ namespace CloudLogin {
             cognitoResendConfirmationCode();
             showFormSuccess(
                 $("#verifyFormMessage"),
-                "An email verification code has been sent to your email address. Enter it below to confirm your account"
+                "We sent a new verification code to your email address"
             );
+            $("#verify-code").focus();
+        });
+
+        $("#confirm-forgot-password-resend-code span").click(function () {
+            cloudLoginCognitoService.forgotPassword(localUsername, {
+                onSuccess: function () {
+                    showFormSuccess(
+                        $("#confirmForgotPasswordFormMessage"),
+                        "We sent a new verification code to your email address"
+                    );
+                    $("#confirm-forgot-password-code").focus();
+                },
+                onFailure: function (err) {
+                    if (err.code === 'UserNotFoundException') {
+                        showFormError(
+                            $("#confirmForgotPasswordFormMessage"),
+                            "Account doesn't exist."
+                        );
+                    } else {
+                        showFormError(
+                            $("#confirmForgotPasswordFormMessage"),
+                            getErrorMessage(err, "Error occured, trying to resend code")
+                        );
+                    }
+                }
+            });
         });
 
         $("#signup-submit").click(function () {
@@ -824,7 +850,11 @@ namespace CloudLogin {
                             $("#verifyFormMessage").hide();
                         }
                         showScreen("verify");
-                        return result.user;
+                        showFormSuccess(
+                            $("#verifyFormMessage"),
+                            "An email verification code has been sent to your email address. Enter it below to confirm your account"
+                        );
+                        return result.user; // return value is used by cloudLoginCognitoService.signUp to update cognitoUser
                     }
                 );
             } else {
@@ -846,7 +876,10 @@ namespace CloudLogin {
                     } else {
                         $("#verifyFormMessage").hide();
                         showScreen("login");
-                        showFormSuccess($("#loginFormMessage"), "Your email address was verified successfully. Log in to access your account!");
+                        showFormSuccess(
+                            $("#loginFormMessage"),
+                            "Your email address was verified successfully. Log in to access your account!"
+                        );
                     }
                 });
             }
@@ -886,13 +919,24 @@ namespace CloudLogin {
                         loadingWait(false);
                         $("#forgotPasswordFormMessage").hide();
                         showScreen("confirmForgotPassword");
+                        showFormSuccess(
+                            $("#confirmForgotPasswordFormMessage"),
+                            "An email verification code has been sent to your email address. Enter it below to confirm your account"
+                        );
+                        localUsername = username;
                     },
                     onFailure: function (err) {
                         loadingWait(false);
                         if (err.code === 'UserNotFoundException') {
-                            showFormError($("#forgotPasswordFormMessage"), "Account doesn't exist.");
+                            showFormError(
+                                $("#forgotPasswordFormMessage"),
+                                "Account doesn't exist."
+                            );
                         } else {
-                            showFormError($("#forgotPasswordFormMessage"), err.message);
+                            showFormError(
+                                $("#forgotPasswordFormMessage"),
+                                getErrorMessage(err, "Error occured, trying to resend code")
+                            );
                         }
                     }
                 });
