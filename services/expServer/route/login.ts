@@ -86,7 +86,8 @@ var logoutPathFunc = function(req, res) {
 var cloudLoginPathFunc = function(req, res, next) {
     var message = {
         'status': httpStatus.Unauthorized,
-        'message': 'Authentication failure'
+        'message': 'Authentication failure',
+        'isValid': false
     }
 
     if (req.body.xiusername && req.body.xipassword) {
@@ -147,7 +148,9 @@ var cloudLoginPathFunc = function(req, res, next) {
             res.setHeader('Set-Cookie', outCookies);
             message = {
                 'status': httpStatus.OK,
-                'message': "Authentication successful"
+                'message': "Authentication successful",
+                'isValid': true
+
             };
             res.status(message.status).send(message);
             return;
@@ -184,7 +187,8 @@ var cloudLoginPathFunc = function(req, res, next) {
 
                 message = {
                     'status': httpStatus.OK,
-                    'message': "Authentication successful"
+                    'message': "Authentication successful",
+                    'isValid': true
                 };
             }
 
