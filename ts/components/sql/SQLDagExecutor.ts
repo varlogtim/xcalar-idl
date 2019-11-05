@@ -46,7 +46,7 @@ class SQLDagExecutor {
         const tableMap = PTblManager.Instance.getTableMap();
         if (sqlStruct.command.type === "createTable") {
             this._publishName = sqlStruct.command.args[0].trim().toUpperCase();
-            if (!xcHelper.isValidPublishedTableName(this._publishName)) {
+            if (!xcHelper.checkNamePattern(PatternCategory.PTbl, PatternAction.Check, this._publishName)) {
                 throw ErrTStr.InvalidPublishedTableName + ": " + this._publishName;
             }
         }

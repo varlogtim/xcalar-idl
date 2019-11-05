@@ -20,8 +20,8 @@ class AggOpPanel extends GeneralOpPanel {
     // prefill: object, used to prefill the form
     // public show = function(currTableId, currColNums, operator,
     //                                options) {
-    public show(node: DagNodeAggregate, options: ShowPanelInfo) {
-        super.show(<DagNode>node, options)
+    public show(node: DagNodeAggregate, options: ShowPanelInfo): XDPromise<void> {
+        return super.show(<DagNode>node, options)
         .then(() => {
             this.model = new AggOpPanelModel(this._dagNode, () => {
                 this._render();
@@ -223,10 +223,6 @@ class AggOpPanel extends GeneralOpPanel {
         } else {
             this.model.updateArg(val, groupIndex, argIndex);
         }
-    }
-
-    private _getOptionCheckbox(): JQuery {
-        return this._getPanel().find(".option .checkboxSection");
     }
 
     protected _populateInitialCategoryField() {

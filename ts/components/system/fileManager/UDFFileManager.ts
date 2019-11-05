@@ -298,16 +298,9 @@ class UDFFileManager extends BaseFileManager {
      * @param  {string} prefix?
      * @returns XDPromise
      */
-    public list(prefix?: string): XDPromise<XcalarApiListXdfsOutputT> {
-        const deferred: XDDeferred<
-        XcalarApiListXdfsOutputT
-        > = PromiseHelper.deferred();
+    public list(prefix?: string): XDPromise<any> {
         prefix = prefix || "";
-        XcalarListXdfs(prefix + "*", "User*")
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        return XcalarListXdfs(prefix + "*", "User*");
     }
 
     /**
@@ -375,7 +368,7 @@ class UDFFileManager extends BaseFileManager {
                         error.status === StatusT.StatusUdfModuleNotFound
                 ) {
                     XcalarListXdfs(nsPath + ":*", "User*")
-                    .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
+                    .then((listXdfsObj: any) => {
                         if (listXdfsObj.numXdfs === 0) {
                             deferred.resolve();
                         } else {

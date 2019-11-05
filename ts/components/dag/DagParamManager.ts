@@ -1,7 +1,7 @@
 class DagParamManager {
     private static _instance = null;
     private parameters = {};
-    private paramTab;
+    private paramTab: DagParamPopup;
     private sqlNodesParamMap: {[nodeId: string]: Set<string>} = {};
     private sqlNodesMap: {[nodeId: string]: DagNodeSQL} = {};
 
@@ -39,6 +39,10 @@ class DagParamManager {
 
     public getParamMap() {
         return this.parameters;
+    }
+
+    public getParamTab(): DagParamPopup {
+        return this.paramTab;
     }
 
     public updateParamMap(params: {paramName: string}): XDPromise<void> {

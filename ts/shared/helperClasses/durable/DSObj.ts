@@ -39,8 +39,6 @@ class DSObj extends Durable {
     public advancedArgs: {allowFileErrors: boolean, allowRecordErrors: boolean}; // termination condition + extra cols
     private error: string; // ds's error
     public udfQuery: object; // extra udf args,
-    private locked: boolean; // is dataset locked or not
-    private targetName: string; // the src of targetName,
     public typedColumns: {colType: ColumnType, colName: string}[];
     private sources: DSSources[];
     private date: number; // created date timestamp

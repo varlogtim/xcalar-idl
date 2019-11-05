@@ -7,7 +7,6 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     private _$exportDestList: JQuery = null; // $("#exportDriverList");
     private _$exportColList: JQuery = null; // $("#exportOpColumns .cols");
     private _$exportArgSection: JQuery = null; // $("#exportOpPanel .argsSection");
-    private _$exportSearchSection: JQuery = null; //$("#exportOpColumns .dropDownList")
     protected _dagNode: DagNodeExport = null;
     protected _dataModel: ExportOpPanelModel = null;
     private _currentDriver: string = "";
@@ -31,7 +30,6 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         this._$exportDestList = $("#exportDriverList");
         this._$exportColList = $("#exportOpColumns .cols");
         this._$exportArgSection = $("#exportOpPanel .argsSection");
-        this._$exportSearchSection = $("#exportOpColumns .dropDownList");
         super.setup(this._$elemPanel);
 
         let dropdownHelper: MenuHelper = new MenuHelper(this._$exportDestList, {
@@ -41,7 +39,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         new InputDropdownHint(self._$exportDestList, {
             "menuHelper": dropdownHelper,
             "preventClearOnBlur": true,
-            "onEnter": function (val, $input) {
+            "onEnter": function (val) {
                 self._changeDriver(null, val);
             },
             "order": false
@@ -116,7 +114,6 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _activateDropDown($list: JQuery, container: string) {
-        const self = this;
         let dropdownHelper: MenuHelper = new MenuHelper($list, {
             "onOpen": function() {
                 var $lis = $list.find('li').sort(xcUIHelper.sortHTML);

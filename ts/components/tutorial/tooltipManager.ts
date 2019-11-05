@@ -23,8 +23,8 @@ namespace TooltipManager {
     let popoverBorderWidth: number = 2;
     let resizeTimeout;
     let stepNumber: number = -1;
-    let video;
-    let $videoCloseArea;
+    // let video;
+    // let $videoCloseArea;
     let currWalkthrough: TooltipInfo[];
     let $clickEle: JQuery;
     let title: string;
@@ -549,7 +549,7 @@ namespace TooltipManager {
             $popover.find(".next").addClass("unavailable");
             $clickEle = $(currentStep.interact_div).eq(0);
             if (currentStep.type == TooltipType.Click) {
-                $clickEle.on("click.tooltip", (e) => {
+                $clickEle.on("click.tooltip", () => {
                     $clickEle.off("click.tooltip");
 
                     // changed to timeout from the following:

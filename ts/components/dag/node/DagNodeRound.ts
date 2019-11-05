@@ -1,6 +1,6 @@
 class DagNodeRound extends DagNodeMap {
 
-    public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
+    public constructor(options: DagNodeMapInfo, runtime?: DagRuntime) {
         super(options, runtime);
         this.type = DagNodeType.Round;
         this.minParents = 1;

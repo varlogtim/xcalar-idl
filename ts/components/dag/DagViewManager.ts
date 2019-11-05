@@ -860,7 +860,11 @@ class DagViewManager {
         }
     }
 
-    public highlightLineage(nodeId: DagNodeId, childNodeId?: DagNodeId, type?: string): void {
+    public highlightLineage(
+        nodeId: DagNodeId,
+        childNodeId?: DagNodeId,
+        type?: "add" | "rename" | "remove" | "hide" | "pull"
+    ): void {
         this.activeDagView.highlightLineage(nodeId, childNodeId, type);
     }
 

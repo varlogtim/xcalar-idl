@@ -97,7 +97,7 @@ class XcSubQuery {
             // XXX This happens if the call is a "drop"
             // Since we don't have a dstDag call, we will just return 50%
             deferred.resolve(50);
-            xcAssert(self.dstTable, "Unexpected operation! " + self.name);
+            // xcAssert(self.dstTable, "Unexpected operation! " + self.name);
         } else {
             XcalarGetOpStats(self.dstTable)
             .then(function(ret: OpStatsOutput) {

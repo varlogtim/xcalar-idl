@@ -392,7 +392,7 @@ class DagView {
         }
 
         icons.splice(index, 1);
-        isTopIcon ? $node.attr("data-topicons", icons) : $node.attr("data-icons", icons);
+        isTopIcon ? $node.attr("data-topicons", <any>icons) : $node.attr("data-icons", <any>icons);
     }
 
     private static _dagLineageTipTemplate(x, y, text): HTML {

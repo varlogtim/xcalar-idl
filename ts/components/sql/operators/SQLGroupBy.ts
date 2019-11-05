@@ -242,7 +242,7 @@ class SQLGroupBy {
                 const srcTableName = newTableName;
                 newTableName = xcHelper.getTableName(newTableName) +
                                 Authentication.getHashId();
-                const colNameSet = new Set();
+                const colNameSet: Set<string> = new Set();
                 node.usrCols.concat(node.xcCols).concat(node.sparkCols)
                 .map(function (col) {
                     colNameSet.add(SQLCompiler.getCurrentName(col));
@@ -259,7 +259,7 @@ class SQLGroupBy {
                 const srcTableName = newTableName;
                 newTableName = xcHelper.getTableName(newTableName) +
                                 Authentication.getHashId();
-                const colNameSet = new Set();
+                const colNameSet: Set<string> = new Set();
                 node.usrCols.concat(node.xcCols).concat(node.sparkCols)
                 .map(function (col) {
                     colNameSet.add(SQLCompiler.getCurrentName(col));

@@ -27,7 +27,6 @@ namespace Log {
     let _isUndo: boolean = false;
     let _isRedo: boolean = false;
     let shouldOverWrite: boolean = false;
-    let lastSavedCursor: number = logCursor;
     let lastRestoreCursor: number = logCursor;
 
     // constant
@@ -165,7 +164,6 @@ namespace Log {
 
         commitLogs()
         .then(function() {
-            lastSavedCursor = logCursor;
             return commitErrors();
         })
         .then(function() {
@@ -625,7 +623,6 @@ namespace Log {
                 infList.restore(".logContentWrap");
                 infListMachine.restore(".cliWrap");
 
-                lastSavedCursor = logCursor;
                 lastRestoreCursor = logCursor;
 
                 if (logCursor < oldLogs.length - 1) {

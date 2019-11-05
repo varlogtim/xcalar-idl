@@ -98,7 +98,7 @@ class SessionService {
 
             // Step #2: Call xcrpc service
             const sessionService = new ApiSession(this._apiClient);
-            const response = await sessionService.activate(request);
+            await sessionService.activate(request);
 
             // Step #3: Parse xcrpc service response
             return {success: true};

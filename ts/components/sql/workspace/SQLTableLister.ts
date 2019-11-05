@@ -365,7 +365,7 @@ class SQLTableLister extends AbstractSQLResultView {
         let $row: JQuery = this._getMainSection().find(".header .row");
         let rowWidth: number[] = this._getColumnsWidth($row);
         this._render();
-        this._resizeColums(rowWidth);
+        this._resizeColums(rowWidth, false);
     }
 
     private _sortTables(tableInfos: PbTblInfo[]): PbTblInfo[] {

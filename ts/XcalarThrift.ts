@@ -5905,7 +5905,7 @@ XcalarAppRun = function(
 };
 
 XcalarAppReap = function(
-    name: string, // TODO: unused?
+    _name: string, // TODO: unused?
     appGroupId: string,
     cancel?: boolean
 ): XDPromise<XcalarApiAppReapOutputT> {

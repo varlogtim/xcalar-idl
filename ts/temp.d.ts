@@ -330,6 +330,7 @@ interface StoredDataset {
 interface MapUDFFailureInfo {
     failureDescArr: {numRowsFailed: number, failureDesc: string}[],
     numRowsFailedTotal: number
+    opFailureSummary: {failureSummInfo: string[], failureSummName: string}[]
 }
 
 declare class d3 {
@@ -924,6 +925,7 @@ declare namespace xcMixpanel {
     export function pageLoadEvent(): void;
     export function pageUnloadEvent(): void;
     export function track(name: string, properties: any, jqueryEvent?: JQueryEventObject): void;
+    export function menuItemClick(event: Event): void;
 }
 
 declare namespace Msal {

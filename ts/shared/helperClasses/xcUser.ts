@@ -7,7 +7,6 @@ class XcUser {
     private static _creditUsageInterval = null;
     private static readonly _creditUsageCheckTime = 1 * 60 * 1000;
     private static _isIdleCheckOn = true;
-    private static _clusterPrice: number = null;
     private static _clusterStopCountdown: number;
     public static readonly firstCreditWarningTime: number = 20; // minutes
     public static readonly lastCreditWarningTime: number = 1; // minutes
@@ -212,7 +211,6 @@ class XcUser {
     }
 
     public static setClusterPrice(price) {
-        this._clusterPrice = price;
         this.firstCreditWarningLimit = price * this.firstCreditWarningTime; // 20 minutes worth of credit
         this.lastCreditWarningLimit = price * this.lastCreditWarningTime; // 1 minute worth of credit
     }

@@ -577,7 +577,8 @@ class TblSource {
         // set up click right menu
         let $gridView = this._getGridView();
         let self = this;
-        $gridView.parent()[0].oncontextmenu = function(event) {
+        let el: any = <any>$gridView.parent()[0];
+        el.oncontextmenu = function(event) {
             let $target: JQuery = $(event.target);
             let $grid: JQuery = $target.closest(".grid-unit");
             let classes: string = " noBorder";

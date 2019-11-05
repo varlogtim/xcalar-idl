@@ -35,7 +35,7 @@ class XDFManager {
             return PromiseHelper.resolve();
         } else {
             XcalarListXdfs("*", "*")
-            .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
+            .then((listXdfsObj: any) => {
                 this._allUDFs = xcHelper.deepCopy(listXdfsObj.fnDescs.filter((xdf) => {
                     return xdf.category === FunctionCategoryT.FunctionCategoryUdf;
                 }));

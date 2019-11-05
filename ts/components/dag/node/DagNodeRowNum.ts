@@ -2,7 +2,7 @@ class DagNodeRowNum extends DagNode {
     protected input: DagNodeRowNumInput;
 
     public constructor(options: DagNodeInfo, runtime?: DagRuntime) {
-        super(options);
+        super(options, runtime);
         this.type = DagNodeType.RowNum;
         this.maxParents = 1;
         this.minParents = 1;

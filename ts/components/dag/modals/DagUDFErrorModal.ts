@@ -67,14 +67,12 @@ class DagUDFErrorModal {
         let errorInfo = this._node.getUDFError();
         let html: HTML = "";
         let count = 0;
-        let hasMultipleEvals = false;
         let hasErrStr = false;
         let curColumnName = "";
         if (errorInfo.opFailureSummary) {
             errorInfo.opFailureSummary.forEach(err => {
                 if (err && err.failureSummInfo) {
                     if (hasErrStr) {
-                        hasMultipleEvals = true;
                         hasErrStr = false;
                     }
 

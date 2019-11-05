@@ -757,7 +757,7 @@ class PTblManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const checkDeleteDependency = forceDelete ?
+        const checkDeleteDependency: XDPromise<void> = forceDelete ?
                                         PromiseHelper.resolve() :
                                         this._checkDeleteDependency(tableName);
         checkDeleteDependency

@@ -984,17 +984,19 @@ class DagQueryConverter {
 
                 let input: DagNodeJoinInputStruct = {
                     joinType: node.args.joinType,
-                    "left": {
-                        "columns": node.indexedFields[0].map(key => {
+                    left: {
+                        columns: node.indexedFields[0].map(key => {
                             return key.name;
                         }),
-                        "rename": leftRenames
+                        rename: leftRenames,
+                        keepColumns: undefined
                     },
-                    "right": {
-                        "columns": node.indexedFields[1].map(key => {
+                    right: {
+                        columns: node.indexedFields[1].map(key => {
                             return key.name;
                         }),
-                        "rename": rightRenames
+                        rename: rightRenames,
+                        keepColumns: undefined
                     },
                     keepAllColumns: true,
                     evalString: node.args.evalString,
@@ -1744,7 +1746,7 @@ class DagQueryConverter {
     private _getUnionColumns(columns) {
         let maxLength = 0;
         let maxColSet;
-        const newCols = columns.map((colSet, i) => {
+        const newCols = columns.map((colSet) => {
             const newColSet = colSet.map((col) => {
                 return {
                     "sourceColumn": col.sourceColumn,

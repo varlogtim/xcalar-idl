@@ -61,7 +61,7 @@ class DagUtil {
             "track": true
         });
 
-        let deleteQuery = tables.map((name: string, i) => {
+        let deleteQuery = tables.map((name: string) => {
             return {
                 operation: "XcalarApiDeleteObjects",
                 args: {

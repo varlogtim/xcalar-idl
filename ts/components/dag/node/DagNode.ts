@@ -376,7 +376,7 @@ abstract class DagNode extends Durable {
      * Get Param
      */
     public getParam(replaceParameters?: boolean) {
-        return this.input.getInput(replaceParameters, this.getRuntime().getDagParamService().getParamMap());
+        return this.input.getInput(replaceParameters);
     }
 
     /**

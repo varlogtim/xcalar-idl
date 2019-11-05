@@ -771,7 +771,7 @@ class DagNodeCustom extends DagNode {
                 this.beConfiguredState(false);
             }
         });
-        subGraph.events.on(DagNodeEvents.SubGraphError, ({id: nodeId, error}) => {
+        subGraph.events.on(DagNodeEvents.SubGraphError, ({error}) => {
             this.beErrorState(error, false);
         })
     }

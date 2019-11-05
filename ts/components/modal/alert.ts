@@ -92,7 +92,7 @@ namespace Alert {
         modalHelper.setup(getExtraOptions(options));
 
         setButtonSize($modal);
-        setModalSize($modal, options.sizeToText, options);
+        setModalSize($modal, options.sizeToText);
         modalHelper.center({verticalQuartile: true});
         return id;
     }
@@ -247,7 +247,6 @@ namespace Alert {
         // remove all event listener
         $modal.off(".alert");
         $modal.find(".confirm, .cancel, .close").show();
-        $modal.removeClass("style-new compact");
     }
 
     function getModal(): JQuery {
@@ -350,7 +349,7 @@ namespace Alert {
         }
     }
 
-    function setModalSize($modal: JQuery, sizeToText: boolean, options: AlertOptions): void {
+    function setModalSize($modal: JQuery, sizeToText: boolean): void {
         if (typeof isBrowserIE !== 'undefined' && isBrowserIE) { // all text will be on 1 line otherwise
             const width: number = $modal.width();
             setTimeout(() => {

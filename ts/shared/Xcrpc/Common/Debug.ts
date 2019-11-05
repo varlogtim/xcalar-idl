@@ -3,7 +3,7 @@ let isPerfLogEnabled = false;
 const PERF_LOG_LENGTH = 100;
 
 function perfAsync(logName: string): MethodDecorator {
-    return function(target: Object, name: string, descriptor: PropertyDescriptor) {
+    return function(_target: Object, _name: string, descriptor: PropertyDescriptor) {
         const oldFunc = descriptor.value;
         descriptor.value = async function(...args) {
             const startTime = Date.now();

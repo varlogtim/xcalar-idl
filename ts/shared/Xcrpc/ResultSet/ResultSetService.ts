@@ -11,7 +11,7 @@
 // import ServiceError = Xcrpc.ServiceError;
 
 import { ResultSetService as ApiQuery, XceClient as ApiClient } from 'xcalar';
-import { ServiceError, ErrorType, parseError } from '../ServiceError';
+import { parseError } from '../ServiceError';
 import { SCOPE, ScopeInfo, createScopeMessage } from '../Common/Scope';
 import ProtoTypes = proto.xcalar.compute.localtypes;
 
@@ -53,7 +53,7 @@ class ResultSetService {
             let metaProto: ProtoTypes.TableMeta.GetTableMetaProto = response.getGetTableMeta()
             let colProtos: Map<string, ProtoTypes.ColumnAttribute.ColumnAttributeProto> = metaProto.getColumnAttributesMap();
             let colAttributes = [];
-            colProtos.forEach((colProto: ProtoTypes.ColumnAttribute.ColumnAttributeProto, key: string) => {
+            colProtos.forEach((colProto: ProtoTypes.ColumnAttribute.ColumnAttributeProto, _key: string) => {
                 colAttributes.push({
                     name: colProto.getName(),
                     type: colProto.getType(),
@@ -64,7 +64,7 @@ class ResultSetService {
 
             let keyProtos: Map<string, ProtoTypes.ColumnAttribute.KeyAttributeProto> = metaProto.getKeyAttributesMap();
             let keyAttributes = [];
-            keyProtos.forEach((keyProto: ProtoTypes.ColumnAttribute.KeyAttributeProto, key: string) => {
+            keyProtos.forEach((keyProto: ProtoTypes.ColumnAttribute.KeyAttributeProto, _key: string) => {
                 keyAttributes.push({
                     name: keyProto.getName(),
                     type: keyProto.getType(),
@@ -74,7 +74,7 @@ class ResultSetService {
 
             let tableProtos: Map<number, ProtoTypes.TableMeta.TableMetaProto> = metaProto.getTableMetaMap();
             let tableInfo = [];
-            tableProtos.forEach((tableProto: ProtoTypes.TableMeta.TableMetaProto, key: number) => {
+            tableProtos.forEach((tableProto: ProtoTypes.TableMeta.TableMetaProto, _key: number) => {
                 const rps = [];
                 const pps = [];
                 for (let idxSlot = 0; idxSlot < tableProto.getNumSlots(); idxSlot ++) {

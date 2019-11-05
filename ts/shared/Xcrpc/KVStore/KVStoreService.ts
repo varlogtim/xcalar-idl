@@ -151,11 +151,18 @@ class KVStoreService {
     }
 
 
-    public async append(param:{keyName: string, kvScope: number, scopeInfo?: KvScopeInfo,
-        persist:boolean, kvSuffix: string}) : Promise<void>
+    public async append(
+        param:{
+            keyName: string,
+            kvScope: number,
+            scopeInfo?: KvScopeInfo,
+            persist:boolean,
+            kvSuffix: string
+        }
+    ) : Promise<void>
     {
         try {
-            const { keyName, kvScope, scopeInfo,persist,kvSuffix} = param;
+            const { keyName, kvScope, scopeInfo, kvSuffix} = param;
             const scopeKey = new ProtoTypes.KvStore.ScopedKey();
             scopeKey.setName(keyName);
 

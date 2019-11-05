@@ -217,7 +217,7 @@ class JupyterOpPanelModel extends BaseOpPanelModel {
             colNameSet.add(col.name);
         }
         // Columns after rename
-        this.getRenames().forEach(({ sourceColumn, destColumn }, idx) => {
+        this.getRenames().forEach(({ destColumn }, idx) => {
             if (idx !== exceptRenameIdx) {
                 colNameSet.add(destColumn);
             }

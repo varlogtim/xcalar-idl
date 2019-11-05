@@ -59,7 +59,7 @@ class AggModal {
         this._cachedTableId = tableId;
         this._cachedVertColNums = vertColNums;
         this._cachedHorColNums = horColNums;
-        this._show(tableName, "corrTab", this._cachedHorColNums);
+        this._show("corrTab", this._cachedHorColNums);
 
         this._aggColsInitialize(table);
         this._corrTableInitialize();
@@ -102,7 +102,7 @@ class AggModal {
 
         this._cachedTableId = tableId;
         this._cachedHorColNums = horColNums;
-        this._show(tableName, "aggTab", this._cachedHorColNums);
+        this._show("aggTab", this._cachedHorColNums);
 
         this._aggColsInitialize(table);
         this._aggTableInitialize();
@@ -166,7 +166,6 @@ class AggModal {
     }
 
     private _show(
-        tableName: string,
         mode: string,
         hasSelectedCols: number[]
     ): void {

@@ -1,3 +1,4 @@
+declare var MIXPANEL_CUSTOM_LIB_URL: string;
 namespace loginMixpanel {
     let events = {
         "click": true,
@@ -16,7 +17,6 @@ namespace loginMixpanel {
     let $currForm = $("#formArea");
     let pageLoadTime = currTime;
     let lastFormTime = currTime;
-    let pageLoaded = false;
     let _off = false; // XXXX TODO: change it to false to turn it on
     let userIsSet = false;
     let distinct_id;
@@ -29,7 +29,7 @@ namespace loginMixpanel {
             return;
         }
         if (!a.__SV) {
-            var b = window;
+            var b: any = window;
             try {
                 var d, m, j, k = b.location,
                     f = k.hash;
@@ -68,8 +68,8 @@ namespace loginMixpanel {
                 e.get_group = function() {
                     function a(c) {
                         b[c] = function() {
-                            call2_args = arguments;
-                            call2 = [c].concat(Array.prototype.slice.call(call2_args, 0));
+                            var call2_args = arguments;
+                            var call2 = [c].concat(Array.prototype.slice.call(call2_args, 0));
                             e.push([d, call2])
                         }
                     }
@@ -194,7 +194,6 @@ namespace loginMixpanel {
             return;
         }
         try {
-            pageLoaded = true;
             let currTime = Date.now();
             pageLoadTime = lastFormTime = currTime;
 

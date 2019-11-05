@@ -27,6 +27,10 @@ class DagSubGraph extends DagGraph {
         return this._getGraphJSON(false);
     }
 
+    public getState() {
+        return this.state;
+    }
+
     /**
      * Initialize the graph from JSON
      * @param graphInfo

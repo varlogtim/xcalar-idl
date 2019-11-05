@@ -132,7 +132,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         return {
             evalString: evalString,
             dest: this.dest
-        }
+        };
     }
 
     public validateAdvancedMode(

@@ -35,7 +35,7 @@ class ExportSQLTableModal {
         new InputDropdownHint(self._$exportDestList, {
             "menuHelper": dropdownHelper,
             "preventClearOnBlur": true,
-            "onEnter": function (val, $input) {
+            "onEnter": function (val) {
                 self._changeDriver(null, val);
             },
             "order": false

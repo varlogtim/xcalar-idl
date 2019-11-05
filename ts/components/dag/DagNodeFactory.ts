@@ -23,13 +23,13 @@ class DagNodeFactory {
                 node = new DagNodeJoin(options, runtime);
                 break;
             case DagNodeType.Map:
-                node = new DagNodeMap(options, runtime);
+                node = new DagNodeMap(<DagNodeMapInfo>options, runtime);
                 break;
             case DagNodeType.Project:
                 node = new DagNodeProject(options, runtime);
                 break;
             case DagNodeType.Explode:
-                node = new DagNodeExplode(options, runtime);
+                node = new DagNodeExplode(<DagNodeMapInfo>options, runtime);
                 break;
             case DagNodeType.Set:
                 node = new DagNodeSet(options, runtime);
@@ -77,10 +77,10 @@ class DagNodeFactory {
                 node = new DagNodeJupyter(options, runtime);
                 break;
             case DagNodeType.Split:
-                node = new DagNodeSplit(options, runtime);
+                node = new DagNodeSplit(<DagNodeMapInfo>options, runtime);
                 break;
             case DagNodeType.Round:
-                node = new DagNodeRound(options, runtime);
+                node = new DagNodeRound(<DagNodeMapInfo>options, runtime);
                 break;
             case DagNodeType.Index:
                 node = new DagNodeIndex(options, runtime);

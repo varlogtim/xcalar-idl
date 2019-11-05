@@ -211,7 +211,6 @@ class XcSocket {
                     msg: AlertTStr.ShutDownCredits,
                     sizeToText: true,
                     size: "medium",
-                    compact: true,
                     isAlert: true
                 });
             }

@@ -2736,7 +2736,7 @@ namespace XIApi {
      */
     export function deleteTables(
         txId: number,
-        arrayOfQueries: object[],
+        arrayOfQueries: any[],
         checkTime: number
     ): XDPromise<any> {
         if (arrayOfQueries == null) {

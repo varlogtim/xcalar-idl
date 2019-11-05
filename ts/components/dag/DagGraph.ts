@@ -1511,7 +1511,15 @@ class DagGraph extends Durable {
             const overallStats = node.getOverallStats(true);
             overallStats.state = <any>node.getState();
 
-            const nodeStats = {
+            const nodeStats: {
+                name: string,
+                type: string,
+                description: string,
+                hint: string,
+                tag?: string
+                overallStats?: any,
+                operations?: any[]
+            } = {
                 name: node.getTitle(),
                 type: node.getDisplayNodeType(),
                 description: node.getDescription(),

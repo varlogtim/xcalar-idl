@@ -52,7 +52,7 @@ class SQLSort {
         } else {
             const newTableName = xcHelper.getTableName(tableName) +
                                             Authentication.getHashId();
-            const colNameSet = new Set();
+            const colNameSet: Set<string> = new Set();
             node.usrCols.concat(node.xcCols).concat(node.sparkCols)
             .map(function (col) {
                 colNameSet.add(SQLCompiler.getCurrentName(col));

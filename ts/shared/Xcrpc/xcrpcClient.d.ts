@@ -98,7 +98,7 @@ declare module 'xcalar' {
 
     export class VersionService {
         constructor(client:XceClient);
-        GetVersion(): Promise<proto.xcalar.compute.localtypes.Version.GetVersionResponse>;
+        getVersion(request: proto.google.protobuf.Empty): Promise<proto.xcalar.compute.localtypes.Version.GetVersionResponse>;
     }
 
     export class SessionService {

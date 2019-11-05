@@ -782,8 +782,7 @@ class JSONModal {
             missingImmediates: {}
         };
         if (this._isDataCol) {
-            let tableId: TableId = TblManager.parseTableId($jsonTd.closest('table'));
-            this._removeHiddenSortedColumns(jsonObj, tableId);
+            this._removeHiddenSortedColumns(jsonObj);
             let groups = this._splitJsonIntoGroups(jsonObj);
             for (let i = 0; i < groups.length; i++) {
                 if (groups[i].prefix === gPrefixSign) {
@@ -856,7 +855,6 @@ class JSONModal {
         type: ColumnType
     ): void {
         let rowNum: number = RowManager.parseRowNum($jsonTd.closest('tr')) + 1;
-        let tableId: TableId = TblManager.parseTableId($jsonTd.closest('table'));
         let prettyJson: string = "";
         let isArray: boolean = (type === ColumnType.array);
         let groups: {prefix: string, objs: object}[]= null;
@@ -934,7 +932,7 @@ class JSONModal {
             this._setPrefixTabs(groups);
         }
 
-        this._markPulledCols($jsonTd, $jsonArea, isArray, location);
+        this._markPulledCols($jsonArea, isArray, location);
         this._addDataToJsonWrap($jsonTd, isArray);
     }
 
@@ -1019,7 +1017,7 @@ class JSONModal {
         return html;
     }
 
-    private _removeHiddenSortedColumns(jsonObj: object, tableId: TableId): void {
+    private _removeHiddenSortedColumns(jsonObj: object): void {
         let table: TableMeta = this._table;
         let hiddenSortCols = table.getHiddenSortCols();
         for (let colName in hiddenSortCols){
@@ -1337,13 +1335,11 @@ class JSONModal {
     }
 
     private _markPulledCols(
-        $jsonTd: JQuery,
         $jsonArea: JQuery,
         isArray: boolean,
         colName: string
     ): void {
         let $jsonWrap: JQuery = $jsonArea.find('.jsonWrap:last');
-        let tableId: TableId = TblManager.parseTableId($jsonTd.closest('table'));
         let table: TableMeta = this._table;
         let cols: ProgCol[] = table.getAllCols(true);
         $jsonWrap.find(".jsonCheckbox").each((_index, el) => {
