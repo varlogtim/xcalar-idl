@@ -273,14 +273,18 @@ $(document).ready(function() {
             });
         } else if (!param.hasOwnProperty("admin")) {
             // if url includes amdin, then we can allow normal login
-            cloudLoginFailureHanlder();
+            cloudLoginFailureHanlder(true);
         }
     }
 
-    function cloudLoginFailureHanlder() {
+    function cloudLoginFailureHanlder(redirect) {
         $("#splashContainer").hide();
         $("#loginContainer").hide().addClass("xc-hidden");
-        alert("Ooops...something went wrong, cannot login into the cluster. Please contact Xcalar Support for help");
+        if (redirect) {
+            window.location = paths.cloudLogin + "?logout";
+        } else {
+            alert("Ooops...something went wrong, cannot login into the cluster. Please contact Xcalar Support for help");
+        }
     }
 
     function redirect() {
