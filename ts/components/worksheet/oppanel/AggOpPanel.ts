@@ -479,10 +479,6 @@ class AggOpPanel extends GeneralOpPanel {
         BaseOpPanel.addAggInputEvents($nameInput);
     }
 
-    protected _getExistingTypes(_groupNum) {
-        return {};
-    }
-
     protected _validate(isSubmit?: boolean): boolean {
         const self = this;
         if (this._isAdvancedMode()) {
@@ -550,21 +546,6 @@ class AggOpPanel extends GeneralOpPanel {
 
         return true;
     }
-
-    // private _aggregateCheck(args) {
-    //     if (!this._hasFuncFormat(args[0])) {
-    //         const aggColNum = this._getColNum(args[0]);
-    //         if (aggColNum < 1) {
-    //             this._statusBoxShowHelper(ErrTStr.InvalidColName,
-    //                             this._$panel.find('.arg').eq(0));
-    //             return false;
-    //         } else {
-    //             return true;
-    //         }
-    //     } else {
-    //         return true;
-    //     }
-    // }
 
     protected _resetForm() {
         super._resetForm();

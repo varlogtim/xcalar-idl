@@ -68,7 +68,7 @@ describe("GeneralOpPanelModel Test", function() {
         });
 
         it("function isBoolInQuotes", function() {
-            var fn = model._isBoolInQuotes.bind(model);
+            var fn = GeneralOpPanelModel.isBoolInQuotes.bind(GeneralOpPanelModel);
             expect(fn("'true'")).to.be.true;
             expect(fn("'true")).to.be.false;
             expect(fn("\"true\"")).to.be.true;
@@ -78,7 +78,7 @@ describe("GeneralOpPanelModel Test", function() {
         });
 
         it('isNumberInQuotes() should return correctly', function() {
-            var func = model._isNumberInQuotes;
+            var func = GeneralOpPanelModel.isNumberInQuotes;
             expect(func('"3"')).to.be.true;
             expect(func("'3'")).to.be.true;
             expect(func("'3.342'")).to.be.true;
@@ -112,7 +112,7 @@ describe("GeneralOpPanelModel Test", function() {
         });
 
         it("function isActualPrefix", function() {
-            var fn = model.isActualPrefix;
+            var fn = GeneralOpPanelModel.isActualPrefix;
             expect(fn("te,st", 3)).to.be.true;
             expect(fn("te(st", 3)).to.be.true;
             expect(fn("test", 3)).to.be.false;
@@ -123,11 +123,11 @@ describe("GeneralOpPanelModel Test", function() {
             var parseTypeCache;
             before(function() {
                 fn = model._checkArgTypes.bind(model);
-                parseTypeCache = model._parseType;
+                parseTypeCache = GeneralOpPanelModel.parseType;
             });
 
             it("test when only strings are valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["string"];
                 };
 
@@ -137,7 +137,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only mixed is valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["mixed"];
                 };
 
@@ -147,7 +147,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only booleans are valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["boolean"];
                 };
 
@@ -162,7 +162,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only strings and booleans are valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["string", "boolean"];
                 };
 
@@ -172,7 +172,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only ints are valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["integer"];
                 };
 
@@ -190,7 +190,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only floats are valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["float"];
                 };
 
@@ -207,7 +207,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only floats and ints are valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["float", "integer"];
                 };
 
@@ -224,7 +224,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only booleans and ints are valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["boolean", "integer"];
                 };
 
@@ -241,7 +241,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only booleans floats and ints are valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["boolean", "float", "integer"];
                 };
 
@@ -257,7 +257,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only undefined is valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["undefined"];
                 };
 
@@ -278,7 +278,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("test when only somthing weird is valid", function() {
-                model._parseType = function() {
+                GeneralOpPanelModel.parseType= function() {
                     return ["newType"];
                 };
 
@@ -293,7 +293,7 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             after(function() {
-                model._parseType = parseTypeCache;
+                GeneralOpPanelModel.parseType = parseTypeCache;
             });
         });
 
@@ -569,7 +569,7 @@ describe("GeneralOpPanelModel Test", function() {
             var parseTypeCache;
             var fn;
             before(function() {
-                parseTypeCache = model._parseType;
+                parseTypeCache = GeneralOpPanelModel.parseType;
                 fn = model._validateEval.bind(model);
             });
 
@@ -584,38 +584,38 @@ describe("GeneralOpPanelModel Test", function() {
             });
 
             it("invalid string type should be caught", function() {
-                model._parseType = () => ["integer", "float", "boolean"]; // the type that the eval string should output
+                GeneralOpPanelModel.parseType= () => ["integer", "float", "boolean"]; // the type that the eval string should output
                 // output type === "float"
                 const parsedEval = XDParser.XEvalParser.parseEvalStr("add(1, 'a')");
                 expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: integer/float/boolean, Entered: string.");
             });
 
             it("invalid string type should be caught", function() {
-                model._parseType = () => ["integer", "float", "boolean"];
+                GeneralOpPanelModel.parseType= () => ["integer", "float", "boolean"];
                 const parsedEval = XDParser.XEvalParser.parseEvalStr("add(1, add(2,'a'))");
                 expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: integer/float/boolean, Entered: string.");
             });
 
             it("invalid integer type should be caught", function() {
-                model._parseType = () => ["string"];
+                GeneralOpPanelModel.parseType= () => ["string"];
                 const parsedEval = XDParser.XEvalParser.parseEvalStr("concat(1, 3)");
                 expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: string, Entered: integer.");
             });
 
             it("invalid float type should be caught", function() {
-                model._parseType = () => ["string"];
+                GeneralOpPanelModel.parseType= () => ["string"];
                 const parsedEval = XDParser.XEvalParser.parseEvalStr("concat(3.2, 1)");
                 expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: string, Entered: float.");
             });
 
             it("invalid colArg(int) type should be caught", function() {
-                model._parseType = () => ["string"];
+                GeneralOpPanelModel.parseType= () => ["string"];
                 const parsedEval = XDParser.XEvalParser.parseEvalStr("concat(prefix::average_stars, 3)");
                 expect(fn(parsedEval)).to.equal("Data type is invalid. Expected: string, Entered: number.");
             });
 
             after(function() {
-                model._parseType = parseTypeCache;
+                GeneralOpPanelModel.parseType = parseTypeCache;
             });
         });
 

@@ -827,10 +827,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         return (tempText);
     }
 
-    protected _getExistingTypes(_groupNum) {
-        return {};
-    }
-
     protected _validate(isSubmit?: boolean): boolean {
         const self = this;
         if (this._isAdvancedMode()) {

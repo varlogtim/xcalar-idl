@@ -124,7 +124,7 @@ describe("GeneralOpPanel Test", function() {
 
 
         it('isNumberInQuotes() should return correctly', function() {
-            var func = mapOpPanel._isNumberInQuotes;
+            var func = GeneralOpPanelModel.isNumberInQuotes;
             expect(func('"3"')).to.be.true;
             expect(func("'3'")).to.be.true;
             expect(func("'3.342'")).to.be.true;
@@ -142,7 +142,7 @@ describe("GeneralOpPanel Test", function() {
         });
 
         it("function isBoolInQuotes", function() {
-            var fn = mapOpPanel._isBoolInQuotes;
+            var fn = GeneralOpPanelModel.isBoolInQuotes.bind(GeneralOpPanelModel);
             expect(fn("'true'")).to.be.true;
             expect(fn("'true")).to.be.false;
             expect(fn("\"true\"")).to.be.true;
@@ -153,7 +153,7 @@ describe("GeneralOpPanel Test", function() {
 
 
         it ('hasFuncFormat(arg) should return correctly', function() {
-            var func = mapOpPanel._hasFuncFormat;
+            var func = GeneralOpPanelModel.hasFuncFormat;
             expect(func(5543)).to.equal(false);
             expect(func('()')).to.equal(false);
             expect(func('add(x,1)')).to.equal(true);

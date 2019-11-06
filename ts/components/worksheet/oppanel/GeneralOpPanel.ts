@@ -1108,8 +1108,6 @@ class GeneralOpPanel extends BaseOpPanel {
 
         this._$panel.find('.group').each(function() {
             const $inputs: JQuery = $(this).find('.arg');
-            // const existingTypes: any = self._getExistingTypes(i);
-            const existingTypes: any = {};
 
             $inputs.each(function() {
                 const $input: JQuery = $(this);
@@ -1132,18 +1130,16 @@ class GeneralOpPanel extends BaseOpPanel {
                             !xcHelper.hasValidColPrefix(arg) &&
                             arg[0] !== gAggVarPrefix &&
                             parsedType.indexOf("string") > -1 &&
-                            ($input.data("nofunc") || !self._hasFuncFormat(arg))) {
+                            ($input.data("nofunc") || !GeneralOpPanelModel.hasFuncFormat(arg))) {
                     // one of the valid types is string
 
 
                     if (parsedType.length === 1) {
                         // if input only accepts strings
                         self._quotesNeeded.push(true);
-                    } else if (existingTypes.hasOwnProperty("string")) {
-                        self._quotesNeeded.push(true);
                     } else {
-                        if (self._formatArgumentInput(arg, typeId, {}).isString) {
-                            if (self._isNumberInQuotes(arg) || self._isBoolInQuotes(arg)) {
+                        if (GeneralOpPanelModel.formatArgumentInput(arg, typeId).isString) {
+                            if (GeneralOpPanelModel.isNumberInQuotes(arg) || GeneralOpPanelModel.isBoolInQuotes(arg)) {
                                 self._quotesNeeded.push(false);
                             } else {
                                 self._quotesNeeded.push(true);
@@ -1262,58 +1258,6 @@ class GeneralOpPanel extends BaseOpPanel {
         }
     }
 
-    protected _getExistingTypes(groupNum: number): any {
-        return {};
-    }
-
-    // used in cases where arg could be type string and number
-    protected _isNumberInQuotes(arg: string): boolean {
-        if (arg[0] === "'" || arg[0] === '"') {
-            const quote: string = arg[0];
-            arg = arg.slice(1);
-            if (arg.length > 1 && arg[arg.length - 1] === quote) {
-                arg = arg.slice(0, arg.length - 1);
-                // same check as xcSuggest.suggestType
-                const letterRex: RegExp = /[a-z]/i;
-                const parsedVal: number = Number(arg);
-                if (!isNaN(parsedVal) &&
-                    !letterRex.test(arg) &&
-                    !(arg.length > 1 && arg[0] === "0" && arg[1] !== ".")
-                ) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-
-        } else {
-            return false;
-        }
-    }
-
-    // used in cases where arg could be type string and bool
-    protected _isBoolInQuotes(arg: string): boolean {
-        if (arg[0] === "'" || arg[0] === '"') {
-            const quote: string = arg[0];
-            arg = arg.slice(1);
-            if (arg.length > 1 && arg[arg.length - 1] === quote) {
-                arg = arg.slice(0, arg.length - 1).toLowerCase();
-                if (arg === "true" || arg === "false") {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-
-        } else {
-            return false;
-        }
-    }
-
     protected _submitForm() {
         if (!this._validate(true)) {
             return false;
@@ -1344,17 +1288,6 @@ class GeneralOpPanel extends BaseOpPanel {
         }
         return null;
     }
-
-    // protected _isOperationValid(index: number): boolean {
-    //     const func: string = $.trim(this._$panel.find('.group').eq(index)
-    //                                     .find('.functionsInput').val());
-
-    //     const $matches: JQuery = this._$functionsUl.find('li').filter(function() {
-    //         return ($(this).text() === func);
-    //     });
-
-    //     return ($matches.length > 0);
-    // }
 
     protected _handleInvalidArgs(
         isInvalidColType: boolean,
@@ -1591,142 +1524,8 @@ class GeneralOpPanel extends BaseOpPanel {
         $input.closest(".row").append(html);
     }
 
-    protected _formatArgumentInput(
-        value: string,
-        typeid: number,
-        existingTypes: object
-    ) {
-        const strShift: number = 1 << DfFieldTypeT.DfString;
-        const numberShift: number =
-                        (1 << DfFieldTypeT.DfInt32) |
-                        (1 << DfFieldTypeT.DfUInt32) |
-                        (1 << DfFieldTypeT.DfInt64) |
-                        (1 << DfFieldTypeT.DfUInt64) |
-                        (1 << DfFieldTypeT.DfFloat32) |
-                        (1 << DfFieldTypeT.DfFloat64);
-        const boolShift: number = 1 << DfFieldTypeT.DfBoolean;
-
-        // when field accept
-        let shouldBeString: boolean = (typeid & strShift) > 0;
-        const shouldBeNumber: boolean = (typeid & numberShift) > 0;
-        const shouldBeBoolean: boolean = (typeid & boolShift) > 0;
-        let isNumberAsString: boolean;
-        let isBoolAsString: boolean;
-
-        if (shouldBeString) {
-            // handle edge case
-            const parsedVal: number = parseFloat(value);
-            if (!isNaN(parsedVal) &&
-                parsedVal === Number(value) &&
-                shouldBeNumber)
-            {
-                // the case that the field accepts both string and number and
-                // it fills in a number, should depends on the existingTypes
-
-                // XXX potential bug is that existingTypes
-                // has both string and number
-                shouldBeString = existingTypes.hasOwnProperty(ColumnType.string);
-                if (!shouldBeString) {
-                    // when its number
-                    value = <any>parsedVal;
-                }
-            } else if (this._isNumberInQuotes(value)) {
-                if (shouldBeNumber) {
-                    isNumberAsString = true;
-                }
-                // keep value as is
-            } else if (this._isBoolInQuotes(value)) {
-                if (shouldBeBoolean) {
-                    isBoolAsString = true;
-                }
-            } else if (shouldBeBoolean) {
-                const valLower = ("" + value).toLowerCase();
-                if (valLower === "true" || valLower === "false") {
-                    shouldBeString = false;
-                }
-            }
-        }
-
-        value = this._parseAggPrefixes(value);
-        value = this._parseColPrefixes(value);
-        if (shouldBeString) {
-            if (!isNumberAsString && !isBoolAsString) {
-                // add quote if the field support string
-                value = "\"" + value + "\"";
-                // stringify puts in too many slashes
-            }
-        } else if (shouldBeNumber) {
-            const tempValue = "" + value; // Force string to provide indexOf
-            if (tempValue.indexOf(".") === 0) {
-                value = "0" + value;
-            }
-        } else {
-            if (typeof value === ColumnType.string) {
-                value = value.trim();
-            }
-        }
-
-        return ({value: value, isString: shouldBeString});
-    }
-
     protected _parseType(typeId: number): ColumnType[] {
-        const types: ColumnType[] = [];
-        let typeShift: number;
-
-        // string
-        typeShift = 1 << DfFieldTypeT.DfString;
-        if ((typeId & typeShift) > 0) {
-            types.push(ColumnType.string);
-        }
-
-        // integer
-        typeShift = (1 << DfFieldTypeT.DfInt32) |
-                    (1 << DfFieldTypeT.DfUInt32) |
-                    (1 << DfFieldTypeT.DfInt64) |
-                    (1 << DfFieldTypeT.DfUInt64);
-        if ((typeId & typeShift) > 0) {
-            types.push(ColumnType.integer);
-        }
-
-        // float
-        typeShift = (1 << DfFieldTypeT.DfFloat32) |
-                    (1 << DfFieldTypeT.DfFloat64);
-        if ((typeId & typeShift) > 0) {
-            types.push(ColumnType.float);
-        }
-
-        // boolean
-        typeShift = 1 << DfFieldTypeT.DfBoolean;
-        if ((typeId & typeShift) > 0) {
-            types.push(ColumnType.boolean);
-        }
-
-        // timestamp
-        typeShift = 1 << DfFieldTypeT.DfTimespec;
-        if ((typeId & typeShift) > 0) {
-            types.push(ColumnType.timestamp);
-        }
-
-        // money
-        typeShift = 1 << DfFieldTypeT.DfMoney;
-        if ((typeId & typeShift) > 0) {
-            types.push(ColumnType.money);
-        }
-
-        // mixed
-        typeShift = 1 << DfFieldTypeT.DfMixed;
-        if ((typeId & typeShift) > 0) {
-            types.push(ColumnType.mixed);
-        }
-
-        // undefined/unknown
-        typeShift = (1 << DfFieldTypeT.DfNull) |
-                    (1 << DfFieldTypeT.DfUnknown);
-        if ((typeId & typeShift) > 0) {
-            types.push(ColumnType.undefined);
-        }
-
-        return (types);
+        return GeneralOpPanelModel.parseType(typeId);
     }
 
     protected _fillInputPlaceholder(): void {
@@ -1771,54 +1570,12 @@ class GeneralOpPanel extends BaseOpPanel {
         }
     }
 
-    protected _hasFuncFormat(val: string): boolean {
-        if (typeof val !== ColumnType.string) {
-            return false;
-        }
-        val = val.trim();
-        const valLen: number = val.length;
-
-        if (valLen < 3) { // must be at least this long: a()
-            return false;
-        }
-
-        //check if has opening and closing parens
-        if (val.indexOf("(") > -1 && val.indexOf(")") > -1) {
-            // check that val doesnt start with parens and that it does end
-            // with parens
-            if (val.indexOf("(") !== 0 &&
-                val.lastIndexOf(")") === (valLen - 1)) {
-                return (GeneralOpPanel.checkMatchingBrackets(val).index === -1);
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
     protected _parseColPrefixes(str: string): string {
-        for (let i = 0; i < str.length; i++) {
-            if (str[i] === gColPrefix) {
-                if (str[i - 1] === "\\") {
-                    str = str.slice(0, i - 1) + str.slice(i);
-                } else if (this.model.isActualPrefix(str, i)) {
-                    str = str.slice(0, i) + str.slice(i + 1);
-                }
-            }
-        }
-        return (str);
+        return GeneralOpPanelModel.parseColPrefixes(str);
     }
 
     protected _parseAggPrefixes(str: string): string {
-        for (let i = 0; i < str.length; i++) {
-            if (str[i] === gAggVarPrefix) {
-                if (str[i - 1] === "\\") {
-                    str = str.slice(0, i - 1) + str.slice(i);
-                }
-            }
-        }
-        return (str);
+        return GeneralOpPanelModel.parseAggPrefixes(str);
     }
 
     protected _resetForm(): void {

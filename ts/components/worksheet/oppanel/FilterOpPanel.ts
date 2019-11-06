@@ -598,45 +598,6 @@ class FilterOpPanel extends GeneralOpPanel {
         return (strPreview);
     }
 
-    protected _getExistingTypes(groupNum: number): any {
-        const self = this;
-        const existingTypes = {};
-        let arg;
-        let $input;
-        let type;
-        const $group = this._$panel.find('.group').eq(groupNum);
-
-        $group.find(".arg").each(function() {
-            $input = $(this);
-            arg = $input.val().trim();
-            type = null;
-
-            // col name field, do not add quote
-            if ($input.closest(".dropDownList").hasClass("colNameSection")) {
-                return;
-            } else if (!$input.data("nofunc") && self._hasFuncFormat(arg)) {
-                // skip
-            } else if (xcHelper.hasValidColPrefix(arg)) {
-                arg = self._parseColPrefixes(arg);
-                type = self._getColumnTypeFromArg(arg);
-            } else if (arg[0] === gAggVarPrefix) {
-                // skip
-            } else {
-                const isString = self._formatArgumentInput(arg,
-                                                $input.data('typeid'),
-                                                existingTypes).isString;
-                if (isString) {
-                    type = "string";
-                }
-            }
-
-            if (type != null) {
-                existingTypes[type] = true;
-            }
-        });
-        return (existingTypes);
-    }
-
     protected _updateStrPreview(noHighlight?: boolean, andOrSwitch?: boolean) {
         const self = this;
         const $description = this._$panel.find(".strPreview");

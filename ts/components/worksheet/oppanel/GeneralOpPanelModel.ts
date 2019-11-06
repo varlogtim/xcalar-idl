@@ -178,7 +178,6 @@ abstract class GeneralOpPanelModel {
     // TODO: instead of storing formattedValue, calculate when needed based on
     // type
     protected _formatArg(arg: OpPanelArg): void {
-        const self = this;
         let val: string = arg.getValue();
         const trimmedVal: string = val.trim();
         let formattedValue: string;
@@ -189,23 +188,23 @@ abstract class GeneralOpPanelModel {
             } else if (arg.checkIsEmptyString()) {
                 formattedValue = "\"\"";
             } else {
-                formattedValue = self._formatArgumentInput(val, arg.getTypeid(), {}).value;
+                formattedValue = GeneralOpPanelModel.formatArgumentInput(val, arg.getTypeid()).value;
             }
             arg.setType("value");
         } else if (arg.checkIsRegex()) {
             formattedValue = "\"" + val + "\"";
             arg.setType("regex");
-        } else if (this._hasFuncFormat(trimmedVal)) {
-            formattedValue = self._parseColPrefixes(trimmedVal);
+        } else if (GeneralOpPanelModel.hasFuncFormat(trimmedVal)) {
+            formattedValue = GeneralOpPanelModel.parseColPrefixes(trimmedVal);
             arg.setType("function");
         } else if (xcHelper.hasValidColPrefix(trimmedVal)) {
-            formattedValue = self._parseColPrefixes(trimmedVal);
+            formattedValue = GeneralOpPanelModel.parseColPrefixes(trimmedVal);
             arg.setType("column");
         } else if (this._isAgg(trimmedVal)) {
             formattedValue = trimmedVal;
             arg.setType("aggregate");
         } else {
-            formattedValue = self._formatArgumentInput(val, arg.getTypeid(), {}).value
+            formattedValue = GeneralOpPanelModel.formatArgumentInput(val, arg.getTypeid()).value
             arg.setType("value");
         }
         arg.setFormattedValue(formattedValue.toString());
@@ -260,7 +259,7 @@ abstract class GeneralOpPanelModel {
                             "pulled!");
                         arg.setError("No type");
                     } else {
-                        const validTypes = self._parseType(arg.getTypeid());
+                        const validTypes = GeneralOpPanelModel.parseType(arg.getTypeid());
                         let errorText = self._validateColInputType(validTypes, colType);
                         if (errorText != null) {
                             arg.setError(errorText);
@@ -364,7 +363,7 @@ abstract class GeneralOpPanelModel {
         }
 
         function checkInvalidTypes(outputType: string, expectedTypeid: number, value?: string) {
-            const types: string[] = self._parseType(expectedTypeid);
+            const types: string[] = GeneralOpPanelModel.parseType(expectedTypeid);
             if (outputType.endsWith("Literal")) {
                 outputType = outputType.slice(0, outputType.lastIndexOf("Literal"));
             }
@@ -513,7 +512,7 @@ abstract class GeneralOpPanelModel {
         return null;
     }
 
-    protected _hasFuncFormat(val: string): boolean {
+    public static hasFuncFormat(val: string): boolean {
         if (typeof val !== ColumnType.string) {
             return false;
         }
@@ -539,7 +538,7 @@ abstract class GeneralOpPanelModel {
         }
     }
 
-    protected _parseColPrefixes(str: string): string {
+    public static parseColPrefixes(str: string): string {
         for (let i = 0; i < str.length; i++) {
             if (str[i] === gColPrefix) {
                 if (str[i - 1] === "\\") {
@@ -552,7 +551,7 @@ abstract class GeneralOpPanelModel {
         return (str);
     }
 
-    protected _parseAggPrefixes(str: string): string {
+    public static parseAggPrefixes(str: string): string {
         for (let i = 0; i < str.length; i++) {
             if (str[i] === gAggVarPrefix) {
                 if (str[i - 1] === "\\") {
@@ -565,7 +564,7 @@ abstract class GeneralOpPanelModel {
 
     // returns true if previous character, not including spaces, is either
     // a comma, a (, or the very beginning
-    public isActualPrefix(str: string, index: number): boolean {
+    private static isActualPrefix(str: string, index: number): boolean {
         for (let i = index - 1; i >= 0; i--) {
             if (str[i] === ",") {
                 return (true);
@@ -579,7 +578,7 @@ abstract class GeneralOpPanelModel {
     }
 
     protected _checkArgTypes(arg: string, typeid: number) {
-        const types: string[] = this._parseType(typeid);
+        const types: string[] = GeneralOpPanelModel.parseType(typeid);
         let argType: string = "string";
 
         if (types.indexOf(ColumnType.string) > -1 ||
@@ -594,7 +593,7 @@ abstract class GeneralOpPanelModel {
         let canBeBooleanOrNumber: boolean = false;
 
         // boolean is a subclass of number
-        if (this._isBoolean(tmpArg) || isNumber)
+        if (GeneralOpPanelModel.isBoolean(tmpArg) || isNumber)
         {
             canBeBooleanOrNumber = true;
             argType = "string/boolean/integer/float";
@@ -653,11 +652,7 @@ abstract class GeneralOpPanelModel {
         return null; // no known cases for this
     }
 
-    protected _formatArgumentInput(
-        value: string,
-        typeid: number,
-        existingTypes: object
-    ) {
+    public static formatArgumentInput(value: string, typeid: number) {
         const strShift: number = 1 << DfFieldTypeT.DfString;
         const numberShift: number =
                         (1 << DfFieldTypeT.DfInt32) |
@@ -682,35 +677,27 @@ abstract class GeneralOpPanelModel {
                 parsedVal === Number(value) &&
                 shouldBeNumber)
             {
-                // the case that the field accepts both string and number and
-                // it fills in a number, should depends on the existingTypes
-
-                // XXX potential bug is that existingTypes
-                // has both string and number
-                shouldBeString = existingTypes.hasOwnProperty(ColumnType.string);
-                if (!shouldBeString) {
-                    // when its number
-                    value = <any>parsedVal;
-                }
-            } else if (this._isNumberInQuotes(value)) {
+                shouldBeString = false;
+                value = <any>parsedVal;
+            } else if (this.isNumberInQuotes(value)) {
                 if (shouldBeNumber) {
                     isNumberAsString = true;
                 }
                 // keep value as is
-            } else if (this._isBoolInQuotes(value)) {
+            } else if (this.isBoolInQuotes(value)) {
                 if (shouldBeBoolean) {
                     isBoolAsString = true;
                 }
             } else if (shouldBeBoolean) {
                 const valLower = ("" + value).toLowerCase();
-                if (this._isBoolean(valLower)) {
+                if (this.isBoolean(valLower)) {
                     shouldBeString = false;
                 }
             }
         }
 
-        value = this._parseAggPrefixes(value);
-        value = this._parseColPrefixes(value);
+        value = this.parseAggPrefixes(value);
+        value = this.parseColPrefixes(value);
         if (shouldBeString) {
             if (!isNumberAsString && !isBoolAsString) {
                 // add quote if the field support string
@@ -758,7 +745,7 @@ abstract class GeneralOpPanelModel {
                 const shouldBeNumber: boolean = (typeid & numberShift) > 0;
                 // if string is in quotes, then strip the quotes if
                 // input only accepts strings, or leave quotes if
-                if (!this._isNumberInQuotes(value) || (shouldBeString && !shouldBeNumber)) {
+                if (!GeneralOpPanelModel.isNumberInQuotes(value) || (shouldBeString && !shouldBeNumber)) {
                     value = value.slice(1, -1); // remove surrounding quotes
                 }
             }
@@ -767,15 +754,15 @@ abstract class GeneralOpPanelModel {
     }
 
      // used in cases where arg could be type string and number
-     protected _isNumberInQuotes(arg: string): boolean {
+     public static isNumberInQuotes(arg: string): boolean {
         if (arg[0] === "'" || arg[0] === '"') {
             const quote: string = arg[0];
             arg = arg.slice(1);
             if (arg.length > 1 && arg[arg.length - 1] === quote) {
                 arg = arg.slice(0, arg.length - 1);
                 // same check as xcSuggest.suggestType
-                const parsedVal: number = Number(arg);
                 const letterRex: RegExp = /[a-z]/i;
+                const parsedVal: number = Number(arg);
                 if (!isNaN(parsedVal) &&
                     !letterRex.test(arg) &&
                     !(arg.length > 1 && arg[0] === "0" && arg[1] !== ".")
@@ -794,13 +781,13 @@ abstract class GeneralOpPanelModel {
     }
 
     // used in cases where arg could be type string and bool
-    protected _isBoolInQuotes(arg: string): boolean {
+    public static isBoolInQuotes(arg: string): boolean {
         if (arg[0] === "'" || arg[0] === '"') {
             const quote: string = arg[0];
             arg = arg.slice(1);
             if (arg.length > 1 && arg[arg.length - 1] === quote) {
                 arg = arg.slice(0, arg.length - 1);
-                if (this._isBoolean(arg)) {
+                if (this.isBoolean(arg)) {
                     return true;
                 } else {
                     return false;
@@ -814,7 +801,7 @@ abstract class GeneralOpPanelModel {
         }
     }
 
-    protected _parseType(typeId: number): ColumnType[] {
+    public static parseType(typeId: number): ColumnType[] {
         const types: ColumnType[] = [];
         let typeShift: number;
 
@@ -876,7 +863,8 @@ abstract class GeneralOpPanelModel {
 
     protected _isArgAColumn(arg: string) {
         return (isNaN(<any>arg) &&
-                arg.indexOf("(") === -1 && !this._isBoolean(arg) &&
+                arg.indexOf("(") === -1 &&
+                !GeneralOpPanelModel.isBoolean(arg) &&
                 arg !== "None");
     }
 
@@ -1080,12 +1068,12 @@ abstract class GeneralOpPanelModel {
                     if (arg.isCast()) {
                         valueType = arg.getCast();
                     } else if (type === "column") {
-                        valueType = this.getColumnTypeFromArg(this._parseColPrefixes(value));
+                        valueType = this.getColumnTypeFromArg(GeneralOpPanelModel.parseColPrefixes(value));
                     } else if (type === "value") {
                         let lowerVal = formattedValue.toLowerCase();
                         if (lowerVal.startsWith("\"") || lowerVal.startsWith("'")) {
                             valueType = ColumnType.string;
-                        } else if (this._isBoolean(formattedValue)) {
+                        } else if (GeneralOpPanelModel.isBoolean(formattedValue)) {
                             valueType = ColumnType.boolean;
                         } else {
                             valueType = ColumnType.number;
@@ -1127,7 +1115,7 @@ abstract class GeneralOpPanelModel {
         return null;
     }
 
-    private _isBoolean(arg) {
+    public static isBoolean(arg) {
         arg = ("" + arg).toLowerCase();
         return (arg === "true" || arg === "false");
     }
