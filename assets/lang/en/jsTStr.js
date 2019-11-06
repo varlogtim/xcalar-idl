@@ -1112,6 +1112,16 @@ DFTStr = {
     "LockedTableMsg": "\'<action>\' will delete one or more locked results. If you do not want the results to be deleted, cancel and duplicate the relevant parts of the flow.",
 };
 
+DFNodeLineageTStr = {
+    "NoSourceTab": "Source module could not be found.",
+    "SouceTabLoadErr": "Source module could not be loaded",
+    "NoSourceNode": "Source node could not be found.",
+    "NoSQLNode": "Cannot find source node in sql",
+    "MultipleNode": "More than 1 source node was found",
+    "NodeTooltip": "Click to focus on node",
+    "DFTooltip": "Click to swtich to the moduel",
+};
+
 DSTStr = {
     'UnknownUser': 'Unknown User',
     'UnknownId': 'Unknown Id',

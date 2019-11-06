@@ -787,7 +787,7 @@ class DagGraphExecutor {
                 noLog: true,
                 noCommit: true
             });
-            let queries: {operation: string, args: any, tag?: string}[];
+            let queries: {operation: string, comment: string}[];
             try {
                 if (!queryStr.startsWith("[")) {
                     // when query is not in the form of JSON array
@@ -801,10 +801,12 @@ class DagGraphExecutor {
                 return PromiseHelper.reject(e);
             }
 
-            let parentNodeIds = [];
-            Transaction.getParentNodeIds(parentNodeIds, this._currentTxId);
+            let parentNodeInfos = Transaction.getParentNodeInfos(this._currentTxId);
             queries.forEach((query) => {
-                xcHelper.addNodeIdToQueryComment(query, parentNodeIds, node.getId());
+                query = xcHelper.addNodeLineageToQueryComment(query, parentNodeInfos, {
+                    nodeId: node.getId(),
+                    tabId: this._graph.getTabId()
+                });
                 allQueries.push(query);
             });
             if (destTable != null) {
@@ -1571,21 +1573,24 @@ class DagGraphExecutor {
     // Looks at query's tag for list of dagNodeIds it belongs to. Then checks
     // to see if the graph has that node id.
     private _getDagNodeIdFromQueryInfo(queryNodeInfo: XcalarApiDagNodeT): DagNodeId {
-        let nodeIdCandidates = [];
+        let nodeCandidates: DagTagInfo[] = [];
         try {
-            nodeIdCandidates = JSON.parse(queryNodeInfo.comment).nodeIds || [];
-        } catch (e) {}
-        let nodeId: DagNodeId;
-        for (let i = 0; i < nodeIdCandidates.length; i++) {
-            nodeId = nodeIdCandidates[i];
-            if (this._graph.hasNode(nodeId)) {
-                if (this._finishedNodeIds.has(nodeId)) {
-                    return null;
-                } else {
-                    return nodeId;
+            nodeCandidates = JSON.parse(queryNodeInfo.comment).nodes || [];
+            let nodeId: DagNodeId;
+            for (let i = 0; i < nodeCandidates.length; i++) {
+                nodeId = nodeCandidates[i].nodeId;
+                if (this._graph.hasNode(nodeId)) {
+                    if (this._finishedNodeIds.has(nodeId)) {
+                        return null;
+                    } else {
+                        return nodeId;
+                    }
                 }
             }
+        } catch (e) {
+            console.error(e);
         }
+
         return null;
     }
 }

@@ -961,7 +961,7 @@ class DagViewManager {
         nodeId: DagNodeId,
         tabId: string,
         sqlPreview?: boolean
-    ): XDPromise<void> {
+    ): XDPromise<string> {
         // return this.dagViewMap.get(tabId).inspectSQLNode(nodeId, sqlPreview);
         return DagView.inspectSQLNode(nodeId, tabId, sqlPreview);
     }

@@ -4362,6 +4362,84 @@ html.microsoft {
     }
 }
 
+#dfNodeLineagePopup {
+    @magin-top: 16px;
+    @magin-bottom: @modal-padding-vertical;
+    @h-without-main: @modal-header-h + @magin-bottom + @magin-top;
+    width: 300px;
+    min-width: 300px;
+    .size(@height: 210px);
+
+    .modalMain {
+        height: ~"calc(100% - @{h-without-main})";
+        overflow: auto;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        margin-bottom: @magin-bottom;
+        margin-top: @magin-top;
+
+        .row {
+            height: 20px;
+            line-height: 20px;
+            margin-top: 8px;
+
+            &.error {
+               color: @color-error-red;
+            }
+
+            &:first-child {
+                margin-top: 0;
+            }
+
+            &.collapse {
+                ~ .row {
+                    display: none;
+                }
+
+                .toggle {
+                    .xi-down {
+                        display: none;
+                    }
+
+                    .xi-next {
+                        display: inline-block;
+                    }
+                }
+            }
+
+            .padding {
+                margin-left: 16px;
+            }
+
+            .toggle {
+                margin-right: 4px;
+
+                .xi-next {
+                    display: none;
+                }
+
+                .icon {
+                    font-size: 12px;
+                    color: @color-icon-gray;
+                }
+            }
+
+            .link {
+                color: @color-link-blue;
+                text-decoration: underline;
+                text-transform: capitalize;
+                font-weight: bold;
+                margin-right: 8px;
+                .xc-action;
+            }
+
+            .label {
+                font-weight: normal;
+            }
+        }
+    }
+}
+
 #dfPublishModal {
     @h-without-main: @modal-header-h + @modal-instr-h + @modal-bottom-h;
     @h: 320px;

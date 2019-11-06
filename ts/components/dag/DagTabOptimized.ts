@@ -93,21 +93,53 @@ class DagTabOptimized extends DagTabProgress {
 
     /**
      * DagTabOptimized.getOutputTableName
+     * table_partOfRetinaId_#t_someRetinaIdStuff
      * @param retinaName
      */
     public static getOutputTableName(retinaName: string): string {
-        let outputTableName = "table_";
-        let nameSplit = retinaName.split("_");
-        outputTableName = "table";
+        const nameSplit: string[] = retinaName.split("_");
+        let outputTableName = "table";
         try {
             for (let i = 1; i < nameSplit.length - 2; i++) {
                 outputTableName += "_" + nameSplit[i];
             }
-            outputTableName += "#t_" + nameSplit[nameSplit.length - 2] + "_" +
-                                nameSplit[nameSplit.length - 1];
-        } catch (e) {}
+            if (outputTableName.split(DagTab.KEY).length <= 2) {
+                // when it's old format of id
+                outputTableName += "_" + nameSplit[nameSplit.length - 2] + "_" +
+                nameSplit[nameSplit.length - 1] + Authentication.getHashId();
+            } else {
+                outputTableName += "#t_" + nameSplit[nameSplit.length - 2] + "_" +
+                nameSplit[nameSplit.length - 1];
+            }
+        } catch (e) {
+            console.error(e);
+        }
 
         return outputTableName;
+    }
+
+    /**
+     * DagTabOptimized.parseOutputTableName
+     * @param tableName
+     */
+    public static parseOutputTableName(
+        tableName: string
+    ): {tabId: string, nodeId: DagNodeId} {
+        try {
+            tableName = tableName.slice("table_".length, tableName.indexOf("#"));
+            let [tabId, rest] = tableName.split("_" + DagNode.KEY);
+            let nodeId =  DagNode.KEY + rest.split("_" + DagTab.KEY)[0];
+            return {
+                tabId,
+                nodeId
+            };
+        } catch (e) {
+            console.error(e);
+            return {
+                tabId: null,
+                nodeId: null
+            };
+        }
     }
 
     private _fromSDK: boolean;

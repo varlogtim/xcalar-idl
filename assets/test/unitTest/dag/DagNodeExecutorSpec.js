@@ -9,10 +9,12 @@ describe("DagNodeExecutor Test", () => {
         console.log(symTxIdCount, "count");
         Transaction.get = () => {
             return {
-                setCurrentNodeId: ()=>{},
-                setParentNodeId: ()=>{},
-                getStoredQueryDest: ()=>{},
-                setStoredQueryDest: ()=>{}
+                setCurrentNodeInfo: () => {},
+                setParentNodeInfo: ()=> {},
+                resetCurrentNodeInfo: () => {},
+                resetParentNodeInfo: () => {},
+                getStoredQueryDest: () => {},
+                setStoredQueryDest: ()=> {}
             }
         }
         UnitTest.testFinish(() => DagPanel.hasSetup())

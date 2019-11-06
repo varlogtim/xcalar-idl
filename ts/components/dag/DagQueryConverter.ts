@@ -1274,7 +1274,7 @@ class DagQueryConverter {
 
         if (node.rawNode && node.rawNode.comment) {
             try {
-                dagNodeInfo.tag = JSON.parse(node.rawNode.comment).nodeIds || [];
+                dagNodeInfo.tag = JSON.parse(node.rawNode.comment).nodes || [];
             } catch (e) {}
         }
 

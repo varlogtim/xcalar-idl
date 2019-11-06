@@ -2856,21 +2856,44 @@ namespace xcHelper {
         return skewness;
     }
 
-    // mutates the query and changes the comment property
-    export function addNodeIdToQueryComment(query, parentNodeIds, curNodeId) {
+    /**
+     * xcHelper.addNodeLineageToQueryComment
+     * @param query
+     * @param parentNodeInfos
+     * @param curNodeId
+     */
+    export function addNodeLineageToQueryComment(
+        query: {operation: string, comment: string},
+        parentNodeInfos: DagTagInfo[],
+        curentNodeInfo: DagTagInfo
+    ): any {
         if (query.operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
-            return;
+            return query;
         }
-        parentNodeIds.push(curNodeId);
-        let queryComment = {nodeIds: []};
+        let queryComment = {nodes: []};
         try {
-            queryComment = JSON.parse(query.comment);
-        } catch (e){}
-        let curCommentNodeIds = queryComment.nodeIds || [];
-        let finalCommentNodeIds = parentNodeIds.concat(curCommentNodeIds);
-        queryComment.nodeIds = finalCommentNodeIds;
-        query.comment = JSON.stringify(queryComment);
-        parentNodeIds.pop();
+            if (query.comment) {
+                queryComment = JSON.parse(query.comment);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        try {
+            query = {...query}; // deep copy
+            let curNodeInfos = queryComment.nodes || [];
+            let finalNodeInfos = [
+                ...parentNodeInfos,
+                curentNodeInfo,
+                ...curNodeInfos
+            ];
+            queryComment.nodes = finalNodeInfos;
+            query.comment = JSON.stringify(queryComment);
+        } catch (e) {
+            console.error(e);
+        }
+
+        return query;
     }
 }
 

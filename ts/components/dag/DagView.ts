@@ -2510,14 +2510,14 @@ class DagView {
         nodeId: DagNodeId,
         tabId: string,
         sqlPreview?: boolean
-    ): XDPromise<void> {
+    ): XDPromise<string> {
         const dagTab = DagTabManager.Instance.getTabById(tabId);
         const graph = dagTab.getGraph();
         const dagNode = graph.getNode(nodeId);
         if (dagNode == null || !(dagNode instanceof DagNodeSQL)) {
             return PromiseHelper.reject();
         }
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let subGraph = dagNode.getSubGraph();
         let promise = PromiseHelper.resolve();
 
@@ -2531,12 +2531,12 @@ class DagView {
         }
         promise
             .then(() => {
-                DagTabManager.Instance.newSQLTab(dagNode, sqlPreview);
+                const tabId: string = DagTabManager.Instance.newSQLTab(dagNode, sqlPreview);
                 const newDagView: DagView = DagViewManager.Instance.getActiveDagView();
                 if (newDagView != null) {
                     newDagView.autoAlign({ isNoLog: true });
                 }
-                deferred.resolve();
+                deferred.resolve(tabId);
             })
             .fail(deferred.reject);
         return deferred.promise();

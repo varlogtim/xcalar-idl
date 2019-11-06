@@ -39,6 +39,39 @@ describe('DagTab Optimized Test', function() {
         });
     });
 
+    describe("Static function test", function() {
+        it("DagTabOptimized.parseOutputTableName should work \
+            for table name generate from DagTabOptimized.getOutputTableName", function() {
+            let tabId = DagTab.generateId();
+            let nodeId = DagNode.generateId();
+            let retinaName = DagTabOptimized.getId(tabId, nodeId);
+            let tableName = DagTabOptimized.getOutputTableName(retinaName);
+
+            let res = DagTabOptimized.parseOutputTableName(tableName);
+
+            expect(res).to.deep.equal({"tabId": tabId, "nodeId": nodeId});
+        });
+
+        it("DagTabOptimized.parseOutputTableName should work \
+            for table name generate from DagTabOptimized.getOutputTableName \
+            with retinaName from DagTabOptimized.getId_deprecated", function() {
+            let tabId = DagTab.generateId();
+            let nodeId = DagNode.generateId();
+            let retinaName = DagTabOptimized.getId_deprecated(tabId, nodeId);
+            let tableName = DagTabOptimized.getOutputTableName(retinaName);
+
+            let res = DagTabOptimized.parseOutputTableName(tableName);
+
+            expect(res).to.deep.equal({"tabId": tabId, "nodeId": nodeId});
+        });
+
+        it("DagTabOptimized.parseOutputTableName should return \
+            null tabId and nodeId for invalid case", function() {
+            let res = DagTabOptimized.parseOutputTableName("a#b");
+            expect(res).to.deep.equal({"tabId": null, "nodeId": null});
+        });
+    });
+
     describe("DagTabOptimized constructor", function(){
         it("should create new tab", function() {
             queryNodes = [

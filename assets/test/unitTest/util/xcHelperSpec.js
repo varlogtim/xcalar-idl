@@ -2211,6 +2211,55 @@ describe("xcHelper Test", function() {
         });
     });
 
+    describe("xcHelper.addNodeLineageToQueryComment test", function() {
+        it("xcHelper.addNodeLineageToQueryComment should ingore delete query", function() {
+            // arrange
+            const query = {
+                operation: XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]
+            };
+            const parentNodeInfos = [{nodeId: "a0", tabId: "tabA0"}];
+            const currentNodeInfo = {nodeId: "b0", tabId: "tabB0"};
+            // act
+            const res = xcHelper.addNodeLineageToQueryComment(query, parentNodeInfos, currentNodeInfo);
+            // assert
+            expect(res).to.deep.equal(query);
+        });
+
+        it("xcHelper.addNodeLineageToQueryComment should return intial query when has error", function() {
+            // arrange
+            const query = {
+                operation: "filter",
+                comment: JSON.stringify({nodes: []})
+            };
+            // act
+            const res = xcHelper.addNodeLineageToQueryComment(query, null, null);
+            // assert
+            expect(res).to.deep.equal(query);
+        });
+
+        it("xcHelper.addNodeLineageToQueryComment should append lineage info to comment", function() {
+            // arrange
+            const query = {
+                operation: "filter",
+                comment: JSON.stringify({nodes: [{nodeId: "c2", tabId: "tabC2"}]})
+            };
+
+            const parentNodeInfos = [{nodeId: "a2", tabId: "tabA2"}];
+            const currentNodeInfo = {nodeId: "b2", tabId: "tabB2"};
+            // act
+            const res = xcHelper.addNodeLineageToQueryComment(query, parentNodeInfos, currentNodeInfo);
+            // assert
+            expect(res).to.deep.equal({
+                operation: "filter",
+                comment: JSON.stringify({nodes: [
+                    {nodeId: "a2", tabId: "tabA2"},
+                    {nodeId: "b2", tabId: "tabB2"},
+                    {nodeId: "c2", tabId: "tabC2"}
+                ]})
+            });
+        });
+    });
+
     after(function() {
         StatusBox.forceHide();
     });

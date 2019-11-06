@@ -868,6 +868,7 @@ module.exports = {
         "DestFileName": "Destination file name",
         "Settings": "Module settings",
         "ClearSQL": "Clear modules in SQL folder",
+        "NodeLineage": "Node Lineage",
         // For uploader
         "upload": "Upload",
         "uploadHeader": "Upload Module",

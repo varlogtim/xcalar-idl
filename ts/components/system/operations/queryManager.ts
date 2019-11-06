@@ -2345,12 +2345,12 @@ namespace QueryManager {
     function updateDatasetActivationProgress(txId: number, progress: number, dsName: string, finished: boolean) {
         traverse(txId);
         function traverse(txId) {
-            let tx = Transaction.get(txId);
+            let tx: Transaction.TXLog = Transaction.get(txId);
             if (!tx) {
                 return;
             }
-            if (tx.tabId && tx.parentNodeId) {
-                DagViewManager.Instance.updateDatasetProgress(tx.tabId, tx.parentNodeId, {
+            if (tx.tabId && tx.parentNodeInfo) {
+                DagViewManager.Instance.updateDatasetProgress(tx.tabId, tx.parentNodeInfo.nodeId, {
                     progress: progress,
                     dsName: dsName,
                     elapsedTime: 0,

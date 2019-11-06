@@ -191,14 +191,14 @@ class DagNodeExecutor {
         return parentNode.getTable();
     }
 
-    private _generateTableName(tag?: string): string {
+    private _generateTableName(): string {
         let tabId = this.tabId;
         if (tabId == null) {
             tabId = this._getClosestTabId(this.txId);
         }
 
         return DagNodeExecutor.getTableNamePrefix(tabId) +
-        "_" + this.node.getId() + (tag ? "_" + tag : "") + Authentication.getHashId();
+        "_" + this.node.getId() + Authentication.getHashId();
     }
 
     private _getClosestTabId(txId) {
@@ -284,7 +284,7 @@ class DagNodeExecutor {
             track: true,
             tabId: this.tabId,
             parentTxId: this.txId,
-            parentNodeId: this.node.getId()
+            parentNodeInfo: {nodeId: this.node.getId(), tabId: this.tabId}
         });
         if (typeof DS !== "undefined") {
             return DS.activate([dsName], false, txId);
@@ -767,11 +767,11 @@ class DagNodeExecutor {
             });
         } else {
             const txLog = Transaction.get(this.txId);
-            txLog.setParentNodeId(node.getId());
+            txLog.setParentNodeInfo(node.getId(), this.tabId);
 
             node.getSubGraph().execute(null, optimized, this.txId)
             .then(() => {
-                txLog.setParentNodeId(null);
+                txLog.resetParentNodeInfo();
                 try {
                     // Always get the first output node, as we only support on output for now
                     deferred.resolve(node.getOutputNodes()[0].getTable());
@@ -781,7 +781,7 @@ class DagNodeExecutor {
                 }
             })
             .fail((error) => {
-                txLog.setParentNodeId(null);
+                txLog.resetParentNodeInfo();
                 deferred.reject(error);
             });
         }
@@ -995,21 +995,21 @@ class DagNodeExecutor {
 
         let promise;
         let noQueryNeeded = false;
-        let txLog;
+        let txLog: Transaction.TXLog;
         if (priorDestTable) {
             console.log("reusing cache", linkOutNode);
             noQueryNeeded = true;
             promise = PromiseHelper.resolve({queryStr: "", destTables:[priorDestTable]});
         } else {
             txLog = Transaction.get(this.txId);
-            txLog.setParentNodeId(this.node.getId()); // used to track dataset activation
+            txLog.setParentNodeInfo(this.node.getId(), this.tabId); // used to track dataset activation
             promise = graph.getQuery(linkOutNode.getId(), optimized, true, true, false, this.txId, !optimized);
         }
         let destTable: string;
         promise
         .then((ret) => {
             if (txLog) {
-                txLog.setParentNodeId(null);
+                txLog.resetParentNodeInfo();
             }
             let {queryStr, destTables} = ret;
             if ("object" == typeof destTables) {
@@ -1072,7 +1072,7 @@ class DagNodeExecutor {
         })
         .fail((e) => {
             if (txLog) {
-                txLog.setParentNodeId(null);
+                txLog.resetParentNodeInfo();
             }
             deferred.reject(e);
         });
@@ -1151,12 +1151,12 @@ class DagNodeExecutor {
         let tableName: string = params.pubTableName;
 
         const txLog = Transaction.get(this.txId);
-        txLog.setCurrentNodeId(node.getId());
+        txLog.setCurrentNodeInfo(node.getId(), this.tabId);
         XIApi.publishTable(this.txId, params.primaryKeys,
             this._getParentNodeTable(0), tableName,
             colInfo, params.operator)
         .then(() => {
-            txLog.setCurrentNodeId(null);
+            txLog.resetCurrentNodeInfo();
             if (!(typeof PTblManager === "undefined")) {
                 return PTblManager.Instance.addTable(tableName);
             }
@@ -1165,7 +1165,7 @@ class DagNodeExecutor {
             deferred.resolve();
         })
         .fail((err) => {
-            txLog.setCurrentNodeId(null);
+            txLog.resetCurrentNodeInfo();
             deferred.reject(err);
         });
         return deferred.promise();
@@ -1180,15 +1180,15 @@ class DagNodeExecutor {
         })[0] || [];
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
         const txLog = Transaction.get(this.txId);
-        txLog.setCurrentNodeId(node.getId());
+        txLog.setCurrentNodeInfo(node.getId(), this.tabId);
         XIApi.updatePubTable(this.txId, this._getParentNodeTable(0),
             params.pubTableName, colInfo, params.operator)
         .then((res) => {
-            txLog.setCurrentNodeId(null);
+            txLog.resetCurrentNodeInfo();
             deferred.resolve(res);
         })
         .fail((err) => {
-            txLog.setCurrentNodeId(null);
+            txLog.resetCurrentNodeInfo();
             deferred.reject(err);
         });
         return deferred.promise();
@@ -1207,15 +1207,15 @@ class DagNodeExecutor {
                 // when the extension doesn't generate query
                 return PromiseHelper.resolve();
             }
-            txLog.setCurrentNodeId(node.getId());
+            txLog.setCurrentNodeInfo(node.getId(), this.tabId);
             return XIApi.query(this.txId, finalTable, query);
         })
         .then(() => {
-            txLog.setCurrentNodeId(null);
+            txLog.resetCurrentNodeInfo();
             deferred.resolve(finalTable);
         })
         .fail((err) => {
-            txLog.setCurrentNodeId(null);
+            txLog.resetCurrentNodeInfo();
             deferred.reject(err);
         });
 

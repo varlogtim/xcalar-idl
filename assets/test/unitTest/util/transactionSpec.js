@@ -584,4 +584,39 @@ describe("Transaction Test", function() {
         });
     });
 
+
+    describe("NodeInfo in transaction", function() {
+        let txLog, txId;
+
+        before(function() {
+            txId = Transaction.start({
+                operation: "test"
+            });
+            txLog = Transaction.getCache(txId);
+        });
+
+        it("setCurrentNodeInfo should set currentNodeInfo", function() {
+            txLog.setCurrentNodeInfo("nodeId", "tabId");
+            expect(txLog.currentNodeInfo).to.deep.equal({nodeId: "nodeId", tabId: "tabId"});
+        });
+
+        it("resetCurrentNodeInfo should reset currentNodeInfo", function() {
+            txLog.resetCurrentNodeInfo();
+            expect(txLog.currentNodeInfo).to.equal(undefined);
+        });
+
+        it("setParentNodeInfo should set parentNodeInfo", function() {
+            txLog.setParentNodeInfo("nodeId", "tabId");
+            expect(txLog.parentNodeInfo).to.deep.equal({nodeId: "nodeId", tabId: "tabId"});
+        });
+
+        it("resetParentNodeInfo should reset parentNodeInfo", function() {
+            txLog.resetParentNodeInfo();
+            expect(txLog.parentNodeInfo).to.equal(undefined);
+        });
+
+        after(function() {
+            Transaction.done(txId);
+        });
+    });
 });

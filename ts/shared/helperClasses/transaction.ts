@@ -25,7 +25,7 @@ namespace Transaction {
         udfUserName?: string;
         udfSessionName?: string;
         queryMeta?: string;
-        parentNodeId?: string
+        parentNodeInfo?: DagTagInfo
     }
 
     export interface TransactionDoneOptions {
@@ -65,12 +65,12 @@ namespace Transaction {
         parentTxId?: number;
         udfUserName?: string;
         udfSessionName?: string;
-        parentNodeId?: string;
+        parentNodeInfo?: DagTagInfo;
     }
 
     // tx is short for transaction
-   class TXLog {
-       curId: number;
+   export class TXLog {
+        curId: number;
         msgId: number;
         operation: string;
         cli: string;
@@ -81,8 +81,8 @@ namespace Transaction {
         parentTxId: number;
         udfUserName?: string;
         udfSessionName?: string;
-        currentNodeId?: string;
-        parentNodeId?: string;
+        currentNodeInfo?: DagTagInfo;
+        parentNodeInfo?: DagTagInfo;
         cachedTables: Map<string, string>;
 
         constructor(options: TXLogOptions) {
@@ -98,7 +98,7 @@ namespace Transaction {
             this.udfUserName = options.udfUserName;
             this.udfSessionName = options.udfSessionName;
             this.cachedTables = new Map();
-            this.parentNodeId = options.parentNodeId;
+            this.parentNodeInfo = options.parentNodeInfo;
         }
 
 
@@ -125,12 +125,20 @@ namespace Transaction {
             }
         }
 
-        setCurrentNodeId(nodeId: string) {
-            this.currentNodeId = nodeId;
+        setCurrentNodeInfo(nodeId: DagNodeId, tabId: string): void {
+            this.currentNodeInfo = { nodeId, tabId };
         }
 
-        setParentNodeId(nodeId: string) {
-            this.parentNodeId = nodeId;
+        resetCurrentNodeInfo(): void {
+            delete this.currentNodeInfo;
+        }
+
+        setParentNodeInfo(nodeId: DagNodeId, tabId: string): void {
+            this.parentNodeInfo = { nodeId, tabId };
+        }
+
+        resetParentNodeInfo(): void {
+            delete this.parentNodeInfo;
         }
 
         setStoredQueryDest(nodeId: string, tabId: string, destTable: string) {
@@ -179,7 +187,7 @@ namespace Transaction {
             "parentTxId": options.parentTxId,
             "udfUserName": options.udfUserName,
             "udfSessionName": options.udfSessionName,
-            "parentNodeId": options.parentNodeId
+            "parentNodeInfo": options.parentNodeInfo
         });
 
         txCache[curId] = txLog;
@@ -239,16 +247,21 @@ namespace Transaction {
         return txCache[txId] || {};
     }
 
+    /**
+     * Transaction.getRootTx
+     * @param txId
+     */
     export function getRootTx(txId): TXLog {
-        let parentTxId = _getParentNodeIds(txId);
+        let parentTxId = _getParentTxId(txId);
 
-        function _getParentNodeIds(txId) {
+        function _getParentTxId(txId) {
             let isValid = isValidTX(txId);
-            if (!isValid) return null;
-
+            if (!isValid) {
+                return null;
+            }
             const txLog = Transaction.get(txId);
             if (txLog.parentTxId != null) {
-                return _getParentNodeIds(txLog.parentTxId);
+                return _getParentTxId(txLog.parentTxId);
             } else {
                 return txId;
             }
@@ -612,15 +625,27 @@ namespace Transaction {
         }
     }
 
-    export function getParentNodeIds(parentNodeIds, txId) {
+    /**
+     * Transaction.getParentNodeInfos
+     * @param txId
+     */
+    export function getParentNodeInfos(txId: number): DagTagInfo[] {
+        let nodeInfos: DagTagInfo[] = [];
         const txLog = Transaction.get(txId);
-        if (!txLog) return;
-        if (txLog.parentNodeId) {
-            parentNodeIds.unshift(txLog.parentNodeId);
+        if (!txLog) {
+            return nodeInfos;
+        }
+
+        if (txLog.parentNodeInfo) {
+            nodeInfos = [txLog.parentNodeInfo];
         }
         if (txLog.parentTxId) {
-            getParentNodeIds(parentNodeIds, txLog.parentTxId);
+            nodeInfos = [
+                ...Transaction.getParentNodeInfos(txLog.parentTxId),
+                ...nodeInfos
+            ];
         }
+        return nodeInfos;
     }
 
     function isValidTX(txId: number): boolean {

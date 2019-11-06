@@ -2439,17 +2439,20 @@ namespace XIApi {
     // 1 dagNode can contain many queries, and 1 query can contain
     // multiple dagNode(id)s from the 1 dag node it belongs to as well as
     // that dagNode's container (ex. node can have a sql node container)
-    function _addDagNodeIdToQueryComment(queryStr, txId) {
+    // the caller is _extension/_publishIMD/_updateIMD in DagNodeExecutor
+    function _addDagNodeIdToQueryComment(
+        queryStr: string,
+        txId: number
+    ): string {
         const txLog = Transaction.get(txId);
-        if (!txLog.currentNodeId) {
+        if (!txLog.currentNodeInfo) {
             return queryStr;
         }
-        let parentNodeIds = [];
-        Transaction.getParentNodeIds(parentNodeIds, txId);
+        let parentNodeInfos = Transaction.getParentNodeInfos(txId);
         try {
-            const query = JSON.parse(queryStr);
-            query.forEach(q => {
-                xcHelper.addNodeIdToQueryComment(q, parentNodeIds, txLog.currentNodeId);
+            let query = JSON.parse(queryStr);
+            query = query.map((q) => {
+                return xcHelper.addNodeLineageToQueryComment(q, parentNodeInfos, txLog.currentNodeInfo);
             });
             queryStr = JSON.stringify(query);
         } catch (e) {

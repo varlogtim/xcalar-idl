@@ -159,7 +159,7 @@ class DagTabManager {
      * 1. The tab doesn't associate with a dataflow
      * 2. The tab doesn't persist in KVStore, as the sub-graph information is persisted by the tab which owns the custom operator
      */
-    public newCustomTab(customNode: DagNodeCustom): void {
+    public newCustomTab(customNode: DagNodeCustom): string {
         const parentTabId = DagViewManager.Instance.getActiveTab().getId();
         // the string to show on the tab
         const validatedName = customNode.getCustomName();
@@ -187,9 +187,10 @@ class DagTabManager {
             // Tab already opened, switch to that one
             this._switchTabs(tabIndex);
         }
+        return tabId;
     }
 
-    public newSQLTab(SQLNode: DagNodeSQL, isSqlPreview?: boolean): void {
+    public newSQLTab(SQLNode: DagNodeSQL, isSqlPreview?: boolean): string {
         if (isSqlPreview) {
             const validatedName = SQLNode.getSQLName();
             const tabId = SQLNode.getId();
@@ -234,6 +235,7 @@ class DagTabManager {
             // Tab already opened, switch to that one
             this._switchTabs(tabIndex);
         }
+        return tabId;
     }
 
     /**
@@ -835,6 +837,7 @@ class DagTabManager {
             const $dataflowAreas = this._getDataflowArea();
             $dataflowAreas.eq(index).removeClass("rendered");
             DagViewManager.Instance.render($dataflowAreas.eq(index), dagTab.getGraph());
+            DFNodeLineagePopup.Instance.update(dagTab.getId());
         })
     }
 
