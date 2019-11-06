@@ -1406,9 +1406,9 @@ class DagView {
         isFocus?: boolean
     ): XDPromise<void> {
         this.dagTab.turnOffSave();
-        commentInfo.display.x = Math.max(0,
+        commentInfo.display.x = Math.max(DagView.gridSpacing,
             Math.round(commentInfo.display.x / DagView.gridSpacing) * DagView.gridSpacing);
-        commentInfo.display.y = Math.max(0,
+        commentInfo.display.y = Math.max(DagView.gridSpacing,
             Math.round(commentInfo.display.y / DagView.gridSpacing) * DagView.gridSpacing);
         const commentNode = this.graph.newComment(commentInfo);
         let isSelect = false;
