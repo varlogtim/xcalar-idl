@@ -277,6 +277,7 @@ namespace CloudLogin {
         clearForm(screenName);
         $("#" + screenName + "Title").show();
         $("#" + screenName + "Form").show();
+        $("#" + screenName + "Form .input").first().focus();
     }
 
     function showInitialScreens(): void {
@@ -775,13 +776,6 @@ namespace CloudLogin {
         submitOnEnterPress($("#forgotPasswordForm"), $("#forgot-password-submit"));
         submitOnEnterPress($("#confirmForgotPasswordForm"), $("#confirm-forgot-password-submit"));
 
-        $(".signup-login").click(function () {
-            $("#signupForm").toggle();
-            $("#loginForm").toggle();
-            $("#loginTitle").toggle();
-            $("#signupTitle").toggle();
-        });
-
         $("#signupForm").find(".input").keyup(function () {
             checkSignUpForm();
         });
@@ -792,6 +786,10 @@ namespace CloudLogin {
 
         $(".link-to-login").click(function () {
             showScreen("login");
+        });
+
+        $(".link-to-signup").click(function () {
+            showScreen("signup");
         });
 
         $(".logOutLink").click(function () {
