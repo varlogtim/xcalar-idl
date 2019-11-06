@@ -1503,7 +1503,12 @@ class DagGraphExecutor {
                     break;
                 }
             }
-            lastNode.comment = JSON.stringify({outputTableName: outputTableName});
+            let oldComment = {outputTableName: ""};
+            try {
+                oldComment = JSON.parse(lastNode.comment);
+            } catch (e) {console.error(e)}
+            oldComment.outputTableName = outputTableName;
+            lastNode.comment = JSON.stringify(oldComment);
             retinaStruct.query = JSON.stringify(operators);
             retinaParameters.retina = JSON.stringify(retinaStruct);
         } catch (e) {
