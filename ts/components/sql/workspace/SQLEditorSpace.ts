@@ -295,10 +295,11 @@ class SQLEditorSpace {
                         executePromiseArray.push(this._dropTable.bind(this,
                                                      tableName, sqlStruct.sql));
                     } else if (sqlStruct.command.type === "createTable") {
-                        if (sqlStructArray.length > 1) {
-                            return PromiseHelper.reject(SQLErrTStr.MultiCreate);
-                        }
-                        selectArray.push(sqlStruct);
+                        return PromiseHelper.reject(SQLErrTStr.NoSupport + sqlStruct.command.type);
+                        // if (sqlStructArray.length > 1) {
+                        //     return PromiseHelper.reject(SQLErrTStr.MultiCreate);
+                        // }
+                        // selectArray.push(sqlStruct);
                     } else if (sqlStruct.command.type === "showTables"
                                || sqlStruct.command.type === "describeTable") {
                         lastShow = sqlStruct.command;
