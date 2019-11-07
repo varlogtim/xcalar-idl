@@ -1,12 +1,7 @@
 class SQLOpPanelModel extends BaseOpPanelModel {
     protected _dagNode: DagNodeSQL;
     private _sqlQueryStr: string;
-    private _newTableName: string;
-    private _columns: SQLColumn[];
-    private _xcQueryString: string;
     private _identifiers: Map<number, string>;
-    private _identifiersNameMap: {};
-    private _tableSrcMap: {};
     private _dropAsYouGo: boolean;
 
     public constructor(dagNode: DagNodeSQL) {
@@ -14,35 +9,27 @@ class SQLOpPanelModel extends BaseOpPanelModel {
         this._dagNode = dagNode;
         const params = this._dagNode.getParam();
         this._initialize(params);
-        this._columns = [];
-        this._identifiers = dagNode.getIdentifiers() || new Map<number, string>();
-        this._identifiersNameMap = dagNode.getIdentifiersNameMap() || {};
-        this._tableSrcMap = dagNode.getTableSrcMap();
-        this._newTableName = dagNode.getNewTableName() || "";
-        this._dropAsYouGo = dagNode.getParam().dropAsYouGo;
     }
 
     private _initialize(params: DagNodeSQLInputStruct): void {
-        this._sqlQueryStr = params.sqlQueryStr;
+        const self = this;
+        self._sqlQueryStr = params.sqlQueryStr;
+        self._identifiers = new Map<number, string>();
+        if (params.identifiersOrder && params.identifiers) {
+            params.identifiersOrder.forEach(function(idx) {
+                self._identifiers.set(idx, params.identifiers[idx]);
+            });
+        }
+        this._dropAsYouGo = params.dropAsYouGo;
     }
 
     public setDataModel(
         sqlQueryStr: string,
-        newTableName: string,
-        columns: SQLColumn[],
-        xcQueryString: string,
         identifiers: Map<number, string>,
-        identifiersNameMap: {},
-        tableSrcMap: {},
         dropAsYouGo: boolean
     ): void {
         this._sqlQueryStr = sqlQueryStr;
-        this._newTableName = newTableName;
-        this._columns = columns;
-        this._xcQueryString = xcQueryString;
         this._identifiers = identifiers;
-        this._identifiersNameMap = identifiersNameMap;
-        this._tableSrcMap = tableSrcMap;
         this._dropAsYouGo = dropAsYouGo;
     }
 
@@ -51,11 +38,7 @@ class SQLOpPanelModel extends BaseOpPanelModel {
      */
     public submit(noAutoExecute?: boolean): void {
         const param = this._getParam();
-        this._dagNode.setXcQueryString(this._xcQueryString);
         this._dagNode.setIdentifiers(this._identifiers);
-        this._dagNode.setIdentifiersNameMap(this._identifiersNameMap);
-        this._dagNode.setTableSrcMap(this._tableSrcMap);
-        this._dagNode.setNewTableName(this._newTableName);
         this._dagNode.setParam(param, noAutoExecute);
     }
 

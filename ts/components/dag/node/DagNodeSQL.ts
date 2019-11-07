@@ -695,12 +695,6 @@ class DagNodeSQL extends DagNode {
      * @param isUpdateSubgraph set to false, when triggered by subGraph event
      */
     public beConfiguredState(isUpdateSubgraph: boolean = true): void {
-        if (this.getState() === DagNodeState.Complete ||
-            this.getState() === DagNodeState.Error) {
-            // When it is a "reset"
-            this.setXcQueryString(null);
-            this.setRawXcQueryString(null);
-        }
         super.beConfiguredState();
         if (isUpdateSubgraph) {
             // Update the state of nodes in subGraph
@@ -1336,6 +1330,7 @@ class DagNodeSQL extends DagNode {
                 self.setNewTableName(replaceRetStruct.newDestTableName);
                 self.setAggregatesCreated(aggregates);
                 self.setXcQueryString(replaceRetStruct.newQueryStr);
+                self.setTableSrcMap(tableSrcMap);
                 const retStruct = {
                     newTableName: replaceRetStruct.newDestTableName,
                     xcQueryString: replaceRetStruct.newQueryStr,

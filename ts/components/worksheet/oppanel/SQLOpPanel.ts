@@ -339,9 +339,9 @@ class SQLOpPanel extends BaseOpPanel {
             identifiers = identifiers || retStruct.identifiers;
             identifiersNameMap = identifiersNameMap || retStruct.identifiersNameMap;
         }
+        self._dagNode.setIdentifiersNameMap(identifiersNameMap);
         if (!sql) {
-            self._dataModel.setDataModel("", "", [], "", identifiers,
-                                         identifiersNameMap, {}, dropAsYouGo);
+            self._dataModel.setDataModel("", identifiers, dropAsYouGo);
             self._dataModel.submit();
             return PromiseHelper.resolve();
         }
@@ -353,21 +353,13 @@ class SQLOpPanel extends BaseOpPanel {
                 dropAsYouGo: dropAsYouGo
             };
             self._dagNode.compileSQL(sql, queryId, options)
-            .then(function(ret) {
-                const newTableName = ret.newTableName;
-                const allCols = ret.allCols;
-                const xcQueryString = ret.xcQueryString;
-                const tableSrcMap = ret.tableSrcMap;
-                self._dataModel.setDataModel(sql, newTableName,
-                                             allCols, xcQueryString,
-                                             identifiers, identifiersNameMap,
-                                             tableSrcMap, dropAsYouGo);
+            .then(function() {
+                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo);
                 self._dataModel.submit();
                 deferred.resolve();
             })
             .fail(function(err) {
-                self._dataModel.setDataModel(sql, "", [], "", identifiers,
-                                             identifiersNameMap, {}, dropAsYouGo);
+                self._dataModel.setDataModel(sql, identifiers, dropAsYouGo);
                 self._dataModel.submit(true);
                 deferred.reject(err);
             })

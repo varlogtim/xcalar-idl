@@ -122,6 +122,7 @@ describe("SQLOpPanel Test", function() {
             let called = false;
             node.compileSQL = () => {
                 called = true;
+                node.setXcQueryString("queryString");
                 return PromiseHelper.resolve({newTableName: "newName", allCols: [], xcQueryString: "queryString", tableSrcMap: new Map()});
             };
             $sqlOpPanel.find(".submit").click();

@@ -10,12 +10,7 @@ describe("SQLOpPanelModel Test", function() {
     it("should setDataModel", function() {
         model.setDataModel(
             "test",
-            "testTable",
-            [],
-            "testQuery",
             new Map(),
-            {},
-            {},
             true
         );
 
@@ -31,6 +26,6 @@ describe("SQLOpPanelModel Test", function() {
 
     it("should sumbit", function() {
         model.submit();
-        expect(node.getXcQueryString()).to.equal("testQuery");
+        expect(node.input.getInput().sqlQueryStr).to.equal("test");
     });
 });

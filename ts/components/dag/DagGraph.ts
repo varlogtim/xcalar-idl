@@ -1014,6 +1014,11 @@ class DagGraph extends Durable {
         nodes.forEach((node) => {
             if (!travsesedSet.has(node)) {
                 if (node instanceof DagNodeSQL) {
+                    if (node.getState() === DagNodeState.Complete ||
+                        node.getState() === DagNodeState.Error) {
+                        node.setXcQueryString(null);
+                        node.setRawXcQueryString(null);
+                    }
                     node.updateSubGraph();
                 }
                 const set: Set<DagNode> = this._traverseSwitchState(node);
@@ -2136,6 +2141,10 @@ class DagGraph extends Durable {
         });
 
         if (node.getState() === DagNodeState.Complete) {
+            if (node instanceof DagNodeSQL) {
+                node.setXcQueryString(null);
+                node.setRawXcQueryString(null);
+            }
             node.beConfiguredState();
         }
         this.removedNodesMap.set(node.getId(), {
