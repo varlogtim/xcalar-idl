@@ -274,6 +274,7 @@ namespace CloudLogin {
 
     function showScreen(screenName: string): void {
         hideCurrentScreen();
+        clearForm(screenName);
         $("#" + screenName + "Title").show();
         $("#" + screenName + "Form").show();
     }
@@ -663,64 +664,68 @@ namespace CloudLogin {
         });
     }
 
-    function clearElements(elementsToTrigger: string[], elementsToHide: string[], elementsToEmpty: string[], clearFunction?: Function): void {
-        elementsToTrigger.forEach((elementToTrigger) => $(elementToTrigger).click(function () {
-            elementsToHide.forEach((element) => $(element).hide());
-            elementsToEmpty.forEach((element) => $(element).val(""));
-            if (typeof clearFunction === 'function') {
-                clearFunction();
-            }
-        }));
+    function clearElements(elementsToHide: string[], elementsToEmpty: string[], clearFunction?: Function): void {
+        elementsToHide.forEach((element) => $(element).hide());
+        elementsToEmpty.forEach((element) => $(element).val(""));
+        if (typeof clearFunction === 'function') {
+            clearFunction();
+        }
     }
 
-    function clearForms() {
-        clearElements(
-            ["#forgotSection a", ".signupSection a"],
-            ["#loginFormMessage"],
-            ["#loginNameBox","#loginPasswordBox"]
-        );
-        clearElements(
-            [".already-have-account"],
-            ["#signupFormMessage"],
-            ["#loginNameBox", "#loginPasswordBox"]
-        );
-        clearElements(
-            ["#forgotSection a", ".signupSection a"],
-            ["#loginFormMessage"],
-            [
-                "#signup-firstName",
-                "#signup-lastName",
-                "#signup-company",
-                "#signup-email",
-                "#signup-confirmEmail",
-                "#signup-password",
-                "#signup-confirmPassword"
-            ],
-            () => {
-                $("#signup-termCheck").prop("checked",false);
-                signupSubmitClicked = false;
-                checkSignUpForm();
-            }
-        );
-        clearElements(
-            [".already-have-account"],
-            ["#forgotPasswordFormMessage"],
-            ["#forgot-password-email"]
-        );
-        clearElements(
-            [".already-have-account"],
-            ["#confirmForgotPasswordFormMessage"],
-            [
-                "#confirm-forgot-password-code",
-                "#confirm-forgot-password-new-password",
-                "#confirm-forgot-password-confirm-new-password"
-            ]
-        );
-        clearElements(
-            [".link-to-login"],
-            ["#clusterFormMessage"],
-            []
-        );
+    function clearForm(screenName: string) {
+        switch (screenName) {
+            case 'login':
+                clearElements(
+                    ["#loginFormMessage"],
+                    ["#loginNameBox","#loginPasswordBox"]
+                );
+                break;
+
+            case 'signup':
+                clearElements(
+                    ["#signupFormMessage"],
+                    [
+                        "#signup-firstName",
+                        "#signup-lastName",
+                        "#signup-company",
+                        "#signup-email",
+                        "#signup-confirmEmail",
+                        "#signup-password",
+                        "#signup-confirmPassword"
+                    ],
+                    () => {
+                        $("#signup-termCheck").prop("checked",false);
+                        signupSubmitClicked = false;
+                        checkSignUpForm();
+                    }
+                );
+                break;
+
+            case 'forgotPassword':
+                clearElements(
+                    ["#forgotPasswordFormMessage"],
+                    ["#forgot-password-email"]
+                );
+                break;
+
+            case 'confirmForgotPassword':
+                clearElements(
+                    ["#confirmForgotPasswordFormMessage"],
+                    [
+                        "#confirm-forgot-password-code",
+                        "#confirm-forgot-password-new-password",
+                        "#confirm-forgot-password-confirm-new-password"
+                    ]
+                );
+                break;
+
+            case 'cluster':
+                clearElements(
+                    ["#clusterFormMessage"],
+                    []
+                );
+                break;
+        }
     }
 
     function cognitoResendConfirmationCode() {
@@ -757,12 +762,12 @@ namespace CloudLogin {
             function () {
                 $(this).find(".input-tooltip").show();
             }
-        )
+        );
         $("#passwordSection").focusout(
             function () {
                 $(this).find(".input-tooltip").hide();
             }
-        )
+        );
 
         submitOnEnterPress($("#signupForm"), $("#signup-submit"));
         submitOnEnterPress($("#loginForm"), $("#loginButton"));
@@ -775,17 +780,15 @@ namespace CloudLogin {
             $("#loginForm").toggle();
             $("#loginTitle").toggle();
             $("#signupTitle").toggle();
-        })
-
-        clearForms();
+        });
 
         $("#signupForm").find(".input").keyup(function () {
             checkSignUpForm();
-        })
+        });
 
         $("#signup-termCheck").change(function () {
             checkSignUpForm();
-        })
+        });
 
         $(".link-to-login").click(function () {
             showScreen("login");
