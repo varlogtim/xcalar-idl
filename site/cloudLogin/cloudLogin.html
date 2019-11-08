@@ -76,70 +76,70 @@
             <i class="icon xi-error"></i>
             <span class="text">Fields missing or incomplete.</span>
           </div>
-          <div id="firstNameSection" class="section">
+          <div class="section firstNameSection">
             <input id="signup-firstName" class="input" required autocomplete="off">
             <div class="label">First Name<i class="icon xi-error"></i></div>
             <div class="input-tooltip">
               First Name cannot be empty
             </div>
           </div>
-          <div id="lastNameSection" class="section">
+          <div class="section lastNameSection">
             <input id="signup-lastName" class="input" required autocomplete="off">
             <div class="label">Last Name<i class="icon xi-error"></i></div>
             <div class="input-tooltip">
               Last Name cannot be empty
             </div>
           </div>
-          <div id="companySection" class="section">
+          <div class="section companySection">
             <input id="signup-company" class="input" required autocomplete="off">
             <div class="label">Company<i class="icon xi-error"></i></div>
             <div class="input-tooltip">
               Company cannot be empty
             </div>
           </div>
-          <div id="emailSection" class="section">
+          <div class="section emailSection">
             <input id="signup-email" class="input" type="email" required autocomplete="off">
             <div class="label">Email address<i class="icon xi-error"></i></div>
             <div class="input-tooltip">
               Email cannot be empty
             </div>
           </div>
-          <div id="confirmEmailSection" class="section">
+          <div class="section confirmEmailSection">
             <input id="signup-confirmEmail" class="input" type="email" required autocomplete="off">
             <div class="label">Confirm email address<i class="icon xi-error"></i></div>
             <div class="input-tooltip">
               Emails must match
             </div>
           </div>
-          <div id="passwordSection" class="section">
+          <div class="section passwordSection">
             <input id="signup-password" class="input" type="password" required autocomplete="off">
             <div class="label">Password<i class="icon xi-error"></i></div>
             <div class="input-tooltip">
               <div class="passwordRequirementsHeader">Password Requirements:</div>
-              <div id="passwordLengthTooltipError" class="tooltipRow errorTooltipRow">
+              <div class="tooltipRow errorTooltipRow passwordLengthTooltipError">
                 <i class="icon xi-cancel"></i>
                 <div class="tootipRowText">MUST contain at least 8 characters</div>
               </div>
-              <div id="passwordUpperTooltipError" class="tooltipRow errorTooltipRow">
+              <div class="tooltipRow errorTooltipRow passwordUpperTooltipError">
                 <i class="icon xi-cancel"></i>
                 <div class="tootipRowText">MUST contain at least one uppercase letter</div>
               </div>
-              <div id="passwordLowerTooltipError" class="tooltipRow errorTooltipRow">
+              <div class="tooltipRow errorTooltipRow passwordLowerTooltipError">
                 <i class="icon xi-cancel"></i>
                 <div class="tootipRowText">MUST contain at least one lowercase letter</div>
               </div>
-              <div id="passwordNumberTooltipError" class="tooltipRow errorTooltipRow">
+              <div class="tooltipRow errorTooltipRow passwordNumberTooltipError">
                 <i class="icon xi-cancel"></i>
                 <div class="tootipRowText">MUST contain at least one number</div>
               </div>
-              <div id="passwordSpecialTooltipError" class="tooltipRow errorTooltipRow">
+              <div class="tooltipRow errorTooltipRow passwordSpecialTooltipError">
                 <i class="icon xi-cancel"></i>
                 <div class="tootipRowText">MUST contain at least one special character: ^ $ * . ? - ! @ # % & , : ; _
                 </div>
               </div>
             </div>
           </div>
-          <div id="confirmPasswordSection" class="section">
+          <div class="section confirmPasswordSection">
             <input id="signup-confirmPassword" class="input" type="password" required autocomplete="off">
             <div class="label">Confirm Password<i class="icon xi-error"></i></div>
             <div class="input-tooltip">
@@ -217,18 +217,48 @@
             <span class="text">Please fill all fields correctly to reset password. New password must contain lowercase,
               uppercase, number, a special character, and must be at least 8 characters long.</span>
           </div>
-          <div class="section">
+          <div class="section verificationCodeSection">
             <input id="confirm-forgot-password-code" class="input" required autocomplete="off">
-            <div class="label">Verification code</div>
+            <div class="label">Verification code<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              Verification code cannot be empty
+            </div>
           </div>
-          <div class="section">
+          <div class="section passwordSection">
             <input id="confirm-forgot-password-new-password" class="input" type="password" required autocomplete="off">
-            <div class="label">New Password</div>
+            <div class="label">New Password<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              <div class="passwordRequirementsHeader">Password Requirements:</div>
+              <div class="tooltipRow errorTooltipRow passwordLengthTooltipError">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least 8 characters</div>
+              </div>
+              <div class="tooltipRow errorTooltipRow passwordUpperTooltipError">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least one uppercase letter</div>
+              </div>
+              <div class="tooltipRow errorTooltipRow passwordLowerTooltipError">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least one lowercase letter</div>
+              </div>
+              <div class="tooltipRow errorTooltipRow passwordNumberTooltipError">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least one number</div>
+              </div>
+              <div class="tooltipRow errorTooltipRow passwordSpecialTooltipError">
+                <i class="icon xi-cancel"></i>
+                <div class="tootipRowText">MUST contain at least one special character: ^ $ * . ? - ! @ # % & , : ; _
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="section">
+          <div class="section confirmPasswordSection">
             <input id="confirm-forgot-password-confirm-new-password" class="input" type="password" required
               autocomplete="off">
-            <div class="label">Confirm New Password</div>
+            <div class="label">Confirm New Password<i class="icon xi-error"></i></div>
+            <div class="input-tooltip">
+              Passwords must match
+            </div>
           </div>
           <div id="confirm-forgot-password-resend-code" class="auth-section resend-code">
             Didn't receive a code? Check your spam folder, or <span>Resend it</span>

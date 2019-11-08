@@ -364,8 +364,9 @@ namespace CloudLogin {
         return password.match(/(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*(\W|_))/)
     }
 
-    let signupSubmitClicked: boolean = false;
     let focusTooltipShown: boolean = false;
+    let signupSubmitClicked: boolean = false;
+    let confirmForgotPasswordClicked: boolean = false;
 
     function hideTooltip($element: JQuery): void {
         if (!focusTooltipShown) {
@@ -412,7 +413,12 @@ namespace CloudLogin {
         }
     }
 
-    function showInputError($element: JQuery, inputIsCorrect: boolean, showSuccessIcon: boolean): void {
+    function showInputError(
+        $element: JQuery,
+        inputIsCorrect: boolean,
+        showSuccessIcon: boolean,
+        submitClicked: boolean
+    ): void {
         const $icon = $element.find('.icon').not(".input-tooltip .icon");
 
         $element.unbind('mouseenter mouseleave');
@@ -428,7 +434,7 @@ namespace CloudLogin {
                 $icon.hide();
             }
         } else {
-            if (signupSubmitClicked) {
+            if (submitClicked) {
                 showTooltipOnFocus($element, true);
                 $element.hover(() => showTooltip($element), () => hideTooltip($element));
                 $icon.removeClass('xi-success');
@@ -440,44 +446,49 @@ namespace CloudLogin {
         }
     }
 
-    function showPasswordErrorRows(password: string): void {
+    function showPasswordErrorRows(password: string, passwordSection: string): void {
         const lowerCaseLetters: RegExp = /[a-z]/g;
         if (password.match(lowerCaseLetters)) {
-            $("#passwordLowerTooltipError").removeClass("errorTooltipRow");
+            $(passwordSection + " .passwordLowerTooltipError").removeClass("errorTooltipRow");
         } else {
-            $("#passwordLowerTooltipError").addClass("errorTooltipRow");
+            $(passwordSection + " .passwordLowerTooltipError").addClass("errorTooltipRow");
         }
 
         // Validate capital letters
         const upperCaseLetters: RegExp = /[A-Z]/g;
         if (password.match(upperCaseLetters)) {
-            $("#passwordUpperTooltipError").removeClass("errorTooltipRow");
+            $(passwordSection + " .passwordUpperTooltipError").removeClass("errorTooltipRow");
         } else {
-            $("#passwordUpperTooltipError").addClass("errorTooltipRow");
+            $(passwordSection + " .passwordUpperTooltipError").addClass("errorTooltipRow");
         }
 
         // Validate numbers
         const numbers: RegExp = /[0-9]/g;
         if (password.match(numbers)) {
-            $("#passwordNumberTooltipError").removeClass("errorTooltipRow");
+            $(passwordSection + " .passwordNumberTooltipError").removeClass("errorTooltipRow");
         } else {
-            $("#passwordNumberTooltipError").addClass("errorTooltipRow");
+            $(passwordSection + " .passwordNumberTooltipError").addClass("errorTooltipRow");
         }
 
         // Validate length
         if (password.length >= 8) {
-            $("#passwordLengthTooltipError").removeClass("errorTooltipRow");
+            $(passwordSection + " .passwordLengthTooltipError").removeClass("errorTooltipRow");
         } else {
-            $("#passwordLengthTooltipError").addClass("errorTooltipRow");
+            $(passwordSection + " .passwordLengthTooltipError").addClass("errorTooltipRow");
         }
 
         // Validate special characters
         const specialCharacters: RegExp = /(\W|_)/g;
         if (password.match(specialCharacters)) {
-            $("#passwordSpecialTooltipError").removeClass("errorTooltipRow");
+            $(passwordSection + " .passwordSpecialTooltipError").removeClass("errorTooltipRow");
         } else {
-            $("#passwordSpecialTooltipError").addClass("errorTooltipRow");
+            $(passwordSection + " .passwordSpecialTooltipError").addClass("errorTooltipRow");
         }
+
+        $(".tooltipRow i").removeClass("xi-cancel");
+        $(".tooltipRow i").addClass("xi-success");
+        $(".errorTooltipRow i").removeClass("xi-success");
+        $(".errorTooltipRow i").addClass("xi-cancel");
     }
 
     function checkSignUpForm(): boolean {
@@ -492,29 +503,23 @@ namespace CloudLogin {
         const passwordsMatch: boolean = password1 === password2;
         const checkedEULA: boolean = $("#signup-termCheck").prop('checked');
 
-        showInputError($("#firstNameSection"), !firstNameEmpty, false);
-        showInputError($("#lastNameSection"), !lastNameEmpty, false);
-        showInputError($("#companySection"), !companyEmpty, false);
-        showInputError($("#emailSection"), validateEmail(email1), true);
-        showInputError($("#confirmEmailSection"), emailsMatch && validateEmail(email1), true);
-        showInputError($("#passwordSection"), validatePassword(password1), true);
-        showInputError($("#confirmPasswordSection"), passwordsMatch && validatePassword(password1), true);
-        showInputError($(".submitSection"), checkedEULA, false);
+        showInputError($("#signupForm .firstNameSection"), !firstNameEmpty, false, signupSubmitClicked);
+        showInputError($("#signupForm .lastNameSection"), !lastNameEmpty, false, signupSubmitClicked);
+        showInputError($("#signupForm .companySection"), !companyEmpty, false, signupSubmitClicked);
+        showInputError($("#signupForm .emailSection"), validateEmail(email1), true, signupSubmitClicked);
+        showInputError($("#signupForm .confirmEmailSection"), emailsMatch && validateEmail(email1), true, signupSubmitClicked);
+        showInputError($("#signupForm .passwordSection"), validatePassword(password1), true, signupSubmitClicked);
+        showInputError($("#signupForm .confirmPasswordSection"), passwordsMatch && validatePassword(password1), true, signupSubmitClicked);
+        showInputError($("#signupForm .submitSection"), checkedEULA, false, signupSubmitClicked);
 
-        showPasswordErrorRows(password1);
-
-        showTooltipOnFocus($("#passwordSection"), !validatePassword(password1));
+        showPasswordErrorRows(password1, "#signupForm .passwordSection");
+        showTooltipOnFocus($("#signupForm .passwordSection"), !validatePassword(password1));
 
         if (email1 === "") {
-            $('#emailSection .input-tooltip').text('Email cannot be empty');
+            $('#signupForm .emailSection .input-tooltip').text('Email cannot be empty');
         } else {
-            $('#emailSection .input-tooltip').text('Email must be in a valid format');
+            $('#signupForm .emailSection .input-tooltip').text('Email must be in a valid format');
         }
-
-        $(".tooltipRow i").removeClass("xi-cancel");
-        $(".tooltipRow i").addClass("xi-success");
-        $(".errorTooltipRow i").removeClass("xi-success");
-        $(".errorTooltipRow i").addClass("xi-cancel");
 
         const inputIsCorrect: boolean = !firstNameEmpty &&
             !lastNameEmpty &&
@@ -534,6 +539,54 @@ namespace CloudLogin {
                 } else {
                     showFormError($("#signupFormMessage"), "Fields missing or incomplete.");
                 }
+            }
+            return false;
+        }
+    }
+
+    function checkConfirmForgotPasswordForm(): boolean {
+        const verificationCodeEmpty: boolean = $("#confirm-forgot-password-code").val() === "";
+        const newPassword1: string = $("#confirm-forgot-password-new-password").val();
+        const newPassword2: string = $("#confirm-forgot-password-confirm-new-password").val();
+        const newPasswordsMatch: boolean = newPassword1 === newPassword2;
+
+        showInputError(
+            $("#confirmForgotPasswordForm .verificationCodeSection"),
+            !verificationCodeEmpty,
+            false,
+            confirmForgotPasswordClicked
+        );
+        showInputError(
+            $("#confirmForgotPasswordForm .passwordSection"),
+            validatePassword(newPassword1),
+            true,
+            confirmForgotPasswordClicked
+        );
+        showInputError(
+            $("#confirmForgotPasswordForm .confirmPasswordSection"),
+            newPasswordsMatch && validatePassword(newPassword2),
+            true,
+            confirmForgotPasswordClicked
+        );
+
+        showPasswordErrorRows(newPassword1, "#confirmForgotPasswordForm .passwordSection");
+        showTooltipOnFocus($("#confirmForgotPasswordForm .passwordSection"), !validatePassword(newPassword1));
+
+        const inputIsCorrect: boolean = !verificationCodeEmpty &&
+            validatePassword(newPassword1) &&
+            newPasswordsMatch;
+
+        if (inputIsCorrect) {
+            if ($("#confirmForgotPasswordFormMessage").find('.xi-error').length) {
+                $("#confirmForgotPasswordFormMessage").hide();
+            }
+            return true;
+        } else {
+            if (confirmForgotPasswordClicked) {
+                showFormError(
+                    $("#confirmForgotPasswordFormMessage"),
+                    "Fields missing or incomplete."
+                );
             }
             return false;
         }
@@ -593,23 +646,6 @@ namespace CloudLogin {
         } else {
             $("#clusterFormMessage").hide();
             return true;
-        }
-    }
-
-    function checkConfirmForgotPasswordForm(): boolean {
-        const verificationCode: string = $("#confirm-forgot-password-code").val();
-        const newPassword1: string = $("#confirm-forgot-password-new-password").val();
-        const newPassword2: string = $("#confirm-forgot-password-confirm-new-password").val();
-        if (verificationCode && newPassword1 && validatePassword(newPassword1) && newPassword1 === newPassword2) {
-            $("#confirmForgotPasswordFormMessage").hide();
-            return true;
-        } else {
-            showFormError(
-                $("#confirmForgotPasswordFormMessage"),
-                "Please fill all fields correctly to reset password. New password must contain lowercase, " +
-                "uppercase, number, a special character, and must be at least 8 characters long. "
-            );
-            return false;
         }
     }
 
@@ -718,7 +754,11 @@ namespace CloudLogin {
                         "#confirm-forgot-password-code",
                         "#confirm-forgot-password-new-password",
                         "#confirm-forgot-password-confirm-new-password"
-                    ]
+                    ],
+                    () => {
+                        confirmForgotPasswordClicked = false;
+                        checkConfirmForgotPasswordForm();
+                    }
                 );
                 break;
 
@@ -761,22 +801,15 @@ namespace CloudLogin {
     }
 
     function handleEvents(): void {
-        $("#passwordSection").focusin(
-            function () {
-                $(this).find(".input-tooltip").show();
-            }
-        );
-        $("#passwordSection").focusout(
-            function () {
-                $(this).find(".input-tooltip").hide();
-            }
-        );
-
         submitOnEnterPress($("#signupForm"), $("#signup-submit"));
         submitOnEnterPress($("#loginForm"), $("#loginButton"));
         submitOnEnterPress($("#verifyForm"), $("#verify-submit"));
         submitOnEnterPress($("#forgotPasswordForm"), $("#forgot-password-submit"));
         submitOnEnterPress($("#confirmForgotPasswordForm"), $("#confirm-forgot-password-submit"));
+
+        $("#confirmForgotPasswordForm").find(".input").keyup(function () {
+            checkConfirmForgotPasswordForm();
+        })
 
         $("#signupForm").find(".input").keyup(function () {
             checkSignUpForm();
@@ -975,6 +1008,9 @@ namespace CloudLogin {
                         showFormError($("#confirmForgotPasswordFormMessage"), err.message);
                     }
                 });
+            } else {
+                confirmForgotPasswordClicked = true;
+                checkConfirmForgotPasswordForm();
             }
         });
     }
