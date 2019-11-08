@@ -424,6 +424,20 @@ class DagViewManager {
         dagView.updateDFProgress(queryStateOutput, nodeIds);
     }
 
+    public updateDatasetProgress(tabId: string, nodeId: DagNodeId, stats: {
+        elapsedTime: number,
+        progress: number,
+        dsName: string,
+        finished?: boolean
+    }) {
+        const dagView: DagView = this.dagViewMap.get(tabId);
+        if (!dagView) {
+            return;
+        }
+
+        dagView.updateDatasetProgress(stats, nodeId);
+    }
+
     public renderSQLPreviewDag(dagTab: DagTab): void {
         this.toggleSqlPreview(true);
         this.activeDagTab = dagTab;

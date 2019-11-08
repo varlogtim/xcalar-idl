@@ -2960,6 +2960,45 @@ class DagView {
 
     }
 
+    // for dataset activation
+    public updateDatasetProgress(
+        stats: {elapsedTime: number, progress: number, dsName: string, finished?: boolean},
+        nodeId: DagNodeId): void {
+
+        let node: DagNode = this.graph.getNode(nodeId);
+        if (!node) return;
+        if (stats.finished || node.getState() !== DagNodeState.Running) {
+            this.$dfArea.find('.datasetActivateTip[data-id="' + nodeId + '"]').remove();
+            return;
+        }
+        let nodeY = node.getPosition().y;
+        let nodeX = node.getPosition().x + 5;
+        const scale = this.graph.getScale();
+        const rowHeight = 10;
+        const tooltipPadding = 5;
+        const tooltipMargin = 5;
+        const y = Math.max(1, (scale * nodeY) - (rowHeight * 2 + tooltipPadding + tooltipMargin));
+        const left = scale * nodeX;
+        this.$dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
+        let html = `<div data-id="${nodeId}" class="runStats dagTableTip datasetActivateTip"
+                style="left:${left}px;top:${y}px;">
+                <table>
+                 <thead>
+                    <th colspan="2">Activating Dataset</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="dsName">${stats.dsName}</div>
+                        </td>
+                        <td>${Math.floor(stats.progress)}%</td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>`;
+        this.$dfArea.append(html);
+    }
+
     public focus(): void {
         this._isFocused = true;
         this.schemaPopups.forEach(schemaPopup => {

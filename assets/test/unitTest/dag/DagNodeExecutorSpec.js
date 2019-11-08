@@ -1409,7 +1409,7 @@ describe("DagNodeExecutor Test", () => {
         let called = false;
 
         XIApi.filter = (txId, fltStr, tableName, newTableName) => {
-            expect(txId).to.equal(symTxIdCount + 2.5);
+            expect(txId).to.equal(symTxIdCount + 3.5);
             expect(fltStr).to.equal("eq(1, 1)");
             expect(newTableName).not.to.be.empty;
             expect(newTableName).to.be.a("string");
@@ -1420,7 +1420,7 @@ describe("DagNodeExecutor Test", () => {
         const oldMap = XIApi.map;
         let called2 = false;
         XIApi.map = (txId, mapStr, tableName) => {
-            expect(txId).to.equal(symTxIdCount + 1.5);
+            expect(txId).to.equal(symTxIdCount + 2.5);
             expect(mapStr).to.deep.equal(["add(1, 2)"]);
             expect(tableName).to.equal("testTable");
             called2 = true;
@@ -1581,7 +1581,7 @@ describe("DagNodeExecutor Test", () => {
         let called = false;
 
         XIApi.filter = (txId, fltStr, tableName, newTableName) => {
-            expect(txId).to.equal(symTxIdCount + 5.5);
+            expect(txId).to.equal(symTxIdCount + 6.5);
             expect(fltStr).to.equal("eq(1, 1)");
             expect(newTableName).not.to.be.empty;
             expect(newTableName).to.be.a("string");
@@ -1592,7 +1592,7 @@ describe("DagNodeExecutor Test", () => {
         const oldMap = XIApi.map;
         let called2 = false;
         XIApi.map = (txId, mapStr, tableName) => {
-            expect(txId).to.equal(symTxIdCount + 4.5);
+            expect(txId).to.equal(symTxIdCount + 5.5);
             expect(mapStr).to.deep.equal(["add(1, 2)"]);
             expect(tableName).to.equal("testTable");
             called2 = true;

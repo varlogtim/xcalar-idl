@@ -869,9 +869,10 @@ namespace DS {
      * DS.activate
      * @param dsIds
      * @param noAlert
+     * @param txId optional, ex. used for tracking progress in dataflow execution
      */
-    export function activate(dsIds: string[], noAlert: boolean): XDPromise<void> {
-        return activateDS(dsIds, noAlert);
+    export function activate(dsIds: string[], noAlert: boolean, txId?: number): XDPromise<void> {
+        return activateDS(dsIds, noAlert, txId);
     }
 
     /**
@@ -3342,13 +3343,13 @@ namespace DS {
         });
     }
 
-    function activateDS(dsIds: string[], noAlert: boolean): XDPromise<void> {
+    function activateDS(dsIds: string[], noAlert: boolean, txId?: number): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let failures: string[] = [];
         let datasets: string[] = [];
         let dirId: string = curDirId;
         let promises = dsIds.map((dsId) => {
-            return activateOneDSHelper(dsId, failures, datasets, noAlert);
+            return activateOneDSHelper(dsId, failures, datasets, noAlert, txId);
         });
 
         PromiseHelper.when(...promises)
@@ -3379,19 +3380,21 @@ namespace DS {
         dsId: string,
         failures: string[],
         datasets: string[],
-        noAlert: boolean
+        noAlert: boolean,
+        txId?: number
     ): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let dsObj = DS.getDSObj(dsId);
         if (dsObj == null || dsObj.beFolder()) {
             return PromiseHelper.resolve();
         }
-        // when noAlert is true, it's from DagNodeExecutor, no need to track
-        let txId = noAlert ? null : Transaction.start({
-            "operation": SQLOps.DSImport,
-            "track": true,
-            "steps": 1
-        });
+        if (txId == null) {
+            txId = noAlert ? null : Transaction.start({
+                "operation": SQLOps.DSImport,
+                "track": true,
+                "steps": 1
+            });
+        }
         let $grid = DS.getGrid(dsObj.getId());
         if (!noAlert) {
             $grid.data("txid", txId);

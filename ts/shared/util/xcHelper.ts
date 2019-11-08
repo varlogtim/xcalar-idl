@@ -325,8 +325,11 @@ namespace xcHelper {
     /**
      * xcHelper.parseDSName
      * @param fulldsName
+     * given ".XcalarDS.admin.69410.flights" or "admin.69410.flights"
+     * splits into user, randId, and dsName
      */
     export function parseDSName(fulldsName: string): DSNameInfo {
+        fulldsName = xcHelper.stripPrefixFromDSName(fulldsName);
         const nameSplits: string[] = fulldsName.split(".");
         let user: string;
         let randId: string | void;

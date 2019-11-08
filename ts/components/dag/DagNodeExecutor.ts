@@ -277,10 +277,24 @@ class DagNodeExecutor {
     }
 
     private _activateDataset(dsName): XDPromise<void> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+
+        const txId = Transaction.start({
+            operation: "activate dataset",
+            track: true,
+            tabId: this.tabId,
+            parentTxId: this.txId,
+            parentNodeId: this.node.getId()
+        });
         if (typeof DS !== "undefined") {
-            return DS.activate([dsName], true);
+            return DS.activate([dsName], false, txId);
         } else {
-            return XcalarDatasetActivate(dsName);
+            XcalarDatasetActivate(dsName, txId)
+            .always((res) => {
+                deferred.resolve(res);
+                Transaction.done(txId);
+            });
+            return deferred.promise();
         }
     }
 
@@ -981,16 +995,22 @@ class DagNodeExecutor {
 
         let promise;
         let noQueryNeeded = false;
+        let txLog;
         if (priorDestTable) {
             console.log("reusing cache", linkOutNode);
             noQueryNeeded = true;
             promise = PromiseHelper.resolve({queryStr: "", destTables:[priorDestTable]});
         } else {
+            txLog = Transaction.get(this.txId);
+            txLog.setParentNodeId(this.node.getId()); // used to track dataset activation
             promise = graph.getQuery(linkOutNode.getId(), optimized, true, true, false, this.txId);
         }
         let destTable: string;
         promise
         .then((ret) => {
+            if (txLog) {
+                txLog.setParentNodeId(null);
+            }
             let {queryStr, destTables} = ret;
             if ("object" == typeof destTables) {
                 // get the last dest table
@@ -1050,7 +1070,12 @@ class DagNodeExecutor {
             } // else will be completed when queryStateOutput returns
             deferred.resolve(finaTable);
         })
-        .fail(deferred.reject);
+        .fail((e) => {
+            if (txLog) {
+                txLog.setParentNodeId(null);
+            }
+            deferred.reject(e);
+        });
 
         return deferred.promise();
     }

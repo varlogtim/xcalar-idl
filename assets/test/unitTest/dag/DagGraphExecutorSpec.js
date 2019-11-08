@@ -113,7 +113,7 @@ describe("Dag Graph Executor Test", () => {
             let res = executor.checkCanExecuteAll();
 
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Cannot read property 'split' of null");
+            expect(res.type).to.equal("Cannot read property 'indexOf' of null");
             expect(res.node).to.equal(datasetNode);
         });
         it("checkCanExecuteAll - should fail due to optimized dataset with no children", () => {

@@ -25,6 +25,7 @@ namespace Transaction {
         udfUserName?: string;
         udfSessionName?: string;
         queryMeta?: string;
+        parentNodeId?: string
     }
 
     export interface TransactionDoneOptions {
@@ -64,6 +65,7 @@ namespace Transaction {
         parentTxId?: number;
         udfUserName?: string;
         udfSessionName?: string;
+        parentNodeId?: string;
     }
 
     // tx is short for transaction
@@ -96,6 +98,7 @@ namespace Transaction {
             this.udfUserName = options.udfUserName;
             this.udfSessionName = options.udfSessionName;
             this.cachedTables = new Map();
+            this.parentNodeId = options.parentNodeId;
         }
 
 
@@ -175,7 +178,8 @@ namespace Transaction {
             "tabId": options.tabId,
             "parentTxId": options.parentTxId,
             "udfUserName": options.udfUserName,
-            "udfSessionName": options.udfSessionName
+            "udfSessionName": options.udfSessionName,
+            "parentNodeId": options.parentNodeId
         });
 
         txCache[curId] = txLog;
@@ -190,12 +194,13 @@ namespace Transaction {
             if (options.sql && options.sql.retName) {
                 operation += " " + options.sql.retName;
             }
-            const queryOptions = {
+            const queryOptions: QueryManager.AddQueryOptions = {
                 numSteps: numSubQueries,
                 cancelable: options.cancelable,
                 exportName: options.exportName,
                 srcTables: getSrcTables(options.sql),
-                queryMeta: options.queryMeta
+                queryMeta: options.queryMeta,
+                dataflowId: options.tabId
             };
 
             QueryManager.addQuery(curId, operation, queryOptions);
@@ -260,7 +265,7 @@ namespace Transaction {
      * @param txId
      * @param options
      */
-    export function done(txId: number, options: TransactionDoneOptions): string | null {
+    export function done(txId: number, options?: TransactionDoneOptions): string | null {
         if (!isValidTX(txId)) {
             return;
         }

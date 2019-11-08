@@ -23,8 +23,10 @@ namespace QueryManager {
     export interface AddQueryOptions {
         numSteps?: number,
         cancelable?: boolean,
+        exportName?: string,
         srcTables?: string[],
-        queryMeta?: string
+        queryMeta?: string,
+        dataflowId?: string // used for dataset activation
     }
 
     export interface AddSubQueryOptions {
@@ -97,6 +99,7 @@ namespace QueryManager {
             "time": time,
             "type": "xcFunction",
             "id": id,
+            "dataflowId": options.dataflowId,
             "numSteps": numSteps,
             "cancelable": options.cancelable,
             "srcTables": options.srcTables,
@@ -1740,6 +1743,7 @@ namespace QueryManager {
 
         let newClass: string = null;
         progress = Math.min(Math.max(parseFloat(progress + ""), 0), 100);
+        let progressNum = progress;
         if (progress >= 100 && ((numSteps > 0 && currStep >= numSteps) ||
             (mainQuery.state === QueryStatus.Done))) {
             progress = "100%";
@@ -1777,6 +1781,12 @@ namespace QueryManager {
                     $extraProgressBar.stop().width(0);
                 }
             }
+        }
+
+        if (mainQuery.name === "activate dataset" && mainQuery.subQueries[0]) {
+            let finished = newClass != null;
+            let dsName = xcHelper.parseDSName(mainQuery.subQueries[0].dstTable).dsName;
+            updateDatasetActivationProgress(id, progressNum, dsName, finished);
         }
 
         // .stop() stops any previous animation;
@@ -2330,6 +2340,27 @@ namespace QueryManager {
             "total": CommonTxtTstr.NA,
         }, null, QueryStatus.RM);
         updateOutputSection(null, true);
+    }
+
+    function updateDatasetActivationProgress(txId: number, progress: number, dsName: string, finished: boolean) {
+        traverse(txId);
+        function traverse(txId) {
+            let tx = Transaction.get(txId);
+            if (!tx) {
+                return;
+            }
+            if (tx.tabId && tx.parentNodeId) {
+                DagViewManager.Instance.updateDatasetProgress(tx.tabId, tx.parentNodeId, {
+                    progress: progress,
+                    dsName: dsName,
+                    elapsedTime: 0,
+                    finished: finished || (progress === 100)
+                });
+            }
+            if (tx.parentTxId != null) {
+                traverse(tx.parentTxId);
+            }
+        }
     }
 
     export let __testOnly__: any = {};
