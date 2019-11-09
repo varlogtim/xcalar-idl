@@ -1739,9 +1739,9 @@ class DagGraph extends Durable {
      *
      * @param nodeInfos queryState info
     */
-    public updateProgress(nodeInfos: any[]) {
+    public updateProgress(queryStateOutput: XcalarApiDagNodeT[]) {
         if (this.currentExecutor != null) {
-            this.currentExecutor.updateProgress(nodeInfos);
+            this.currentExecutor.updateProgress(queryStateOutput);
         }
     }
 

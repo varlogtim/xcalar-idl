@@ -2393,7 +2393,7 @@ namespace XIApi {
 
             const deferred: XDDeferred<any> = PromiseHelper.deferred();
             const txLog = Transaction.get(txId);
-            _addDagNodeIdToQueryComment(queryStr, txId);
+            queryStr = _addDagNodeIdToQueryComment(queryStr, txId);
 
             options = $.extend({
                 bailOnError: true,
@@ -2441,7 +2441,7 @@ namespace XIApi {
     function _addDagNodeIdToQueryComment(queryStr, txId) {
         const txLog = Transaction.get(txId);
         if (!txLog.currentNodeId) {
-            return;
+            return queryStr;
         }
         let parentNodeIds = [];
         Transaction.getParentNodeIds(parentNodeIds, txId);
@@ -2455,6 +2455,7 @@ namespace XIApi {
             // ok to fail, we just don't tag the nodes
             console.error(e);
         }
+        return queryStr;
     }
 
     /**
