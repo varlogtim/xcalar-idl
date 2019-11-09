@@ -935,7 +935,7 @@ abstract class DagNode extends Durable {
             }
         } else if (isComplete && includesAllTables && this.state !== DagNodeState.Complete) {
             this.beCompleteState();
-            if (this instanceof DagNodeSQL) {
+            if (this instanceof DagNodeSQL && !this.isFromSQLMode()) {
                 this.setSQLQuery({
                     endTime: new Date(),
                     status: SQLStatus.Done,

@@ -298,11 +298,10 @@ class SQLEditorSpace {
                         executePromiseArray.push(this._dropTable.bind(this,
                                                      tableName, sqlStruct.sql));
                     } else if (sqlStruct.command.type === "createTable") {
-                        return PromiseHelper.reject(SQLErrTStr.NoSupport + sqlStruct.command.type);
-                        // if (sqlStructArray.length > 1) {
-                        //     return PromiseHelper.reject(SQLErrTStr.MultiCreate);
-                        // }
-                        // selectArray.push(sqlStruct);
+                        if (sqlStructArray.length > 1) {
+                            return PromiseHelper.reject(SQLErrTStr.MultiCreate);
+                        }
+                        selectArray.push(sqlStruct);
                     } else if (sqlStruct.command.type === "showTables"
                                || sqlStruct.command.type === "describeTable") {
                         lastShow = sqlStruct.command;
@@ -351,10 +350,11 @@ class SQLEditorSpace {
                 return PromiseHelper.when.apply(this, compilePromiseArray);
             })
             .then(() => {
-                PromiseHelper.chain(executePromiseArray)
-                .then(() => {
-                    SQLResultSpace.Instance.refreshTables();
-                });
+                return PromiseHelper.chain(executePromiseArray)
+            })
+            .then((ret) => {
+                console.log(ret);
+                SQLResultSpace.Instance.refreshTables();
             })
             .fail((e) => {
                 this._throwError(e);
@@ -389,7 +389,14 @@ class SQLEditorSpace {
                 this._removeExecutor(curExecutor);
             };
             curExecutor.compile(callback)
-            .always(deferred.resolve);
+            .then(deferred.resolve)
+            .fail((err) => {
+                if (curExecutor.getPublishName()) {
+                    deferred.reject(err);
+                } else {
+                    deferred.resolve(err);
+                }
+            });
             return deferred.promise();
         } catch (e) {
             this._throwError(e);
@@ -404,8 +411,10 @@ class SQLEditorSpace {
             if (i === statementCount - 1) {
                 callback = (tableName, succeed, options) => {
                     this._removeExecutor(curExecutor);
-                    if (succeed) {
+                    if (succeed && options.show === "resultTable") {
                         this._showTable(tableName, options);
+                    } else if (succeed && options.show === "tableList") {
+                        SQLResultSpace.Instance.showTables(true);
                     }
                 };
             } else {
@@ -414,7 +423,14 @@ class SQLEditorSpace {
                 };
             }
             curExecutor.execute(callback)
-            .always(deferred.resolve);
+            .then(deferred.resolve)
+            .fail((err) => {
+                if (curExecutor.getPublishName()) {
+                    deferred.reject(err);
+                } else {
+                    deferred.resolve(err);
+                }
+            });
             return deferred.promise();
         } catch (e) {
             this._throwError(e);

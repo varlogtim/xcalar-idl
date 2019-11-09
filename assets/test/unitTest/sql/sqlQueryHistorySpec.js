@@ -114,7 +114,8 @@ describe("SqlQueryHistory Test", function() {
                     dataflowId: 'dfId',
                     rows: 'rows',
                     skew: 5,
-                    columns: 'columns'
+                    columns: 'columns',
+                    statementType: 'Select'
                 }),
                 expect: () => ({
                     queryId: 'newQueryId',
@@ -127,7 +128,8 @@ describe("SqlQueryHistory Test", function() {
                     dataflowId: 'dfId',
                     rows: 'rows',
                     skew: 5,
-                    columns: 'columns'
+                    columns: 'columns',
+                    statementType: 'Select'
                 })
             }
         ];

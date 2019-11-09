@@ -907,7 +907,7 @@ class DagGraphExecutor {
             if (node != null) {
                 // DO THE ACTUAL PROGRESS UPDATE HERE
                 node.updateProgress(queryNodesMap, this._currentNode == null, this._currentNode == null);
-                if (node instanceof DagNodeSQL) {
+                if (node instanceof DagNodeSQL && !node.isFromSQLMode()) {
                     node.updateSQLQueryHistory(true);
                 }
 

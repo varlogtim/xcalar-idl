@@ -55,12 +55,6 @@ class SQLDagExecutor {
 
         const tables: string[] = sqlStruct.identifiers || [];
         const tableMap = PTblManager.Instance.getTableMap();
-        if (sqlStruct.command.type === "createTable") {
-            this._publishName = sqlStruct.command.args[0].trim().toUpperCase();
-            if (!xcHelper.checkNamePattern(PatternCategory.PTbl, PatternAction.Check, this._publishName)) {
-                throw ErrTStr.InvalidPublishedTableName + ": " + this._publishName;
-            }
-        }
         tables.forEach((identifier, idx) => {
             let pubTableName = identifier.toUpperCase();
             // pub table name can't have backticks. If see backticks, it must be for escaping in SQL
@@ -90,6 +84,13 @@ class SQLDagExecutor {
         this._sqlNode = <DagNodeSQL>DagNodeFactory.create({
             type: DagNodeType.SQL
         });
+        if (sqlStruct.command.type === "createTable") {
+            this._publishName = sqlStruct.command.args[0].trim().toUpperCase();
+            if (!xcHelper.checkNamePattern(PatternCategory.PTbl, PatternAction.Check, this._publishName)) {
+                throw ErrTStr.InvalidPublishedTableName + ": " + this._publishName;
+            }
+            this._sqlNode.setSQLQuery({statementType: SQLStatementType.Create});
+        }
         this._sqlNode.subscribeHistoryUpdate();
         this._createDataflow(tabName);
     }
@@ -164,15 +165,23 @@ class SQLDagExecutor {
         let finish = () => {
             SQLDagExecutor.deleteTab(tabId);
             if (this._status === SQLStatus.Done) {
-                this._updateStatus(SQLStatus.Done);
+                this._updateStatus(SQLStatus.Done, undefined, new Date());
             } else if (this._status === SQLStatus.Cancelled) {
-                this._updateStatus(SQLStatus.Cancelled);
+                this._updateStatus(SQLStatus.Cancelled, undefined, new Date());
             } else {
                 this._status = SQLStatus.Failed;
-                this._updateStatus(SQLStatus.Failed);
+                this._updateStatus(SQLStatus.Failed, undefined, new Date());
             }
             if (typeof callback === "function") {
-                callback(finalTableName, succeed, {columns: columns});
+                const options = {columns: columns, show: "resultTable"};
+                if (this._publishName) {
+                    options.show = "tableList";
+                }
+                callback(finalTableName, succeed, options);
+            }
+            if (this._publishName) {
+                TblManager.deleteTables([xcHelper.getTableId(this._sqlNode.getNewTableName())],
+                                        TableType.Active, true, false);
             }
         };
 
@@ -185,6 +194,7 @@ class SQLDagExecutor {
 
         this._status = SQLStatus.Running;
         SQLResultSpace.Instance.showProgressDataflow(true);
+        this._sqlNode.setFromSQLMode();
 
         this._restoreTables()
         .then(() => {
@@ -193,26 +203,50 @@ class SQLDagExecutor {
         .then(() => {
             finalTableName = this._sqlNode.getTable();
             columns = this._sqlNode.getColumns();
-            this._status = SQLStatus.Done;
-            return this._inspectSQLNodeAndAddToList();
+            if (this._publishName) {
+                return PromiseHelper.resolve();
+            } else {
+                return this._inspectSQLNodeAndAddToList();
+            }
         })
         .then(() => {
             DagTabManager.Instance.removeSQLTabCache(this._tempTab);
             DagViewManager.Instance.cleanupClosedTab(this._tempTab.getGraph());
-
             succeed = true;
+            if (this._publishName) {
+                const newTableName: string = this._sqlNode.getNewTableName();
+                let tableCols: ProgCol[] = [];
+                columns.forEach((col) => {
+                    tableCols.push(ColManager.newPullCol(col.name,
+                                         col.backName, col.type));
+                });
+                return PTblManager.Instance.createTableFromView([], tableCols, newTableName, this._publishName);
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(() => {
+            this._status = SQLStatus.Done;
             finish();
             deferred.resolve();
         })
         .fail((err) => {
+            const sqlQuery = this._sqlNode.getSQLQuery();
+            sqlQuery.errorMsg = sqlQuery.errorMsg || err;
+            this._sqlNode.setSQLQuery(sqlQuery);
             if (!this._sqlTabCached) {
                 DagTabManager.Instance.addSQLTabCache(this._tempTab);
             }
-            this._inspectSQLNodeAndAddToList()
-            .always(() => {
+            if (this._publishName) {
                 finish();
                 deferred.reject(err);
-            });
+            } else {
+                this._inspectSQLNodeAndAddToList()
+                .always(() => {
+                    finish();
+                    deferred.reject(err);
+                });
+            }
         });
 
         return deferred.promise();
@@ -236,6 +270,10 @@ class SQLDagExecutor {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    public getPublishName(): string {
+        return this._publishName;
     }
 
     private _createDataflow(tabName?: string): void {
@@ -302,7 +340,7 @@ class SQLDagExecutor {
             queryObj["endTime"] = endTime;
         }
         this._sqlNode.setSQLQuery(queryObj);
-        this._sqlNode.updateSQLQueryHistory();
+        this._sqlNode.updateSQLQueryHistory(true);
     }
 
     private _inspectSQLNodeAndAddToList(): XDPromise<void> {

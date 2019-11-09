@@ -26,6 +26,7 @@ class DagNodeSQL extends DagNode {
     // non-persistent
     private _queryObj: any;
     private _allowUpdateSQLHistory: boolean = false;
+    private _fromSQLMode: boolean = false;
 
     public constructor(options: DagNodeSQLInfo, runtime?: DagRuntime) {
         super(options, runtime);
@@ -96,6 +97,14 @@ class DagNodeSQL extends DagNode {
 
     public subscribeHistoryUpdate(): void {
         this._allowUpdateSQLHistory = true;
+    }
+
+    public setFromSQLMode(): void {
+        this._fromSQLMode = true;
+    }
+
+    public isFromSQLMode(): boolean {
+        return this._fromSQLMode;
     }
 
     // XXX TODO: decouple with UI code

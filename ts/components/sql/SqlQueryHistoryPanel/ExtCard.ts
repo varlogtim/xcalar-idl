@@ -125,7 +125,11 @@ namespace SqlQueryHistoryPanel {
                     let iconClass = "";
                     let isValidStatus = queryInfo.status === SQLStatus.Done ||
                     queryInfo.status === SQLStatus.Failed;
-                    if (isValidStatus) {
+                    if (queryInfo.statementType &&
+                        queryInfo.statementType !== SQLStatementType.Select) {
+                        text = "";
+                        iconClass = "";
+                    } else if (isValidStatus) {
                         text = SQLTStr.queryTableBodyTextPreview;
                         iconClass = 'xi-dfg2';
                     } else if (queryInfo.status === SQLStatus.Running) {
@@ -137,7 +141,10 @@ namespace SqlQueryHistoryPanel {
                         text: text,
                         iconClass: iconClass,
                         onLinkClick: () => {
-                            if (isValidStatus) {
+                            if (queryInfo.statementType &&
+                                queryInfo.statementType !== SQLStatementType.Select) {
+                                return;
+                            } else if (isValidStatus) {
                                 SQLHistorySpace.Instance.previewDataflow(queryInfo);
                             } else if (queryInfo.status === SQLStatus.Running) {
                                 SQLHistorySpace.Instance.viewProgress(queryInfo.dataflowId);

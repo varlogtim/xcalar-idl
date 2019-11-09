@@ -266,6 +266,7 @@ namespace SqlQueryHistory {
         rows?: number;
         skew?: number;
         columns?: {name: string, backName: string, type: ColumnType}[];
+        statementType?: SQLStatementType;
     }
 
     export class QueryInfo {
@@ -280,6 +281,7 @@ namespace SqlQueryHistory {
         public rows: number = null;
         public skew: number = null;
         public columns?: {name: string, backName: string, type: ColumnType}[];
+        public statementType: SQLStatementType = SQLStatementType.Select;
     }
 
     export class QueryExtInfo extends QueryInfo {
@@ -321,6 +323,9 @@ namespace SqlQueryHistory {
         }
         if (updateInfo.columns != null) {
             mergeTo.columns = updateInfo.columns;
+        }
+        if (updateInfo.statementType != null) {
+            mergeTo.statementType = updateInfo.statementType;
         }
     }
 

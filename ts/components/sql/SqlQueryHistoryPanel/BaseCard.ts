@@ -133,6 +133,9 @@ namespace SqlQueryHistoryPanel {
                     let text = "";
                     if (queryInfo.status === SQLStatus.Failed) {
                         text = queryInfo.errorMsg;
+                    } else if (queryInfo.statementType &&
+                        queryInfo.statementType !== SQLStatementType.Select) {
+                        text = "";
                     } else if (queryInfo.status === SQLStatus.Done) {
                         text = "View";
                     }
@@ -146,6 +149,9 @@ namespace SqlQueryHistoryPanel {
                                     title: AlertTStr.queryHistorySQLErrorTitle,
                                     errorMsg: queryInfo.errorMsg
                                 });
+                            } else if (queryInfo.statementType &&
+                                queryInfo.statementType !== SQLStatementType.Select) {
+                                return;
                             } else if (queryInfo.status === SQLStatus.Done) {
                                 this._onClickTable(queryInfo);
                             }

@@ -411,6 +411,13 @@ enum SQLStatus {
     Interrupted = "Interrupted"
 }
 
+enum SQLStatementType {
+    Select = "Select",
+    Create = "Create",
+    Show = "Show",
+    Describe = "Describe"
+}
+
 enum FileManagerField {
     Name = "Name",
     Date = "Date",
@@ -487,4 +494,5 @@ if (typeof global !== 'undefined') {
     global.JoinCompoundOperatorTStr = JoinCompoundOperatorTStr;
     global.SetupStatus = SetupStatus;
     global.SQLStatus = SQLStatus;
+    global.SQLStatementType = SQLStatementType;
 }
