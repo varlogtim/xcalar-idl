@@ -67,9 +67,7 @@ namespace TooltipManager {
                 options.preventSelection = false;
             }*/
             // if (options.preventSelection) {
-            createElementLayer();
             // }
-            createHighlightBox();
             createPopover(walkthroughInfo.isSingleTooltip, title);
             nextStep();
             $(window).resize(winResize);
@@ -149,33 +147,27 @@ namespace TooltipManager {
             gClass = ' class="hiddenOverlay"';
         }
 
-        let svg: string = '<svg id="intro-overlay"><g' + gClass + '><path id="intro-path"' +
+        // highlights an element + padding
+        let visibleOverlay: string = '<svg id="intro-visibleOverlay" class="intro-overlay"><g' + gClass + '><path class="intro-path"' +
             ' d="' + pathTemplate + '"></path></g></svg>';
 
-        let $overlay: JQuery = $(svg);
-        $('body').append($overlay);
+        // prevents user from clicking on elements in XD (except highlighted element if type !== text)
+        // does not contain padding - smaller than visible overlay
+        let clickableOverlay: string = '<svg id="intro-clickableOverlay" class="intro-overlay"><g class="hiddenOverlay"><path class="intro-path"' +
+            ' d="' + pathTemplate + '"></path></g></svg>';
+
+        let $visibleOverlay: JQuery = $(visibleOverlay);
+        let $clickableOverlay: JQuery = $(clickableOverlay);
+
+        $('body').append($visibleOverlay);
+        $('body').append($clickableOverlay);
+
         setTimeout(function() {
-            $overlay.css('opacity', options.overlayOpacity);
+            $visibleOverlay.css('opacity', options.overlayOpacity);
         }, 0);
         if (options.closeOnModalClick) {
-            $overlay.mousedown(closeWalkthrough);
+            $visibleOverlay.mousedown(closeWalkthrough);
         }
-    }
-
-    function createHighlightBox() {
-        $('body').append('<div id="intro-highlightBox"></div>');
-    }
-
-    function createElementLayer() {
-        $('body').append('<div id="intro-elementLayer"></div>');
-    }
-
-    function removeElementLayer(): void {
-        $('#intro-elementLayer').remove();
-    }
-
-    function elementLayerExists(): boolean {
-        return $('#intro-elementLayer').length > 0;
     }
 
     function createPopover(isSingleTooltip: boolean, title: string) {
@@ -199,7 +191,6 @@ namespace TooltipManager {
                                     '</div>' +
                                 '</section>'
         }
-
 
         // UI subject to change
         let popoverHtml: string = '<div id="intro-popover" style="padding:' +
@@ -322,14 +313,6 @@ namespace TooltipManager {
             }
         }
 
-        if (currWalkthrough[stepNumber].type == TooltipType.Text) {
-            if (!elementLayerExists()) {
-                createElementLayer();
-            }
-        } else {
-            removeElementLayer();
-        }
-
         if (currWalkthrough[stepNumber].pre_mousedown_div) {
             $(currWalkthrough[stepNumber].pre_mousedown_div).mousedown();
         }
@@ -400,21 +383,30 @@ namespace TooltipManager {
             return;
         }
 
-        moveElementLayer();
+        moveClickableOverlay();
         moveHighlightBox();
         updatePopover(true);
     }
 
-    function moveElementLayer() {
+    function moveClickableOverlay() {
         let rect: ClientRect | DOMRect = currElemRect;
-        if (elementLayerExists()) {
-            $('#intro-elementLayer').css({
-                width: rect.width + 4,
-                height: rect.height + 8,
-                top: rect.top - 2,
-                left: rect.left - 2
-            });
+        let clickablePath: string;
+        if (currWalkthrough[stepNumber].type == TooltipType.Text) {
+            clickablePath = pathTemplate;
+        } else {
+            // avoid clicking on bordering elements
+            let left: number = rect.left + 2;
+            let right: number = rect.right - 2;
+            let top: number = rect.top + 2;
+            let bottom: number = rect.bottom - 2;
+            clickablePath = pathTemplate +
+                       ' M' + left + ' ' + top +
+                       ' L' + right + ' ' + top +
+                       ' L' + right + ' ' + bottom +
+                       ' L' + left + ' ' + bottom;
         }
+
+        $('#intro-clickableOverlay path').attr('d', clickablePath);
     }
 
     function updatePopover(initial?) {
@@ -593,12 +585,6 @@ namespace TooltipManager {
 
     function moveHighlightBox() {
         let rect: ClientRect | DOMRect = currElemRect;
-        $('#intro-highlightBox').css({
-            width: rect.width,
-            height: rect.height,
-            top: rect.top,
-            left: rect.left
-        });
 
         let left: number = rect.left - options.highlightPadding;
         let right: number = rect.right + options.highlightPadding;
@@ -611,15 +597,15 @@ namespace TooltipManager {
                    ' L' + left + ' ' + bottom;
 
         if (d3) { //  how do we do a better check for d3?
-            d3.select('#intro-path').transition().duration(300)
+            d3.select('#intro-visibleOverlay path').transition().duration(300)
                                     .ease('ease-out').attr('d', path);
         } else {
-            $('#intro-path').attr('d', path);
+            $('#intro-visibleOverlay path').attr('d', path);
         }
     }
 
     function removeHighlightBox() {
-        $('#intro-overlay path').attr('d', pathTemplate);
+        $('#intro-visibleOverlay path').attr('d', pathTemplate);
     }
 
     function winResize() {
@@ -627,7 +613,7 @@ namespace TooltipManager {
         resizeTimeout = setTimeout(function() {
             if ($currElem.length) {
                 currElemRect = $currElem[0].getBoundingClientRect();
-                moveElementLayer();
+                moveClickableOverlay();
                 updatePopover();
                 moveHighlightBox();
             }
@@ -645,16 +631,15 @@ namespace TooltipManager {
         clearListeners();
         removeHighlightBox();
 
-        $('#intro-overlay').css('opacity', 0);
+        $('#intro-visibleOverlay').css('opacity', 0);
         $('#intro-videoClose').remove();
         setTimeout(function() {
-            $('#intro-overlay').remove();
+            $('#intro-visibleOverlay').remove();
+            $('#intro-clickableOverlay').remove();
         }, 300);
         $popover.css('opacity', 0).remove();
-        $('#intro-highlightBox').remove();
-        $('#intro-elementLayer').remove();
         $('.intro-highlightedElement').removeClass('intro-highlightedElement');
-        $('intro-popover').remove();
+        $('#intro-popover').remove();
         $(window).off('resize', winResize);
     }
 

@@ -1,6 +1,6 @@
 // @color-intro-blue: #60B1E3;
 @color-intro-blue: @color-bg-select-blue;
-#intro-overlay {
+.intro-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -22,30 +22,11 @@
     }
 }
 
-#intro-path {
+.intro-path {
     pointer-events: auto;
 }
-
-#intro-highlightBox {
-    position: absolute;
+#intro-visibleOverlay {
     z-index: 1001;
-    background-color: rgba(255,255,255,.9);
-    border: 1px solid rgba(0,0,0,.5);
-    border-radius: 4px;
-    box-shadow: 0 2px 15px rgba(0,0,0,.4);
-    .transition(all 0.4s ease-out);
-    height: 100px;
-    width: 400px;
-    top: 50px;
-    left: 50px;
-    display: none;
-}
-
-#intro-elementLayer {
-    z-index: 1013 !important;
-    position: fixed;
-    background-color: transparent;
-    cursor: auto;
 }
 
 #intro-popover {

@@ -21,20 +21,20 @@ describe("Tooltip Manager Test", function() {
 
     it("Should Display a tooltip without a background", function() {
         expect($("#intro-popover").length).to.equal(0);
-        expect($("#intro-overlay").length).to.equal(0);
+        expect($("#intro-visibleOverlay").length).to.equal(0);
         basicInfo.background = false;
         TooltipManager.start(basicInfo, basicTest, 0);
-        expect($("#intro-overlay").length).to.equal(0);
+        expect($("#intro-visibleOverlay").length).to.equal(0);
         expect($("#intro-popover").length).to.equal(1);
         TooltipManager.closeWalkthrough();
     });
 
     it("Should Display a tooltip with a background", function() {
         expect($("#intro-popover").length).to.equal(0);
-        expect($("#intro-overlay").length).to.equal(0);
+        expect($("#intro-visibleOverlay").length).to.equal(0);
         basicInfo.background = true;
         TooltipManager.start(basicInfo, basicTest, 0);
-        expect($("#intro-overlay").length).to.equal(1);
+        expect($("#intro-visibleOverlay").length).to.equal(1);
         expect($("#intro-popover").length).to.equal(1);
         TooltipManager.closeWalkthrough();
     });
