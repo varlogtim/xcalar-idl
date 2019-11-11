@@ -170,6 +170,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
@@ -185,6 +188,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
@@ -199,6 +205,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
@@ -216,6 +225,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
@@ -233,6 +245,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
@@ -249,6 +264,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
@@ -264,6 +282,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
@@ -278,6 +299,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
@@ -292,6 +316,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
@@ -303,6 +330,9 @@ describe("Cloud Login Test", () => {
                 endpointsCalled = [];
                 endpointsCparamsPassedalled = [];
                 done();
+            })
+            .fail(() => {
+                done('fail');
             });
         });
 
