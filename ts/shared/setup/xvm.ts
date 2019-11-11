@@ -1,8 +1,8 @@
 // XVM = Xcalar Version Manager
 namespace XVM {
-    let majorVersion: string = "";
-    let minorVersion: string = "";
-    let revisionVersion: string = "";
+    let majorVersion: string = "2";
+    let minorVersion: string = "1";
+    let revisionVersion: string = "0";
 
     let kvVersion: KVVersion;
     let kvVersionStore: KVStore;
@@ -106,7 +106,6 @@ namespace XVM {
         const key: string = "xcalar-version-" + XcUser.getCurrentUserName();
         kvVersionStore = new KVStore(key, gKVScope.USER);
         _mode = XVM.Mode.SQL;
-        [majorVersion, minorVersion, revisionVersion] = XCALARVERSION.split(".");
     }
 
     /**

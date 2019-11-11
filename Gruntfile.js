@@ -760,8 +760,6 @@ var EXCLUDE_UGLIFY_TARGETS_FROM_POST_MINIFICATION_TASKS = [];
 // (for updating script tags after minification)
 var MINIFICATION_FILEPATH_MAPPING = 'jsFilepathMapping';
 
-// Version filepath
-var XCALARVERSION_PATH_REL = 'ts/Version.js';
 // config filepath
 var CONFIG_FILE_PATH_REL_BLD = 'assets/js/config.js'; // path rel. to build root
 

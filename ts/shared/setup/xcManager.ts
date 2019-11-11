@@ -1123,7 +1123,9 @@ namespace xcManager {
 
         if (msalUser != null) {
             msalAgentApplication.logout();
-        } else if (XVM.isCloud()) {
+        } else if (XVM.isCloud() &&
+            window.location.hostname !== "localhost"
+        ) {
             window.location = <any>(paths.cloudLogin + "?logout");
         } else {
             window["location"]["href"] = paths.dologout;
