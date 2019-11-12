@@ -8,6 +8,7 @@ function replay(testConfig, tags) {
     const testNodeIdMapping = new Map(); // tabName => nodeMap
     let linkOutOptimizedTable;
 
+
     function buildTestUrl(browser, testConfig) {
         return `${browser.globals.launchUrl}testSuite.html?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${browser.globals.user}&id=0`
     }
@@ -320,6 +321,7 @@ function replay(testConfig, tags) {
                     .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
                     .mouseButtonClick('left')
                     .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
+		    .pause(1000)
                     .getText('#dagViewTableArea .totalRows', ({value}) => {
                         browser.assert.equal(value, "0");
                     });
