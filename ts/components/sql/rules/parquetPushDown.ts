@@ -23,7 +23,9 @@ class ParquetPushDown {
                         finalColumns.push(colName);
                     });
                 }
-                parseArgsJson.columns = finalColumns;
+                if (finalColumns.length > 0) {
+                    parseArgsJson.columns = finalColumns;
+                }
                 // push filter
                 if (partitionKeys && Object.keys(partitionKeys).length > 0) {
                     const filterNode = ParquetPushDown.__findFirstOperator(node,
