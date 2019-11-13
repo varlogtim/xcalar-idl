@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Rnd } from "react-rnd";
 import dict from "../../lang";
 import Button from "../widgets/Button";
 import keyCode from "../../enums/keyCode";
@@ -30,6 +31,7 @@ type ModalProps = {
 
 type ModalState = {
     isFullScreen: boolean;
+    isDragging: boolean;
 };
 
 export default class Modal extends React.Component<ModalProps, ModalState> {
@@ -43,7 +45,8 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
         this._confirmRef = React.createRef();
         this._closeRef = React.createRef();
         this.state = {
-            isFullScreen: false
+            isFullScreen: false,
+            isDragging: false
         };
     }
 
@@ -71,6 +74,9 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
         if (className) {
             modalClassNames.push(className);
         }
+        if (this.state.isDragging) {
+            modalClassNames.push("dragging");
+        }
 
         let modalBgClassNames = ["modalBackground"];
         if (options.locked) {
@@ -84,10 +90,17 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
 
         return (
             <React.Fragment>
-                <div
+                <Rnd
                     id={id}
                     className={modalClassNames.join(" ")}
                     style={this._getStyle()}
+                    default={{
+                        ...this._center()
+                    }}
+                    bounds="body"
+                    dragHandleClassName="modalHeader"
+                    onDragStart={() => this.setState({isDragging: true})}
+                    onDragStop={() => this.setState({isDragging: false})}
                 >
                     <header className="modalHeader">
                         <span className="text">{header}</span>
@@ -142,7 +155,7 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
                             {close.text || CommonTStr.Close}
                         </Button>
                     </section>
-                </div>
+                </Rnd>
                 <div className={modalBgClassNames.join(" ")} style={{display: "block"}}></div>
             </React.Fragment>
         );
@@ -152,12 +165,11 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
         let { style } = this.props;
         return {
             ...style,
-            ...this._center(),
             display: style.display || "block"
         };
     }
 
-    private _center(): {left: number, top: number, width: number, height: number} {
+    private _center(): {x: number, y: number, width: number, height: number} {
         let {width, height} = this.props.style;
         let width_num: number = parseFloat(width);
         let height_num: number = parseFloat(height);
@@ -169,9 +181,9 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
             height_num = window.innerHeight - 9;
             top = 0;
             left = Math.round((window.innerWidth - width_num) / 2);
-            return {left, top, width: width_num, height: height_num};
+            return {x: left, y: top, width: width_num, height: height_num};
         } else if (isNaN(width_num) || isNaN(height_num)) {
-            return {left: undefined, top: undefined, width, height};
+            return {x: left, y: top, width, height};
         } else {
             left = (window.innerWidth - width_num) / 2;
             let options = this.props.options || {};
@@ -180,7 +192,7 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
             } else {
                 top = (window.innerHeight - height_num) / 2;
             }
-            return {left, top, width: width_num, height: height_num};
+            return {x: left, y: top, width: width_num, height: height_num};
         }
     }
 

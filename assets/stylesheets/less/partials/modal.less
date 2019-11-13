@@ -32,6 +32,10 @@
     min-width: @modal-normal-w;
     font-size: 14px;
 
+    &.dragging {
+        will-change: transform; // react use react-rnd which use transform
+    }
+
     &.large {
         width: @modal-large-w;
         min-width: @modal-large-w;

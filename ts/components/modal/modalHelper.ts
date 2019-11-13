@@ -106,25 +106,35 @@ class ModalHelper {
         const curWinWidth: number = windowSpecs.winWidth;
         const prevWidthAround: number = prevWinWidth - modalWidth;
         const prevHeightAround: number = prevWinHeight - modalHeight;
+        let left: number;
+        let top: number;
+
         if (modalWidth > curWinWidth) {
-            const diff: number = curWinWidth - modalWidth;
-            $modal.css('left', diff);
+            left = curWinWidth - modalWidth;
         } else if (prevWidthAround < 10) {
-            $modal.css('left', (curWinWidth - modalWidth) / 2);
+            left = (curWinWidth - modalWidth) / 2;
         } else {
             const widthAroundChangeRatio = (curWinWidth - modalWidth) /
                                             prevWidthAround;
-            $modal.css('left', modalSpecs.left * widthAroundChangeRatio);
+            left = modalSpecs.left * widthAroundChangeRatio;
         }
 
         if (modalHeight > curWinHeight) {
-            $modal.css('top', 0);
+            top = 0;
         } else if (prevHeightAround < 10) {
-            $modal.css('top', (curWinHeight - modalHeight) / 2);
+            top = (curWinHeight - modalHeight) / 2;
         } else {
             const heightAroundChangeRatio: number = (curWinHeight - modalHeight) /
                                                     prevHeightAround;
-            $modal.css('top', modalSpecs.top * heightAroundChangeRatio);
+            top = modalSpecs.top * heightAroundChangeRatio;
+        }
+
+        if ($modal.hasClass("react-draggable")) {
+            // XXX when it's react-rnd module
+            $modal.css("transform", "translate(" + left + "px, " + top + "px)");
+        } else {
+            $modal.css('left', left);
+            $modal.css('top', top);
         }
     }
 
