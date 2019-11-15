@@ -72,4 +72,19 @@ describe("XcQuery Test", function() {
         expect(xcQuery.getStateString()).to.equal("qrProcessing");
         expect(xcQuery.getQueryMeta()).to.equal("test");
     });
+
+    it("XcQuery.parseTimeFromKey should work", function() {
+        const now = Date.now();
+        // Valide key
+        let key = `${now}-testName`;
+        expect(XcQuery.parseTimeFromKey(key)).to.be.equal(now);
+        // Invalid format
+        key = 'testName';
+        expect(Number.isNaN(XcQuery.parseTimeFromKey(key))).to.be.true;
+        // Invalid time
+        key = 'invalidTime-testName';
+        expect(Number.isNaN(XcQuery.parseTimeFromKey(key))).to.be.true;
+        // Something would cause exception
+        expect(Number.isNaN(XcQuery.parseTimeFromKey())).to.be.true;
+    });
 });

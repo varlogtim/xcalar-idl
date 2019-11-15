@@ -109,16 +109,6 @@ class KVStore {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         this._getMetaInfo()
-        .then( (meta: MetaInfDurable) => {
-            const gInfosMeta: MetaInfDurable = meta || <MetaInfDurable>{};
-            // Fetch queries from new kvstore keys
-            // Combine them with those originally in gInfo
-            return QueryManager.loadFromStorage(gInfosMeta.query)
-            .then((queries) => {
-                gInfosMeta.query = queries;
-                return gInfosMeta;
-            });
-        })
         .then((meta: MetaInfDurable) => {
             return this._restoreWKBKInfoHelper(meta);
         })
@@ -226,13 +216,11 @@ class KVStore {
         promise
         .then(() => {
             // must come after Log.restore
-            let archiveList: XcQuery[];
             try {
-                archiveList = QueryManager.restore(metaInfo.getQueryMeta());
+                QueryManager.upgrade(metaInfo.getQueryMeta());
             } catch (e) {
                 console.error(e);
             }
-            return QueryManager.archive(archiveList);
         })
         // remove any unnecessary orphan tables
         .then(() => TblManager.refreshOrphanList(true))

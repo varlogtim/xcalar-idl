@@ -931,7 +931,7 @@ namespace WorkbookManager {
     export function getWkbkScopeKeys(version: number): any {
         const gModeKey: string = generateKey("gMode", version);
         const gStorageKey: string = generateKey("gInfo", version);
-        const gQueryListPrefix: string = generateKey("/XD/QueryMeta", version);
+        const gQueryListPrefix: string = generateKey("/XD/QueryLog", version);
         const gQueryArchivePrefix: string = generateKey("/XD/QueryArchive", version);
         const gLogKey: string = generateKey("gLog", version);
         const gErrKey: string = generateKey("gErr", version);

@@ -565,7 +565,6 @@ namespace MainMenu {
                 MonitorPanel.active();
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");
-                    QueryManager.scrollToFocused();
                 }
                 break;
             case ("jupyterTab"):

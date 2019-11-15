@@ -268,6 +268,19 @@ class XcQuery extends Durable {
         return this._getDurable();
     }
 
+    public static parseTimeFromKey(durableKey: string): number {
+        try {
+            const parts = durableKey.split('-');
+            if (parts.length === 1) {
+                return Number.NaN; // No sepatator found
+            }
+            return Number.parseInt(parts[0]);
+        } catch(e) {
+            console.warn(e);
+            return Number.NaN;
+        }
+    }
+
     protected _getDurable(): [XcQueryDurable, string | number] {
         let abbrQueryObj: XcQueryDurable = null;
         let key: string | number = null;
@@ -301,6 +314,8 @@ class XcQuery extends Durable {
             } else {
                 key = this.sqlNum;
             }
+            // Prefix the key with time, so that we can fetch keys in order
+            key = `${this.time || Date.now()}-${key}`;
 
             if (this.queryMeta) {
                 abbrQueryObj.queryMeta = this.queryMeta;

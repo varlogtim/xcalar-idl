@@ -1,19 +1,76 @@
 describe('QueryManager Test', function() {
-    var queryLists;
-    var queryListsCache = {};
+    var queryLog;
+    var queryLogCache;
     var queryCheckLists;
     var $queryList;
     var $queryDetail;
 
+    class QueryLogTestUtil {
+        static get CacheData() {
+            return class CacheData {
+                constructor(queries, archiveKeys, dirtyData) {
+                    this.queries = queries;
+                    this.archiveKeys = archiveKeys;
+                    this.dirtyData = dirtyData;
+                }
+            };
+        }
+
+        /**
+         * Backup and clear fields in QueryLog
+         * @param {*} queryLog
+         */
+        static clearQueryLog(queryLog) {
+            // XcQueryLog._queries
+            const queries = new Map();
+            for (const [key, value] of queryLog._queries.entries()) {
+                queries.set(key, value);
+            }
+            // XcQueryLog._archiveKeys
+            const archiveKeys = new Set(queryLog._archiveKeys.values());
+            // XcQueryLog._dirtyData
+            const dirtyData = { update: new Set(queryLog._dirtyData.update.values()) };
+
+            queryLog._queries.clear();
+            queryLog._archiveKeys.clear();
+            queryLog._dirtyData.update.clear();
+
+            return new this.CacheData(queries, archiveKeys, dirtyData);
+        }
+
+        /**
+         * Restore QueryLog object from cached data
+         * @param {*} cachedLog The cached data return from clearQueryLog
+         * @param {*} queryLog The QueryLog object to restore
+         */
+        static restoreQueryLog(cachedLog, queryLog) {
+            // XcQueryLog._queries
+            queryLog._queries.clear();
+            for (const [key, value] of cachedLog.queries.entries()) {
+                queryLog._queries.set(key, value);
+            }
+            // XcQueryLog._archiveKeys
+            queryLog._archiveKeys.clear();
+            for (const value of cachedLog.archiveKeys.values()) {
+                queryLog._archiveKeys.add(value);
+            }
+            // XcQueryLog._dirtyData
+            queryLog._dirtyData.update.clear();
+            for (const value of cachedLog.dirtyData.update.values()) {
+                queryLog._dirtyData.update.add(value);
+            }
+        }
+
+    }
+
     before(function() {
         UnitTest.onMinMode();
 
-        queryLists = QueryManager.__testOnly__.queryLists;
+        const cacheShowLogs = QueryManager.showLogs;
+        QueryManager.showLogs = () => {};
+        queryLog = QueryManager.getAll().queryLog;
         queryCheckLists = QueryManager.__testOnly__.queryCheckLists;
-        for (var i in queryLists) {
-            queryListsCache[i] = queryLists[i];
-            delete queryLists[i];
-        }
+        queryLogCache = QueryLogTestUtil.clearQueryLog(queryLog);
         $queryList = $("#monitor-queryList");
         $queryDetail = $("#monitor-queryDetail");
 
@@ -29,9 +86,247 @@ describe('QueryManager Test', function() {
         }
 
         $queryList.find(".xc-query").remove(); // clear the list
+        QueryManager.showLogs = cacheShowLogs;
     });
 
-    describe("restore", function() {
+    describe("XcQueryLog", function() {
+        class SimKvStore {
+            static clear() {
+                SimKvStore.store.clear();
+                while (SimKvStore.callStack.length > 0) {
+                    SimKvStore.callStack.pop();
+                }
+            }
+
+            static filerCallStatck(name) {
+                return SimKvStore.callStack.filter((callInfo) => {
+                    return callInfo.op === name;
+                })
+            }
+
+            static getKey(name) {
+                return name;
+            }
+
+            static list(pattern) {
+                const result = [];
+                for (const kvKey of SimKvStore.store.keys()) {
+                    if (kvKey.match(pattern) != null) {
+                        result.push(kvKey);
+                    }
+                }
+                return PromiseHelper.resolve({keys: result});
+            }
+
+            constructor(key) {
+                if (Array.isArray(key)) {
+                    this.keys = key.concat([]);
+                    this.key = this.keys[0];
+                } else {
+                    this.key = key;
+                    this.keys = [key];
+                }
+            }
+
+            delete() {
+                SimKvStore.store.delete(this.key);
+                SimKvStore.callStack.push({
+                    op: 'delete',
+                    keys: [this.key],
+                    values: []
+                });
+                return PromiseHelper.resolve();
+            }
+
+            multiPut(values) {
+                for (let i = 0; i < this.keys.length; i ++) {
+                    const key = this.keys[i];
+                    const value = values[i];
+                    SimKvStore.store.set(key, value);
+                }
+                SimKvStore.callStack.push({
+                    op: 'multiPut',
+                    keys: this.keys.concat([]),
+                    values: values.concat([])
+                });
+                return PromiseHelper.resolve();
+            }
+
+            multiGet() {
+                const result = new Map();
+                const values = new Array();
+                for (const key of this.keys) {
+                    const value = SimKvStore.store.get(key);
+                    result.set(key, value);
+                    values.push(value);
+                }
+                SimKvStore.callStack.push({
+                    op: 'multiGet',
+                    keys: this.keys.concat([]),
+                    values: values
+                });
+                return PromiseHelper.resolve(result);
+            }
+        }
+        SimKvStore.store = new Map();
+        SimKvStore.callStack = new Array();
+
+        const cachedFunc = {};
+        const kvPrefixQueryList = 'gQueryListPrefix';
+        const kvPrefixArchiveList = 'gQueryArchivePrefix';
+
+        before(function() {
+            cachedFunc['KVStore'] = KVStore;
+            KVStore = SimKvStore;
+        });
+
+        after(function() {
+            KVStore = cachedFunc['KVStore'];
+        });
+
+        afterEach(function() {
+            QueryLogTestUtil.clearQueryLog(queryLog);
+            SimKvStore.clear();
+        });
+
+        it("XcQueryLog.get/getForUpdate", function() {
+            let log = queryLog.getForUpdate(1);
+            expect(log == null).to.be.true;
+            expect(queryLog._dirtyData.update.has('1')).to.be.false;
+
+            queryLog.add(1, new XcQuery({}), false);
+            queryLog.add(2, new XcQuery({}), false);
+            expect(queryLog._queries.size).to.be.equal(2);
+            expect(queryLog._dirtyData.update.size).to.be.equal(0);
+
+            log = queryLog.get(1);
+            expect(log == null).to.be.false;
+            expect(queryLog._dirtyData.update.has('1')).to.be.false;
+
+            log = queryLog.getForUpdate(2);
+            expect(log == null).to.be.false;
+            expect(queryLog._dirtyData.update.has('2')).to.be.true;
+        });
+
+        it("XcQueryLog.add", function() {
+            queryLog.add(1, new XcQuery({}), true);
+            expect(queryLog.has(1)).to.be.true;
+            expect(queryLog._dirtyData.update.has('1')).to.be.true;
+
+            queryLog.add(2, new XcQuery({}), false);
+            expect(queryLog.has(2)).to.be.true;
+            expect(queryLog._dirtyData.update.has('2')).to.be.false;
+        });
+
+        it("XcQueryLog.remove", async function() {
+            const xcQuery = new XcQuery({
+                fullName: 'testRemove1',
+                time: Date.now(),
+                state: QueryStatus.Done
+            });
+            const [_durable, durableKey] = xcQuery.getDurable();
+            queryLog.add(1, xcQuery, true);
+            expect(queryLog.has(1)).to.be.true;
+            expect(queryLog._dirtyData.update.has('1')).to.be.true;
+
+            await queryLog.remove(1);
+
+            // Verify it's removed from log
+            expect(queryLog.has(1)).to.be.false;
+            expect(queryLog._dirtyData.update.has('1')).to.be.false;
+            // Verify it's removed from kvstore
+            const deleteCalls = SimKvStore.filerCallStatck('delete');
+            expect(deleteCalls.length).to.be.equal(1);
+            expect(deleteCalls[0].keys[0]).to.be.equal(`${kvPrefixQueryList}/${durableKey}`);
+        });
+
+        it("XcQueryLog.flush", async function() {
+            const oldFlushSize = queryLog.MAX_FLUSH_SIZE;
+            let logID = 0;
+
+            // logs don't need to persist
+            for (let i = 0; i < 10; i ++) {
+                queryLog.add(logID ++, new XcQuery({fullName: `existing${i}`, state: QueryStatus.Done}), false);
+            }
+            // logs need to presist
+            let saveSize = 0;
+            const numPut = 10;
+            const savedKeys = []
+            for (let i = 0; i < 1000; i ++) {
+                const xcQuery = new XcQuery({
+                    fullName: `save${i}`,
+                    time: Date.now(),
+                    state: QueryStatus.Done
+                });
+                const [durable, durableKey] = xcQuery.getDurable();
+                savedKeys.push(`${kvPrefixQueryList}/${durableKey}`);
+                saveSize += JSON.stringify(durable).length;
+                queryLog.add(logID ++, xcQuery, true);
+            }
+            queryLog.MAX_FLUSH_SIZE = Math.ceil(saveSize / numPut);
+
+            await queryLog.flush();
+
+            // Verify batch logic
+            const multiPutCalls = SimKvStore.filerCallStatck('multiPut');
+            let numKeysSaved = 0;
+            for (const putCall of multiPutCalls) {
+                numKeysSaved += putCall.keys.length;
+            }
+            expect(numKeysSaved).to.be.equal(1000);
+            expect(multiPutCalls.length).to.be.equal(numPut);
+            // Verify result
+            expect(SimKvStore.store.size).to.be.equal(1000);
+            for (const kvKey of savedKeys) {
+                expect(SimKvStore.store.has(kvKey), kvKey).to.be.true;
+            }
+
+            // Restore
+            queryLog.MAX_FLUSH_SIZE = oldFlushSize;
+        });
+
+        it("Archvie", async function() {
+            // logs need to archive
+            const archivedKeys = []
+            const queryTime = Date.now() - queryLog.LOG_LIFE_TIME - 1000 * 3600 * 24;
+            for (let i = 0; i < 1000; i ++) {
+                const xcQuery = new XcQuery({
+                    fullName: `archive${i}`,
+                    time: queryTime - i,
+                    state: QueryStatus.Done
+                });
+                const [durable, durableKey] = xcQuery.getDurable();
+
+                const kvKey = `${kvPrefixQueryList}/${durableKey}`;
+                const kvValue = JSON.stringify(durable);
+                archivedKeys.push(`${kvPrefixArchiveList}/${durableKey}`);
+
+                // Put it in kvstore
+                SimKvStore.store.set(kvKey, kvValue);
+            }
+
+            // Initial state
+            expect(queryLog._queries.size).to.be.equal(0);
+            expect(queryLog._archiveKeys.size).to.be.equal(0);
+            // First load: load nothing and cache the keys need to archive
+            await queryLog.loadMore(20);
+            expect(queryLog._queries.size).to.be.equal(0);
+            expect(queryLog._archiveKeys.size).to.be.equal(1000);
+            // Second load: load nothing and no more keys need to archive
+            await queryLog.loadMore(20);
+            expect(queryLog._queries.size).to.be.equal(0);
+            expect(queryLog._archiveKeys.size).to.be.equal(1000);
+
+            // Archive: keys moved from active prefix to archive prefix
+            await queryLog.flush();
+            expect(SimKvStore.store.size).to.be.equal(1000);
+            for (const kvKey of archivedKeys) {
+                expect(SimKvStore.store.has(kvKey), kvKey).to.be.true;
+            }
+        });
+    });
+
+    describe("upgrade", function() {
         let cachedGetLogs;
 
         before(function() {
@@ -47,34 +342,26 @@ describe('QueryManager Test', function() {
 
         afterEach(function() {
             $queryList.find(".xc-query").remove();
-            for (const key of Object.keys(queryLists)) {
-                delete queryLists[key];
-            }
+            QueryLogTestUtil.clearQueryLog(queryLog);
         });
 
-        it("restore should work", function() {
-            QueryManager.restore([{name: "unitTest2", time: Date.now()}]);
+        it("upgrade should work", function() {
+            QueryManager.upgrade([{name: "unitTest2", time: Date.now()}]);
             expect($queryList.text().indexOf("unitTest2")).to.be.gt(-1);
-            expect(queryLists[-1].name).to.equal("unitTest2");
+            expect(queryLog.has(-1)).to.be.true;
+            expect(queryLog.get(-1).name).to.equal("unitTest2");
         });
 
-        it("restore should sort queries", function() {
+        it("upgrade should sort queries", function() {
             const time = Date.now();
-            QueryManager.restore([{name: "unitTest3", time: time}, {name: "unitTest4", time: time - 10}]);
-            expect($queryList.text().indexOf("unitTest3")).to.be.gt(-1);
-            expect($queryList.text().indexOf("unitTest4")).to.be.gt(-1);
-            expect(queryLists[-1].name).to.equal("unitTest3");
-            expect(queryLists[-2].name).to.equal("unitTest4");
-        });
-
-        it("restore should return archive queries", function() {
-            const time = Date.now();
-            const lifeTime = 90 * 24 * 3600 * 1000;
-            const archiveList = QueryManager.restore([{name: "unitTest3", time: time - lifeTime - 1000 * 10}, {name: "unitTest4", time: time}]);
-            expect(archiveList.length).to.equal(1);
-            expect($queryList.text().indexOf("unitTest3")).to.equal(-1);
-            expect($queryList.text().indexOf("unitTest4")).to.be.gt(-1);
-            expect(queryLists[-1].name).to.equal("unitTest4");
+            QueryManager.upgrade([{name: "unitTest3", time: time}, {name: "unitTest4", time: time - 10}]);
+            const pos3 = $queryList.text().indexOf("unitTest3");
+            const pos4 = $queryList.text().indexOf("unitTest4");
+            expect(pos3).to.be.gt(-1);
+            expect(pos4).to.be.gt(-1);
+            expect(pos3).to.be.lt(pos4);
+            expect(queryLog.get(-1).name).to.equal("unitTest3");
+            expect(queryLog.get(-2).name).to.equal("unitTest4");
         });
     });
 
@@ -143,20 +430,26 @@ describe('QueryManager Test', function() {
             cachedQueryState = XcalarQueryState;
         });
 
+        afterEach(function() {
+            queryLog._dirtyData.update.clear();
+        })
+
         it('addQuery should initialize query display', function() {
-            $queryList.find(".hint").removeClass("xc-hidden");
+            $queryList.find(".hint.nomore").removeClass("xc-hidden");
             var queryListLen = $queryList.find(".xc-query").length;
 
-            expect(queryLists[1]).to.be.undefined;
-            expect($queryList.find(".hint.xc-hidden").length).to.equal(0);
+            expect(queryLog.has(1)).to.be.false;
+            expect($queryList.find(".hint.nomore.xc-hidden").length).to.equal(0);
             $queryDetail.find(".operationSection .content").text("");
             QueryManager.addQuery(1, 'testQuery', {});
-            queryObj = queryLists[1];
+            queryObj = queryLog.get(1, false);
 
             expect(queryObj).to.be.an('object');
             expect(queryObj.fullName.indexOf('testQuery-')).to.be.gt(-1);
             expect(queryObj.type).to.equal("xcFunction");
             expect(queryObj.numSteps).to.equal(-1);
+
+            expect(queryLog._dirtyData.update.has('1')).to.be.true;
 
             expect($queryDetail.find(".xc-query").hasClass("processing"))
             .to.be.true;
@@ -165,8 +458,8 @@ describe('QueryManager Test', function() {
             expect($queryDetail.find(".operationSection .content").text())
             .to.equal("");
 
-            var $queryLi = $queryList.find(".xc-query").last();
-            expect($queryList.find(".hint").length).to.equal(0);
+            var $queryLi = $queryList.find(".xc-query").first();
+            expect($queryList.find(".hint.nomore.xc-hidden").length).to.equal(1);
             expect($queryList.find(".xc-query").length)
             .to.equal(queryListLen + 1);
             expect($queryLi.find(".name").text()).to.equal("testQuery");
@@ -192,6 +485,7 @@ describe('QueryManager Test', function() {
             QueryManager.addSubQuery(2, name, dstTable, query); // wrong ID
             expect(queryObj.subQueries.length).to.equal(0);
             expect(getStatsCalled).to.be.false;
+            expect(queryLog._dirtyData.update.has("2")).to.be.false;
 
             QueryManager.addSubQuery(1, name, dstTable, query); // correct ID
             setTimeout(function() {
@@ -199,6 +493,7 @@ describe('QueryManager Test', function() {
                 expect(getStatsCalled).to.be.true;
                 expect($queryDetail.find(".operationSection .content").text().length);
                 expect(queryCheckLists[1]).to.be.undefined;
+                expect(queryLog._dirtyData.update.has('1')).to.be.true;
                 done();
             }, 100);
         });
@@ -258,11 +553,12 @@ describe('QueryManager Test', function() {
                 expect(getQueryStateCalled).to.be.true;
                 expect($queryDetail.find(".operationSection .content").text().length);
                 expect(queryCheckLists[1]).to.be.undefined;
+                expect(queryLog._dirtyData.update.has('1')).to.be.true;
                 done();
             }, 100);
         });
 
-        it('QueryManager.cancelQuery should work', function(done) {
+        it.skip('QueryManager.cancelQuery should work', function(done) {
             var transactionCanceled = false;
             var queryCancelCalled = false;
             var cancelOpCalled = false;
@@ -350,15 +646,16 @@ describe('QueryManager Test', function() {
 
         it('QueryManager.removeQuery should work', function() {
             var queryListLen = $queryList.find(".xc-query").length;
-            expect(queryLists[1]).to.be.an.object;
+            expect(queryLog.has(1)).to.be.true;
             expect($queryDetail.find(".operationSection .content").text())
             .to.not.equal("");
-            expect($queryList.find(".xc-query").last().hasClass("active"))
+            expect($queryList.find(".xc-query").first().hasClass("active"))
             .to.be.true;
 
+            queryObj.state = QueryStatus.Done;
             QueryManager.removeQuery(1, true);
 
-            expect(queryLists[1]).to.be.undefined;
+            expect(queryLog.has(1)).to.be.false;
             expect($queryDetail.find(".operationSection .content").text())
             .to.equal("");
             expect($queryList.find(".xc-query").last().hasClass("active"))
@@ -391,7 +688,7 @@ describe('QueryManager Test', function() {
             })
             .then(function() {
                 expect(stateCalled).to.be.true;
-                var query = queryLists[999];
+                var query = queryLog.get(999, false);
                 expect(query.subQueries.length).to.equal(2);
                 expect(query.subQueries[0].name).to.equal("map");
                 expect(query.subQueries[1].name).to.equal("filter");
@@ -412,11 +709,11 @@ describe('QueryManager Test', function() {
         });
 
         it("remove query should work", function() {
-            expect(queryLists[999]).to.not.be.undefined;
+            expect(queryLog.has(999)).to.be.true;
             var numList = $queryList.find(".xc-query").length;
             QueryManager.removeQuery(999);
             expect($queryList.find(".xc-query").length).to.equal(numList - 1);
-            expect(queryLists[999]).to.be.undefined;
+            expect(queryLog.has(999)).to.be.false;
         });
 
         it("finishing transation with 1/2 queries done", function(done) {
@@ -448,7 +745,7 @@ describe('QueryManager Test', function() {
             })
             .then(function() {
                 expect(stateCalled).to.be.true;
-                var query = queryLists[9999];
+                var query = queryLog.get(9999, false);
                 expect(query.subQueries.length).to.equal(2);
                 expect(query.subQueries[0].name).to.equal("map");
                 expect(query.subQueries[1].name).to.equal("filter");
@@ -469,11 +766,11 @@ describe('QueryManager Test', function() {
         });
 
         it("remove query should work", function() {
-            expect(queryLists[9999]).to.not.be.undefined;
+            expect(queryLog.has(9999)).to.be.true;
             var numList = $queryList.find(".xc-query").length;
             QueryManager.removeQuery(9999);
             expect($queryList.find(".xc-query").length).to.equal(numList - 1);
-            expect(queryLists[999]).to.be.undefined;
+            expect(queryLog.has(999)).to.be.false;
         });
     });
 
@@ -513,13 +810,13 @@ describe('QueryManager Test', function() {
 
             QueryManager.addSubQuery(1, name, dstTable, query);
 
-            $queryList.find(".xc-query").last().find(".cancelIcon").click();
+            $queryList.find(".xc-query").first().find(".cancelIcon").click();
             expect(cancelCalled).to.be.true;
             DS.cancel = dsCancelCache;
             XcalarGetOpStats = cachedGetOpStats;
 
-            delete queryLists[1];
-            $queryList.find(".xc-query").last().remove();
+            queryLog._queries.delete('1');
+            $queryList.find(".xc-query").first().remove();
         });
         // it("confirmCanceledQuery should work", function() {
         //     var list = queryLists;
@@ -578,8 +875,8 @@ describe('QueryManager Test', function() {
             }
             var $li1 = getQueryLi(1);
             var $li2 = getQueryLi(2);
-            $("#monitor-queryList").empty();
-            $("#monitor-queryList").append($li1).append($li2);
+            $("#monitor-queryList").find('.query').remove();
+            $("#monitor-queryList").prepend($li2).prepend($li1);
         });
 
         it("toggling bulk option menu should work", function() {
@@ -663,13 +960,71 @@ describe('QueryManager Test', function() {
         });
     });
 
+    describe("LoadMore", function() {
+        let moreQueries = [];
+        let oldLoadMore;
+
+        before(function() {
+            oldLoadMore = queryLog.loadMore;
+            queryLog.loadMore = async (count) => {
+                return moreQueries;
+            }
+            QueryLogTestUtil.clearQueryLog(queryLog);
+            $queryList.find(".xc-query").remove();
+        });
+
+        after(function() {
+            queryLog.loadMore = oldLoadMore;
+            QueryLogTestUtil.clearQueryLog(queryLog);
+            $queryList.find(".xc-query").remove();
+        });
+
+        afterEach(function() {
+            QueryLogTestUtil.clearQueryLog(queryLog);
+            $queryList.find(".xc-query").remove();
+        });
+
+        it("Test case: regular + more", async function() {
+            // Initial load
+            while (moreQueries.length > 0) {
+                moreQueries.pop();
+            };
+            for (let i = 0; i < 2; i ++) {
+                moreQueries.push(new XcQuery({
+                    id: -1 - i, name: `testQuery${i}`, time: Date.now()
+                }));
+            }
+            await QueryManager.loadMore(2);
+            expect($queryList.find(".xc-query").text().indexOf('testQuery0')).to.be.gt(-1);
+            expect($queryList.find(".xc-query").text().indexOf('testQuery1')).to.be.gt(-1);
+
+            // Increamental load
+            while (moreQueries.length > 0) {
+                moreQueries.pop();
+            };
+            for (let i = 2; i < 4; i ++) {
+                moreQueries.push(new XcQuery({
+                    id: -1 - i, name: `testQuery${i}`, time: Date.now()
+                }));
+            }
+            await QueryManager.loadMore(2);
+            expect($queryList.find(".xc-query").text().indexOf('testQuery0')).to.be.gt(-1);
+            expect($queryList.find(".xc-query").text().indexOf('testQuery1')).to.be.gt(-1);
+            expect($queryList.find(".xc-query").text().indexOf('testQuery2')).to.be.gt(-1);
+            expect($queryList.find(".xc-query").text().indexOf('testQuery3')).to.be.gt(-1);
+        });
+
+        it("Test case: no data", async function() {
+            while (moreQueries.length > 0) {
+                moreQueries.pop();
+            };
+            await QueryManager.loadMore(2);
+            expect($queryList.find('.xc-query').length).to.be.equal(0);
+        })
+    });
+
     after(function() {
-        for (var i in queryLists) {
-            delete queryLists[i];
-        }
-        for (var key in queryListsCache) {
-            queryLists[key] = queryListsCache[key];
-        }
+        QueryLogTestUtil.restoreQueryLog(queryLogCache, queryLog);
 
         UnitTest.offMinMode();
     });

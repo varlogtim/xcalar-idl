@@ -14,7 +14,7 @@ namespace MonitorPanel {
 
         _renderNodeInformation();
         _setupViewToggling();
-        _addEventListeners();   
+        _addEventListeners();
     }
 
     /**
@@ -37,7 +37,7 @@ namespace MonitorPanel {
      */
     export function active(): void {
         monitorGraph.start();
-        QueryManager.scrollToFocused();
+        QueryManager.showLogs();
     }
 
     // XXX move to system panel
@@ -117,7 +117,7 @@ namespace MonitorPanel {
                     $("#monitor-queries").addClass("active");
                     $menu.find(".menuSection.query").removeClass("xc-hidden");
                     title += MonitorTStr.Queries;
-                    QueryManager.scrollToFocused();
+                    QueryManager.showLogs();
                     break;
                 case ("setupButton"):
                     $("#monitor-setup").addClass("active");

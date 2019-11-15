@@ -575,6 +575,7 @@ module.exports = {
         "QUERIES": "OPERATIONS",
         "Queries": "Operations",
         "QueryHint": "No operations added",
+        "QueryHintLoadMore": "Load more operations",
         "RAM": "RAM",
         "RecentQueries": "Recent Operations",
         "ReleaseMem": "Release Memory",
