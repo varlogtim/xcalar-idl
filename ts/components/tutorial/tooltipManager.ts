@@ -29,7 +29,7 @@ namespace TooltipManager {
     let $clickEle: JQuery;
     let title: string;
     let checkBoxChecked: boolean = false;
-
+    let nextStepDisabled: boolean = false;
 
 
     export function start(walkthroughInfo: WalkthroughInfo, tooltips: TooltipInfo[],
@@ -265,10 +265,19 @@ namespace TooltipManager {
         }
     }
 
+    let tempDisableNextStep = function() {
+        nextStepDisabled = true;
+        setTimeout(() => nextStepDisabled = false, 500);
+    }
+
     /* controls nextStep whether it be forward, backwards or skipping
     *  @param {Object} arg : options include skip: boolean, back: boolean
     */
     function nextStep(arg?) {
+        if (nextStepDisabled) {
+            return;
+        }
+        tempDisableNextStep();
         stepNumber++;
 
         clearListeners();
@@ -691,6 +700,11 @@ namespace TooltipManager {
             height: height
         });
     }*/
+    /* Unit Test Only */
+    if (window["unitTestMode"]) {
+        tempDisableNextStep = () => {}
+    }
+    /* End Of Unit Test Only */
 }
 
 enum TooltipType {

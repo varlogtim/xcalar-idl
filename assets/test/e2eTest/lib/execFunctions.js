@@ -68,6 +68,10 @@ module.exports = {
         return $("#workbookPanel .workbookBox.noResource .subHeading input").val();
     },
 
+    getFirstWorkbookName: function() {
+        return $("#workbookPanel .workbookBox:first .subHeading input").val();
+    },
+
     openOpPanel: function(nodeId) {
         const node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
         SQLFuncOutOpPanel.Instance.show(node);

@@ -1,7 +1,7 @@
 const EventEmitter = require('events');
 
 class UploadAndEnterWorkbook extends EventEmitter {
-    command(workbookName, isUpgrade, _cb) {
+    command(workbookName, isUpgrade) {
         this.api.isPresent("#intro-popover", (isPresent) => {
             if (isPresent) {
                 this.api.click("#intro-popover .cancel");
@@ -12,7 +12,7 @@ class UploadAndEnterWorkbook extends EventEmitter {
                 .waitForElementNotVisible("#modalBackground", 10 * 1000)
                 .uploadWorkbook(workbookName, isUpgrade)
                 .waitForWorkbookReady()
-                .activateWorkbook(isUpgrade);
+                .activateDataflowWorkbook(isUpgrade)
             this.emit('complete');
         });
         return this;

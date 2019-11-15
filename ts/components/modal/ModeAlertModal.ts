@@ -48,25 +48,27 @@ class ModeAlertModal {
     }
 
     private _isNotShow(): boolean {
+        const storageKeyId = XcUser.CurrentUser.getName() + "xcalar-noModeSwitchAlert";
         if (typeof xcLocalStorage === "undefined") {
             return false;
-        } else if (!xcLocalStorage.getItem("xcalar-noModeSwitchAlert")) {
+        } else if (!xcLocalStorage.getItem(storageKeyId)) {
             return window["unitTestMode"];
         } else {
-            return xcLocalStorage.getItem("xcalar-noModeSwitchAlert") === "true";
+            return xcLocalStorage.getItem(storageKeyId) === "true";
         }
     }
 
     private _setNotShow(notShow: boolean): void {
         this._notShow = notShow;
+        const storageKeyId = XcUser.CurrentUser.getName() + "xcalar-noModeSwitchAlert";
         if (typeof xcLocalStorage === "undefined") {
             return;
         }
 
         if (this._notShow) {
-            xcLocalStorage.setItem("xcalar-noModeSwitchAlert", "true");
+            xcLocalStorage.setItem(storageKeyId, "true");
         } else {
-            xcLocalStorage.removeItem("xcalar-noModeSwitchAlert");
+            xcLocalStorage.removeItem(storageKeyId);
         }
     }
 }
