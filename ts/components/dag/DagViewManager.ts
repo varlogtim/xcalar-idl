@@ -377,7 +377,6 @@ class DagViewManager {
      * @param dagTab The tab we want to make active.
      */
     public switchActiveDagTab(dagTab: DagTab, $dfArea?: JQuery) {
-        const $oldDfArea: JQuery = this._getActiveArea();
         this.activeDagTab = dagTab;
         this.activeDag = dagTab.getGraph();
         if (this.activeDagView) {
@@ -391,7 +390,7 @@ class DagViewManager {
         this.activeDagView.focus();
         this._updateDagView();
         DagTable.Instance.switchTab(dagTab.getId());
-        DagSearch.Instance.switchTab($oldDfArea);
+        DagSearch.Instance.switchTab();
         this.activeDagView.updateOperationTime();
         DagUDFErrorModal.Instance.close();
     }
@@ -1017,7 +1016,6 @@ class DagViewManager {
         } else {
             this.$dagView.removeClass("showConfigInfo");
         }
-        DagSearch.Instance.update();
     }
 
 

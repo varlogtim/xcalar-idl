@@ -579,23 +579,31 @@ class DagView {
         };
     }
 
+    /**
+     * DagView.addSelection
+     * @param $operator
+     */
+    public static addSelection($operator: JQuery, className: string): void {
+        const rect = d3.select($operator[0]).insert('rect', ':first-child');
+        rect.classed(className, true);
+        rect.attr('x', '-3')
+        .attr('y', '-5')
+        .attr('width', DagView.nodeWidth + 5)
+        .attr('height', DagView.nodeHeight + 10)
+        .attr('fill', 'rgba(150, 225, 255, 0.2)')
+        .attr('stroke', 'rgba(0, 188, 255, 0.78)')
+        .attr('stroke-width', '1')
+        .attr('rx', '16')
+        .attr('ry', '43');
+    }
+
     private static _setSelectedStyle($operators: JQuery): void {
         $operators.each(function() {
             const $operator = $(this);
             if ($operator.find('.selection').length > 0) {
                 return;
             }
-            const rect = d3.select($operator[0]).insert('rect', ':first-child');
-            rect.classed('selection', true);
-            rect.attr('x', '-3')
-            .attr('y', '-5')
-            .attr('width', DagView.nodeWidth + 5)
-            .attr('height', DagView.nodeHeight + 10)
-            .attr('fill', 'rgba(150, 225, 255, 0.2)')
-            .attr('stroke', 'rgba(0, 188, 255, 0.78)')
-            .attr('stroke-width', '1')
-            .attr('rx', '16')
-            .attr('ry', '43');
+            DagView.addSelection($operator, "selection");
         });
     }
 

@@ -1422,5 +1422,16 @@ module.exports = {
         "duplicateDataflow": "Duplicate Module",
         "viewOptimizedDataflow": "View Optimized Application",
         "findOptimizedSource": "Find Original Module",
+    },
+
+    "dagSearch": {
+        "Find": "Find",
+        "FindWithin": "Find within",
+        "Keyword": "Keyword",
+        "Filters": "Filters",
+        "ClearFilters": "Clear filters",
+        "ResetOptions": "Reset options",
+        "CurrentTab": "Current module tab",
+        "AllTabs": "All open module tabs"
     }
 };

@@ -126,7 +126,7 @@ class SearchBar {
                     e.preventDefault();
                 }
                 const $matches: JQuery = searchBar.$matches;
-
+                const oldSearchIndex: number = searchBar.matchIndex;
                 if (e.which === keyCode.Up) {
                     searchBar.matchIndex--;
                     if (searchBar.matchIndex < 0) {
@@ -141,7 +141,7 @@ class SearchBar {
                     }
                 }
                 if (options.removeSelected) {
-                    options.removeSelected();
+                    options.removeSelected(oldSearchIndex);
                 }
                 const $selectedMatch: JQuery = $matches.eq(searchBar.matchIndex);
                 if (options.highlightSelected) {
@@ -209,6 +209,11 @@ class SearchBar {
             });
         }
     }
+
+    public getSearchIndex(): number {
+        return this.matchIndex;
+    }
+
     public highlightSelected($match: JQuery): any {
         if (this.options.highlightSelected) {
             return (this.options.highlightSelected($match));

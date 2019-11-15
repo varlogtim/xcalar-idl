@@ -1,5 +1,5 @@
 class CommentNode {
-
+    public static readonly KEY: string = "comment";
     private static uid: XcUID;
 
     private id: CommentNodeId;
@@ -7,7 +7,7 @@ class CommentNode {
     private display: {x: number, y: number, height: number, width: number};
 
     public static generateId(): string {
-        this.uid = this.uid || new XcUID("comment", true);
+        this.uid = this.uid || new XcUID(CommentNode.KEY, true);
         return this.uid.gen();
     }
 

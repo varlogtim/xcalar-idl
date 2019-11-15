@@ -518,9 +518,14 @@
             }
         }
 
-        .paramTitle, .nodeTitle, .opTitle {
-            &.highlight {
-                fill: @color-bg-gold;
+        .searchHighLightSelection {
+            stroke: @color-highlight-stroke-gold;
+            fill: @color-highlight-selection-gold;
+        }
+
+        rect {
+            &.searchHighLight {
+                fill: @color-highlight-gold;
             }
         }
 
@@ -874,6 +879,10 @@
 
             &:focus {
                 outline: none;
+            }
+
+            &.searchHighLight {
+                background-color: @color-highlight-gold;
             }
         }
         .ui-resizable-handle {
@@ -2115,34 +2124,177 @@
     }
 }
 
+// XXX TODO: move it to pop up style list
 #dagSearch {
-    width: 260px;
-    .position(absolute, @top: 0, @right: 10%);
-    z-index: @z-index-dagSearch;
-    height: 35px;
-    padding: 5px;
-    background-color: @color-bg-white-eight;
+    @width: 270px;
+    width: @width;
+    min-width: @width;
+    position: absolute;
+    font-size: 12px;
+    z-index: @z-index-modalBackground - 1; // should be below modal
+    height: 235px;
 
-    input {
-        width: 180px;
-        background-color: @color-white;
-        padding-right: 45px;
+    .modalHeader {
+        .text {
+            font-size: 16px;
+            font-weight: bold;
+        }
     }
 
-    .counter {
-        right: 80px;
+    .modalMain {
+        padding-top: 8px;
+        padding-bottom: @modal-padding-vertical;
+    }
+
+    .group {
+        margin-top: 16px;
+        margin-bottom: 16px;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        b {
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+    }
+
+    .searchArea {
+        position: relative;
         height: 25px;
-        top: 9px;
+
+        input {
+            padding-right: 90px;
+            height: 25px;
+            line-height: 25px;
+            font-weight: normal;
+        }
+
+        .counter {
+            position: absolute;
+            right: 46px;
+            top: 4px;
+            color: @color-text-graySoft;
+            font-size: 12px;
+            pointer-events: none;
+        }
+    
+        .arrows {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+
+            .icon {
+                font-size: 10px;
+                margin-left: 6px;
+            }
+        }
     }
 
-    .arrows {
-        top: 3px;
-        right: 21px;
+    .divider {
+        width: ~"calc(100% + 2 * @{modal-padding-horizontal})";
+        height: 1px;
+        background-color: @color-border-menugray;
+        position: relative;
+        left: -1 * @modal-padding-horizontal;
     }
 
-    .close {
-        .position(absolute, @top: 13px, @right: 7px);
-        font-size: 10px;
+    .advanceSection {
+        height: 19px;
+
+        &.expand {
+            &.status {
+                height: 77px;
+            }
+
+            &.type {
+                height: 150px;
+            }
+
+            .options {
+                .flex-display;
+            }
+
+            .scope {
+                display: block;
+            }
+
+            .sectionToggle {
+                .xi-plus {
+                    display: none;
+                }
+    
+                .xi-minus {
+                    display: inline-block;
+                }
+            }
+        }
+
+        .options {
+            display: none;
+            flex-flow: wrap;
+            margin-top: 8px;
+
+            .cell {
+                .flex(0 0 101px);
+                margin-right: 9px;
+            }
+        }
+
+        .scope {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .checkboxSection {
+            height: 25px;
+            line-height: 25px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .sectionToggle {
+            .icon {
+                font-size: 11px;
+            }
+
+            .xi-minus {
+                display: none;
+            }
+        }
+
+        .radioButtonGroup {
+            display: block;
+
+            .radioButton {
+                margin-top: 4px;
+                font-size: 12px;
+
+                &:first-child {
+                    margin-top: 0;
+                }
+            }
+
+            .label {
+                font-weight: normal;
+            }
+        }
+
+        .action {
+            float: right;
+        }
+
+        .reset {
+            color: @color-font-link-blue;
+            text-decoration: underline;
+            margin-right: 16px;
+        }
+
+        .subTitle {
+            font-size: 14px;
+            font-weight: normal;
+        }
     }
 }
 

@@ -334,7 +334,7 @@ interface MapUDFFailureInfo {
 }
 
 declare class d3 {
-    public select(selector: string): d3;
+    public select(selector: string | Function): d3;
     public selectAll(selector: string): d3;
     public data(callback: Function | any[]);
     public transition(): d3;
@@ -344,6 +344,7 @@ declare class d3 {
     public ease(type: string): d3;
     public tween(type: string, callback: Function): d3;
     public append(selector: string): d3;
+    public attr(options: string): string;
     public attr(options: object | string, options2?: string | number | Function): d3;
     public style(options: string, options2: string): d3;
     public text(text: string | Function): d3;
@@ -359,6 +360,7 @@ declare class d3 {
     public size(): number;
     public delay(func: Function): d3;
     public filter(func: Function): d3;
+    public node(): any;
     public svg;
     public layout;
     public scale: any;
