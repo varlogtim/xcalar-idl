@@ -1252,6 +1252,9 @@ module.exports = function(grunt) {
             dist: {
                 options: {
                     //paths: ['assets/css']
+                    sourceMap: BLDTYPE !== INSTALLER, // Enable css mapping in dev build
+                    sourceMapFileInline: BLDTYPE !== INSTALLER, // Put the mapping in css file
+                    outputSourceFiles: BLDTYPE !== INSTALLER, // Put the less content in css file, or they will be removed by css cleanup task
                 },
                 cwd: BLDROOT + cssMapping.src,
                 src: '<%= ' + LESS_TEMPLATE_KEY + ' %>', //grunt.option(WATCHFLAG) || '*.less', // get all less files in 'cwd' (only get the top level ones)
