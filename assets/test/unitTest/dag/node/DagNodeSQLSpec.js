@@ -195,7 +195,7 @@ describe("SQL Dag Node Test", () => {
                      // XXX who knows why the alert message doesn't show up immediately
                     setTimeout(() => {
 
-                        UnitTest.hasAlertWithText("cannot resolve '`test`' given input columns: [b.DEPTIME, b.DEPDELAY]; line 1 pos 7;\n'Project ['test]\n+- SubqueryAlias `b`\n+- LogicalRDD [DEPTIME#2195, DEPDELAY#2206], false");
+                        UnitTest.hasAlertWithText("cannot resolve '`test`' given input columns: [b.DEPTIME, b.DEPDELAY]; line 1 pos 7;");
                         SQLUtil.sendToPlanner = cache;
                         done();
                     }, 2000);

@@ -1347,6 +1347,25 @@ class DagNodeSQL extends DagNode {
             })
             .fail(function(errorMsg) {
                 console.error("sql compile error: ", errorMsg);
+                const errorMsgBackup = errorMsg;
+                try {
+                    if (typeof errorMsg === "string") {
+                        if (/^(.|\n)*== SQL ==(.|\n)*\^\^\^/.test(errorMsg)) {
+                            errorMsg = errorMsg.match(/^(.|\n)*== SQL ==(.|\n)*\^\^\^/)[0];
+                        }
+                        let lines = errorMsg.split("\n");
+                        for (let i = 0; i < lines.length; i++) {
+                            if (lines[i].startsWith("+-")) {
+                                lines.splice(i - 1, lines.length - i + 1);
+                                break;
+                            }
+                        }
+                        errorMsg = lines.join("\n");
+                        errorMsg = errorMsg.replace(/\.;*$/, ".");
+                    }
+                } catch (e) {
+                    errorMsg = errorMsgBackup;
+                }
                 let error = errorMsg;
                 if (typeof errorMsg === "object") {
                     if (errorMsg instanceof Error) {
