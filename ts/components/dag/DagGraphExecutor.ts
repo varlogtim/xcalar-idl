@@ -476,6 +476,7 @@ class DagGraphExecutor {
             this._getAndExecuteBatchQuery(txId, nodes)
             .then((_res) => {
                 self._optimizedExecuteInProgress = false;
+                let hasIncomplete = false;
                 nodes.forEach((node) => {
                     if (node instanceof DagNodeDFOut) {
                         let destTable;
@@ -495,6 +496,11 @@ class DagGraphExecutor {
                             const res = node.getLinkedNodeAndGraph();
                             const linkOutNode: DagNodeDFOut = res.node;
                             destTable = linkOutNode.getTable();
+                            if (!destTable && !linkOutNode.shouldLinkAfterExecution()) {
+                                // edge case where linkIn node uses a cached
+                                // table that's created by another linkIn node
+                                destTable = linkOutNode.getStoredQueryDest(tabId);
+                            }
                         }
                         if (destTable) {
                             node.setTable(destTable, true);
@@ -503,9 +509,12 @@ class DagGraphExecutor {
                     } else if (node.getState() === DagNodeState.Running) {
                         console.error(node.getTitle() + " " + node.getDisplayNodeType() + " did not finish running");
                         console.error(JSON.stringify(node.getIndividualStats()));
+                        hasIncomplete = true;
                     }
                 });
-
+                if (hasIncomplete) {
+                    console.error(JSON.stringify(_res, null, 4));
+                }
                 Transaction.done(txId, {
                     noLog: true,
                 });

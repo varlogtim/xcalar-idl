@@ -126,7 +126,13 @@ class DagSubGraph extends DagGraph {
             }
             if (queryNode.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] &&
                 queryNode.api !== XcalarApisT.XcalarApiDeleteObjects) {
-                let nodeId: DagNodeId = this._tableNameToDagIdMap[args.dest];
+                let tableName = args.dest;
+                if ((queryNode.operation === XcalarApisTStr[XcalarApisT.XcalarApiAggregate] ||
+                    queryNode.api === XcalarApisT.XcalarApiAggregate) &&
+                    !tableName.startsWith(gAggVarPrefix)) {
+                    tableName = gAggVarPrefix + tableName;
+                }
+                let nodeId: DagNodeId = this._tableNameToDagIdMap[tableName];
                 let node: DagNode = this.getNode(nodeId);
                 if (node != null) { // could be a drop table node
                     node.beRunningState();

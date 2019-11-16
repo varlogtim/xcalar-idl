@@ -979,11 +979,14 @@ namespace DagNodeMenu {
                 // try to get source node from tag
                 if (tag) {
                     let parentNodeIds = tag || [];
-                    let parentNodeId = parentNodeIds[parentNodeIds.length - 1];
-                    let res = DagViewManager.Instance.getNodeAndTabById(parentNodeId);
-                    if (res.node && res.tab) {
-                        parentNode = res.node;
-                        parentTab = res.tab;
+                    for (let i = parentNodeIds.length - 1; i >= 0; i--) {
+                        let parentNodeId = parentNodeIds[i];
+                        let res = DagViewManager.Instance.getNodeAndTabById(parentNodeId);
+                        if (res.node && res.tab) {
+                            parentNode = res.node;
+                            parentTab = res.tab;
+                            break;
+                        }
                     }
                 }
                 // if tag didn't work, try using retina name

@@ -969,9 +969,14 @@ class DagNodeExecutor {
     private _linkWithBatch(graph: DagGraph, linkOutNode: DagNodeDFOut, optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let priorDestTable;
-        let rootTx = Transaction.getRootTx(this.txId);
-        if (rootTx) {
-            priorDestTable = rootTx.getStoredQueryDest(linkOutNode.getId(), graph.getTabId());
+        let rootTx;
+        if (optimized) {
+            rootTx = Transaction.getRootTx(this.txId);
+            if (rootTx) {
+                priorDestTable = rootTx.getStoredQueryDest(linkOutNode.getId(), graph.getTabId());
+            }
+        } else {
+            priorDestTable = linkOutNode.getStoredQueryDest(this.tabId);
         }
 
         let promise;
@@ -991,17 +996,26 @@ class DagNodeExecutor {
                 // get the last dest table
                 destTable = destTables[destTables.length - 1];
                 let newDestTable: string = this._generateTableName();
-                try {
-                    // give final table name a name matching the
-                    // the link in node's id
-                    let query = JSON.parse(queryStr);
-                    let lastQuery = query[query.length - 1];
-                    lastQuery.args.dest = newDestTable;
-                    destTables[destTables.length - 1] = newDestTable;
-                    destTable = newDestTable;
-                    queryStr = JSON.stringify(query);
-                } catch(e) {
-                    console.error(e);
+                if (queryStr && queryStr.length) {
+                    try {
+                        // give final table name a name matching the
+                        // the link in node's id
+                        let query = JSON.parse(queryStr);
+                        let lastQuery;
+                        for (let i = query.length - 1; i >= 0; i--) {
+                            let q = query[i];
+                            if (q.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+                                lastQuery = q;
+                                break;
+                            }
+                        }
+                        lastQuery.args.dest = newDestTable;
+                        destTables[destTables.length - 1] = newDestTable;
+                        destTable = newDestTable;
+                        queryStr = JSON.stringify(query);
+                    } catch(e) {
+                        console.error(e);
+                    }
                 }
             }
             if (!priorDestTable) {
@@ -1011,7 +1025,12 @@ class DagNodeExecutor {
                         noQueryNeeded = true;
                     }
                 } catch (e) {}
-                rootTx.setStoredQueryDest(linkOutNode.getId(), graph.getTabId(), destTable);
+                if (optimized) {
+                    rootTx.setStoredQueryDest(linkOutNode.getId(), graph.getTabId(), destTable);
+                } else {
+                    linkOutNode.setStoredQueryDest(this.tabId, destTable);
+                }
+
                 return XIApi.query(this.txId, destTable, queryStr);
             } else {
                 noQueryNeeded = true;
@@ -1418,8 +1437,14 @@ class DagNodeExecutor {
             let finalQueryStr = replaceRetStruct.newQueryStr;
             const queryNodes = JSON.parse(finalQueryStr);
             queryNodes.forEach(queryNode => {
+                // add comments with nodeIds so we can track progress
                 if (queryNode.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
-                    queryNode.tag = node.getTableNewDagIdMap()[queryNode.args.dest];
+                    let tableName = queryNode.args.dest;
+                    if (queryNode.operation === XcalarApisTStr[XcalarApisT.XcalarApiAggregate] &&
+                        !tableName.startsWith(gAggVarPrefix)) {
+                        tableName = gAggVarPrefix + tableName;
+                    }
+                    queryNode.comment = JSON.stringify({nodeIds: [node.getTableNewDagIdMap()[tableName]]});
                 }
             });
 
