@@ -955,7 +955,14 @@ namespace DagNodeMenu {
     function _focusRunningNode(): void {
         try {
             const $container: JQuery = DagViewManager.Instance.getActiveArea();
-            const $node: JQuery = $container.find(".operator.state-" + DagNodeState.Running);
+            let $node: JQuery;
+            let $tip = $container.find(".runStats." + DgDagStateTStr[DgDagStateT.DgDagStateProcessing]);
+            if ($tip.length) {
+                $node =  DagViewManager.Instance.getNode($tip.data("id"));
+            }
+            if (!$node || !$node.length) {
+                throw({message: "Running node could not be found"});
+            }
             DagUtil.scrollIntoView($node, $container)
             DagViewManager.Instance.deselectNodes();
             const tabId: string = DagViewManager.Instance.getActiveTab().getId();
