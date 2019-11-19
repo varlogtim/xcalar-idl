@@ -91,6 +91,7 @@ class SQLEditorSpace {
     }
 
     public setSnippet(name: string): void {
+        SQLSnippet.Instance.setLastOpenedSnippet(name);
         this._setFileName(name);
         let snippet = SQLSnippet.Instance.getSnippet(name);
         this._sqlEditor.setValue(snippet);
@@ -113,8 +114,7 @@ class SQLEditorSpace {
         }
         this._sqlEditor = new SQLEditor("sqlEditorSpace-editor", callbacks);
 
-        // TODO: improve this. Ideally should set to the last snippet
-        SQLSnippet.Instance.setFirstSnippet();
+        SQLSnippet.Instance.showLastOpenedSnippet();
 
         CodeMirror.commands.autocompleteSQLInVDW = function(cmeditor) {
             let acTables = self._getAutoCompleteHint();

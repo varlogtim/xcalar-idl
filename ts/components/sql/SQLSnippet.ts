@@ -8,6 +8,7 @@ class SQLSnippet {
 
     private _snippets: {[key: string]: string};
     private _fetched: boolean;
+    private _lastOpenedSnippet: string;
 
     private constructor() {
         this._snippets = {};
@@ -71,20 +72,36 @@ class SQLSnippet {
         return this._updateSnippets();
     }
 
-    // TODO: imrove this. Ideally should set to the last snippet
-    public setFirstSnippet(): void {
-        this._fetchSnippets()
-        .then(() => {
+    public async showLastOpenedSnippet(): Promise<void> {
+        try {
+            await this._fetchSnippets();
+            await this._fetchLastOpenedSnippet();
+            let lastOpenedSnippetName = this._lastOpenedSnippet;
             const snippetNames = this._listSnippetsNames();
-            if (snippetNames && snippetNames[0] !== "Untitled") {
-                SQLEditorSpace.Instance.setSnippet(snippetNames[0])
+            if (!lastOpenedSnippetName) {
+                lastOpenedSnippetName = snippetNames[0]; // first snippet or "Untitled" if no snippets
             }
-        })
+            SQLEditorSpace.Instance.setSnippet(lastOpenedSnippetName);
+        }
+        catch (e) {
+            throw new Error('showLastOpenedSnippet failed');
+        }
+    }
+
+    public setLastOpenedSnippet(snippetName: string): XDPromise<void> {
+        this._lastOpenedSnippet = snippetName;
+        let lastOpenedSnippetKVStore = this._getLastOpenedSnippetKVStore();
+        return lastOpenedSnippetKVStore.put(JSON.stringify(this._lastOpenedSnippet), true);
     }
 
     private _getKVStore(): KVStore {
         let snippetQueryKey: string = KVStore.getKey("gSQLSnippetQuery");
         return new KVStore(snippetQueryKey, gKVScope.WKBK);
+    }
+
+    private _getLastOpenedSnippetKVStore(): KVStore {
+        let lastOpenedSnippetKey: string = KVStore.getKey("gSQLSnippetLastOpened");
+        return new KVStore(lastOpenedSnippetKey, gKVScope.WKBK);
     }
 
     private _listSnippetsNames(): string[] {
@@ -104,6 +121,21 @@ class SQLSnippet {
             return (a < b ? -1 : (a > b ? 1 : 0));
         });
         return names;
+    }
+
+    private async _fetchLastOpenedSnippet(): Promise<string> {
+        try {
+            let kvStore = this._getLastOpenedSnippetKVStore();
+
+            const lastOpened = await kvStore.getAndParse();
+            if (lastOpened != null) {
+                this._lastOpenedSnippet = lastOpened;
+            }
+            return lastOpened;
+        }
+        catch (e) {
+            throw new Error('_fetchLastOpenedSnippet failed');
+        }
     }
 
     private _fetchSnippets(): XDPromise<void> {
@@ -140,5 +172,4 @@ class SQLSnippet {
 
         return deferred.promise();
     }
-
 }
