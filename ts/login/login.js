@@ -14,6 +14,7 @@ $(document).ready(function() {
     var isMsalResolved = false;
     var isSSOTokenResolved = false;
     var splashMissedHiding = false;
+    var splashPromise = PromiseHelper.deferred();
     var urlParam;
 
     urlParam = parseURLParam();
@@ -249,7 +250,10 @@ $(document).ready(function() {
                             "success": function(data) {
                                 try {
                                     if (data.loggedIn === true) {
-                                        redirect();
+                                        splashPromise.promise()
+                                        .always(function() {
+                                            redirect();
+                                        });
                                     } else {
                                         cloudLoginFailureHanlder();
                                     }
@@ -421,6 +425,7 @@ $(document).ready(function() {
         $('#loadingBar .innerBar').removeClass('animated');
 
         setTimeout(function() {
+            splashPromise.resolve();
             if (canShowSplashScreen()) {
                 $("#splashContainer").fadeOut(1000);
                 setTimeout(function() {

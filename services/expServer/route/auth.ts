@@ -6,6 +6,8 @@ import * as cookieParser from "cookie-parser";
 import { Router } from "express"
 export const router = Router();
 import authManager from "../controllers/authManager";
+import { cloudMode } from "../expServer";
+
 
 router.post('/auth/azureIdToken', function(req, res) {
     xcConsole.log("Authenticaking Azure Id Token");
@@ -41,6 +43,15 @@ router.post('/auth/azureIdToken', function(req, res) {
 });
 
 router.get('/auth/sessionStatus', function(req, res) {
+    // XXX a hack way to extend the session, it should
+    // be replacted with a better method
+    if (cloudMode) {
+        try {
+            req.session.touch();
+        } catch (e) {
+            console.error("extend session error", e);
+        }
+    }
     var message = { user: false,
                     admin: false,
                     loggedIn: false,
