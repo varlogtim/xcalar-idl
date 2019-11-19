@@ -8,10 +8,10 @@ interface ClusterGetResponse {
 namespace CloudLogin {
     let localUsername: string;
     let localSessionId: string;
-    let selectedClusterSize: 'XS'|'S'|'M'|'L'|'XL';
+    let selectedClusterSize: 'XS'|'S'|'M'|'L'|'XL' = 'XS';
     let deployingProgressBar: ProgressBar;
     let stoppingProgressBar: ProgressBar;
-    let loginTimeoutTimer: number;
+    // let loginTimeoutTimer: number;
     let cloudLoginCognitoService: CloudLoginCognitoService;
     let cloudLoginLambdaService: CloudLoginLambdaService;
     let pendingTimeoutTimer: number;
@@ -31,7 +31,7 @@ namespace CloudLogin {
 
         deployingProgressBar = new ProgressBar({
             $container: $("#loadingForm"),
-            completionTime: 100,
+            completionTime: 180,
             progressTexts: [
                 'Creating Xcalar cluster',
                 'Starting Xcalar cluster',
@@ -193,12 +193,14 @@ namespace CloudLogin {
                         showInitialScreens();
                     }, 1000);
                 } else {
-                    showScreen("cluster");
-                    clearTimeout(loginTimeoutTimer);
-                    loginTimeoutTimer = <any>setTimeout(() => {
-                        showInitialScreens();
-                        cookieLogout();
-                    }, 1800000);
+                    startCluster(); // skip cluster size selection screen and start with XS
+
+                    // showScreen("cluster");
+                    // clearTimeout(loginTimeoutTimer);
+                    // loginTimeoutTimer = <any>setTimeout(() => {
+                    //     showInitialScreens();
+                    //     cookieLogout();
+                    // }, 1800000);
                 }
             } else if (clusterGetResponse.isPending) {
                 // go to wait screen
@@ -612,7 +614,7 @@ namespace CloudLogin {
     }
 
     function showClusterIsReadyScreen(): void {
-        $("#loadingTitle").html("Your cluster is ready!");
+        // $("#loadingTitle").html("Your cluster is ready!");
         deployingProgressBar.end("Redirecting to Xcalar Cloud...");
         clearInterval(deployingProgressBarCheckIntervalID);
         sessionStorage.setItem('XcalarDeployingProgressBarWidth', "");
@@ -622,7 +624,7 @@ namespace CloudLogin {
     let deployingProgressBarCheckIntervalID: number;
     function deployingClusterAnimation(): void {
         if (!deployingProgressBar.isStarted()) {
-            deployingProgressBar.start("Please wait while your cluster loads...");
+            deployingProgressBar.start("Please wait while your cluster starts...", "This will take 3-4 minutes");
 
             clearInterval(deployingProgressBarCheckIntervalID);
             deployingProgressBarCheckIntervalID = <any>setInterval(function() {
@@ -793,7 +795,7 @@ namespace CloudLogin {
         });
 
         $(".logOutLink").click(function () {
-            clearTimeout(loginTimeoutTimer);
+            // clearTimeout(loginTimeoutTimer);
             cookieLogout();
         });
 
@@ -914,7 +916,7 @@ namespace CloudLogin {
 
         $("#deployBtn").click(function () {
             if (checkClusterForm()) {
-                clearTimeout(loginTimeoutTimer);
+                // clearTimeout(loginTimeoutTimer);
                 startCluster();
             }
         });

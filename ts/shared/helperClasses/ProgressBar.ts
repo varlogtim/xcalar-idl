@@ -34,12 +34,13 @@ class ProgressBar {
         this._tickTime = this._completionTime / (this._maxProgressBarWidth - this._startWidth);
     }
 
-    public start(startText?: string) {
+    public start(startText?: string, helperText?: string) {
         if (this._isStarted) {
             return;
         }
         this._isStarted = true;
         this._$container.find(".title").html(startText || "");
+        this._$container.find(".progressHelpText").html(helperText || "");
         let highOpacity = 100;
         let lowOpacity = 10;
         let step = (highOpacity - lowOpacity) / (this._numVisibleProgressTexts - 1);
