@@ -180,7 +180,7 @@ describe("Transaction Test", function() {
             QueryManager.queryDone = function() {
                 called1 = true;
             }
-            Transaction.done(-1, {});
+            Transaction.done(-1);
             expect(called1).to.be.false;
             QueryManager.queryDone = cacheFn1;
         });
@@ -201,7 +201,7 @@ describe("Transaction Test", function() {
             var info = Transaction.__testOnly__.getAll();
             info.canceledTxCache[id] = true;
 
-            Transaction.done(id, {});
+            Transaction.done(id);
 
             expect(called1).to.be.false;
             expect(called2).to.be.true;
@@ -238,7 +238,7 @@ describe("Transaction Test", function() {
             var info = Transaction.__testOnly__.getAll();
             expect(info.txCache[id]).to.not.be.empty;
 
-            Transaction.done(id, {});
+            Transaction.done(id);
 
             expect(info.txCache[id]).to.be.undefined;
             expect(called1).to.be.true;
@@ -553,7 +553,7 @@ describe("Transaction Test", function() {
 
             Transaction.update(txId, 10);
             expect(pct).to.equal(null);
-            Transaction.done(txId, {});
+            Transaction.done(txId);
         });
 
         it("should update progress", () => {
@@ -575,7 +575,7 @@ describe("Transaction Test", function() {
                 }
             }
             Transaction.update(txId, queryStateOutput);
-            Transaction.done(txId, {});
+            Transaction.done(txId);
         });
 
         after(() => {

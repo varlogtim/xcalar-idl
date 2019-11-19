@@ -233,9 +233,8 @@ namespace QueryManager {
     /**
      * QueryManager.queryDone
      * @param id
-     * @param sqlNum
      */
-    export function queryDone(id: number, sqlNum?: number): void {
+    export function queryDone(id: number): void {
         if (Transaction.isSimulate(id) || !queryLog.has(id)) {
             return;
         }
@@ -246,10 +245,6 @@ namespace QueryManager {
             mainQuery.outputTableState = "unavailable";
         } else {
             mainQuery.outputTableState = "active";
-        }
-
-        if (sqlNum != null) {
-            mainQuery.sqlNum = sqlNum;
         }
 
         mainQuery.setElapsedTime();
@@ -671,7 +666,7 @@ namespace QueryManager {
         }
 
         let html: string = "";
-        const queries = queryLog.addFromDurables(queriesUnsorted);
+        const queries = queryLog.upgrade(queriesUnsorted);
         for (const query of queries) {
             html += getQueryHTML(query, true);
         }

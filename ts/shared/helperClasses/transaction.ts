@@ -309,14 +309,12 @@ namespace Transaction {
 
         // add sql
         const willCommit = !options.noCommit;
-        let queryNum: number;
         const cli: string = txLog.getCli();
         let title: string = options.title || txLog.getOperation();
         title = xcStringHelper.capitalize(title);
         // if has new sql, use the new one, otherwise, use the cached one
         const sql: SQLInfo = options.sql || txLog.getSQL();
         if (options.noLog) {
-            queryNum = null;
             if (typeof mixpanel !== "undefined") {
                 xcMixpanel.transactionLog({
                     title: title,
@@ -326,11 +324,10 @@ namespace Transaction {
             }
         } else if (!has_require) {
             Log.add(title, sql, cli, willCommit);
-            queryNum = Log.getCursor();
         }
 
         if (!has_require) {
-            QueryManager.queryDone(txId, queryNum);
+            QueryManager.queryDone(txId);
 
             // check if we need to update monitorGraph's table usage
             const dstTables: string[] = QueryManager.getAllDstTables(txId);

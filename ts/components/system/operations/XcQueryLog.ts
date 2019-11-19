@@ -145,101 +145,68 @@ class XcQueryLog {
             }
         }
 
-        return this.addFromDurables(loaded);
+        return this._addFromDurables(loaded, false);
     }
 
     /**
-     * Add queries from list of durables(XcQueryDurable)
+     * Upgrade from 2.0 queries; It should be removed after 2.2
      * @param durablesUnsorted
-     * @returns List of added XcQuery, sorted by time+sqlNum DESC
+     * @returns List of added XcQuery, sorted by time DESC
      */
-    public addFromDurables(durablesUnsorted: XcQueryDurable[]): Array<XcQuery> {
-        const minQueryId = this._getMinId();
-        const queryList: Array<XcQuery> = new Array();
+    public upgrade(durablesUnsorted: XcQueryDurable[]): Array<XcQuery> {
+        try {
+            if (durablesUnsorted == null || durablesUnsorted.length === 0) {
+                return [];
+            }
 
-        if (durablesUnsorted == null) {
-            return [];
-        }
-        const sortedQueries = durablesUnsorted.concat([]);
-        sortedQueries.sort(querySqlSorterDesc);
+            // Convert old query durables to new ones
+            // Basically, the difference is the source where the name & cli come from
+            const convertedDurables: Array<XcQueryDurable> = new Array();
+            const logs: XcLog[] = Log.getLogs();
+            const errorLogs: XcLog[] = Log.getErrorLogs();
 
-        const logs: XcLog[] = Log.getLogs();
-        const errorLogs: XcLog[] = Log.getErrorLogs();
-        const numQueries: number = sortedQueries.length;
+            for (const queryDurable of durablesUnsorted) {
+                const xcLog = queryDurable.state === QueryStatus.Error
+                    ? errorLogs[queryDurable.sqlNum]
+                    : logs[queryDurable.sqlNum];
 
-        for (let i = 0; i < numQueries; i++) {
-            const queryDurable: XcQueryDurable = sortedQueries[i];
-            const xcLog = queryDurable.state === QueryStatus.Error
-                ? errorLogs[queryDurable.sqlNum]
-                : logs[queryDurable.sqlNum];
-
-            let name; // string or sqlops
-            let cli: string;
-            if (xcLog) {
-                name = xcLog.options.operation;
-                if (name === SQLOps.Retina &&
-                    xcLog.options.retName) {
-                    name += " " + xcLog.options.retName;
-                }
-                if (queryDurable.state === QueryStatus.Error) {
-                    cli = queryDurable.queryStr;
-                } else {
-                    cli = xcLog.cli;
-                    if (cli != null && cli.slice(-1) === ",") {
-                        cli = cli.slice(0, -1);
+                let name; // string or sqlops
+                let cli: string;
+                if (xcLog) {
+                    name = xcLog.options.operation;
+                    if (name === SQLOps.Retina &&
+                        xcLog.options.retName) {
+                        name += " " + xcLog.options.retName;
                     }
-                }
-            } else {
-                name = queryDurable.name;
-                cli = queryDurable.queryStr;
-            }
-            if (!name) {
-                continue; // info is not stored in log due to an overwritten
-                          // undo so we skip
-            }
-
-            const fullName: string = queryDurable.fullName || name;
-            const queryId: number = Math.min(minQueryId, 0) - 1 - i;
-            const query = new XcQuery({
-                "version": queryDurable.version,
-                "name": name,
-                "fullName": fullName,
-                "time": queryDurable.time,
-                "id": queryId,
-                "numSteps": 1,
-                "queryStr": cli,
-                "sqlNum": queryDurable.sqlNum,
-                "elapsedTime": queryDurable.elapsedTime,
-                "opTime": queryDurable.opTime,
-                "opTimeAdded": queryDurable.opTimeAdded,
-                "outputTableName": queryDurable.outputTableName,
-                "outputTableState": queryDurable.outputTableState,
-                "state": queryDurable.state,
-                "type": "restored",
-                "error": queryDurable.error,
-                "srcTables": null,
-                "cancelable": null,
-                "queryMeta": queryDurable.queryMeta
-            });
-
-            queryList.push(query);
-            this.add(queryId, query, false);
-        }
-
-        return queryList;
-
-        function querySqlSorterDesc(a: XcQueryDurable, b: XcQueryDurable): number {
-            if (a.time > b.time) {
-                return -1;
-            } else if (a.time < b.time) {
-                return 1;
-            } else {
-                if (a.sqlNum > b.sqlNum) {
-                    return -1;
+                    if (queryDurable.state === QueryStatus.Error) {
+                        cli = queryDurable.queryStr;
+                    } else {
+                        cli = xcLog.cli;
+                        if (cli != null && cli.slice(-1) === ",") {
+                            cli = cli.slice(0, -1);
+                        }
+                    }
                 } else {
-                    return 1;
+                    name = queryDurable.name;
+                    cli = queryDurable.queryStr;
                 }
+
+                // Make a copy of durable object, so that the original array won't be polluted
+                const convertedDurable: XcQueryDurable = {...queryDurable};
+                convertedDurable.name = name;
+                convertedDurable.queryStr = cli;
+                convertedDurable.fullName = convertedDurable.fullName || `${name}-${convertedDurable.time}`;
+
+                convertedDurables.push(convertedDurable);
             }
+
+            // Add converted durables to log
+            return this._addFromDurables(convertedDurables, true);
+        } catch(e) {
+            // Catch errors so not to crash XD, and skip the upgrade
+            console.warn(e);
+            console.warn('Upgrade is skipped');
+            return [];
         }
     }
 
@@ -265,6 +232,64 @@ class XcQueryLog {
 
     private _getArchiveKvPrefix(): string {
         return KVStore.getKey("gQueryArchivePrefix");
+    }
+
+    /**
+     * Add queries from list of durables(XcQueryDurable)
+     * @param durablesUnsorted
+     * @param isSetDirty
+     * @returns List of added XcQuery, sorted by time DESC
+     */
+    private _addFromDurables(durablesUnsorted: XcQueryDurable[], isSetDirty: boolean): Array<XcQuery> {
+        if (durablesUnsorted == null || durablesUnsorted.length === 0) {
+            return [];
+        }
+
+        const minQueryId = this._getMinId();
+        const queryList: Array<XcQuery> = new Array();
+
+        const sortedQueries = durablesUnsorted.concat([]);
+        sortedQueries.sort((a, b) => (b.time - a.time));
+
+        const numQueries: number = sortedQueries.length;
+
+        for (let i = 0; i < numQueries; i++) {
+            const queryDurable: XcQueryDurable = sortedQueries[i];
+            if (queryDurable.name == null) {
+                // This should only happen in upgrading from 2.0
+                console.warn('durable.name is null:', JSON.stringify(queryDurable));
+                continue; // info is not stored in log due to an overwritten
+                          // undo so we skip
+            }
+
+            const queryId: number = Math.min(minQueryId, 0) - 1 - i;
+            const query = new XcQuery({
+                "version": queryDurable.version,
+                "name": queryDurable.name,
+                "fullName": queryDurable.fullName,
+                "time": queryDurable.time,
+                "id": queryId,
+                "numSteps": 1,
+                "queryStr": queryDurable.queryStr,
+                "sqlNum": queryDurable.sqlNum,
+                "elapsedTime": queryDurable.elapsedTime,
+                "opTime": queryDurable.opTime,
+                "opTimeAdded": queryDurable.opTimeAdded,
+                "outputTableName": queryDurable.outputTableName,
+                "outputTableState": queryDurable.outputTableState,
+                "state": queryDurable.state,
+                "type": "restored",
+                "error": queryDurable.error,
+                "srcTables": null,
+                "cancelable": null,
+                "queryMeta": queryDurable.queryMeta
+            });
+
+            queryList.push(query);
+            this.add(queryId, query, isSetDirty);
+        }
+
+        return queryList;
     }
 
     private async _loadMore(count: number): Promise<{
@@ -301,7 +326,7 @@ class XcQueryLog {
         const existingKeys = new Set<string>();
         for (const query of this._queries.values()) {
             const durableInfo = query.getDurable();
-            existingKeys.add(this._createKvKey(`${durableInfo[1]}`));
+            existingKeys.add(this._createKvKey(durableInfo[1]));
         }
         const loadKeys: string[] = [];
         for (const kvKey of sortedKeys) {
@@ -517,7 +542,7 @@ class XcQueryLog {
             return;
         }
         const durableInfo = query.getDurable();
-        const kvstore = new KVStore(this._createKvKey(`${durableInfo[1]}`), gKVScope.WKBK);
+        const kvstore = new KVStore(this._createKvKey(durableInfo[1]), gKVScope.WKBK);
         await PromiseHelper.convertToNative(kvstore.delete());
     }
 }

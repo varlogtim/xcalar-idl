@@ -316,4 +316,82 @@ describe("XcQueryLog Test", function() {
             expect(SimKvStore.store.has(kvKey), kvKey).to.be.true;
         }
     });
+
+    it("Upgrade and flush", async function() {
+        // Fake Log functions
+        const oldGetLogs = Log.getLogs;
+        const logs = [];
+        Log.getLogs = () => {
+            return logs;
+        }
+        const oldGetErrorLogs = Log.getErrorLogs;
+        const errorLogs = [];
+        Log.getErrorLogs = () => {
+            return errorLogs;
+        }
+
+        // Case #1: normal case
+        const baseTime = Date.now();
+        const durables = [
+            { state: QueryStatus.Done, sqlNum: null, time: baseTime + 0, name: 'name1', queryStr: 'query1', fullName: 'fullName1' },
+            { state: QueryStatus.Done, sqlNum: null, time: baseTime + 1, name: 'name2', queryStr: 'query2' },
+            { state: QueryStatus.Done, sqlNum: 0, time: baseTime + 2, name: 'name3', queryStr: 'query3' },
+            { state: QueryStatus.Error, sqlNum: 1, time: baseTime + 3, name: 'name4', queryStr: 'query4' },
+            { state: QueryStatus.Done, sqlNum: 2, time: baseTime + 4, name: 'name5', queryStr: 'query5' },
+        ];
+        logs[0] = { options: { operation: 'lname1' }, cli: 'lquery1' };
+        logs[2] = { options: { operation: SQLOps.Retina, retName: 'ret1' }, cli: 'lquery2' };
+        errorLogs[1] = { options: { operation: 'ename1' }, cli: 'equery1' };
+
+        // Do upgrade
+        let queryLog = new XcQueryLog();
+        let queries = queryLog.upgrade(durables);
+        await queryLog.flush();
+
+        // Check result
+        expect(queries.length).to.equal(5);
+        let query = queries[0];
+        expect(query.name).to.equal(`${SQLOps.Retina} ret1`);
+        expect(query.time).to.equal(baseTime + 4);
+        expect(query.queryStr).to.equal('lquery2');
+        expect(query.fullName).to.equal(`${SQLOps.Retina} ret1-${baseTime + 4}`);
+        query = queries[1];
+        expect(query.name).to.equal('ename1');
+        expect(query.time).to.equal(baseTime + 3);
+        expect(query.queryStr).to.equal('query4');
+        expect(query.fullName).to.equal(`ename1-${baseTime + 3}`);
+        query = queries[2];
+        expect(query.name).to.equal('lname1');
+        expect(query.time).to.equal(baseTime + 2);
+        expect(query.queryStr).to.equal('lquery1');
+        expect(query.fullName).to.equal(`lname1-${baseTime + 2}`);
+        query = queries[3];
+        expect(query.name).to.equal('name2');
+        expect(query.time).to.equal(baseTime + 1);
+        expect(query.queryStr).to.equal('query2');
+        expect(query.fullName).to.equal(`name2-${baseTime + 1}`);
+        query = queries[4];
+        expect(query.name).to.equal('name1');
+        expect(query.time).to.equal(baseTime);
+        expect(query.queryStr).to.equal('query1');
+        expect(query.fullName).to.equal('fullName1');
+        expect(SimKvStore.store.size).to.equal(5); // All upgraded queries need to be stored
+
+        // Case #2: invalid durable which will case exception
+        queryLog = new XcQueryLog();
+        queries = null;
+        let hasError = false;
+        try {
+            queries = queryLog.upgrade(durables.concat([null]));
+        } catch(e) {
+            hasError = true;
+        }
+        expect(hasError).to.be.false;
+        expect(Array.isArray(queries)).to.be.true;
+        expect(queries.length).to.equal(0);
+
+        // Restore Log functions
+        Log.getLogs = oldGetLogs;
+        Log.getErrorLogs = oldGetErrorLogs;
+    });
 });

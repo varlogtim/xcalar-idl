@@ -10,7 +10,7 @@ describe("XcQuery Test", function() {
         });
 
         expect(xcQuery).to.be.an.instanceof(XcQuery);
-        expect(Object.keys(xcQuery).length).to.equal(22);
+        expect(Object.keys(xcQuery).length).to.equal(21);
         expect(xcQuery).to.have.property("version")
         .and.to.equal(Durable.Version);
         expect(xcQuery).to.have.property("name")
@@ -38,8 +38,6 @@ describe("XcQuery Test", function() {
         expect(xcQuery).to.have.property("queryStr")
         .and.to.equal("");
         expect(xcQuery).to.have.property("srcTables")
-        .and.to.be.null;
-        expect(xcQuery).to.have.property("sqlNum")
         .and.to.be.null;
         expect(xcQuery).to.have.property("state")
         .and.to.equal(QueryStateT.qrNotStarted);

@@ -10,7 +10,6 @@ interface XcQueryOptions extends XcQueryDurable {
 }
 
 class XcQuery extends Durable {
-    public sqlNum: number; // log's id
     public fullName: string;
     public name: string;
     public currStep: number; // (integer) current step
@@ -50,12 +49,6 @@ class XcQuery extends Durable {
         this.subQueries = [];
         this.srcTables = options.srcTables || null;
         this.queryMeta = options.queryMeta || "";
-
-        if (options.sqlNum != null) {
-            this.sqlNum = options.sqlNum;
-        } else {
-            this.sqlNum = null;
-        }
 
         if (options.state == null) {
             this.state = QueryStateT.qrNotStarted;
@@ -264,7 +257,7 @@ class XcQuery extends Durable {
         return null;
     }
 
-    public getDurable(): [XcQueryDurable, string | number] {
+    public getDurable(): [XcQueryDurable, string] {
         return this._getDurable();
     }
 
@@ -281,9 +274,9 @@ class XcQuery extends Durable {
         }
     }
 
-    protected _getDurable(): [XcQueryDurable, string | number] {
+    protected _getDurable(): [XcQueryDurable, string] {
         let abbrQueryObj: XcQueryDurable = null;
-        let key: string | number = null;
+        let key: string = null;
         let state = this.state;
         if (state === QueryStatus.Done ||
             state === QueryStatus.Cancel ||
@@ -291,8 +284,8 @@ class XcQuery extends Durable {
         ) {
             abbrQueryObj = {
                 "version": this.version,
-                "sqlNum": this.sqlNum,
-                "time": this.time,
+                "sqlNum": null,
+                "time": this.time || Date.now(),
                 "elapsedTime": this.elapsedTime,
                 "opTime": this.opTime,
                 "opTimeAdded": this.opTimeAdded,
@@ -301,25 +294,28 @@ class XcQuery extends Durable {
                 "state": this.state
             };
 
-            if (this.sqlNum == null || state === QueryStatus.Cancel) {
+            // Optional fields
+            if (this.name != null) {
                 abbrQueryObj.name = this.name;
-                abbrQueryObj.queryStr = this.getQuery();
-                abbrQueryObj.fullName = this.fullName;
-                key = this.fullName
-            } else if (state === QueryStatus.Error) {
-                abbrQueryObj.queryStr = this.getQuery();
-                abbrQueryObj.error = this.error;
-                abbrQueryObj.fullName = this.fullName;
-                key = this.fullName
-            } else {
-                key = this.sqlNum;
             }
-            // Prefix the key with time, so that we can fetch keys in order
-            key = `${this.time || Date.now()}-${key}`;
-
-            if (this.queryMeta) {
+            if (this.fullName != null) {
+                abbrQueryObj.fullName = this.fullName;
+            }
+            if (this.queryMeta != null) {
                 abbrQueryObj.queryMeta = this.queryMeta;
             }
+            if (state === QueryStatus.Error) {
+                abbrQueryObj.error = this.error;
+            }
+            const queryStr = this.getQuery();
+            if (queryStr != null && queryStr.length > 0) {
+                abbrQueryObj.queryStr = queryStr;
+            }
+
+            // Prefix the key with time, so that we can fetch keys in order
+            key = this.fullName == null
+                ? null
+                : `${this.time}-${this.fullName}`;
         }
 
         return [abbrQueryObj, key];
