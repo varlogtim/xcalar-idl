@@ -103,11 +103,15 @@ class MessageModal {
         }
 
         if (options.cancelButtonText) {
-            $cancelBtn.text(options.cancelButtonText)
+            $cancelBtn.text(options.cancelButtonText);
+        } else {
+            $cancelBtn.text("Close");
         }
 
         if (options.confirmButtonText) {
-            $confirmBtn.text(options.confirmButtonText)
+            $confirmBtn.text(options.confirmButtonText);
+        } else {
+            $confirmBtn.text("Confirm");
         }
 
         $modal.on("click.messageModal", ".close, .cancel", (e) => {

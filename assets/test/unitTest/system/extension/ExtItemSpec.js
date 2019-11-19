@@ -66,7 +66,7 @@ describe("ExtItem Constructor Test", function() {
             "category": "SQL Mode",
             "expect": "xi-SQLworkspace"
         }, {
-            "category": "Dataflow Mode",
+            "category": "Developer Mode",
             "expect": "xi-dfg2"
         }, {
             "category": "",

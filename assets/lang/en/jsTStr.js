@@ -557,7 +557,7 @@ SQLErrTStr = {
     "NoRightRowNumTableName": "Can't find right row number column name in right outer join",
     "NoRightRowNumCol": "No right row number column in right outer join",
     "Warning": "SQL Warning",
-    "MultiQueries": "Multi-queries not supported in dataflow mode.",
+    "MultiQueries": "Multi-queries not supported in developer mode.",
     "InvalidColName": "Invalid column name found. A name can only begin with a letter or underscore(_), not contain the following characters: ^.',\":()[]{}\\ or space, and use fewer than 255 characters. Please rename before sql node: ",
     "UnexpectedParam": "Unexpected single parameter",
     "MultiCreate": "Create table in multi-statement not supported"
@@ -931,7 +931,7 @@ WKBKTStr = {
 
 ModeTStr = {
     "SQL": "SQL Mode",
-    "Advanced": "Dataflow Mode"
+    "Advanced": "Developer Mode"
 };
 
 MonitorTStr = {
@@ -1363,7 +1363,7 @@ TblTStr = {
     "EmptyTable": "0 Rows",
     "Viewdata": "View data",
     "Viewschema": "View schema",
-    "PreviewInstr": "To start using table features, please use the SQL editor shown on side bar labeled \"SQL\" or select the \"Write SQL\" button below in SQL Mode to get started. You can also switch to Dataflow Mode and start from the table node in the dataflow panel.",
+    "PreviewInstr": "To start using table features, please use the SQL editor shown on side bar labeled \"SQL\" or select the \"Write SQL\" button below in SQL Mode to get started. You can also switch to Developer Mode and start from the table node in the dataflow panel.",
     "MultipleSchema": "Multiple Schemas are detected when creating table \"<name>\", please select the schema for the table.",
     "ToActivate": "Click to activate",
     "ToDeactivate": "Click to deactivate",
@@ -1597,11 +1597,9 @@ SQLTStr = {
     "DupColName": "Column name \"<col>\" is duplicated",
     "DupColNameCaseInsensitive": "SQL Function's output column name is case insensitive. Column \"<col1>\" duplicate with column \"<col2>\"",
     "UnsavedSQL": "You have unsaved SQL work. Are you sure you want to leave?",
-    "EditAdvanced": "Debug in dataflow mode",
-    "EditAdvancedInstr": "Debugging dataflow will possibly be based on a different one than what is displayed. Do you want to continue?",
     "NoUntitledSnippet": "Name cannot be \"Untitled \"",
     "NoDupSnippetName": "Snippet with name the same name already exists, please use Save As to overwrite it.",
-    "PreviewError": "The corresponding dataflow for sql cannot be previewed",
+    "PreviewError": "The corresponding plan for sql cannot be previewed",
     "DefaultSnippet": "Default Snippet",
     "ExpandSQL": "Expanding SQL will delete the SQL node while inspecting will not. Do you want to conitnue?",
 };

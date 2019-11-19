@@ -53,9 +53,9 @@ class SQLDataflowPreview {
         let dagTab: DagTabUser;
 
         this._alertAnalyze()
-        .then(() => {
+        .then((tabName) => {
             $("#initialLoadScreen").show();
-            return this._restoreDataflow(sql);
+            return this._restoreDataflow(sql, tabName);
         })
         .then((resultTab) => {
             dagTab = resultTab;
@@ -84,13 +84,11 @@ class SQLDataflowPreview {
         return deferred.promise();
     }
 
-    private _alertAnalyze(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        MessageModal.Instance.show({
-            title: SQLTStr.EditAdvanced,
-            msg: SQLTStr.EditAdvancedInstr,
-            onConfirm: () => {
-                deferred.resolve();
+    private _alertAnalyze(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        SQLDebugConfirmModal.Instance.show({
+            onSubmit: (name) => {
+                deferred.resolve(name);
             },
             onCancel: () => {
                 deferred.reject("canceled");
@@ -100,13 +98,13 @@ class SQLDataflowPreview {
         return deferred.promise();
     }
 
-    private _restoreDataflow(sql: string): XDPromise<DagTabUser> {
+    private _restoreDataflow(sql: string, tabName: string): XDPromise<DagTabUser> {
         try {
             const deferred: XDDeferred<DagTabUser> = PromiseHelper.deferred();
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 try {
-                    let executor = new SQLDagExecutor(sqlStruct, true);
+                    let executor = new SQLDagExecutor(sqlStruct, true, tabName);
                     return executor.restoreDataflow();
                 } catch (e) {
                     return PromiseHelper.reject(e.message);

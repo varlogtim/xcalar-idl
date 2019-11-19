@@ -44,7 +44,7 @@ class ExtItem {
         if (category === "Import") {
             category = "Imports";
         } else if (category === "Advanced Mode") {
-            category = "Dataflow Mode";
+            category = "Developer Mode";
         }
         return category;
     }
@@ -76,7 +76,7 @@ class ExtItem {
                 return "xi-data-out";
             case "SQL Mode":
                 return "xi-SQLworkspace";
-            case "Dataflow Mode":
+            case "Developer Mode":
                 return "xi-dfg2";
             default:
                 return "xi-power";

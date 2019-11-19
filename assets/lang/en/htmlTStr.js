@@ -466,7 +466,7 @@ module.exports = {
         "queryHistSQLModalTitle": "SQL Query",
         "AddFunc": "New SQL Function",
         "NumOfInput": "Number of parameters",
-        "EditAdvanced": "Debug in dataflow mode"
+        "EditAdvanced": "Debug plan"
     },
 
     "bottomMenu": {
@@ -1043,7 +1043,7 @@ module.exports = {
 
     "SQLFunc": {
         "Title": "SQL Function",
-        "SwitchToUse": "Switch to dataflow mode to create sql function",
+        "SwitchToUse": "Switch to developer mode to create sql function",
         "Input": "SQL Function Input",
         "Output": "SQL Function Output",
         "InputInstr": "Select an available table as test source, and choose the input schema for the function.",

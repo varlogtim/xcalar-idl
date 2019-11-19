@@ -13,6 +13,13 @@ class SQLDagExecutor {
         SQLDagExecutor._tabs.delete(tabId);
     }
 
+    /**
+     * SQLDagExecutor.generateTabName
+     */
+    public static generateTabName(): string {
+        return "SQL " + moment(new Date()).format("YYYY-MM-DD HHmmss");
+    }
+
     private _sql: string;
     private _newSql: string;
     private _sqlNode: DagNodeSQL;
@@ -28,7 +35,11 @@ class SQLDagExecutor {
     private _advancedDebug: boolean;
     private _publishName: string;
 
-    public constructor(sqlStruct: SQLParserStruct, advancedDebug?: boolean) {
+    public constructor(
+        sqlStruct: SQLParserStruct,
+        advancedDebug?: boolean,
+        tabName?: string
+    ) {
         this._sql = sqlStruct.sql.replace(/;+$/, "");
         this._newSql = sqlStruct.newSql ? sqlStruct.newSql.replace(/;+$/, "") :
                                                                      this._sql;
@@ -80,7 +91,7 @@ class SQLDagExecutor {
             type: DagNodeType.SQL
         });
         this._sqlNode.subscribeHistoryUpdate();
-        this._createDataflow();
+        this._createDataflow(tabName);
     }
 
     public getStatus(): SQLStatus {
@@ -227,10 +238,10 @@ class SQLDagExecutor {
         return deferred.promise();
     }
 
-    private _createDataflow(): void {
+    private _createDataflow(tabName?: string): void {
         this._tempGraph = new DagGraph();
         const id: string = this._advancedDebug ? null : DagTab.generateId() + ".sql";
-        const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll")
+        const name: string = tabName || SQLDagExecutor.generateTabName();
         this._tempTab = new DagTabUser({
             name: name,
             id: id,

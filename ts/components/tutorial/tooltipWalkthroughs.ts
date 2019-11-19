@@ -295,7 +295,7 @@ namespace TooltipWalkthroughs {
             },
             [{
                 highlight_div: "#modeArea",
-                text: "Welcome to Dataflow Mode. This user interface enables you to develop and troubleshoot your data models through a combination of visual design, SQL and Python.",
+                text: "Welcome to Developer Mode. This user interface enables you to develop and troubleshoot your data models through a combination of visual design, SQL and Python.",
                 type: TooltipType.Text
             },
             {
@@ -316,7 +316,7 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: "#dagView .categoryBar",
-                text: "The Dataflow Mode toolbar displays the categories of available operation Nodes.",
+                text: "The Developer Mode toolbar displays the categories of available operation Nodes.",
                 type: TooltipType.Text
             },
             {
@@ -362,7 +362,7 @@ namespace TooltipWalkthroughs {
             ,
             {
                 highlight_div: "#tutorialResource",
-                text: "This concludes the tour of the Dataflow Mode user interface. To get more hands-on experience, view the tutorial workbooks.",
+                text: "This concludes the tour of the Developer Mode user interface. To get more hands-on experience, view the tutorial workbooks.",
                 type: TooltipType.Text
             }],
             0,
@@ -424,7 +424,7 @@ namespace TooltipWalkthroughs {
             description: "Tour of Xcalar Design and the SQL Mode"
         }, {
             name: ADVModeName,
-            description: "Tour of the Dataflow Mode"
+            description: "Tour of the Developer Mode"
         }];
         if (storedTempWalkthrough) {
             builtInWalkthroughs.push({

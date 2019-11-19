@@ -8,9 +8,9 @@ describe("Tooltip Flight Test", function(done) {
     });
 
     // flight tests for the built in tooltip walkthroughs
-    it("should do the entire dataflow mode walkthrough successfully", function(done) {
+    it("should do the entire developer mode walkthrough successfully", function(done) {
         XVM.setMode(XVM.Mode.Advanced);
-        TooltipWalkthroughs.startWalkthrough("Dataflow Mode");
+        TooltipWalkthroughs.startWalkthrough("Developer Mode");
 
         UnitTest.testFinish(()=>$("#modeArea").hasClass("intro-highlightedElement"))
         .then(() => {

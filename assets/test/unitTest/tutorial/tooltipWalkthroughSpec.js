@@ -58,15 +58,15 @@ describe("Tooltip Walkthrough Test", function() {
         expect(started).to.be.true;
     });
 
-    it("Should 'start' a Dataflow walkthrough", function() {
+    it("Should 'start' a Developer Mode walkthrough", function() {
         var started = false;
         TooltipManager.start = function(obj, list, num) {
-            if (obj.tooltipTitle == "Dataflow Mode") {
+            if (obj.tooltipTitle == "Developer Mode") {
                 started = true;
             }
             return;
         }
-        TooltipWalkthroughs.startWalkthrough("Dataflow Mode");
+        TooltipWalkthroughs.startWalkthrough("Developer Mode");
         expect(started).to.be.true;
     });
 
@@ -114,7 +114,7 @@ describe("Tooltip Walkthrough Test", function() {
         }
         let started = false;
         TooltipManager.start = function(obj, list, num) {
-            if (obj.tooltipTitle == "Dataflow Mode") {
+            if (obj.tooltipTitle == "Developer Mode") {
                 started = true;
             }
             return;
