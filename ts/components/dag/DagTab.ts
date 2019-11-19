@@ -267,17 +267,17 @@ abstract class DagTab extends Durable {
 
     protected _validateKVStoreDagInfo(dagInfo) {
         if (typeof dagInfo !== "object") {
-            return {error: "Invalid dataflow information"}
+            return {error: "Invalid module information"}
         }
         if (typeof dagInfo.name !== "string") {
-            return {error: "Invalid dataflow name"}
+            return {error: "Invalid module name"}
         }
         if (typeof dagInfo.id !== "string") {
-            return {error: "Invalid dataflow ID"}
+            return {error: "Invalid module ID"}
         }
         if (!dagInfo.dag  || typeof dagInfo.dag !== "object" ||
             dagInfo.dag.constructor !== Object) {
-            return {error: "Invalid dataflow"}
+            return {error: "Invalid module"}
         }
 
         return {}

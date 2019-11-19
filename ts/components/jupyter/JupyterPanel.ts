@@ -537,7 +537,7 @@ namespace JupyterPanel {
         if (tabId == null) {
             Alert.show({
                 title: "Error",
-                msg: "Table " + tableName + " is not present in any active dataflows.",
+                msg: "Table " + tableName + " is not present in any active modules.",
                 isAlert: true
             });
         } else {

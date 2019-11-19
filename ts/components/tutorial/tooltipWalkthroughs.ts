@@ -267,7 +267,7 @@ namespace TooltipWalkthroughs {
         },
         {
             highlight_div: "#tutorialResource",
-            text: "This concludes the tour of the SQL Mode user interface. To get more hands-on experience, view the tutorial workbooks.",
+            text: "This concludes the tour of the SQL Mode user interface. To get more hands-on experience, view the tutorial projects.",
             type: TooltipType.Text
         }];
         TooltipManager.start(
@@ -306,12 +306,12 @@ namespace TooltipWalkthroughs {
             {
                 highlight_div: "#tabButton",
                 interact_div: "#tabButton",
-                text: "A dataflow is a series of actions performed on data to develop a data model. Click the new dataflow icon to create a new dataflow at any time.",
+                text: "A module is a series of actions performed on data to develop a data model. Click the new module icon to create a new module at any time.",
                 type: TooltipType.Click
             },
             {
                 highlight_div: ".dataflowMainArea",
-                text: "The dataflow canvas is where you create and connect Nodes to create dataflows.",
+                text: "The module canvas is where you create and connect Nodes to create modules.",
                 type: TooltipType.Text
             },
             {
@@ -321,19 +321,19 @@ namespace TooltipWalkthroughs {
             },
             {
                 highlight_div: "#dagView .operatorBar",
-                text: "Each category displays the operation Nodes you'll use to build your dataflows. Double click or drag and drop Nodes from the toolbar to the dataflow canvas.",
+                text: "Each category displays the operation Nodes you'll use to build your modules. Double click or drag and drop Nodes from the toolbar to the module canvas.",
                 type: TooltipType.Text
             },
             {
                 pre_mousedown_div: '.category-in',
                 highlight_div: "#dagView .operatorBar",
-                text: "Before creating a dataflow, import at least one data source into a dataset. A dataflow must start with a source Node (a Dataset or a Table Node) to read the imported data.",
+                text: "Before creating a module, import at least one data source into a dataset. A module must start with a source Node (a Dataset or a Table Node) to read the imported data.",
                 type: TooltipType.Text
             },
             {
                 highlight_div: "#dagView .operatorWrap .active .operator",
                 interact_div: "#dagView .operatorWrap .active .operator .main",
-                text: "Double click this Dataset Node to add it to the dataflow canvas.",
+                text: "Double click this Dataset Node to add it to the module canvas.",
                 type: TooltipType.DoubleClick
             },
             {
@@ -345,7 +345,7 @@ namespace TooltipWalkthroughs {
                 pre_mousedown_div: '.category-rowOps',
                 highlight_div: "#dagView .operatorWrap .active .operator",
                 interact_div: "#dagView .operatorWrap .active .operator .main",
-                text: "Double click this Sort Node to add it to the dataflow canvas.",
+                text: "Double click this Sort Node to add it to the module canvas.",
                 type: TooltipType.DoubleClick,
             },
             {
@@ -362,7 +362,7 @@ namespace TooltipWalkthroughs {
             ,
             {
                 highlight_div: "#tutorialResource",
-                text: "This concludes the tour of the Developer Mode user interface. To get more hands-on experience, view the tutorial workbooks.",
+                text: "This concludes the tour of the Developer Mode user interface. To get more hands-on experience, view the tutorial projects.",
                 type: TooltipType.Text
             }],
             0,
@@ -391,16 +391,16 @@ namespace TooltipWalkthroughs {
             {
                 highlight_div: "#createWKBKbtn",
                 interact_div: "#createWKBKbtn",
-                title: "Create a workbook",
-                text: "A workbook is a container where you design, troubleshoot, and execute your data models. Click 'Create New Workbook' to create a new workbook.",
+                title: "Create a project",
+                text: "A project is a container where you design, troubleshoot, and execute your data models. Click 'Create New Project' to create a new project.",
                 type: TooltipType.Click,
                 wait_for_div: "#workbookPanel .workbookBox.lastCreate",
             },
             {
                 highlight_div: "#workbookPanel .workbookBox.lastCreate",
                 interact_div: "#workbookPanel .workbookBox.lastCreate",
-                title: "Rename and activate the workbook",
-                text: "Enter a new workbook name, then click the workbook card to activate and open it.",
+                title: "Rename and activate the project",
+                text: "Enter a new project name, then click the project card to activate and open it.",
                 type: TooltipType.Click
             }],
             0,
@@ -418,10 +418,10 @@ namespace TooltipWalkthroughs {
         // XXX TODO: Integrate with tutorial workbooks
         let builtInWalkthroughs = [{
             name: WKBModeName,
-            description: "Tour of the Workbook Browser"
+            description: "Tour of the Project Browser"
         }, {
             name: SQLModeName,
-            description: "Tour of Xcalar Design and the SQL Mode"
+            description: "Tour of Xcalar Design and SQL Mode"
         }, {
             name: ADVModeName,
             description: "Tour of the Developer Mode"

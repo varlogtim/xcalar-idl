@@ -1,7 +1,7 @@
 class DagTabOptimized extends DagTabProgress {
     public static readonly KEY = "xcRet_";
-    public static readonly XDPATH = "Optimized Dataflows/";
-    public static readonly SDKPATH = "SDK Dataflows/Optimized SDK Dataflows/";
+    public static readonly XDPATH = "Optimized Applications/";
+    public static readonly SDKPATH = "SDK Applications/Optimized SDK Applications/";
     public static readonly FILEEXT = ".opt.json";
     public uid: XcUID;
 
@@ -56,7 +56,7 @@ class DagTabOptimized extends DagTabProgress {
                             }));
                             dagListMap.delete(retinaName);
                         } else if (retinaName.includes(key)) {
-                            console.warn("optimized dataflow", retinaName, "is missing in meta");
+                            console.warn("optimized application", retinaName, "is missing in meta");
                             dagTabs.push(new DagTabOptimized({
                                 id: retinaName,
                                 name: retinaName

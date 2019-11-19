@@ -240,7 +240,7 @@ describe("Dag Graph Executor Test", () => {
             let res = executor._checkDisjoint();
             expect(res.hasError).to.be.true;
             expect(res.node).to.equal(filterNode);
-            expect(res.type).to.equal("Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow.");
+            expect(res.type).to.equal(DagNodeErrorType.Disjoint);
         });
 
         it("checkValidOptimizedDataflow - fail due to link out no column", () => {
@@ -275,7 +275,7 @@ describe("Dag Graph Executor Test", () => {
             let executor = new DagGraphExecutor([datasetNode, exportNode, linkOutNode], graph, {optimized: true});
             let res = executor._checkValidOptimizedDataflow();
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Optimized dataflow cannot have both Export and Link Out nodes");
+            expect(res.type).to.equal(DagNodeErrorType.InvalidOptimizedOutNodeCombo);
             expect(res.node).to.equal(linkOutNode);
         });
         it("checkValidOptimizedDataflow - fail due to 2 link out nodes", () => {
@@ -297,7 +297,7 @@ describe("Dag Graph Executor Test", () => {
             let executor = new DagGraphExecutor([datasetNode, linkOutNode, linkOutNode2], graph, {optimized: true});
             let res = executor._checkValidOptimizedDataflow();
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Optimized dataflow cannot have multiple Link Out nodes");
+            expect(res.type).to.equal(DagNodeErrorType.InvalidOptimizedLinkOutCount);
             expect(res.node).to.equal(linkOutNode2);
         });
         it("checkValidOptimizedDataflow - fail due to no out nodes", () => {
@@ -326,7 +326,7 @@ describe("Dag Graph Executor Test", () => {
             let executor = new DagGraphExecutor([datasetNode, exportNode1, exportNode2], graph, {optimized: true});
             let res = executor._checkValidOptimizedDataflow();
             expect(res.hasError).to.be.true;
-            expect(res.type).to.equal("Optimized dataflow cannot have multiple export nodes originating from the same node");
+            expect(res.type).to.equal(DagNodeErrorType.InvalidOptimizedDuplicateExport);
             expect(res.node).to.equal(exportNode2);
         });
 

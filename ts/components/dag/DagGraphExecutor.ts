@@ -1162,7 +1162,7 @@ class DagGraphExecutor {
         let txId: number = Transaction.start({
             operation: "optimized df",
             sql: {
-                operation: "Optimized Dataflow",
+                operation: "Optimized Application",
                 retName: dagTab.getName()
             },
             track: true,
@@ -1196,7 +1196,7 @@ class DagGraphExecutor {
             if (error &&
                 error.status === StatusT.StatusRetinaAlreadyExists
             ) {
-                error.error = "The optimized dataflow already exists\nReset the optimized node and select " +
+                error.error = "The optimized application already exists\nReset the optimized node and select " +
                     "Execute Optimized to re-execute";
             }
             Transaction.fail(txId, {

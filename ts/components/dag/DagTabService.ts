@@ -15,7 +15,7 @@ class DagTabService {
             throw new Error('JSON not provided');
         }
         if (dagInfo.name == null) {
-            throw new Error('Dataflow name not provided');
+            throw new Error('Module name not provided');
         }
         const newTab = DagRuntime.isAccessible(this)
             ? this.getRuntime().accessible(new DagTabUser({

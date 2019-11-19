@@ -77,10 +77,10 @@ class DagQueryConverter {
                 dataflowInfo = JSON.parse(dataflowInfo);
             }
         } catch (e) {
-            return this._getFailedDataflowRet("Cannot parse dataflow: " + JSON.stringify(dataflowInfo));
+            return this._getFailedDataflowRet("Cannot parse module: " + JSON.stringify(dataflowInfo));
         }
         if (typeof dataflowInfo !== "object" || dataflowInfo == null || (dataflowInfo instanceof Array)) {
-            return this._getFailedDataflowRet("Invalid dataflow structure: " + JSON.stringify(dataflowInfo));
+            return this._getFailedDataflowRet("Invalid module structure: " + JSON.stringify(dataflowInfo));
         }
         this.modifyOriginalInput(dataflowInfo);
         if (!nestedPrefix) {
@@ -432,9 +432,9 @@ class DagQueryConverter {
             }
             let name;
             if (isRetina) {
-                name = xcHelper.randName(".temp/rand") + "/" + "Dataflow " + DagQueryConverter.dataflowCount;
+                name = xcHelper.randName(".temp/rand") + "/" + "Module " + DagQueryConverter.dataflowCount;
             } else {
-                name = "Dataflow " + DagQueryConverter.dataflowCount;
+                name = "Module " + DagQueryConverter.dataflowCount;
                 dataflowsList.push({
                     name: name,
                     id: this.currentDataflowId,

@@ -1065,7 +1065,7 @@ describe("DagView Test", () => {
             UnitTest.hasStatusBoxWithError("Cannot paste invalid format. Nodes must be in a valid JSON format.");
 
             validate('{"x": 1}');
-            UnitTest.hasStatusBoxWithError("Dataflow nodes must be in an array.");
+            UnitTest.hasStatusBoxWithError("Module nodes must be in an array.");
 
             validate('[{"x": 1}]');
             UnitTest.hasStatusBoxWithError("Node should have required property 'type'");
@@ -1972,7 +1972,7 @@ describe("DagView Test", () => {
             }
 
             setTimeout(() => {
-                UnitTest.hasAlertWithText("The dataflow contains an optimized node and can only be executed in optimized mode. " +
+                UnitTest.hasAlertWithText("The module contains an optimized node and can only be executed in optimized mode. " +
                 "Would you like to execute all nodes in optimized mode?", {confirm: true});
             }, 0);
 
@@ -2019,7 +2019,7 @@ describe("DagView Test", () => {
             }
 
             setTimeout(() => {
-                UnitTest.hasAlertWithText("The dataflow contains an optimized node and can only be executed in optimized mode. " +
+                UnitTest.hasAlertWithText("The module contains an optimized node and can only be executed in optimized mode. " +
                 "Would you like to execute all nodes in optimized mode?");
             }, 0);
 

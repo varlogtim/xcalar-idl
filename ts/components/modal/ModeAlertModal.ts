@@ -43,8 +43,8 @@ class ModeAlertModal {
 
     private _getMessage(): string {
         return XVM.isSQLMode()
-        ? 'Use the SQL Mode workspace if you prefer to use SQL to build your data models.'
-        : 'Use the Developer Mode workspace if you prefer to use visual tools to build your data models.';
+        ? 'Use the SQL Mode workspace if you prefer to use SQL to build your execution plan.'
+        : 'Use the Developer Mode workspace if you prefer to use visual tools to build your application.';
     }
 
     private _isNotShow(): boolean {

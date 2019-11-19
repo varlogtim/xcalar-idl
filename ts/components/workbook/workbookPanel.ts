@@ -356,7 +356,7 @@ namespace WorkbookPanel {
             StatusBox.forceHide();
             let wbName: string;
             const workbooks: object = WorkbookManager.getWorkbooks();
-            wbName = wbDuplicateName('New Workbook', workbooks, 0);
+            wbName = wbDuplicateName('New Project', workbooks, 0);
             const $btn: JQuery = $(this);
             $btn.addClass("inActive").blur();
             WorkbookPanel.createNewWorkbook(wbName)
@@ -1229,7 +1229,7 @@ namespace WorkbookPanel {
     function setupDragDrop(): void {
         new DragDropUploader({
             $container: $workbookPanel.find(".mainContent"),
-            text: "Drop a workbook file to upload",
+            text: "Drop a project file to upload",
             onDrop: function(files) {
                 changeFilePath(files);
             },

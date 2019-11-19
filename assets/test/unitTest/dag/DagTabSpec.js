@@ -109,7 +109,7 @@ describe('DagTab Test', function() {
         it("Should return the correct errors for validate kv store info",
                 function() {
             var dagInfo = "not an object";
-            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid dataflow information");
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid module information");
             dagInfo = {
                 name: 5,
                 id: "kvTab",
@@ -119,7 +119,7 @@ describe('DagTab Test', function() {
                     comments: []
                 },
             }
-            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid dataflow name");
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid module name");
             dagInfo = {
                 name: "kvstore",
                 id: 5,
@@ -129,13 +129,13 @@ describe('DagTab Test', function() {
                     comments: []
                 },
             }
-            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid dataflow ID");
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid module ID");
             dagInfo = {
                 name: "kvstore",
                 id: "kvTab",
                 dag: null,
             }
-            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid dataflow");
+            expect(tab._validateKVStoreDagInfo(dagInfo).error).to.equal("Invalid module");
         });
 
         it("Should load from kv store correctly", function(done) {

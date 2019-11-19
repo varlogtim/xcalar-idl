@@ -452,7 +452,7 @@ describe("DagTabPublished Test", function() {
 
         it("getPrefixUDF should work", function() {
             let res = DagTabPublished.getPrefixUDF();
-            expect(res).to.equal("published dataflow");
+            expect(res).to.equal(DagTabPublished._prefixUDF);
         });
 
         it("DagTabPublished.restore should work", function(done) {

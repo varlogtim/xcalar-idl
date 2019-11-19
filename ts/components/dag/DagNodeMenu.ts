@@ -1002,7 +1002,7 @@ namespace DagNodeMenu {
                         let $node = DagViewManager.Instance.selectNodes(sourceTabId, [parentNode.getId()]);
                         $node.scrollintoview({duration: 0});
                     } else {
-                        Alert.error("Warning", "The original dataflow is \"" + parentTab.getName() + "\" but the source node could not be found.");
+                        Alert.error("Warning", "The original module is \"" + parentTab.getName() + "\" but the source node could not be found.");
                     }
                 } else {
                     Alert.error("Warning", "Source node could not be found.");
@@ -1021,8 +1021,8 @@ namespace DagNodeMenu {
                 Alert.error(AlertTStr.Error, "Cannot find the original source of the optimized dataflow");
             } else {
                 Alert.show({
-                    title: "Original source for optimized dataflow",
-                    msg: `The original dataflow is: "${srcTab.getName()}"`,
+                    title: "Original source for optimized application",
+                    msg: `The original module is: "${srcTab.getName()}"`,
                     isAlert: true
                 });
             }

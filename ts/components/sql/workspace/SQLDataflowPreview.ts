@@ -45,7 +45,7 @@ class SQLDataflowPreview {
 
     public analyze(sql: string): XDPromise<void> {
         if (sql == null) {
-            Alert.error(AlertTStr.Error, "The corresponding dataflow for sql has been deleted");
+            Alert.error(AlertTStr.Error, "The corresponding plan for sql has been deleted");
             return PromiseHelper.reject();
         }
 

@@ -18,7 +18,7 @@ describe("Tooltip Walkthrough Test", function() {
     it("Should get available built in walkthroughs", function() {
         var walkthroughs = TooltipWalkthroughs.getAvailableWalkthroughs();
         expect(walkthroughs.length).to.equal(3);
-        expect(walkthroughs[0].name).to.equal("Workbook Browser");
+        expect(walkthroughs[0].name).to.equal("Project Browser");
         expect(walkthroughs[1].name).to.equal("SQL Mode");
     });
 
@@ -101,7 +101,7 @@ describe("Tooltip Walkthrough Test", function() {
         }
         var startErr = TooltipWalkthroughs.startWalkthrough("SQL Mode");
         expect(started).to.be.false;
-        expect(startErr).to.equal("A workbook must be opened in order to start a walkthrough");
+        expect(startErr).to.equal("A project must be opened in order to start a walkthrough");
         $("#homeBtn").click();
     });
 

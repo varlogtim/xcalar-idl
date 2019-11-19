@@ -361,8 +361,8 @@ class JupyterUDFModal {
                     }
                     displayName = displayNameHtml;
                 } else {
-                    displayNameHtml += '<span class="inactiveDF"> (inactive dataflow) </span>' + tableName;
-                    displayName += " (inactive dataflow) " + tableName;
+                    displayNameHtml += '<span class="inactiveDF"> (inactive module) </span>' + tableName;
+                    displayName += " (inactive module) " + tableName;
                 }
             } else {
                 return;

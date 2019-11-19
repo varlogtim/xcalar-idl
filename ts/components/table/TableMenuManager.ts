@@ -46,8 +46,8 @@ class TableMenuManager {
         let label: string = nameUpper;
         switch (nameInput) {
             case ('dfcreate'):
-                nameUpper = 'Dataflow';
-                label = 'Batch Dataflow';
+                nameUpper = 'Module';
+                label = 'Module';
                 break;
             case ('group by'):
                 label = 'Group By';

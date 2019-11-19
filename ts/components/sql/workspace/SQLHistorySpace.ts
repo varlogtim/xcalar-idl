@@ -93,7 +93,7 @@ class SQLHistorySpace {
                 return deferred.promise();
             }
         }
-        Alert.error(AlertTStr.Error, "The corresponding dataflow for sql could not be generated");
+        Alert.error(AlertTStr.Error, "The corresponding plan for sql could not be generated");
         return PromiseHelper.reject();
     }
 

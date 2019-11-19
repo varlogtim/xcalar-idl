@@ -130,11 +130,11 @@ describe('DagList Test', function() {
         it("should get a valid name", function() {
             var name = DagList.Instance.getValidName();
             // duplicate standard dataflow name
-            expect(name.split(" ")[0]).to.equal("Dataflow");
+            expect(name.split(" ")[0]).to.equal("Module");
             // with prefix
             expect(DagList.Instance.getValidName("uniquePref")).to.equal("uniquePref");
             // has bracket
-            expect(DagList.Instance.getValidName(null, true)).to.equal("Dataflow 0");
+            expect(DagList.Instance.getValidName(null, true)).to.equal("Module 0");
             // is sql func
             expect(DagList.Instance.getValidName(null, true, true)).to.equal("fn0");
         });

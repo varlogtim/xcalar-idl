@@ -334,7 +334,7 @@ describe("DagCategories Test", function() {
         });
 
         it("get description", function(){
-            expect(inCategory.getDescription()).to.equal("These operators input data to the dataflow")
+            expect(inCategory.getDescription()).to.equal("These operators input data to the module")
         });
 
         it("clear should work", function() {

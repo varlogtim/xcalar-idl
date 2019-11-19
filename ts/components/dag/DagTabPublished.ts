@@ -1,6 +1,6 @@
 class DagTabPublished extends DagTab {
     public static readonly PATH = "/Published/";
-    private static readonly _prefixUDF: string = "published dataflow";
+    private static readonly _prefixUDF: string = "published module";
     // XXX TODO: encrypt it
     private static readonly _secretUser: string = ".xcalar.published.df";
     private static readonly _delim: string = "_Xcalar_";
@@ -376,7 +376,7 @@ class DagTabPublished extends DagTab {
         }
         const json = this._getDurable();
         if (json == null) {
-            return PromiseHelper.reject("Invalid dataflow structure");
+            return PromiseHelper.reject("Invalid module structure");
         }
         DagTabPublished._switchSession(this._getWKBKName());
         const promise = super._writeToKVStore(json);

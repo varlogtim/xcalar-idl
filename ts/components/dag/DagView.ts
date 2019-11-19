@@ -853,7 +853,7 @@ class DagView {
             });
             let largeMsg: HTML = `<div class="largeMsg">
                                     <div class="innerContent">${text}
-                                        <button class="btn" data-mixpanel-id="ViewDataflowBtn">View Dataflow</button>
+                                        <button class="btn" data-mixpanel-id="ViewDataflowBtn">View Module</button>
                                     </div>
                                 </div>`;
             this.$dfArea.append(largeMsg);
@@ -4040,7 +4040,7 @@ class DagView {
             if (nodeIds == null && !optimized && DagViewManager.Instance.hasOptimizedNode()) {
                 Alert.show({
                     "title": "Confirmation",
-                    "msgTemplate": "The dataflow contains an optimized node and can only be executed in optimized mode. " +
+                    "msgTemplate": "The module contains an optimized node and can only be executed in optimized mode. " +
                             "Would you like to execute all nodes in optimized mode?",
                     "onConfirm": function() {
                         deferred.resolve({optimized: true});
@@ -4281,7 +4281,7 @@ class DagView {
             const nodesArray = JSON.parse(content);
             parsed = true;
             if (!Array.isArray(nodesArray)) {
-                throw ("Dataflow nodes must be in an array.");
+                throw ("Module nodes must be in an array.");
             }
             let nodeSchema = DagNode.getCopySchema();
             let nodeSchemaValidateFn = (new Ajv()).compile(nodeSchema);

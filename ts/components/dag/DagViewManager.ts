@@ -306,7 +306,7 @@ class DagViewManager {
                     if (node) {
                         let tabId = view.graph.getTabId();
                         tab = DagTabManager.Instance.getTabById(tabId);
-                        console.log("Dataflow: " + tab.getName());
+                        console.log("Application Builder Module: " + tab.getName());
                         console.log(view.$dfArea.find('.operator[data-nodeid="' + nodeId + '"]'));
                         break;
                     }
@@ -548,7 +548,7 @@ class DagViewManager {
         identifiers?
     ): XDPromise<void> {
         if (!this.dagViewMap.get(tabId)) {
-            return PromiseHelper.reject("Dataflow not found");
+            return PromiseHelper.reject("Module not found");
         }
         return this.dagViewMap.get(tabId).addBackNodes(nodeIds, spliceInfo, identifiers);
     }

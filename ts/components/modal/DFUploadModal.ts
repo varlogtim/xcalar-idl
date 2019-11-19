@@ -353,7 +353,7 @@ class DFUploadModal {
     private _setupDragDrop(): void {
         new DragDropUploader({
             $container: this._getModal(),
-            text: "Drop a dataflow file to upload",
+            text: "Drop a module file to upload",
             onDrop: (file) => {
                 this._changeFilePath(file.name, file);
             },

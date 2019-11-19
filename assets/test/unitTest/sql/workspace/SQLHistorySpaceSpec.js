@@ -130,7 +130,7 @@ describe("SQLHistorySpace Test", () => {
 
         Alert.error = (title, msg) => {
             expect(title).to.equal(AlertTStr.Error);
-            expect(msg).to.equal("The corresponding dataflow for sql could not be generated");
+            expect(msg).to.equal("The corresponding plan for sql could not be generated");
         };
 
         SQLHistorySpace.Instance.viewProgress(xcHelper.randName("test"))

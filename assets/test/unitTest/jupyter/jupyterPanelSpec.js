@@ -189,7 +189,7 @@ describe("JupyterPanel Test", function() {
             sendMessage({action: "udfToMapForm", tableName: "testTable"})
             .then(function() {
                 expect(called).to.be.true;
-                UnitTest.hasAlertWithText("Table testTable is not present in any active dataflows.");
+                UnitTest.hasAlertWithText("Table testTable is not present in any active modules.");
                 UDFFileManager.Instance.refresh = cacheFn;
                 done();
             })

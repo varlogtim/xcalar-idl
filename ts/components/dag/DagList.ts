@@ -396,7 +396,7 @@ class DagList extends Durable {
         isSQLFunc?: boolean,
         isOptimizedDag?: boolean
     ): string {
-        const prefix: string = prefixName || (isSQLFunc ? "fn" : "Dataflow");
+        const prefix: string = prefixName || (isSQLFunc ? "fn" : "Module");
         const nameSet: Set<string> = new Set();
         let cnt: number = 1;
         this._dags.forEach((dagTab) => {

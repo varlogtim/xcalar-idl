@@ -251,7 +251,7 @@ describe("JupyterUDFModal Test", function() {
             $modal.find(".tableList li:contains('test dataflow')").eq(0)
                   .trigger(fakeEvent.mouseup);
 
-            expect($modal.find(".tableName").val()).to.equal("test dataflow (inactive dataflow) " + tableName2);
+            expect($modal.find(".tableName").val()).to.equal("test dataflow (inactive module) " + tableName2);
             expect($modal.find(".columnsList li").length).to.equal(3);
             expect($modal.find(".columnsList li").eq(0).text()).to.equal("testCol");
             expect($modal.find(".columnsList li").eq(1).text()).to.equal("prefix::testCol2");

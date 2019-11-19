@@ -55,7 +55,7 @@ namespace DagPanel {
 
         DagAggManager.Instance.setup()
         .then(() => {
-            _updateSetupStatus("Initializing Dataflows");
+            _updateSetupStatus("Initializing Modules");
             return DagTblManager.Instance.setup();
         })
         .then(() => {
