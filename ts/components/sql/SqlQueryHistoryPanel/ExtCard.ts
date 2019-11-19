@@ -73,12 +73,12 @@ namespace SqlQueryHistoryPanel {
                 TableColumnCategory.SELECT,
                 TableColumnCategory.STATUS,
                 TableColumnCategory.QUERY,
+                TableColumnCategory.ACTION,
+                TableColumnCategory.TABLE,
                 TableColumnCategory.STARTTIME,
                 TableColumnCategory.DURATION,
                 TableColumnCategory.ROWS,
                 TableColumnCategory.SKEW,
-                TableColumnCategory.ACTION,
-                TableColumnCategory.TABLE
             ];
         }
 
@@ -127,10 +127,10 @@ namespace SqlQueryHistoryPanel {
                     queryInfo.status === SQLStatus.Failed;
                     if (isValidStatus) {
                         text = SQLTStr.queryTableBodyTextPreview;
-                        iconClass = 'xi-viewprogress';
+                        iconClass = 'xi-dfg2';
                     } else if (queryInfo.status === SQLStatus.Running) {
                         text = SQLTStr.queryTableBodyTextProgress;
-                        iconClass = 'xi-viewprogress';
+                        iconClass = 'xi-dfg2';
                     }
                     const prop: TableBodyColumnIconLinkProp = {
                         category: TableColumnCategory.ACTION,

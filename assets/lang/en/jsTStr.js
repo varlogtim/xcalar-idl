@@ -1573,7 +1573,7 @@ SQLTStr = {
     "queryTableColumnTable": "Results",
     "queryTableColumnNumRows": "Rows",
     "queryTableColumnSkew": "Skew",
-    "queryTableColumnAction": "Dataflow",
+    "queryTableColumnAction": "Plan",
     "queryTableBodyTextPreview": "Preview",
     "queryTableBodyTextProgress": "View Progress",
     "EnterSnippetName": "Enter snippet name",

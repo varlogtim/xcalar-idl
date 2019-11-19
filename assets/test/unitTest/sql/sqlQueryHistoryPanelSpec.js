@@ -650,7 +650,7 @@ describe("SqlQueryHistoryPanel Test", function() {
             expect(columnProps).to.deep.equal({
                 category: 'ACTION',
                 text: SQLTStr.queryTableBodyTextPreview,
-                iconClass: 'xi-viewprogress'
+                iconClass: 'xi-dfg2'
             });
             // Action: Running
             queryInfo.status = 'Running';
@@ -659,7 +659,7 @@ describe("SqlQueryHistoryPanel Test", function() {
             expect(columnProps).to.deep.equal({
                 category: 'ACTION',
                 text: SQLTStr.queryTableBodyTextProgress,
-                iconClass: 'xi-viewprogress'
+                iconClass: 'xi-dfg2'
             });
         });
 
