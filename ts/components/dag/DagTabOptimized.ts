@@ -2,6 +2,7 @@ class DagTabOptimized extends DagTabProgress {
     public static readonly KEY = "xcRet_";
     public static readonly XDPATH = "Optimized Dataflows/";
     public static readonly SDKPATH = "SDK Dataflows/Optimized SDK Dataflows/";
+    public static readonly FILEEXT = ".opt.json";
     public uid: XcUID;
 
     /**
@@ -207,6 +208,23 @@ class DagTabOptimized extends DagTabProgress {
 
     public setState(state: string) {
         this._state = state;
+    }
+
+    /**
+     * @override
+     */
+    public download(name: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XcalarGetRetinaJson(this._queryName)
+        .then((retina) => {
+            const fileName: string = name + DagTabOptimized.FILEEXT;
+            const fileContent: string = JSON.stringify(retina);
+            xcHelper.downloadAsFile(fileName, fileContent);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 }
 

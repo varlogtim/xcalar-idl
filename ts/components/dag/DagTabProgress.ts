@@ -62,7 +62,7 @@ abstract class DagTabProgress extends DagTab {
     }
 
     // do nothing
-    public download(): XDPromise<void> {
+    public download(_name: string): XDPromise<void> {
         return PromiseHelper.resolve();
     }
 
