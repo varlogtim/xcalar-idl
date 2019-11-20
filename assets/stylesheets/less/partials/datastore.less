@@ -811,10 +811,17 @@ table.datasetTable {
     #dsForm-path;
 
     .cardMain {
+        height: ~"calc(100% - 132px)";
+        overflow-y: auto;
+
         > .pathSection {
             height: auto;
             line-height: normal;
         }
+    }
+
+    .cardBottom {
+        height: 76px;
     }
 
     .pathSection {
