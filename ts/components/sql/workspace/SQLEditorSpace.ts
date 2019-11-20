@@ -113,6 +113,9 @@ class SQLEditorSpace {
         }
         this._sqlEditor = new SQLEditor("sqlEditorSpace-editor", callbacks);
 
+        // TODO: improve this. Ideally should set to the last snippet
+        SQLSnippet.Instance.setFirstSnippet();
+
         CodeMirror.commands.autocompleteSQLInVDW = function(cmeditor) {
             let acTables = self._getAutoCompleteHint();
             CodeMirror.showHint(cmeditor, CodeMirror.hint.sql, {

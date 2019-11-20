@@ -71,6 +71,17 @@ class SQLSnippet {
         return this._updateSnippets();
     }
 
+    // TODO: imrove this. Ideally should set to the last snippet
+    public setFirstSnippet(): void {
+        this._fetchSnippets()
+        .then(() => {
+            const snippetNames = this._listSnippetsNames();
+            if (snippetNames && snippetNames[0] !== "Untitled") {
+                SQLEditorSpace.Instance.setSnippet(snippetNames[0])
+            }
+        })
+    }
+
     private _getKVStore(): KVStore {
         let snippetQueryKey: string = KVStore.getKey("gSQLSnippetQuery");
         return new KVStore(snippetQueryKey, gKVScope.WKBK);
