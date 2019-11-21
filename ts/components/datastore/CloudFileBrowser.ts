@@ -74,8 +74,12 @@ namespace CloudFileBrowser {
     function _uploadFile(file?: File): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let fileName: string = file.name.replace(/C:\\fakepath\\/i, '').trim();
+        if (fileName.endsWith(".xlsx")) {
+            _handleUploadError("Upload xlsx file is not supported in this version, please convert the file to CSV.");
+            return PromiseHelper.reject();
+        }
         if (file.size && (file.size / MB) > 7) {
-            _handleUploadError("File size: " + (file.size / MB) + "MB");
+            _handleUploadError("Please ensure your file is under 6MB.");
             return PromiseHelper.reject();
         }
         let isChecking: boolean = true;
@@ -93,7 +97,8 @@ namespace CloudFileBrowser {
             if (!isChecking) {
                 FileBrowser.removeFileToUpload(fileName);
                 FileBrowser.refresh();
-                _handleUploadError(error);
+                console.error(error);
+                _handleUploadError("Please ensure your file is under 6MB.");
             }
             deferred.reject(error);
         });
@@ -102,8 +107,7 @@ namespace CloudFileBrowser {
     }
 
     function _handleUploadError(error: string): void {
-        console.error(error);
-        Alert.error("Upload file failed", "Please ensure your file is under 6MB.");
+        Alert.error("Upload file failed", error);
     }
 
     function _addEventListeners(): void {
