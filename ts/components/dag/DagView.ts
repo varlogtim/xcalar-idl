@@ -3159,8 +3159,8 @@ class DagView {
                 </thead>
                 <tbody>
                     <tr>
-                        <td>${skewRows}</td>
-                        <td>${totalTimeStr}</td>
+                        <td class="rows">${skewRows}</td>
+                        <td class="time">${totalTimeStr}</td>
                         <td class="skewTd ${skewClass}" ><span class="value" style="${colorStyle}">${maxSkew}</span></td>
                     </tr>
                 </tbody>
@@ -3354,9 +3354,7 @@ class DagView {
 
         this._registerGraphEvent(this.graph, DagNodeEvents.StateChange, (info) => {
             this.updateNodeState(info);
-            DagNodeInfoPanel.Instance.update(info.id, "status");
             DagNodeInfoPanel.Instance.update(info.id, "stats");
-            // running state don't need to change
             if (info.state !== DagNodeState.Running) {
                 const isDelay: boolean = (info.oldState === DagNodeState.Running &&
                                           info.state === DagNodeState.Complete);
@@ -5283,6 +5281,20 @@ class DagView {
         } catch (e) {
             console.error(e);
             return nodeInfo;
+        }
+    }
+    // in case tooltip rows are incorrect when previewing table
+    public syncProgressTip(nodeId: string, numRows: number) {
+        let node = this.graph.getNode(nodeId);
+        if (node && node.syncStats(numRows)) {
+            this.$dfArea.find('.runStats[data-id="' + nodeId + '"]')
+                        .find(".rows")
+                        .text(xcStringHelper.numToStr(numRows));
+            const nodeInfo = {
+                position: node.getPosition()
+            };
+            this._repositionProgressTooltip(nodeInfo, node.getId());
+            this.dagTab.save();
         }
     }
 }

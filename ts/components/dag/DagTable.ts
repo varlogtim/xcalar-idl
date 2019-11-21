@@ -17,7 +17,7 @@ class DagTable {
         this._viewers = new Map();
     }
 
-    public previewTable(tabId: string, dagNode: DagNode): XDPromise<void> {
+    public previewTable(tabId: string, dagNode: DagNode): XDPromise<XcViewer> {
         const table: TableMeta = XcDagTableViewer.getTableFromDagNode(dagNode);
         const viewer: XcDagTableViewer = new XcDagTableViewer(tabId, dagNode, table);
         this._viewers.set(tabId, viewer);
@@ -43,9 +43,9 @@ class DagTable {
         }
     }
 
-    public replaceTable(table: TableMeta): XDPromise<void> {
+    public replaceTable(table: TableMeta): XDPromise<XcViewer> {
         if (this._currentViewer instanceof XcDatasetViewer) {
-            return PromiseHelper.resolve(); // invalid case
+            return PromiseHelper.resolve(this._currentViewer); // invalid case
         }
         const currentViewer: XcDagTableViewer = <XcDagTableViewer>this._currentViewer;
         const viewer = currentViewer.replace(table);
@@ -125,7 +125,7 @@ class DagTable {
         }
     }
 
-    private _show(viewer: XcViewer, isRefresh: boolean = false): XDPromise<void> {
+    private _show(viewer: XcViewer, isRefresh: boolean = false): XDPromise<XcViewer> {
         if (!isRefresh && this._isSameViewer(viewer)) {
             return PromiseHelper.resolve();
         }
@@ -141,12 +141,12 @@ class DagTable {
         Log.updateUndoRedoState(); // update the state to skip table related undo/redo
     }
 
-    private _showViewer(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    private _showViewer(): XDPromise<XcViewer> {
+        const deferred: XDDeferred<XcViewer> = PromiseHelper.deferred();
         const $container: JQuery = this._getContainer();
         $container.parent().removeClass("noPreviewTable").addClass("tableViewMode");
         $container.removeClass("xc-hidden").addClass("loading");
-        const viewer = this._currentViewer;
+        const viewer: XcViewer = this._currentViewer;
         if (viewer instanceof XcDatasetViewer) {
             $container.addClass("dataset");
         } else {
@@ -157,7 +157,7 @@ class DagTable {
         .then(() => {
             $container.removeClass("loading");
             TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
-            deferred.resolve();
+            deferred.resolve(viewer);
         })
         .fail((error) => {
             this._error(error);

@@ -415,7 +415,9 @@ describe("DagView Test", () => {
             let test = false;
             DagTable.Instance._show = () => {
                 test = true;
-                return PromiseHelper.resolve();
+                return PromiseHelper.resolve({
+                    getDataflowTabId: ()=>null
+                });
             }
             DagViewManager.Instance.viewResult(node)
             .then(() => {

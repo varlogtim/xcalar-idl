@@ -338,7 +338,14 @@ class DagViewManager {
                 // all other nodes
                 tabId = tabId || this.activeDagTab.getId();
                 DagTable.Instance.previewTable(tabId, dagNode)
-                    .then(deferred.resolve)
+                    .then((res: XcDagTableViewer) => {
+                        let dagView = this.getDagViewById(res.getDataflowTabId());
+                        let table = XcDagTableViewer.getTableFromDagNode(dagNode);
+                        if (dagView && table) {
+                            dagView.syncProgressTip(dagNode.getId(), table.resultSetCount);
+                        }
+                        deferred.resolve();
+                    })
                     .fail((error) => {
                         Alert.error(AlertTStr.Error, error);
                         deferred.reject(error);

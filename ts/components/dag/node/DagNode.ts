@@ -1112,6 +1112,32 @@ abstract class DagNode extends Durable {
         return tables;
     }
 
+    // in case total rows are incorrect when previewing table
+    public syncStats(numRows): boolean {
+        if (!this.runStats || !this.runStats.nodes) {
+            return false;
+        }
+        let nodesArray = [];
+        for (let name in this.runStats.nodes) {
+            const node = this.runStats.nodes[name];
+            if (node.hasStats) {
+                nodesArray.push(node);
+            }
+        }
+        nodesArray.sort((a,b) => {
+            if (a.index > b.index) {
+                return 1;
+            } else {
+                return -1;
+            }
+        });
+        let lastNode = nodesArray[nodesArray.length - 1];
+        if (lastNode && lastNode.numRowsTotal !== numRows) {
+            lastNode.numRowsTotal = numRows;
+            return true;
+        }
+    }
+
     /**
      * Check if number of parents is unlimited
      */
