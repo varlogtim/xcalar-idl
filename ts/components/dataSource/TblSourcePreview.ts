@@ -492,7 +492,7 @@ class TblSourcePreview {
         let tableName: string = tableInfo.name;
         DagView.newTabFromSource(DagNodeType.IMDTable, {
             source: tableName,
-            schema: tableInfo.columns
+            schema: tableInfo.getSchema()
         });
     }
 
