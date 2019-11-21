@@ -263,7 +263,8 @@ namespace TooltipWalkthroughs {
             highlight_div: "#helpMenuTab",
             interact_div: "#helpMenuTab",
             text: "Click the Help icon to get help and support.",
-            type: TooltipType.Click
+            type: TooltipType.Click,
+            wait_before_next_step: 300,
         },
         {
             highlight_div: "#tutorialResource",
@@ -357,9 +358,9 @@ namespace TooltipWalkthroughs {
                 highlight_div: "#helpMenuTab",
                 interact_div: "#helpMenuTab",
                 text: "Click the Help icon to get help and support.",
-                type: TooltipType.Click
-            }
-            ,
+                type: TooltipType.Click,
+                wait_before_next_step: 300,
+            },
             {
                 highlight_div: "#tutorialResource",
                 text: "This concludes the tour of the Developer Mode user interface. To get more hands-on experience, view the tutorial projects.",

@@ -8,6 +8,7 @@ interface TooltipInfo {
     wait_for_div?: string; // if exist, wait for the elemnt to exist for  the action
     position?: string;
     pre_mousedown_div?: string;
+    wait_before_next_step?: number;
 }
 
 interface WalkthroughInfo {

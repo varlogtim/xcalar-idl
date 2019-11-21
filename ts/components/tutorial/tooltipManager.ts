@@ -554,7 +554,7 @@ namespace TooltipManager {
                     if (currentStep.wait_for_div) {
                         waitFor(currentStep.wait_for_div);
                     } else {
-                        setTimeout(()=>nextStep(), 0);
+                        setTimeout(()=>nextStep(), currentStep.wait_before_next_step || 0);
                     }
                 });
             } else if (currentStep.type == TooltipType.Value) {
