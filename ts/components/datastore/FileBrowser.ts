@@ -2418,7 +2418,7 @@ namespace FileBrowser {
         }
         RawFileModal.Instance.show({
             targetName: getCurrentTarget(),
-            path: getCurrentPath(),
+            path: getCurrentPath() + fileName,
             fileName
         });
     }
