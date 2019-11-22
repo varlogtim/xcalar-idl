@@ -5640,6 +5640,7 @@ html.microsoft {
         height: ~"calc(100% - @{h-without-main})";
         font-size: 12px;
         padding: 0;
+        padding-bottom: @modal-padding-vertical;
     }
 
     p {
@@ -5702,6 +5703,7 @@ html.microsoft {
     .bottomSection {
         .flex-display;
         .flex(1 1 100%);
+        overflow-y: auto;
 
         .row {
             height: @rowHeight;
