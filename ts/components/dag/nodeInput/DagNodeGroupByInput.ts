@@ -212,7 +212,7 @@ class DagNodeGroupByInput extends DagNodeInput {
 
     public validate(input?): {error: string} {
         input = input || this.input;
-        window["ajv"] = new Ajv(); //TODO: try to reuse
+        const ajv = new Ajv(); //TODO: try to reuse
         const validate = ajv.compile(this.constructor["schema"]);
         let valid = validate(input);
 
