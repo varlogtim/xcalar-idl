@@ -1126,7 +1126,7 @@ class SQLWindow {
                            + "_right" + Authentication.getHashId().substring(3);
                     newIndexColStruct = {colName: newIndexColName,
                                          colType: SQLColumnType.Integer};
-                    windowStruct.rightColInfo = rightKeyColStructs.concat([newIndexColStruct]);
+                    windowStruct.rightColInfo = rightKeyColStructs.concat(rightJoinCols).concat([newIndexColStruct]);
                     let mapStr;
                     mapStr = "subInteger(" + SQLCompiler.getCurrentName(indexColStruct)
                                  + ", " + opStruct.offset + ")";
