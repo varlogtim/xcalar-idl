@@ -134,8 +134,13 @@ class WorkbookState extends State {
         this.log(`Deleting workbook ${randomWorkbook}`);
         try {
             await WorkbookManager.deactivate(randomWorkbook);
-            await WorkbookManager.deleteWKBK(randomWorkbook);
         } catch (error) {
+            this.log(`Error deactivating workbook ${randomWorkbook}`);
+            throw error;
+        }
+        try {
+            await this.deleteWBWithRetry(randomWorkbook, 10, 1000);
+        } catch(error) {
             this.log(`Error deleting workbook ${randomWorkbook}`);
             throw error;
         }
@@ -151,6 +156,28 @@ class WorkbookState extends State {
         }
         this.log(`Deleted workbook ${randomWorkbook}`);
         return this
+    }
+
+    private async deleteWBWithRetry(wbId: string, numTry: number, msInterval: number): Promise<void> {
+        let numTried: number = 0;
+        while (numTried < numTry) {
+            try {
+                await WorkbookManager.deleteWKBK(wbId);
+                return;
+            } catch(e) {
+                numTried ++;
+                this.log(`Trying to delete workbook ${wbId}: ${numTried}`);
+                this.log(e);
+                await sleep(msInterval);
+            }
+        }
+        throw `Fail to delete workbook ${wbId} after ${numTry} tries`;
+
+        function sleep(msInterval: number): Promise<void> {
+            return new Promise((resolve) => {
+                setTimeout(() => { resolve(); }, msInterval);
+            });
+        }
     }
 
     private async createNewWorkbook(): XDPromise<WorkbookState> {
