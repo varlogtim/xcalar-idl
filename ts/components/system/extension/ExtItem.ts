@@ -90,6 +90,10 @@ class ExtItem {
                 return "xi-SQLworkspace";
             case "Developer Mode":
                 return "xi-dfg2";
+            case "Applications":
+                return "xi-monitor";
+            case "How-to":
+                return "xi_smart";
             default:
                 return "xi-power";
         }
