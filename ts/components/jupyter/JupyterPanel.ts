@@ -515,13 +515,13 @@ namespace JupyterPanel {
             tabs.forEach((tab) => {
                let graph: DagGraph = tab.getGraph();
                if (graph != null) {
-                   graph.getAllNodes().forEach((node) => {
+                   for (let node of graph.getAllNodes().values()) {
                        if (node.getTable() === tableName) {
                            tabId = tab.getId();
                            dagNode = node;
-                           return false; // stop loop
+                           break; // stop loop
                        }
-                   });
+                   }
                }
 
                if (dagNode != null) {

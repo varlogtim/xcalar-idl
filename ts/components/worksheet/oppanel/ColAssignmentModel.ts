@@ -180,14 +180,15 @@ class ColAssignmentModel {
         const colToSelect: ProgCol = this.allColsList[listIndex][indexToSelect];
         const colName: string = colToSelect.getBackColName();
         let usedIndex: number;
-        this.selectedColsList[listIndex].forEach((col, index) => {
+        for (let index = 0; index < this.selectedColsList[listIndex].length; index++) {
+            let col = this.selectedColsList[listIndex][index];
             if (col != null && index !== colIndex &&
                 col.getBackColName() === colName
             ) {
                 usedIndex = index;
-                return false; // stop loop
+                break; // stop loop
             }
-        });
+        }
         this.selectedColsList[listIndex][colIndex] = colToSelect;
         this.resultCols[colIndex].type = null; // when select, reset result type to null
         // same column is used in other col, remove that

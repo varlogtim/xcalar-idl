@@ -178,7 +178,7 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
         let nameMap: Map<string, string> = new Map();
         let error: string = null;
         let errorName: string = null;
-        schema.forEach((colInfo) => {
+        for (let colInfo of schema) {
             let name = colInfo.name;
             let upperCaseName = name.toUpperCase();
             let existingName = nameMap.get(upperCaseName);
@@ -195,11 +195,11 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
                 }
 
                 errorName = name;
-                return false; // stop loop
+                break; // stop loop
             } else {
                 nameMap.set(upperCaseName, name);
             }
-        });
+        }
 
 
         if (error) {

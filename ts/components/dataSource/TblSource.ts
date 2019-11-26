@@ -66,14 +66,12 @@ class TblSource {
             return false;
         }
         tableName = tableName.toUpperCase();
-        let found: boolean = false;
-        this._tables.forEach((_v, name) => {
+        for (let name of this._tables.keys()) {
             if (name && name.toUpperCase() === tableName) {
-                found = true;
-                return false; // stop loop
+                return true;
             }
-        });
-        return found;
+        }
+        return false;
     }
 
     /**

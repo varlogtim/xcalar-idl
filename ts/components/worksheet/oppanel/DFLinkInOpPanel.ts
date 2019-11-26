@@ -106,12 +106,12 @@ class DFLinkInOpPanel extends BaseOpPanel {
             let hasLinkOutNode: boolean = false;
             try {
                 const nodes: Map<DagNodeId, DagNode> = tab.getGraph().getAllNodes();
-                nodes.forEach((node) => {
+                for (let node of nodes.values()) {
                     if (node.getType() === DagNodeType.DFOut) {
                         hasLinkOutNode = true;
-                        return false; // stop loop
+                        break;
                     }
-                });
+                }
             } catch (e) {
                 console.error(e);
             }

@@ -2404,17 +2404,18 @@ namespace XIApi {
             .then((res) => {
                 let error: {error: string, log?: string} = null;
                 try {
-                    res.queryGraph.node.forEach((nodeInfo) => {
+                    for (let i = 0; i < res.queryGraph.node.length; i++) {
                         // XXX TODO: wire in status
+                        const nodeInfo = res.queryGraph.node[i];
                         const state = nodeInfo.state;
-                        if (state=== DgDagStateT.DgDagStateError) {
+                        if (state === DgDagStateT.DgDagStateError) {
                             error = {
                                 error: nodeInfo.thriftError.error || DgDagStateTStr[state],
                                 log: nodeInfo.log
                             };
-                            return false; // stop loop
+                            break;
                         }
-                    });
+                    }
                 } catch (e) {
                     console.error(e);
                     // if cannot correctly parse the return structure,

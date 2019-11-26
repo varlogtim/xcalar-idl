@@ -40,17 +40,15 @@ class DagTabSQLFunc extends DagTabUser {
      */
     public static getFunc(name: string): DagTabSQLFunc {
         name = name.toLowerCase();
-        let dag: DagTabSQLFunc;
         let dagTabs: Map<string, DagTab> = DagList.Instance.getAllDags();
-        dagTabs.forEach((dagTab, id) => {
+        for (let [id, dagTab] of dagTabs) {
             let dagName: string = dagTab.getName().toLowerCase();
             if (name === dagName && id.startsWith(DagTabSQLFunc.KEY)) {
-                dag = <DagTabSQLFunc>dagTab;
-                return false; // stop loop
+                return <DagTabSQLFunc>dagTab;
             }
-        });
+        }
 
-        return dag;
+        return null;
     }
 
     /**
