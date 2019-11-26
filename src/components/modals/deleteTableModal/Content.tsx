@@ -15,11 +15,12 @@ type ContentProps = {
     onSort;
 };
 export default function Content(props: ContentProps) {
-    const { tables, sortKey, onSelectAllClick, onCheckboxClick, onSort } = props;
+    const { tables, sortKey, onSelectAllClick, onSort } = props;
     let selectAllVal: boolean = true;
     let checked: boolean = false;
     let selectedTables = tables.filter((table) => table.checked);
-    if (selectedTables.length == tables.length && tables.length > 0) {
+    let unlockedTabls = tables.filter((table) => !table.locked);
+    if (selectedTables.length == unlockedTabls.length && unlockedTabls.length > 0) {
         checked = true;
         selectAllVal = false;
     }
