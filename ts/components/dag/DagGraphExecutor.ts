@@ -436,6 +436,10 @@ class DagGraphExecutor {
             const nodes: DagNode[] = this._nodes.filter((node) => {
                 if (node instanceof DagNodePublishIMD && node.getState() === DagNodeState.Complete) {
                     return !PTblManager.Instance.hasTable(node.getParam(true).pubTableName);
+                } else if (node instanceof DagNodeAggregate && node.getState() === DagNodeState.Complete) {
+                    const param: DagNodeAggregateInputStruct = node.getParam(true);
+                    const agg: AggregateInfo = this.getRuntime().getDagAggService().getAgg(param.dest);
+                    return (!agg || agg.value == null);
                 }
                 return (node.getState() !== DagNodeState.Complete || !DagTblManager.Instance.hasTable(node.getTable()));
             });
@@ -567,7 +571,11 @@ class DagGraphExecutor {
     // returns a query string representing all the operations needed to run
     // the dataflow
     // also stores a map of new table names to their corresponding nodes
-    public getBatchQuery(forExecution: boolean = false): XDPromise<{queryStr: string, destTables: string[]}> {
+    // reuseCompletedNodes: boolean if true, will reuse tables/aggregates if they exist
+    public getBatchQuery(
+        forExecution: boolean = false,
+        reuseCompletedNodes: boolean = false
+    ): XDPromise<{queryStr: string, destTables: string[]}> {
         let nodes: DagNode[] = this._nodes;
         if (!this._synthesizeDFOut) {
             // get rid of link out node to get the correct query and destTable
@@ -576,6 +584,20 @@ class DagGraphExecutor {
                 node.getSubType() === DagNodeSubType.DFOutOptimized;
             });
         }
+
+        if (reuseCompletedNodes) {
+            // the case of linkInWithBatch should reuse aggregate tables
+            // instead of creating a duplicate aggregate
+            nodes = nodes.filter((node) => {
+                if (node instanceof DagNodeAggregate) {
+                    const param: DagNodeAggregateInputStruct = node.getParam(true);
+                    const agg: AggregateInfo = this.getRuntime().getDagAggService().getAgg(param.dest);
+                    return (!agg || agg.value == null);
+                }
+                return (!DagTblManager.Instance.hasTable(node.getTable()));
+            });
+        }
+
         const deferred: XDDeferred<{queryStr: string, destTables: string[]}> = PromiseHelper.deferred();
         const promises = [];
         const udfContext = this._getUDFContext();

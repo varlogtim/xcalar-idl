@@ -1119,7 +1119,7 @@ class DagView {
     public unlockNode(nodeId: DagNodeId): void {
         this._getNode(nodeId).removeClass("locked");
         delete this.lockedNodeIds[nodeId];
-        if (this.graph != null && (Object.keys(this.lockedNodeIds).length || this.configLockedNodeIds.size) ) {
+        if (this.graph != null && (!Object.keys(this.lockedNodeIds).length && !this.configLockedNodeIds.size) ) {
             this.graph.unsetGraphNoDelete();
         }
         DagNodeInfoPanel.Instance.update(nodeId, "lock");
@@ -1157,7 +1157,7 @@ class DagView {
     public unlockConfigNode(nodeId: DagNodeId): void {
         this._getNode(nodeId).removeClass("configLocked");
         this.configLockedNodeIds.delete(nodeId);
-        if (this.graph != null && (Object.keys(this.lockedNodeIds).length || this.configLockedNodeIds.size) ) {
+        if (this.graph != null && (!Object.keys(this.lockedNodeIds).length && !this.configLockedNodeIds.size) ) {
             this.graph.unsetGraphNoDelete();
         }
     }
@@ -1349,7 +1349,6 @@ class DagView {
                     nodesMap.set(newNode.getId(), newNode);
                 }
             });
-            this.graph.checkNodesState(nodesMap);
 
             this._setGraphDimensions({ x: maxXCoor, y: maxYCoor });
             if (this.dagTab instanceof DagTabSQLFunc) {
@@ -1369,6 +1368,10 @@ class DagView {
             if ($node.length) {
                 $node.scrollintoview({duration: 0});
             }
+            // call this after resolving node conflicts so we don't reset the
+            // original nodes' tables
+            this.graph.checkNodesState(nodesMap);
+
             Log.add(SQLTStr.PasteOperations, {
                 "operation": SQLOps.PasteOperations,
                 "dataflowId": this.tabId,

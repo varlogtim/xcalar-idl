@@ -907,6 +907,7 @@ class DagGraph extends Durable {
      * @param nodeId
      * @param optimized
      * @param isCloneGraph
+     * @param reuseCompletedNodes when forExecution is true, reuse aggregates if they exist
      */
     public getQuery(
         nodeId?: DagNodeId,
@@ -914,7 +915,8 @@ class DagGraph extends Durable {
         isCloneGraph: boolean = true,
         allowNonOptimizedOut: boolean = false,
         forExecution: boolean = false,
-        parentTxId?: number
+        parentTxId?: number,
+        reuseCompletedNodes: boolean = false
     ): XDPromise<{queryStr: string, destTables: string[]}> {
         // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
@@ -924,9 +926,11 @@ class DagGraph extends Durable {
         }
 
         const nodesMap: Map<DagNodeId, DagNode> = nodeId != null
-            ? graph.backTraverseNodes([nodeId], false).map
+            ? graph.backTraverseNodes([nodeId], reuseCompletedNodes).map
             : graph.getAllNodes();
+
         const orderedNodes: DagNode[] = graph._topologicalSort(nodesMap);
+
         // save original sql nodes so we can cache query compilation
         let sqlNodes: Map<string, DagNodeSQL> = new Map();
         orderedNodes.forEach((clonedNode) => {
@@ -950,7 +954,7 @@ class DagGraph extends Durable {
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
-        return executor.getBatchQuery(forExecution);
+        return executor.getBatchQuery(forExecution, reuseCompletedNodes);
     }
 
     /**

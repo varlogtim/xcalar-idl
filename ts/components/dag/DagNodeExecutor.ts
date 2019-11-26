@@ -1003,7 +1003,7 @@ class DagNodeExecutor {
         } else {
             txLog = Transaction.get(this.txId);
             txLog.setParentNodeId(this.node.getId()); // used to track dataset activation
-            promise = graph.getQuery(linkOutNode.getId(), optimized, true, true, false, this.txId);
+            promise = graph.getQuery(linkOutNode.getId(), optimized, true, true, false, this.txId, !optimized);
         }
         let destTable: string;
         promise
