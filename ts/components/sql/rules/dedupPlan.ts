@@ -453,6 +453,14 @@ class DedupPlan {
                 // Here only replacing right table renames
                 node.colNameMaps[0] = node.colNameMaps[0] || {};
                 node.colNameMaps[1] = node.colNameMaps[1] || {};
+                // Replace names in key
+                for (const i in node.value.args.key) {
+                    if (node.value.args.key[i]) {
+                        node.value.args.key[i] = node.value.args.key[i].map(colName => {
+                            return node.colNameMaps[i][colName] || colName;
+                        });
+                    }
+                }
                 if (node.value.args.joinType === "leftSemiJoin" ||
                     node.value.args.joinType === "leftAntiJoin") {
                     node.colNameMaps[1] = {};
@@ -507,6 +515,14 @@ class DedupPlan {
                         node.value.args.columns[i][j].sourceColumn =
                             node.colNameMaps[i][node.value.args.columns[i][j].sourceColumn]
                             || node.value.args.columns[i][j].sourceColumn;
+                    }
+                }
+                // Replace names in key
+                for (const i in node.value.args.key) {
+                    if (node.value.args.key[i]) {
+                        node.value.args.key[i] = node.value.args.key[i].map(colName => {
+                            return node.colNameMaps[i][colName] || colName;
+                        });
                     }
                 }
                 break;
