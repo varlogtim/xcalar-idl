@@ -12,16 +12,19 @@ describe('TblAnim Test', function() {
             $("#modeArea").click();
         }
         UnitTest.onMinMode();
-        var testDSObj = testDatasets.fakeYelp;
-        UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .then(function(ds, tName, tPrefix, _nodeId, _tabId) {
-            testDs = ds;
-            tableName = tName;
-            tabId = _tabId;
-            tableId = xcHelper.getTableId(tableName);
-            $table = $('#xcTable-' + tableId);
+        UnitTest.testFinish(() => DagPanel.hasSetup())
+        .always(function() {
+            var testDSObj = testDatasets.fakeYelp;
+            UnitTest.addAll(testDSObj, "unitTestFakeYelp")
+            .then(function(ds, tName, tPrefix, _nodeId, _tabId) {
+                testDs = ds;
+                tableName = tName;
+                tabId = _tabId;
+                tableId = xcHelper.getTableId(tableName);
+                $table = $('#xcTable-' + tableId);
 
-            done();
+                done();
+            });
         });
     });
 

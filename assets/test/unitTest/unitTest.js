@@ -393,8 +393,10 @@ window.UnitTest = (function(UnitTest, $) {
             return UnitTest.testFinish(() => !$('#deleteTableModal').hasClass("load"))
         })
         .then(function() {
-            $('#deleteTableModal').find('.listSection .checkbox')
-                                  .addClass('checked');
+            $('#deleteTableModal').find('.titleSection .checkbox').click();
+            if ($("#deleteTableModal .confirm").hasClass("xc-disabled")) {
+                return PromiseHelper.resolve();
+            }
             $('#deleteTableModal .confirm').click();
             return UnitTest.testFinish(() => $("#alertModal").is(":visible"));
         })
