@@ -3,6 +3,7 @@
   <!-- Profile Modal Header -->
   <header class="modalHeader has-subHeader">
     <span class="text"><%= dicts.profile.header %></span>
+    <span class="text secondary">Chart</span>
     <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
       <i class="icon xi-exit-fullscreen"></i>
     </div>
@@ -132,12 +133,35 @@
       <div class="title"><%= dicts.profile.fail %></div>
       <div class="text"></div>
     </div>
+    <div class="yAxisSection">
+        <div class="row">
+            <span class="label">y-axis:</i></span>
+            <span class="yAxisName"></span>
+        </div>
+    </div>
     <!-- groupby section -->
+
     <div class="groupbyInfoSection loadHidden">
       <i id="profile-download" class="download icon xi-download xc-action" data-toggle="tooltip"  data-placement="top" data-container="body" data-title="<%= dicts.profile.download %>"></i>
       <svg class="groupbyChart"></svg>
       <i class="arrow left-arrow icon xi-arrow-left xc-action fa-15"></i>
       <i class="arrow right-arrow icon xi-arrow-right xc-action fa-15"></i>
+    </div>
+    <div class="xAxisSection">
+        <div class="row">
+            <span class="label">x-axis:</span>
+            <div class="dropDownList xAxisList">
+                <input type="text" class="text arg xAxisValue" spellcheck="false" placeholder="Column name">
+                <div class="iconWrapper">
+                    <i class="icon xi-arrow-down"></i>
+                </div>
+                <div class="list">
+                    <ul>
+                    </ul>
+                    include "../../util/menuScrollArea.html"
+                </div>
+            </div>
+        </div>
     </div>
     <div id="profile-filterOption" class="filterOption">
       <div class="option filter xc-action">

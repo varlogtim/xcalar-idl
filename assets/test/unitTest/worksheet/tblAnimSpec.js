@@ -13,7 +13,7 @@ describe('TblAnim Test', function() {
         }
         UnitTest.onMinMode();
         UnitTest.testFinish(() => DagPanel.hasSetup())
-        .always(function() {
+        .always(() => {
             var testDSObj = testDatasets.fakeYelp;
             UnitTest.addAll(testDSObj, "unitTestFakeYelp")
             .then(function(ds, tName, tPrefix, _nodeId, _tabId) {
@@ -22,7 +22,6 @@ describe('TblAnim Test', function() {
                 tabId = _tabId;
                 tableId = xcHelper.getTableId(tableName);
                 $table = $('#xcTable-' + tableId);
-
                 done();
             });
         });

@@ -839,7 +839,8 @@ ProfileTStr = {
                  'is closed.',
     'InvalidBucket': 'Invalid Bucket Size',
     // With replace
-    'Info': "Profile of column: <b><col></b>, type: <b><type></b>."
+    'Info': "Profile of column: <b><col></b>, type: <b><type></b>.",
+    'ChartInfo': "Chart for column: <b><col></b>, type: <b><type></b>.",
 };
 
 WKBKTStr = {

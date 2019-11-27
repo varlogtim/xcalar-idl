@@ -43,14 +43,17 @@ class BarChartBuilder extends AbstractChartBuilder {
 
         // x range and y range
         let maxHeight: number = Math.max(max, nullCount);
-        let x = d3.scale.ordinal()
-                    .rangeRoundBands([0, width], 0.1, 0)
-                    .domain(data.map(function(d) { return d[xName]; }));
+
+        let x = (d, i) => {
+            return i * (width / dataLen);
+        };
         let y = d3.scale.linear()
                     .range([height, 0])
                     .domain([-(maxHeight * 0.02), maxHeight]);
 
-        let xWidth = x.rangeBand();
+        let xWidth = 0.9 * (width / dataLen);
+
+        // let xWidth = x.rangeBand();
         // 6.2 is the width of a char in .xlabel
         let charLenToFit = Math.max(1, Math.floor(xWidth / 6.2) - 1);
         let left: any = (sectionWidth - chartWidth) / 2;
@@ -58,7 +61,7 @@ class BarChartBuilder extends AbstractChartBuilder {
         let barAreas;
         let self = this;
 
-        let getLabel = (d) => this._getLabel(d, charLenToFit); 
+        let getLabel = (d) => this._getLabel(d, charLenToFit);
         let getXAxis = (d) => this._getXAxis(d);
         let getLastBucketTick = () => this._getLastBucketTick();
         let getTooltipAndClass = function(d) {
@@ -76,12 +79,12 @@ class BarChartBuilder extends AbstractChartBuilder {
         };
         let getTickX = (d, i) => {
             if (!noBucket && noSort) {
-                return x(d[xName]) + (i === 0 ? marginLeft / 2 : 0);
+                return x(d[xName], i) + (i === 0 ? marginLeft / 2 : 0);
             } else {
-                return x(d[xName]) + xWidth / 2;
+                return x(d[xName], i) + xWidth / 2;
             }
         };
-        let getLastTickX = (d) => x(d[xName]) + xWidth - marginLeft / 2 - 3;
+        let getLastTickX = (d, i) => x(d[xName], i) + xWidth - marginLeft / 2 - 3;
 
 
         if (initial) {
@@ -112,29 +115,29 @@ class BarChartBuilder extends AbstractChartBuilder {
                 .attr("height", function(d) { return height - y(d[yName]); })
                 .transition()
                 .duration(time)
-                .attr("x", function(d) { return x(d[xName]); })
+                .attr("x", function(d, i) { return x(d[xName], i); })
                 .attr("width", xWidth);
 
             barAreas.select(".bar-extra")
                 .attr("height", height)
                 .transition()
                 .duration(time)
-                .attr("x", function(d) { return x(d[xName]); })
+                .attr("x", function(d, i) { return x(d[xName], i); })
                 .attr("width", xWidth);
 
             barAreas.select(".bar-border")
                 .attr("height", height)
                 .transition()
                 .duration(time)
-                .attr("x", function(d) { return x(d[xName]); })
+                .attr("x", function(d, i) { return x(d[xName], i); })
                 .attr("width", xWidth);
 
             // label
             barAreas.select(".xlabel")
                 .transition()
                 .duration(time)
-                .attr("x", function(d) {
-                    return x(d[xName]) + xWidth / 2;
+                .attr("x", function(d, i) {
+                    return x(d[xName], i) + xWidth / 2;
                 })
                 .attr("width", xWidth)
                 .text(getLabel);
@@ -205,7 +208,7 @@ class BarChartBuilder extends AbstractChartBuilder {
         // gray area
         newbars.append("rect")
             .attr("class", "bar-extra clickable")
-            .attr("x", function(d) { return x(d[xName]); })
+            .attr("x", function(d, i) { return x(d[xName], i); })
             .attr("y", 0)
             .attr("height", height)
             .attr("width", xWidth);
@@ -218,7 +221,7 @@ class BarChartBuilder extends AbstractChartBuilder {
                 }
                 return "bar clickable";
             })
-            .attr("x", function(d) { return x(d[xName]); })
+            .attr("x", function(d, i) { return x(d[xName], i); })
             .attr("height", 0)
             .attr("y", height)
             .transition()
@@ -233,7 +236,7 @@ class BarChartBuilder extends AbstractChartBuilder {
         // for bar border
         newbars.append("rect")
             .attr("class", "bar-border")
-            .attr("x", function(d) { return x(d[xName]); })
+            .attr("x", function(d, i) { return x(d[xName], i); })
             .attr("y", 0)
             .attr("height", height)
             .attr("width", xWidth);
@@ -242,7 +245,7 @@ class BarChartBuilder extends AbstractChartBuilder {
         newbars.append("text")
             .attr("class", "xlabel clickable")
             .attr("width", xWidth)
-            .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
+            .attr("x", function(d, i) { return x(d[xName], i) + xWidth / 2; })
             .attr("y", 11)
             .text(getLabel);
 

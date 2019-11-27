@@ -56,7 +56,7 @@ describe("AbstractCharBuilderSpec Test", function() {
         let chartBuilder = new AbstractChartBuilder("test", {
             bucketSize: 10,
             sorted: true,
-            decimalNum: 0,
+            decimal: 0,
             xName: "x"
         });
 
@@ -76,7 +76,7 @@ describe("AbstractCharBuilderSpec Test", function() {
             percentage: true,
             xName: "x",
             yName: "y",
-            decimalNum: 0,
+            decimal: 0,
             sum: 90,
             nullCount: 10
         });
@@ -94,7 +94,7 @@ describe("AbstractCharBuilderSpec Test", function() {
             bucketSize: 0,
             xName: "x",
             yName: "y",
-            decimalNum: 0,
+            decimal: 0,
             sum: 1,
             nullCount: 0,
             percentage: true
@@ -112,7 +112,7 @@ describe("AbstractCharBuilderSpec Test", function() {
             bucketSize: 10,
             xName: "x",
             yName: "y",
-            decimalNum: 0,
+            decimal: 0,
         });
         chartBuilder._getTooltpAndClass(ele, {
             y: 50,
@@ -150,7 +150,7 @@ describe("AbstractCharBuilderSpec Test", function() {
         // case 4
         var obj = {};
         res = chartBuilder._formatNumber(obj);
-        expect(res).to.equal(obj);
+        expect(res).to.equal(JSON.stringify(obj));
         // case 5
         res = chartBuilder._formatNumber(1);
         expect(res).to.equal("1");

@@ -7,6 +7,8 @@ class ProfileEngine {
 
     private _profileResultSetId: string;
     private _totalRows: number;
+    private _baseTableName: string;
+    private _isBarChart: boolean;
 
     private readonly aggMap = {
         "min": AggrOp.Min,
@@ -25,6 +27,29 @@ class ProfileEngine {
         this._statsKeyMap = options.statsKeyMap;
         this._statsColName = options.statsColName;
         this._bucketColName = options.bucketColName;
+        this._baseTableName = options.baseTableName;
+        this._isBarChart = options.isBarChart;
+    }
+
+    public genBarChartInfo(
+        profileInfo: ProfileInfo,
+        table: TableMeta
+    ): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        profileInfo.groupByInfo.isComplete = "running";
+        profileInfo.groupByInfo.nullCount = 0;
+        profileInfo.addBucket(0, {
+            "max": 1000,
+            "sum": 0,
+            "table": table.getName(),
+            "colName": profileInfo.colName,
+            "bucketSize": 0
+        });
+
+        profileInfo.groupByInfo.isComplete = true;
+        deferred.resolve();
+
+        return deferred.promise();
     }
 
     /**
@@ -109,6 +134,14 @@ class ProfileEngine {
 
             finalTable = this._getNewName(tableName, ".profile.final", true);
             colName = newKeyFieldName;
+
+            // const groupbyTable = this._baseTableName;
+            // const newKeyFieldName = "unitTestDsTable5102::yelping_since";
+
+            // finalTable = this._getNewName(tableName, ".profile.final", true);
+            // colName = newKeyFieldName;
+
+
             return this._sortGroupby(txId, colName, groupbyTable, finalTable);
         })
         .then((ret: {maxVal:number, sumVal: number}) => {
@@ -216,7 +249,12 @@ class ProfileEngine {
             for (let i = 0; i < numRows; i++) {
                 try {
                     let value = JSON.parse(data[i]);
-                    value.rowNum = rowPosition + 1 + i;
+                    if (this._isBarChart) {
+                        value.rowNum = "row " + (rowPosition + 1 + i);
+                    } else {
+                        value.rowNum = rowPosition + 1 + i;
+                    }
+
                     profileData.push(value);
                 } catch (error) {
                     console.error(error, data[i]);
@@ -464,6 +502,8 @@ class ProfileEngine {
         resultSet: {resultSetId: string, numEntries: number}
     ): void {
         this._profileResultSetId = resultSet.resultSetId;
+
+        // this._profileResultSetId = gTables[xcHelper.getTableId(this._baseTableName)].resultSetId;
         this._totalRows = resultSet.numEntries;
     }
 
@@ -494,7 +534,12 @@ class ProfileEngine {
         let deferred: XDDeferred<{maxVal:number, sumVal: number}> = PromiseHelper.deferred();
         XIApi.sortAscending(txId, [sortCol], srcTable, finalTable)
         .then(() => {
+            // return PromiseHelper.resolve({
+            //     maxVal: 5,
+            //     sumVal: 5
+            // });
             return this._aggInGroupby(txId, this._statsColName, finalTable);
+            // return this._aggInGroupby(txId, sortCol, finalTable);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -599,6 +644,10 @@ class ProfileEngine {
         if (hasStatsInfo) {
             return PromiseHelper.resolve();
         }
+        if (this._isBarChart) {
+            return PromiseHelper.resolve();
+            // return this._getBarChartStats(tableName, profileInfo);
+        }
 
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._checkOrder(tableName)
@@ -623,6 +672,13 @@ class ProfileEngine {
             }
         }
         return XIApi.checkOrder(tableName);
+    }
+
+    private _getBarChartStats(tableName: string,
+        tableOrder: number,
+        tableKeys: {name: string}[],
+        profileInfo: ProfileInfo) {
+
     }
 
     private _getStats(

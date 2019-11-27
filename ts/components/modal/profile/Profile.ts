@@ -26,7 +26,7 @@ namespace Profile {
         "desc": "desc",
         "ztoa": "ztoa"
     };
-    const statsColName: string = "statsGroupBy";
+    let statsColName: string = "statsGroupBy";
     const bucketColName: string = "bucketGroupBy";
     const defaultRowsToFetch: number = 20;
     const minRowsToFetch: number = 10;
@@ -34,6 +34,8 @@ namespace Profile {
     const decimalLimit: number = 5;
 
     let statsInfos = {};
+    let baseStatsInfos = {};
+    let barChartStatsInfos = {};
     let bucketCache = {};
 
     // data with initial value
@@ -50,6 +52,7 @@ namespace Profile {
     let chartBuilder: AbstractChartBuilder;
     let _profileEngine: ProfileEngine = null;
     let _profileSelector: ProfileSelector = null;
+    let _isBarChart = false;
 
     /**
      * Profile.setup
@@ -99,14 +102,14 @@ namespace Profile {
             }
         }
 
-        statsInfos = newStats;
+        baseStatsInfos = newStats;
     }
 
     /**
      * Profile.getCache
      */
     export function getCache() {
-        return statsInfos;
+        return baseStatsInfos;
     }
 
     /**
@@ -114,7 +117,7 @@ namespace Profile {
      * @param tableId
      */
     export function deleteCache(tableId: TableId): void {
-        delete statsInfos[tableId];
+        delete baseStatsInfos[tableId];
     }
 
     /**
@@ -123,6 +126,7 @@ namespace Profile {
      * @param newTableId
      */
     export function copy(oldTableId: TableId, newTableId: TableId): boolean {
+        let statsInfos = baseStatsInfos;
         if (statsInfos[oldTableId] == null ||
             gTables[oldTableId] == null ||
             gTables[newTableId] == null
@@ -158,7 +162,7 @@ namespace Profile {
      * @param tableId
      * @param colNum
      */
-    export function show(tableId: TableId, colNum: number): XDPromise<void> {
+    export function show(tableId: TableId, colNum: number, isBarChart: boolean): XDPromise<void> {
         let table: TableMeta = gTables[tableId];
         if (table == null) {
             return PromiseHelper.reject("No table!");
@@ -170,6 +174,13 @@ namespace Profile {
         let colName: string = progCol.getBackColName();
         if (colName == null) {
             return PromiseHelper.reject("No backend col name!");
+        }
+        if (isBarChart) {
+            statsInfos = {};
+            _isBarChart = true;
+        } else {
+            statsInfos = baseStatsInfos;
+            _isBarChart = false;
         }
 
         curTableId = tableId;
@@ -205,6 +216,9 @@ namespace Profile {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         generateProfile(table)
         .then(() => {
+            if (_isBarChart) {
+                refreshInstrText();
+            }
             $modal.attr("data-state", "finished");
             deferred.resolve();
         })
@@ -317,7 +331,7 @@ namespace Profile {
         });
 
         $("#profile-chart").on("mousedown", function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || _isBarChart) {
                 return;
             }
             let profileSelector = getProfileSelector();
@@ -444,6 +458,29 @@ namespace Profile {
                 xcUIHelper.enableSubmit($btn);
             });
         });
+
+        new MenuHelper($modal.find(".xAxisList"), {
+            "onOpen": () => {
+                let table: TableMeta = gTables[curTableId];
+                let progCols = table.getAllCols(true);
+                let html = "";
+                for (let i = 0; i < progCols.length; i++) {
+                    html += "<li>" + xcStringHelper.escapeHTMLSpecialChar(
+                                    progCols[i].getBackColName()) + "</li>";
+
+                }
+                $modal.find(".xAxisList ul").html(html);
+            },
+            "onSelect": ($li) => {
+                let val = $li.text();
+                $modal.find(".xAxisValue").val(val);
+                buildGroupGraphs(statsCol, false, false);
+            },
+            bottomPadding: 5,
+            fixedPosition: {
+                selector: "input"
+            }
+        }).setupListeners();
 
         setupRangeSection();
         setupStatsSection();
@@ -614,6 +651,10 @@ namespace Profile {
         clearProfileSelector(true);
         resetRowsInfo();
         resetDecimalInput();
+        if (_isBarChart) {
+            $modal.removeClass("isBarChart");
+            statsInfos = baseStatsInfos;
+        }
     }
 
     function generateProfile(table: TableMeta): XDPromise<void> {
@@ -624,7 +665,9 @@ namespace Profile {
         promises.push(genStats(false));
 
         // do group by
-        if (curStatsCol.groupByInfo.isComplete === true) {
+        if (_isBarChart) {
+            promises.push(runGroupby(table, curStatsCol, bucketNum));
+        } else if (curStatsCol.groupByInfo.isComplete === true) {
             // check if the groupbyTable is not deleted
             // use XcalarGetTables because XcalarSetAbsolute cannot
             // return fail if resultSetId is not free
@@ -696,28 +739,46 @@ namespace Profile {
         $("#modalBackground").on("mouseover.profileModal", function() {
             resetTooltip(null, null);
         });
+        if (_isBarChart) {
+            $modal.addClass("isBarChart");
+        } else {
+            $modal.removeClass("isBarChart");
+        }
     }
 
     // refresh profile
     function refreshProfile(): void {
-        let instr = xcStringHelper.replaceMsg(ProfileTStr.Info, {
-            "col": xcStringHelper.escapeHTMLSpecialChar(statsCol.frontColName),
-            "type": statsCol.type
-        });
+        refreshInstrText();
+        refreshAggInfo(aggKeys, statsCol, true);
+        refreshStatsInfo(statsCol, false);
+        resetGroupbySection(false);
+        restoreOldBucket();
+    }
+
+    function refreshInstrText() {
+        let instr;
+        if (_isBarChart) {
+            instr = xcStringHelper.replaceMsg(ProfileTStr.ChartInfo, {
+                "col": xcStringHelper.escapeHTMLSpecialChar(statsCol.frontColName),
+                "type": statsCol.type
+            });
+        } else {
+            instr = xcStringHelper.replaceMsg(ProfileTStr.Info, {
+                "col": xcStringHelper.escapeHTMLSpecialChar(statsCol.frontColName),
+                "type": statsCol.type
+            });
+        }
 
         // update instruction
         if (statsCol.groupByInfo.isComplete === true) {
             instr += " " + ProfileTStr.Instr;
         } else {
+
             instr += " " + ProfileTStr.LoadInstr;
         }
 
         $modal.find(".subHeader").html(instr);
-
-        refreshAggInfo(aggKeys, statsCol, true);
-        refreshStatsInfo(statsCol, false);
-        resetGroupbySection(false);
-        restoreOldBucket();
+        $modal.find(".yAxisName").text(statsCol.frontColName);
     }
 
     function resetGroupbySection(resetRefresh: boolean): void {
@@ -945,7 +1006,13 @@ namespace Profile {
 
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let profileEngine = getProfileEngine();
-        profileEngine.genProfile(curStatsCol, table)
+        let promise;
+        if (_isBarChart) {
+            promise = profileEngine.genBarChartInfo(curStatsCol, table);
+        } else {
+            promise = profileEngine.genProfile(curStatsCol, table);
+        }
+        promise
         .then(() => {
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
@@ -1003,11 +1070,37 @@ namespace Profile {
             resizeDelay = 60 / defaultRowsToFetch * numRowsToFetch;
         }
 
+        let xName;
+        let yName;
+        if (_isBarChart) {
+            yName = tableInfo.colName;
+            xName = $modal.find(".xAxisValue").val() || "rowNum";
+            let hasXName = false;
+            let max = 0;
+            groupByData.forEach((data) => {
+                let val = data[yName];
+                if (!isNaN(val)) {
+                    max = Math.max(parseFloat(val), max);
+                }
+                if (data.hasOwnProperty(xName)) {
+                    hasXName = true;
+                }
+            });
+            if (!hasXName) {
+                xName = "rowNum";
+                $modal.find(".xAxisValue").val("");
+            }
+            tableInfo.max = max;
+        } else {
+            xName = tableInfo.colName;
+            yName = getYName();
+        }
+
         chartBuilder = ProfileChart.get(chartType, {
             "data": groupByData,
             "bucketSize": bucketNum,
-            "xName": tableInfo.colName,
-            "yName": getYName(),
+            "xName": xName,
+            "yName": yName,
             "sorted": (order !== sortMap.origin),
             "nullCount": curStatsCol.groupByInfo.nullCount,
             "max": tableInfo.max,
@@ -1016,7 +1109,8 @@ namespace Profile {
             "decimal": decimalNum,
             "initial": initial,
             "resize": resize,
-            "resizeDelay": resizeDelay
+            "resizeDelay": resizeDelay,
+            "isBarChart": _isBarChart
         });
         chartBuilder.build();
     }
@@ -1684,7 +1778,9 @@ namespace Profile {
                 "aggKeys": aggKeys,
                 "statsKeyMap": statsKeyMap,
                 "statsColName": statsColName,
-                "bucketColName": bucketColName
+                "bucketColName": bucketColName,
+                "baseTableName": gTables[curTableId] ? gTables[curTableId].getName() : null,
+                "isBarChart": _isBarChart
             });
         }
         return _profileEngine;

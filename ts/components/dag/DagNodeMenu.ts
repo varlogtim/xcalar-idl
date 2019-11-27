@@ -1115,3 +1115,62 @@ namespace DagNodeMenu {
     }
 
 }
+
+var statsInfo = {
+    "t_1571299988036_0": {
+        "unitTestDsTable5102::average_stars": {
+            "version": 1,
+            "id": "stats19567",
+            "colName": "unitTestDsTable5102::average_stars",
+            "frontColName": "unitTestDsTable5102::average_stars",
+            "type": "float",
+            "aggInfo": {
+                "count": 1000
+            },
+            "statsInfo": {
+                "unsorted": true
+            },
+            "groupByInfo": {
+                "buckets": {
+                    "0": {
+                        "max": 181,
+                        "sum": 1000,
+                        "table": "table_DF2_5DA822541ED2EFAA_1571299979591_0_dag_5DA822541ED2EFAA_1571299980526_37.profile.final60280#t_1571300146547_3",
+                        "colName": "average_stars",
+                        "bucketSize": 0
+                    }
+                },
+                "isComplete": true,
+                "nullCount": 0
+            }
+        }
+    },
+    "t_1571336932683_0": {
+        "unitTestDsTable5102::review_count": {
+            "version": 1,
+            "id": "stats49699",
+            "colName": "unitTestDsTable5102::review_count",
+            "frontColName": "unitTestDsTable5102::review_count",
+            "type": "integer",
+            "aggInfo": {
+                "count": 998
+            },
+            "statsInfo": {
+                "unsorted": true
+            },
+            "groupByInfo": {
+                "buckets": {
+                    "0": {
+                        "max": 153,
+                        "sum": 998,
+                        "table": "table_DF2_5DA822541ED2EFAA_1571299979591_0_dag_5DA822541ED2EFAA_1571300202550_37#t_1571336932683_0",
+                        "colName": "review_count",
+                        "bucketSize": 0
+                    }
+                },
+                "isComplete": true,
+                "nullCount": 0
+            }
+        }
+    }
+};

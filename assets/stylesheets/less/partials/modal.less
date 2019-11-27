@@ -2232,6 +2232,81 @@ html.microsoft {
     @width-stats: 180px;
     font-size: 12px;
 
+    &.isBarChart {
+        .modalHeader {
+            .text {
+                display: none;
+            }
+            > .secondary.text {
+                display: block;
+            }
+        }
+        #profile-stats {
+            display: none;
+        }
+        .sortSection, .rangeSection {
+            display: none;
+        }
+
+        .sortAndRangeSection {
+            height: 0px !important;
+            border-top: none;
+
+            .switchSection {
+                position: absolute;
+                top: 80px;
+                right: 0px;
+                height: 56px;
+                width: 100px !important;
+                padding: 0px 24px;
+            }
+        }
+        .inputSection {
+            padding-right: 100px !important;
+        }
+        .modalTopMain {
+            height: 56px;
+        }
+        .modalMain {
+            height: ~"calc(100% - 158px)";
+        }
+        #profile-chart {
+            .groupbyInfoSection {
+                height: ~"calc(100% - 60px)";
+            }
+        }
+        .xAxisSection, .yAxisSection {
+            display: block;
+            padding-left: 24px;
+            padding-top: 8px;
+            font-size: 13px;
+
+            .label {
+                float: left;
+                margin-right: 10px;
+                line-height: 26px;
+            }
+            .yAxisName {
+                line-height: 26px;
+            }
+
+            .input-box(@w:300px, @h:26px);
+            .xAxisValue {
+                font-size: 13px;
+            }
+            .iconWrapper {
+                height: 26px;
+                width: 26px;
+            }
+            .list {
+                z-index: 91; // modal resizable handles have 90
+            }
+        }
+        .yAxisSection {
+            margin-bottom: -20px;
+        }
+    }
+
     .modalLeft {
         .size(@width: ~"calc(100% - @{width-stats})");
     }
@@ -2246,7 +2321,7 @@ html.microsoft {
         }
     }
 
-    &.collapse {
+    &.collapse, &.isBarChart {
         .popBar {
             .xi-previous {
                 display: block;
@@ -2296,6 +2371,9 @@ html.microsoft {
 
         .bar {
             opacity: 0.6;
+        }
+        .xAxisSection, .yAxisSection {
+            display: none !important;
         }
     }
 
@@ -2368,6 +2446,9 @@ html.microsoft {
         height: @profile-header-h;
         padding-top: 16px;
         padding-bottom: 16px;
+        .text.secondary {
+            display: none;
+        }
     }
 
     .modalTopMain {
@@ -2527,6 +2608,7 @@ html.microsoft {
 
             .rowInput {
                 .flex(1 0 190px);
+                .textOverflowOneLine;
                 .input-box(@w: auto, @h: 20px);
 
                 input {
@@ -3254,6 +3336,10 @@ html.microsoft {
                 line-height: 30px;
             }
         }
+    }
+
+    .xAxisSection, .yAxisSection {
+        display: none;
     }
 }
 /* End Of Profile Modal */

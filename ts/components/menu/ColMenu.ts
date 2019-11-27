@@ -222,6 +222,15 @@ class ColMenu extends AbstractMenu {
             Profile.show(tableId, colNum);
         });
 
+        $colMenu.on('mouseup', '.barChart', (event) => {
+            if (this._isInvalidTrigger(event)) {
+                return;
+            }
+            const colNum: number = $colMenu.data('colNum');
+            const tableId: TableId = $colMenu.data('tableId');
+            Profile.show(tableId, colNum, true);
+        });
+
         $colMenu.on('mouseup', '.project', (event) => {
             if (this._isInvalidTrigger(event)) {
                 return;

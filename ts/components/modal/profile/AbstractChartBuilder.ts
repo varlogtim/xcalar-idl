@@ -14,9 +14,11 @@ abstract class AbstractChartBuilder {
         max: number,
         initial: boolean,
         resize: boolean,
-        resizeDelay: number
+        resizeDelay: number,
+        isBarChart: boolean
     };
     private _tooltipOptions: object
+    protected _isBarChart: boolean;
 
     public constructor(
         id: string,
@@ -35,6 +37,7 @@ abstract class AbstractChartBuilder {
                             '<div class="tooltip-inner"></div>' +
                         '</div>'
         };
+        this._isBarChart = this._options.isBarChart;
     }
 
     public abstract build(): void;
@@ -169,17 +172,17 @@ abstract class AbstractChartBuilder {
         let lowerBound = this.getLowerBound(d[xName]);
         let isFNF: boolean = (d.type === "nullVal");
         let title: string;
-
+        let label = this._isBarChart ? "" : "Value: ";
         if (d.section === "other") {
-            title = "Value: Other<br>";
+            title = label + "Other<br>";
         } else if (noBucket || isFNF) {
             // xName is the backColName, may differenet with frontColName
-            title = "Value: " +
+            title = label +
                     this._formatNumber(lowerBound, isLogScale, decimalNum, isFNF) +
                     "<br>";
         } else {
             var upperBound = this.getUpperBound(d[xName]);
-            title = "Value: [" +
+            title = label + "[" +
                     this._formatNumber(lowerBound, isLogScale, decimalNum, false) +
                     ", " +
                     this._formatNumber(upperBound, isLogScale, decimalNum, false) +
@@ -198,7 +201,8 @@ abstract class AbstractChartBuilder {
             }
             title += "Percentage: " + per;
         } else {
-            title += "Frequency: " + this._formatNumber(d[yName], false, null, false);
+            let label = this._isBarChart ? "Value" : "Frequency";
+            title += label += ": " + this._formatNumber(d[yName], false, null, false);
         }
         let tipOptions = $.extend({}, this._tooltipOptions, {
             "title": title
@@ -234,10 +238,16 @@ abstract class AbstractChartBuilder {
         } else if (isFNF) {
             return "FNF";
         } else if (typeof(num) === "string") {
+            if (this._isBarChart) {
+                return num;
+            }
             return "\"" + num + "\"";
         } else if (typeof(num) === "boolean") {
             return num;
         } else if (isNaN(num)) {
+            if (typeof num === "object") {
+                return JSON.stringify(num);
+            }
             return num;
         } else if (isLogScale) {
             if (num <= 1 && num >= -1) {
