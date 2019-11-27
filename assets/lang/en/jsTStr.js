@@ -1102,6 +1102,7 @@ DFTStr = {
     "SetupFailsMsg": "Application Builder is not setup correctly, please try refresh the browser or contact Xcalar for technical support",
     "NotSetup": "Application Builder has not setup yet",
     "Deprecated": "This node is deprecated, you can still use it in the current version, but it will be removed in the later version",
+    "ParamInUse": "Parameter in use",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",

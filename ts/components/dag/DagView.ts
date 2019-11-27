@@ -3431,10 +3431,7 @@ class DagView {
             const $node: JQuery = this._getNode(info.id);
 
             this._drawTitleText($node, info.node);
-            DagView.removeNodeIcon($node, "paramIcon");
-            if (info.hasParameters) {
-                DagView.addNodeIcon($node, "paramIcon", "Parameter in use");
-            }
+            this._setParameterIcon($node, info.node);
             if (info.node instanceof DagNodeDFOut) {
                 this.checkLinkInNodeValidation();
             }
@@ -4013,9 +4010,19 @@ class DagView {
             });
         }
 
+        this._setParameterIcon($node, node);
+    }
+
+    private _setParameterIcon($node: JQuery, node: DagNode): void {
         DagView.removeNodeIcon($node, "paramIcon");
         if (node.hasParameters()) {
-            DagView.addNodeIcon($node, "paramIcon", "Parameter in use");
+            let tooltip: string = DFTStr.ParamInUse;
+            try {
+                tooltip += ": " + node.getParameters().join(", ");
+            } catch (e) {
+                console.error(e);
+            }
+            DagView.addNodeIcon($node, "paramIcon", tooltip);
         }
     }
 
