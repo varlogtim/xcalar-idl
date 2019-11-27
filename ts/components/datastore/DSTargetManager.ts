@@ -145,8 +145,8 @@ namespace DSTargetManager {
      * DSTargetManager.refreshTargets
      * @param noWaitIcon
      */
-    export function refreshTargets(noWaitIcon: boolean): XDPromise<any> {
-        let deferred: XDDeferred<any> = PromiseHelper.deferred();
+    export function refreshTargets(noWaitIcon: boolean): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let updateTargetMenu = function(targets) {
             let html: HTML = targets.map(function(targetName) {
                 return "<li>" + targetName + "</li>";
@@ -178,18 +178,19 @@ namespace DSTargetManager {
             activeName = $activeIcon.data("name");
         }
 
-        let targetList;
         getConnectorList()
-        .then(function(res) {
-            targetList = res;
+        .then(function() {
             return cloudConnectorSetup();
+        })
+        .then(function() {
+            return defaultConnectorSetup();
         })
         .then(function() {
             let targets: string[] = Object.keys(targetSet).sort();
             updateTargetMenu(targets);
             updateTargetGrids(targets, activeName);
             updateNumTargets(targets.length);
-            deferred.resolve(targetList);
+            deferred.resolve();
         })
         .fail(deferred.reject);
 
@@ -361,10 +362,11 @@ namespace DSTargetManager {
             return PromiseHelper.resolve();
         }
 
-        return PromiseHelper.alwaysResolve(createCloudS3Connector())
-        .then(() => {
-            return PromiseHelper.alwaysResolve(createPublicS3Connector())
-        });
+        return PromiseHelper.alwaysResolve(createCloudS3Connector());
+    }
+
+    function defaultConnectorSetup(): XDPromise<void> {
+        return PromiseHelper.alwaysResolve(createPublicS3Connector());
     }
 
     // for cloud file upload use
