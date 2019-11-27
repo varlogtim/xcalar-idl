@@ -2439,6 +2439,8 @@ module.exports = function(grunt) {
                         + htmFilepath
                         + "\nfound multiple <a href tags of class 'ForCSH' having 'name' attribute: '"
                         + name + "'"
+                        + "\n\n existing path:"
+                        + myStructs[csLookup][name]
                         + "\n\nIt could be that the first occurance was in a separate htm documentation file,"
                         + " but there should only be one such entry among ALL the documentation files."
                         + "\n\nOutput of '" + grepCmd + "' (executed from " + fullHelpPath + "):\n\n"
@@ -4387,7 +4389,7 @@ module.exports = function(grunt) {
                 grunt.task.run('sed:raleway_css');
                 grunt.task.run('assets_inline:login');
 
-            } else if (BLDTYPE == DEV || BLDTYPE === CLOUD_LOGIN) {
+            } else if (BLDTYPE === CLOUD_LOGIN) {
                 grunt.task.run('embedFonts');
                 grunt.task.run('sed:opensans_css');
                 grunt.task.run('sed:raleway_css');
