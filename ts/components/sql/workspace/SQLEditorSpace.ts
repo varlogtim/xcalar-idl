@@ -652,13 +652,22 @@ class SQLEditorSpace {
             }
         });
 
-        this._getEditorSpaceEl().closest(".leftSection").draggable({
-            "handle": "header.draggable",
-            "cursor": "-webkit-grabbing",
-            "containment": "#sqlWorkSpacePanel"
-        });
         this._setupResize();
         this._setupTopBar();
+    }
+
+    private _toggleDraggable(isDraggable: boolean): void {
+        const $header: JQuery = this._getEditorSpaceEl().closest(".leftSection");
+        if (isDraggable) {
+            $header.draggable({
+                "handle": "header.draggable",
+                "cursor": "-webkit-grabbing",
+                "containment": "#sqlWorkSpacePanel",
+                "disabled": false
+            });
+        } else {
+            $header.draggable({disabled: true});
+        }
     }
 
     private _setupTopBar(): void {
@@ -791,6 +800,7 @@ class SQLEditorSpace {
         const $icon = $container.find(".undock");
         xcTooltip.changeText($icon, SideBarTStr.PopBack);
         $icon.removeClass("xi_popout").addClass("xi_popin");
+        this._toggleDraggable(true);
     }
 
     private _dock(): void {
@@ -805,6 +815,7 @@ class SQLEditorSpace {
         const $icon = $container.find(".undock");
         xcTooltip.changeText($icon, SideBarTStr.PopOut);
         $icon.removeClass("xi_popin").addClass("xi_popout");
+        this._toggleDraggable(false);
     }
 
     // if window is shrunk, guarantees that leftSection shrinks so that
