@@ -1,5 +1,3 @@
-const execFunctions = require('./lib/execFunctions');
-
 module.exports = {
     '@tags': ["tooltip walkthrough test", "allTests"],
 

@@ -4,27 +4,35 @@ class DeleteWorkbook extends EventEmitter {
     command(workbookName, userName, cb) {
         const self = this;
         userName = userName || this.api.globals.user;
-        this.api
-            .ensureHomeScreenOpen()
-            .waitForElementVisible('.workbookBox input[value="' + workbookName + '"]', 10000)
-            .waitForElementVisible('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
-            .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
 
-        this.api.isPresent('.workbookBox.active input[value="' + workbookName + '"]', isPresent => {
+        this.api.isPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"]', isPresent => {
             if (isPresent) {
                 self.api
-                    .waitForElementVisible("#wkbkMenu .deactivate")
-                    .click("#wkbkMenu .deactivate")
-                    .click("#alertModal .confirm")
+                    .ensureHomeScreenOpen()
+                    .waitForElementVisible('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
+                    .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
+
+                self.api.isPresent('.workbookBox.active input[value="' + workbookName + '"]', isPresent => {
+                    if (isPresent) {
+                        self.api
+                            .waitForElementVisible("#wkbkMenu .deactivate")
+                            .click("#wkbkMenu .deactivate")
+                            .pause(1000)
+                            .click("#alertModal .confirm")
+                            .waitForElementNotVisible("#modalBackground", 10000);
+                    }
+                    self.api
+                        .waitForElementNotPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"].active', 50000)
+                        .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
+                        .click("#wkbkMenu .delete")
+                        .click("#alertModal .confirm")
+                        .waitForElementNotPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"]', 20000)
+                    self.emit('complete');
+                })
+            } else {
+                self.emit('complete');
             }
-            self.api
-                .waitForElementNotPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"].active', 50000)
-                .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
-                .click("#wkbkMenu .delete")
-                .click("#alertModal .confirm")
-                .waitForElementNotPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"]', 20000)
-            self.emit('complete');
-        })
+        });
 
         return this;
     }

@@ -1,11 +1,11 @@
 const EventEmitter = require('events');
 
-class CancelAlert extends EventEmitter {
+class ConfirmAlert extends EventEmitter {
     command() {
         this.api.isVisible("#alertModal", results => {
             if (results.value) { // close alert modal if visible
                 this.api
-                    .click("#alertModal .cancel:first-child")
+                    .click("#alertModal #alertActions button.confirm")
             }
             this.api
                 .waitForElementNotVisible("#modalBackground", 10 * 1000)
@@ -18,4 +18,4 @@ class CancelAlert extends EventEmitter {
     }
 }
 
-module.exports = CancelAlert;
+module.exports = ConfirmAlert;

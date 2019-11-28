@@ -1,5 +1,4 @@
 const EventEmitter = require('events');
-const execFunctions = require('../lib/execFunctions');
 
 class EnsureHomeScreenOpen extends EventEmitter {
     command() {
@@ -11,7 +10,9 @@ class EnsureHomeScreenOpen extends EventEmitter {
                     .mouseButtonClick("left");
             }
         });
-        this.api.pause(1000);
+        this.api
+            .waitForElementNotVisible("#modalBackground", 10000)
+            .waitForElementVisible("#workbookPanel")
         this.emit('complete');
         return this;
     }

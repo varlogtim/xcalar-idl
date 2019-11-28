@@ -6,7 +6,7 @@ class CancelTooltipWalkthrough extends EventEmitter {
             if (isPresent) {// close intro popup if visible
                 this.api.click("#intro-popover .close")
                 this.api.waitForElementNotPresent("#intro-popover")
-                this.api.waitForElementNotPresent("#intro-path")
+                this.api.waitForElementNotPresent("#intro-visibleOverlay")
             }
 
             this.emit('complete');
