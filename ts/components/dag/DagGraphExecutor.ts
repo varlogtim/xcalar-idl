@@ -593,8 +593,9 @@ class DagGraphExecutor {
                     const param: DagNodeAggregateInputStruct = node.getParam(true);
                     const agg: AggregateInfo = this.getRuntime().getDagAggService().getAgg(param.dest);
                     return (!agg || agg.value == null);
+                } else {
+                    return true;
                 }
-                return (!DagTblManager.Instance.hasTable(node.getTable()));
             });
         }
 

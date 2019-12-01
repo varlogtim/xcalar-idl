@@ -1034,7 +1034,7 @@ class DagNodeExecutor {
                         destTable = newDestTable;
                         queryStr = JSON.stringify(query);
                     } catch(e) {
-                        console.error(e);
+                        console.error(queryStr, e);
                     }
                 }
             }
