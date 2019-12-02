@@ -5,8 +5,13 @@ class Util {
     }
 
     // Pick a random elements from the collection
-    public static pickRandom(collection: any, n = 1): any {
-        let arr = [], result = new Set();
+    public static pickRandom<T>(collection: Array<T> | Map<T, any> | Set<T>): T {
+        const randomList = this.pickRandomMulti(collection, 1);
+        return randomList[0];
+    }
+
+    public static pickRandomMulti<T>(collection: Array<T> | Map<T, any> | Set<T>, n = 1): Array<T> {
+        let arr = [], result = new Set<T>();
         if (collection instanceof Array) {
             arr = collection;
         } else if (collection instanceof Map || collection instanceof Set){
@@ -20,10 +25,7 @@ class Util {
         while (result.size < n) {
             result.add(arr[Math.floor(Util.random() * arr.length)]);
         }
-        if (n == 1) {
-            return result.entries().next().value[0];
-        }
-        return Array.from(result.entries()).map((res) => res[0]);
+        return Array.from(result.values());
     }
 
     // Customized random function
@@ -31,8 +33,11 @@ class Util {
         let seed = xcSessionStorage.getItem('xdFuncTestSeed');
         Math.seedrandom(seed);
         let rand = Math.random();
-        seed++;
-        xcSessionStorage.setItem('xdFuncTestSeed', seed.toString());
+        let iSeed: number = Number.parseInt(seed);
+        if (Number.isNaN(iSeed)) {
+            iSeed = 0;
+        }
+        xcSessionStorage.setItem('xdFuncTestSeed', `${iSeed + 1}`);
         return rand;
     }
 

@@ -82,7 +82,7 @@ abstract class State {
     }
     /* -------------------------------Helper Function------------------------------- */
 
-    abstract takeOneAction(): State;
+    abstract takeOneAction(): Promise<State>;
 
     private isCyclic(obj) {
         let seenObjects = [];

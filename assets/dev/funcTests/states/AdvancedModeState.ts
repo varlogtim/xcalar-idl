@@ -45,7 +45,7 @@ Prune node operation
 class AdvancedModeState extends State {
     private dagTabManager: DagTabManager;
     private dagViewManager: DagViewManager;
-    private currentTab: DagTabUser;
+    private currentTab: DagTab;
     private xdfsArr: Object[];
     private mode: string;
     private maxAvgNumOfNodesPerTab: number;
@@ -86,7 +86,8 @@ class AdvancedModeState extends State {
             // In nodes
             this.addAction(this.addDatasetNode);
             this.addAction(this.addLinkInNode);
-            this.addAction(this.addTableLinkInNode);
+            // TODO: where is this method ?
+            // this.addAction(this.addTableLinkInNode);
             this.addAction(this.addInputCustomNode);
 
             // column nodes
@@ -135,10 +136,10 @@ class AdvancedModeState extends State {
     // In nodes
     private async addDatasetNode() {
         this.log(`Adding dataset node.. in WKBK ${this.currentWKBKId}`);
-        let datasetsLoaded = DS.listDatasets();
+        let datasetsLoaded = DS.listDatasets(false);
         console.log("************* Num datasets: " + datasetsLoaded.length);
         let ds = Util.pickRandom(datasetsLoaded);
-        let dsNode = this.dagViewManager.newNode({type:DagNodeType.Dataset});
+        const dsNode: DagNodeIn = <DagNodeIn>this.dagViewManager.newNode({type:DagNodeType.Dataset});
         let dsArgs = await DS.getLoadArgsFromDS(ds.id);
         let dsSchema = await DS.getDSBasicInfo(ds.id);
 
@@ -162,7 +163,7 @@ class AdvancedModeState extends State {
         }
         let dfTab, linkOutNode;
         [linkOutNode, dfTab] = Util.pickRandom(dfLinks);
-        let linkInNode = this.dagViewManager.newNode({type:DagNodeType.DFIn});
+        const linkInNode: DagNodeIn = <DagNodeIn>this.dagViewManager.newNode({type:DagNodeType.DFIn});
         linkInNode.setParam({
             'linkOutName': linkOutNode.getParam().name,
             'dataflowId': dfTab.getId()
@@ -387,20 +388,22 @@ class AdvancedModeState extends State {
             return this;
         }
         let numParents = Math.floor(5 * Util.random()) + 1;
-        let pNode;
         let cNode = this.dagViewManager.newNode({type:DagNodeType.SQL});
-        let identifiersObj = {};
+        const identifiersObj = {};
+        const identifiersMap: Map<number, string> = new Map();
         let identifiersOrder = [];
         let currIter = 1;
         while (currIter <=  numParents) {
-            pNode = graph.nodesMap.get(Util.pickRandom(graph.nodesMap));
-            if (pNode.type === DagNodeType.DFOut || pNode.getId() === cNode.getId()) {
+            const pNode = graph.getNode(Util.pickRandom(graph.getAllNodes()));
+            if (pNode.getType() === DagNodeType.DFOut || pNode.getId() === cNode.getId()) {
                 continue;
             }
-            identifiersObj[currIter] = "tab" + currIter;
+            const tabName = "tab" + currIter;
+            identifiersObj[currIter] = tabName;
+            identifiersMap.set(currIter, tabName)
             identifiersOrder.push(currIter);
             xcAssert(pNode != undefined);
-            graph.connect(pNode.id, cNode.id, currIter-1);
+            graph.connect(pNode.getId(), cNode.getId(), currIter-1);
             currIter++;
         }
         // Querying only on one tab(parent)
@@ -412,7 +415,7 @@ class AdvancedModeState extends State {
             "identifiersOrder": identifiersOrder,
             "dropAsYouGo": this._getRandomLiteral(ColumnType.boolean)
         });
-        cNode.setIdentifiers(new Map(Object.entries(identifiersObj)));
+        cNode.setIdentifiers(identifiersMap);
 
         // Executing this node to get schema for its children
         await graph.execute();
@@ -442,13 +445,13 @@ class AdvancedModeState extends State {
     private async _pruneLinkOutNodes() {
         let graph: DagGraph = this.currentTab.getGraph();
         let outNodeIds = [];
-        graph.nodesMap.forEach((node) => {
-            if (node.type == DagNodeType.DFOut) {
+        graph.getAllNodes().forEach((node) => {
+            if (node.getType() == DagNodeType.DFOut) {
                 outNodeIds.push(node.getId());
             }
         })
         if (outNodeIds.length != 0) {
-            await this.dagViewManager.dagViewMap.get(this.currentTab.getId()).removeNodes(outNodeIds);
+            await this.dagViewManager.getDagViewById(this.currentTab.getId()).removeNodes(outNodeIds);
         }
     }
 
@@ -463,7 +466,7 @@ class AdvancedModeState extends State {
         await this._pruneLinkOutNodes();
         this.log(`Done prunning other link out nodes.. in WKBK ${this.currentWKBKId}.`);
         let cNode, allCols;
-        [cNode, allCols] = this.addNode({type:DagNodeType.DFOut, subType:"link out Optimized"});
+        [cNode, allCols] = this.addNode({type:DagNodeType.DFOut, subType:DagNodeSubType.DFOutOptimized});
         if (cNode == undefined) {
             this.log("There is only out node in current tab. Skip add optimized out node");
             return this;
@@ -501,17 +504,17 @@ class AdvancedModeState extends State {
         return dfLinks;
     }
 
-    private _getRandomString(len: number) {
-        if(len == undefined) {
+    private _getRandomString(len?: number) {
+        if(len == null) {
             len = Math.floor(30 * Util.random()) + 1;
         }
         let allPossibleChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         return [...Array(len).keys()].map(() => allPossibleChars.charAt(Math.floor(allPossibleChars.length*Util.random()))).join('');
     }
 
-    private _getRandomLiteral(type: string) {
+    private _getRandomLiteral(type?: string) {
         let toss;
-        if (type == undefined) {
+        if (type == null) {
             toss = Util.pickRandom([0, 1, 2, 3]);
         }
         // Boolean type
@@ -556,7 +559,7 @@ class AdvancedModeState extends State {
         if(this.xdfsArr === undefined || this.xdfsArr.length == 0) {
             this._getAllXDFsAsArray();
         }
-        let columnNames = columnsObj.map((colInfo) => { return colInfo.backName});
+        let columnNames = columnsObj.map((colInfo) => { return colInfo['backName']});
         let evalString = Util.pickRandom(columnNames);
         let nestedDepth = Math.floor(5 * Util.random()) + 1;
         while (nestedDepth > 0) {
@@ -587,23 +590,23 @@ class AdvancedModeState extends State {
         return evalString;
     }
 
-    private addNode(nodeInfo: string){
+    private addNode(nodeInfo: DagNodeInfo){
         let graph = this.currentTab.getGraph();
         if (this._onlyOutNode(graph)) {
             return [undefined, undefined];
         }
-        let pNode;
-        if (this.mode == undefined ||
+        let pNode: DagNode;
+        if (this.mode == null ||
                 this.mode === "random") {
             do {
-                pNode = graph.nodesMap.get(Util.pickRandom(graph.nodesMap));
-            } while (pNode.type === DagNodeType.DFOut);
+                pNode = graph.getNode(Util.pickRandom(graph.getAllNodes()));
+            } while (pNode.getType() === DagNodeType.DFOut);
         } else {
             pNode = graph.getSortedNodes().slice(-1)[0];
         }
-        xcAssert(pNode != undefined);
+        xcAssert(pNode != null);
         let cNode = this.dagViewManager.newNode(nodeInfo);
-        graph.connect(pNode.id, cNode.id);
+        graph.connect(pNode.getId(), cNode.getId());
         return [cNode, pNode.getLineage().getColumns()];
     }
 
@@ -614,7 +617,7 @@ class AdvancedModeState extends State {
         } else {
             await this.currentTab.getGraph().execute(null, true);
             // delete the DagTabOptimized tab
-            this.dagTabManager.removeTab(this.dagViewManager.activeDagTab.getId());
+            this.dagTabManager.removeTab(this.dagViewManager.getActiveTab().getId());
             this.dagTabManager.switchTab(this.currentTab.getId());
             this.optimizedDF = false;
         }
@@ -645,7 +648,7 @@ class AdvancedModeState extends State {
                 nodeToPrune = new Set([...nodeToPrune, ...childSet]);
             }
             let errorNodesIds = [...nodeToPrune].map((node) => node.getId());
-            await this.dagViewManager.dagViewMap.get(tab.getId()).removeNodes(errorNodesIds);
+            await this.dagViewManager.getDagViewById(tab.getId()).removeNodes(errorNodesIds);
         }
         this.log(`Done prunning nodes in WKBK ${this.currentWKBKId}`);
         return this;
@@ -653,10 +656,9 @@ class AdvancedModeState extends State {
 
     // gets custom nodes information from kv store
     private async getCustomNodesInfo() {
-        let customNodeKeys = await KVStore.list(`${userIdName}-gUserCustomOp-1/.+`, gKVScope.GLOB);
-        customNodeKeys = Object.values(customNodeKeys.keys);
+        const customNodeKeys = (await KVStore.list(`${userIdName}-gUserCustomOp-1/.+`, gKVScope.GLOB)).keys;
         let customNodeInfo =  await Promise.all(customNodeKeys.map(async (key) => {
-            const nodeInfo = await (new KVStore(key, 1)).get();
+            const nodeInfo = await (new KVStore(key, gKVScope.GLOB)).get();
             const json = JSON.parse(nodeInfo).node;
             delete json['id'];
             return json;
@@ -704,7 +706,7 @@ class AdvancedModeState extends State {
             idx++;
         }
         // convert to custom node
-        let nodeIds = Array.from(DagTabManager.Instance._activeTab.getGraph().getAllNodes().keys());
+        let nodeIds = Array.from(this.dagViewManager.getActiveDag().getAllNodes().keys());
         await this.dagViewManager.wrapCustomOperator(nodeIds);
 
         // share
@@ -726,13 +728,13 @@ class AdvancedModeState extends State {
        this.currentTab = this.dagTabManager.getTabById(newTabId);
        this.mode = "linear"
 
-       let tableLoaded = await PTblManager.Instance._listTables();
-       let table = Util.pickRandom(tableLoaded);
+       const tableLoaded = await PTblManager.Instance.getTablesAsync(true);
+       const table: PbTblInfo = Util.pickRandom(tableLoaded);
 
        try {
             // create input node
             let ignoreColumns = new Set(["XcalarRankOver", "XcalarOpCode", "XcalarBatchId"])
-            let inNode = DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncIn});
+            const inNode: DagNodeIn = <DagNodeIn>DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncIn});
             inNode.setParam({"source": table.name});
             let schema = []
             for (let col of table.columns) {
@@ -762,7 +764,7 @@ class AdvancedModeState extends State {
             let graph = this.currentTab.getGraph();
             let pNode = graph.getSortedNodes().slice(-1)[0];
             let outNode = DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncOut});
-            graph.connect(pNode.id, outNode.id);
+            graph.connect(pNode.getId(), outNode.getId());
 
             schema = []
             for (let col of pNode.getLineage().getColumns()) {
@@ -828,7 +830,7 @@ class AdvancedModeState extends State {
 
     public async takeOneAction() {
         try {
-            await XVM.setMode(this.mode);
+            await XVM.setMode(<XVM.Mode>this.mode);
         } catch (error) {
             console.log(`Error switching mode to ${this.mode}`);
             throw error

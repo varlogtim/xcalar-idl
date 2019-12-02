@@ -17,7 +17,7 @@ class SQLModeState extends State {
     private sqlSnippet: SQLSnippet;
     private sqlHistory: SqlQueryHistory;
     private tableManager: PTblManager;
-    private mode: String;
+    private mode: string;
     private run: number; // How many iterations ran in this state currently
     private currentWKBKId: string;
 
@@ -42,7 +42,7 @@ class SQLModeState extends State {
 
     /* -------------------------------Helper Function------------------------------- */
     // Generate a random unique snippet name
-    private getUniqueName(prefix?: string, validFunc?: function): string {
+    private getUniqueName(prefix?: string, validFunc?: Function): string {
         prefix = prefix || "FuncTestSnippet";
         validFunc = validFunc || function (snippetName) { return (!SQLSnippet.Instance.hasSnippet(snippetName));};
         return Util.uniqueRandName(prefix, validFunc, 10);
@@ -50,14 +50,14 @@ class SQLModeState extends State {
 
     // Return a random snippet
     private getRandomSnippet(): string {
-        let snippetNames = this.sqlSnippet._listSnippetsNames();
+        let snippetNames = this.sqlSnippet.listSnippets().map((v) => v.name);
         // Get rid of the default snippet: Untitled
         snippetNames.splice( snippetNames.indexOf(CommonTxtTstr.Untitled), 1 );
         return Util.pickRandom(snippetNames);
     }
 
-    private async getPublishTables(): XDPromise<string[]>{
-        let tableLoaded = await this.tableManager._listTables();
+    private async getPublishTables(): Promise<string[]>{
+        let tableLoaded = await this.tableManager.getTablesAsync(true);
         let tables = [];
         for (let table of tableLoaded) {
             tables.push(table.name);
@@ -66,7 +66,7 @@ class SQLModeState extends State {
     }
 
     // Generate sql query
-    private async generateSQL(): XDPromise<string> {
+    private async generateSQL(): Promise<string> {
         let publishTables = await this.getPublishTables();
         let tables = [];
         let filters = [];
@@ -80,8 +80,8 @@ class SQLModeState extends State {
         let sql = `select * from ${tables.join(' join ')} where ${filters.join(' and ')}`;
         // 40% chance we will use SQL func
         if (Util.getRandomInt(10) > 5) {
-            let dags = await DagList.Instance.listSQLFuncAsync();
-            dags = dags.dags;
+            const sqlFuncs = await DagList.Instance.listSQLFuncAsync();
+            const dags = sqlFuncs.dags;
             if (dags.length > 0) {
                 let sqlFunc = Util.pickRandom(dags).name;
                 sql = `SELECT * FROM ${sqlFunc}(${Util.pickRandom(publishTables)})`;
@@ -91,9 +91,9 @@ class SQLModeState extends State {
     }
 
     // Get latest sql history
-    private async getLatestSQLHistory(): SqlQueryHistory.QueryInfo {
+    private async getLatestSQLHistory(): Promise<SqlQueryHistory.QueryInfo> {
         try{
-            await SqlQueryHistory.getInstance().readStore();
+            await SqlQueryHistory.getInstance().readStore(false);
         } catch(err) {
             this.log("Read sql query history from kvstore fails");
         }
@@ -109,7 +109,7 @@ class SQLModeState extends State {
     }
     /* -------------------------------Helper Function------------------------------- */
 
-    private async createSnippet(): XDPromise<SQLModeState> {
+    private async createSnippet(): Promise<SQLModeState> {
         let snippetName = this.getUniqueName();
         this.log(`Creating snippet ${snippetName} in WKBK ${this.currentWKBKId}`);
         try {
@@ -129,7 +129,7 @@ class SQLModeState extends State {
         //     throw `Error creating snippet ${snippetName}, not in the snippet list in WKBK ${this.currentWKBKId}`;
         // }
 
-        if (this.sqlSnippet._listSnippetsNames().length > 1) {
+        if (this.sqlSnippet.listSnippets().length > 1) {
             // If has more than one snippet ( except for the default one)
             // add more actions
             this.addAction(this.deleteSnippet);
@@ -138,7 +138,7 @@ class SQLModeState extends State {
         return this;
     }
 
-    private async deleteSnippet(): XDPromise<SQLModeState> {
+    private async deleteSnippet(): Promise<SQLModeState> {
         let randomSnippet = this.getRandomSnippet();
         this.log(`Deleting snippet ${randomSnippet} in WKBK ${this.currentWKBKId}`);
         try{
@@ -154,7 +154,7 @@ class SQLModeState extends State {
         // if (this.sqlSnippet.hasSnippet(randomSnippet)) {
         //     throw `Error deleting snippet ${randomSnippet}, it's still in the snippet list in WKBK ${this.currentWKBKId}`;
         // }
-        if (this.sqlSnippet._listSnippetsNames().length == 1) {
+        if (this.sqlSnippet.listSnippets().length == 1) {
             // Only 1 default snippet: undefined
             this.deleteAction(this.executeSnippet);
             this.deleteAction(this.deleteSnippet);
@@ -162,7 +162,7 @@ class SQLModeState extends State {
         return this;
     }
 
-    private async executeSnippet(): XDPromise<SQLModeState> {
+    private async executeSnippet(): Promise<SQLModeState> {
         let randomSnippet = this.getRandomSnippet();
         this.log(`Executing snippet ${randomSnippet} in WKBK ${this.currentWKBKId}`);
         this.sqlEditor.setSnippet(randomSnippet);
@@ -224,7 +224,7 @@ class SQLModeState extends State {
                 // Out of resource error
                 if (error && error.status == StatusT.StatusNoXdbPageBcMem) {
                     // If OOM, randomly delete some tables
-                    let deletePublishTables = Util.pickRandom(publishTables, Math.min(publishTables.length, 10));
+                    let deletePublishTables = Util.pickRandomMulti(publishTables, Math.min(publishTables.length, 10));
                     await this.tableManager._deleteTables(deletePublishTables);
                 } else {
                     throw error;
@@ -234,8 +234,8 @@ class SQLModeState extends State {
         return this;
     }
 
-    public async takeOneAction(): XDPromise<SQLModeState> {
-        XVM.setMode(this.mode);
+    public async takeOneAction(): Promise<SQLModeState> {
+        XVM.setMode(<XVM.Mode>this.mode);
         let randomAction = Util.pickRandom(this.availableActions);
         const newState = await randomAction.call(this);
         this.run++;

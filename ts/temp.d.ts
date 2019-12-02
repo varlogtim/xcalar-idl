@@ -784,7 +784,8 @@ declare enum StatusT {
     StatusXdfDivByZero,
     StatusNoXdbPageBcMem,
     StatusClusterNotReady,
-    StatusQrJobNonExist
+    StatusQrJobNonExist,
+    StatusInval
 }
 
 declare enum FunctionCategoryT {

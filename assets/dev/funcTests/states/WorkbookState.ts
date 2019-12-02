@@ -17,6 +17,8 @@ Currently, we will switch to another state once we activate a workbook
 
 */
 class WorkbookState extends State {
+    private currentWorkbook: string;
+
     public constructor(stateMachine: StateMachine, verbosity: string) {
         let name = "Workbook"
         super(name, stateMachine, verbosity);
@@ -34,7 +36,7 @@ class WorkbookState extends State {
 
     /* -------------------------------Helper Function------------------------------- */
     // Generate a random unique name
-    private getUniqueRandName(prefix): string {
+    private getUniqueRandName(prefix?: string): string {
         let validFunc = function (wkbkName) {
             let workbookNames = [];
             for (let id in WorkbookManager.getWorkbooks()) {
@@ -60,7 +62,7 @@ class WorkbookState extends State {
     }
     /* -------------------------------Helper Function------------------------------- */
 
-    private async activateWorkbook(): XDPromise<WorkbookState> {
+    private async activateWorkbook(): Promise<WorkbookState> {
         let randomWorkbook = this.getRandomWorkbook();
         this.log(`Activating workbook ${randomWorkbook}`);
         this.currentWorkbook = randomWorkbook;
@@ -80,7 +82,7 @@ class WorkbookState extends State {
         return null;
     }
 
-    private async deactiveWorkbook(): XDPromise<WorkbookState> {
+    private async deactiveWorkbook(): Promise<WorkbookState> {
         let randomWorkbook = this.getRandomWorkbook();
         this.log(`Deactivating workbook ${randomWorkbook}`);
         try {
@@ -92,7 +94,7 @@ class WorkbookState extends State {
         return this;
     }
 
-    private async copyWorkbook(): XDPromise<WorkbookState> {
+    private async copyWorkbook(): Promise<WorkbookState> {
         let randomWorkbook = this.getRandomWorkbook();
         this.log(`Copying workbook ${randomWorkbook}`);
         let wkbkName = this.getUniqueRandName("FuncTestCopy");
@@ -109,7 +111,7 @@ class WorkbookState extends State {
         return this;
     }
 
-    private async renameWorkbook(): XDPromise<WorkbookState> {
+    private async renameWorkbook(): Promise<WorkbookState> {
         let randomWorkbook = this.getRandomWorkbook();
         this.log(`Renaming workbook ${randomWorkbook}`);
         let wkbkName = this.getUniqueRandName("FuncTestRename");
@@ -129,7 +131,7 @@ class WorkbookState extends State {
         return this;
     }
 
-    private async deleteWorkbook(): XDPromise<WorkbookState> {
+    private async deleteWorkbook(): Promise<WorkbookState> {
         let randomWorkbook = this.getRandomWorkbook();
         this.log(`Deleting workbook ${randomWorkbook}`);
         try {
@@ -180,7 +182,7 @@ class WorkbookState extends State {
         }
     }
 
-    private async createNewWorkbook(): XDPromise<WorkbookState> {
+    private async createNewWorkbook(): Promise<WorkbookState> {
         let wkbkName = this.getUniqueRandName();
         this.log(`Creating workbook ${wkbkName}`);
         let wkbkId;
@@ -198,7 +200,7 @@ class WorkbookState extends State {
         return this;
     }
 
-    public async takeOneAction(): XDPromise<WorkbookState> {
+    public async takeOneAction(): Promise<WorkbookState> {
         let randomAction = Util.pickRandom(this.availableActions);
         const newState = await randomAction.call(this);
         return newState;
