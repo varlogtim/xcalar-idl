@@ -14,6 +14,8 @@ namespace DSTargetManager {
     let udfFuncHint: InputDropdownHint;
     const xcalar_cloud_s3: string = "xcalar_cloud_s3_env";
     const xcalar_public_s3: string = "Public S3";
+    // connectors for tutorial
+    const xcalar_tutorial_export: string = "Tutorial Export";
     // connectors for IMD, generted by XCE
     const xcalar_table_gen: string = "TableGen";
     const xcalar_table_store: string = "TableStore";
@@ -28,6 +30,7 @@ namespace DSTargetManager {
     const reservedList: string[] = [
         xcalar_cloud_s3,
         xcalar_public_s3,
+        xcalar_tutorial_export,
         xcalar_table_gen,
         xcalar_table_store
     ];
@@ -180,10 +183,7 @@ namespace DSTargetManager {
 
         getConnectorList()
         .then(function() {
-            return cloudConnectorSetup();
-        })
-        .then(function() {
-            return defaultConnectorSetup();
+            return PromiseHelper.convertToJQuery(defaultConnectorsSetup());
         })
         .then(function() {
             let targets: string[] = Object.keys(targetSet).sort();
@@ -357,46 +357,94 @@ namespace DSTargetManager {
         return deferred.promise();
     }
 
-    function cloudConnectorSetup(): XDPromise<void> {
-        if (!XVM.isCloud()) {
-            return PromiseHelper.resolve();
+    // set up some default connectors
+    async function defaultConnectorsSetup(): Promise<void> {
+        let hasNewConnectors: boolean = false;
+        try {
+            hasNewConnectors = await createCloudS3Connector() || hasNewConnectors;
+            hasNewConnectors = await createTutorialExportConnector() || hasNewConnectors;
+            hasNewConnectors = await createPublicS3Connector() || hasNewConnectors;
+        } catch (e) {
+            // ingore error
         }
 
-        return PromiseHelper.alwaysResolve(createCloudS3Connector());
-    }
-
-    function defaultConnectorSetup(): XDPromise<void> {
-        return PromiseHelper.alwaysResolve(createPublicS3Connector());
+        if (hasNewConnectors) {
+            // refresh the list
+            await getConnectorList();
+        }
     }
 
     // for cloud file upload use
-    function createCloudS3Connector(): XDPromise<string> {
-        if (targetSet[xcalar_cloud_s3] != null) {
-            // has the s3Target created, but remove it from cache
-            delete targetSet[xcalar_cloud_s3];
-            return PromiseHelper.resolve();
+    async function createCloudS3Connector(): Promise<boolean> {
+        if (!XVM.isCloud()) {
+            return false;
         }
 
-        let targetType: string = "s3environ";
-        let targetName: string = xcalar_cloud_s3;
-        let targetParams = {authenticate_requests: "true"};
-        return XcalarTargetCreate(targetType, targetName, targetParams);
+        const connectorName: string = xcalar_cloud_s3;
+        if (targetSet[connectorName] != null) {
+            // has the s3Target created, but remove it from cache
+            delete targetSet[connectorName];
+            return false;
+        }
+
+        try {
+            await createS3EnvConnector(connectorName, true);
+            return true;
+        } catch (e) {
+            // ingore the error
+            console.warn("create cloud connectors failed", e);
+            return false;
+        }
     }
 
     // a public s3 connector
-    function createPublicS3Connector(): XDPromise<string> {
-        if (targetSet[xcalar_public_s3] != null) {
-            return PromiseHelper.resolve();
+    async function createPublicS3Connector(): Promise<boolean> {
+        const connectorName: string = xcalar_public_s3;
+        if (targetSet[connectorName] != null) {
+            return false;
         }
+        try {
+            await createS3EnvConnector(connectorName, false);
+            return true;
+        } catch (e) {
+            // ingore the error
+            console.warn("create public s3 connector failed", e);
+            return false;
+        }
+    }
 
-        let targetType: string = "s3environ";
-        let targetName: string = xcalar_public_s3;
-        let targetParams = {authenticate_requests: "false"};
-        return XcalarTargetCreate(targetType, targetName, targetParams)
-        .then(() => {
-            // update the list
-            return getConnectorList();
-        });
+    async function createTutorialExportConnector(): Promise<boolean> {
+        const connectorName: string = xcalar_tutorial_export;
+        if (targetSet[connectorName] != null) {
+            return false;
+        }
+        try {
+            const connectorType: string = "shared";
+            const mountpoint: string = await getRootExportMountPoint();
+            const params = { mountpoint };
+            await XcalarTargetCreate(connectorType, connectorName, params);
+            return true;
+        } catch (e) {
+            // ingore the error
+            console.warn("create tutorial export connector failed", e);
+            return false;
+        }
+    }
+
+    async function getRootExportMountPoint(): Promise<string> {
+        const params = await XcalarGetConfigParams();
+        const xcalarRootCompletePath = params.parameter.filter((arg) => arg.paramName === "XcalarRootCompletePath")[0];
+        return xcalarRootCompletePath.paramValue + "/export/";
+    }
+
+    async function createS3EnvConnector(
+        connectorName: string,
+        private: boolean
+    ): Promise<void> {
+        const connectorType: string = "s3environ";
+        const auth_request: string = private ? "true" : "false";
+        const params = {authenticate_requests: auth_request};
+        return XcalarTargetCreate(connectorType, connectorName, params);
     }
 
     function addEventListeners(): void {
@@ -544,10 +592,9 @@ namespace DSTargetManager {
             "Default Shared Root",
             "Preconfigured Azure Storage Account",
             "Preconfigured Google Cloud Storage Account",
-            "Preconfigured S3 Account",
-            xcalar_public_s3
+            "Preconfigured S3 Account"
         ];
-        return defaultTargetList.includes(targetName);
+        return defaultTargetList.includes(targetName) || reservedList.includes(targetName);
     }
 
     function isAccessibleTarget(targetType: string): boolean {

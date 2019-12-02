@@ -1173,6 +1173,8 @@ namespace xcManager {
         let _snipKVStore: KVStore = new KVStore(snipKey, gKVScope.WKBK);
         let pubTables: StoredPubInfo[] = [];
         let promise: XDPromise<void>;
+
+        // XXX TODO: remove this target and use Public S3 connector instead
         // First, set up the tutorial data target if it doesnt exist
         if (DSTargetManager.getTarget(tutTarget) != null) {
             promise = PromiseHelper.resolve();
