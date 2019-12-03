@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>How to export a result set to a file</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../Home_cloud.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>How to export a result set to a file</h1>
+                                                <p>Very often, after you have processed your data in <span class="GeneralProductName3">Xcalar</span>, you need to export it to a file so that other applications can make use of it. <span class="GeneralProductName3">Xcalar</span> provides a very simple yet powerful way of exporting files. </p>
+                                                <p>This tutorial shows you how you can export a result set to a single or multiple files. </p>
+                                                <h2 class="noPageBreak">1. Creating a project</h2>
+                                                <p>The first step in creating an application in <span class="GeneralProductName3">Xcalar</span> is to create a project. A project is a container where you create, design, troubleshoot, and execute your application. Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called <span class="UIelement">HowToExport</span> and open it by clicking on the project card.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> has two modes - the SQL Mode and the Developer Mode. In SQL Mode, you develop your queries using the SQL query statements and user-defined functions (UDFs) written in Python. In Developer Mode, you develop your applications using visual components, SQL query statements, and UDFs written in Python.</p>
+                                                <p>We will be using visual components in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to <span class="UIelement">Developer Mode</span>.</p>
+                                                <p>Next, we will import the wine reviews file (winemag-data.json) into <span class="GeneralProductName3">Xcalar</span>. If you have already imported this file for another tutorial, skip the next step.</p>
+                                                <h2 class="noPageBreak">2. Importing the wine reviews file</h2>
+                                                <p>To import the wine reviews file, click on the <span class="UIelement">Sources </span>icon in the sidebar and then in the <span class="UIelement">Datasets </span>panel, click <span class="UIelement">Import data Source</span>. Since our file resides on <span class="GeneralProductName3">Xcalar</span>’s public S3 bucket (/xcmarketplace-us-east-1/tutorial-datasets/), for the <span class="UIelement">Connector</span>, select <span class="UIelement">Public S3</span> and in the <span class="UIelement">Data Source Path</span>, enter <code>/xcmarketplace-us-east-1/tutorial-datasets/</code>. Click <span class="UIelement">Browse </span>to browse the directory structure and select winemag-data.json. Click <span class="UIelement">Next </span>to preview the file.</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/hte-import.png" />
+                                                </p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and displays its preview. Since this is a simple json file, we don't need to pull out any nested fields. Let's accept all default options and click <span class="UIelement">Create Dataset</span>. The dataset winemag-data is created with 129,971 rows and 13 columns. The next step is to read the dataset into a module.</p>
+                                                <h2 class="noPageBreak">3. Creating a module and reading the dataset</h2>
+                                                <p>To read the dataset and process it, we need to create a module. In <span class="GeneralProductName3">Xcalar</span>, a module is a graphical representation of a series of operations performed on data. Each operation is represented by a graphical component called Node.</p>
+                                                <p>To create a module, click on the <span class="UIelement">Application Builder</span> icon in the sidebar and click <span class="UIelement">Create new module</span> or <span class="UIelement">New module</span> tab. A new module called <span class="UIelement">Module 1</span> is created. From the <span class="UIelement">In</span> category of Nodes, add a <span class="UIelement">Dataset </span>Node to the module. To configure the <span class="UIelement">Dataset </span>Node, click on it and select <span class="UIelement">Configure</span>. Select the <span class="UIelement">winemag-data</span> dataset in the configuration panel and click <span class="UIelement">Save</span>. By default, the Node gets executed and the result set is displayed:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/xp-dataset.png" />
+                                                </p>
+                                                <p>Scrolling through the result set shows that it has a description column containing the description of each wine. Let’s search the description column for a keyword.</p>
+                                                <h2 class="noPageBreak">3. Searching a column</h2>
+                                                <p><span class="GeneralProductName3">Xcalar</span> provides many different functions for searching text through the <span class="UIelement">Map </span>Node. From the <span class="UIelement">Column Ops</span> category of Nodes, let's drag and drop the <span class="UIelement">Map </span>Node into the canvas. Connect the output of the <span class="UIelement">Dataset </span>Node to the <span class="UIelement">Map </span>Node. To configure the <span class="UIelement">Map </span>Node, click on it and select <span class="UIelement">Configure</span>. A configuration panel opens up. To search for the keyword <span class="UIelement">cinnamon </span>in the description column, configure the <span class="UIelement">Map </span>Node as follows:</p>
+                                                <p class="CLIoutput">Category: string</p>
+                                                <p class="CLIoutput">Function: find</p>
+                                                <p class="CLIoutput">String to search: $winemag_data::description </p>
+                                                <p class="CLIoutput">String to find: cinnamon</p>
+                                                <p class="CLIoutput">Starting index: 0 (search from the beginning)</p>
+                                                <p class="CLIoutput">Ending index: 0 (no end restriction)</p>
+                                                <p class="CLIoutput">New Resultant Column Name: cinnamon</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/ts-map-find1.png" />
+                                                </p>
+                                                <p>Save and execute the <span class="UIelement">Map</span> Node. A new result set is displayed with a new column called <span class="UIelement">cinnamon</span>. Notice that the column has many rows with value -1. These are the rows in which the word <span class="UIelement">cinnamon </span>was not found:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/ts-cinnamon-rs.png" />
+                                                </p>
+                                                <p>Let's exclude these rows.</p>
+                                                <h2 class="noPageBreak">4. Excluding rows</h2>
+                                                <p>In the cinnamon column, right click on a cell with value -1 and select <span class="UIelement">Exclude this value</span>. A <span class="UIelement">Filter </span>Node is added to the canvas and executed. A new result set is displayed with 3,555 rows with  the word <span class="UIelement">cinnamon </span>in all the descriptions:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/ts-filter-cinnamon.png" />
+                                                </p>
+                                                <p>Let's export this data to a file.</p>
+                                                <h2 class="noPageBreak">5. Exporting the result set to a file</h2>
+                                                <p>To export the result set, from the <span class="UIelement">Out </span>category of Nodes, add the <span class="UIelement">Export </span>Node to the canvas. Connect the <span class="UIelement">Filter </span>Node to the <span class="UIelement">Export </span>Node. Click on the <span class="UIelement">Export </span>Node and select <span class="UIelement">Configure</span>. The configuration panel for the <span class="UIelement">Export </span>Node opens up:</p>
+                                                <p>&lt;image&gt;</p>
+                                                <p>Drag and increase the configuration panel width if your column names are appearing truncated. Configure the Node as follows:</p>
+                                                <ol>
+                                                    <li value="1"><span class="UIelement">Columns to export</span>: The first thing you need to select is the columns that you want to export. Your result set may have many columns but the application for which you are exporting the data may not need all columns. <span class="GeneralProductName3">Xcalar</span> allows you to select as many columns as you wish to export in the <span class="UIelement">Columns to export</span> section. Selecting fewer columns may result in smaller files. In our case, we will select <span class="UIelement">points</span>, <span class="UIelement">title</span>, <span class="UIelement">description</span>, and <span class="UIelement">price</span> columns.</li>
+                                                    <li value="2"><span class="UIelement">Select an export method</span>: <span class="GeneralProductName3">Xcalar</span> supports the following 4 export methods:<ol style="list-style-type: lower-alpha;"><li value="1"><span class="UIelement">Multiple CSV files using only ASCII delimiters</span>: This method breaks up your result set into multiple files and exports them in parallel. Depending on the size of your result set and the number of nodes in your cluster, this method may be the fastest. This method requires ASCII characters for the delimiters.</li><li value="2"><span class="UIelement">Multiple CSV files</span>: This method is the same as the previous method except that the delimiters can be any UTF-8 characters. Although this method also does parallel processing, it is slower than the previous method.</li><li value="3"><span class="UIelement">Single CSV file</span>: This method exports the result set to a single file using any UTF-8 character delimiters.</li><li value="4"><p><span class="UIelement">Custom export using a UDF (deprecated)</span>: If you have custom requirements for the export, you can write an export UDF to export the result set. This method is deprecated.</p></li></ol><p>Let's select <span class="UIelement">Single CSV file</span>. </p></li>
+                                                    <li value="3"><span class="UIelement">Connector</span>: A connector contains the information of the storage location and the method used by your <span class="GeneralProductName3">Xcalar</span> instance to access that location. You need a connector to a storage location that you can access and write to. If you do not have any such connector, create one (<span class="UIelement">Sources </span>-&gt; <span class="UIelement">Connectors</span> -&gt; <span class="UIelement">Create Connector</span>). For our tutorial, we already have a connector called <span class="UIelement">Tutorial-Export</span>. Let's select that.</li>
+                                                    <li value="4"><span class="UIelement">File path</span>: This is the file path for the storage location specified by the Connector you selected. In our case, we will just enter the file name wine-ratings.csv.</li>
+                                                    <li value="5"><span class="UIelement">(Optional) Include column headers</span>: If you want the exported file to contain the column headers, check this option.</li>
+                                                    <li value="6"><span class="UIelement">(Optional) Field delimiter</span>: Select a delimiter for the column values. Default value is a tab character (\t).</li>
+                                                    <li value="7"><span class="UIelement">(Optional) Record delimiter</span>: Select a delimiter for the records or rows. Default value is a newline character (\n).</li>
+                                                    <li value="8">(Optional) Quote character: Select a character to quote the cell value if it contains any delimiters you selected in the previous two fields. Default value is a double quote character (").</li>
+                                                </ol>
+                                                <p>Save and execute the Node. The result set is exported to wine-ratings.csv file.</p>
+                                                <p>To check the exported file, from the sidebar, click on the <span class="UIelement">Sources </span>icon and click on <span class="UIelement">Import Data Source</span> in the <span class="UIelement">Datasets </span>panel. Select the same connector you selected in the <span class="UIelement">Export </span>configuration and browse. Locate the exported file and check its timestamp. </p>
+                                                <p>You can connect another <span class="UIelement">Export </span>Node to the <span class="UIelement">Filter </span>Node, configure it like the first <span class="UIelement">Export </span>Node but this time select <span class="UIelement">Multiple CSV files using only ASCII delimiters</span> as the export method to compare the time taken by different export methods. After the export is complete, compare the stats on the two Export Nodes. The second Export Node should finish faster. In our tutorial, the result set is really small so it does not make that much difference but if the result sets are large, parallel processing of export may make a huge difference in the time taken to export.</p>
+                                                <h2 class="noPageBreak">Summary</h2>
+                                                <p>This tutorial showed how to export a result set to a file and touched upon the following topics:</p>
+                                                <ul>
+                                                    <li value="1">Projects</li>
+                                                    <li value="2">Modules</li>
+                                                    <li value="3">Importing a JSON file</li>
+                                                    <li value="4">Using a Dataset Node</li>
+                                                    <li value="5">Searching a column</li>
+                                                    <li value="6">Excluding rows</li>
+                                                    <li value="7">Exporting a result set to a file</li>
+                                                </ul>
+                                                <p>For detailed information about these topics, see the online help for <span class="GeneralProductName3">Xcalar</span>.</p>
+                                                <p>The <span class="UIelement">HowToExport </span>application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

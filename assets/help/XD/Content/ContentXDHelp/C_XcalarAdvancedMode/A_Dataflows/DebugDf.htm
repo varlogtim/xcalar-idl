@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Debugging a dataflow</title>
+        <meta name="author" content="" /><title>Best practices for developing and debugging dataflows</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -188,23 +188,42 @@
                                                     <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
                                                 </div>
-                                                <h1>Debugging a dataflow</h1>
+                                                <h1>Best practices for developing and debugging dataflows</h1>
                                                 <p>This topic describes the best practices for developing dataflows, detecting issues, and debugging them. It assumes that you know how to create and edit a dataflow as described in <a href="CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating and editing a dataflow</a>.</p>
                                                 <h2 class="noPageBreak">Best practices for developing a dataflow</h2>
-                                                <p><span class="GeneralProductName3">Xcalar</span> provides a lot of features for debugging your data models in the <span class="GeneralGUIName1">Xcalar Design</span> UI. Here are some good practices to make it easier:</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> provides a lot of features for debugging your dataflows in the <span class="GeneralGUIName1">Xcalar Design</span> UI. Here are some good practices to make it easier:</p>
                                                 <ul>
                                                     <li value="1">Build modular dataflows using the <span class="UIelement">Link In</span> and <span class="UIelement">Link Out</span> Nodes so that it is easier to isolate the problems.</li>
-                                                    <li value="2">Remove or hide the columns that you are not going to use. It reduces the clutter and improves the focus.</li>
+                                                    <li value="2">Remove or hide the columns that you are not going to use. It reduces clutter and improves the focus.</li>
                                                     <li value="3">Missing data may produce unexpected results. Either remove the rows with missing values or fill them up with something meaningful. </li>
-                                                    <li value="4">Once you have developed your dataflow, add meaningful descriptions or comments to the Nodes for a quick recollection of functionality at a later time.</li>
+                                                    <li value="4">Add meaningful descriptions or comments to the Nodes for a quick recollection of functionality at a later time.</li>
+                                                    <li value="5">Create a golden output file for your dataflow and compare the output of an updated dataflow with the golden output.</li>
+                                                    <li value="6">Once you have developed your dataflow, download the workbook and save it into a version control application like Git so that you can quickly revert to any older version.</li>
                                                 </ul>
                                                 <h2 class="noPageBreak">Detecting problems in a dataflow</h2>
                                                 <p>Here are some general guidelines for detecting problems after the execution of a dataflow:<ul><li value="1">Check the status of every Node. If it is red, the Node generated an error.</li><li value="2">If the icon of a Map Node appears red with an exclamation sign, the Node generated errors. Click on the red area of the Node to display a list of errors.</li><li value="3">View the Node stats:<ul style="list-style-type: square;"><li value="1">Compare the number of rows of each Node with the previous Node. If the number of rows is unusually different than your expectations, analyze the result sets.</li><li value="2">If the time taken to execute a Node seems high, you might want to change the configuration of the Node or redesign the dataflow. For example, if a SQL Node is taking a long time to execute, you might want to rewrite the SQL snippet.</li><li value="3">Look at the skew number of each Node. If the skew number is high, you might want to find out the reason. Joins with not enough number of unique key values is a common cause of high skew.</li></ul></li></ul></p>
+                                                <h2 class="noPageBreak">Verifying results</h2>
+                                                <p>To make sure that every dataflow update works as expected:</p>
+                                                <ol>
+                                                    <li value="1">Take a sample production data and generate output through a known good dataflow. Save this test input and the golden output in separate files for later use.</li>
+                                                    <li value="2">Execute the updated dataflow using the saved test input and generate a new output.</li>
+                                                    <li value="3">Compare the new output with the golden output by connecting both to a SQL Node. If the two result sets are t1 and t2 and each result set has columns col1 and col2, enter the following SQL snippet in the SQL Node:<br />Select count(*) from (select * from t1 union all select * from t2) group by col1, col2</li>
+                                                    <li value="4">Save and execute the SQL Node. The result should have only one column with only even numbers. Profile the column to check the values. If the column contains any odd number, then the two inputs are different, and you need to debug that.</li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Tips and tricks</h2>
+                                                <p>Here are some helpful tips and tricks in using <span class="GeneralGUIName1">Xcalar Design</span>:</p>
+                                                <ul>
+                                                    <li value="1">To search for a Node in a dataflow, click somewhere on the dataflow, press CTRL F and then enter the search keyword in the search field. <span class="GeneralGUIName1">Xcalar Design</span> searches the keyword in Node type, Node name and Node configuration.</li>
+                                                    <li value="2">To search in a SQL snippet, click on the SQL snippet, press CTRL F and then enter the search keyword in the search field.</li>
+                                                    <li value="3">To search for a keyword in a UDF, open the UDF module in the UDF panel, press CTRL F and then enter the search keyword in the search field.</li>
+                                                    <li value="4">If you want to know the name of the result set generated by an already executed Node, click on the Node and view the Node configuration panel on the left. Scroll through the JSON to find the result set name. For example:<br />"result_set": "table_DF2_5D605A152D5F4E3E_1566595682755_1_dag_5D605A152D5F4E3E_1566597490215_44#t_1573242727438_6"</li>
+                                                </ul>
                                                 <h2 class="noPageBreak">Debugging by analyzing a result set</h2>
                                                 <p>Here are some general guidelines for analyzing your result set:</p>
                                                 <ul>
                                                     <li value="1">Sort the columns both in ascending and descending order to check for out of range values or FNFs.</li>
                                                     <li value="2">Profile a column to check for unexpected values or to view the distribution of key values.</li>
+                                                    <li value="3">Some operations enable you to create a result set with only erroneous rows. Use this option to find the data rows with errors and decide what to do with them.</li>
                                                 </ul>
                                                 <h2 class="noPageBreak">Example of analyzing a result set</h2>
                                                 <p>Let's say you want to use the airline carriers data in your dataflow:</p>
@@ -230,7 +249,7 @@
                                                         <p>
                                                             <img src="../../../Resources/Images/XD_screenshots/xd-debug-df3.png" />
                                                         </p>
-                                                        <p>You have cleaned the carriers data and it is ready to be used in the next part of the data model. </p>
+                                                        <p>You have cleaned the carriers data and it is ready to be used in the next part of the dataflow. </p>
                                                     </li>
                                                 </ol>
                                                 <p><a href="#top">Go to the top</a>

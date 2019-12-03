@@ -195,13 +195,12 @@
                                                 <ul>
                                                     <li value="1">The number and type of data sources</li>
                                                     <li value="2"> The size of your data</li>
-                                                    <li value="3">The complexity of your data model etc.</li>
+                                                    <li value="3">The complexity of your dataflows and queries</li>
                                                 </ul>
                                                 <p>Due to the subjective nature of the factors involved, <span class="GeneralProductName3">Xcalar</span> cannot recommend a specific cluster size for your needs. However, <span class="GeneralProductName3">Xcalar</span> makes it easy for you to experiment with different cluster sizes and select the one that fits your needs. </p>
                                                 <h2 class="noPageBreak">Selecting a cluster size</h2>
                                                 <p>Here are the available <span class="GeneralProductName3">Xcalar</span> cluster sizes:</p>
-                                                <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 1009px;" class="TableStyle-SimpleTable" cellspacing="0">
-                                                    <caption data-mc-autonum="Table 2 "><span class="autonumber"><span>Table 2 </span></span>Cluster sizes</caption>
+                                                <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');width: 100%;margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" style="width: 150px;" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" style="width: 236px;" />
                                                     <col class="TableStyle-SimpleTable-Column-Column1" style="width: 454px;" />
@@ -210,7 +209,7 @@
                                                             <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
                                                                 <p>Cluster size</p>
                                                             </th>
-                                                            <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Memory size (GB)</th>
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Memory size (GiB)</th>
                                                             <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Credit usage per hour (1 credit = $2.00)</th>
                                                         </tr>
                                                     </thead>
@@ -261,8 +260,8 @@
                                                     </tbody>
                                                 </table>
                                                 <p><span class="GeneralProductName3">Xcalar</span> recommends that as a first time user, start with the smallest available cluster. Import your data files into the cluster and monitor its performance. If it appears slow, log out and select a bigger cluster size. </p>
-                                                <p>After the import, start building a data model. At any given point, if you find the performance to be slow, log out and select a bigger cluster size. <br /></p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;There is no penalty for switching a cluster, however, every time you switch a cluster, you lose the intermediate results of your data model executions and you have to execute the data model from the beginning.</div>
+                                                <p>After the import, start building a dataflow or a query. At any given point, if you find the performance to be slow, log out and select a bigger cluster size. <br /></p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;There is no penalty for switching a cluster, however, every time you switch a cluster, you lose the intermediate results of your dataflow executions and you have to execute the dataflow from the beginning.</div>
                                                 <h2 class="noPageBreak">Billing for the <span class="GeneralProductName3">Xcalar</span> cluster</h2>
                                                 <p>Some important notes regarding the billing of your <span class="GeneralProductName3">Xcalar</span> cluster:</p>
                                                 <ul>
@@ -276,8 +275,8 @@
                                                     </li>
                                                 </ul>
                                                 <h2 class="noPageBreak">Impact of bigger cluster size</h2>
-                                                <p>In general, increasing the cluster size improves the performance of your data model because bigger cluster size gives you more compute power. However, smaller data models may not necessarily perform better on a bigger cluster.</p>
-                                                <p>Selecting a bigger cluster means more expense per minute but it may not necessarily be more expensive overall because you may be able to develop and execute your data model faster, thus spending less money. </p>
+                                                <p>In general, increasing the cluster size improves the performance of your dataflows or queries because a bigger cluster size gives you more compute power. However, smaller dataflows and queries may not necessarily perform better on a bigger cluster.</p>
+                                                <p>Selecting a bigger cluster means more expense per minute but it may not necessarily be more expensive overall because you may be able to develop and execute your dataflows or queries faster, thus spending less money. </p>
                                                 <p><a href="#top">Go to the top</a>
                                                 </p>
                                             </div>

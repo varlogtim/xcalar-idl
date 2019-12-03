@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="[%=System.LinkedTitle%]">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Writing a log analyzer application</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAccessibility.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js" defer="defer">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js" defer="defer">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" role="navigation" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true"><a class="skip-to-content fluid-skip showOnFocus" href="#">Skip To Main Content</a>
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" aria-label="Show Navigation Panel" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../Home.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" aria-label="Search Field" placeholder="Search" />
+                                                <div class="search-filter-wrapper"><span class="invisible-label" id="search-filters-label">Filter: </span>
+                                                    <div class="search-filter" aria-haspopup="true" aria-controls="sf-content" aria-expanded="false" aria-label="Search Filter" title="All Files" role="button" tabindex="0">
+                                                    </div>
+                                                    <div class="search-filter-content" id="sf-content">
+                                                        <ul>
+                                                            <li>
+                                                                <button class="mc-dropdown-item" aria-labelledby="search-filters-label filterSelectorLabel-00001"><span id="filterSelectorLabel-00001">All Files</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search" role="button" tabindex="0"><span class="invisible-label">Submit Search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <nav class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </nav>
+                            <main id="main" class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img alt="Navigate previous" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img alt="Navigate next" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img alt="Print" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" class="invisible-label" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" role="navigation" aria-label="Breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
+                                                </div>
+                                                <h1>Writing a log analyzer application</h1>
+                                                <p>Logs are a powerful way of getting insights into your applications. Logs can be huge and can’t be analyzed using a simple tool. <span class="GeneralProductName3">Xcalar</span> provides a cloud-scale platform for executing your big data jobs while providing a friendly yet powerful user interface. This tutorial shows you how you can ingest a web server log in <span class="GeneralProductName3">Xcalar</span> and analyze it.</p>
+                                                <p>The first step in creating an application in <span class="GeneralProductName3">Xcalar</span> is to create a project. A project is a container where you create, design, troubleshoot, and execute your application. Open <span class="GeneralGUIName1">Xcalar Design</span> in a browser and log in. Create a new project called <span class="UIelement">LogAnalyzer </span>and open it by clicking on the project card.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> has two modes - the SQL Mode and the Developer Mode. In SQL Mode, you develop your applications using SQL query statements and user-defined functions (UDFs) written in Python. In Developer Mode, you develop your applications using visual components, SQL query statements, and UDFs written in Python.</p>
+                                                <p>We will be using visual components and some SQL in this application; therefore, we will work in Developer Mode. If you are not in Developer Mode, from the top menu bar of <span class="GeneralGUIName1">Xcalar Design</span>, click the mode switch to <span class="UIelement">Developer Mode</span>.</p>
+                                                <p>The first step is to import a webserver log called <span class="UIelement">access.log</span> into <span class="GeneralProductName3">Xcalar</span>.</p>
+                                                <h2 class="noPageBreak">1. Importing the log file</h2>
+                                                <p>Before importing a file into <span class="GeneralProductName3">Xcalar</span>, you must view it in a text editor to see its format. Our log file looks like this:</p>
+                                                <div class="Code">109.169.248.247 - - [12/Dec/2015:18:25:11 +0100] "GET /administrator/ HTTP/1.1" 200 4263 "-" "Mozilla/5.0 (Windows NT 6.0; rv:34.0) Gecko/20100101 Firefox/34.0" "-"</div>
+                                                <div class="Code">109.169.248.247 - - [12/Dec/2015:18:25:11 +0100] "POST /administrator/index.php HTTP/1.1" 200 4494 "http://almhuette-raith.at/administrator/" "Mozilla/5.0 (Windows NT 6.0; rv:34.0) Gecko/20100101 Firefox/34.0" "-"</div>
+                                                <div class="Code">46.72.177.4 - - [12/Dec/2015:18:31:08 +0100] "GET /administrator/ HTTP/1.1" 200 4263 "-" "Mozilla/5.0 (Windows NT 6.0; rv:34.0) Gecko/20100101 Firefox/34.0" "-"</div>
+                                                <div class="Code">46.72.177.4 - - [12/Dec/2015:18:31:08 +0100] "POST /administrator/index.php HTTP/1.1" 200 4494 "http://almhuette-raith.at/administrator/" "Mozilla/5.0 (Windows NT 6.0; rv:34.0) Gecko/20100101 Firefox/34.0" "-"</div>
+                                                <p>The sample shows that the records in the log are separated by a newline character and most fields are separated by a space character. We are going to use this observation to set the import options.</p>
+                                                <p>To import the log file into <span class="GeneralProductName3">Xcalar</span>, click on the <span class="UIelement">Sources </span>icon in the sidebar and then <span class="UIelement">Import data Source</span> in the <span class="UIelement">Datasets </span>panel. Since our file resides on <span class="GeneralProductName3">Xcalar</span>’s public S3 bucket (/xcmarketplace-us-east-1/tutorial-datasets/), for the <span class="UIelement">Connector</span>, select <span class="UIelement">Public S3</span> and for the <span class="UIelement">Data Source Path</span>, enter <code>/xcmarketplace-us-east-1/tutorial-datasets/</code>. Click <span class="UIelement">Browse </span>to browse the directory structure and select acces.log. Click <span class="UIelement">Next </span>to preview the file.</p>
+                                                <p><span class="GeneralProductName3">Xcalar</span> automatically detects the format of the file and displays its preview. As per our observation, change the following options in the <span class="UIelement">Format </span>window:</p>
+                                                <p class="CLIoutput">Dataset Name: accesslog</p>
+                                                <p class="CLIoutput">Record Delimiter: \n</p>
+                                                <p class="CLIoutput">Field Delimiter: &lt;space character&gt;</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-log-import.png" />
+                                                </p>
+                                                <p>As you change the import options, the preview of the import changes. You can play with these settings until you are satisfied with the preview. In our case, leave the other fields with default values and click <span class="UIelement">Create Dataset</span>. The dataset <span class="UIelement">accesslog </span>is created with 4,302,030 rows and 11 columns. The next step is to view the dataset.</p>
+                                                <h2 class="noPageBreak">2. Creating a module and viewing the dataset</h2>
+                                                <p>To view and process the dataset, we need to create a module. In <span class="GeneralProductName3">Xcalar</span>, module is a graphical representation of a series of operations performed on data. Each operation is represented by a graphical component called Node.</p>
+                                                <p>To create a module, click on the <span class="UIelement">Application Builder</span> icon in the sidebar and click <span class="UIelement">Create new module</span> or <span class="UIelement">New module</span> tab. A new module is created. To view the dataset, add a <span class="UIelement">Dataset </span>Node to the module and configure it by clicking on it and selecting <span class="UIelement">Configure</span>. Select the <span class="UIelement">accesslog </span>dataset in the configuration panel and click <span class="UIelement">Save</span>. By default, the Node gets executed and the result set is displayed:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-dataset-result.png" />
+                                                </p>
+                                                <p>Scrolling through the result set shows that <span class="UIelement">column5 </span>contains the HTTP requests and <span class="UIelement">column6 </span>contains the response codes. Let’s try to generate a report on the response codes.</p>
+                                                <h2 class="noPageBreak">3. Using Group By</h2>
+                                                <p><span class="GeneralProductName3">Xcalar</span> provides many different ways of generating aggregates. For example, profiling a column, using a <span class="UIelement">SQL </span>Node, or using a <span class="UIelement">Group By</span> Node. Let’s use a <span class="UIelement">Group By</span> Node by adding it to the module and connecting to the <span class="UIelement">Dataset </span>Node. To configure the <span class="UIelement">Group By</span> Node, click on it and select <span class="UIelement">Configure</span>. Since we want to group on the response code, fill in the configuration panel as follows:</p>
+                                                <p class="CLIoutput">Fields to group on: $accesslog::column6 (in a dataset, the column names are prefixed by the dataset name)</p>
+                                                <p class="CLIoutput">Function to apply to group: count</p>
+                                                <p class="CLIoutput">Field name to count occurrences of: $accesslog::column6</p>
+                                                <p class="CLIoutput">New column name for the group by resultant column: ResponseCodeCount</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-groupby-config.png" />
+                                                </p>
+                                                <p>Save and execute the <span class="UIelement">Group By</span> Node. A new result set is displayed with 16 rows and 2 columns. Sorting on the ResponseCodeCount in a descending fashion shows that the response code 200 was the most often returned response code:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-groupby-result.png" />
+                                                </p>
+                                                <h2 class="noPageBreak">4. Splitting the column</h2>
+                                                <p>Next, we want to calculate the number of times each of the HTTP methods were called. Notice, that column5 has the following format:</p>
+                                                <p>HTTP method + &lt;space character&gt; + URL</p>
+                                                <p>Since we just need the HTTP method, we will split it using a space character as the delimiter. Add a <span class="UIelement">Split </span>Node to the module and connect it to the <span class="UIelement">Dataset </span>Node. To configure the <span class="UIelement">Split </span>Node, click on it and select <span class="UIelement">Configure</span>. Fill in the configuration panel as follows:</p>
+                                                <p class="CLIoutput">Column to split: $accesslog::column5 (in a dataset, the column names are prefixed by the dataset name)</p>
+                                                <p class="CLIoutput">Delimiter: &lt;space character&gt;</p>
+                                                <p class="CLIoutput">Number of columns: 1 (we are only interested in the HTTP method and not the URL)</p>
+                                                <p class="CLIoutput">Column name #1: HTTPMethod</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-split-config.png" />
+                                                </p>
+                                                <p>Save and execute the Node. The column5 is split and a column named HTTPMethod is added in the new result set:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-split-result.png" />
+                                                </p>
+                                                <p>In the next step, let’s find out how many times each of the HTTP methods was called.</p>
+                                                <h2 class="noPageBreak">5. Using SQL to group by</h2>
+                                                <p>Let’s use a <span class="UIelement">SQL </span>Node to group the HTTP methods. Add a <span class="UIelement">SQL </span>Node to the module and connect it to the <span class="UIelement">Split </span>Node. To configure the <span class="UIelement">SQL </span>Node, click it and select <span class="UIelement">Configure</span>. In the configuration panel, the <span class="UIelement">Table Alias</span> field refers to the input table. Let’s call it <span class="UIelement">t</span> and then enter the following SQL in the SQL Snippet field:</p>
+                                                <p><code>select HTTPMethod, count(*) as Count from t group by HTTPMethod</code>
+                                                </p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-sql-config.png" />
+                                                </p>
+                                                <p>Save and execute the Node. A new result set is displayed with 2 columns - HTTPMethod and Count. Sort the Count column in descending fashion and you will see that GET is the most popular HTTP method in this web server log:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-sql-result.png" />
+                                                </p>
+                                                <p>You can do a similar analysis on IP addresses, user agents, etc. and publish the results in a table or export to a file.</p>
+                                                <h2 class="noPageBreak">6. Making Log results available to other applications</h2>
+                                                <p>In today’s world, where users have specialized applications for their specific needs, it is essential to make the computation results available to other applications. <span class="GeneralProductName3">Xcalar</span> provides a couple of ways of doing that:</p>
+                                                <ul>
+                                                    <li value="1"><span class="UIelement">Export </span>operation exports a result set to a file.</li>
+                                                    <li value="2"><span class="UIelement">Publish Table</span> operation saves a result set to a table, which can be accessed by any application outside <span class="GeneralProductName3">Xcalar</span>.</li>
+                                                </ul>
+                                                <p>In the following sections, we will export the response code result set to a file and create a table from the HTTP method result set.</p>
+                                                <h3>6a. Exporting the response code result set</h3>
+                                                <p>From the <span class="UIelement">Out </span>category of Nodes, add an <span class="UIelement">Export </span>Node to the module and connect the <span class="UIelement">Group By</span> Node to the <span class="UIelement">Export </span>Node. Configure the <span class="UIelement">Export </span>Node as follows:</p>
+                                                <p class="CLIoutput">Columns to export: ResponseCodeCount</p>
+                                                <p class="CLIoutput">Select an export method: Since our result set is really small, let’s select Single CSV file. This exports the result set to a single CSV file.</p>
+                                                <p class="CLIoutput">Connector: Select a connector where you want this file to be created. In our case, we will select the Tutorial Export connector.</p>
+                                                <p class="CLIoutput">File path: Enter the path for the file including the file name - response_code_count.csv</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-df11-export-config.png" />
+                                                </p>
+                                                <p>You can leave the rest of the fields with default values. Save and execute the Node. The result set is exported to the response_code_count.csv file and any application that has the access to this CSV file can see the response code results.</p>
+                                                <h3>6b. Generating a table</h3>
+                                                <p>From the <span class="UIelement">Out </span>category of Nodes, add a <span class="UIelement">Publish Table</span> Node to the module and connect the <span class="UIelement">SQL </span>Node to the <span class="UIelement">Publish Table</span> Node. Configure the <span class="UIelement">Publish Table</span> Node as follows:</p>
+                                                <p class="CLIoutput">Published Table Name: HTTP_METHOD (the names are automatically converted to uppercase)</p>
+                                                <p class="CLIoutput">Columns in Table: Select all columns by checking Select All</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-df11-table-config.png" />
+                                                </p>
+                                                <p>Leave other fields with default values. Save and execute the Node. The HTTP_METHOD table is created. To view the table, from the sidebar, click on the <span class="UIelement">Sources </span>icon, and then the <span class="UIelement">Tables </span>icon. In the <span class="UIelement">Tables </span>panel, find the HTTP_METHOD table and click on it to see its preview:</p>
+                                                <p>
+                                                    <img src="../../Resources/Images/Tutorials/la-df11-table-result.png" />
+                                                </p>
+                                                <p>Once a table is created, any application that supports JDBC or ODBC and has the credentials to access <span class="GeneralProductName3">Xcalar</span> tables, can read the data in this table.</p>
+                                                <h2 class="noPageBreak">Summary</h2>
+                                                <p>This tutorial touched upon the following topics:</p>
+                                                <ul>
+                                                    <li value="1">Projects</li>
+                                                    <li value="2">Modules</li>
+                                                    <li value="3">Importing a file</li>
+                                                    <li value="4">Using a dataset</li>
+                                                    <li value="5">Using Group By, Split, and SQL Nodes</li>
+                                                    <li value="6">Making results available to other applications using Export and Publish Table</li>
+                                                </ul>
+                                                <p>For detailed information about these topics, see the online help for <span class="GeneralProductName3">Xcalar</span>.</p>
+                                                <p>The <span class="UIelement">LogAnalyzer </span>application is available on the tutorial page of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div><a data-close="true"></a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
