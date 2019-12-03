@@ -439,10 +439,10 @@ namespace DSTargetManager {
 
     async function createS3EnvConnector(
         connectorName: string,
-        private: boolean
+        isPrivate: boolean
     ): Promise<void> {
         const connectorType: string = "s3environ";
-        const auth_request: string = private ? "true" : "false";
+        const auth_request: string = isPrivate ? "true" : "false";
         const params = {authenticate_requests: auth_request};
         return XcalarTargetCreate(connectorType, connectorName, params);
     }
