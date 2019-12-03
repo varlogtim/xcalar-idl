@@ -113,20 +113,20 @@ class XcQueryLog {
             const query = this._queries.get(id);
             const [queryObj, key] = query.getDurable();
             if (queryObj == null || key == null) {
-                console.error(`getDurable error: id = ${id}`);
-                continue; // This should never happen
+                continue; // This could happen when query hasn't done
             }
             queryKvMap.set(
                 this._createKvKey(`${key}`),
                 JSON.stringify(queryObj)
             );
         }
+        // Clear the dirty set before async calls
+        // to make sure running queries will be stored in the following flush()
+        // once they are done
+        this._clearDirty();
 
         // Persist to kvstore
         await this._batchUpsertKeys(queryKvMap, this.MAX_FLUSH_SIZE);
-
-        // Clear the dirty set after writing to kvstore
-        this._clearDirty();
 
         // Piggyback the archive
         await this._archive();
