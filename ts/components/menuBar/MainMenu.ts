@@ -609,6 +609,9 @@ namespace MainMenu {
         if (id === "dataStoresTab" && $("#imdTab").hasClass("active")) {
             return;
         }
+        if (id === "helpTab") {
+            return;
+        }
 
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;

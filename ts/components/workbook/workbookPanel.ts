@@ -332,6 +332,7 @@ namespace WorkbookPanel {
         // Events for the top bar, welcome message, news, etc
 
         $workbookTopbar.find(".tutorialBtn").click(function() {
+            WorkbookPanel.hide();
             HelpPanel.Instance.openHelpResource("tutorialResource");
         });
 
