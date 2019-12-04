@@ -22,24 +22,30 @@ class DagNodeExecutor {
     private originalSQLNode: DagNodeSQL;
     private isBatchExecution: boolean;
     private isOptimized: boolean;
-    private aggNames: Set<string>;
+    private aggNames: Map<string, string>;
+    private isLinkInBatch: boolean;
 
     public constructor(
         node: DagNode,
         txId: number,
         tabId: string,
-        noReplaceParam: boolean = false,
-        originalSQLNode: DagNodeSQL,
-        isBatchExecution: boolean = false,
-        aggNames?: Set<string>
+        options?: {
+            noReplaceParam?: boolean,
+            originalSQLNode?: DagNodeSQL,
+            isBatchExecution?: boolean,
+            aggNames?: Map<string, string>,
+            isLinkInBatch?: boolean
+        }
     ) {
         this.node = node;
         this.txId = txId;
         this.tabId = tabId;
-        this.replaceParam = !noReplaceParam;
-        this.originalSQLNode = originalSQLNode;
-        this.isBatchExecution = isBatchExecution;
-        this.aggNames = aggNames;
+        options = options || {};
+        this.replaceParam = !options.noReplaceParam;
+        this.originalSQLNode = options.originalSQLNode;
+        this.isBatchExecution = options.isBatchExecution || false;
+        this.aggNames = options.aggNames;
+        this.isLinkInBatch = options.isLinkInBatch;
     }
 
     /**
@@ -370,6 +376,12 @@ class DagNodeExecutor {
         if (optimized) {
             dstAggName = "batch_" + this.tabId + "_" + dstAggName;
             unwrappedName = gAggVarPrefix + dstAggName;
+        } else if (this.isLinkInBatch && this.aggNames.has(unwrappedName)) {
+            dstAggName = this.aggNames.get(unwrappedName);
+            if (dstAggName.startsWith(gAggVarPrefix)) {
+                dstAggName = dstAggName.substring(1);
+            }
+            unwrappedName = gAggVarPrefix + dstAggName;
         }
 
         //Update eval string with correct aggregates
@@ -377,23 +389,6 @@ class DagNodeExecutor {
         .then((ret) => {
             const {value} = ret;
             node.setAggVal(value);
-            if (!Transaction.isSimulate(this.txId) && !optimized && value) {
-                // We don't want to add if optimized or ran as a query
-                const aggRes: AggregateInfo = {
-                    value: value,
-                    dagName: dstAggName,
-                    aggName: unwrappedName,
-                    tableId: tableName,
-                    backColName: null,
-                    op: null,
-                    node: node.getId(),
-                    graph: this.tabId
-                };
-                return this.getRuntime().getDagAggService().addAgg(dstAggName, aggRes);
-            }
-            return PromiseHelper.resolve();
-        })
-        .then(() => {
             deferred.resolve(dstAggName); // no table generated
         })
         .fail((err) => {
@@ -1003,7 +998,7 @@ class DagNodeExecutor {
         } else {
             txLog = Transaction.get(this.txId);
             txLog.setParentNodeInfo(this.node.getId(), this.tabId); // used to track dataset activation
-            promise = graph.getQuery(linkOutNode.getId(), optimized, true, true, false, this.txId, !optimized);
+            promise = graph.getQuery(linkOutNode.getId(), optimized, true, true, this.txId, !optimized, true);
         }
         let destTable: string;
         promise
@@ -1564,7 +1559,19 @@ class DagNodeExecutor {
     }
 
     private _mapEvalStrAggs(evalString: string, aggs: string[]): string {
-        if (aggs.length == 0 || !this.isOptimized) {
+        if (aggs.length == 0 || (!this.isOptimized && !(this.isLinkInBatch && !this.isOptimized))) {
+            return evalString;
+        }
+        if (this.isLinkInBatch && !this.isOptimized) {
+            aggs.forEach(frontName => {
+                if (this.aggNames.has(frontName)) {
+                    let renamed = this.aggNames.get(frontName);
+                    if (!renamed.startsWith(gAggVarPrefix)) {
+                        renamed = gAggVarPrefix + renamed;
+                    }
+                    evalString = evalString.replace(frontName, renamed);
+                }
+            });
             return evalString;
         }
         for (let i = 0; i < aggs.length; i++) {

@@ -110,7 +110,7 @@ class DagAggManager {
      */
     public removeAgg(aggNames: string | string[], force?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (aggNames == "" || aggNames == []) {
+        if (!aggNames || !aggNames.length) {
             return PromiseHelper.resolve();
         }
         if (!(aggNames instanceof Array)) {
@@ -125,8 +125,12 @@ class DagAggManager {
             }
 
             delete this.aggregates[aggName];
-            if (agg.value != null || force) {
-                toDelete.push(agg.dagName);
+            if (force || (agg && agg.value != null)) {
+                if (agg && agg.value != null) {
+                    toDelete.push(agg.dagName);
+                } else {
+                    toDelete.push(aggName);
+                }
             }
         }
         this._deleteAgg(toDelete)
@@ -140,7 +144,7 @@ class DagAggManager {
 
     public removeValue(aggNames: string | string[], force?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (aggNames == "" || aggNames == []) {
+        if (!aggNames || !aggNames.length) {
             return PromiseHelper.resolve();
         }
         if (!(aggNames instanceof Array)) {

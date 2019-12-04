@@ -907,23 +907,21 @@ class DagGraph extends Durable {
      * @param nodeId
      * @param optimized
      * @param isCloneGraph
-     * @param reuseCompletedNodes when forExecution is true, reuse aggregates if they exist
+     * @param reuseCompletedNodes when true, reuse aggregates if they exist
      */
     public getQuery(
         nodeId?: DagNodeId,
         optimized?: boolean,
         isCloneGraph: boolean = true,
         allowNonOptimizedOut: boolean = false,
-        forExecution: boolean = false,
         parentTxId?: number,
-        reuseCompletedNodes: boolean = false
+        reuseCompletedNodes: boolean = false,
+        isLinkInBatch: boolean = false
     ): XDPromise<{queryStr: string, destTables: string[]}> {
         // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const graph = isCloneGraph ? this.clone() : this;
-        if (!forExecution) {
-            graph.setTabId(this.getTabId());
-        }
+        graph.setTabId(this.getTabId());
 
         const nodesMap: Map<DagNodeId, DagNode> = nodeId != null
             ? graph.backTraverseNodes([nodeId], reuseCompletedNodes).map
@@ -944,17 +942,16 @@ class DagGraph extends Durable {
                 optimized: optimized,
                 allowNonOptimizedOut: allowNonOptimizedOut,
                 sqlNodes: sqlNodes,
-                parentTxId: parentTxId
+                parentTxId: parentTxId,
+                isLinkInBatch: isLinkInBatch
             })
         );
-        if (forExecution) {
-            this.setExecutor(executor);
-        }
+
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
-        return executor.getBatchQuery(forExecution, reuseCompletedNodes);
+        return executor.getBatchQuery(reuseCompletedNodes);
     }
 
     /**

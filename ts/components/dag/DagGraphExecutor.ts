@@ -18,8 +18,9 @@ class DagGraphExecutor {
     private _currentNode: DagNode; // current node in progress if stepExecute
     private _finishedNodeIds: Set<DagNodeId>;
     private _isRestoredExecution: boolean; // if restored after browser refresh
-    private _internalAggNames: Set<string>; // aggs created in this graph.
+    private _internalAggNames: Map<string, string>; // aggs created in this graph.
     private _synthesizeDFOut: boolean; // if true, will treat link out as synthesize op. only happen in optimized DF
+    private _isLinkInBatch: boolean;
 
     public static readonly stepThroughTypes = new Set([DagNodeType.PublishIMD,
         DagNodeType.IMDTable, DagNodeType.UpdateIMD, DagNodeType.Extension,
@@ -49,7 +50,8 @@ class DagGraphExecutor {
             sqlNodes?: Map<string, DagNodeSQL>,
             hasProgressGraph?: boolean,
             isRestoredExecution?: boolean
-            synthesizeDFOut?: boolean
+            synthesizeDFOut?: boolean,
+            isLinkInBatch?: boolean
         } = {}
     ) {
         this._nodes = nodes;
@@ -58,6 +60,7 @@ class DagGraphExecutor {
         this._allowNonOptimizedOut = options.allowNonOptimizedOut || false;
         this._isNoReplaceParam = options.noReplaceParam || false;
         this._synthesizeDFOut = options.synthesizeDFOut || false;
+        this._isLinkInBatch = options.isLinkInBatch || false;
         this._isCanceled = false;
         this._queryName = options.queryName;
         this._parentTxId = options.parentTxId;
@@ -66,7 +69,7 @@ class DagGraphExecutor {
         this._dagIdToDestTableMap = new Map();
         this._finishedNodeIds = new Set();
         this._isRestoredExecution = options.isRestoredExecution || false;
-        this._internalAggNames = new Set();
+        this._internalAggNames = new Map();
     }
 
     public validateAll(): {
@@ -198,7 +201,7 @@ class DagGraphExecutor {
             let aggNode: DagNodeAggregate =
                 <DagNodeAggregate>this._nodes.find((node) => {return node.getParam().dest == agg})
             if (aggNode == null) {
-                let aggInfo = DagAggManager.Instance.getAgg(agg);
+                let aggInfo = this.getRuntime().getDagAggService().getAgg(agg);
                 if (aggInfo && aggInfo.value != null) {
                     // It has a value, we're alright.
                     continue
@@ -573,7 +576,6 @@ class DagGraphExecutor {
     // also stores a map of new table names to their corresponding nodes
     // reuseCompletedNodes: boolean if true, will reuse tables/aggregates if they exist
     public getBatchQuery(
-        forExecution: boolean = false,
         reuseCompletedNodes: boolean = false
     ): XDPromise<{queryStr: string, destTables: string[]}> {
         let nodes: DagNode[] = this._nodes;
@@ -606,7 +608,7 @@ class DagGraphExecutor {
         const destTables: string[] = []; // accumulates tables
         let allQueries = []; // accumulates queries
         for (let i = 0; i < nodes.length; i++) {
-            promises.push(this._getQueryFromNode.bind(this, udfContext, nodes[i], allQueries, destTables, forExecution));
+            promises.push(this._getQueryFromNode.bind(this, udfContext, nodes[i], allQueries, destTables, false));
         }
 
         PromiseHelper.chain(promises)
@@ -845,10 +847,16 @@ class DagGraphExecutor {
             sqlNode = this._sqlNodes.get(node.getId());
         } else if (node instanceof DagNodeAggregate) {
             // It was created in this graph so we note it.
-            this._internalAggNames.add(node.getParam().dest);
+            this._addToAggMap(node);
         }
 
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId, false, sqlNode, false, this._internalAggNames);
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId, {
+            noReplaceParam: false,
+            originalSQLNode: sqlNode,
+            isBatchExecution: false,
+            aggNames: this._internalAggNames,
+            isLinkInBatch: this._isLinkInBatch
+        });
         this._currentNode = node;
         dagNodeExecutor.run()
         .then((_destTable) => {
@@ -936,6 +944,20 @@ class DagGraphExecutor {
 
                     if (node instanceof DagNodeAggregate) {
                         this._resolveAggregates(this._currentTxId, node, queryNodesMap.keys().next().value);
+                    } else if (node instanceof DagNodeDFIn && !node.hasSource()) {
+                        // remove tables created from link in batch except for last
+                        try {
+                            let nodeAndGraph = node.getLinkedNodeAndGraph();
+                            if (nodeAndGraph.node && !nodeAndGraph.node.shouldLinkAfterExecution()) {
+                                queryNodesMap.forEach((_queryNode, tableName) => {
+                                    if (tableName !== destTable) {
+                                        DagUtil.deleteTable(tableName, false);
+                                    }
+                                });
+                            }
+                        } catch (e) {
+                            console.error(e);
+                        }
                     }
 
                     if (destTable) {
@@ -977,10 +999,16 @@ class DagGraphExecutor {
             sqlNode = this._sqlNodes.get(node.getId());
         } else if (node instanceof DagNodeAggregate) {
             // It was created in this graph so we note it.
-            this._internalAggNames.add(node.getParam().dest);
+            this._addToAggMap(node);
         }
         const dagNodeExecutor: DagNodeExecutor = this.getRuntime().accessible(
-            new DagNodeExecutor(node, txId, this._graph.getTabId(), this._isNoReplaceParam, sqlNode, forExecution, this._internalAggNames)
+            new DagNodeExecutor(node, txId, this._graph.getTabId(), {
+                noReplaceParam: this._isNoReplaceParam,
+                originalSQLNode: sqlNode,
+                isBatchExecution: forExecution,
+                aggNames: this._internalAggNames,
+                isLinkInBatch: this._isLinkInBatch
+            })
         );
         return dagNodeExecutor.run(this._isOptimized);
     }
@@ -1592,6 +1620,17 @@ class DagGraphExecutor {
         }
 
         return null;
+    }
+
+    // Agg was created in this graph so we note it.
+    private _addToAggMap(node: DagNodeAggregate) {
+        let aggName = node.getParam().dest;
+        let renamedAggName = aggName;
+        if (renamedAggName.startsWith(gAggVarPrefix)) {
+            renamedAggName = aggName.slice(1);
+        }
+        renamedAggName = gAggVarPrefix + renamedAggName + Authentication.getHashId();
+        this._internalAggNames.set(aggName, renamedAggName);
     }
 }
 

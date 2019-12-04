@@ -237,7 +237,7 @@ class DagAggPopup {
         this.$aggManagerPopup.find(".aggDelete").addClass("xc-disabled");
         const backName = aggName;
 
-        DagAggManager.Instance.removeAgg([backName])
+        DagAggManager.Instance.removeAgg(backName)
         .then(() => {
             this.$aggManagerPopup.find(".aggDelete").removeClass("xc-disabled");
 
