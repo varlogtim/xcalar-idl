@@ -27,6 +27,7 @@ class HelpPanel {
         var $tutSearch = $("#tutorial-search").addClass("xc-hidden");
         switch (resource) {
             case ("tutorialResource"):
+                WorkbookPanel.hide();
                 if (!$helpPanel.hasClass("active")) {
                     MainMenu.openPanel("helpPanel");
                 }
