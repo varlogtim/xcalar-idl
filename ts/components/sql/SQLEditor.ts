@@ -4,13 +4,11 @@ class SQLEditor {
     private _keywordsToRemove: string[] = [
         "alter",
         "begin",
-        "create",
         "delete",
         "drop",
         "insert",
         "into",
         "set",
-        "table",
         "update",
         "values"
     ];
