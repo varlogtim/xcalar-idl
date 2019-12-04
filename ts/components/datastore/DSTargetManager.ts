@@ -598,17 +598,15 @@ namespace DSTargetManager {
     }
 
     function isAccessibleTarget(targetType: string): boolean {
-        if (typeof gDefaultSharedRootAccess !== "undefined" &&
-            gDefaultSharedRootAccess == true
-        ) {
-            // XXX TODO: remove this backdoor when there is better way
-            return true;
-        }
         return !XVM.isCloud() || !cloudTargetBlackList.includes(targetType);
     }
 
     function isWhiteListTarget(targetName: string): boolean {
-        return XVM.isCloud() && targetName === xcalar_public_s3;
+        const whiteList: string[] = [
+            xcalar_public_s3,
+            xcalar_tutorial_export
+        ]
+        return XVM.isCloud() && whiteList.includes(targetName);
     }
 
     function isReservedTargetName(targetName: string): boolean {
@@ -744,7 +742,11 @@ namespace DSTargetManager {
                             .find(".formContent").html(<any>$rows);
             }
         } catch (e) {
-            console.error(e);
+            // it can happen if it's on cloud and the connector type
+            // is in black list (like the Tutorial Export Connector)
+            if (isAccessibleTarget(target.type_id)) {
+                console.error(e);
+            }
             $paramSection.addClass("xc-hidden");
         }
 
