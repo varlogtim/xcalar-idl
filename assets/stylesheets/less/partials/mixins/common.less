@@ -317,7 +317,8 @@
     outline: 0;
     padding-top: 0px;
     padding-bottom: 0px;
-    .font(@family: @font-base, @color: @color-white, @weight: 600, @size: 12px, @line-height: @height-btn);
+    .font(@family: @font-base, @color: @color-white, @weight: 600, @size: 12px);
+    line-height: @height-btn - 2;
     letter-spacing: 0.5px;
     .textOverflowOneLine;
     text-align: center;
@@ -346,6 +347,7 @@
 .btn-100-rounded {
     border-radius: 100%;
     border: 0;
+    line-height: @height-btn;
     &:focus {
         outline: none;
     }
@@ -357,6 +359,7 @@
     text-overflow: clip; // IE will add dots to icons ...
     border-radius: 0;
     border: 0;
+    line-height: @height-btn;
 
     i.icon {
         line-height: 30px;
