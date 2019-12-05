@@ -3,7 +3,7 @@ module.exports = {
 
     before: function(browser) {
         // to auto start first-time user tooltip walkthrougs
-        randomUsername = Math.random().toString(36).substring(2, 15);
+        randomUsername = 'tooltiptest' + Math.random().toString(36).substring(2, 15);
         browser.globals.currentUsername = randomUsername;
 
         browser
